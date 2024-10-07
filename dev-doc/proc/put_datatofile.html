@@ -1,0 +1,869 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>put_DataToFile &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>put_DataToFile
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">107 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MultiLayerServer.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/multilayerserver.f90.html'>MultiLayerServer.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_multilayerservermod.html'>pFIO_MultiLayerServerMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">put_DataToFile</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/put_datatofile.html#src">put_DataToFile</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine put_DataToFile(this, rc)  
+</h2>
+    
+
+    <p>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</p>
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/multilayerserver.html'>MultiLayerServer</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~301"></span>
+              class(<a href='../type/multilayerserver.html'>MultiLayerServer</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~147"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~put_datatofile~~CallsGraph Pages: 1 -->
+<svg id="procput_datatofileCallsGraph" width="442pt" height="1040pt"
+ viewBox="0.00 0.00 442.00 1040.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~put_datatofile~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 1036)">
+<title>proc~~put_datatofile~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-1036 438,-1036 438,4 -4,4"/>
+<!-- proc~put_datatofile -->
+<g id="proc~~put_datatofile~~CallsGraph_node1" class="node">
+<title>proc~put_datatofile</title>
+<polygon fill="none" stroke="black" points="190,-528 0,-528 0,-504 190,-504 190,-528"/>
+<text text-anchor="middle" x="95" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50">MultiLayerServer%put_DataToFile</text>
+</g>
+<!-- find -->
+<g id="proc~~put_datatofile~~CallsGraph_node2" class="node">
+<title>find</title>
+<polygon fill="#777777" stroke="#777777" points="357,-1032 303,-1032 303,-1008 357,-1008 357,-1032"/>
+<text text-anchor="middle" x="330" y="-1017.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">find</text>
+</g>
+<!-- proc~put_datatofile&#45;&gt;find -->
+<g id="proc~~put_datatofile~~CallsGraph_edge1" class="edge">
+<title>proc~put_datatofile&#45;&gt;find</title>
+<path fill="none" stroke="#ff0000" d="M97.56,-528.26C106.49,-596.69 153.4,-930.75 226,-999 243.6,-1015.54 270.53,-1020.59 292.44,-1021.61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="292.66,-1025.12 302.73,-1021.82 292.8,-1018.12 292.66,-1025.12"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~put_datatofile~~CallsGraph_node3" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~put_datatofile~~CallsGraph_node3"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="369.5,-990 290.5,-990 290.5,-966 369.5,-966 369.5,-990"/>
+<text text-anchor="middle" x="330" y="-975.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile&#45;&gt;interface~mapl_assert -->
+<g id="proc~~put_datatofile~~CallsGraph_edge2" class="edge">
+<title>proc~put_datatofile&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M95.45,-528.1C93.54,-585.82 93.4,-835.28 226,-957 240.59,-970.39 261.31,-976.2 280.35,-978.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="280.14,-981.95 290.41,-979.35 280.76,-974.98 280.14,-981.95"/>
+</g>
+<!-- mpi_barrier -->
+<g id="proc~~put_datatofile~~CallsGraph_node4" class="node">
+<title>mpi_barrier</title>
+<polygon fill="#777777" stroke="#777777" points="367.5,-948 292.5,-948 292.5,-924 367.5,-924 367.5,-948"/>
+<text text-anchor="middle" x="330" y="-933.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_barrier</text>
+</g>
+<!-- proc~put_datatofile&#45;&gt;mpi_barrier -->
+<g id="proc~~put_datatofile~~CallsGraph_edge3" class="edge">
+<title>proc~put_datatofile&#45;&gt;mpi_barrier</title>
+<path fill="none" stroke="#ff0000" d="M95.88,-528.05C96.03,-582.35 104.23,-806.36 226,-915 241.12,-928.49 262.5,-934.23 281.87,-936.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="281.81,-939.91 292.07,-937.25 282.4,-932.93 281.81,-939.91"/>
+</g>
+<!-- mpi_recv -->
+<g id="proc~~put_datatofile~~CallsGraph_node5" class="node">
+<title>mpi_recv</title>
+<polygon fill="#777777" stroke="#777777" points="360.5,-906 299.5,-906 299.5,-882 360.5,-882 360.5,-906"/>
+<text text-anchor="middle" x="330" y="-891.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_recv</text>
+</g>
+<!-- proc~put_datatofile&#45;&gt;mpi_recv -->
+<g id="proc~~put_datatofile~~CallsGraph_edge4" class="edge">
+<title>proc~put_datatofile&#45;&gt;mpi_recv</title>
+<path fill="none" stroke="#ff0000" d="M96.4,-528.16C98.78,-579.14 115.08,-777.4 226,-873 243.27,-887.88 268.2,-893.24 289.21,-894.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="289.31,-898.34 299.47,-895.34 289.66,-891.34 289.31,-898.34"/>
+</g>
+<!-- mpi_send -->
+<g id="proc~~put_datatofile~~CallsGraph_node6" class="node">
+<title>mpi_send</title>
+<polygon fill="#777777" stroke="#777777" points="362,-864 298,-864 298,-840 362,-840 362,-864"/>
+<text text-anchor="middle" x="330" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_send</text>
+</g>
+<!-- proc~put_datatofile&#45;&gt;mpi_send -->
+<g id="proc~~put_datatofile~~CallsGraph_edge5" class="edge">
+<title>proc~put_datatofile&#45;&gt;mpi_send</title>
+<path fill="none" stroke="#ff0000" d="M97.04,-528.02C101.77,-575.06 125.64,-748.13 226,-831 243.09,-845.12 267.16,-850.56 287.73,-852.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="287.6,-855.89 297.8,-853.03 288.05,-848.9 287.6,-855.89"/>
+</g>
+<!-- none~at~75 -->
+<g id="proc~~put_datatofile~~CallsGraph_node7" class="node">
+<title>none~at~75</title>
+<g id="a_proc~~put_datatofile~~CallsGraph_node7"><a xlink:href="../type/serverthreadvector.html#boundprocedure-at~75" xlink:title="ServerThreadVector%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="399.5,-822 260.5,-822 260.5,-798 399.5,-798 399.5,-822"/>
+<text text-anchor="middle" x="330" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThreadVector%at</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile&#45;&gt;none~at~75 -->
+<g id="proc~~put_datatofile~~CallsGraph_edge6" class="edge">
+<title>proc~put_datatofile&#45;&gt;none~at~75</title>
+<path fill="none" stroke="#ff0000" d="M97.88,-528.19C105.25,-571.46 136.27,-718.82 226,-789 233.28,-794.7 241.72,-798.96 250.57,-802.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="249.7,-805.53 260.29,-805.17 251.79,-798.85 249.7,-805.53"/>
+</g>
+<!-- none~insert~231 -->
+<g id="proc~~put_datatofile~~CallsGraph_node8" class="node">
+<title>none~insert~231</title>
+<g id="a_proc~~put_datatofile~~CallsGraph_node8"><a xlink:href="../type/stringattributemap.html#boundprocedure-insert~231" xlink:title="StringAttributeMap%insert">
+<polygon fill="#a7506f" stroke="#a7506f" points="406,-780 254,-780 254,-756 406,-756 406,-780"/>
+<text text-anchor="middle" x="330" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringAttributeMap%insert</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile&#45;&gt;none~insert~231 -->
+<g id="proc~~put_datatofile~~CallsGraph_edge7" class="edge">
+<title>proc~put_datatofile&#45;&gt;none~insert~231</title>
+<path fill="none" stroke="#ff0000" d="M98.99,-528.2C109.22,-567.12 146.59,-689.14 226,-747 231.55,-751.04 237.69,-754.35 244.14,-757.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="243.16,-760.43 253.75,-760.59 245.58,-753.86 243.16,-760.43"/>
+</g>
+<!-- of -->
+<g id="proc~~put_datatofile~~CallsGraph_node9" class="node">
+<title>of</title>
+<polygon fill="#777777" stroke="#777777" points="357,-738 303,-738 303,-714 357,-714 357,-738"/>
+<text text-anchor="middle" x="330" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">of</text>
+</g>
+<!-- proc~put_datatofile&#45;&gt;of -->
+<g id="proc~~put_datatofile~~CallsGraph_edge8" class="edge">
+<title>proc~put_datatofile&#45;&gt;of</title>
+<path fill="none" stroke="#ff0000" d="M100.52,-528.13C113.87,-562.16 156.59,-659.06 226,-705 245.66,-718.01 271.7,-723.24 292.68,-725.23"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="292.6,-728.73 302.83,-725.98 293.11,-721.75 292.6,-728.73"/>
+</g>
+<!-- proc~clear_backlog -->
+<g id="proc~~put_datatofile~~CallsGraph_node10" class="node">
+<title>proc~clear_backlog</title>
+<g id="a_proc~~put_datatofile~~CallsGraph_node10"><a xlink:href="../proc/clear_backlog.html" xlink:title="ServerThread%clear_backlog">
+<polygon fill="#d9534f" stroke="#d9534f" points="414.5,-696 245.5,-696 245.5,-672 414.5,-672 414.5,-696"/>
+<text text-anchor="middle" x="330" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThread%clear_backlog</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile&#45;&gt;proc~clear_backlog -->
+<g id="proc~~put_datatofile~~CallsGraph_edge9" class="edge">
+<title>proc~put_datatofile&#45;&gt;proc~clear_backlog</title>
+<path fill="none" stroke="#ff0000" d="M102.96,-528.27C119.92,-556.95 166.41,-628.57 226,-663 229.27,-664.89 232.69,-666.61 236.21,-668.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="235.14,-671.53 245.73,-671.99 237.74,-665.03 235.14,-671.53"/>
+</g>
+<!-- proc~clear_hist_collections -->
+<g id="proc~~put_datatofile~~CallsGraph_node11" class="node">
+<title>proc~clear_hist_collections</title>
+<g id="a_proc~~put_datatofile~~CallsGraph_node11"><a xlink:href="../proc/clear_hist_collections.html" xlink:title="ServerThread%clear_hist_collections">
+<polygon fill="#d9534f" stroke="#d9534f" points="434,-654 226,-654 226,-630 434,-630 434,-654"/>
+<text text-anchor="middle" x="330" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThread%clear_hist_collections</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile&#45;&gt;proc~clear_hist_collections -->
+<g id="proc~~put_datatofile~~CallsGraph_edge10" class="edge">
+<title>proc~put_datatofile&#45;&gt;proc~clear_hist_collections</title>
+<path fill="none" stroke="#ff0000" d="M107.19,-528.3C128.18,-550.56 175.87,-597.38 226,-621 230.58,-623.16 235.37,-625.09 240.28,-626.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="239.25,-630.17 249.84,-629.93 241.41,-623.52 239.25,-630.17"/>
+</g>
+<!-- proc~clear_subarray -->
+<g id="proc~~put_datatofile~~CallsGraph_node12" class="node">
+<title>proc~clear_subarray</title>
+<g id="a_proc~~put_datatofile~~CallsGraph_node12"><a xlink:href="../proc/clear_subarray.html" xlink:title="ServerThread%clear_subarray">
+<polygon fill="#d9534f" stroke="#d9534f" points="417.5,-612 242.5,-612 242.5,-588 417.5,-588 417.5,-612"/>
+<text text-anchor="middle" x="330" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThread%clear_subarray</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile&#45;&gt;proc~clear_subarray -->
+<g id="proc~~put_datatofile~~CallsGraph_edge11" class="edge">
+<title>proc~put_datatofile&#45;&gt;proc~clear_subarray</title>
+<path fill="none" stroke="#ff0000" d="M116.93,-528.18C142.06,-542.31 185.85,-565.42 226,-579 233.09,-581.4 240.56,-583.57 248.09,-585.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="247.46,-588.97 258.01,-587.96 249.14,-582.17 247.46,-588.97"/>
+</g>
+<!-- proc~create -->
+<g id="proc~~put_datatofile~~CallsGraph_node13" class="node">
+<title>proc~create</title>
+<g id="a_proc~~put_datatofile~~CallsGraph_node13"><a xlink:href="../proc/create.html" xlink:title="NetCDF4_FileFormatter%create">
+<polygon fill="#d9534f" stroke="#d9534f" points="419.5,-570 240.5,-570 240.5,-546 419.5,-546 419.5,-570"/>
+<text text-anchor="middle" x="330" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NetCDF4_FileFormatter%create</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile&#45;&gt;proc~create -->
+<g id="proc~~put_datatofile~~CallsGraph_edge12" class="edge">
+<title>proc~put_datatofile&#45;&gt;proc~create</title>
+<path fill="none" stroke="#ff0000" d="M162.77,-528.04C190.68,-533.07 223.27,-538.94 252.17,-544.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="251.76,-547.63 262.22,-545.96 253,-540.74 251.76,-547.63"/>
+</g>
+<!-- proc~get_datareference -->
+<g id="proc~~put_datatofile~~CallsGraph_node14" class="node">
+<title>proc~get_datareference</title>
+<g id="a_proc~~put_datatofile~~CallsGraph_node14"><a xlink:href="../proc/get_datareference.html" xlink:title="AbstractServer%get_DataReference">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="432,-528 228,-528 228,-504 432,-504 432,-528"/>
+<text text-anchor="middle" x="330" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractServer%get_DataReference</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile&#45;&gt;proc~get_datareference -->
+<g id="proc~~put_datatofile~~CallsGraph_edge13" class="edge">
+<title>proc~put_datatofile&#45;&gt;proc~get_datareference</title>
+<path fill="none" stroke="#ff0000" d="M190.1,-516C199.09,-516 208.27,-516 217.41,-516"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="217.7,-519.5 227.69,-516 217.69,-512.5 217.7,-519.5"/>
+</g>
+<!-- proc~get_hist_collection -->
+<g id="proc~~put_datatofile~~CallsGraph_node15" class="node">
+<title>proc~get_hist_collection</title>
+<g id="a_proc~~put_datatofile~~CallsGraph_node15"><a xlink:href="../proc/get_hist_collection.html" xlink:title="ServerThread%get_hist_collection">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="426.5,-486 233.5,-486 233.5,-462 426.5,-462 426.5,-486"/>
+<text text-anchor="middle" x="330" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThread%get_hist_collection</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile&#45;&gt;proc~get_hist_collection -->
+<g id="proc~~put_datatofile~~CallsGraph_edge14" class="edge">
+<title>proc~put_datatofile&#45;&gt;proc~get_hist_collection</title>
+<path fill="none" stroke="#ff0000" d="M162.77,-503.96C190.68,-498.93 223.27,-493.06 252.17,-487.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="253,-491.26 262.22,-486.04 251.76,-484.37 253,-491.26"/>
+</g>
+<!-- proc~i_to_string -->
+<g id="proc~~put_datatofile~~CallsGraph_node16" class="node">
+<title>proc~i_to_string</title>
+<g id="a_proc~~put_datatofile~~CallsGraph_node16"><a xlink:href="../proc/i_to_string.html" xlink:title="i_to_string">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="363.5,-444 296.5,-444 296.5,-420 363.5,-420 363.5,-444"/>
+<text text-anchor="middle" x="330" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">i_to_string</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile&#45;&gt;proc~i_to_string -->
+<g id="proc~~put_datatofile~~CallsGraph_edge15" class="edge">
+<title>proc~put_datatofile&#45;&gt;proc~i_to_string</title>
+<path fill="none" stroke="#ff0000" d="M116.93,-503.82C142.06,-489.69 185.85,-466.58 226,-453 245.4,-446.44 267.58,-441.59 286.38,-438.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="287.17,-441.64 296.44,-436.5 285.99,-434.74 287.17,-441.64"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~put_datatofile~~CallsGraph_node17" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~put_datatofile~~CallsGraph_node17"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="371,-402 289,-402 289,-378 371,-378 371,-402"/>
+<text text-anchor="middle" x="330" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile&#45;&gt;proc~mapl_return -->
+<g id="proc~~put_datatofile~~CallsGraph_edge16" class="edge">
+<title>proc~put_datatofile&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M107.19,-503.7C128.18,-481.44 175.87,-434.62 226,-411 242.42,-403.26 261.64,-398.37 278.99,-395.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="279.65,-398.71 288.96,-393.65 278.52,-391.8 279.65,-398.71"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~put_datatofile~~CallsGraph_node18" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~put_datatofile~~CallsGraph_node18"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="368,-360 292,-360 292,-336 368,-336 368,-360"/>
+<text text-anchor="middle" x="330" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile&#45;&gt;proc~mapl_verify -->
+<g id="proc~~put_datatofile~~CallsGraph_edge17" class="edge">
+<title>proc~put_datatofile&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M102.96,-503.73C119.92,-475.05 166.41,-403.43 226,-369 242.8,-359.29 263.41,-354.03 281.77,-351.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="282.25,-354.65 291.7,-349.85 281.32,-347.72 282.25,-354.65"/>
+</g>
+<!-- proc~serialize_message_vector -->
+<g id="proc~~put_datatofile~~CallsGraph_node19" class="node">
+<title>proc~serialize_message_vector</title>
+<g id="a_proc~~put_datatofile~~CallsGraph_node19"><a xlink:href="../proc/serialize_message_vector.html" xlink:title="serialize_message_vector">
+<polygon fill="#d9534f" stroke="#d9534f" points="404.5,-318 255.5,-318 255.5,-294 404.5,-294 404.5,-318"/>
+<text text-anchor="middle" x="330" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">serialize_message_vector</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile&#45;&gt;proc~serialize_message_vector -->
+<g id="proc~~put_datatofile~~CallsGraph_edge18" class="edge">
+<title>proc~put_datatofile&#45;&gt;proc~serialize_message_vector</title>
+<path fill="none" stroke="#ff0000" d="M100.52,-503.87C113.87,-469.84 156.59,-372.94 226,-327 232.07,-322.98 238.74,-319.71 245.69,-317.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="246.97,-320.31 255.31,-313.77 244.71,-313.68 246.97,-320.31"/>
+</g>
+<!-- proc~stringattributemap_serialize -->
+<g id="proc~~put_datatofile~~CallsGraph_node20" class="node">
+<title>proc~stringattributemap_serialize</title>
+<g id="a_proc~~put_datatofile~~CallsGraph_node20"><a xlink:href="../proc/stringattributemap_serialize.html" xlink:title="StringAttributeMap_serialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="411,-276 249,-276 249,-252 411,-252 411,-276"/>
+<text text-anchor="middle" x="330" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringAttributeMap_serialize</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile&#45;&gt;proc~stringattributemap_serialize -->
+<g id="proc~~put_datatofile~~CallsGraph_edge19" class="edge">
+<title>proc~put_datatofile&#45;&gt;proc~stringattributemap_serialize</title>
+<path fill="none" stroke="#ff0000" d="M98.99,-503.8C109.22,-464.88 146.59,-342.86 226,-285 230.18,-281.95 234.7,-279.33 239.42,-277.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="240.88,-280.24 248.74,-273.13 238.17,-273.79 240.88,-280.24"/>
+</g>
+<!-- proc~v_begin~22 -->
+<g id="proc~~put_datatofile~~CallsGraph_node21" class="node">
+<title>proc~v_begin~22</title>
+<g id="a_proc~~put_datatofile~~CallsGraph_node21"><a xlink:href="../proc/v_begin~22.html" xlink:title="MessageVector%v_begin">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="402,-234 258,-234 258,-210 402,-210 402,-234"/>
+<text text-anchor="middle" x="330" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MessageVector%v_begin</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile&#45;&gt;proc~v_begin~22 -->
+<g id="proc~~put_datatofile~~CallsGraph_edge20" class="edge">
+<title>proc~put_datatofile&#45;&gt;proc~v_begin~22</title>
+<path fill="none" stroke="#ff0000" d="M97.88,-503.81C105.25,-460.54 136.27,-313.18 226,-243 232.66,-237.79 240.29,-233.77 248.32,-230.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="249.51,-233.99 257.89,-227.5 247.29,-227.35 249.51,-233.99"/>
+</g>
+<!-- proc~v_clear~22 -->
+<g id="proc~~put_datatofile~~CallsGraph_node22" class="node">
+<title>proc~v_clear~22</title>
+<g id="a_proc~~put_datatofile~~CallsGraph_node22"><a xlink:href="../proc/v_clear~22.html" xlink:title="MessageVector%v_clear">
+<polygon fill="#d9534f" stroke="#d9534f" points="400.5,-192 259.5,-192 259.5,-168 400.5,-168 400.5,-192"/>
+<text text-anchor="middle" x="330" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MessageVector%v_clear</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile&#45;&gt;proc~v_clear~22 -->
+<g id="proc~~put_datatofile~~CallsGraph_edge21" class="edge">
+<title>proc~put_datatofile&#45;&gt;proc~v_clear~22</title>
+<path fill="none" stroke="#ff0000" d="M97.04,-503.98C101.77,-456.94 125.64,-283.87 226,-201 233.03,-195.2 241.23,-190.86 249.89,-187.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="250.98,-190.96 259.42,-184.56 248.83,-184.3 250.98,-190.96"/>
+</g>
+<!-- proc~v_empty~22 -->
+<g id="proc~~put_datatofile~~CallsGraph_node23" class="node">
+<title>proc~v_empty~22</title>
+<g id="a_proc~~put_datatofile~~CallsGraph_node23"><a xlink:href="../proc/v_empty~22.html" xlink:title="MessageVector%v_empty">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="404,-150 256,-150 256,-126 404,-126 404,-150"/>
+<text text-anchor="middle" x="330" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MessageVector%v_empty</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile&#45;&gt;proc~v_empty~22 -->
+<g id="proc~~put_datatofile~~CallsGraph_edge22" class="edge">
+<title>proc~put_datatofile&#45;&gt;proc~v_empty~22</title>
+<path fill="none" stroke="#ff0000" d="M96.4,-503.84C98.78,-452.86 115.08,-254.6 226,-159 232.03,-153.81 238.99,-149.77 246.39,-146.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="247.76,-149.88 255.96,-143.17 245.37,-143.3 247.76,-149.88"/>
+</g>
+<!-- proc~v_iter_get~22 -->
+<g id="proc~~put_datatofile~~CallsGraph_node24" class="node">
+<title>proc~v_iter_get~22</title>
+<g id="a_proc~~put_datatofile~~CallsGraph_node24"><a xlink:href="../proc/v_iter_get~22.html" xlink:title="MessageVectorIterator%v_iter_get">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="427,-108 233,-108 233,-84 427,-84 427,-108"/>
+<text text-anchor="middle" x="330" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MessageVectorIterator%v_iter_get</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile&#45;&gt;proc~v_iter_get~22 -->
+<g id="proc~~put_datatofile~~CallsGraph_edge23" class="edge">
+<title>proc~put_datatofile&#45;&gt;proc~v_iter_get~22</title>
+<path fill="none" stroke="#ff0000" d="M95.88,-503.95C96.03,-449.65 104.23,-225.64 226,-117 227.31,-115.83 228.67,-114.72 230.07,-113.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="232.01,-116.58 238.5,-108.21 228.2,-110.7 232.01,-116.58"/>
+</g>
+<!-- proc~v_iter_next~22 -->
+<g id="proc~~put_datatofile~~CallsGraph_node25" class="node">
+<title>proc~v_iter_next~22</title>
+<g id="a_proc~~put_datatofile~~CallsGraph_node25"><a xlink:href="../proc/v_iter_next~22.html" xlink:title="MessageVectorIterator%v_iter_next">
+<polygon fill="#d9534f" stroke="#d9534f" points="429.5,-66 230.5,-66 230.5,-42 429.5,-42 429.5,-66"/>
+<text text-anchor="middle" x="330" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MessageVectorIterator%v_iter_next</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile&#45;&gt;proc~v_iter_next~22 -->
+<g id="proc~~put_datatofile~~CallsGraph_edge24" class="edge">
+<title>proc~put_datatofile&#45;&gt;proc~v_iter_next~22</title>
+<path fill="none" stroke="#ff0000" d="M95.45,-503.9C93.54,-446.18 93.4,-196.72 226,-75 227.29,-73.81 228.64,-72.68 230.02,-71.61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="231.98,-74.52 238.39,-66.08 228.11,-68.68 231.98,-74.52"/>
+</g>
+<!-- proc~v_push_back~22 -->
+<g id="proc~~put_datatofile~~CallsGraph_node26" class="node">
+<title>proc~v_push_back~22</title>
+<g id="a_proc~~put_datatofile~~CallsGraph_node26"><a xlink:href="../proc/v_push_back~22.html" xlink:title="MessageVector%v_push_back">
+<polygon fill="#d9534f" stroke="#d9534f" points="415,-24 245,-24 245,0 415,0 415,-24"/>
+<text text-anchor="middle" x="330" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MessageVector%v_push_back</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile&#45;&gt;proc~v_push_back~22 -->
+<g id="proc~~put_datatofile~~CallsGraph_edge25" class="edge">
+<title>proc~put_datatofile&#45;&gt;proc~v_push_back~22</title>
+<path fill="none" stroke="#ff0000" d="M97.56,-503.74C106.49,-435.31 153.4,-101.25 226,-33 228.98,-30.2 232.23,-27.72 235.68,-25.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="237.48,-28.55 244.62,-20.71 234.15,-22.39 237.48,-28.55"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">put_DataToFile</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">     </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">MultiLayerServer</span><span class="p">),</span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w">  </span><span class="n">n</span>
+<span class="w">     </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">ServerThread</span><span class="p">),</span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">threadPtr</span>
+<span class="w">     </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractMessage</span><span class="p">),</span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">msg</span>
+<span class="w">     </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MessageVectorIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span>
+<span class="w">     </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringInteger64MapIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">request_iter</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i_ptr</span><span class="p">(:)</span>
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">collection_counter</span>
+<span class="w">     </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractDataReference</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dataRefPtr</span>
+<span class="w">     </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">RDMAReference</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">remotePtr</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">MPI_ADDRESS_KIND</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="n">msize</span>
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">     </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ForwardDataMessage</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">forMSG</span>
+<span class="w">     </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MessageVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">forwardVec</span>
+<span class="w">     </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringAttributeMap</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">forData</span>
+<span class="w">     </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringAttributeMapIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fiter</span>
+<span class="w">     </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">NetCDF4_FileFormatter</span><span class="p">),</span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">formatter</span>
+<span class="w">     </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">HistoryCollection</span><span class="p">),</span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hist_collection</span>
+<span class="w">     </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">f_exist</span>
+<span class="w">     </span><span class="c">!real(KIND=REAL64) :: t0, t1</span>
+<span class="w">     </span><span class="c">!t0 = 0.0d0</span>
+<span class="w">     </span><span class="c">!t1 = -1.0d0</span>
+
+<span class="w">     </span><span class="k">do </span><span class="n">n</span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">threads</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+<span class="w">        </span><span class="n">threadPtr</span><span class="o">=&gt;</span><span class="n">this</span><span class="p">%</span><span class="n">threads</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! only need to check one thread</span>
+<span class="w">           </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">threadPtr</span><span class="p">%</span><span class="n">request_backlog</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span>
+<span class="w">          </span><span class="c">! t0 = mpi_wtime()</span>
+<span class="w">           </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">threadPtr</span><span class="p">%</span><span class="n">request_backlog</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+<span class="w">              </span><span class="n">msg</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="n">get</span><span class="p">()</span>
+<span class="w">              </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">q</span><span class="o">=&gt;</span><span class="n">msg</span><span class="p">)</span>
+<span class="w">              </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">CollectiveStageDataMessage</span><span class="p">)</span>
+<span class="w">                 </span><span class="n">collection_counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">stage_offset</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">q</span><span class="p">%</span><span class="n">collection_id</span><span class="p">))</span>
+<span class="w">                 </span><span class="n">dataRefPtr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_dataReference</span><span class="p">(</span><span class="n">collection_counter</span><span class="p">)</span>
+<span class="w">                 </span><span class="n">msize</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">stage_offset</span><span class="p">%</span><span class="n">of</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">MSIZE_ID</span><span class="o">+</span><span class="n">collection_counter</span><span class="p">))</span>
+<span class="w">                 </span><span class="k">call </span><span class="nb">c_f_pointer</span><span class="p">(</span><span class="n">dataRefPtr</span><span class="p">%</span><span class="n">base_address</span><span class="p">,</span><span class="n">i_ptr</span><span class="p">,</span><span class="nb">shape</span><span class="o">=</span><span class="p">[</span><span class="n">msize</span><span class="p">])</span>
+
+<span class="w">                 </span><span class="k">select type</span><span class="p">(</span><span class="n">dataRefPtr</span><span class="p">)</span>
+<span class="w">                 </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">RDMAReference</span><span class="p">)</span>
+<span class="w">                    </span><span class="n">remotePtr</span><span class="o">=&gt;</span><span class="n">dataRefPtr</span>
+<span class="w">                 </span><span class="k">class </span><span class="n">default</span>
+<span class="w">                    </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="w"> </span><span class="s2">&quot;remote is a must&quot;</span><span class="p">)</span>
+<span class="w">                 </span><span class="k">end select</span>
+
+<span class="k">                 </span><span class="n">request_iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">stage_offset</span><span class="p">%</span><span class="n">find</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">q</span><span class="p">%</span><span class="n">request_id</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;done&#39;</span><span class="p">)</span>
+<span class="w">                 </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">request_iter</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">stage_offset</span><span class="p">%</span><span class="k">end</span><span class="p">()</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">remotePtr</span><span class="p">%</span><span class="n">mem_rank</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! not read yet</span>
+<span class="w">                   </span><span class="c">! (1) get address where data should put</span>
+<span class="w">                    </span><span class="n">offset</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">stage_offset</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">q</span><span class="p">%</span><span class="n">request_id</span><span class="p">))</span>
+<span class="c">!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</span>
+<span class="w">                   </span><span class="c">!2) forward data to writer</span>
+<span class="w">                    </span><span class="n">forMSG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ForwardDataMessage</span><span class="p">(</span><span class="n">q</span><span class="p">%</span><span class="n">request_id</span><span class="p">,</span><span class="w"> </span><span class="n">q</span><span class="p">%</span><span class="n">collection_id</span><span class="p">,</span><span class="w"> </span><span class="n">q</span><span class="p">%</span><span class="n">file_name</span><span class="p">,</span><span class="w"> </span><span class="n">q</span><span class="p">%</span><span class="n">var_name</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                         </span><span class="n">q</span><span class="p">%</span><span class="n">type_kind</span><span class="p">,</span><span class="w"> </span><span class="n">q</span><span class="p">%</span><span class="n">global_count</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">)</span>
+<span class="w">                    </span><span class="k">call </span><span class="n">forwardVec</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="n">forMSG</span><span class="p">)</span>
+<span class="w">                    </span><span class="n">fiter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">forData</span><span class="p">%</span><span class="n">find</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">q</span><span class="p">%</span><span class="n">collection_id</span><span class="p">))</span>
+<span class="w">                    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">fiter</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">forData</span><span class="p">%</span><span class="k">end</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                       call </span><span class="n">forData</span><span class="p">%</span><span class="n">insert</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">q</span><span class="p">%</span><span class="n">collection_id</span><span class="p">),</span><span class="w"> </span><span class="n">Attribute</span><span class="p">(</span><span class="n">i_ptr</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">msize</span><span class="p">)))</span>
+<span class="w">                    </span><span class="k">endif</span>
+
+<span class="k">                    </span><span class="n">hist_collection</span><span class="o">=&gt;</span><span class="n">threadPtr</span><span class="p">%</span><span class="n">get_hist_collection</span><span class="p">(</span><span class="n">q</span><span class="p">%</span><span class="n">collection_id</span><span class="p">)</span>
+<span class="w">                       </span><span class="c">! create file with meta data</span>
+<span class="w">                    </span><span class="k">inquire</span><span class="p">(</span><span class="k">file</span><span class="o">=</span><span class="n">q</span><span class="p">%</span><span class="n">file_name</span><span class="p">,</span><span class="w"> </span><span class="n">exist</span><span class="o">=</span><span class="n">f_exist</span><span class="p">)</span>
+<span class="w">                    </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">f_exist</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                       allocate</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+<span class="w">                       </span><span class="k">call </span><span class="n">formatter</span><span class="p">%</span><span class="n">create</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">q</span><span class="p">%</span><span class="n">file_name</span><span class="p">),</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                       </span><span class="k">call </span><span class="n">formatter</span><span class="p">%</span><span class="k">write</span><span class="p">(</span><span class="n">hist_collection</span><span class="p">%</span><span class="n">fmd</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                       </span><span class="k">call </span><span class="n">formatter</span><span class="p">%</span><span class="k">close</span><span class="p">()</span>
+<span class="w">                       </span><span class="k">deallocate</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+<span class="w">                    </span><span class="k">endif</span>
+<span class="w">                   </span><span class="c">! (3) leave a mark, it has been written</span>
+<span class="w">                    </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">stage_offset</span><span class="p">%</span><span class="n">insert</span><span class="p">(</span><span class="n">i_to_string</span><span class="p">(</span><span class="n">q</span><span class="p">%</span><span class="n">request_id</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;done&#39;</span><span class="p">,</span><span class="mi">0_MPI_ADDRESS_KIND</span><span class="p">)</span>
+<span class="w">                    </span><span class="c">!t1 = mpi_wtime()</span>
+<span class="w">                 </span><span class="k">endif</span><span class="w"> </span><span class="c">! rank = mem_rank</span>
+<span class="w">              </span><span class="k">end select</span>
+<span class="k">              call </span><span class="n">iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<span class="w">           </span><span class="k">enddo</span><span class="w"> </span><span class="c">! do backlog loop</span>
+
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">forwardVec</span><span class="p">%</span><span class="n">empty</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              call </span><span class="n">Forward_dataToWriter</span><span class="p">(</span><span class="n">forwardVec</span><span class="p">,</span><span class="w"> </span><span class="n">forData</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">forwardVec</span><span class="p">%</span><span class="n">clear</span><span class="p">()</span>
+<span class="w">              </span><span class="k">call </span><span class="n">forData</span><span class="p">%</span><span class="n">clear</span><span class="p">()</span>
+<span class="w">           </span><span class="k">endif</span>
+<span class="k">           call </span><span class="n">MPI_Barrier</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">        </span><span class="k">endif</span><span class="w"> </span><span class="c">! first thread n==1</span>
+<span class="w">        </span><span class="k">call </span><span class="n">threadPtr</span><span class="p">%</span><span class="n">clear_backlog</span><span class="p">()</span>
+<span class="w">        </span><span class="k">call </span><span class="n">threadPtr</span><span class="p">%</span><span class="n">clear_hist_collections</span><span class="p">()</span>
+<span class="w">        </span><span class="k">call </span><span class="n">threadPtr</span><span class="p">%</span><span class="n">clear_subarray</span><span class="p">()</span>
+<span class="w">     </span><span class="k">enddo</span><span class="w"> </span><span class="c">! threads</span>
+<span class="w">     </span><span class="c">!if( t1-t0 &gt; 0) then</span>
+<span class="w">     </span><span class="c">!   print*, &quot;this rank&quot;,this%rank,&quot;spending &quot;, t1-t0, &quot; seconds writing&quot;</span>
+<span class="w">     </span><span class="c">!endif</span>
+<span class="w">     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">contains</span>
+
+<span class="k">      subroutine </span><span class="n">forward_DataToWriter</span><span class="p">(</span><span class="n">forwardVec</span><span class="p">,</span><span class="w"> </span><span class="n">forwardData</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">         </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MessageVector</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w">      </span><span class="n">forwardVec</span>
+<span class="w">         </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">StringAttributeMap</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">forwardData</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">writer_rank</span><span class="p">,</span><span class="w"> </span><span class="n">bsize</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">command</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_STAT</span><span class="p">(</span><span class="n">MPI_STATUS_SIZE</span><span class="p">)</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span><span class="p">(:)</span>
+
+
+<span class="w">         </span><span class="n">command</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">         </span><span class="k">call </span><span class="n">serialize_message_vector</span><span class="p">(</span><span class="n">forwardVec</span><span class="p">,</span><span class="n">buffer</span><span class="p">)</span>
+<span class="w">         </span><span class="n">bsize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">MPI_send</span><span class="p">(</span><span class="n">command</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">pFIO_s_tag</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">Inter_Comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MPI_recv</span><span class="p">(</span><span class="n">writer_rank</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">pFIO_s_tag</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">Inter_Comm</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="n">MPI_STAT</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">         </span><span class="c">!forward Message</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MPI_send</span><span class="p">(</span><span class="n">bsize</span><span class="p">,</span><span class="w">  </span><span class="mi">1</span><span class="p">,</span><span class="w">     </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="n">writer_rank</span><span class="p">,</span><span class="w"> </span><span class="n">pFIO_s_tag</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">Inter_Comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MPI_send</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">bsize</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="n">writer_rank</span><span class="p">,</span><span class="w"> </span><span class="n">pFIO_s_tag</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">Inter_Comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">         </span><span class="c">!send number of collections</span>
+<span class="w">         </span><span class="k">call </span><span class="n">StringAttributeMap_serialize</span><span class="p">(</span><span class="n">forwardData</span><span class="p">,</span><span class="n">buffer</span><span class="p">)</span>
+<span class="w">         </span><span class="n">bsize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MPI_send</span><span class="p">(</span><span class="n">bsize</span><span class="p">,</span><span class="w">  </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="n">writer_rank</span><span class="p">,</span><span class="w"> </span><span class="n">pFIO_s_tag</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">Inter_Comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MPI_send</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">bsize</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="n">writer_rank</span><span class="p">,</span><span class="w"> </span><span class="n">pFIO_s_tag</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">Inter_Comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">         </span><span class="c">!2) send the data</span>
+
+<span class="w">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">forward_dataToWriter</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">put_DataToFile</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-07T17:48:42.464780             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,1136 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>GetBracketTimeOnSingleFile &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>GetBracketTimeOnSingleFile
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">242 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataGridCompMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/extdatagridcompmod.f90.html'>ExtDataGridCompMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_extdatagridcompmod.html'>MAPL_ExtDataGridCompMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">GetBracketTimeOnSingleFile</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/getbrackettimeonsinglefile.html#src">GetBracketTimeOnSingleFile</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine GetBracketTimeOnSingleFile(fdata, tSeries, cTime, bSide, UniFileClim, interpTime, fileTime, tindex, allowExtrap, climYear, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fdata~2"></span>
+              class(<a href='../type/filemetadatautils.html'>FileMetadataUtils</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fdata</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tseries~3"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>tSeries</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ctime~2"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>cTime</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bside~2"></span>
+              character(len=1),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>bSide</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unifileclim~2"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>UniFileClim</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-interptime~2"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>interpTime</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-filetime~2"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fileTime</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tindex~6"></span>
+              integer,
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>tindex</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-allowextrap~3"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>allowExtrap</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-climyear~3"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>climYear</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1355"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~getbrackettimeonsinglefile~~CallsGraph Pages: 1 -->
+<svg id="procgetbrackettimeonsinglefileCallsGraph" width="641pt" height="281pt"
+ viewBox="0.00 0.00 641.00 281.35" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph" class="graph" transform="scale(0.82 0.82) rotate(0) translate(4 341)">
+<title>proc~~getbrackettimeonsinglefile~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-341 782,-341 782,4 -4,4"/>
+<!-- proc~getbrackettimeonsinglefile -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_node1" class="node">
+<title>proc~getbrackettimeonsinglefile</title>
+<polygon fill="none" stroke="black" points="165,-186 0,-186 0,-162 165,-162 165,-186"/>
+<text text-anchor="middle" x="82.5" y="-171.6" font-family="Helvetica,sans-Serif" font-size="10.50">GetBracketTimeOnSingleFile</text>
+</g>
+<!-- ESMF_TimeGet -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_node2" class="node">
+<title>ESMF_TimeGet</title>
+<g id="a_proc~~getbrackettimeonsinglefile~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_timeget.html" xlink:title="ESMF_TimeGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="516,-337 425,-337 425,-313 516,-313 516,-337"/>
+<text text-anchor="middle" x="470.5" y="-322.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeGet</text>
+</a>
+</g>
+</g>
+<!-- proc~getbrackettimeonsinglefile&#45;&gt;ESMF_TimeGet -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_edge1" class="edge">
+<title>proc~getbrackettimeonsinglefile&#45;&gt;ESMF_TimeGet</title>
+<path fill="none" stroke="#ff0000" d="M90.71,-186.34C106.72,-212.45 148.06,-273.01 201,-299 268.87,-332.33 357.93,-333.96 414.45,-330.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="414.87,-334.1 424.62,-329.94 414.41,-327.11 414.87,-334.1"/>
+</g>
+<!-- ESMF_TimeSet -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_node3" class="node">
+<title>ESMF_TimeSet</title>
+<g id="a_proc~~getbrackettimeonsinglefile~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeset.html" xlink:title="ESMF_TimeSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="515.5,-286 425.5,-286 425.5,-262 515.5,-262 515.5,-286"/>
+<text text-anchor="middle" x="470.5" y="-271.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeSet</text>
+</a>
+</g>
+</g>
+<!-- proc~getbrackettimeonsinglefile&#45;&gt;ESMF_TimeSet -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_edge2" class="edge">
+<title>proc~getbrackettimeonsinglefile&#45;&gt;ESMF_TimeSet</title>
+<path fill="none" stroke="#ff0000" d="M92.44,-186.29C110.1,-209.38 152,-258.56 201,-277 271.24,-303.43 359.31,-295.43 415.02,-285.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="415.81,-289.27 425.03,-284.06 414.57,-282.38 415.81,-289.27"/>
+</g>
+<!-- proc~debug -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_node4" class="node">
+<title>proc~debug</title>
+<g id="a_proc~~getbrackettimeonsinglefile~~CallsGraph_node4"><a xlink:href="../proc/debug.html" xlink:title="Logger%debug">
+<polygon fill="#d9534f" stroke="#d9534f" points="342,-108 248,-108 248,-84 342,-84 342,-108"/>
+<text text-anchor="middle" x="295" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Logger%debug</text>
+</a>
+</g>
+</g>
+<!-- proc~getbrackettimeonsinglefile&#45;&gt;proc~debug -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_edge3" class="edge">
+<title>proc~getbrackettimeonsinglefile&#45;&gt;proc~debug</title>
+<path fill="none" stroke="#ff0000" d="M107.84,-161.99C131.31,-150.71 168.04,-133.83 201,-122 212.83,-117.75 225.7,-113.77 238,-110.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="239.02,-113.6 247.7,-107.53 237.13,-106.86 239.02,-113.6"/>
+</g>
+<!-- proc~error -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_node5" class="node">
+<title>proc~error</title>
+<g id="a_proc~~getbrackettimeonsinglefile~~CallsGraph_node5"><a xlink:href="../proc/error.html" xlink:title="Logger%error">
+<polygon fill="#d9534f" stroke="#d9534f" points="338,-66 252,-66 252,-42 338,-42 338,-66"/>
+<text text-anchor="middle" x="295" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Logger%error</text>
+</a>
+</g>
+</g>
+<!-- proc~getbrackettimeonsinglefile&#45;&gt;proc~error -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_edge4" class="edge">
+<title>proc~getbrackettimeonsinglefile&#45;&gt;proc~error</title>
+<path fill="none" stroke="#ff0000" d="M94.15,-161.82C113.32,-140.7 155.85,-97.43 201,-75 213.64,-68.72 228.19,-64.29 241.96,-61.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="242.73,-64.59 251.81,-59.14 241.31,-57.74 242.73,-64.59"/>
+</g>
+<!-- proc~get_file_name -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_node6" class="node">
+<title>proc~get_file_name</title>
+<g id="a_proc~~getbrackettimeonsinglefile~~CallsGraph_node6"><a xlink:href="../proc/get_file_name.html" xlink:title="FileMetadataUtils%get_file_name">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="389,-226 201,-226 201,-202 389,-202 389,-226"/>
+<text text-anchor="middle" x="295" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadataUtils%get_file_name</text>
+</a>
+</g>
+</g>
+<!-- proc~getbrackettimeonsinglefile&#45;&gt;proc~get_file_name -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_edge5" class="edge">
+<title>proc~getbrackettimeonsinglefile&#45;&gt;proc~get_file_name</title>
+<path fill="none" stroke="#ff0000" d="M146.66,-186C169.86,-190.41 196.34,-195.44 220.38,-200.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="220.05,-203.51 230.52,-201.94 221.35,-196.63 220.05,-203.51"/>
+</g>
+<!-- proc~isenabledfor -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_node7" class="node">
+<title>proc~isenabledfor</title>
+<g id="a_proc~~getbrackettimeonsinglefile~~CallsGraph_node7"><a xlink:href="../proc/isenabledfor.html" xlink:title="Logger%isEnabledFor">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="359.5,-24 230.5,-24 230.5,0 359.5,0 359.5,-24"/>
+<text text-anchor="middle" x="295" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Logger%isEnabledFor</text>
+</a>
+</g>
+</g>
+<!-- proc~getbrackettimeonsinglefile&#45;&gt;proc~isenabledfor -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_edge6" class="edge">
+<title>proc~getbrackettimeonsinglefile&#45;&gt;proc~isenabledfor</title>
+<path fill="none" stroke="#ff0000" d="M89.87,-161.9C105.09,-134.29 146.37,-66.43 201,-33 207.12,-29.26 213.82,-26.18 220.75,-23.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="221.88,-26.97 230.29,-20.53 219.7,-20.31 221.88,-26.97"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_node8" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~getbrackettimeonsinglefile~~CallsGraph_node8"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="511.5,-226 429.5,-226 429.5,-202 511.5,-202 511.5,-226"/>
+<text text-anchor="middle" x="470.5" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~getbrackettimeonsinglefile&#45;&gt;proc~mapl_return -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_edge7" class="edge">
+<title>proc~getbrackettimeonsinglefile&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M165.01,-174.8C226.83,-176.44 313.7,-180.95 389,-193 399.05,-194.61 409.68,-196.92 419.79,-199.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="419.14,-202.88 429.7,-201.99 420.89,-196.1 419.14,-202.88"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_node9" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~getbrackettimeonsinglefile~~CallsGraph_node9"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="508.5,-184 432.5,-184 432.5,-160 508.5,-160 508.5,-184"/>
+<text text-anchor="middle" x="470.5" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~getbrackettimeonsinglefile&#45;&gt;proc~mapl_verify -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_edge8" class="edge">
+<title>proc~getbrackettimeonsinglefile&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M165.25,-163C177.22,-161.75 189.41,-160.69 201,-160 284.41,-155.05 305.67,-153.82 389,-160 399.79,-160.8 411.32,-162.19 422.19,-163.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="421.95,-167.26 432.36,-165.29 422.99,-160.34 421.95,-167.26"/>
+</g>
+<!-- proc~offsettimeyear -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_node10" class="node">
+<title>proc~offsettimeyear</title>
+<g id="a_proc~~getbrackettimeonsinglefile~~CallsGraph_node10"><a xlink:href="../proc/offsettimeyear.html" xlink:title="OffsetTimeYear">
+<polygon fill="#d9534f" stroke="#d9534f" points="342,-268 248,-268 248,-244 342,-244 342,-268"/>
+<text text-anchor="middle" x="295" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OffsetTimeYear</text>
+</a>
+</g>
+</g>
+<!-- proc~getbrackettimeonsinglefile&#45;&gt;proc~offsettimeyear -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_edge9" class="edge">
+<title>proc~getbrackettimeonsinglefile&#45;&gt;proc~offsettimeyear</title>
+<path fill="none" stroke="#ff0000" d="M103.16,-186.21C125.93,-199.88 164.95,-221.82 201,-235 212.78,-239.3 225.73,-242.9 238.12,-245.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="237.39,-249.25 247.92,-248.04 238.93,-242.42 237.39,-249.25"/>
+</g>
+<!-- proc~get_file_name&#45;&gt;proc~mapl_return -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_edge10" class="edge">
+<title>proc~get_file_name&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ffa9" d="M389.1,-214C399.49,-214 409.76,-214 419.3,-214"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="419.35,-217.5 429.35,-214 419.35,-210.5 419.35,-217.5"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_node11" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~getbrackettimeonsinglefile~~CallsGraph_node11"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="676,-226 561,-226 561,-202 676,-202 676,-226"/>
+<text text-anchor="middle" x="618.5" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#0000ff" d="M511.78,-214C523.89,-214 537.51,-214 550.85,-214"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="550.96,-217.5 560.96,-214 550.96,-210.5 550.96,-217.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_node12" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~getbrackettimeonsinglefile~~CallsGraph_node12"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="685,-184 552,-184 552,-160 685,-160 685,-184"/>
+<text text-anchor="middle" x="618.5" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0000ff" d="M511.78,-202.41C528.52,-197.6 548.15,-191.95 565.92,-186.84"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="566.93,-190.19 575.57,-184.06 564.99,-183.46 566.93,-190.19"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#aa00ff" d="M508.72,-172C518.91,-172 530.34,-172 541.86,-172"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="541.98,-175.5 551.98,-172 541.98,-168.5 541.98,-175.5"/>
+</g>
+<!-- proc~offsettimeyear&#45;&gt;ESMF_TimeGet -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_edge14" class="edge">
+<title>proc~offsettimeyear&#45;&gt;ESMF_TimeGet</title>
+<path fill="none" stroke="#ff00aa" d="M326.22,-268.02C354.9,-279.43 398.19,-296.64 429.68,-309.16"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="428.46,-312.44 439.04,-312.89 431.04,-305.94 428.46,-312.44"/>
+</g>
+<!-- proc~offsettimeyear&#45;&gt;ESMF_TimeSet -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_edge15" class="edge">
+<title>proc~offsettimeyear&#45;&gt;ESMF_TimeSet</title>
+<path fill="none" stroke="#ff00aa" d="M342.04,-260.78C364.51,-263.11 391.7,-265.93 415.19,-268.37"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="415.03,-271.87 425.34,-269.42 415.76,-264.91 415.03,-271.87"/>
+</g>
+<!-- proc~offsettimeyear&#45;&gt;proc~mapl_return -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_edge16" class="edge">
+<title>proc~offsettimeyear&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff00aa" d="M342.43,-245.83C357.33,-242.49 373.88,-238.68 389,-235 398.89,-232.59 409.44,-229.92 419.54,-227.31"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="420.64,-230.64 429.44,-224.73 418.88,-223.86 420.64,-230.64"/>
+</g>
+<!-- proc~offsettimeyear&#45;&gt;proc~mapl_verify -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_edge17" class="edge">
+<title>proc~offsettimeyear&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff00aa" d="M342.19,-251.53C357.87,-248.51 374.96,-243.45 389,-235 410.06,-222.31 405.45,-207.91 425,-193 426.77,-191.65 428.63,-190.36 430.56,-189.13"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="432.36,-192.14 439.29,-184.12 428.87,-186.07 432.36,-192.14"/>
+</g>
+<!-- at -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_node13" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="776.5,-226 722.5,-226 722.5,-202 776.5,-202 776.5,-226"/>
+<text text-anchor="middle" x="749.5" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_edge18" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M676.08,-214C688.29,-214 700.89,-214 712.08,-214"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="712.32,-217.5 722.32,-214 712.32,-210.5 712.32,-217.5"/>
+</g>
+<!-- insert -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_node14" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="776.5,-268 722.5,-268 722.5,-244 776.5,-244 776.5,-268"/>
+<text text-anchor="middle" x="749.5" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_edge19" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ff0000" d="M656.47,-226.04C674.02,-231.75 694.92,-238.55 712.36,-244.23"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="711.59,-247.66 722.18,-247.43 713.75,-241.01 711.59,-247.66"/>
+</g>
+<!-- proc~initialize~6 -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_node15" class="node">
+<title>proc~initialize~6</title>
+<g id="a_proc~~getbrackettimeonsinglefile~~CallsGraph_node15"><a xlink:href="../proc/initialize~6.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="778,-184 721,-184 721,-160 778,-160 778,-184"/>
+<text text-anchor="middle" x="749.5" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~6 -->
+<g id="proc~~getbrackettimeonsinglefile~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~6</title>
+<path fill="none" stroke="#00ffff" d="M685.13,-172C693.88,-172 702.59,-172 710.63,-172"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="710.77,-175.5 720.77,-172 710.77,-168.5 710.77,-175.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocgetbrackettimeonsinglefileCallsGraph = svgPanZoom('#procgetbrackettimeonsinglefileCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~getbrackettimeonsinglefile~~CalledByGraph Pages: 1 -->
+<svg id="procgetbrackettimeonsinglefileCalledByGraph" width="417pt" height="32pt"
+ viewBox="0.00 0.00 417.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~getbrackettimeonsinglefile~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~getbrackettimeonsinglefile~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 413,-28 413,4 -4,4"/>
+<!-- proc~getbrackettimeonsinglefile -->
+<g id="proc~~getbrackettimeonsinglefile~~CalledByGraph_node1" class="node">
+<title>proc~getbrackettimeonsinglefile</title>
+<polygon fill="none" stroke="black" points="409,-24 244,-24 244,0 409,0 409,-24"/>
+<text text-anchor="middle" x="326.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">GetBracketTimeOnSingleFile</text>
+</g>
+<!-- proc~updatebrackettime -->
+<g id="proc~~getbrackettimeonsinglefile~~CalledByGraph_node2" class="node">
+<title>proc~updatebrackettime</title>
+<g id="a_proc~~getbrackettimeonsinglefile~~CalledByGraph_node2"><a xlink:href="../proc/updatebrackettime.html" xlink:title="UpdateBracketTime">
+<polygon fill="#d9534f" stroke="#d9534f" points="208,-24 90,-24 90,0 208,0 208,-24"/>
+<text text-anchor="middle" x="149" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UpdateBracketTime</text>
+</a>
+</g>
+</g>
+<!-- proc~updatebrackettime&#45;&gt;proc~getbrackettimeonsinglefile -->
+<g id="proc~~getbrackettimeonsinglefile~~CalledByGraph_edge1" class="edge">
+<title>proc~updatebrackettime&#45;&gt;proc~getbrackettimeonsinglefile</title>
+<path fill="none" stroke="#ff0000" d="M208.44,-12C216.61,-12 225.16,-12 233.77,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="233.87,-15.5 243.87,-12 233.87,-8.5 233.87,-15.5"/>
+</g>
+<!-- proc~run_~4 -->
+<g id="proc~~getbrackettimeonsinglefile~~CalledByGraph_node3" class="node">
+<title>proc~run_~4</title>
+<g id="a_proc~~getbrackettimeonsinglefile~~CalledByGraph_node3"><a xlink:href="../proc/run_~4.html" xlink:title="Run_">
+<polygon fill="#d9534f" stroke="#d9534f" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_~4&#45;&gt;proc~updatebrackettime -->
+<g id="proc~~getbrackettimeonsinglefile~~CalledByGraph_edge2" class="edge">
+<title>proc~run_~4&#45;&gt;proc~updatebrackettime</title>
+<path fill="none" stroke="#ff0000" d="M54.04,-12C61.83,-12 70.77,-12 79.96,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="80,-15.5 90,-12 80,-8.5 80,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">     </span><span class="k">subroutine </span><span class="n">GetBracketTimeOnSingleFile</span><span class="p">(</span><span class="n">fdata</span><span class="p">,</span><span class="n">tSeries</span><span class="p">,</span><span class="nb">cTime</span><span class="p">,</span><span class="n">bSide</span><span class="p">,</span><span class="n">UniFileClim</span><span class="p">,</span><span class="n">interpTime</span><span class="p">,</span><span class="n">fileTime</span><span class="p">,</span><span class="n">tindex</span><span class="p">,</span><span class="n">allowExtrap</span><span class="p">,</span><span class="n">climyear</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">        </span><span class="k">class</span><span class="p">(</span><span class="n">FileMetadataUtils</span><span class="p">),</span><span class="w">            </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fdata</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w">                     </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tSeries</span><span class="p">(:)</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w">                     </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">cTime</span>
+<span class="nb">        </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span><span class="w">                    </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bSide</span>
+<span class="w">        </span><span class="kt">logical</span><span class="p">,</span><span class="w">                             </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">UniFileClim</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TIME</span><span class="p">),</span><span class="w">                     </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">interpTime</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TIME</span><span class="p">),</span><span class="w">                     </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fileTime</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">,</span><span class="w">                             </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tindex</span>
+<span class="w">        </span><span class="kt">logical</span><span class="p">,</span><span class="w">                             </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">allowExtrap</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">,</span><span class="w">                             </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">climYear</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">                   </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">        </span><span class="err">__</span><span class="n">Iam__</span><span class="p">(</span><span class="s1">&#39;GetBracketTimeOnSingleFile&#39;</span><span class="p">)</span>
+
+<span class="w">        </span><span class="kt">integer</span><span class="p">(</span><span class="n">ESMF_KIND_I4</span><span class="p">)</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">iyr</span><span class="p">,</span><span class="n">imm</span><span class="p">,</span><span class="n">idd</span><span class="p">,</span><span class="n">ihr</span><span class="p">,</span><span class="n">imn</span><span class="p">,</span><span class="n">isc</span>
+<span class="w">        </span><span class="kt">integer</span><span class="w">                            </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">climTime</span>
+<span class="w">        </span><span class="kt">logical</span><span class="w">                            </span><span class="kd">::</span><span class="w"> </span><span class="n">found</span>
+<span class="w">        </span><span class="kt">logical</span><span class="w">                            </span><span class="kd">::</span><span class="w"> </span><span class="n">LExtrap</span><span class="p">,</span><span class="n">RExtrap</span><span class="p">,</span><span class="n">LExact</span><span class="p">,</span><span class="n">RExact</span>
+<span class="w">        </span><span class="kt">logical</span><span class="w">                            </span><span class="kd">::</span><span class="w"> </span><span class="n">LSide</span><span class="p">,</span><span class="w"> </span><span class="n">RSide</span>
+<span class="w">        </span><span class="kt">integer</span><span class="w">                            </span><span class="kd">::</span><span class="w"> </span><span class="n">yrOffset</span><span class="p">,</span><span class="w"> </span><span class="n">yrOffsetNeg</span><span class="p">,</span><span class="w"> </span><span class="n">targYear</span>
+<span class="w">        </span><span class="kt">integer</span><span class="w">                            </span><span class="kd">::</span><span class="w"> </span><span class="n">iEntry</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">tSeriesC</span><span class="p">(:)</span>
+<span class="w">        </span><span class="kt">logical</span><span class="w">                            </span><span class="kd">::</span><span class="w"> </span><span class="n">foundYear</span>
+<span class="w">        </span><span class="kt">integer</span><span class="w">                            </span><span class="kd">::</span><span class="w"> </span><span class="n">tSteps</span><span class="p">,</span><span class="w"> </span><span class="n">curYear</span><span class="p">,</span><span class="w"> </span><span class="n">nsteps</span>
+
+<span class="w">        </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">Iam</span><span class="p">)</span>
+<span class="w">        </span><span class="c">! Store the target time which was actually requested</span>
+<span class="w">        </span><span class="n">yrOffset</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">        </span><span class="n">nsteps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">tSeries</span><span class="p">)</span>
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="nb">cTime</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">targYear</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">ihr</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">imn</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">isc</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">lgr</span><span class="p">%</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">DEBUG</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;               GetBracketTimeOnSingleFile called for %a&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">fdata</span><span class="p">%</span><span class="n">get_file_name</span><span class="p">()))</span>
+<span class="w">           </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;               GetBracketTimeOnSingleFile: Reading times from fixed (%l1) file %a&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">UniFileClim</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">fdata</span><span class="p">%</span><span class="n">get_file_name</span><span class="p">()))</span>
+<span class="w">           </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">tSeries</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">yy</span><span class="o">=</span><span class="n">iyr</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">ihr</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">imn</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">isc</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;                  ==&gt; File start    : %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">iyr</span><span class="p">,</span><span class="w"> </span><span class="n">imm</span><span class="p">,</span><span class="w"> </span><span class="n">idd</span><span class="p">,</span><span class="w"> </span><span class="n">ihr</span><span class="p">,</span><span class="w"> </span><span class="n">imn</span><span class="p">,</span><span class="w"> </span><span class="n">isc</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">tSeries</span><span class="p">(</span><span class="n">nsteps</span><span class="p">),</span><span class="n">yy</span><span class="o">=</span><span class="n">iyr</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">ihr</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">imn</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">isc</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;                  ==&gt; File end      : %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">iyr</span><span class="p">,</span><span class="w"> </span><span class="n">imm</span><span class="p">,</span><span class="w"> </span><span class="n">idd</span><span class="p">,</span><span class="w"> </span><span class="n">ihr</span><span class="p">,</span><span class="w"> </span><span class="n">imn</span><span class="p">,</span><span class="w"> </span><span class="n">isc</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="nb">cTime</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">iyr</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">ihr</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">imn</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">isc</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;                  ==&gt; Time requested: %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">iyr</span><span class="p">,</span><span class="w"> </span><span class="n">imm</span><span class="p">,</span><span class="w"> </span><span class="n">idd</span><span class="p">,</span><span class="w"> </span><span class="n">ihr</span><span class="p">,</span><span class="w"> </span><span class="n">imn</span><span class="p">,</span><span class="w"> </span><span class="n">isc</span><span class="p">)</span>
+<span class="w">        </span><span class="k">end if</span>
+
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="n">uniFileClim</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">           </span><span class="n">yrOffset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">           </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="nb">cTime</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">iyr</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">ihr</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">imn</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">isc</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="n">iyr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">climYear</span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">idd</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">29</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">imm</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="n">idd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">28</span>
+<span class="w">           </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">climTime</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">iyr</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">ihr</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">imn</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">isc</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">           </span><span class="n">tsteps</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">           </span><span class="n">foundYear</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">           </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nsteps</span>
+
+<span class="w">              </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">tseries</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="n">yy</span><span class="o">=</span><span class="n">iyr</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">              </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">iyr</span><span class="o">==</span><span class="n">climYear</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                 if</span><span class="w"> </span><span class="p">(</span><span class="n">foundYear</span><span class="w"> </span><span class="p">.</span><span class="n">eqv</span><span class="p">.</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                    </span><span class="n">iEntry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span>
+<span class="w">                    </span><span class="n">foundYear</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">                 </span><span class="k">end if</span>
+<span class="k">                 </span><span class="n">tsteps</span><span class="o">=</span><span class="n">tsteps</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">              </span><span class="k">end if</span>
+
+<span class="k">           end do</span>
+
+<span class="k">           allocate</span><span class="p">(</span><span class="n">tSeriesC</span><span class="p">(</span><span class="n">tsteps</span><span class="p">),</span><span class="err">__</span><span class="n">STAT__</span><span class="p">)</span>
+<span class="w">           </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tsteps</span>
+<span class="w">              </span><span class="n">tSeriesC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">tSeries</span><span class="p">(</span><span class="n">iEntry</span><span class="o">+</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">           </span><span class="k">enddo</span>
+
+<span class="k">           </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bSide</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;L&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="n">climTime</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">tSeriesC</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                 </span><span class="n">fileTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tSeriesC</span><span class="p">(</span><span class="n">tSteps</span><span class="p">)</span>
+<span class="w">                 </span><span class="n">tindex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tSteps</span>
+<span class="w">                 </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">tSeriesC</span><span class="p">(</span><span class="n">tSteps</span><span class="p">),</span><span class="n">yy</span><span class="o">=</span><span class="n">iyr</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">ihr</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">imn</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">isc</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="nb">cTime</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">curYear</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="n">iyr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curYear</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">                 </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">interpTime</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">iyr</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">ihr</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">imn</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">isc</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">              </span><span class="k">else</span>
+<span class="k">                 do </span><span class="n">i</span><span class="o">=</span><span class="n">tSteps</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">                    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">climTime</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">tSeriesC</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                       </span><span class="n">fileTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tSeriesC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">                       </span><span class="n">tindex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span>
+<span class="w">                       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">UniFileClim</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                          call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="nb">cTime</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">curYear</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                          </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">fileTime</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">iyr</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">ihr</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">imn</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">isc</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                          </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">interpTime</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">curYear</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">ihr</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">imn</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">isc</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                       </span><span class="k">else</span>
+<span class="k">                          </span><span class="n">interpTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tSeriesC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">                       </span><span class="k">end if</span>
+<span class="k">                       </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">                       </span><span class="k">exit</span>
+<span class="k">                    end if</span>
+<span class="k">                 end do</span>
+<span class="k">              end if</span>
+<span class="k">           else if</span><span class="w"> </span><span class="p">(</span><span class="n">bSide</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;R&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="n">climTime</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">tSeriesC</span><span class="p">(</span><span class="n">tSteps</span><span class="p">))</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                 </span><span class="n">fileTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tSeriesC</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">                 </span><span class="n">tindex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">                 </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">tSeriesC</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">yy</span><span class="o">=</span><span class="n">iyr</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">ihr</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">imn</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">isc</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="nb">cTime</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">curYear</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="n">iyr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curYear</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">                 </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">interpTime</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">iyr</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">ihr</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">imn</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">isc</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">              </span><span class="k">else</span>
+<span class="k">                 do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tSteps</span>
+<span class="w">                    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">climTime</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">tSeriesC</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                       </span><span class="n">fileTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tSeriesC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">                       </span><span class="n">tindex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span>
+<span class="w">                       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">UniFileClim</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                          call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="nb">cTime</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">curYear</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                          </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">fileTime</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">iyr</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">ihr</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">imn</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">isc</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                          </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">interpTime</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">curYear</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">ihr</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">imn</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">isc</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                       </span><span class="k">else</span>
+<span class="k">                          </span><span class="n">interpTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tSeriesC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">                       </span><span class="k">end if</span>
+<span class="k">                       </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">                       </span><span class="k">exit</span>
+<span class="k">                    end if</span>
+<span class="k">                 end do</span>
+<span class="k">              end if</span>
+<span class="k">           end if</span>
+
+<span class="k">        else</span>
+
+<span class="k">           </span><span class="n">yrOffset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">           </span><span class="n">climTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">cTime</span>
+
+<span class="w">           </span><span class="c">! Is the requested time within the range of values offered?</span>
+<span class="w">           </span><span class="n">LSide</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">bSide</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;L&quot;</span><span class="p">)</span>
+<span class="w">           </span><span class="n">RSide</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">LSide</span><span class="p">)</span>
+<span class="w">           </span><span class="n">LExact</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">cLimTime</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">tSeries</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">           </span><span class="n">RExact</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">cLimTime</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">tSeries</span><span class="p">(</span><span class="n">nsteps</span><span class="p">))</span>
+<span class="w">           </span><span class="n">LExtrap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">cLimTime</span><span class="w"> </span><span class="o">&lt;</span><span class="w">  </span><span class="n">tSeries</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">           </span><span class="n">RExtrap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">cLimTime</span><span class="w"> </span><span class="o">&gt;</span><span class="w">  </span><span class="n">tSeries</span><span class="p">(</span><span class="n">nsteps</span><span class="p">))</span>
+<span class="w">           </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+
+<span class="w">           </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;               GetBracketTimeOnSingleFile: Extrapolation flags (0) are %L1 %L1 %L1 %L1 for file %a&#39;</span><span class="p">,</span><span class="n">LExact</span><span class="p">,</span><span class="n">RExact</span><span class="p">,</span><span class="n">LExtrap</span><span class="p">,</span><span class="n">RExtrap</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">fdata</span><span class="p">%</span><span class="n">get_file_name</span><span class="p">()))</span>
+
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">allowExtrap</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              If</span><span class="w"> </span><span class="p">(</span><span class="n">LExtrap</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
+
+<span class="k">                 call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;               GetBracketTimeOnSingleFile: Requested time is before first available sample in file %a&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">fdata</span><span class="p">%</span><span class="n">get_file_name</span><span class="p">()))</span>
+
+<span class="w">                 </span><span class="c">! Increase the target time until it is within range</span>
+<span class="w">                 </span><span class="k">Do While</span><span class="w"> </span><span class="p">(</span><span class="n">LExtrap</span><span class="p">)</span>
+<span class="w">                    </span><span class="n">yrOffset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">yrOffset</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">                    </span><span class="n">iYr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">targYear</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">yrOffset</span>
+<span class="w">                    </span><span class="k">call </span><span class="n">OffsetTimeYear</span><span class="p">(</span><span class="nb">cTime</span><span class="p">,</span><span class="n">yrOffset</span><span class="p">,</span><span class="n">cLimTime</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">                    </span><span class="k">If</span><span class="w"> </span><span class="p">(</span><span class="n">LSide</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
+<span class="k">                       </span><span class="n">LExtrap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">cLimTime</span><span class="w"> </span><span class="o">&lt;</span><span class="w">  </span><span class="n">tSeries</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">                    </span><span class="k">Else</span>
+<span class="k">                       </span><span class="n">LExtrap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">cLimTime</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">tSeries</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">                       </span><span class="c">! When scanning for the right side, if we find that we</span>
+<span class="w">                       </span><span class="c">! have an exact match to the first entry, then as long</span>
+<span class="w">                       </span><span class="c">! as there is a second entry, we have the correct offset</span>
+<span class="w">                       </span><span class="k">If</span><span class="w"> </span><span class="p">(</span><span class="n">LExtrap</span><span class="p">.</span><span class="nb">and</span><span class="p">.(</span><span class="n">nsteps</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="k">Then</span>
+<span class="k">                          </span><span class="n">LExact</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">cLimTime</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">tSeries</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">                          </span><span class="n">LExtrap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">LExtrap</span><span class="p">.</span><span class="nb">and</span><span class="p">.(.</span><span class="nb">not</span><span class="p">.</span><span class="n">LExact</span><span class="p">))</span>
+<span class="w">                       </span><span class="k">End If</span>
+<span class="k">                    End If</span>
+<span class="k">                 End Do</span>
+<span class="k">              Else If</span><span class="w"> </span><span class="p">(</span><span class="n">RExtrap</span><span class="p">.</span><span class="nb">or</span><span class="p">.(</span><span class="n">RExact</span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="n">RSide</span><span class="p">))</span><span class="w"> </span><span class="k">Then</span>
+
+<span class="k">                 call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;               GetBracketTimeOnSingleFile: Requested time is after or on last available sample in file %a&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">fdata</span><span class="p">%</span><span class="n">get_file_name</span><span class="p">()))</span>
+
+<span class="w">                 </span><span class="k">Do While</span><span class="w"> </span><span class="p">(</span><span class="n">RExtrap</span><span class="p">.</span><span class="nb">or</span><span class="p">.(</span><span class="n">RExact</span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="n">RSide</span><span class="p">))</span>
+<span class="w">                    </span><span class="n">yrOffset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">yrOffset</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">                    </span><span class="n">iYr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">targYear</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">yrOffset</span>
+<span class="w">                    </span><span class="k">call </span><span class="n">OffsetTimeYear</span><span class="p">(</span><span class="nb">cTime</span><span class="p">,</span><span class="n">yrOffset</span><span class="p">,</span><span class="n">cLimTime</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">                    </span><span class="k">If</span><span class="w"> </span><span class="p">(</span><span class="n">LSide</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
+<span class="k">                       </span><span class="n">RExtrap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">cLimTime</span><span class="w"> </span><span class="o">&gt;</span><span class="w">  </span><span class="n">tSeries</span><span class="p">(</span><span class="n">nsteps</span><span class="p">))</span>
+<span class="w">                    </span><span class="k">Else</span>
+<span class="k">                       </span><span class="n">RExtrap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">cLimTime</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">tSeries</span><span class="p">(</span><span class="n">nsteps</span><span class="p">))</span>
+<span class="w">                       </span><span class="n">RExact</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">cLimTime</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">tSeries</span><span class="p">(</span><span class="n">nsteps</span><span class="p">))</span>
+<span class="w">                    </span><span class="k">End If</span>
+<span class="k">                 End Do</span>
+<span class="k">              End If</span>
+
+<span class="w">              </span><span class="c">! Retest for an exact match - note this is only useful if we want bracket L</span>
+<span class="w">              </span><span class="n">LExact</span><span class="w">  </span><span class="o">=</span><span class="w">  </span><span class="p">(</span><span class="n">cLimTime</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">tSeries</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">              </span><span class="n">RExact</span><span class="w">  </span><span class="o">=</span><span class="w">  </span><span class="p">(</span><span class="n">cLimTime</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">tSeries</span><span class="p">(</span><span class="n">nsteps</span><span class="p">))</span>
+
+<span class="w">              </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;            GetBracketTimeOnSingleFile: Extrapolation flags (2) are %L1 %L1 %L1 %L1 for file %a&#39;</span><span class="p">,</span><span class="n">LExact</span><span class="p">,</span><span class="n">RExact</span><span class="p">,</span><span class="n">LExtrap</span><span class="p">,</span><span class="n">RExtrap</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">fdata</span><span class="p">%</span><span class="n">get_file_name</span><span class="p">()))</span>
+
+<span class="w">           </span><span class="k">End IF</span>
+
+<span class="k">           If</span><span class="w"> </span><span class="p">(</span><span class="n">LSide</span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="n">LExact</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
+<span class="k">              </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">              </span><span class="n">iEntry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">           </span><span class="k">Else If</span><span class="w"> </span><span class="p">(</span><span class="n">LSide</span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="n">RExact</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
+<span class="k">              </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">              </span><span class="n">iEntry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nsteps</span>
+<span class="w">           </span><span class="k">Else</span>
+<span class="k">              if</span><span class="w"> </span><span class="p">(</span><span class="n">bSide</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;L&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                 do </span><span class="n">i</span><span class="o">=</span><span class="n">nsteps</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">                    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">climTime</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">tSeries</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                       </span><span class="n">iEntry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span>
+<span class="w">                       </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">                       </span><span class="k">exit</span>
+<span class="k">                    end if</span>
+<span class="k">                 end do</span>
+<span class="k">              else if</span><span class="w"> </span><span class="p">(</span><span class="n">bSide</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;R&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                 do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nsteps</span>
+<span class="w">                    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">climTime</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">tSeries</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                       </span><span class="n">iEntry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span>
+<span class="w">                       </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">                       </span><span class="k">exit</span>
+<span class="k">                    end if</span>
+<span class="k">                 end do</span>
+<span class="k">              end if</span>
+<span class="k">           end if</span>
+
+<span class="k">           if</span><span class="w"> </span><span class="p">(</span><span class="n">found</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              </span><span class="n">fileTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tSeries</span><span class="p">(</span><span class="n">iEntry</span><span class="p">)</span>
+<span class="w">              </span><span class="n">tindex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iEntry</span>
+<span class="w">              </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">yrOffset</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">Then</span>
+<span class="k">                 </span><span class="n">interpTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fileTime</span>
+<span class="w">              </span><span class="k">Else</span>
+<span class="k">                 </span><span class="n">yrOffsetNeg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">yrOffset</span>
+<span class="w">                 </span><span class="k">call </span><span class="n">OffsetTimeYear</span><span class="p">(</span><span class="n">fileTime</span><span class="p">,</span><span class="n">yrOffsetNeg</span><span class="p">,</span><span class="n">interpTime</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">              </span><span class="k">End If</span>
+<span class="k">           end if</span>
+
+<span class="k">        end if</span>
+
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="n">found</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+
+<span class="k">           if</span><span class="w"> </span><span class="p">(</span><span class="n">lgr</span><span class="p">%</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">DEBUG</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">fileTime</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">iyr</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">ihr</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">imn</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">isc</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;               GetBracketTimeOnSingleFile: Data from time  %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2 set for bracket %a1 of file %a&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">iyr</span><span class="p">,</span><span class="w"> </span><span class="n">imm</span><span class="p">,</span><span class="w"> </span><span class="n">idd</span><span class="p">,</span><span class="w"> </span><span class="n">ihr</span><span class="p">,</span><span class="w"> </span><span class="n">imn</span><span class="p">,</span><span class="w"> </span><span class="n">isc</span><span class="p">,</span><span class="w"> </span><span class="n">bside</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">fdata</span><span class="p">%</span><span class="n">get_file_name</span><span class="p">()))</span>
+<span class="w">              </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">yrOffset</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                 call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">interpTime</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">iyr</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">ihr</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">imn</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">isc</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;              ==&gt; Mapped to:  %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">iyr</span><span class="p">,</span><span class="w"> </span><span class="n">imm</span><span class="p">,</span><span class="w"> </span><span class="n">idd</span><span class="p">,</span><span class="w"> </span><span class="n">ihr</span><span class="p">,</span><span class="w"> </span><span class="n">imn</span><span class="p">,</span><span class="w"> </span><span class="n">isc</span><span class="p">)</span>
+<span class="w">                 </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">interpTime</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">iyr</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">imm</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">idd</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">ihr</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">imn</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">isc</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                 </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;              ==&gt; Target to:  %i0.4~-%i0.2~-%i0.2 %i0.2~:%i0.2~:%i0.2&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">iyr</span><span class="p">,</span><span class="w"> </span><span class="n">imm</span><span class="p">,</span><span class="w"> </span><span class="n">idd</span><span class="p">,</span><span class="w"> </span><span class="n">ihr</span><span class="p">,</span><span class="w"> </span><span class="n">imn</span><span class="p">,</span><span class="w"> </span><span class="n">isc</span><span class="p">)</span>
+<span class="w">              </span><span class="k">end if</span>
+<span class="k">           end if</span>
+
+<span class="k">           </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">        </span><span class="k">else</span>
+<span class="k">           call </span><span class="n">lgr</span><span class="p">%</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Requested sample not found in file %a&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">fdata</span><span class="p">%</span><span class="n">get_file_name</span><span class="p">()))</span>
+<span class="w">           </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_FAILURE</span><span class="p">)</span>
+<span class="w">        </span><span class="k">endif</span>
+
+<span class="k">     end subroutine </span><span class="n">GetBracketTimeOnSingleFile</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-07T17:48:42.464780             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

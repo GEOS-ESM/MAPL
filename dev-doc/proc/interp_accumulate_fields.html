@@ -1,0 +1,1278 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>interp_accumulate_fields &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>interp_accumulate_fields
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">188 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_EpochSwathMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_epochswathmod.f90.html'>MAPL_EpochSwathMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_epochswathmod.html'>MAPL_EpochSwathMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">interp_accumulate_fields</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/interp_accumulate_fields.html#src">interp_accumulate_fields</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine interp_accumulate_fields(this, xy_subset, rc)  
+</h2>
+    
+
+    <p>write(6,<em>) &lsquo;MAPL_GridGetInterior, ii1,iin,jj1,jjn&rsquo;, ii1,iin,jj1,jjn
+print</em>, &lsquo;js,je &lsquo;, js, je</p>
+<p>write(6,<em>) &lsquo;ck bundlepost_acc&rsquo;
+write(6,</em>) &lsquo;j1(localDe)&rsquo;, j1(0:localDeCount-1)
+write(6,*) &lsquo;j2(localDe)&rsquo;, j2(0:localDeCount-1)</p>
+<div class="codehilite"><pre><span></span><code>              write(6,*) &#39;j, jj&#39;, j, jj
+              write(6,*) &#39;j, jj&#39;, j, jj
+</code></pre></div>
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/sampler.html'>sampler</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~507"></span>
+              class(<a href='../type/sampler.html'>sampler</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-xy_subset~2"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>xy_subset</strong>(2,2)</td>
+            <td>
+                <p>integer, intent(in) :: xy_mask(:,:)</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~239"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~interp_accumulate_fields~~CallsGraph Pages: 1 -->
+<svg id="procinterp_accumulate_fieldsCallsGraph" width="641pt" height="462pt"
+ viewBox="0.00 0.00 641.00 461.92" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~interp_accumulate_fields~~CallsGraph" class="graph" transform="scale(0.71 0.71) rotate(0) translate(4 646)">
+<title>proc~~interp_accumulate_fields~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-646 898,-646 898,4 -4,4"/>
+<!-- proc~interp_accumulate_fields -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node1" class="node">
+<title>proc~interp_accumulate_fields</title>
+<polygon fill="none" stroke="black" points="199,-310 0,-310 0,-286 199,-286 199,-310"/>
+<text text-anchor="middle" x="99.5" y="-295.6" font-family="Helvetica,sans-Serif" font-size="10.50">sampler%interp_accumulate_fields</text>
+</g>
+<!-- ESMF_GridGet -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node2" class="node">
+<title>ESMF_GridGet</title>
+<g id="a_proc~~interp_accumulate_fields~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridget.html" xlink:title="ESMF_GridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="394.5,-592 306.5,-592 306.5,-568 394.5,-568 394.5,-592"/>
+<text text-anchor="middle" x="350.5" y="-577.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~interp_accumulate_fields&#45;&gt;ESMF_GridGet -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge1" class="edge">
+<title>proc~interp_accumulate_fields&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#ff0000" d="M102.79,-310.03C111.45,-352.04 146.36,-493.25 235,-559 252.51,-571.99 275.59,-577.76 296.43,-580.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="296.19,-583.58 306.45,-580.97 296.8,-576.61 296.19,-583.58"/>
+</g>
+<!-- esmf_arrayget -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node3" class="node">
+<title>esmf_arrayget</title>
+<polygon fill="#777777" stroke="#777777" points="395.5,-550 305.5,-550 305.5,-526 395.5,-526 395.5,-550"/>
+<text text-anchor="middle" x="350.5" y="-535.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_arrayget</text>
+</g>
+<!-- proc~interp_accumulate_fields&#45;&gt;esmf_arrayget -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge2" class="edge">
+<title>proc~interp_accumulate_fields&#45;&gt;esmf_arrayget</title>
+<path fill="none" stroke="#ff0000" d="M104.33,-310.03C116.67,-346.75 159.1,-458.21 235,-512 252.5,-524.4 274.96,-531 295.34,-534.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="295.06,-537.97 305.46,-535.98 296.09,-531.04 295.06,-537.97"/>
+</g>
+<!-- esmf_fieldbundleget -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node4" class="node">
+<title>esmf_fieldbundleget</title>
+<polygon fill="#777777" stroke="#777777" points="666.5,-642 545.5,-642 545.5,-618 666.5,-618 666.5,-642"/>
+<text text-anchor="middle" x="606" y="-627.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldbundleget</text>
+</g>
+<!-- proc~interp_accumulate_fields&#45;&gt;esmf_fieldbundleget -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge3" class="edge">
+<title>proc~interp_accumulate_fields&#45;&gt;esmf_fieldbundleget</title>
+<path fill="none" stroke="#ff0000" d="M105.58,-310.23C120.13,-343.62 165.47,-436.62 235,-479 323.84,-533.15 385.12,-451.54 466,-517 500.13,-544.62 468.4,-580.73 502,-609 511.59,-617.07 523.44,-622.32 535.65,-625.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="534.95,-629.11 545.49,-627.99 536.55,-622.3 534.95,-629.11"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node5" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="648.5,-348 563.5,-348 563.5,-324 648.5,-324 648.5,-348"/>
+<text text-anchor="middle" x="606" y="-333.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~interp_accumulate_fields&#45;&gt;esmf_fieldget -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge4" class="edge">
+<title>proc~interp_accumulate_fields&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ff0000" d="M133.4,-310.04C160.3,-319.22 199.55,-331.09 235,-336 347.65,-351.61 481.45,-345.63 553.27,-340.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="553.69,-343.93 563.41,-339.7 553.17,-336.95 553.69,-343.93"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node6" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~interp_accumulate_fields~~CallsGraph_node6"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="645.5,-222 566.5,-222 566.5,-198 645.5,-198 645.5,-222"/>
+<text text-anchor="middle" x="606" y="-207.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~interp_accumulate_fields&#45;&gt;interface~mapl_assert -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge5" class="edge">
+<title>proc~interp_accumulate_fields&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M115.03,-285.84C138.49,-267.07 186.94,-231.77 235,-218 346.41,-186.07 484.51,-195.17 556.38,-203.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="556.15,-206.82 566.49,-204.52 556.97,-199.87 556.15,-206.82"/>
+</g>
+<!-- interface~mapl_gridgetinterior -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node7" class="node">
+<title>interface~mapl_gridgetinterior</title>
+<g id="a_proc~~interp_accumulate_fields~~CallsGraph_node7"><a xlink:href="../interface/mapl_gridgetinterior.html" xlink:title="MAPL_GridGetInterior">
+<polygon fill="#a7506f" stroke="#a7506f" points="414,-150 287,-150 287,-126 414,-126 414,-150"/>
+<text text-anchor="middle" x="350.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridGetInterior</text>
+</a>
+</g>
+</g>
+<!-- proc~interp_accumulate_fields&#45;&gt;interface~mapl_gridgetinterior -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge6" class="edge">
+<title>proc~interp_accumulate_fields&#45;&gt;interface~mapl_gridgetinterior</title>
+<path fill="none" stroke="#ff0000" d="M108.99,-285.74C128.14,-259.06 177.54,-195.64 235,-164 247.84,-156.93 262.5,-151.78 276.94,-148.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="277.98,-151.38 286.89,-145.65 276.35,-144.57 277.98,-151.38"/>
+</g>
+<!-- proc~correct_topo -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node8" class="node">
+<title>proc~correct_topo</title>
+<g id="a_proc~~interp_accumulate_fields~~CallsGraph_node8"><a xlink:href="../proc/correct_topo.html" xlink:title="verticalData%correct_topo">
+<polygon fill="#d9534f" stroke="#d9534f" points="427.5,-310 273.5,-310 273.5,-286 427.5,-286 427.5,-310"/>
+<text text-anchor="middle" x="350.5" y="-295.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">verticalData%correct_topo</text>
+</a>
+</g>
+</g>
+<!-- proc~interp_accumulate_fields&#45;&gt;proc~correct_topo -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge7" class="edge">
+<title>proc~interp_accumulate_fields&#45;&gt;proc~correct_topo</title>
+<path fill="none" stroke="#ff0000" d="M199.27,-298C220.29,-298 242.34,-298 262.87,-298"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="263.13,-301.5 273.13,-298 263.13,-294.5 263.13,-301.5"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node9" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~interp_accumulate_fields~~CallsGraph_node9"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="647,-306 565,-306 565,-282 647,-282 647,-306"/>
+<text text-anchor="middle" x="606" y="-291.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~interp_accumulate_fields&#45;&gt;proc~mapl_return -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge8" class="edge">
+<title>proc~interp_accumulate_fields&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M164.23,-310.02C186.53,-313.68 211.79,-317.2 235,-319 337.36,-326.94 363.74,-328.12 466,-319 495.65,-316.36 528.43,-310.6 554.71,-305.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="555.72,-308.64 564.81,-303.19 554.31,-301.78 555.72,-308.64"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node10" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~interp_accumulate_fields~~CallsGraph_node10"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="644,-264 568,-264 568,-240 644,-240 644,-264"/>
+<text text-anchor="middle" x="606" y="-249.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~interp_accumulate_fields&#45;&gt;proc~mapl_verify -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge9" class="edge">
+<title>proc~interp_accumulate_fields&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M119.58,-285.75C144.81,-270.35 191.21,-244.75 235,-235 348.82,-209.66 487.03,-228.75 557.98,-242.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="557.47,-245.5 567.95,-243.95 558.79,-238.63 557.47,-245.5"/>
+</g>
+<!-- proc~regridscalar -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node11" class="node">
+<title>proc~regridscalar</title>
+<g id="a_proc~~interp_accumulate_fields~~CallsGraph_node11"><a xlink:href="../proc/regridscalar.html" xlink:title="sampler%RegridScalar">
+<polygon fill="#d9534f" stroke="#d9534f" points="417.5,-428 283.5,-428 283.5,-404 417.5,-404 417.5,-428"/>
+<text text-anchor="middle" x="350.5" y="-413.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sampler%RegridScalar</text>
+</a>
+</g>
+</g>
+<!-- proc~interp_accumulate_fields&#45;&gt;proc~regridscalar -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge10" class="edge">
+<title>proc~interp_accumulate_fields&#45;&gt;proc~regridscalar</title>
+<path fill="none" stroke="#ff0000" d="M114.35,-310.15C137.62,-329.92 186.77,-368.95 235,-390 247.06,-395.26 260.32,-399.53 273.4,-402.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="272.8,-406.42 283.35,-405.42 274.48,-399.62 272.8,-406.42"/>
+</g>
+<!-- proc~regridvector -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node12" class="node">
+<title>proc~regridvector</title>
+<g id="a_proc~~interp_accumulate_fields~~CallsGraph_node12"><a xlink:href="../proc/regridvector.html" xlink:title="sampler%RegridVector">
+<polygon fill="#d9534f" stroke="#d9534f" points="417.5,-470 283.5,-470 283.5,-446 417.5,-446 417.5,-470"/>
+<text text-anchor="middle" x="350.5" y="-455.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sampler%RegridVector</text>
+</a>
+</g>
+</g>
+<!-- proc~interp_accumulate_fields&#45;&gt;proc~regridvector -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge11" class="edge">
+<title>proc~interp_accumulate_fields&#45;&gt;proc~regridvector</title>
+<path fill="none" stroke="#ff0000" d="M108.22,-310.08C126.52,-337.62 175.5,-405.14 235,-437 246.71,-443.27 259.96,-447.71 273.18,-450.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="272.75,-454.32 283.26,-452.98 274.21,-447.48 272.75,-454.32"/>
+</g>
+<!-- proc~setup_eta_to_pressure -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node13" class="node">
+<title>proc~setup_eta_to_pressure</title>
+<g id="a_proc~~interp_accumulate_fields~~CallsGraph_node13"><a xlink:href="../proc/setup_eta_to_pressure.html" xlink:title="verticalData%setup_eta_to_pressure">
+<polygon fill="#d9534f" stroke="#d9534f" points="453,-268 248,-268 248,-244 453,-244 453,-268"/>
+<text text-anchor="middle" x="350.5" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">verticalData%setup_eta_to_pressure</text>
+</a>
+</g>
+</g>
+<!-- proc~interp_accumulate_fields&#45;&gt;proc~setup_eta_to_pressure -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge12" class="edge">
+<title>proc~interp_accumulate_fields&#45;&gt;proc~setup_eta_to_pressure</title>
+<path fill="none" stroke="#ff0000" d="M171.85,-285.96C201.94,-280.89 237.12,-274.96 268.2,-269.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="268.86,-273.15 278.14,-268.04 267.69,-266.25 268.86,-273.15"/>
+</g>
+<!-- proc~v_begin~15 -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node14" class="node">
+<title>proc~v_begin~15</title>
+<g id="a_proc~~interp_accumulate_fields~~CallsGraph_node14"><a xlink:href="../proc/v_begin~15.html" xlink:title="GriddedIOitemVector%v_begin">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="438,-108 263,-108 263,-84 438,-84 438,-108"/>
+<text text-anchor="middle" x="350.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedIOitemVector%v_begin</text>
+</a>
+</g>
+</g>
+<!-- proc~interp_accumulate_fields&#45;&gt;proc~v_begin~15 -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge13" class="edge">
+<title>proc~interp_accumulate_fields&#45;&gt;proc~v_begin~15</title>
+<path fill="none" stroke="#ff0000" d="M105.62,-285.83C120.28,-252.62 165.86,-160.02 235,-117 240.71,-113.45 246.86,-110.47 253.26,-107.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="254.49,-111.24 262.77,-104.63 252.17,-104.64 254.49,-111.24"/>
+</g>
+<!-- proc~v_iter_get~15 -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node15" class="node">
+<title>proc~v_iter_get~15</title>
+<g id="a_proc~~interp_accumulate_fields~~CallsGraph_node15"><a xlink:href="../proc/v_iter_get~15.html" xlink:title="GriddedIOitemVectorIterator%v_iter_get">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="463.5,-66 237.5,-66 237.5,-42 463.5,-42 463.5,-66"/>
+<text text-anchor="middle" x="350.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedIOitemVectorIterator%v_iter_get</text>
+</a>
+</g>
+</g>
+<!-- proc~interp_accumulate_fields&#45;&gt;proc~v_iter_get~15 -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge14" class="edge">
+<title>proc~interp_accumulate_fields&#45;&gt;proc~v_iter_get~15</title>
+<path fill="none" stroke="#ff0000" d="M103.9,-285.87C115.27,-247.77 155.78,-129.75 235,-75 237.3,-73.41 239.68,-71.93 242.13,-70.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="243.89,-73.6 251.29,-66.02 240.78,-67.33 243.89,-73.6"/>
+</g>
+<!-- proc~v_iter_next~15 -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node16" class="node">
+<title>proc~v_iter_next~15</title>
+<g id="a_proc~~interp_accumulate_fields~~CallsGraph_node16"><a xlink:href="../proc/v_iter_next~15.html" xlink:title="GriddedIOitemVectorIterator%v_iter_next">
+<polygon fill="#d9534f" stroke="#d9534f" points="466,-24 235,-24 235,0 466,0 466,-24"/>
+<text text-anchor="middle" x="350.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedIOitemVectorIterator%v_iter_next</text>
+</a>
+</g>
+</g>
+<!-- proc~interp_accumulate_fields&#45;&gt;proc~v_iter_next~15 -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge15" class="edge">
+<title>proc~interp_accumulate_fields&#45;&gt;proc~v_iter_next~15</title>
+<path fill="none" stroke="#ff0000" d="M102.73,-285.79C111.18,-243.15 145.49,-99.82 235,-33 236.88,-31.6 238.81,-30.28 240.81,-29.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="242.77,-31.97 249.88,-24.11 239.42,-25.82 242.77,-31.97"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node21" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~interp_accumulate_fields~~CallsGraph_node21"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="887,-222 753,-222 753,-198 887,-198 887,-222"/>
+<text text-anchor="middle" x="820" y="-207.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge16" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#65ff00" stroke-dasharray="5,2" d="M645.88,-210C672.97,-210 709.98,-210 742.83,-210"/>
+<polygon fill="#65ff00" stroke="#65ff00" points="742.88,-213.5 752.88,-210 742.88,-206.5 742.88,-213.5"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node22" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~interp_accumulate_fields~~CallsGraph_node22"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="894,-180 746,-180 746,-156 894,-156 894,-180"/>
+<text text-anchor="middle" x="820" y="-165.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge17" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#65ff00" stroke-dasharray="5,2" d="M645.88,-202.3C674.5,-196.63 714.2,-188.76 748.36,-181.99"/>
+<polygon fill="#65ff00" stroke="#65ff00" points="749.17,-185.4 758.3,-180.03 747.81,-178.54 749.17,-185.4"/>
+</g>
+<!-- proc~mapl_gridgetinterior -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node24" class="node">
+<title>proc~mapl_gridgetinterior</title>
+<g id="a_proc~~interp_accumulate_fields~~CallsGraph_node24"><a xlink:href="../proc/mapl_gridgetinterior.html" xlink:title="MAPL_GridGetInterior">
+<polygon fill="#d9534f" stroke="#d9534f" points="669.5,-138 542.5,-138 542.5,-114 669.5,-114 669.5,-138"/>
+<text text-anchor="middle" x="606" y="-123.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridGetInterior</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_gridgetinterior&#45;&gt;proc~mapl_gridgetinterior -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge18" class="edge">
+<title>interface~mapl_gridgetinterior&#45;&gt;proc~mapl_gridgetinterior</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M414.16,-135.03C449.81,-133.35 494.64,-131.22 531.89,-129.46"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="532.36,-132.94 542.18,-128.97 532.03,-125.95 532.36,-132.94"/>
+</g>
+<!-- proc~correct_topo&#45;&gt;esmf_fieldget -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge19" class="edge">
+<title>proc~correct_topo&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#00ff66" d="M427.56,-309.4C468.04,-315.47 516.79,-322.78 552.94,-328.2"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="552.84,-331.72 563.25,-329.74 553.88,-324.8 552.84,-331.72"/>
+</g>
+<!-- proc~correct_topo&#45;&gt;interface~mapl_assert -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge20" class="edge">
+<title>proc~correct_topo&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ff66" d="M427.63,-292.02C441.05,-288.79 454.41,-284.01 466,-277 488.21,-263.56 479.92,-244.66 502,-231 518.16,-221 538.22,-215.66 556.33,-212.85"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="556.99,-216.29 566.44,-211.5 556.06,-209.35 556.99,-216.29"/>
+</g>
+<!-- proc~correct_topo&#45;&gt;proc~mapl_return -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge22" class="edge">
+<title>proc~correct_topo&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff66" d="M427.56,-296.8C468.57,-296.15 518.07,-295.37 554.35,-294.8"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="554.75,-298.29 564.69,-294.64 554.64,-291.29 554.75,-298.29"/>
+</g>
+<!-- proc~correct_topo&#45;&gt;proc~mapl_verify -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge23" class="edge">
+<title>proc~correct_topo&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ff66" d="M417.77,-285.97C461.77,-277.99 518.46,-267.7 557.88,-260.55"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="558.55,-263.99 567.76,-258.76 557.3,-257.1 558.55,-263.99"/>
+</g>
+<!-- proc~mapl_gridhasde -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node25" class="node">
+<title>proc~mapl_gridhasde</title>
+<g id="a_proc~~interp_accumulate_fields~~CallsGraph_node25"><a xlink:href="../proc/mapl_gridhasde.html" xlink:title="MAPL_GridHasDE">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="658,-432 554,-432 554,-408 658,-408 658,-432"/>
+<text text-anchor="middle" x="606" y="-417.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridHasDE</text>
+</a>
+</g>
+</g>
+<!-- proc~correct_topo&#45;&gt;proc~mapl_gridhasde -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge21" class="edge">
+<title>proc~correct_topo&#45;&gt;proc~mapl_gridhasde</title>
+<path fill="none" stroke="#00ff66" d="M365.35,-310.08C390.66,-331.47 446.84,-375.93 502,-399 515.07,-404.47 529.69,-408.55 543.72,-411.59"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="543.3,-415.07 553.79,-413.62 544.68,-408.21 543.3,-415.07"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node20" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~interp_accumulate_fields~~CallsGraph_node20"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="877.5,-306 762.5,-306 762.5,-282 877.5,-282 877.5,-306"/>
+<text text-anchor="middle" x="820" y="-291.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ffcb" d="M647.37,-294C676.88,-294 717.57,-294 751.92,-294"/>
+<polygon fill="#00ffcb" stroke="#00ffcb" points="752.36,-297.5 762.36,-294 752.36,-290.5 752.36,-297.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node26" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~interp_accumulate_fields~~CallsGraph_node26"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="886.5,-264 753.5,-264 753.5,-240 886.5,-240 886.5,-264"/>
+<text text-anchor="middle" x="820" y="-249.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffcb" d="M647.37,-286C675.79,-280.37 714.58,-272.69 748.09,-266.05"/>
+<polygon fill="#00ffcb" stroke="#00ffcb" points="749.18,-269.4 758.31,-264.02 747.82,-262.53 749.18,-269.4"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00cbff" d="M644.41,-252C671.67,-252 709.52,-252 743.02,-252"/>
+<polygon fill="#00cbff" stroke="#00cbff" points="743.26,-255.5 753.26,-252 743.26,-248.5 743.26,-255.5"/>
+</g>
+<!-- proc~regridscalar&#45;&gt;esmf_fieldbundleget -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge27" class="edge">
+<title>proc~regridscalar&#45;&gt;esmf_fieldbundleget</title>
+<path fill="none" stroke="#0066ff" d="M417.67,-415.12C435.36,-418.08 453.12,-424.44 466,-437 521.91,-491.53 446.63,-553.92 502,-609 511.09,-618.04 522.94,-623.7 535.35,-627.15"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="534.86,-630.63 545.39,-629.47 536.44,-623.81 534.86,-630.63"/>
+</g>
+<!-- proc~regridscalar&#45;&gt;esmf_fieldget -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge28" class="edge">
+<title>proc~regridscalar&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#0066ff" d="M417.76,-407.05C434.13,-403.21 451.19,-397.76 466,-390 485.23,-379.93 482.66,-366.86 502,-357 517.62,-349.04 536.02,-344.09 552.91,-341.02"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="553.89,-344.41 563.2,-339.34 552.77,-337.5 553.89,-344.41"/>
+</g>
+<!-- proc~regridscalar&#45;&gt;interface~mapl_assert -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge30" class="edge">
+<title>proc~regridscalar&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#0066ff" d="M371.02,-403.81C396.04,-387.31 439.36,-355.68 466,-319 490.83,-284.81 469.46,-257.96 502,-231 517.06,-218.52 537.56,-212.81 556.3,-210.39"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="556.9,-213.85 566.49,-209.36 556.19,-206.88 556.9,-213.85"/>
+</g>
+<!-- proc~regridscalar&#45;&gt;proc~mapl_return -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge34" class="edge">
+<title>proc~regridscalar&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0066ff" d="M378.29,-403.78C402.39,-392.17 438.17,-373.35 466,-352 484.2,-338.03 481.87,-326 502,-315 518.06,-306.22 537.35,-301.1 554.88,-298.11"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="555.58,-301.55 564.95,-296.59 554.54,-294.62 555.58,-301.55"/>
+</g>
+<!-- proc~regridscalar&#45;&gt;proc~mapl_verify -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge35" class="edge">
+<title>proc~regridscalar&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0066ff" d="M367.96,-403.78C391.05,-386.26 433.85,-352.42 466,-319 484,-300.29 479.92,-286.66 502,-273 518.63,-262.71 539.39,-257.36 557.9,-254.61"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="558.43,-258.07 567.91,-253.34 557.55,-251.13 558.43,-258.07"/>
+</g>
+<!-- interface~esmfl_fieldgetpointertodata -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node17" class="node">
+<title>interface~esmfl_fieldgetpointertodata</title>
+<g id="a_proc~~interp_accumulate_fields~~CallsGraph_node17"><a xlink:href="../interface/esmfl_fieldgetpointertodata.html" xlink:title="ESMFL_FieldGetPointerToData">
+<polygon fill="#a7506f" stroke="#a7506f" points="691,-600 521,-600 521,-576 691,-576 691,-600"/>
+<text text-anchor="middle" x="606" y="-585.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFL_FieldGetPointerToData</text>
+</a>
+</g>
+</g>
+<!-- proc~regridscalar&#45;&gt;interface~esmfl_fieldgetpointertodata -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge29" class="edge">
+<title>proc~regridscalar&#45;&gt;interface~esmfl_fieldgetpointertodata</title>
+<path fill="none" stroke="#0066ff" d="M417.76,-415.75C435.25,-418.76 452.88,-424.99 466,-437 510.23,-477.47 458.17,-526.1 502,-567 505.03,-569.83 508.33,-572.32 511.83,-574.51"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="510.44,-577.73 520.9,-579.36 513.74,-571.56 510.44,-577.73"/>
+</g>
+<!-- none~regrid~10 -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node18" class="node">
+<title>none~regrid~10</title>
+<g id="a_proc~~interp_accumulate_fields~~CallsGraph_node18"><a xlink:href="../type/abstractregridder.html#boundprocedure-regrid~10" xlink:title="AbstractRegridder%regrid">
+<polygon fill="#a7506f" stroke="#a7506f" points="681.5,-390 530.5,-390 530.5,-366 681.5,-366 681.5,-390"/>
+<text text-anchor="middle" x="606" y="-375.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractRegridder%regrid</text>
+</a>
+</g>
+</g>
+<!-- proc~regridscalar&#45;&gt;none~regrid~10 -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge31" class="edge">
+<title>proc~regridscalar&#45;&gt;none~regrid~10</title>
+<path fill="none" stroke="#0066ff" d="M417.77,-406.07C449.02,-401.38 486.66,-395.74 519.98,-390.75"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="520.79,-394.16 530.17,-389.22 519.76,-387.24 520.79,-394.16"/>
+</g>
+<!-- proc~flip_levels -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node19" class="node">
+<title>proc~flip_levels</title>
+<g id="a_proc~~interp_accumulate_fields~~CallsGraph_node19"><a xlink:href="../proc/flip_levels.html" xlink:title="verticalData%flip_levels">
+<polygon fill="#d9534f" stroke="#d9534f" points="676,-558 536,-558 536,-534 676,-534 676,-558"/>
+<text text-anchor="middle" x="606" y="-543.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">verticalData%flip_levels</text>
+</a>
+</g>
+</g>
+<!-- proc~regridscalar&#45;&gt;proc~flip_levels -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge32" class="edge">
+<title>proc~regridscalar&#45;&gt;proc~flip_levels</title>
+<path fill="none" stroke="#0066ff" d="M417.77,-416.94C434.96,-420.01 452.43,-425.98 466,-437 498.81,-463.63 469.46,-498.04 502,-525 509.12,-530.9 517.46,-535.29 526.25,-538.53"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="525.35,-541.91 535.94,-541.61 527.47,-535.24 525.35,-541.91"/>
+</g>
+<!-- proc~regridscalar&#45;&gt;proc~mapl_gridhasde -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge33" class="edge">
+<title>proc~regridscalar&#45;&gt;proc~mapl_gridhasde</title>
+<path fill="none" stroke="#0066ff" d="M417.77,-417.05C456.66,-417.66 505.47,-418.43 543.5,-419.03"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="543.87,-422.54 553.92,-419.19 543.98,-415.54 543.87,-422.54"/>
+</g>
+<!-- proc~regrid_eta_to_pressure -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node27" class="node">
+<title>proc~regrid_eta_to_pressure</title>
+<g id="a_proc~~interp_accumulate_fields~~CallsGraph_node27"><a xlink:href="../proc/regrid_eta_to_pressure.html" xlink:title="verticalData%regrid_eta_to_pressure">
+<polygon fill="#d9534f" stroke="#d9534f" points="710,-516 502,-516 502,-492 710,-492 710,-516"/>
+<text text-anchor="middle" x="606" y="-501.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">verticalData%regrid_eta_to_pressure</text>
+</a>
+</g>
+</g>
+<!-- proc~regridscalar&#45;&gt;proc~regrid_eta_to_pressure -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge36" class="edge">
+<title>proc~regridscalar&#45;&gt;proc~regrid_eta_to_pressure</title>
+<path fill="none" stroke="#0066ff" d="M417.73,-419.86C434.36,-422.99 451.56,-428.26 466,-437 488.21,-450.44 479.92,-469.34 502,-483 504.96,-484.83 508.05,-486.51 511.24,-488.04"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="509.87,-491.26 520.44,-491.99 512.63,-484.83 509.87,-491.26"/>
+</g>
+<!-- proc~regrid_select_level -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node28" class="node">
+<title>proc~regrid_select_level</title>
+<g id="a_proc~~interp_accumulate_fields~~CallsGraph_node28"><a xlink:href="../proc/regrid_select_level.html" xlink:title="verticalData%regrid_select_level">
+<polygon fill="#d9534f" stroke="#d9534f" points="699.5,-474 512.5,-474 512.5,-450 699.5,-450 699.5,-474"/>
+<text text-anchor="middle" x="606" y="-459.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">verticalData%regrid_select_level</text>
+</a>
+</g>
+</g>
+<!-- proc~regridscalar&#45;&gt;proc~regrid_select_level -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge37" class="edge">
+<title>proc~regridscalar&#45;&gt;proc~regrid_select_level</title>
+<path fill="none" stroke="#0066ff" d="M417.77,-428.03C451.69,-434.18 493.15,-441.7 528.42,-448.1"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="528.21,-451.62 538.67,-449.96 529.46,-444.74 528.21,-451.62"/>
+</g>
+<!-- proc~regridvector&#45;&gt;esmf_fieldbundleget -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge38" class="edge">
+<title>proc~regridvector&#45;&gt;esmf_fieldbundleget</title>
+<path fill="none" stroke="#0000ff" d="M417.56,-460.92C435.15,-464.68 452.88,-471.61 466,-484 508.03,-523.7 459.53,-569.77 502,-609 511.31,-617.6 523.15,-623.08 535.45,-626.5"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="534.85,-629.95 545.39,-628.82 536.45,-623.13 534.85,-629.95"/>
+</g>
+<!-- proc~regridvector&#45;&gt;esmf_fieldget -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge39" class="edge">
+<title>proc~regridvector&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#0000ff" d="M417.52,-456.75C434.71,-453.68 452.24,-447.78 466,-437 496.69,-412.95 471.55,-381.35 502,-357 516.36,-345.52 535.36,-339.82 553.14,-337.13"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="553.91,-340.57 563.41,-335.88 553.06,-333.62 553.91,-340.57"/>
+</g>
+<!-- proc~regridvector&#45;&gt;proc~mapl_return -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge44" class="edge">
+<title>proc~regridvector&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0000ff" d="M417.63,-458.11C435.12,-455.09 452.78,-448.89 466,-437 508.03,-399.19 460.35,-353.22 502,-315 516.18,-301.99 536.16,-296.13 554.75,-293.74"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="555.28,-297.21 564.89,-292.75 554.6,-290.24 555.28,-297.21"/>
+</g>
+<!-- proc~regridvector&#45;&gt;proc~mapl_verify -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge45" class="edge">
+<title>proc~regridvector&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0000ff" d="M417.59,-458.8C435.28,-455.84 453.06,-449.5 466,-437 519.67,-385.16 448.84,-325.37 502,-273 516.61,-258.6 538.25,-252.8 557.93,-250.82"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="558.26,-254.31 567.99,-250.11 557.77,-247.32 558.26,-254.31"/>
+</g>
+<!-- proc~regridvector&#45;&gt;interface~esmfl_fieldgetpointertodata -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge40" class="edge">
+<title>proc~regridvector&#45;&gt;interface~esmfl_fieldgetpointertodata</title>
+<path fill="none" stroke="#0000ff" d="M417.77,-462.3C434.96,-466.13 452.43,-472.74 466,-484 496.95,-509.67 470.77,-541.67 502,-567 505.1,-569.51 508.42,-571.75 511.91,-573.74"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="510.36,-576.88 520.87,-578.2 513.47,-570.61 510.36,-576.88"/>
+</g>
+<!-- proc~regridvector&#45;&gt;none~regrid~10 -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge41" class="edge">
+<title>proc~regridvector&#45;&gt;none~regrid~10</title>
+<path fill="none" stroke="#0000ff" d="M417.79,-453.09C434.24,-449.95 451.34,-444.95 466,-437 486.45,-425.91 481.66,-410.29 502,-399 507.9,-395.73 514.24,-392.96 520.77,-390.62"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="522.01,-393.9 530.45,-387.5 519.86,-387.24 522.01,-393.9"/>
+</g>
+<!-- proc~regridvector&#45;&gt;proc~flip_levels -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge42" class="edge">
+<title>proc~regridvector&#45;&gt;proc~flip_levels</title>
+<path fill="none" stroke="#0000ff" d="M417.78,-465.72C434.31,-469.57 451.46,-475.35 466,-484 486.84,-496.4 481.02,-512.83 502,-525 509.51,-529.36 517.79,-532.82 526.29,-535.57"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="525.37,-538.95 535.95,-538.39 527.33,-532.23 525.37,-538.95"/>
+</g>
+<!-- proc~regridvector&#45;&gt;proc~mapl_gridhasde -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge43" class="edge">
+<title>proc~regridvector&#45;&gt;proc~mapl_gridhasde</title>
+<path fill="none" stroke="#0000ff" d="M417.77,-448.07C456.83,-442.21 505.88,-434.86 543.98,-429.15"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="544.55,-432.6 553.92,-427.66 543.51,-425.68 544.55,-432.6"/>
+</g>
+<!-- proc~regridvector&#45;&gt;proc~regrid_eta_to_pressure -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge46" class="edge">
+<title>proc~regridvector&#45;&gt;proc~regrid_eta_to_pressure</title>
+<path fill="none" stroke="#0000ff" d="M417.77,-470.03C451.69,-476.18 493.15,-483.7 528.42,-490.1"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="528.21,-493.62 538.67,-491.96 529.46,-486.74 528.21,-493.62"/>
+</g>
+<!-- proc~regridvector&#45;&gt;proc~regrid_select_level -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge47" class="edge">
+<title>proc~regridvector&#45;&gt;proc~regrid_select_level</title>
+<path fill="none" stroke="#0000ff" d="M417.77,-459.05C443.62,-459.45 473.86,-459.93 502.4,-460.38"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="502.36,-463.88 512.41,-460.54 502.47,-456.88 502.36,-463.88"/>
+</g>
+<!-- proc~setup_eta_to_pressure&#45;&gt;esmf_fieldget -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge48" class="edge">
+<title>proc~setup_eta_to_pressure&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#6500ff" d="M445.38,-268.09C452.55,-270.54 459.52,-273.48 466,-277 486.45,-288.09 481.66,-303.71 502,-315 517.61,-323.66 536.32,-328.77 553.49,-331.78"/>
+<polygon fill="#6500ff" stroke="#6500ff" points="552.97,-335.24 563.39,-333.32 554.05,-328.32 552.97,-335.24"/>
+</g>
+<!-- proc~setup_eta_to_pressure&#45;&gt;interface~mapl_assert -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge49" class="edge">
+<title>proc~setup_eta_to_pressure&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#6500ff" d="M417.77,-243.97C461.23,-236.09 517.07,-225.96 556.42,-218.82"/>
+<polygon fill="#6500ff" stroke="#6500ff" points="557.09,-222.25 566.3,-217.02 555.84,-215.36 557.09,-222.25"/>
+</g>
+<!-- proc~setup_eta_to_pressure&#45;&gt;proc~mapl_return -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge52" class="edge">
+<title>proc~setup_eta_to_pressure&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#6500ff" d="M431.71,-268.02C472.11,-274.08 519.83,-281.23 554.96,-286.5"/>
+<polygon fill="#6500ff" stroke="#6500ff" points="554.56,-289.98 564.97,-288 555.6,-283.06 554.56,-289.98"/>
+</g>
+<!-- proc~setup_eta_to_pressure&#45;&gt;proc~mapl_verify -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge53" class="edge">
+<title>proc~setup_eta_to_pressure&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#6500ff" d="M453.15,-254.4C489.22,-253.83 528.11,-253.21 557.5,-252.75"/>
+<polygon fill="#6500ff" stroke="#6500ff" points="557.94,-256.24 567.88,-252.59 557.83,-249.24 557.94,-256.24"/>
+</g>
+<!-- proc~setup_eta_to_pressure&#45;&gt;none~regrid~10 -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge50" class="edge">
+<title>proc~setup_eta_to_pressure&#45;&gt;none~regrid~10</title>
+<path fill="none" stroke="#6500ff" d="M451.86,-268.13C456.87,-270.64 461.63,-273.57 466,-277 496.69,-301.05 471.55,-332.65 502,-357 507.68,-361.54 514.1,-365.18 520.87,-368.09"/>
+<polygon fill="#6500ff" stroke="#6500ff" points="519.71,-371.39 530.3,-371.61 522.16,-364.83 519.71,-371.39"/>
+</g>
+<!-- proc~mapl_gridget -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_node23" class="node">
+<title>proc~mapl_gridget</title>
+<g id="a_proc~~interp_accumulate_fields~~CallsGraph_node23"><a xlink:href="../proc/mapl_gridget.html" xlink:title="MAPL_GridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="650,-180 562,-180 562,-156 650,-156 650,-180"/>
+<text text-anchor="middle" x="606" y="-165.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~setup_eta_to_pressure&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~interp_accumulate_fields~~CallsGraph_edge51" class="edge">
+<title>proc~setup_eta_to_pressure&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#6500ff" d="M374.35,-243.94C403.32,-229.09 455.15,-204.01 502,-189 517.98,-183.88 535.76,-179.73 551.99,-176.52"/>
+<polygon fill="#6500ff" stroke="#6500ff" points="552.7,-179.94 561.87,-174.63 551.39,-173.07 552.7,-179.94"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocinterp_accumulate_fieldsCallsGraph = svgPanZoom('#procinterp_accumulate_fieldsCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~interp_accumulate_fields~~CalledByGraph Pages: 1 -->
+<svg id="procinterp_accumulate_fieldsCalledByGraph" width="586pt" height="32pt"
+ viewBox="0.00 0.00 586.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~interp_accumulate_fields~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~interp_accumulate_fields~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 582,-28 582,4 -4,4"/>
+<!-- proc~interp_accumulate_fields -->
+<g id="proc~~interp_accumulate_fields~~CalledByGraph_node1" class="node">
+<title>proc~interp_accumulate_fields</title>
+<polygon fill="none" stroke="black" points="578,-24 379,-24 379,0 578,0 578,-24"/>
+<text text-anchor="middle" x="478.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">sampler%interp_accumulate_fields</text>
+</g>
+<!-- proc~regrid_accumulate_on_xysubset -->
+<g id="proc~~interp_accumulate_fields~~CalledByGraph_node2" class="node">
+<title>proc~regrid_accumulate_on_xysubset</title>
+<g id="a_proc~~interp_accumulate_fields~~CalledByGraph_node2"><a xlink:href="../proc/regrid_accumulate_on_xysubset.html" xlink:title="samplerHQ%regrid_accumulate_on_xysubset">
+<polygon fill="#d9534f" stroke="#d9534f" points="343,-24 90,-24 90,0 343,0 343,-24"/>
+<text text-anchor="middle" x="216.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">samplerHQ%regrid_accumulate_on_xysubset</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_accumulate_on_xysubset&#45;&gt;proc~interp_accumulate_fields -->
+<g id="proc~~interp_accumulate_fields~~CalledByGraph_edge1" class="edge">
+<title>proc~regrid_accumulate_on_xysubset&#45;&gt;proc~interp_accumulate_fields</title>
+<path fill="none" stroke="#ff0000" d="M343.31,-12C351.79,-12 360.29,-12 368.67,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="368.83,-15.5 378.83,-12 368.83,-8.5 368.83,-15.5"/>
+</g>
+<!-- proc~run -->
+<g id="proc~~interp_accumulate_fields~~CalledByGraph_node3" class="node">
+<title>proc~run</title>
+<g id="a_proc~~interp_accumulate_fields~~CalledByGraph_node3"><a xlink:href="../proc/run.html" xlink:title="Run">
+<polygon fill="#d9534f" stroke="#d9534f" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run</text>
+</a>
+</g>
+</g>
+<!-- proc~run&#45;&gt;proc~regrid_accumulate_on_xysubset -->
+<g id="proc~~interp_accumulate_fields~~CalledByGraph_edge2" class="edge">
+<title>proc~run&#45;&gt;proc~regrid_accumulate_on_xysubset</title>
+<path fill="none" stroke="#ff0000" d="M54.07,-12C61.54,-12 70.23,-12 79.64,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="79.69,-15.5 89.69,-12 79.69,-8.5 79.69,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">interp_accumulate_fields</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="n">xy_subset</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">    </span><span class="k">implicit none</span>
+<span class="k">    class</span><span class="w"> </span><span class="p">(</span><span class="n">sampler</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">xy_subset</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">    </span><span class="c">!!integer, intent(in) :: xy_mask(:,:)</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">outField</span><span class="p">,</span><span class="w"> </span><span class="n">outField2</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_outField</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">grid</span>
+
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">GriddedIOitemVectorIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">GriddedIOitem</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">item</span>
+
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Array</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">array1</span><span class="p">,</span><span class="w"> </span><span class="n">array2</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">is</span><span class="p">,</span><span class="n">ie</span><span class="p">,</span><span class="n">js</span><span class="p">,</span><span class="n">je</span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rank</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="nb">KIND</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">pt2d</span><span class="p">(:,:),</span><span class="w"> </span><span class="n">pt2d_</span><span class="p">(:,:)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="nb">KIND</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">pt3d</span><span class="p">(:,:,:),</span><span class="w"> </span><span class="n">pt3d_</span><span class="p">(:,:,:)</span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">localDe</span><span class="p">,</span><span class="w"> </span><span class="n">localDECount</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">LB</span><span class="p">,</span><span class="w"> </span><span class="n">UB</span><span class="p">,</span><span class="w"> </span><span class="n">exclusiveCount</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">compLB</span><span class="p">,</span><span class="w"> </span><span class="n">compUB</span><span class="p">,</span><span class="w"> </span><span class="n">compCount</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dimCount</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">y1</span><span class="p">,</span><span class="w"> </span><span class="n">y2</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">jj</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ii1</span><span class="p">,</span><span class="w"> </span><span class="n">iin</span><span class="p">,</span><span class="w"> </span><span class="n">jj1</span><span class="p">,</span><span class="w"> </span><span class="n">jjn</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">j1</span><span class="p">,</span><span class="w"> </span><span class="n">j2</span>
+
+<span class="w">    </span><span class="k">is</span><span class="o">=</span><span class="n">xy_subset</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="n">ie</span><span class="o">=</span><span class="n">xy_subset</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">    </span><span class="n">js</span><span class="o">=</span><span class="n">xy_subset</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">);</span><span class="w"> </span><span class="n">je</span><span class="o">=</span><span class="n">xy_subset</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">js</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">je</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">       </span><span class="c">! no valid points are found on swath grid for this time step</span>
+<span class="w">       </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">vdata</span><span class="p">%</span><span class="n">regrid_type</span><span class="o">==</span><span class="n">VERTICAL_METHOD_ETA2LEV</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       call </span><span class="n">this</span><span class="p">%</span><span class="n">vdata</span><span class="p">%</span><span class="n">setup_eta_to_pressure</span><span class="p">(</span><span class="n">regrid_handle</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">regrid_handle</span><span class="p">,</span><span class="n">output_grid</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">output_grid</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">output_bundle</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_GridGet</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">localDECount</span><span class="o">=</span><span class="n">localDECount</span><span class="p">,</span><span class="w"> </span><span class="n">dimCount</span><span class="o">=</span><span class="n">dimCount</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">    </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">LB</span><span class="p">(</span><span class="n">dimCount</span><span class="p">),</span><span class="w"> </span><span class="n">UB</span><span class="p">(</span><span class="n">dimCount</span><span class="p">),</span><span class="w"> </span><span class="n">exclusiveCount</span><span class="p">(</span><span class="n">dimCount</span><span class="p">)</span><span class="w"> </span><span class="p">,</span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">    </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">compLB</span><span class="p">(</span><span class="n">dimCount</span><span class="p">),</span><span class="w"> </span><span class="n">compUB</span><span class="p">(</span><span class="n">dimCount</span><span class="p">),</span><span class="w"> </span><span class="n">compCount</span><span class="p">(</span><span class="n">dimCount</span><span class="p">)</span><span class="w"> </span><span class="p">,</span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">j1</span><span class="p">(</span><span class="mi">0</span><span class="p">:</span><span class="n">localDEcount</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">,</span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span><span class="w">  </span><span class="c">! start</span>
+<span class="w">    </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">j2</span><span class="p">(</span><span class="mi">0</span><span class="p">:</span><span class="n">localDEcount</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">,</span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span><span class="w">  </span><span class="c">! end</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">localDEcount</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;failed, due to localDEcount &gt; 1&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_GridGetInterior</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="n">ii1</span><span class="p">,</span><span class="n">iin</span><span class="p">,</span><span class="n">jj1</span><span class="p">,</span><span class="n">jjn</span><span class="p">)</span>
+<span class="c">!!    write(6,*) &#39;MAPL_GridGetInterior, ii1,iin,jj1,jjn&#39;, ii1,iin,jj1,jjn</span>
+<span class="c">!!    print*, &#39;js,je &#39;, js, je</span>
+
+<span class="w">    </span><span class="n">LB</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="n">ii1</span><span class="p">;</span><span class="w"> </span><span class="n">LB</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">=</span><span class="n">jj1</span>
+<span class="w">    </span><span class="n">UB</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="n">iin</span><span class="p">;</span><span class="w"> </span><span class="n">UB</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">=</span><span class="n">jjn</span>
+
+<span class="w">    </span><span class="k">do </span><span class="n">localDe</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">localDEcount</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">       </span><span class="c">!</span>
+<span class="w">       </span><span class="c">! is/ie, js/je,  [LB, UB]</span>
+<span class="w">       </span><span class="c">!</span>
+<span class="w">       </span><span class="c">!</span>
+<span class="w">       </span><span class="n">y1</span><span class="o">=</span><span class="n">jj1</span><span class="p">;</span><span class="w"> </span><span class="n">y2</span><span class="o">=</span><span class="n">jjn</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">y1</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">js</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="n">y2</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">js</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             </span><span class="n">j1</span><span class="p">(</span><span class="n">localDe</span><span class="p">)</span><span class="o">=-</span><span class="mi">1</span>
+<span class="w">             </span><span class="n">j2</span><span class="p">(</span><span class="n">localDe</span><span class="p">)</span><span class="o">=-</span><span class="mi">1</span>
+<span class="w">          </span><span class="k">elseif</span><span class="w"> </span><span class="p">(</span><span class="n">y2</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">je</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             </span><span class="n">j1</span><span class="p">(</span><span class="n">localDe</span><span class="p">)</span><span class="o">=</span><span class="n">js</span>
+<span class="w">             </span><span class="n">j2</span><span class="p">(</span><span class="n">localDe</span><span class="p">)</span><span class="o">=</span><span class="n">y2</span>
+<span class="w">          </span><span class="k">else</span>
+<span class="k">             </span><span class="n">j1</span><span class="p">(</span><span class="n">localDe</span><span class="p">)</span><span class="o">=</span><span class="n">js</span>
+<span class="w">             </span><span class="n">j2</span><span class="p">(</span><span class="n">localDe</span><span class="p">)</span><span class="o">=</span><span class="n">je</span>
+<span class="w">          </span><span class="k">endif</span>
+<span class="k">       elseif</span><span class="w"> </span><span class="p">(</span><span class="n">y1</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">je</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">j1</span><span class="p">(</span><span class="n">localDe</span><span class="p">)</span><span class="o">=</span><span class="n">y1</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">y2</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">je</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             </span><span class="n">j2</span><span class="p">(</span><span class="n">localDe</span><span class="p">)</span><span class="o">=</span><span class="n">y2</span>
+<span class="w">          </span><span class="k">else</span>
+<span class="k">             </span><span class="n">j2</span><span class="p">(</span><span class="n">localDe</span><span class="p">)</span><span class="o">=</span><span class="n">je</span>
+<span class="w">          </span><span class="k">endif</span>
+<span class="k">       else</span>
+<span class="k">          </span><span class="n">j1</span><span class="p">(</span><span class="n">localDe</span><span class="p">)</span><span class="o">=-</span><span class="mi">1</span>
+<span class="w">          </span><span class="n">j2</span><span class="p">(</span><span class="n">localDe</span><span class="p">)</span><span class="o">=-</span><span class="mi">1</span>
+<span class="w">       </span><span class="k">endif</span>
+<span class="k">    enddo</span>
+
+<span class="c">!!    write(6,*) &#39;ck bundlepost_acc&#39;</span>
+<span class="c">!!    write(6,*) &#39;j1(localDe)&#39;, j1(0:localDeCount-1)</span>
+<span class="c">!!    write(6,*) &#39;j2(localDe)&#39;, j2(0:localDeCount-1)</span>
+
+
+<span class="w">    </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">items</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span>
+<span class="w">    </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">items</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+<span class="w">       </span><span class="n">item</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="n">get</span><span class="p">()</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">itemType</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ItemTypeScalar</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          call </span><span class="n">this</span><span class="p">%</span><span class="n">RegridScalar</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">xname</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">output_bundle</span><span class="p">,</span><span class="n">item</span><span class="p">%</span><span class="n">xname</span><span class="p">,</span><span class="n">field</span><span class="o">=</span><span class="n">outField</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">vdata</span><span class="p">%</span><span class="n">regrid_type</span><span class="o">==</span><span class="n">VERTICAL_METHOD_ETA2LEV</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             call </span><span class="n">this</span><span class="p">%</span><span class="n">vdata</span><span class="p">%</span><span class="n">correct_topo</span><span class="p">(</span><span class="n">outField</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">end if</span>
+<span class="k">       elseif</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">itemType</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ItemTypeVector</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          call </span><span class="n">this</span><span class="p">%</span><span class="n">RegridVector</span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">xname</span><span class="p">,</span><span class="n">item</span><span class="p">%</span><span class="n">yname</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">output_bundle</span><span class="p">,</span><span class="n">item</span><span class="p">%</span><span class="n">xname</span><span class="p">,</span><span class="n">field</span><span class="o">=</span><span class="n">outField</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">vdata</span><span class="p">%</span><span class="n">regrid_type</span><span class="o">==</span><span class="n">VERTICAL_METHOD_ETA2LEV</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             call </span><span class="n">this</span><span class="p">%</span><span class="n">vdata</span><span class="p">%</span><span class="n">correct_topo</span><span class="p">(</span><span class="n">outField</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">end if</span>
+<span class="k">          call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">output_bundle</span><span class="p">,</span><span class="n">item</span><span class="p">%</span><span class="n">yname</span><span class="p">,</span><span class="n">field</span><span class="o">=</span><span class="n">outField2</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">vdata</span><span class="p">%</span><span class="n">regrid_type</span><span class="o">==</span><span class="n">VERTICAL_METHOD_ETA2LEV</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             call </span><span class="n">this</span><span class="p">%</span><span class="n">vdata</span><span class="p">%</span><span class="n">correct_topo</span><span class="p">(</span><span class="n">outField2</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">end if</span>
+<span class="k">       end if</span>
+
+
+<span class="w">       </span><span class="c">! -- mask the time interval</span>
+<span class="w">       </span><span class="c">!    store the time interval fields into new bundle</span>
+<span class="w">       </span><span class="c">!    xname</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">outField</span><span class="p">,</span><span class="w"> </span><span class="k">Array</span><span class="o">=</span><span class="n">array1</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">acc_bundle</span><span class="p">,</span><span class="n">item</span><span class="p">%</span><span class="n">xname</span><span class="p">,</span><span class="n">field</span><span class="o">=</span><span class="n">new_outField</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">new_outField</span><span class="p">,</span><span class="w"> </span><span class="k">Array</span><span class="o">=</span><span class="n">array2</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_ArrayGet</span><span class="p">(</span><span class="n">array1</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="o">=</span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          call </span><span class="n">ESMF_ArrayGet</span><span class="p">(</span><span class="n">array1</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">pt2d</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_ArrayGet</span><span class="p">(</span><span class="n">array2</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">pt2d_</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="n">localDe</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">j1</span><span class="p">(</span><span class="n">localDe</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             do </span><span class="n">j</span><span class="o">=</span><span class="w"> </span><span class="n">j1</span><span class="p">(</span><span class="n">localDe</span><span class="p">),</span><span class="w"> </span><span class="n">j2</span><span class="p">(</span><span class="n">localDe</span><span class="p">)</span>
+<span class="w">                </span><span class="n">jj</span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="o">-</span><span class="n">jj1</span><span class="o">+</span><span class="mi">1</span><span class="w">     </span><span class="c">! j_local</span>
+<span class="w">                </span><span class="c">!!                      write(6,*) &#39;j, jj&#39;, j, jj</span>
+<span class="w">                </span><span class="n">pt2d_</span><span class="p">(:,</span><span class="n">jj</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pt2d</span><span class="p">(:,</span><span class="n">jj</span><span class="p">)</span>
+<span class="w">             </span><span class="k">enddo</span>
+<span class="k">          endif</span>
+<span class="k">       elseif</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          call </span><span class="n">ESMF_ArrayGet</span><span class="p">(</span><span class="n">array1</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">pt3d</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_ArrayGet</span><span class="p">(</span><span class="n">array2</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">pt3d_</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">do </span><span class="n">localDe</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">localDEcount</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">j1</span><span class="p">(</span><span class="n">localDe</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                do </span><span class="n">j</span><span class="o">=</span><span class="w"> </span><span class="n">j1</span><span class="p">(</span><span class="n">localDe</span><span class="p">),</span><span class="w"> </span><span class="n">j2</span><span class="p">(</span><span class="n">localDe</span><span class="p">)</span>
+<span class="w">                   </span><span class="n">jj</span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="o">-</span><span class="n">jj1</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">                   </span><span class="n">pt3d_</span><span class="p">(:,</span><span class="n">jj</span><span class="p">,:)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pt3d</span><span class="p">(:,</span><span class="n">jj</span><span class="p">,:)</span>
+<span class="w">                </span><span class="k">enddo</span>
+<span class="k">             endif</span>
+<span class="k">          enddo</span>
+<span class="k">       else</span>
+<span class="k">          </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;failed interp_accumulate_fields&#39;</span><span class="p">)</span>
+<span class="w">       </span><span class="k">endif</span>
+
+<span class="w">       </span><span class="c">! __ additional step for yname if vector</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">itemType</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ItemTypeScalar</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">          </span><span class="c">! already done</span>
+<span class="w">       </span><span class="k">elseif</span><span class="w"> </span><span class="p">(</span><span class="n">item</span><span class="p">%</span><span class="n">itemType</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ItemTypeVector</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">          </span><span class="c">!</span>
+<span class="w">          </span><span class="c">! add yname</span>
+<span class="w">          </span><span class="c">!</span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">outField2</span><span class="p">,</span><span class="w"> </span><span class="k">Array</span><span class="o">=</span><span class="n">array1</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">acc_bundle</span><span class="p">,</span><span class="n">item</span><span class="p">%</span><span class="n">yname</span><span class="p">,</span><span class="n">field</span><span class="o">=</span><span class="n">new_outField</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">new_outField</span><span class="p">,</span><span class="w"> </span><span class="k">Array</span><span class="o">=</span><span class="n">array2</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_ArrayGet</span><span class="p">(</span><span class="n">array1</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="o">=</span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             call </span><span class="n">ESMF_ArrayGet</span><span class="p">(</span><span class="n">array1</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">pt2d</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">             </span><span class="k">call </span><span class="n">ESMF_ArrayGet</span><span class="p">(</span><span class="n">array2</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">pt2d_</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">             </span><span class="n">localDe</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">j1</span><span class="p">(</span><span class="n">localDe</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                   do </span><span class="n">j</span><span class="o">=</span><span class="w"> </span><span class="n">j1</span><span class="p">(</span><span class="n">localDe</span><span class="p">),</span><span class="w"> </span><span class="n">j2</span><span class="p">(</span><span class="n">localDe</span><span class="p">)</span>
+<span class="w">                      </span><span class="n">jj</span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="o">-</span><span class="n">jj1</span><span class="o">+</span><span class="mi">1</span><span class="w">     </span><span class="c">! j_local</span>
+<span class="c">!!                      write(6,*) &#39;j, jj&#39;, j, jj</span>
+<span class="w">                      </span><span class="n">pt2d_</span><span class="p">(:,</span><span class="n">jj</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pt2d</span><span class="p">(:,</span><span class="n">jj</span><span class="p">)</span>
+<span class="w">                   </span><span class="k">enddo</span>
+<span class="k">                endif</span>
+<span class="k">          elseif</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="o">==</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             call </span><span class="n">ESMF_ArrayGet</span><span class="p">(</span><span class="n">array1</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">pt3d</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">             </span><span class="k">call </span><span class="n">ESMF_ArrayGet</span><span class="p">(</span><span class="n">array2</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">pt3d_</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">             </span><span class="k">do </span><span class="n">localDe</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">localDEcount</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">j1</span><span class="p">(</span><span class="n">localDe</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                   do </span><span class="n">j</span><span class="o">=</span><span class="w"> </span><span class="n">j1</span><span class="p">(</span><span class="n">localDe</span><span class="p">),</span><span class="w"> </span><span class="n">j2</span><span class="p">(</span><span class="n">localDe</span><span class="p">)</span>
+<span class="w">                      </span><span class="n">jj</span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="o">-</span><span class="n">jj1</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">                      </span><span class="n">pt3d_</span><span class="p">(:,</span><span class="n">jj</span><span class="p">,:)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pt3d</span><span class="p">(:,</span><span class="n">jj</span><span class="p">,:)</span>
+<span class="w">                   </span><span class="k">enddo</span>
+<span class="k">                endif</span>
+<span class="k">             enddo</span>
+<span class="k">          else</span>
+<span class="k">             </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;failed interp_accumulate_fields&#39;</span><span class="p">)</span>
+<span class="w">          </span><span class="k">endif</span>
+<span class="k">       end if</span>
+<span class="k">       call </span><span class="n">iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<span class="w">    </span><span class="k">enddo</span>
+
+<span class="k">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">interp_accumulate_fields</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-07T17:48:42.464780             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

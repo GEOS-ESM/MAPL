@@ -1,0 +1,778 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>FieldGetLocalSize &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>FieldGetLocalSize
+      <small>Interface</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title="<p> 0.0% of total for procedures.</p>Including implementation: 16 statements,  0.0% of total for procedures.">3 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/FieldPointerUtilities.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/fieldpointerutilities.f90.html'>FieldPointerUtilities.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_fieldpointerutilities.html'>MAPL_FieldPointerUtilities</a></li>
+            <li class="breadcrumb-item active" aria-current="page">FieldGetLocalSize</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#modprocs-0"
+         aria-expanded="false" aria-controls="modprocs-0">
+         <h4 class="card-header bg-primary text-white">Module Procedures</h4>
+      </a>
+      <div id="modprocs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../interface/fieldgetlocalsize.html#moduleprocedure-get_local_size">get_local_size</a>
+        </div>
+      </div>
+    </div>
+
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      <h2>public interface FieldGetLocalSize</h2>
+      
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Calls</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: interface~~fieldgetlocalsize~~CallsGraph Pages: 1 -->
+<svg id="interfacefieldgetlocalsizeCallsGraph" width="641pt" height="104pt"
+ viewBox="0.00 0.00 641.00 103.84" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="interface~~fieldgetlocalsize~~CallsGraph" class="graph" transform="scale(0.58 0.58) rotate(0) translate(4 175)">
+<title>interface~~fieldgetlocalsize~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-175 1101,-175 1101,4 -4,4"/>
+<!-- interface~fieldgetlocalsize -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_node1" class="node">
+<title>interface~fieldgetlocalsize</title>
+<polygon fill="none" stroke="black" points="106,-87 0,-87 0,-63 106,-63 106,-87"/>
+<text text-anchor="middle" x="53" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">FieldGetLocalSize</text>
+</g>
+<!-- proc~get_local_size -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_node2" class="node">
+<title>proc~get_local_size</title>
+<g id="a_interface~~fieldgetlocalsize~~CallsGraph_node2"><a xlink:href="../proc/get_local_size.html" xlink:title="get_local_size">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="228,-87 142,-87 142,-63 228,-63 228,-87"/>
+<text text-anchor="middle" x="185" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_local_size</text>
+</a>
+</g>
+</g>
+<!-- interface~fieldgetlocalsize&#45;&gt;proc~get_local_size -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_edge1" class="edge">
+<title>interface~fieldgetlocalsize&#45;&gt;proc~get_local_size</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M106.13,-75C114.56,-75 123.3,-75 131.74,-75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="131.85,-78.5 141.85,-75 131.85,-71.5 131.85,-78.5"/>
+</g>
+<!-- interface~fieldgetlocalelementcount -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_node3" class="node">
+<title>interface~fieldgetlocalelementcount</title>
+<g id="a_interface~~fieldgetlocalsize~~CallsGraph_node3"><a xlink:href="../interface/fieldgetlocalelementcount.html" xlink:title="FieldGetLocalElementCount">
+<polygon fill="#a7506f" stroke="#a7506f" points="424,-87 264,-87 264,-63 424,-63 424,-87"/>
+<text text-anchor="middle" x="344" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldGetLocalElementCount</text>
+</a>
+</g>
+</g>
+<!-- proc~get_local_size&#45;&gt;interface~fieldgetlocalelementcount -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_edge2" class="edge">
+<title>proc~get_local_size&#45;&gt;interface~fieldgetlocalelementcount</title>
+<path fill="none" stroke="#ff0000" d="M228.07,-75C236.12,-75 244.83,-75 253.73,-75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="253.83,-78.5 263.83,-75 253.83,-71.5 253.83,-78.5"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_node4" class="node">
+<title>proc~mapl_return</title>
+<g id="a_interface~~fieldgetlocalsize~~CallsGraph_node4"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="779,-150 697,-150 697,-126 779,-126 779,-150"/>
+<text text-anchor="middle" x="738" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~get_local_size&#45;&gt;proc~mapl_return -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_edge3" class="edge">
+<title>proc~get_local_size&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M225.38,-87.04C237.65,-90.4 251.3,-93.74 264,-96 416.49,-123.08 599.89,-133.04 686.72,-136.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="686.7,-139.92 696.82,-136.79 686.96,-132.92 686.7,-139.92"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_node5" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_interface~~fieldgetlocalsize~~CallsGraph_node5"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="776,-24 700,-24 700,0 776,0 776,-24"/>
+<text text-anchor="middle" x="738" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~get_local_size&#45;&gt;proc~mapl_verify -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_edge4" class="edge">
+<title>proc~get_local_size&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M225.38,-62.96C237.65,-59.6 251.3,-56.26 264,-54 418.28,-26.6 604.21,-16.73 689.74,-13.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="690.05,-16.96 699.91,-13.1 689.79,-9.97 690.05,-16.96"/>
+</g>
+<!-- proc~get_local_element_count -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_node7" class="node">
+<title>proc~get_local_element_count</title>
+<g id="a_interface~~fieldgetlocalsize~~CallsGraph_node7"><a xlink:href="../proc/get_local_element_count.html" xlink:title="get_local_element_count">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="605,-87 460,-87 460,-63 605,-63 605,-87"/>
+<text text-anchor="middle" x="532.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_local_element_count</text>
+</a>
+</g>
+</g>
+<!-- interface~fieldgetlocalelementcount&#45;&gt;proc~get_local_element_count -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_edge5" class="edge">
+<title>interface~fieldgetlocalelementcount&#45;&gt;proc~get_local_element_count</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M424.09,-75C432.66,-75 441.38,-75 449.97,-75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="449.98,-78.5 459.98,-75 449.98,-71.5 449.98,-78.5"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_node6" class="node">
+<title>proc~get_error_message</title>
+<g id="a_interface~~fieldgetlocalsize~~CallsGraph_node6"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="995,-150 880,-150 880,-126 995,-126 995,-150"/>
+<text text-anchor="middle" x="937.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ff00" d="M779.44,-138C805.29,-138 839.43,-138 869.28,-138"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="869.64,-141.5 879.64,-138 869.64,-134.5 869.64,-141.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_node8" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_interface~~fieldgetlocalsize~~CallsGraph_node8"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1004,-45 871,-45 871,-21 1004,-21 1004,-45"/>
+<text text-anchor="middle" x="937.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff00" d="M779.18,-133.57C796.93,-130.52 817.67,-125.44 835,-117 868.07,-100.89 899.65,-71.86 918.56,-52.51"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="921.25,-54.77 925.63,-45.12 916.19,-49.93 921.25,-54.77"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0000ff" d="M776.15,-15.95C799.94,-18.48 831.67,-21.85 860.62,-24.93"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="860.42,-28.43 870.73,-26.01 861.16,-21.47 860.42,-28.43"/>
+</g>
+<!-- at -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_node9" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1095.5,-171 1041.5,-171 1041.5,-147 1095.5,-147 1095.5,-171"/>
+<text text-anchor="middle" x="1068.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_edge9" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M995.08,-147.21C1007.42,-149.22 1020.14,-151.29 1031.42,-153.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1030.89,-156.59 1041.32,-154.74 1032.01,-149.68 1030.89,-156.59"/>
+</g>
+<!-- insert -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_node11" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1095.5,-129 1041.5,-129 1041.5,-105 1095.5,-105 1095.5,-129"/>
+<text text-anchor="middle" x="1068.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_edge10" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ff0000" d="M995.08,-128.79C1007.42,-126.78 1020.14,-124.71 1031.42,-122.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1032.01,-126.32 1041.32,-121.26 1030.89,-119.41 1032.01,-126.32"/>
+</g>
+<!-- proc~get_local_element_count&#45;&gt;proc~mapl_return -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_edge13" class="edge">
+<title>proc~get_local_element_count&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff00" d="M560.92,-87.09C582.4,-96.23 613.19,-108.58 641,-117 655.73,-121.46 671.99,-125.38 686.88,-128.59"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="686.43,-132.07 696.94,-130.7 687.87,-125.22 686.43,-132.07"/>
+</g>
+<!-- proc~get_local_element_count&#45;&gt;proc~mapl_verify -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_edge14" class="edge">
+<title>proc~get_local_element_count&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ff00" d="M565.98,-63C578.24,-58.4 592.3,-53.04 605,-48 621.11,-41.6 624.47,-38.21 641,-33 656.62,-28.08 674.02,-23.9 689.67,-20.59"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="690.57,-23.98 699.67,-18.55 689.17,-17.12 690.57,-23.98"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_node10" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="780.5,-108 695.5,-108 695.5,-84 780.5,-84 780.5,-108"/>
+<text text-anchor="middle" x="738" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~get_local_element_count&#45;&gt;esmf_fieldget -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_edge11" class="edge">
+<title>proc~get_local_element_count&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#00ff00" d="M605.25,-82.4C631.68,-85.13 661.08,-88.17 685.39,-90.67"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="685.17,-94.17 695.47,-91.71 685.89,-87.21 685.17,-94.17"/>
+</g>
+<!-- proc~mapl_fieldgetlocalelementcount -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_node13" class="node">
+<title>proc~mapl_fieldgetlocalelementcount</title>
+<g id="a_interface~~fieldgetlocalsize~~CallsGraph_node13"><a xlink:href="../proc/mapl_fieldgetlocalelementcount.html" xlink:title="MAPL_FieldGetLocalElementCount">
+<polygon fill="#d9534f" stroke="#d9534f" points="835,-66 641,-66 641,-42 835,-42 835,-66"/>
+<text text-anchor="middle" x="738" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_FieldGetLocalElementCount</text>
+</a>
+</g>
+</g>
+<!-- proc~get_local_element_count&#45;&gt;proc~mapl_fieldgetlocalelementcount -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_edge12" class="edge">
+<title>proc~get_local_element_count&#45;&gt;proc~mapl_fieldgetlocalelementcount</title>
+<path fill="none" stroke="#00ff00" d="M605.25,-67.6C613.55,-66.74 622.15,-65.85 630.8,-64.96"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="631.36,-68.42 640.95,-63.91 630.64,-61.46 631.36,-68.42"/>
+</g>
+<!-- proc~initialize~6 -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_node12" class="node">
+<title>proc~initialize~6</title>
+<g id="a_interface~~fieldgetlocalsize~~CallsGraph_node12"><a xlink:href="../proc/initialize~6.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1097,-45 1040,-45 1040,-21 1097,-21 1097,-45"/>
+<text text-anchor="middle" x="1068.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~6 -->
+<g id="interface~~fieldgetlocalsize~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~6</title>
+<path fill="none" stroke="#0000ff" d="M1004.13,-33C1012.88,-33 1021.59,-33 1029.63,-33"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="1029.77,-36.5 1039.77,-33 1029.77,-29.5 1029.77,-36.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var paninterfacefieldgetlocalsizeCallsGraph = svgPanZoom('#interfacefieldgetlocalsizeCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Called by</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: interface~~fieldgetlocalsize~~CalledByGraph Pages: 1 -->
+<svg id="interfacefieldgetlocalsizeCalledByGraph" width="413pt" height="158pt"
+ viewBox="0.00 0.00 413.00 158.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="interface~~fieldgetlocalsize~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 154)">
+<title>interface~~fieldgetlocalsize~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 409,-154 409,4 -4,4"/>
+<!-- interface~fieldgetlocalsize -->
+<g id="interface~~fieldgetlocalsize~~CalledByGraph_node1" class="node">
+<title>interface~fieldgetlocalsize</title>
+<polygon fill="none" stroke="black" points="405,-87 299,-87 299,-63 405,-63 405,-87"/>
+<text text-anchor="middle" x="352" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">FieldGetLocalSize</text>
+</g>
+<!-- proc~assign_fptr_r4_rank1 -->
+<g id="interface~~fieldgetlocalsize~~CalledByGraph_node2" class="node">
+<title>proc~assign_fptr_r4_rank1</title>
+<g id="a_interface~~fieldgetlocalsize~~CalledByGraph_node2"><a xlink:href="../proc/assign_fptr_r4_rank1.html" xlink:title="assign_fptr_r4_rank1">
+<polygon fill="#d9534f" stroke="#d9534f" points="259,-150 136,-150 136,-126 259,-126 259,-150"/>
+<text text-anchor="middle" x="197.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assign_fptr_r4_rank1</text>
+</a>
+</g>
+</g>
+<!-- proc~assign_fptr_r4_rank1&#45;&gt;interface~fieldgetlocalsize -->
+<g id="interface~~fieldgetlocalsize~~CalledByGraph_edge1" class="edge">
+<title>proc~assign_fptr_r4_rank1&#45;&gt;interface~fieldgetlocalsize</title>
+<path fill="none" stroke="#ff0000" d="M238.36,-125.92C246.58,-123.18 255.13,-120.15 263,-117 281.79,-109.49 302.22,-99.84 318.66,-91.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="320.47,-94.69 327.84,-87.08 317.33,-88.43 320.47,-94.69"/>
+</g>
+<!-- proc~assign_fptr_r8_rank1 -->
+<g id="interface~~fieldgetlocalsize~~CalledByGraph_node3" class="node">
+<title>proc~assign_fptr_r8_rank1</title>
+<g id="a_interface~~fieldgetlocalsize~~CalledByGraph_node3"><a xlink:href="../proc/assign_fptr_r8_rank1.html" xlink:title="assign_fptr_r8_rank1">
+<polygon fill="#d9534f" stroke="#d9534f" points="259,-108 136,-108 136,-84 259,-84 259,-108"/>
+<text text-anchor="middle" x="197.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assign_fptr_r8_rank1</text>
+</a>
+</g>
+</g>
+<!-- proc~assign_fptr_r8_rank1&#45;&gt;interface~fieldgetlocalsize -->
+<g id="interface~~fieldgetlocalsize~~CalledByGraph_edge2" class="edge">
+<title>proc~assign_fptr_r8_rank1&#45;&gt;interface~fieldgetlocalsize</title>
+<path fill="none" stroke="#ff0000" d="M259.21,-87.64C268.95,-86.3 279.04,-84.91 288.82,-83.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="289.43,-87.01 298.86,-82.18 288.48,-80.08 289.43,-87.01"/>
+</g>
+<!-- proc~copy~3 -->
+<g id="interface~~fieldgetlocalsize~~CalledByGraph_node4" class="node">
+<title>proc~copy~3</title>
+<g id="a_interface~~fieldgetlocalsize~~CalledByGraph_node4"><a xlink:href="../proc/copy~3.html" xlink:title="copy">
+<polygon fill="#d9534f" stroke="#d9534f" points="224.5,-66 170.5,-66 170.5,-42 224.5,-42 224.5,-66"/>
+<text text-anchor="middle" x="197.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">copy</text>
+</a>
+</g>
+</g>
+<!-- proc~copy~3&#45;&gt;interface~fieldgetlocalsize -->
+<g id="interface~~fieldgetlocalsize~~CalledByGraph_edge3" class="edge">
+<title>proc~copy~3&#45;&gt;interface~fieldgetlocalsize</title>
+<path fill="none" stroke="#ff0000" d="M224.72,-57.61C242.37,-60.04 266.42,-63.35 288.8,-66.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="288.55,-69.93 298.94,-67.83 289.51,-63 288.55,-69.93"/>
+</g>
+<!-- proc~test_fieldgetlocalsize -->
+<g id="interface~~fieldgetlocalsize~~CalledByGraph_node5" class="node">
+<title>proc~test_fieldgetlocalsize</title>
+<g id="a_interface~~fieldgetlocalsize~~CalledByGraph_node5"><a xlink:href="../proc/test_fieldgetlocalsize.html" xlink:title="test_FieldGetLocalSize">
+<polygon fill="#d9534f" stroke="#d9534f" points="263,-24 132,-24 132,0 263,0 263,-24"/>
+<text text-anchor="middle" x="197.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_FieldGetLocalSize</text>
+</a>
+</g>
+</g>
+<!-- proc~test_fieldgetlocalsize&#45;&gt;interface~fieldgetlocalsize -->
+<g id="interface~~fieldgetlocalsize~~CalledByGraph_edge4" class="edge">
+<title>proc~test_fieldgetlocalsize&#45;&gt;interface~fieldgetlocalsize</title>
+<path fill="none" stroke="#ff0000" d="M238.36,-24.08C246.58,-26.82 255.13,-29.85 263,-33 281.79,-40.51 302.22,-50.16 318.66,-58.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="317.33,-61.57 327.84,-62.92 320.47,-55.31 317.33,-61.57"/>
+</g>
+<!-- interface~assign_fptr -->
+<g id="interface~~fieldgetlocalsize~~CalledByGraph_node6" class="node">
+<title>interface~assign_fptr</title>
+<g id="a_interface~~fieldgetlocalsize~~CalledByGraph_node6"><a xlink:href="../interface/assign_fptr.html" xlink:title="assign_fptr">
+<polygon fill="#a7506f" stroke="#a7506f" points="83,-139 13,-139 13,-115 83,-115 83,-139"/>
+<text text-anchor="middle" x="48" y="-124.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assign_fptr</text>
+</a>
+</g>
+</g>
+<!-- interface~assign_fptr&#45;&gt;proc~assign_fptr_r4_rank1 -->
+<g id="interface~~fieldgetlocalsize~~CalledByGraph_edge5" class="edge">
+<title>interface~assign_fptr&#45;&gt;proc~assign_fptr_r4_rank1</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M83.21,-129.55C95.93,-130.5 110.89,-131.62 125.68,-132.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="125.63,-136.22 135.87,-133.48 126.16,-129.24 125.63,-136.22"/>
+</g>
+<!-- interface~assign_fptr&#45;&gt;proc~assign_fptr_r8_rank1 -->
+<g id="interface~~fieldgetlocalsize~~CalledByGraph_edge6" class="edge">
+<title>interface~assign_fptr&#45;&gt;proc~assign_fptr_r8_rank1</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M83.21,-119.81C97.02,-116.91 113.46,-113.45 129.48,-110.09"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="130.3,-113.49 139.37,-108.01 128.86,-106.64 130.3,-113.49"/>
+</g>
+<!-- interface~fieldcopy -->
+<g id="interface~~fieldgetlocalsize~~CalledByGraph_node7" class="node">
+<title>interface~fieldcopy</title>
+<g id="a_interface~~fieldgetlocalsize~~CalledByGraph_node7"><a xlink:href="../interface/fieldcopy.html" xlink:title="FieldCOPY">
+<polygon fill="#a7506f" stroke="#a7506f" points="81,-87 15,-87 15,-63 81,-63 81,-87"/>
+<text text-anchor="middle" x="48" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldCOPY</text>
+</a>
+</g>
+</g>
+<!-- interface~fieldcopy&#45;&gt;proc~copy~3 -->
+<g id="interface~~fieldgetlocalsize~~CalledByGraph_edge8" class="edge">
+<title>interface~fieldcopy&#45;&gt;proc~copy~3</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M81.01,-70.44C104.43,-67.11 136.24,-62.58 160.54,-59.12"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="161.05,-62.58 170.45,-57.71 160.06,-55.65 161.05,-62.58"/>
+</g>
+<!-- proc~copy_broadcast -->
+<g id="interface~~fieldgetlocalsize~~CalledByGraph_node8" class="node">
+<title>proc~copy_broadcast</title>
+<g id="a_interface~~fieldgetlocalsize~~CalledByGraph_node8"><a xlink:href="../proc/copy_broadcast.html" xlink:title="copy_broadcast">
+<polygon fill="#d9534f" stroke="#d9534f" points="96,-45 0,-45 0,-21 96,-21 96,-45"/>
+<text text-anchor="middle" x="48" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">copy_broadcast</text>
+</a>
+</g>
+</g>
+<!-- proc~copy_broadcast&#45;&gt;proc~copy~3 -->
+<g id="interface~~fieldgetlocalsize~~CalledByGraph_edge7" class="edge">
+<title>proc~copy_broadcast&#45;&gt;proc~copy~3</title>
+<path fill="none" stroke="#00ffff" d="M96.08,-39.7C116.94,-42.67 141.1,-46.11 160.5,-48.87"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="160.05,-52.35 170.45,-50.29 161.04,-45.42 160.05,-52.35"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+
+
+        <h2>Module Procedures</h2>
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_local_size"></span> <h3>private  function <a href='../proc/get_local_size.html'>get_local_size</a>(x, rc) result(sz)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-x~169"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>x</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~2068"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>integer(kind=ESMF_KIND_I8)</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+</div>
+  </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-07T17:48:42.464780             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

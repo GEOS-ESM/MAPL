@@ -1,0 +1,1557 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>HistoryTrajectory_implement &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>HistoryTrajectory_implement
+      <small>Submodule</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.7% of total for modules and submodules.">1331 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_TrajectoryMod_smod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_trajectorymod_smod.f90.html'>MAPL_TrajectoryMod_smod.F90</a></li>
+            <li class="breadcrumb-item active" aria-current="page">HistoryTrajectory_implement</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#funcs-0"
+         aria-expanded="false" aria-controls="funcs-0">
+         <h4 class="card-header bg-primary text-white">Functions</h4>
+      </a>
+      <div id="funcs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/historytrajectory_implement.html#proc-extract_unquoted_item">extract_unquoted_item</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#modprocs-0"
+         aria-expanded="false" aria-controls="modprocs-0">
+         <h4 class="card-header bg-primary text-white">Module Procedures</h4>
+      </a>
+      <div id="modprocs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/historytrajectory_implement.html#proc-create_new_bundle">create_new_bundle</a>
+            <a class="list-group-item" href="../module/historytrajectory_implement.html#proc-historytrajectory_from_config">HistoryTrajectory_from_config</a>
+            <a class="list-group-item" href="../module/historytrajectory_implement.html#proc-append_file">append_file</a>
+            <a class="list-group-item" href="../module/historytrajectory_implement.html#proc-close_file_handle">close_file_handle</a>
+            <a class="list-group-item" href="../module/historytrajectory_implement.html#proc-create_file_handle">create_file_handle</a>
+            <a class="list-group-item" href="../module/historytrajectory_implement.html#proc-create_grid~3">create_grid</a>
+            <a class="list-group-item" href="../module/historytrajectory_implement.html#proc-create_metadata_variable">create_metadata_variable</a>
+            <a class="list-group-item" href="../module/historytrajectory_implement.html#proc-destroy_rh_regen_ls">destroy_rh_regen_LS</a>
+            <a class="list-group-item" href="../module/historytrajectory_implement.html#proc-get_x_subset">get_x_subset</a>
+            <a class="list-group-item" href="../module/historytrajectory_implement.html#proc-initialize_">initialize_</a>
+            <a class="list-group-item" href="../module/historytrajectory_implement.html#proc-regrid_accumulate_on_xsubset">regrid_accumulate_on_xsubset</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      
+<br>          <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='https://mathomp4.github.io/esmf/module/esmf.html'>ESMF</a></li>
+                  <li class="list-inline-item"><a href='mapl_griddedioitemvectormod.html'>MAPL_GriddedIOitemVectorMod</a></li>
+                  <li class="list-inline-item"><a href='mapl_locstreamregriddermod.html'>MAPL_LocstreamRegridderMod</a></li>
+                  <li class="list-inline-item"><a href='mapl_commsmod.html'>MAPL_CommsMod</a></li>
+                  <li class="list-inline-item"><a href='mapl_sortmod.html'>MAPL_SortMod</a></li>
+                  <li class="list-inline-item"><a href='mapl_filemetadatautilsmod.html'>MAPL_FileMetadataUtilsMod</a></li>
+                  <li class="list-inline-item"><a href='mapl_keywordenforcermod.html'>MAPL_KeywordEnforcerMod</a></li>
+                  <li class="list-inline-item"><a href='mapl_verticaldatamod.html'>MAPL_VerticalDataMod</a></li>
+                  <li class="list-inline-item"><a href='locstreamfactorymod.html'>LocStreamFactoryMod</a></li>
+                  <li class="list-inline-item"><a href='mapl_netcdf.html'>MAPL_NetCDF</a></li>
+                  <li class="list-inline-item"><a href='mapl_stringtemplate.html'>MAPL_StringTemplate</a></li>
+                  <li class="list-inline-item"><a href='mapl_timedatamod.html'>MAPL_TimeDataMod</a></li>
+                  <li class="list-inline-item"><a href='pfio.html'>pFIO</a></li>
+                  <li class="list-inline-item"><a href='mapl_griddedioitemmod.html'>MAPL_GriddedIOitemMod</a></li>
+                  <li class="list-inline-item"><a href='mapl_basemod.html'>MAPL_BaseMod</a></li>
+                  <li class="list-inline-item"><a href='plain_netcdf_time.html'>Plain_netCDF_Time</a></li>
+                  <li class="list-inline-item"><a href='http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm'>mpi</a></li>
+                  <li class="list-inline-item"><a href='mapl_errorhandlingmod.html'>MAPL_ErrorHandlingMod</a></li>
+                  <li class="list-inline-item"><a href='http://fortranwiki.org/fortran/show/iso_fortran_env'>iso_fortran_env</a></li>
+                  <li class="list-inline-item"><a href='mapl_obsutilmod.html'>MAPL_ObsUtilMod</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <ul class="list-inline">
+                <li><h5>Ancestors:</h5></li>
+                  <li class="list-inline-item"><a href='historytrajectorymod.html'>HistoryTrajectoryMod</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~historytrajectory_implement~~UsesGraph Pages: 1 -->
+<svg id="modulehistorytrajectory_implementUsesGraph" width="391pt" height="872pt"
+ viewBox="0.00 0.00 391.00 872.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~historytrajectory_implement~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 868)">
+<title>module~~historytrajectory_implement~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-868 387,-868 387,4 -4,4"/>
+<!-- module~historytrajectory_implement -->
+<g id="module~~historytrajectory_implement~~UsesGraph_node1" class="node">
+<title>module~historytrajectory_implement</title>
+<polygon fill="none" stroke="black" points="383,-444 217,-444 217,-420 383,-420 383,-444"/>
+<text text-anchor="middle" x="300" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50">HistoryTrajectory_implement</text>
+</g>
+<!-- ESMF -->
+<g id="module~~historytrajectory_implement~~UsesGraph_node2" class="node">
+<title>ESMF</title>
+<g id="a_module~~historytrajectory_implement~~UsesGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/module/esmf.html" xlink:title="ESMF">
+<polygon fill="#337ab7" stroke="#337ab7" points="117.5,-864 63.5,-864 63.5,-840 117.5,-840 117.5,-864"/>
+<text text-anchor="middle" x="90.5" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF</text>
+</a>
+</g>
+</g>
+<!-- module~historytrajectory_implement&#45;&gt;ESMF -->
+<g id="module~~historytrajectory_implement~~UsesGraph_edge1" class="edge">
+<title>module~historytrajectory_implement&#45;&gt;ESMF</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M299.45,-444.3C300.74,-498.73 298.37,-720.14 181,-831 166.94,-844.28 146.13,-849.7 128.11,-851.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="127.58,-848.24 117.9,-852.54 128.15,-855.22 127.58,-848.24"/>
+</g>
+<!-- iso_fortran_env -->
+<g id="module~~historytrajectory_implement~~UsesGraph_node3" class="node">
+<title>iso_fortran_env</title>
+<g id="a_module~~historytrajectory_implement~~UsesGraph_node3"><a xlink:href="http://fortranwiki.org/fortran/show/iso_fortran_env" xlink:title="iso_fortran_env">
+<polygon fill="#337ab7" stroke="#337ab7" points="137.5,-822 43.5,-822 43.5,-798 137.5,-798 137.5,-822"/>
+<text text-anchor="middle" x="90.5" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_fortran_env</text>
+</a>
+</g>
+</g>
+<!-- module~historytrajectory_implement&#45;&gt;iso_fortran_env -->
+<g id="module~~historytrajectory_implement~~UsesGraph_edge2" class="edge">
+<title>module~historytrajectory_implement&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M298.97,-444.04C298.14,-494.55 287.92,-691.18 181,-789 171.71,-797.5 159.64,-802.76 147.39,-805.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="146.6,-802.55 137.58,-808.11 148.1,-809.39 146.6,-802.55"/>
+</g>
+<!-- module~historytrajectorymod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_node4" class="node">
+<title>module~historytrajectorymod</title>
+<g id="a_module~~historytrajectory_implement~~UsesGraph_node4"><a xlink:href="../module/historytrajectorymod.html" xlink:title="HistoryTrajectoryMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="153,-780 28,-780 28,-756 153,-756 153,-780"/>
+<text text-anchor="middle" x="90.5" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryTrajectoryMod</text>
+</a>
+</g>
+</g>
+<!-- module~historytrajectory_implement&#45;&gt;module~historytrajectorymod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_edge21" class="edge">
+<title>module~historytrajectory_implement&#45;&gt;module~historytrajectorymod</title>
+<path fill="none" stroke="#ff0000" d="M298.36,-444.22C295.2,-491.28 277.25,-662.34 181,-747 175.56,-751.78 169.24,-755.53 162.52,-758.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="161.29,-755.18 153.15,-761.96 163.74,-761.74 161.29,-755.18"/>
+</g>
+<!-- module~locstreamfactorymod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_node5" class="node">
+<title>module~locstreamfactorymod</title>
+<g id="a_module~~historytrajectory_implement~~UsesGraph_node5"><a xlink:href="../module/locstreamfactorymod.html" xlink:title="LocStreamFactoryMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="156,-738 25,-738 25,-714 156,-714 156,-738"/>
+<text text-anchor="middle" x="90.5" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LocStreamFactoryMod</text>
+</a>
+</g>
+</g>
+<!-- module~historytrajectory_implement&#45;&gt;module~locstreamfactorymod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_edge3" class="edge">
+<title>module~historytrajectory_implement&#45;&gt;module~locstreamfactorymod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M297.6,-444.07C291.97,-486.94 266.94,-633.11 181,-705 176.37,-708.87 171.16,-712.06 165.64,-714.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="164.04,-711.55 156.1,-718.57 166.68,-718.03 164.04,-711.55"/>
+</g>
+<!-- module~mapl_basemod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_node6" class="node">
+<title>module~mapl_basemod</title>
+<g id="a_module~~historytrajectory_implement~~UsesGraph_node6"><a xlink:href="../module/mapl_basemod.html" xlink:title="MAPL_BaseMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="138,-696 43,-696 43,-672 138,-672 138,-696"/>
+<text text-anchor="middle" x="90.5" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_BaseMod</text>
+</a>
+</g>
+</g>
+<!-- module~historytrajectory_implement&#45;&gt;module~mapl_basemod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_edge4" class="edge">
+<title>module~historytrajectory_implement&#45;&gt;module~mapl_basemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M296.58,-444.08C288.2,-482.65 256.69,-603.71 181,-663 171.48,-670.46 159.75,-675.34 147.96,-678.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="147.04,-675.14 138.08,-680.81 148.62,-681.96 147.04,-675.14"/>
+</g>
+<!-- module~mapl_commsmod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_node7" class="node">
+<title>module~mapl_commsmod</title>
+<g id="a_module~~historytrajectory_implement~~UsesGraph_node7"><a xlink:href="../module/mapl_commsmod.html" xlink:title="MAPL_CommsMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="145,-654 36,-654 36,-630 145,-630 145,-654"/>
+<text text-anchor="middle" x="90.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsMod</text>
+</a>
+</g>
+</g>
+<!-- module~historytrajectory_implement&#45;&gt;module~mapl_commsmod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_edge5" class="edge">
+<title>module~historytrajectory_implement&#45;&gt;module~mapl_commsmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M295.17,-444.01C283.78,-477.74 246.73,-573.92 181,-621 173.2,-626.59 164.13,-630.71 154.81,-633.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="153.71,-630.42 145.06,-636.53 155.63,-637.15 153.71,-630.42"/>
+</g>
+<!-- module~mapl_errorhandlingmod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_node8" class="node">
+<title>module~mapl_errorhandlingmod</title>
+<g id="a_module~~historytrajectory_implement~~UsesGraph_node8"><a xlink:href="../module/mapl_errorhandlingmod.html" xlink:title="MAPL_ErrorHandlingMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="162,-612 19,-612 19,-588 162,-588 162,-612"/>
+<text text-anchor="middle" x="90.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod</text>
+</a>
+</g>
+</g>
+<!-- module~historytrajectory_implement&#45;&gt;module~mapl_errorhandlingmod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_edge6" class="edge">
+<title>module~historytrajectory_implement&#45;&gt;module~mapl_errorhandlingmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M292.93,-444.16C278.06,-472.6 236.92,-543.75 181,-579 178.01,-580.89 174.86,-582.6 171.61,-584.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="170.04,-581.03 162.22,-588.18 172.79,-587.47 170.04,-581.03"/>
+</g>
+<!-- module~mapl_filemetadatautilsmod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_node9" class="node">
+<title>module~mapl_filemetadatautilsmod</title>
+<g id="a_module~~historytrajectory_implement~~UsesGraph_node9"><a xlink:href="../module/mapl_filemetadatautilsmod.html" xlink:title="MAPL_FileMetadataUtilsMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="170.5,-570 10.5,-570 10.5,-546 170.5,-546 170.5,-570"/>
+<text text-anchor="middle" x="90.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_FileMetadataUtilsMod</text>
+</a>
+</g>
+</g>
+<!-- module~historytrajectory_implement&#45;&gt;module~mapl_filemetadatautilsmod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_edge7" class="edge">
+<title>module~historytrajectory_implement&#45;&gt;module~mapl_filemetadatautilsmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M289.03,-444.2C270.29,-466.3 227.49,-512.87 181,-537 177.07,-539.04 172.94,-540.89 168.7,-542.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="167.51,-539.26 159.27,-545.93 169.87,-545.85 167.51,-539.26"/>
+</g>
+<!-- module~mapl_griddedioitemmod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_node10" class="node">
+<title>module~mapl_griddedioitemmod</title>
+<g id="a_module~~historytrajectory_implement~~UsesGraph_node10"><a xlink:href="../module/mapl_griddedioitemmod.html" xlink:title="MAPL_GriddedIOitemMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="164,-528 17,-528 17,-504 164,-504 164,-528"/>
+<text text-anchor="middle" x="90.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIOitemMod</text>
+</a>
+</g>
+</g>
+<!-- module~historytrajectory_implement&#45;&gt;module~mapl_griddedioitemmod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_edge8" class="edge">
+<title>module~historytrajectory_implement&#45;&gt;module~mapl_griddedioitemmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M280.1,-444.09C257.39,-458.14 217.73,-481.16 181,-495 175.02,-497.25 168.72,-499.32 162.35,-501.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="161.01,-497.93 152.32,-503.99 162.89,-504.67 161.01,-497.93"/>
+</g>
+<!-- module~mapl_griddedioitemvectormod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_node11" class="node">
+<title>module~mapl_griddedioitemvectormod</title>
+<g id="a_module~~historytrajectory_implement~~UsesGraph_node11"><a xlink:href="../module/mapl_griddedioitemvectormod.html" xlink:title="MAPL_GriddedIOitemVectorMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="181,-486 0,-486 0,-462 181,-462 181,-486"/>
+<text text-anchor="middle" x="90.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIOitemVectorMod</text>
+</a>
+</g>
+</g>
+<!-- module~historytrajectory_implement&#45;&gt;module~mapl_griddedioitemvectormod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_edge9" class="edge">
+<title>module~historytrajectory_implement&#45;&gt;module~mapl_griddedioitemvectormod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M239.54,-444.04C215.01,-449 186.42,-454.79 160.94,-459.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="160.08,-456.55 150.97,-461.96 161.47,-463.41 160.08,-456.55"/>
+</g>
+<!-- module~mapl_keywordenforcermod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_node12" class="node">
+<title>module~mapl_keywordenforcermod</title>
+<g id="a_module~~historytrajectory_implement~~UsesGraph_node12"><a xlink:href="../module/mapl_keywordenforcermod.html" xlink:title="MAPL_KeywordEnforcerMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="170,-444 11,-444 11,-420 170,-420 170,-444"/>
+<text text-anchor="middle" x="90.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_KeywordEnforcerMod</text>
+</a>
+</g>
+</g>
+<!-- module~historytrajectory_implement&#45;&gt;module~mapl_keywordenforcermod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_edge10" class="edge">
+<title>module~historytrajectory_implement&#45;&gt;module~mapl_keywordenforcermod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M216.99,-432C204.95,-432 192.51,-432 180.34,-432"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="180.21,-428.5 170.21,-432 180.21,-435.5 180.21,-428.5"/>
+</g>
+<!-- module~mapl_locstreamregriddermod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_node13" class="node">
+<title>module~mapl_locstreamregriddermod</title>
+<g id="a_module~~historytrajectory_implement~~UsesGraph_node13"><a xlink:href="../module/mapl_locstreamregriddermod.html" xlink:title="MAPL_LocstreamRegridderMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="179,-402 2,-402 2,-378 179,-378 179,-402"/>
+<text text-anchor="middle" x="90.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_LocstreamRegridderMod</text>
+</a>
+</g>
+</g>
+<!-- module~historytrajectory_implement&#45;&gt;module~mapl_locstreamregriddermod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_edge11" class="edge">
+<title>module~historytrajectory_implement&#45;&gt;module~mapl_locstreamregriddermod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M239.54,-419.96C215.01,-415 186.42,-409.21 160.94,-404.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="161.47,-400.59 150.97,-402.04 160.08,-407.45 161.47,-400.59"/>
+</g>
+<!-- module~mapl_netcdf -->
+<g id="module~~historytrajectory_implement~~UsesGraph_node14" class="node">
+<title>module~mapl_netcdf</title>
+<g id="a_module~~historytrajectory_implement~~UsesGraph_node14"><a xlink:href="../module/mapl_netcdf.html" xlink:title="MAPL_NetCDF">
+<polygon fill="#337ab7" stroke="#337ab7" points="133.5,-360 47.5,-360 47.5,-336 133.5,-336 133.5,-360"/>
+<text text-anchor="middle" x="90.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_NetCDF</text>
+</a>
+</g>
+</g>
+<!-- module~historytrajectory_implement&#45;&gt;module~mapl_netcdf -->
+<g id="module~~historytrajectory_implement~~UsesGraph_edge12" class="edge">
+<title>module~historytrajectory_implement&#45;&gt;module~mapl_netcdf</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M280.1,-419.91C257.39,-405.86 217.73,-382.84 181,-369 169.1,-364.51 155.93,-360.79 143.44,-357.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="144.14,-354.35 133.61,-355.52 142.57,-361.17 144.14,-354.35"/>
+</g>
+<!-- module~mapl_obsutilmod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_node15" class="node">
+<title>module~mapl_obsutilmod</title>
+<g id="a_module~~historytrajectory_implement~~UsesGraph_node15"><a xlink:href="../module/mapl_obsutilmod.html" xlink:title="MAPL_ObsUtilMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="143.5,-318 37.5,-318 37.5,-294 143.5,-294 143.5,-318"/>
+<text text-anchor="middle" x="90.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ObsUtilMod</text>
+</a>
+</g>
+</g>
+<!-- module~historytrajectory_implement&#45;&gt;module~mapl_obsutilmod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_edge13" class="edge">
+<title>module~historytrajectory_implement&#45;&gt;module~mapl_obsutilmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M289.03,-419.8C270.29,-397.7 227.49,-351.13 181,-327 172.48,-322.58 163.03,-319.08 153.55,-316.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="154.27,-312.87 143.7,-313.67 152.46,-319.64 154.27,-312.87"/>
+</g>
+<!-- module~mapl_sortmod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_node16" class="node">
+<title>module~mapl_sortmod</title>
+<g id="a_module~~historytrajectory_implement~~UsesGraph_node16"><a xlink:href="../module/mapl_sortmod.html" xlink:title="MAPL_SortMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="136,-276 45,-276 45,-252 136,-252 136,-276"/>
+<text text-anchor="middle" x="90.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SortMod</text>
+</a>
+</g>
+</g>
+<!-- module~historytrajectory_implement&#45;&gt;module~mapl_sortmod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_edge14" class="edge">
+<title>module~historytrajectory_implement&#45;&gt;module~mapl_sortmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M292.93,-419.84C278.06,-391.4 236.92,-320.25 181,-285 170.56,-278.42 158.26,-273.9 146.17,-270.79"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="146.64,-267.31 136.12,-268.5 145.09,-274.13 146.64,-267.31"/>
+</g>
+<!-- module~mapl_stringtemplate -->
+<g id="module~~historytrajectory_implement~~UsesGraph_node17" class="node">
+<title>module~mapl_stringtemplate</title>
+<g id="a_module~~historytrajectory_implement~~UsesGraph_node17"><a xlink:href="../module/mapl_stringtemplate.html" xlink:title="MAPL_StringTemplate">
+<polygon fill="#337ab7" stroke="#337ab7" points="154,-234 27,-234 27,-210 154,-210 154,-234"/>
+<text text-anchor="middle" x="90.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StringTemplate</text>
+</a>
+</g>
+</g>
+<!-- module~historytrajectory_implement&#45;&gt;module~mapl_stringtemplate -->
+<g id="module~~historytrajectory_implement~~UsesGraph_edge15" class="edge">
+<title>module~historytrajectory_implement&#45;&gt;module~mapl_stringtemplate</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M295.17,-419.99C283.78,-386.26 246.73,-290.08 181,-243 175.81,-239.28 170.05,-236.21 164.03,-233.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="164.99,-230.3 154.4,-230.12 162.57,-236.87 164.99,-230.3"/>
+</g>
+<!-- module~mapl_timedatamod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_node18" class="node">
+<title>module~mapl_timedatamod</title>
+<g id="a_module~~historytrajectory_implement~~UsesGraph_node18"><a xlink:href="../module/mapl_timedatamod.html" xlink:title="MAPL_TimeDataMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="151,-192 30,-192 30,-168 151,-168 151,-192"/>
+<text text-anchor="middle" x="90.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TimeDataMod</text>
+</a>
+</g>
+</g>
+<!-- module~historytrajectory_implement&#45;&gt;module~mapl_timedatamod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_edge16" class="edge">
+<title>module~historytrajectory_implement&#45;&gt;module~mapl_timedatamod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M296.58,-419.92C288.2,-381.35 256.69,-260.29 181,-201 175.04,-196.33 168.22,-192.67 161.05,-189.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="161.72,-186.33 151.12,-186.37 159.43,-192.95 161.72,-186.33"/>
+</g>
+<!-- module~mapl_verticaldatamod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_node19" class="node">
+<title>module~mapl_verticaldatamod</title>
+<g id="a_module~~historytrajectory_implement~~UsesGraph_node19"><a xlink:href="../module/mapl_verticaldatamod.html" xlink:title="MAPL_VerticalDataMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="157.5,-150 23.5,-150 23.5,-126 157.5,-126 157.5,-150"/>
+<text text-anchor="middle" x="90.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VerticalDataMod</text>
+</a>
+</g>
+</g>
+<!-- module~historytrajectory_implement&#45;&gt;module~mapl_verticaldatamod -->
+<g id="module~~historytrajectory_implement~~UsesGraph_edge17" class="edge">
+<title>module~historytrajectory_implement&#45;&gt;module~mapl_verticaldatamod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M297.6,-419.93C291.97,-377.06 266.94,-230.89 181,-159 176.79,-155.48 172.1,-152.53 167.13,-150.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="168.5,-146.83 157.93,-146.09 165.73,-153.26 168.5,-146.83"/>
+</g>
+<!-- module~pfio -->
+<g id="module~~historytrajectory_implement~~UsesGraph_node20" class="node">
+<title>module~pfio</title>
+<g id="a_module~~historytrajectory_implement~~UsesGraph_node20"><a xlink:href="../module/pfio.html" xlink:title="pFIO">
+<polygon fill="#337ab7" stroke="#337ab7" points="117.5,-108 63.5,-108 63.5,-84 117.5,-84 117.5,-108"/>
+<text text-anchor="middle" x="90.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO</text>
+</a>
+</g>
+</g>
+<!-- module~historytrajectory_implement&#45;&gt;module~pfio -->
+<g id="module~~historytrajectory_implement~~UsesGraph_edge18" class="edge">
+<title>module~historytrajectory_implement&#45;&gt;module~pfio</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M298.36,-419.78C295.2,-372.72 277.25,-201.66 181,-117 166.47,-104.22 145.64,-98.84 127.73,-96.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="127.86,-93.21 117.59,-95.8 127.23,-100.18 127.86,-93.21"/>
+</g>
+<!-- module~plain_netcdf_time -->
+<g id="module~~historytrajectory_implement~~UsesGraph_node21" class="node">
+<title>module~plain_netcdf_time</title>
+<g id="a_module~~historytrajectory_implement~~UsesGraph_node21"><a xlink:href="../module/plain_netcdf_time.html" xlink:title="Plain_netCDF_Time">
+<polygon fill="#337ab7" stroke="#337ab7" points="147.5,-66 33.5,-66 33.5,-42 147.5,-42 147.5,-66"/>
+<text text-anchor="middle" x="90.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Plain_netCDF_Time</text>
+</a>
+</g>
+</g>
+<!-- module~historytrajectory_implement&#45;&gt;module~plain_netcdf_time -->
+<g id="module~~historytrajectory_implement~~UsesGraph_edge19" class="edge">
+<title>module~historytrajectory_implement&#45;&gt;module~plain_netcdf_time</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M298.97,-419.96C298.14,-369.45 287.92,-172.82 181,-75 174.26,-68.83 166.05,-64.37 157.37,-61.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="158.41,-57.82 147.82,-58.15 156.3,-64.49 158.41,-57.82"/>
+</g>
+<!-- mpi -->
+<g id="module~~historytrajectory_implement~~UsesGraph_node22" class="node">
+<title>mpi</title>
+<g id="a_module~~historytrajectory_implement~~UsesGraph_node22"><a xlink:href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm" xlink:title="mpi">
+<polygon fill="#337ab7" stroke="#337ab7" points="117.5,-24 63.5,-24 63.5,0 117.5,0 117.5,-24"/>
+<text text-anchor="middle" x="90.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
+</a>
+</g>
+</g>
+<!-- module~historytrajectory_implement&#45;&gt;mpi -->
+<g id="module~~historytrajectory_implement~~UsesGraph_edge20" class="edge">
+<title>module~historytrajectory_implement&#45;&gt;mpi</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M299.45,-419.7C300.74,-365.27 298.37,-143.86 181,-33 166.94,-19.72 146.13,-14.3 128.11,-12.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="128.15,-8.78 117.9,-11.46 127.58,-15.76 128.15,-8.78"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+      
+      <br>
+
+
+
+
+
+
+
+        <section>
+          <h2>Functions</h2>
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-extract_unquoted_item"></span> <h3> function <a href='../proc/extract_unquoted_item.html'>extract_unquoted_item</a>(string_list) result(item)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-string_list~2"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>string_list</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>character(len=:), allocatable</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+
+
+
+        <section>
+          <h2>Module Procedures</h2>
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-create_new_bundle"></span> <h3>module procedure /home/runner/work/MAPL/MAPL/docs/Ford/dev-doc/module/historytrajectory_implement.html <a href='../proc/create_new_bundle.html'>create_new_bundle</a> <small>module function create_new_bundle(this, rc) result(new_bundle)</small>  
+    <a href="../interface/create_new_bundle.html"><button type="button" class="btn btn-info depwarn">Interface &rarr;</button></a>
+</h3></div>
+    <div class="card-body">
+          
+  <p>if(MAPL_Assert(.false.,&rdquo;ItemTypeVector not yet supported&rdquo;,1,&rdquo;/home/runner/work/MAPL/MAPL/gridcomps/History/Sampler/MAPL_TrajectoryMod_smod.F90&rdquo;,456 ,rc)) return</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~1621"></span>
+              class(<a href='../type/historytrajectory.html'>HistoryTrajectory</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~692"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(ESMF_FieldBundle)</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-historytrajectory_from_config"></span> <h3>module procedure /home/runner/work/MAPL/MAPL/docs/Ford/dev-doc/module/historytrajectory_implement.html <a href='../proc/historytrajectory_from_config.html'>HistoryTrajectory_from_config</a> <small>module function HistoryTrajectory_from_config(config, string, clock, GENSTATE, rc) result(traj)</small>  
+    <a href="../interface/historytrajectory_from_config.html"><button type="button" class="btn btn-info depwarn">Interface &rarr;</button></a>
+</h3></div>
+    <div class="card-body">
+          
+  <p>write(6,<em>) &lsquo;nline, col&rsquo;, nline, col
+           write(6,</em>) &lsquo;line&rsquo;, i, &lsquo;ncol(i)&rsquo;, ncol(i)</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-config~10"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_config.html'>ESMF_Config</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>config</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-string~18"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>string</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clock~26"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>clock</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-genstate~2"></span>
+              type(<a href='../type/mapl_metacomp.html'>MAPL_MetaComp</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>GENSTATE</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~689"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/historytrajectory.html'>HistoryTrajectory</a>)</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-append_file"></span> <h3>module procedure /home/runner/work/MAPL/MAPL/docs/Ford/dev-doc/module/historytrajectory_implement.html <a href='../proc/append_file.html'>append_file</a> <small>module subroutine append_file(this, current_time, rc)</small>  
+    <a href="../interface/append_file.html"><button type="button" class="btn btn-info depwarn">Interface &rarr;</button></a>
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~1624"></span>
+              class(<a href='../type/historytrajectory.html'>HistoryTrajectory</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-current_time~3"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>current_time</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~695"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-close_file_handle"></span> <h3>module procedure /home/runner/work/MAPL/MAPL/docs/Ford/dev-doc/module/historytrajectory_implement.html <a href='../proc/close_file_handle.html'>close_file_handle</a> <small>module subroutine close_file_handle(this, rc)</small>  
+    <a href="../interface/close_file_handle.html"><button type="button" class="btn btn-info depwarn">Interface &rarr;</button></a>
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~1623"></span>
+              class(<a href='../type/historytrajectory.html'>HistoryTrajectory</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~694"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-create_file_handle"></span> <h3>module procedure /home/runner/work/MAPL/MAPL/docs/Ford/dev-doc/module/historytrajectory_implement.html <a href='../proc/create_file_handle.html'>create_file_handle</a> <small>module subroutine create_file_handle(this, filename_suffix, rc)</small>  
+    <a href="../interface/create_file_handle.html"><button type="button" class="btn btn-info depwarn">Interface &rarr;</button></a>
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~1622"></span>
+              class(<a href='../type/historytrajectory.html'>HistoryTrajectory</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-filename_suffix"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>filename_suffix</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~693"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-create_grid~3"></span> <h3>module procedure /home/runner/work/MAPL/MAPL/docs/Ford/dev-doc/module/historytrajectory_implement.html <a href='../proc/create_grid~3.html'>create_grid</a> <small>module subroutine create_grid(this, rc)</small>  
+    <a href="../interface/create_grid.html"><button type="button" class="btn btn-info depwarn">Interface &rarr;</button></a>
+</h3></div>
+    <div class="card-body">
+          
+  <p>if (jt1==0) jt1=1
+doulbe check</p><a href="../proc/create_grid~3.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~1625"></span>
+              class(<a href='../type/historytrajectory.html'>HistoryTrajectory</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~696"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-create_metadata_variable"></span> <h3>module procedure /home/runner/work/MAPL/MAPL/docs/Ford/dev-doc/module/historytrajectory_implement.html <a href='../proc/create_metadata_variable.html'>create_metadata_variable</a> <small>module subroutine create_metadata_variable(this, vname, rc)</small>  
+    <a href="../interface/create_metadata_variable.html"><button type="button" class="btn btn-info depwarn">Interface &rarr;</button></a>
+</h3></div>
+    <div class="card-body">
+          
+  <p>if (mapl_am_i_root()) write(6, &lsquo;(2x,a,/,10(2x,a))&rsquo;) &amp;
+     &lsquo;Traj: create_metadata_variable: vname, var_name, this%obs(k)%geoval_xname(ig)&rsquo;, &amp;
+     trim(vname), trim(var_name), trim(this%obs(k)%geoval_xname(ig))</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~1620"></span>
+              class(<a href='../type/historytrajectory.html'>HistoryTrajectory</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vname~4"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vname</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~691"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-destroy_rh_regen_ls"></span> <h3>module procedure /home/runner/work/MAPL/MAPL/docs/Ford/dev-doc/module/historytrajectory_implement.html <a href='../proc/destroy_rh_regen_ls.html'>destroy_rh_regen_LS</a> <small>module subroutine destroy_rh_regen_LS(this, rc)</small>  
+    <a href="../interface/destroy_rh_regen_ls.html"><button type="button" class="btn btn-info depwarn">Interface &rarr;</button></a>
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~1628"></span>
+              class(<a href='../type/historytrajectory.html'>HistoryTrajectory</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~699"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_x_subset"></span> <h3>module procedure /home/runner/work/MAPL/MAPL/docs/Ford/dev-doc/module/historytrajectory_implement.html <a href='../proc/get_x_subset.html'>get_x_subset</a> <small>module subroutine get_x_subset(this, interval, x_subset, rc)</small>  
+    <a href="../interface/get_x_subset.html"><button type="button" class="btn btn-info depwarn">Interface &rarr;</button></a>
+</h3></div>
+    <div class="card-body">
+          
+  <p>I choose UB = N+1 not N, because my sub. bisect find n: Y(n)&lt;x&lt;=Y(n+1)
+          write(6,&rsquo;(2x,a,2x,2i10)&rsquo;)  &lsquo;mod vers. get_x_subset, LB,UB=&rsquo;, x_subset(1:2)</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~1627"></span>
+              class(<a href='../type/historytrajectory.html'>HistoryTrajectory</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-interval~5"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>interval</strong>(2)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-x_subset"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>x_subset</strong>(2)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~698"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-initialize_"></span> <h3>module procedure /home/runner/work/MAPL/MAPL/docs/Ford/dev-doc/module/historytrajectory_implement.html <a href='../proc/initialize_.html'>initialize_</a> <small>module subroutine initialize_(this, items, bundle, timeInfo, vdata, reinitialize, rc)</small>  
+    <a href="../interface/initialize_.html"><button type="button" class="btn btn-info depwarn">Interface &rarr;</button></a>
+</h3></div>
+    <div class="card-body">
+          
+  <p>print*, &lsquo;list item%xname&rsquo;, trim(item%xname)</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~1619"></span>
+              class(<a href='../type/historytrajectory.html'>HistoryTrajectory</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-items~12"></span>
+              type(<a href='../type/griddedioitemvector.html'>GriddedIOitemVector</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>items</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bundle~26"></span>
+              type(ESMF_FieldBundle),
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>bundle</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-timeinfo~3"></span>
+              type(<a href='../type/timedata.html'>timeData</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>timeInfo</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vdata~4"></span>
+              type(<a href='../type/verticaldata.html'>verticalData</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vdata</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-reinitialize"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>reinitialize</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~690"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-regrid_accumulate_on_xsubset"></span> <h3>module procedure /home/runner/work/MAPL/MAPL/docs/Ford/dev-doc/module/historytrajectory_implement.html <a href='../proc/regrid_accumulate_on_xsubset.html'>regrid_accumulate_on_xsubset</a> <small>module subroutine regrid_accumulate_on_xsubset(this, rc)</small>  
+    <a href="../interface/regrid_accumulate_on_xsubset.html"><button type="button" class="btn btn-info depwarn">Interface &rarr;</button></a>
+</h3></div>
+    <div class="card-body">
+          
+  <p>write(6,&rsquo;(2x,a,4i10)&rsquo;) &lsquo;in regrid_accumulate is, ie=&rsquo;, is, ie</p><a href="../proc/regrid_accumulate_on_xsubset.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~1626"></span>
+              class(<a href='../type/historytrajectory.html'>HistoryTrajectory</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~697"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+        </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-07T17:48:42.464780             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

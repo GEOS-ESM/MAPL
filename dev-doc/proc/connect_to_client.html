@@ -1,0 +1,1448 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>connect_to_client &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>connect_to_client
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">117 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/DirectoryService.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/directoryservice.f90.html'>DirectoryService.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_directoryservicemod.html'>pFIO_DirectoryServiceMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">connect_to_client</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/connect_to_client.html#src">connect_to_client</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine connect_to_client(this, port_name, server, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/directoryservice.html'>DirectoryService</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~3580"></span>
+              class(<a href='../type/directoryservice.html'>DirectoryService</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-port_name~12"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>port_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-server~5"></span>
+              class(<a href='../type/baseserver.html'>BaseServer</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>server</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1430"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~connect_to_client~~CallsGraph Pages: 1 -->
+<svg id="procconnect_to_clientCallsGraph" width="641pt" height="409pt"
+ viewBox="0.00 0.00 641.00 409.03" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~connect_to_client~~CallsGraph" class="graph" transform="scale(0.65 0.65) rotate(0) translate(4 629)">
+<title>proc~~connect_to_client~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-629 988,-629 988,4 -4,4"/>
+<!-- proc~connect_to_client -->
+<g id="proc~~connect_to_client~~CallsGraph_node1" class="node">
+<title>proc~connect_to_client</title>
+<polygon fill="none" stroke="black" points="204,-339 0,-339 0,-315 204,-315 204,-339"/>
+<text text-anchor="middle" x="102" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50">DirectoryService%connect_to_client</text>
+</g>
+<!-- mpi_bcast -->
+<g id="proc~~connect_to_client~~CallsGraph_node2" class="node">
+<title>mpi_bcast</title>
+<polygon fill="#777777" stroke="#777777" points="374.5,-625 307.5,-625 307.5,-601 374.5,-601 374.5,-625"/>
+<text text-anchor="middle" x="341" y="-610.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_bcast</text>
+</g>
+<!-- proc~connect_to_client&#45;&gt;mpi_bcast -->
+<g id="proc~~connect_to_client~~CallsGraph_edge1" class="edge">
+<title>proc~connect_to_client&#45;&gt;mpi_bcast</title>
+<path fill="none" stroke="#ff0000" d="M105.4,-339.13C114.48,-381.52 150.76,-524.11 240,-592 256.28,-604.38 278.17,-609.87 297.33,-612.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="297.05,-615.65 307.34,-613.11 297.71,-608.68 297.05,-615.65"/>
+</g>
+<!-- mpi_comm_rank -->
+<g id="proc~~connect_to_client~~CallsGraph_node3" class="node">
+<title>mpi_comm_rank</title>
+<polygon fill="#777777" stroke="#777777" points="391.5,-583 290.5,-583 290.5,-559 391.5,-559 391.5,-583"/>
+<text text-anchor="middle" x="341" y="-568.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_rank</text>
+</g>
+<!-- proc~connect_to_client&#45;&gt;mpi_comm_rank -->
+<g id="proc~~connect_to_client~~CallsGraph_edge2" class="edge">
+<title>proc~connect_to_client&#45;&gt;mpi_comm_rank</title>
+<path fill="none" stroke="#ff0000" d="M106.6,-339.05C118.57,-376.91 160.86,-494.28 240,-550 251.73,-558.26 266.03,-563.4 280.1,-566.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="279.79,-570.06 290.27,-568.53 281.12,-563.19 279.79,-570.06"/>
+</g>
+<!-- mpi_comm_size -->
+<g id="proc~~connect_to_client~~CallsGraph_node4" class="node">
+<title>mpi_comm_size</title>
+<polygon fill="#777777" stroke="#777777" points="389.5,-541 292.5,-541 292.5,-517 389.5,-517 389.5,-541"/>
+<text text-anchor="middle" x="341" y="-526.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_size</text>
+</g>
+<!-- proc~connect_to_client&#45;&gt;mpi_comm_size -->
+<g id="proc~~connect_to_client~~CallsGraph_edge3" class="edge">
+<title>proc~connect_to_client&#45;&gt;mpi_comm_size</title>
+<path fill="none" stroke="#ff0000" d="M108.34,-339.08C123.6,-372.05 170.76,-464.11 240,-508 252.6,-515.99 267.71,-520.99 282.33,-524.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="281.86,-527.59 292.33,-525.99 283.14,-520.71 281.86,-527.59"/>
+</g>
+<!-- mpi_gatherv -->
+<g id="proc~~connect_to_client~~CallsGraph_node5" class="node">
+<title>mpi_gatherv</title>
+<polygon fill="#777777" stroke="#777777" points="380.5,-499 301.5,-499 301.5,-475 380.5,-475 380.5,-499"/>
+<text text-anchor="middle" x="341" y="-484.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_gatherv</text>
+</g>
+<!-- proc~connect_to_client&#45;&gt;mpi_gatherv -->
+<g id="proc~~connect_to_client~~CallsGraph_edge4" class="edge">
+<title>proc~connect_to_client&#45;&gt;mpi_gatherv</title>
+<path fill="none" stroke="#ff0000" d="M111.26,-339.38C130.36,-366.95 180.52,-433.52 240,-466 255.47,-474.45 274,-479.5 290.88,-482.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="290.71,-486.04 301.14,-484.16 291.81,-479.13 290.71,-486.04"/>
+</g>
+<!-- mpi_recv -->
+<g id="proc~~connect_to_client~~CallsGraph_node6" class="node">
+<title>mpi_recv</title>
+<polygon fill="#777777" stroke="#777777" points="606.5,-423 545.5,-423 545.5,-399 606.5,-399 606.5,-423"/>
+<text text-anchor="middle" x="576" y="-408.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_recv</text>
+</g>
+<!-- proc~connect_to_client&#45;&gt;mpi_recv -->
+<g id="proc~~connect_to_client~~CallsGraph_edge5" class="edge">
+<title>proc~connect_to_client&#45;&gt;mpi_recv</title>
+<path fill="none" stroke="#ff0000" d="M136.63,-339.09C164.11,-348.54 204.12,-361.31 240,-369 345.11,-391.52 471.54,-403.33 534.81,-408.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="534.9,-411.73 545.13,-409 535.43,-404.75 534.9,-411.73"/>
+</g>
+<!-- mpi_scatterv -->
+<g id="proc~~connect_to_client~~CallsGraph_node7" class="node">
+<title>mpi_scatterv</title>
+<polygon fill="#777777" stroke="#777777" points="381.5,-133 300.5,-133 300.5,-109 381.5,-109 381.5,-133"/>
+<text text-anchor="middle" x="341" y="-118.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_scatterv</text>
+</g>
+<!-- proc~connect_to_client&#45;&gt;mpi_scatterv -->
+<g id="proc~~connect_to_client~~CallsGraph_edge6" class="edge">
+<title>proc~connect_to_client&#45;&gt;mpi_scatterv</title>
+<path fill="none" stroke="#ff0000" d="M108.7,-314.69C124.52,-281.93 172.33,-192.05 240,-147 254.98,-137.03 273.57,-130.88 290.65,-127.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="291.37,-130.51 300.49,-125.12 290,-123.65 291.37,-130.51"/>
+</g>
+<!-- mpi_send -->
+<g id="proc~~connect_to_client~~CallsGraph_node8" class="node">
+<title>mpi_send</title>
+<polygon fill="#777777" stroke="#777777" points="608,-129 544,-129 544,-105 608,-105 608,-129"/>
+<text text-anchor="middle" x="576" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_send</text>
+</g>
+<!-- proc~connect_to_client&#45;&gt;mpi_send -->
+<g id="proc~~connect_to_client~~CallsGraph_edge7" class="edge">
+<title>proc~connect_to_client&#45;&gt;mpi_send</title>
+<path fill="none" stroke="#ff0000" d="M110.48,-314.67C128.66,-285.86 178.27,-213.99 240,-180 240,-180 444.14,-141.61 533.7,-124.77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="534.6,-128.16 543.78,-122.87 533.31,-121.28 534.6,-128.16"/>
+</g>
+<!-- proc~acquire -->
+<g id="proc~~connect_to_client~~CallsGraph_node9" class="node">
+<title>proc~acquire</title>
+<g id="a_proc~~connect_to_client~~CallsGraph_node9"><a xlink:href="../proc/acquire.html" xlink:title="MpiMutex%acquire">
+<polygon fill="#d9534f" stroke="#d9534f" points="397,-339 285,-339 285,-315 397,-315 397,-339"/>
+<text text-anchor="middle" x="341" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MpiMutex%acquire</text>
+</a>
+</g>
+</g>
+<!-- proc~connect_to_client&#45;&gt;proc~acquire -->
+<g id="proc~~connect_to_client~~CallsGraph_edge8" class="edge">
+<title>proc~connect_to_client&#45;&gt;proc~acquire</title>
+<path fill="none" stroke="#ff0000" d="M204.2,-327C228.09,-327 252.95,-327 274.76,-327"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="274.88,-330.5 284.88,-327 274.88,-323.5 274.88,-330.5"/>
+</g>
+<!-- proc~add_connection -->
+<g id="proc~~connect_to_client~~CallsGraph_node10" class="node">
+<title>proc~add_connection</title>
+<g id="a_proc~~connect_to_client~~CallsGraph_node10"><a xlink:href="../proc/add_connection.html" xlink:title="BaseServer%add_connection">
+<polygon fill="#d9534f" stroke="#d9534f" points="425.5,-89 256.5,-89 256.5,-65 425.5,-65 425.5,-89"/>
+<text text-anchor="middle" x="341" y="-74.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseServer%add_connection</text>
+</a>
+</g>
+</g>
+<!-- proc~connect_to_client&#45;&gt;proc~add_connection -->
+<g id="proc~~connect_to_client~~CallsGraph_edge9" class="edge">
+<title>proc~connect_to_client&#45;&gt;proc~add_connection</title>
+<path fill="none" stroke="#ff0000" d="M106.58,-314.81C118.48,-276.47 160.6,-157.52 240,-100 243.45,-97.5 247.13,-95.27 250.96,-93.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="252.53,-96.4 260.15,-89.04 249.6,-90.05 252.53,-96.4"/>
+</g>
+<!-- proc~get_communicator -->
+<g id="proc~~connect_to_client~~CallsGraph_node11" class="node">
+<title>proc~get_communicator</title>
+<g id="a_proc~~connect_to_client~~CallsGraph_node11"><a xlink:href="../proc/get_communicator.html" xlink:title="AbstractServer%get_communicator">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="442,-47 240,-47 240,-23 442,-23 442,-47"/>
+<text text-anchor="middle" x="341" y="-32.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractServer%get_communicator</text>
+</a>
+</g>
+</g>
+<!-- proc~connect_to_client&#45;&gt;proc~get_communicator -->
+<g id="proc~~connect_to_client~~CallsGraph_edge10" class="edge">
+<title>proc~connect_to_client&#45;&gt;proc~get_communicator</title>
+<path fill="none" stroke="#ff0000" d="M105.25,-314.9C113.92,-271.95 149.27,-125.68 240,-56 241.83,-54.6 243.73,-53.28 245.69,-52.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="247.54,-55.02 254.64,-47.16 244.18,-48.88 247.54,-55.02"/>
+</g>
+<!-- proc~get_directory -->
+<g id="proc~~connect_to_client~~CallsGraph_node12" class="node">
+<title>proc~get_directory</title>
+<g id="a_proc~~connect_to_client~~CallsGraph_node12"><a xlink:href="../proc/get_directory.html" xlink:title="DirectoryService%get_directory">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="431.5,-297 250.5,-297 250.5,-273 431.5,-273 431.5,-297"/>
+<text text-anchor="middle" x="341" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DirectoryService%get_directory</text>
+</a>
+</g>
+</g>
+<!-- proc~connect_to_client&#45;&gt;proc~get_directory -->
+<g id="proc~~connect_to_client~~CallsGraph_edge11" class="edge">
+<title>proc~connect_to_client&#45;&gt;proc~get_directory</title>
+<path fill="none" stroke="#ff0000" d="M170.91,-314.96C199.3,-309.93 232.46,-304.06 261.85,-298.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="262.84,-302.23 272.08,-297.04 261.62,-295.34 262.84,-302.23"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~connect_to_client~~CallsGraph_node13" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~connect_to_client~~CallsGraph_node13"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="382,-457 300,-457 300,-433 382,-433 382,-457"/>
+<text text-anchor="middle" x="341" y="-442.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~connect_to_client&#45;&gt;proc~mapl_return -->
+<g id="proc~~connect_to_client~~CallsGraph_edge12" class="edge">
+<title>proc~connect_to_client&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M117.62,-339.29C141.64,-358.89 191.67,-397.25 240,-419 255.58,-426.01 273.41,-431.4 289.65,-435.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="288.99,-438.85 299.53,-437.73 290.59,-432.04 288.99,-438.85"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~connect_to_client~~CallsGraph_node14" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~connect_to_client~~CallsGraph_node14"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="614,-381 538,-381 538,-357 614,-357 614,-381"/>
+<text text-anchor="middle" x="576" y="-366.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~connect_to_client&#45;&gt;proc~mapl_verify -->
+<g id="proc~~connect_to_client~~CallsGraph_edge13" class="edge">
+<title>proc~connect_to_client&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M173.24,-339C194.62,-342.32 218.23,-345.65 240,-348 342.08,-359 462.33,-364.81 527.39,-367.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="527.6,-370.87 537.73,-367.75 527.87,-363.87 527.6,-370.87"/>
+</g>
+<!-- proc~put_directory -->
+<g id="proc~~connect_to_client~~CallsGraph_node15" class="node">
+<title>proc~put_directory</title>
+<g id="a_proc~~connect_to_client~~CallsGraph_node15"><a xlink:href="../proc/put_directory.html" xlink:title="DirectoryService%put_directory">
+<polygon fill="#d9534f" stroke="#d9534f" points="431.5,-213 250.5,-213 250.5,-189 431.5,-189 431.5,-213"/>
+<text text-anchor="middle" x="341" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DirectoryService%put_directory</text>
+</a>
+</g>
+</g>
+<!-- proc~connect_to_client&#45;&gt;proc~put_directory -->
+<g id="proc~~connect_to_client~~CallsGraph_edge14" class="edge">
+<title>proc~connect_to_client&#45;&gt;proc~put_directory</title>
+<path fill="none" stroke="#ff0000" d="M114.95,-314.75C137.32,-292.58 187.98,-245.88 240,-222 244.72,-219.83 249.66,-217.89 254.72,-216.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="256.08,-219.38 264.55,-213.02 253.96,-212.71 256.08,-219.38"/>
+</g>
+<!-- proc~release -->
+<g id="proc~~connect_to_client~~CallsGraph_node16" class="node">
+<title>proc~release</title>
+<g id="a_proc~~connect_to_client~~CallsGraph_node16"><a xlink:href="../proc/release.html" xlink:title="MpiMutex%release">
+<polygon fill="#d9534f" stroke="#d9534f" points="397,-255 285,-255 285,-231 397,-231 397,-255"/>
+<text text-anchor="middle" x="341" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MpiMutex%release</text>
+</a>
+</g>
+</g>
+<!-- proc~connect_to_client&#45;&gt;proc~release -->
+<g id="proc~~connect_to_client~~CallsGraph_edge15" class="edge">
+<title>proc~connect_to_client&#45;&gt;proc~release</title>
+<path fill="none" stroke="#ff0000" d="M125.16,-314.92C151.74,-300.89 197.99,-277.88 240,-264 251.19,-260.31 263.3,-257.11 275.1,-254.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="275.9,-257.82 284.92,-252.26 274.4,-250.99 275.9,-257.82"/>
+</g>
+<!-- proc~acquire&#45;&gt;mpi_recv -->
+<g id="proc~~connect_to_client~~CallsGraph_edge18" class="edge">
+<title>proc~acquire&#45;&gt;mpi_recv</title>
+<path fill="none" stroke="#00ffcb" d="M364,-339.04C390.39,-353.04 436.31,-376.02 478,-390 496.44,-396.18 517.47,-400.99 535.22,-404.44"/>
+<polygon fill="#00ffcb" stroke="#00ffcb" points="534.78,-407.92 545.26,-406.32 536.07,-401.04 534.78,-407.92"/>
+</g>
+<!-- proc~acquire&#45;&gt;proc~mapl_verify -->
+<g id="proc~~connect_to_client~~CallsGraph_edge21" class="edge">
+<title>proc~acquire&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ffcb" d="M397.22,-336.95C436.95,-344.12 489.97,-353.67 527.75,-360.48"/>
+<polygon fill="#00ffcb" stroke="#00ffcb" points="527.52,-364 537.98,-362.33 528.76,-357.11 527.52,-364"/>
+</g>
+<!-- mpi_get -->
+<g id="proc~~connect_to_client~~CallsGraph_node17" class="node">
+<title>mpi_get</title>
+<polygon fill="#777777" stroke="#777777" points="603.5,-339 548.5,-339 548.5,-315 603.5,-315 603.5,-339"/>
+<text text-anchor="middle" x="576" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_get</text>
+</g>
+<!-- proc~acquire&#45;&gt;mpi_get -->
+<g id="proc~~connect_to_client~~CallsGraph_edge16" class="edge">
+<title>proc~acquire&#45;&gt;mpi_get</title>
+<path fill="none" stroke="#00ffcb" d="M397.22,-327C440.76,-327 500.28,-327 538.18,-327"/>
+<polygon fill="#00ffcb" stroke="#00ffcb" points="538.27,-330.5 548.27,-327 538.27,-323.5 538.27,-330.5"/>
+</g>
+<!-- mpi_put -->
+<g id="proc~~connect_to_client~~CallsGraph_node18" class="node">
+<title>mpi_put</title>
+<polygon fill="#777777" stroke="#777777" points="603.5,-213 548.5,-213 548.5,-189 603.5,-189 603.5,-213"/>
+<text text-anchor="middle" x="576" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_put</text>
+</g>
+<!-- proc~acquire&#45;&gt;mpi_put -->
+<g id="proc~~connect_to_client~~CallsGraph_edge17" class="edge">
+<title>proc~acquire&#45;&gt;mpi_put</title>
+<path fill="none" stroke="#00ffcb" d="M397.25,-324.87C413.09,-321.9 429.44,-316.29 442,-306 473.42,-280.26 446.66,-247.84 478,-222 494.68,-208.25 518.3,-202.93 538.06,-201.08"/>
+<polygon fill="#00ffcb" stroke="#00ffcb" points="538.54,-204.56 548.28,-200.4 538.07,-197.58 538.54,-204.56"/>
+</g>
+<!-- mpi_win_lock -->
+<g id="proc~~connect_to_client~~CallsGraph_node19" class="node">
+<title>mpi_win_lock</title>
+<polygon fill="#777777" stroke="#777777" points="617.5,-297 534.5,-297 534.5,-273 617.5,-273 617.5,-297"/>
+<text text-anchor="middle" x="576" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_win_lock</text>
+</g>
+<!-- proc~acquire&#45;&gt;mpi_win_lock -->
+<g id="proc~~connect_to_client~~CallsGraph_edge19" class="edge">
+<title>proc~acquire&#45;&gt;mpi_win_lock</title>
+<path fill="none" stroke="#00ffcb" d="M397.22,-317.05C435.72,-310.11 486.7,-300.92 524.2,-294.16"/>
+<polygon fill="#00ffcb" stroke="#00ffcb" points="525.18,-297.54 534.4,-292.32 523.93,-290.65 525.18,-297.54"/>
+</g>
+<!-- mpi_win_unlock -->
+<g id="proc~~connect_to_client~~CallsGraph_node20" class="node">
+<title>mpi_win_unlock</title>
+<polygon fill="#777777" stroke="#777777" points="624.5,-255 527.5,-255 527.5,-231 624.5,-231 624.5,-255"/>
+<text text-anchor="middle" x="576" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_win_unlock</text>
+</g>
+<!-- proc~acquire&#45;&gt;mpi_win_unlock -->
+<g id="proc~~connect_to_client~~CallsGraph_edge20" class="edge">
+<title>proc~acquire&#45;&gt;mpi_win_unlock</title>
+<path fill="none" stroke="#00ffcb" d="M397.06,-322.07C412.37,-318.98 428.49,-314 442,-306 463.16,-293.47 456.88,-276.59 478,-264 489.91,-256.9 503.91,-252.19 517.52,-249.06"/>
+<polygon fill="#00ffcb" stroke="#00ffcb" points="518.23,-252.49 527.33,-247.06 516.83,-245.63 518.23,-252.49"/>
+</g>
+<!-- proc~set_rank -->
+<g id="proc~~connect_to_client~~CallsGraph_node23" class="node">
+<title>proc~set_rank</title>
+<g id="a_proc~~connect_to_client~~CallsGraph_node23"><a xlink:href="../proc/set_rank.html" xlink:title="ServerThread%set_rank">
+<polygon fill="#d9534f" stroke="#d9534f" points="646,-87 506,-87 506,-63 646,-63 646,-87"/>
+<text text-anchor="middle" x="576" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThread%set_rank</text>
+</a>
+</g>
+</g>
+<!-- proc~add_connection&#45;&gt;proc~set_rank -->
+<g id="proc~~connect_to_client~~CallsGraph_edge22" class="edge">
+<title>proc~add_connection&#45;&gt;proc~set_rank</title>
+<path fill="none" stroke="#00cbff" d="M425.79,-76.28C448.53,-76.09 473.08,-75.87 495.57,-75.68"/>
+<polygon fill="#00cbff" stroke="#00cbff" points="495.78,-79.18 505.75,-75.59 495.72,-72.18 495.78,-79.18"/>
+</g>
+<!-- proc~v_push_back~7 -->
+<g id="proc~~connect_to_client~~CallsGraph_node25" class="node">
+<title>proc~v_push_back~7</title>
+<g id="a_proc~~connect_to_client~~CallsGraph_node25"><a xlink:href="../proc/v_push_back~7.html" xlink:title="ServerThreadVector%v_push_back">
+<polygon fill="#d9534f" stroke="#d9534f" points="674,-45 478,-45 478,-21 674,-21 674,-45"/>
+<text text-anchor="middle" x="576" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThreadVector%v_push_back</text>
+</a>
+</g>
+</g>
+<!-- proc~add_connection&#45;&gt;proc~v_push_back~7 -->
+<g id="proc~~connect_to_client~~CallsGraph_edge23" class="edge">
+<title>proc~add_connection&#45;&gt;proc~v_push_back~7</title>
+<path fill="none" stroke="#00cbff" d="M405.67,-64.98C435.21,-59.4 470.49,-52.74 501.19,-46.94"/>
+<polygon fill="#00cbff" stroke="#00cbff" points="502.23,-50.3 511.41,-45.01 500.93,-43.43 502.23,-50.3"/>
+</g>
+<!-- proc~get_directory&#45;&gt;proc~mapl_verify -->
+<g id="proc~~connect_to_client~~CallsGraph_edge27" class="edge">
+<title>proc~get_directory&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0000ff" d="M422.91,-297.09C429.59,-299.54 436.05,-302.48 442,-306 463.16,-318.53 456.88,-335.41 478,-348 492.95,-356.92 511.21,-362.06 527.84,-365.03"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="527.51,-368.52 537.93,-366.61 528.59,-361.61 527.51,-368.52"/>
+</g>
+<!-- proc~get_directory&#45;&gt;mpi_get -->
+<g id="proc~~connect_to_client~~CallsGraph_edge24" class="edge">
+<title>proc~get_directory&#45;&gt;mpi_get</title>
+<path fill="none" stroke="#0000ff" d="M408.77,-297.04C450.81,-304.61 503.5,-314.11 538.15,-320.36"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="537.83,-323.86 548.29,-322.19 539.07,-316.97 537.83,-323.86"/>
+</g>
+<!-- proc~get_directory&#45;&gt;mpi_win_lock -->
+<g id="proc~~connect_to_client~~CallsGraph_edge25" class="edge">
+<title>proc~get_directory&#45;&gt;mpi_win_lock</title>
+<path fill="none" stroke="#0000ff" d="M431.75,-285C463.12,-285 497.24,-285 524.3,-285"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="524.3,-288.5 534.3,-285 524.3,-281.5 524.3,-288.5"/>
+</g>
+<!-- proc~get_directory&#45;&gt;mpi_win_unlock -->
+<g id="proc~~connect_to_client~~CallsGraph_edge26" class="edge">
+<title>proc~get_directory&#45;&gt;mpi_win_unlock</title>
+<path fill="none" stroke="#0000ff" d="M408.77,-272.96C443.14,-266.77 484.61,-259.29 517.53,-253.36"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="518.24,-256.79 527.46,-251.57 517,-249.9 518.24,-256.79"/>
+</g>
+<!-- proc~sizeof_directory -->
+<g id="proc~~connect_to_client~~CallsGraph_node24" class="node">
+<title>proc~sizeof_directory</title>
+<g id="a_proc~~connect_to_client~~CallsGraph_node24"><a xlink:href="../proc/sizeof_directory.html" xlink:title="sizeof_directory">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="624,-171 528,-171 528,-147 624,-147 624,-171"/>
+<text text-anchor="middle" x="576" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sizeof_directory</text>
+</a>
+</g>
+</g>
+<!-- proc~get_directory&#45;&gt;proc~sizeof_directory -->
+<g id="proc~~connect_to_client~~CallsGraph_edge28" class="edge">
+<title>proc~get_directory&#45;&gt;proc~sizeof_directory</title>
+<path fill="none" stroke="#0000ff" d="M428.1,-272.93C433.06,-270.43 437.75,-267.49 442,-264 473.42,-238.26 446.66,-205.84 478,-180 489.13,-170.83 503.34,-165.41 517.44,-162.27"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="518.45,-165.64 527.64,-160.36 517.17,-158.76 518.45,-165.64"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~connect_to_client~~CallsGraph_node21" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~connect_to_client~~CallsGraph_node21"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="633.5,-503 518.5,-503 518.5,-479 633.5,-479 633.5,-503"/>
+<text text-anchor="middle" x="576" y="-488.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~connect_to_client~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#6500ff" d="M382.05,-452.91C416.79,-459.77 467.77,-469.83 508.6,-477.89"/>
+<polygon fill="#6500ff" stroke="#6500ff" points="507.99,-481.34 518.48,-479.84 509.34,-474.47 507.99,-481.34"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~connect_to_client~~CallsGraph_node22" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~connect_to_client~~CallsGraph_node22"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="867,-421 734,-421 734,-397 867,-397 867,-421"/>
+<text text-anchor="middle" x="800.5" y="-406.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~connect_to_client~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#6500ff" d="M382.25,-445.26C444.85,-445.26 569.22,-443.59 674,-432 693.5,-429.84 714.53,-426.43 733.69,-422.88"/>
+<polygon fill="#6500ff" stroke="#6500ff" points="734.35,-426.32 743.53,-421.02 733.05,-419.44 734.35,-426.32"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~connect_to_client~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#cc00ff" d="M614.24,-375.7C643.98,-381.04 686.64,-388.71 723.52,-395.34"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="723.29,-398.86 733.75,-397.18 724.53,-391.97 723.29,-398.86"/>
+</g>
+<!-- proc~put_directory&#45;&gt;proc~mapl_verify -->
+<g id="proc~~connect_to_client~~CallsGraph_edge35" class="edge">
+<title>proc~put_directory&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff00cb" d="M430.02,-213.25C434.33,-215.72 438.36,-218.62 442,-222 484.62,-261.69 435.5,-308.18 478,-348 491.24,-360.41 510.01,-366.16 527.51,-368.63"/>
+<polygon fill="#ff00cb" stroke="#ff00cb" points="527.3,-372.13 537.62,-369.74 528.06,-365.17 527.3,-372.13"/>
+</g>
+<!-- proc~put_directory&#45;&gt;mpi_put -->
+<g id="proc~~connect_to_client~~CallsGraph_edge32" class="edge">
+<title>proc~put_directory&#45;&gt;mpi_put</title>
+<path fill="none" stroke="#ff00cb" d="M431.75,-201C468.69,-201 509.43,-201 537.99,-201"/>
+<polygon fill="#ff00cb" stroke="#ff00cb" points="538.31,-204.5 548.31,-201 538.31,-197.5 538.31,-204.5"/>
+</g>
+<!-- proc~put_directory&#45;&gt;mpi_win_lock -->
+<g id="proc~~connect_to_client~~CallsGraph_edge33" class="edge">
+<title>proc~put_directory&#45;&gt;mpi_win_lock</title>
+<path fill="none" stroke="#ff00cb" d="M422.91,-213.09C429.59,-215.54 436.05,-218.48 442,-222 463.16,-234.53 456.88,-251.41 478,-264 491.84,-272.25 508.51,-277.28 524.1,-280.33"/>
+<polygon fill="#ff00cb" stroke="#ff00cb" points="523.7,-283.81 534.15,-282.07 524.89,-276.92 523.7,-283.81"/>
+</g>
+<!-- proc~put_directory&#45;&gt;mpi_win_unlock -->
+<g id="proc~~connect_to_client~~CallsGraph_edge34" class="edge">
+<title>proc~put_directory&#45;&gt;mpi_win_unlock</title>
+<path fill="none" stroke="#ff00cb" d="M408.77,-213.04C443.14,-219.23 484.61,-226.71 517.53,-232.64"/>
+<polygon fill="#ff00cb" stroke="#ff00cb" points="517,-236.1 527.46,-234.43 518.24,-229.21 517,-236.1"/>
+</g>
+<!-- proc~put_directory&#45;&gt;proc~sizeof_directory -->
+<g id="proc~~connect_to_client~~CallsGraph_edge36" class="edge">
+<title>proc~put_directory&#45;&gt;proc~sizeof_directory</title>
+<path fill="none" stroke="#ff00cb" d="M408.77,-188.96C443.26,-182.75 484.9,-175.24 517.88,-169.3"/>
+<polygon fill="#ff00cb" stroke="#ff00cb" points="518.6,-172.72 527.82,-167.5 517.36,-165.83 518.6,-172.72"/>
+</g>
+<!-- proc~release&#45;&gt;mpi_send -->
+<g id="proc~~connect_to_client~~CallsGraph_edge39" class="edge">
+<title>proc~release&#45;&gt;mpi_send</title>
+<path fill="none" stroke="#ff0066" d="M397.25,-240.87C413.09,-237.9 429.44,-232.29 442,-222 473.42,-196.26 446.66,-163.84 478,-138 493.48,-125.24 514.94,-119.74 533.75,-117.54"/>
+<polygon fill="#ff0066" stroke="#ff0066" points="534.22,-121.01 543.87,-116.63 533.59,-114.04 534.22,-121.01"/>
+</g>
+<!-- proc~release&#45;&gt;proc~mapl_verify -->
+<g id="proc~~connect_to_client~~CallsGraph_edge42" class="edge">
+<title>proc~release&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0066" d="M397.25,-245.13C413.09,-248.1 429.44,-253.71 442,-264 473.42,-289.74 446.66,-322.16 478,-348 491.89,-359.45 510.6,-365.06 527.89,-367.68"/>
+<polygon fill="#ff0066" stroke="#ff0066" points="527.5,-371.15 537.85,-368.9 528.35,-364.21 527.5,-371.15"/>
+</g>
+<!-- proc~release&#45;&gt;mpi_get -->
+<g id="proc~~connect_to_client~~CallsGraph_edge37" class="edge">
+<title>proc~release&#45;&gt;mpi_get</title>
+<path fill="none" stroke="#ff0066" d="M397.06,-247.93C412.37,-251.02 428.49,-256 442,-264 463.16,-276.53 456.88,-293.41 478,-306 496.11,-316.8 519.06,-322.07 538.09,-324.63"/>
+<polygon fill="#ff0066" stroke="#ff0066" points="537.87,-328.13 548.21,-325.8 538.67,-321.18 537.87,-328.13"/>
+</g>
+<!-- proc~release&#45;&gt;mpi_put -->
+<g id="proc~~connect_to_client~~CallsGraph_edge38" class="edge">
+<title>proc~release&#45;&gt;mpi_put</title>
+<path fill="none" stroke="#ff0066" d="M397.22,-233.05C440.76,-225.2 500.28,-214.47 538.18,-207.64"/>
+<polygon fill="#ff0066" stroke="#ff0066" points="539.05,-211.04 548.27,-205.82 537.81,-204.15 539.05,-211.04"/>
+</g>
+<!-- proc~release&#45;&gt;mpi_win_lock -->
+<g id="proc~~connect_to_client~~CallsGraph_edge40" class="edge">
+<title>proc~release&#45;&gt;mpi_win_lock</title>
+<path fill="none" stroke="#ff0066" d="M397.22,-252.95C435.72,-259.89 486.7,-269.08 524.2,-275.84"/>
+<polygon fill="#ff0066" stroke="#ff0066" points="523.93,-279.35 534.4,-277.68 525.18,-272.46 523.93,-279.35"/>
+</g>
+<!-- proc~release&#45;&gt;mpi_win_unlock -->
+<g id="proc~~connect_to_client~~CallsGraph_edge41" class="edge">
+<title>proc~release&#45;&gt;mpi_win_unlock</title>
+<path fill="none" stroke="#ff0066" d="M397.22,-243C433.38,-243 480.56,-243 517.23,-243"/>
+<polygon fill="#ff0066" stroke="#ff0066" points="517.27,-246.5 527.27,-243 517.27,-239.5 517.27,-246.5"/>
+</g>
+<!-- at -->
+<g id="proc~~connect_to_client~~CallsGraph_node26" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="827.5,-482 773.5,-482 773.5,-458 827.5,-458 827.5,-482"/>
+<text text-anchor="middle" x="800.5" y="-467.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~connect_to_client~~CallsGraph_edge43" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#00ffa9" d="M633.72,-485.65C674.44,-481.8 728.12,-476.74 763.2,-473.43"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="763.83,-476.88 773.45,-472.46 763.17,-469.91 763.83,-476.88"/>
+</g>
+<!-- insert -->
+<g id="proc~~connect_to_client~~CallsGraph_node27" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="827.5,-524 773.5,-524 773.5,-500 827.5,-500 827.5,-524"/>
+<text text-anchor="middle" x="800.5" y="-509.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~connect_to_client~~CallsGraph_edge44" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#00ffa9" d="M633.72,-496.35C674.44,-500.2 728.12,-505.26 763.2,-508.57"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="763.17,-512.09 773.45,-509.54 763.83,-505.12 763.17,-512.09"/>
+</g>
+<!-- proc~initialize~6 -->
+<g id="proc~~connect_to_client~~CallsGraph_node29" class="node">
+<title>proc~initialize~6</title>
+<g id="a_proc~~connect_to_client~~CallsGraph_node29"><a xlink:href="../proc/initialize~6.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="984,-421 927,-421 927,-397 984,-397 984,-421"/>
+<text text-anchor="middle" x="955.5" y="-406.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~6 -->
+<g id="proc~~connect_to_client~~CallsGraph_edge45" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~6</title>
+<path fill="none" stroke="#00a9ff" d="M867.27,-409C884.09,-409 901.61,-409 916.5,-409"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="916.83,-412.5 926.83,-409 916.83,-405.5 916.83,-412.5"/>
+</g>
+<!-- none~resize~32 -->
+<g id="proc~~connect_to_client~~CallsGraph_node28" class="node">
+<title>none~resize~32</title>
+<g id="a_proc~~connect_to_client~~CallsGraph_node28"><a xlink:href="../type/serverthreadvector.html#boundprocedure-resize~32" xlink:title="ServerThreadVector%resize">
+<polygon fill="#a7506f" stroke="#a7506f" points="880.5,-24 720.5,-24 720.5,0 880.5,0 880.5,-24"/>
+<text text-anchor="middle" x="800.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThreadVector%resize</text>
+</a>
+</g>
+</g>
+<!-- proc~v_push_back~7&#45;&gt;none~resize~32 -->
+<g id="proc~~connect_to_client~~CallsGraph_edge46" class="edge">
+<title>proc~v_push_back~7&#45;&gt;none~resize~32</title>
+<path fill="none" stroke="#ff00aa" d="M674.27,-23.82C686.21,-22.69 698.36,-21.55 710.18,-20.43"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="710.83,-23.88 720.46,-19.46 710.17,-16.92 710.83,-23.88"/>
+</g>
+<!-- proc~v_grow_to~7 -->
+<g id="proc~~connect_to_client~~CallsGraph_node30" class="node">
+<title>proc~v_grow_to~7</title>
+<g id="a_proc~~connect_to_client~~CallsGraph_node30"><a xlink:href="../proc/v_grow_to~7.html" xlink:title="ServerThreadVector%v_grow_to">
+<polygon fill="#d9534f" stroke="#d9534f" points="891,-66 710,-66 710,-42 891,-42 891,-66"/>
+<text text-anchor="middle" x="800.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThreadVector%v_grow_to</text>
+</a>
+</g>
+</g>
+<!-- proc~v_push_back~7&#45;&gt;proc~v_grow_to~7 -->
+<g id="proc~~connect_to_client~~CallsGraph_edge47" class="edge">
+<title>proc~v_push_back~7&#45;&gt;proc~v_grow_to~7</title>
+<path fill="none" stroke="#ff00aa" d="M674.27,-42.18C682.66,-42.97 691.17,-43.78 699.59,-44.57"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="699.51,-48.08 709.8,-45.53 700.17,-41.11 699.51,-48.08"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocconnect_to_clientCallsGraph = svgPanZoom('#procconnect_to_clientCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~connect_to_client~~CalledByGraph Pages: 1 -->
+<svg id="procconnect_to_clientCalledByGraph" width="641pt" height="239pt"
+ viewBox="0.00 0.00 641.00 239.30" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~connect_to_client~~CalledByGraph" class="graph" transform="scale(0.62 0.62) rotate(0) translate(4 385)">
+<title>proc~~connect_to_client~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-385 1038,-385 1038,4 -4,4"/>
+<!-- proc~connect_to_client -->
+<g id="proc~~connect_to_client~~CalledByGraph_node1" class="node">
+<title>proc~connect_to_client</title>
+<polygon fill="none" stroke="black" points="1034,-129 830,-129 830,-105 1034,-105 1034,-129"/>
+<text text-anchor="middle" x="932" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50">DirectoryService%connect_to_client</text>
+</g>
+<!-- proc~initialize~15 -->
+<g id="proc~~connect_to_client~~CalledByGraph_node2" class="node">
+<title>proc~initialize~15</title>
+<g id="a_proc~~connect_to_client~~CalledByGraph_node2"><a xlink:href="../proc/initialize~15.html" xlink:title="ServerManager%initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="770,-234 621,-234 621,-210 770,-210 770,-234"/>
+<text text-anchor="middle" x="695.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerManager%initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize~15&#45;&gt;proc~connect_to_client -->
+<g id="proc~~connect_to_client~~CalledByGraph_edge1" class="edge">
+<title>proc~initialize~15&#45;&gt;proc~connect_to_client</title>
+<path fill="none" stroke="#ff0000" d="M766.34,-209.97C775.79,-207.48 785.24,-204.51 794,-201 836.35,-184.03 880.49,-154.47 906.86,-135.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="909.11,-138.01 915.09,-129.26 904.96,-132.37 909.11,-138.01"/>
+</g>
+<!-- proc~test_connect -->
+<g id="proc~~connect_to_client~~CalledByGraph_node3" class="node">
+<title>proc~test_connect</title>
+<g id="a_proc~~connect_to_client~~CalledByGraph_node3"><a xlink:href="../proc/test_connect.html" xlink:title="test_connect">
+<polygon fill="#d9534f" stroke="#d9534f" points="735.5,-192 655.5,-192 655.5,-168 735.5,-168 735.5,-192"/>
+<text text-anchor="middle" x="695.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_connect</text>
+</a>
+</g>
+</g>
+<!-- proc~test_connect&#45;&gt;proc~connect_to_client -->
+<g id="proc~~connect_to_client~~CalledByGraph_edge2" class="edge">
+<title>proc~test_connect&#45;&gt;proc~connect_to_client</title>
+<path fill="none" stroke="#ff0000" d="M735.58,-172.38C753.47,-168.68 774.9,-163.98 794,-159 824.53,-151.05 858.42,-140.67 884.86,-132.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="886.16,-135.48 894.61,-129.08 884.02,-128.82 886.16,-135.48"/>
+</g>
+<!-- proc~test_connect_multi -->
+<g id="proc~~connect_to_client~~CalledByGraph_node4" class="node">
+<title>proc~test_connect_multi</title>
+<g id="a_proc~~connect_to_client~~CalledByGraph_node4"><a xlink:href="../proc/test_connect_multi.html" xlink:title="test_connect_multi">
+<polygon fill="#d9534f" stroke="#d9534f" points="751.5,-150 639.5,-150 639.5,-126 751.5,-126 751.5,-150"/>
+<text text-anchor="middle" x="695.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_connect_multi</text>
+</a>
+</g>
+</g>
+<!-- proc~test_connect_multi&#45;&gt;proc~connect_to_client -->
+<g id="proc~~connect_to_client~~CalledByGraph_edge3" class="edge">
+<title>proc~test_connect_multi&#45;&gt;proc~connect_to_client</title>
+<path fill="none" stroke="#ff0000" d="M751.78,-133.05C772.16,-131.22 796.04,-129.09 819.61,-126.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="820.03,-130.45 829.68,-126.07 819.4,-123.48 820.03,-130.45"/>
+</g>
+<!-- proc~test_connect_swap_role -->
+<g id="proc~~connect_to_client~~CalledByGraph_node5" class="node">
+<title>proc~test_connect_swap_role</title>
+<g id="a_proc~~connect_to_client~~CalledByGraph_node5"><a xlink:href="../proc/test_connect_swap_role.html" xlink:title="test_connect_swap_role">
+<polygon fill="#d9534f" stroke="#d9534f" points="764.5,-108 626.5,-108 626.5,-84 764.5,-84 764.5,-108"/>
+<text text-anchor="middle" x="695.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_connect_swap_role</text>
+</a>
+</g>
+</g>
+<!-- proc~test_connect_swap_role&#45;&gt;proc~connect_to_client -->
+<g id="proc~~connect_to_client~~CalledByGraph_edge4" class="edge">
+<title>proc~test_connect_swap_role&#45;&gt;proc~connect_to_client</title>
+<path fill="none" stroke="#ff0000" d="M764.64,-102.1C781.95,-103.65 801,-105.36 819.84,-107.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="819.7,-110.55 829.97,-107.95 820.32,-103.57 819.7,-110.55"/>
+</g>
+<!-- proc~test_connect_with_unused_process -->
+<g id="proc~~connect_to_client~~CalledByGraph_node6" class="node">
+<title>proc~test_connect_with_unused_process</title>
+<g id="a_proc~~connect_to_client~~CalledByGraph_node6"><a xlink:href="../proc/test_connect_with_unused_process.html" xlink:title="test_connect_with_unused_process">
+<polygon fill="#d9534f" stroke="#d9534f" points="794,-66 597,-66 597,-42 794,-42 794,-66"/>
+<text text-anchor="middle" x="695.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_connect_with_unused_process</text>
+</a>
+</g>
+</g>
+<!-- proc~test_connect_with_unused_process&#45;&gt;proc~connect_to_client -->
+<g id="proc~~connect_to_client~~CalledByGraph_edge5" class="edge">
+<title>proc~test_connect_with_unused_process&#45;&gt;proc~connect_to_client</title>
+<path fill="none" stroke="#ff0000" d="M756.24,-66.02C768.76,-68.78 781.85,-71.84 794,-75 824.53,-82.95 858.42,-93.33 884.86,-101.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="884.02,-105.18 894.61,-104.92 886.16,-98.52 884.02,-105.18"/>
+</g>
+<!-- proc~test_stress -->
+<g id="proc~~connect_to_client~~CalledByGraph_node7" class="node">
+<title>proc~test_stress</title>
+<g id="a_proc~~connect_to_client~~CalledByGraph_node7"><a xlink:href="../proc/test_stress.html" xlink:title="test_stress">
+<polygon fill="#d9534f" stroke="#d9534f" points="729,-24 662,-24 662,0 729,0 729,-24"/>
+<text text-anchor="middle" x="695.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_stress</text>
+</a>
+</g>
+</g>
+<!-- proc~test_stress&#45;&gt;proc~connect_to_client -->
+<g id="proc~~connect_to_client~~CalledByGraph_edge6" class="edge">
+<title>proc~test_stress&#45;&gt;proc~connect_to_client</title>
+<path fill="none" stroke="#ff0000" d="M729.37,-16.24C748.67,-19.42 773.27,-24.69 794,-33 836.35,-49.97 880.49,-79.53 906.86,-98.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="904.96,-101.63 915.09,-104.74 909.11,-95.99 904.96,-101.63"/>
+</g>
+<!-- proc~initialize_io_clients_servers -->
+<g id="proc~~connect_to_client~~CalledByGraph_node8" class="node">
+<title>proc~initialize_io_clients_servers</title>
+<g id="a_proc~~connect_to_client~~CalledByGraph_node8"><a xlink:href="../proc/initialize_io_clients_servers.html" xlink:title="ExtDataDriver%initialize_io_clients_servers">
+<polygon fill="#d9534f" stroke="#d9534f" points="561,-360 320,-360 320,-336 561,-336 561,-360"/>
+<text text-anchor="middle" x="440.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriver%initialize_io_clients_servers</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_io_clients_servers&#45;&gt;proc~initialize~15 -->
+<g id="proc~~connect_to_client~~CalledByGraph_edge7" class="edge">
+<title>proc~initialize_io_clients_servers&#45;&gt;proc~initialize~15</title>
+<path fill="none" stroke="#ff0000" d="M483.07,-335.92C506.48,-328.49 535.95,-318.09 561,-306 600.88,-286.75 643.65,-258.3 669.74,-239.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="671.79,-242.79 677.92,-234.15 667.74,-237.08 671.79,-242.79"/>
+</g>
+<!-- proc~initialize_io_clients_servers~2 -->
+<g id="proc~~connect_to_client~~CalledByGraph_node9" class="node">
+<title>proc~initialize_io_clients_servers~2</title>
+<g id="a_proc~~connect_to_client~~CalledByGraph_node9"><a xlink:href="../proc/initialize_io_clients_servers~2.html" xlink:title="MAPL_Cap%initialize_io_clients_servers">
+<polygon fill="#d9534f" stroke="#d9534f" points="550.5,-297 330.5,-297 330.5,-273 550.5,-273 550.5,-297"/>
+<text text-anchor="middle" x="440.5" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Cap%initialize_io_clients_servers</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_io_clients_servers~2&#45;&gt;proc~initialize~15 -->
+<g id="proc~~connect_to_client~~CalledByGraph_edge8" class="edge">
+<title>proc~initialize_io_clients_servers~2&#45;&gt;proc~initialize~15</title>
+<path fill="none" stroke="#ff0000" d="M518.63,-272.97C532.79,-270.33 547.39,-267.32 561,-264 591.45,-256.57 625.12,-245.96 651.02,-237.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="652.2,-240.56 660.55,-234.04 649.96,-233.93 652.2,-240.56"/>
+</g>
+<!-- proc~initialize_ioserver -->
+<g id="proc~~connect_to_client~~CalledByGraph_node10" class="node">
+<title>proc~initialize_ioserver</title>
+<g id="a_proc~~connect_to_client~~CalledByGraph_node10"><a xlink:href="../proc/initialize_ioserver.html" xlink:title="initialize_ioserver">
+<polygon fill="#d9534f" stroke="#d9534f" points="493.5,-255 387.5,-255 387.5,-231 493.5,-231 493.5,-255"/>
+<text text-anchor="middle" x="440.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_ioserver</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_ioserver&#45;&gt;proc~initialize~15 -->
+<g id="proc~~connect_to_client~~CalledByGraph_edge9" class="edge">
+<title>proc~initialize_ioserver&#45;&gt;proc~initialize~15</title>
+<path fill="none" stroke="#ff0000" d="M493.61,-238.67C527.34,-235.87 572.01,-232.17 610.66,-228.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="611.19,-232.43 620.87,-228.11 610.61,-225.45 611.19,-232.43"/>
+</g>
+<!-- proc~main -->
+<g id="proc~~connect_to_client~~CalledByGraph_node11" class="node">
+<title>proc~main</title>
+<g id="a_proc~~connect_to_client~~CalledByGraph_node11"><a xlink:href="../proc/main.html" xlink:title="main">
+<polygon fill="#d9534f" stroke="#d9534f" points="467.5,-213 413.5,-213 413.5,-189 467.5,-189 467.5,-213"/>
+<text text-anchor="middle" x="440.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
+</a>
+</g>
+</g>
+<!-- proc~main&#45;&gt;proc~initialize~15 -->
+<g id="proc~~connect_to_client~~CalledByGraph_edge10" class="edge">
+<title>proc~main&#45;&gt;proc~initialize~15</title>
+<path fill="none" stroke="#ff0000" d="M467.62,-203.17C501.17,-205.95 560.99,-210.92 610.79,-215.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="610.67,-218.55 620.93,-215.89 611.25,-211.58 610.67,-218.55"/>
+</g>
+<!-- program~time_ave -->
+<g id="proc~~connect_to_client~~CalledByGraph_node12" class="node">
+<title>program~time_ave</title>
+<g id="a_proc~~connect_to_client~~CalledByGraph_node12"><a xlink:href="../program/time_ave.html" xlink:title="time_ave">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="471,-171 410,-171 410,-147 471,-147 471,-171"/>
+<text text-anchor="middle" x="440.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_ave</text>
+</a>
+</g>
+</g>
+<!-- program~time_ave&#45;&gt;proc~initialize~15 -->
+<g id="proc~~connect_to_client~~CalledByGraph_edge11" class="edge">
+<title>program~time_ave&#45;&gt;proc~initialize~15</title>
+<path fill="none" stroke="#ff0000" d="M471.23,-161.28C495.88,-163.86 531.53,-169.21 561,-180 578.39,-186.37 579.73,-194.3 597,-201 602.93,-203.3 609.17,-205.38 615.51,-207.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="614.94,-210.71 625.51,-210 616.8,-203.96 614.94,-210.71"/>
+</g>
+<!-- program~ut_regridding -->
+<g id="proc~~connect_to_client~~CalledByGraph_node13" class="node">
+<title>program~ut_regridding</title>
+<g id="a_proc~~connect_to_client~~CalledByGraph_node13"><a xlink:href="../program/ut_regridding.html" xlink:title="ut_ReGridding">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="484.5,-129 396.5,-129 396.5,-105 484.5,-105 484.5,-129"/>
+<text text-anchor="middle" x="440.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ut_ReGridding</text>
+</a>
+</g>
+</g>
+<!-- program~ut_regridding&#45;&gt;proc~initialize~15 -->
+<g id="proc~~connect_to_client~~CalledByGraph_edge12" class="edge">
+<title>program~ut_regridding&#45;&gt;proc~initialize~15</title>
+<path fill="none" stroke="#ff0000" d="M484.71,-115.87C509.07,-117.24 538.94,-122.49 561,-138 587.38,-156.55 570.98,-181.95 597,-201 601.45,-204.26 606.31,-207.03 611.4,-209.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="610.19,-212.68 620.77,-213.2 612.83,-206.2 610.19,-212.68"/>
+</g>
+<!-- proc~initialize_p0 -->
+<g id="proc~~connect_to_client~~CalledByGraph_node14" class="node">
+<title>proc~initialize_p0</title>
+<g id="a_proc~~connect_to_client~~CalledByGraph_node14"><a xlink:href="../proc/initialize_p0.html" xlink:title="initialize_p0">
+<polygon fill="#d9534f" stroke="#d9534f" points="245.5,-339 169.5,-339 169.5,-315 245.5,-315 245.5,-339"/>
+<text text-anchor="middle" x="207.5" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_p0</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_p0&#45;&gt;proc~initialize_io_clients_servers~2 -->
+<g id="proc~~connect_to_client~~CalledByGraph_edge14" class="edge">
+<title>proc~initialize_p0&#45;&gt;proc~initialize_io_clients_servers~2</title>
+<path fill="none" stroke="#ffff00" d="M245.61,-320.25C277.24,-314.5 323.71,-306.05 363.23,-298.87"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="363.91,-302.3 373.12,-297.07 362.65,-295.41 363.91,-302.3"/>
+</g>
+<!-- proc~run_ensemble -->
+<g id="proc~~connect_to_client~~CalledByGraph_node15" class="node">
+<title>proc~run_ensemble</title>
+<g id="a_proc~~connect_to_client~~CalledByGraph_node15"><a xlink:href="../proc/run_ensemble.html" xlink:title="MAPL_Cap%run_ensemble">
+<polygon fill="#d9534f" stroke="#d9534f" points="284,-297 131,-297 131,-273 284,-273 284,-297"/>
+<text text-anchor="middle" x="207.5" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Cap%run_ensemble</text>
+</a>
+</g>
+</g>
+<!-- proc~run_ensemble&#45;&gt;proc~initialize_io_clients_servers~2 -->
+<g id="proc~~connect_to_client~~CalledByGraph_edge15" class="edge">
+<title>proc~run_ensemble&#45;&gt;proc~initialize_io_clients_servers~2</title>
+<path fill="none" stroke="#ffff00" d="M284.14,-285C295.65,-285 307.77,-285 319.94,-285"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="320.17,-288.5 330.17,-285 320.17,-281.5 320.17,-288.5"/>
+</g>
+<!-- proc~run~7 -->
+<g id="proc~~connect_to_client~~CalledByGraph_node16" class="node">
+<title>proc~run~7</title>
+<g id="a_proc~~connect_to_client~~CalledByGraph_node16"><a xlink:href="../proc/run~7.html" xlink:title="ExtDataDriver%run">
+<polygon fill="#d9534f" stroke="#d9534f" points="265,-381 150,-381 150,-357 265,-357 265,-381"/>
+<text text-anchor="middle" x="207.5" y="-366.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriver%run</text>
+</a>
+</g>
+</g>
+<!-- proc~run~7&#45;&gt;proc~initialize_io_clients_servers -->
+<g id="proc~~connect_to_client~~CalledByGraph_edge13" class="edge">
+<title>proc~run~7&#45;&gt;proc~initialize_io_clients_servers</title>
+<path fill="none" stroke="#ff0000" d="M265.01,-363.86C278.7,-362.62 293.91,-361.24 309.48,-359.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="310.11,-363.28 319.75,-358.89 309.47,-356.31 310.11,-363.28"/>
+</g>
+<!-- program~main~13 -->
+<g id="proc~~connect_to_client~~CalledByGraph_node17" class="node">
+<title>program~main~13</title>
+<g id="a_proc~~connect_to_client~~CalledByGraph_node17"><a xlink:href="../program/main~13.html" xlink:title="main">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="234.5,-255 180.5,-255 180.5,-231 234.5,-231 234.5,-255"/>
+<text text-anchor="middle" x="207.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
+</a>
+</g>
+</g>
+<!-- program~main~13&#45;&gt;proc~initialize_ioserver -->
+<g id="proc~~connect_to_client~~CalledByGraph_edge16" class="edge">
+<title>program~main~13&#45;&gt;proc~initialize_ioserver</title>
+<path fill="none" stroke="#00ff00" d="M234.55,-243C268.96,-243 330.65,-243 377.39,-243"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="377.42,-246.5 387.42,-243 377.42,-239.5 377.42,-246.5"/>
+</g>
+<!-- program~regrid_util -->
+<g id="proc~~connect_to_client~~CalledByGraph_node18" class="node">
+<title>program~regrid_util</title>
+<g id="a_proc~~connect_to_client~~CalledByGraph_node18"><a xlink:href="../program/regrid_util.html" xlink:title="Regrid_Util">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="242.5,-213 172.5,-213 172.5,-189 242.5,-189 242.5,-213"/>
+<text text-anchor="middle" x="207.5" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util</text>
+</a>
+</g>
+</g>
+<!-- program~regrid_util&#45;&gt;proc~main -->
+<g id="proc~~connect_to_client~~CalledByGraph_edge17" class="edge">
+<title>program~regrid_util&#45;&gt;proc~main</title>
+<path fill="none" stroke="#00ffff" d="M242.58,-201C285.48,-201 358.87,-201 402.91,-201"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="403.18,-204.5 413.18,-201 403.18,-197.5 403.18,-204.5"/>
+</g>
+<!-- proc~run~15 -->
+<g id="proc~~connect_to_client~~CalledByGraph_node19" class="node">
+<title>proc~run~15</title>
+<g id="a_proc~~connect_to_client~~CalledByGraph_node19"><a xlink:href="../proc/run~15.html" xlink:title="MAPL_Cap%run">
+<polygon fill="#d9534f" stroke="#d9534f" points="95,-297 0,-297 0,-273 95,-273 95,-297"/>
+<text text-anchor="middle" x="47.5" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Cap%run</text>
+</a>
+</g>
+</g>
+<!-- proc~run~15&#45;&gt;proc~run_ensemble -->
+<g id="proc~~connect_to_client~~CalledByGraph_edge18" class="edge">
+<title>proc~run~15&#45;&gt;proc~run_ensemble</title>
+<path fill="none" stroke="#cbff00" d="M95.05,-285C103.25,-285 112.02,-285 120.9,-285"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="120.94,-288.5 130.94,-285 120.94,-281.5 120.94,-288.5"/>
+</g>
+<!-- program~extdata_driver -->
+<g id="proc~~connect_to_client~~CalledByGraph_node20" class="node">
+<title>program~extdata_driver</title>
+<g id="a_proc~~connect_to_client~~CalledByGraph_node20"><a xlink:href="../program/extdata_driver.html" xlink:title="ExtData_Driver">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="94,-381 1,-381 1,-357 94,-357 94,-381"/>
+<text text-anchor="middle" x="47.5" y="-366.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtData_Driver</text>
+</a>
+</g>
+</g>
+<!-- program~extdata_driver&#45;&gt;proc~run~7 -->
+<g id="proc~~connect_to_client~~CalledByGraph_edge19" class="edge">
+<title>program~extdata_driver&#45;&gt;proc~run~7</title>
+<path fill="none" stroke="#00ff66" d="M94.2,-369C108.48,-369 124.54,-369 139.94,-369"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="139.95,-372.5 149.95,-369 139.95,-365.5 139.95,-372.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocconnect_to_clientCalledByGraph = svgPanZoom('#procconnect_to_clientCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">connect_to_client</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">port_name</span><span class="p">,</span><span class="w"> </span><span class="n">server</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">DirectoryService</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">port_name</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">BaseServer</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">server</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractSocket</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">sckt</span>
+
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">Directory</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dir</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">counts</span><span class="p">(:),</span><span class="w"> </span><span class="n">displs</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">client_rank</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">client_root_rank</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">client_ranks</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">my_client_ranks</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">server_ranks</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">my_server_ranks</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">(</span><span class="n">MPI_STATUS_SIZE</span><span class="p">)</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">p</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">server_comm</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ierror</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">found</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">server_npes</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">client_npes</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rank_in_server</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cnts</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n_entries</span>
+
+<span class="w">      </span><span class="n">server</span><span class="p">%</span><span class="n">terminate</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">      </span><span class="n">server_comm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MPI_COMM_NULL</span>
+<span class="w">      </span><span class="n">server_comm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">server</span><span class="p">%</span><span class="n">get_communicator</span><span class="p">()</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">server_comm</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MPI_COMM_NULL</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      call </span><span class="n">MPI_Comm_rank</span><span class="p">(</span><span class="n">server_comm</span><span class="p">,</span><span class="w"> </span><span class="n">rank_in_server</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank_in_server</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">         call </span><span class="n">this</span><span class="p">%</span><span class="n">mutex</span><span class="p">%</span><span class="n">acquire</span><span class="p">()</span>
+
+<span class="w">         </span><span class="n">dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_directory</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">win_client_directory</span><span class="p">)</span>
+<span class="w">         </span><span class="n">client_root_rank</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
+
+<span class="w">         </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">         </span><span class="n">n_entries</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dir</span><span class="p">%</span><span class="n">num_entries</span>
+<span class="w">         </span><span class="k">do </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">n_entries</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">port_name</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">dir</span><span class="p">%</span><span class="n">entries</span><span class="p">(</span><span class="n">n</span><span class="p">)%</span><span class="n">port_name</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">               </span><span class="n">client_root_rank</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">dir</span><span class="p">%</span><span class="n">entries</span><span class="p">(</span><span class="n">n</span><span class="p">)%</span><span class="n">partner_root_rank</span>
+<span class="w">               </span><span class="k">exit</span>
+<span class="k">            end if</span>
+<span class="k">         end do</span>
+
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">found</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">            </span><span class="c">! Clear entry</span>
+<span class="w">            </span><span class="n">dir</span><span class="p">%</span><span class="n">entries</span><span class="p">(</span><span class="n">n</span><span class="p">:</span><span class="n">n_entries</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dir</span><span class="p">%</span><span class="n">entries</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">n_entries</span><span class="p">)</span>
+<span class="w">            </span><span class="n">dir</span><span class="p">%</span><span class="n">entries</span><span class="p">(</span><span class="n">n_entries</span><span class="p">)%</span><span class="n">port_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
+<span class="w">            </span><span class="n">dir</span><span class="p">%</span><span class="n">entries</span><span class="p">(</span><span class="n">n_entries</span><span class="p">)%</span><span class="n">partner_root_rank</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
+<span class="w">            </span><span class="n">dir</span><span class="p">%</span><span class="n">num_entries</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n_entries</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">put_directory</span><span class="p">(</span><span class="n">dir</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">win_client_directory</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
+
+<span class="k">         call </span><span class="n">this</span><span class="p">%</span><span class="n">mutex</span><span class="p">%</span><span class="n">release</span><span class="p">()</span>
+
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">found</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            call </span><span class="n">MPI_Send</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="n">client_root_rank</span><span class="p">,</span><span class="w"> </span><span class="n">DISCOVERY_TAG</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">         </span><span class="k">else</span>
+<span class="k">            call </span><span class="n">MPI_Recv</span><span class="p">(</span><span class="n">client_root_rank</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_ANY_SOURCE</span><span class="p">,</span><span class="w"> </span><span class="n">DISCOVERY_TAG</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">client_root_rank</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">TERMINATE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! not a termination signal</span>
+<span class="w">            </span><span class="k">call </span><span class="n">MPI_Recv</span><span class="p">(</span><span class="n">client_npes</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="n">client_root_rank</span><span class="p">,</span><span class="w"> </span><span class="n">NPES_TAG</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">            </span><span class="k">allocate</span><span class="p">(</span><span class="n">client_ranks</span><span class="p">(</span><span class="n">client_npes</span><span class="p">))</span>
+<span class="w">            </span><span class="k">call </span><span class="n">MPI_Recv</span><span class="p">(</span><span class="n">client_ranks</span><span class="p">,</span><span class="w"> </span><span class="n">client_npes</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="n">client_root_rank</span><span class="p">,</span><span class="w"> </span><span class="n">RANKS_TAG</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">         </span><span class="k">else</span>
+<span class="k">            </span><span class="n">client_npes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TERMINATE</span>
+<span class="w">         </span><span class="k">end if</span>
+
+<span class="k">      end if</span>
+
+
+<span class="k">      call </span><span class="n">MPI_Comm_size</span><span class="p">(</span><span class="n">server_comm</span><span class="p">,</span><span class="w"> </span><span class="n">server_npes</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MPI_Bcast</span><span class="p">(</span><span class="n">client_npes</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">server_comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">client_npes</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TERMINATE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        </span><span class="n">server</span><span class="p">%</span><span class="n">terminate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">        </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      allocate</span><span class="p">(</span><span class="n">counts</span><span class="p">(</span><span class="mi">0</span><span class="p">:</span><span class="n">server_npes</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">displs</span><span class="p">(</span><span class="mi">0</span><span class="p">:</span><span class="n">server_npes</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">      </span><span class="k">do </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">server_npes</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">         </span><span class="n">counts</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">((</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">client_npes</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">server_npes</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="o">*</span><span class="n">client_npes</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">server_npes</span>
+<span class="w">      </span><span class="k">end do</span>
+<span class="k">      </span><span class="n">displs</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="k">do </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">server_npes</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">         </span><span class="n">displs</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">displs</span><span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">counts</span><span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end do</span>
+
+<span class="k">      </span><span class="n">cnts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">counts</span><span class="p">(</span><span class="n">rank_in_server</span><span class="p">)</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">my_client_ranks</span><span class="p">(</span><span class="n">cnts</span><span class="p">))</span>
+
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">server_ranks</span><span class="p">(</span><span class="n">client_npes</span><span class="p">))</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">my_server_ranks</span><span class="p">(</span><span class="n">cnts</span><span class="p">))</span>
+<span class="w">      </span><span class="n">my_server_ranks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">rank</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">MPI_GatherV</span><span class="p">(</span><span class="n">my_server_ranks</span><span class="p">,</span><span class="w"> </span><span class="n">cnts</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="p">&amp;</span><span class="w"> </span><span class="n">server_ranks</span><span class="p">,</span><span class="w"> </span><span class="n">counts</span><span class="p">,</span><span class="w"> </span><span class="n">displs</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="p">&amp;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">server_comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank_in_server</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        call </span><span class="n">MPI_Send</span><span class="p">(</span><span class="n">server_ranks</span><span class="p">,</span><span class="w"> </span><span class="n">client_npes</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="n">client_root_rank</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">        </span><span class="k">call </span><span class="n">MPI_Send</span><span class="p">(</span><span class="n">server_npes</span><span class="p">,</span><span class="w">   </span><span class="mi">1</span><span class="p">,</span><span class="w">          </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="n">client_root_rank</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">rank_in_server</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         allocate</span><span class="p">(</span><span class="n">client_ranks</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">      </span><span class="k">end if</span>
+<span class="k">      call </span><span class="n">MPI_ScatterV</span><span class="p">(</span><span class="n">client_ranks</span><span class="p">,</span><span class="w"> </span><span class="n">counts</span><span class="p">,</span><span class="w"> </span><span class="n">displs</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="p">&amp;</span><span class="w"> </span><span class="n">my_client_ranks</span><span class="p">,</span><span class="w"> </span><span class="n">cnts</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="p">&amp;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">server_comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">do </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">cnts</span>
+<span class="w">         </span><span class="n">client_rank</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_client_ranks</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MPI_Send</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="n">client_rank</span><span class="p">,</span><span class="w"> </span><span class="n">CONNECT_TAG</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">sckt</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="n">MpiSocket</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">client_rank</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">parser</span><span class="p">))</span>
+<span class="w">         </span><span class="k">call </span><span class="n">server</span><span class="p">%</span><span class="n">add_connection</span><span class="p">(</span><span class="n">sckt</span><span class="p">)</span>
+<span class="w">         </span><span class="k">nullify</span><span class="p">(</span><span class="n">sckt</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end do</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">connect_to_client</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-07T17:48:42.464780             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

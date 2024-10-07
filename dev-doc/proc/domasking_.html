@@ -1,0 +1,1387 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>DoMasking_ &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>DoMasking_
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">46 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_OrbGridCompMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_orbgridcompmod.f90.html'>MAPL_OrbGridCompMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_orbgridcompmod.html'>MAPL_OrbGridCompMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">DoMasking_</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/domasking_.html#src">DoMasking_</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine DoMasking_(field, im, jm, lons, lats, undef, sat_name, nymd, nhms, dt, swath, ihalo, jhalo, rc)  
+</h2>
+        <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='../module/mapl_nominalorbitsmod.html'>MAPL_NominalOrbitsMod</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~domasking_~~UsesGraph Pages: 1 -->
+<svg id="procdomasking_UsesGraph" width="641pt" height="87pt"
+ viewBox="0.00 0.00 641.00 86.57" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~domasking_~~UsesGraph" class="graph" transform="scale(0.69 0.69) rotate(0) translate(4 121.46)">
+<title>proc~~domasking_~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-121.46 925,-121.46 925,4 -4,4"/>
+<!-- proc~domasking_ -->
+<g id="proc~~domasking_~~UsesGraph_node1" class="node">
+<title>proc~domasking_</title>
+<polygon fill="none" stroke="black" points="921,-83.66 845,-83.66 845,-59.66 921,-59.66 921,-83.66"/>
+<text text-anchor="middle" x="883" y="-69.26" font-family="Helvetica,sans-Serif" font-size="10.50">DoMasking_</text>
+</g>
+<!-- module~mapl_nominalorbitsmod -->
+<g id="proc~~domasking_~~UsesGraph_node2" class="node">
+<title>module~mapl_nominalorbitsmod</title>
+<g id="a_proc~~domasking_~~UsesGraph_node2"><a xlink:href="../module/mapl_nominalorbitsmod.html" xlink:title="MAPL_NominalOrbitsMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="809,-83.66 664,-83.66 664,-59.66 809,-59.66 809,-83.66"/>
+<text text-anchor="middle" x="736.5" y="-69.26" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_NominalOrbitsMod</text>
+</a>
+</g>
+</g>
+<!-- proc~domasking_&#45;&gt;module~mapl_nominalorbitsmod -->
+<g id="proc~~domasking_~~UsesGraph_edge1" class="edge">
+<title>proc~domasking_&#45;&gt;module~mapl_nominalorbitsmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M844.79,-71.66C836.83,-71.66 828.12,-71.66 819.22,-71.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="819.11,-68.16 809.11,-71.66 819.11,-75.16 819.11,-68.16"/>
+</g>
+<!-- module~mapl_constants -->
+<g id="proc~~domasking_~~UsesGraph_node3" class="node">
+<title>module~mapl_constants</title>
+<g id="a_proc~~domasking_~~UsesGraph_node3"><a xlink:href="../module/mapl_constants.html" xlink:title="MAPL_Constants">
+<polygon fill="#337ab7" stroke="#337ab7" points="628,-83.66 529,-83.66 529,-59.66 628,-59.66 628,-83.66"/>
+<text text-anchor="middle" x="578.5" y="-69.26" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Constants</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_nominalorbitsmod&#45;&gt;module~mapl_constants -->
+<g id="proc~~domasking_~~UsesGraph_edge2" class="edge">
+<title>module~mapl_nominalorbitsmod&#45;&gt;module~mapl_constants</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M663.89,-71.66C655.44,-71.66 646.9,-71.66 638.65,-71.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="638.39,-68.16 628.39,-71.66 638.39,-75.16 638.39,-68.16"/>
+</g>
+<!-- iso_fortran_env -->
+<g id="proc~~domasking_~~UsesGraph_node4" class="node">
+<title>iso_fortran_env</title>
+<g id="a_proc~~domasking_~~UsesGraph_node4"><a xlink:href="http://fortranwiki.org/fortran/show/iso_fortran_env" xlink:title="iso_fortran_env">
+<polygon fill="#337ab7" stroke="#337ab7" points="94,-63.66 0,-63.66 0,-39.66 94,-39.66 94,-63.66"/>
+<text text-anchor="middle" x="47" y="-49.26" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_fortran_env</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_constants&#45;&gt;iso_fortran_env -->
+<g id="proc~~domasking_~~UsesGraph_edge3" class="edge">
+<title>module~mapl_constants&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M410,-112.66C285.29,-115.09 250.19,-127 130,-93.66 110.73,-88.31 90.72,-78.17 75.29,-69.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="76.7,-65.95 66.32,-63.8 73.09,-71.95 76.7,-65.95"/>
+</g>
+<!-- module~mapl_internalconstantsmod -->
+<g id="proc~~domasking_~~UsesGraph_node5" class="node">
+<title>module~mapl_internalconstantsmod</title>
+<g id="a_proc~~domasking_~~UsesGraph_node5"><a xlink:href="../module/mapl_internalconstantsmod.html" xlink:title="MAPL_InternalConstantsMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="293,-84.66 130,-84.66 130,-60.66 293,-60.66 293,-84.66"/>
+<text text-anchor="middle" x="211.5" y="-70.26" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_InternalConstantsMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_constants&#45;&gt;module~mapl_internalconstantsmod -->
+<g id="proc~~domasking_~~UsesGraph_edge4" class="edge">
+<title>module~mapl_constants&#45;&gt;module~mapl_internalconstantsmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M410,-112.66C356.96,-113.69 297.45,-99.47 257.75,-87.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="258.69,-84.32 248.1,-84.77 256.66,-91.02 258.69,-84.32"/>
+</g>
+<!-- module~mapl_mathconstantsmod -->
+<g id="proc~~domasking_~~UsesGraph_node6" class="node">
+<title>module~mapl_mathconstantsmod</title>
+<g id="a_proc~~domasking_~~UsesGraph_node6"><a xlink:href="../module/mapl_mathconstantsmod.html" xlink:title="MAPL_MathConstantsMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="285.5,-42.66 137.5,-42.66 137.5,-18.66 285.5,-18.66 285.5,-42.66"/>
+<text text-anchor="middle" x="211.5" y="-28.26" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MathConstantsMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_constants&#45;&gt;module~mapl_mathconstantsmod -->
+<g id="proc~~domasking_~~UsesGraph_edge5" class="edge">
+<title>module~mapl_constants&#45;&gt;module~mapl_mathconstantsmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M546.64,-83.7C513.81,-95.46 460.09,-111.72 412,-112.66"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M410,-112.66C351.37,-113.8 347.72,-72.75 293,-51.66 287.47,-49.53 281.65,-47.54 275.77,-45.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="276.45,-42.26 265.87,-42.77 274.46,-48.97 276.45,-42.26"/>
+</g>
+<!-- module~mapl_physicalconstantsmod -->
+<g id="proc~~domasking_~~UsesGraph_node7" class="node">
+<title>module~mapl_physicalconstantsmod</title>
+<g id="a_proc~~domasking_~~UsesGraph_node7"><a xlink:href="../module/mapl_physicalconstantsmod.html" xlink:title="MAPL_PhysicalConstantsMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="493,-42.66 329,-42.66 329,-18.66 493,-18.66 493,-42.66"/>
+<text text-anchor="middle" x="411" y="-28.26" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_PhysicalConstantsMod</text>
+</a>
+</g>
+</g>
+<!-- module~mapl_constants&#45;&gt;module~mapl_physicalconstantsmod -->
+<g id="proc~~domasking_~~UsesGraph_edge6" class="edge">
+<title>module~mapl_constants&#45;&gt;module~mapl_physicalconstantsmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M528.74,-59.58C510.47,-55.05 489.53,-49.87 470.47,-45.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="471.25,-41.73 460.7,-42.72 469.56,-48.53 471.25,-41.73"/>
+</g>
+<!-- module~mapl_internalconstantsmod&#45;&gt;iso_fortran_env -->
+<g id="proc~~domasking_~~UsesGraph_edge7" class="edge">
+<title>module~mapl_internalconstantsmod&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M129.73,-62.22C121.01,-61.09 112.28,-59.97 103.94,-58.89"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="104.37,-55.42 94,-57.6 103.47,-62.36 104.37,-55.42"/>
+</g>
+<!-- module~mapl_mathconstantsmod&#45;&gt;iso_fortran_env -->
+<g id="proc~~domasking_~~UsesGraph_edge8" class="edge">
+<title>module~mapl_mathconstantsmod&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M137.33,-40.12C126.22,-41.55 114.91,-43.01 104.24,-44.39"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="103.7,-40.93 94.23,-45.69 104.59,-47.88 103.7,-40.93"/>
+</g>
+<!-- module~mapl_physicalconstantsmod&#45;&gt;iso_fortran_env -->
+<g id="proc~~domasking_~~UsesGraph_edge9" class="edge">
+<title>module~mapl_physicalconstantsmod&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M363.71,-18.56C307.6,-5.87 210.56,9.77 130,-9.66 110.11,-14.46 89.63,-24.94 74.11,-34.24"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="72.24,-31.28 65.59,-39.52 75.93,-37.23 72.24,-31.28"/>
+</g>
+<!-- module~mapl_physicalconstantsmod&#45;&gt;module~mapl_mathconstantsmod -->
+<g id="proc~~domasking_~~UsesGraph_edge10" class="edge">
+<title>module~mapl_physicalconstantsmod&#45;&gt;module~mapl_mathconstantsmod</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M328.81,-30.66C318.01,-30.66 306.92,-30.66 296.07,-30.66"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="295.77,-27.16 285.77,-30.66 295.77,-34.16 295.77,-27.16"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocdomasking_UsesGraph = svgPanZoom('#procdomasking_UsesGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+
+    <p>The routine <code>DoMasking_</code> &hellip;</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-field~77"></span>
+              real,
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>field</strong>(im,jm)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-im~62"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>im</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-jm~57"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>jm</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lons~21"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>lons</strong>(im,jm)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lats~21"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>lats</strong>(im,jm)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-undef~15"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>undef</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sat_name~2"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>sat_name</strong></td>
+            <td>
+                <p>Satellite name</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nymd~21"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nymd</strong>(2)</td>
+            <td>
+                <p>Beginning/ending date: YYYYMMDD</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nhms~20"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nhms</strong>(2)</td>
+            <td>
+                <p>Beginning/ending time: HHMMSS</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dt~6"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dt</strong></td>
+            <td>
+                <p>delta t in secs</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-swath~2"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>swath</strong>(3)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ihalo~2"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ihalo</strong>(2)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-jhalo~2"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>jhalo</strong>(2)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1150"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                <p>Error return code
+= 0  all is well
+= 3  memory allocation error</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~domasking_~~CallsGraph Pages: 1 -->
+<svg id="procdomasking_CallsGraph" width="641pt" height="405pt"
+ viewBox="0.00 0.00 641.00 404.74" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~domasking_~~CallsGraph" class="graph" transform="scale(0.94 0.94) rotate(0) translate(4 426)">
+<title>proc~~domasking_~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-426 677,-426 677,4 -4,4"/>
+<!-- proc~domasking_ -->
+<g id="proc~~domasking_~~CallsGraph_node1" class="node">
+<title>proc~domasking_</title>
+<polygon fill="none" stroke="black" points="76,-275 0,-275 0,-251 76,-251 76,-275"/>
+<text text-anchor="middle" x="38" y="-260.6" font-family="Helvetica,sans-Serif" font-size="10.50">DoMasking_</text>
+</g>
+<!-- proc~orb_halo -->
+<g id="proc~~domasking_~~CallsGraph_node2" class="node">
+<title>proc~orb_halo</title>
+<g id="a_proc~~domasking_~~CallsGraph_node2"><a xlink:href="../proc/orb_halo.html" xlink:title="orb_halo">
+<polygon fill="#d9534f" stroke="#d9534f" points="209.5,-380 150.5,-380 150.5,-356 209.5,-356 209.5,-380"/>
+<text text-anchor="middle" x="180" y="-365.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">orb_halo</text>
+</a>
+</g>
+</g>
+<!-- proc~domasking_&#45;&gt;proc~orb_halo -->
+<g id="proc~~domasking_~~CallsGraph_edge1" class="edge">
+<title>proc~domasking_&#45;&gt;proc~orb_halo</title>
+<path fill="none" stroke="#ff0000" d="M51.69,-275C65.88,-288.16 89.78,-309.59 112,-326 123.79,-334.71 137.41,-343.46 149.27,-350.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="147.56,-353.76 157.94,-355.92 151.17,-347.76 147.56,-353.76"/>
+</g>
+<!-- proc~orb_mask_lonlat -->
+<g id="proc~~domasking_~~CallsGraph_node3" class="node">
+<title>proc~orb_mask_lonlat</title>
+<g id="a_proc~~domasking_~~CallsGraph_node3"><a xlink:href="../proc/orb_mask_lonlat.html" xlink:title="orb_mask_lonlat">
+<polygon fill="#d9534f" stroke="#d9534f" points="230,-275 130,-275 130,-251 230,-251 230,-275"/>
+<text text-anchor="middle" x="180" y="-260.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">orb_mask_lonlat</text>
+</a>
+</g>
+</g>
+<!-- proc~domasking_&#45;&gt;proc~orb_mask_lonlat -->
+<g id="proc~~domasking_~~CallsGraph_edge2" class="edge">
+<title>proc~domasking_&#45;&gt;proc~orb_mask_lonlat</title>
+<path fill="none" stroke="#ff0000" d="M76.15,-263C89.51,-263 104.94,-263 119.71,-263"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="119.8,-266.5 129.8,-263 119.8,-259.5 119.8,-266.5"/>
+</g>
+<!-- proc~orb_swath_mask_lonlat -->
+<g id="proc~~domasking_~~CallsGraph_node4" class="node">
+<title>proc~orb_swath_mask_lonlat</title>
+<g id="a_proc~~domasking_~~CallsGraph_node4"><a xlink:href="../proc/orb_swath_mask_lonlat.html" xlink:title="orb_swath_mask_lonlat">
+<polygon fill="#d9534f" stroke="#d9534f" points="248,-317 112,-317 112,-293 248,-293 248,-317"/>
+<text text-anchor="middle" x="180" y="-302.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">orb_swath_mask_lonlat</text>
+</a>
+</g>
+</g>
+<!-- proc~domasking_&#45;&gt;proc~orb_swath_mask_lonlat -->
+<g id="proc~~domasking_~~CallsGraph_edge3" class="edge">
+<title>proc~domasking_&#45;&gt;proc~orb_swath_mask_lonlat</title>
+<path fill="none" stroke="#ff0000" d="M76.15,-274.14C92.27,-278.98 111.39,-284.72 128.75,-289.92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="128.14,-293.4 138.72,-292.92 130.15,-286.69 128.14,-293.4"/>
+</g>
+<!-- proc~orbits_swath -->
+<g id="proc~~domasking_~~CallsGraph_node5" class="node">
+<title>proc~orbits_swath</title>
+<g id="a_proc~~domasking_~~CallsGraph_node5"><a xlink:href="../proc/orbits_swath.html" xlink:title="Orbits_Swath">
+<polygon fill="#d9534f" stroke="#d9534f" points="221,-171 139,-171 139,-147 221,-147 221,-171"/>
+<text text-anchor="middle" x="180" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Orbits_Swath</text>
+</a>
+</g>
+</g>
+<!-- proc~domasking_&#45;&gt;proc~orbits_swath -->
+<g id="proc~~domasking_~~CallsGraph_edge4" class="edge">
+<title>proc~domasking_&#45;&gt;proc~orbits_swath</title>
+<path fill="none" stroke="#ff0000" d="M54.55,-250.83C69.25,-239.39 91.98,-221.84 112,-207 125.63,-196.89 141.02,-185.84 153.61,-176.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="155.68,-179.72 161.81,-171.08 151.63,-174.01 155.68,-179.72"/>
+</g>
+<!-- proc~orbits_track -->
+<g id="proc~~domasking_~~CallsGraph_node6" class="node">
+<title>proc~orbits_track</title>
+<g id="a_proc~~domasking_~~CallsGraph_node6"><a xlink:href="../proc/orbits_track.html" xlink:title="Orbits_Track">
+<polygon fill="#d9534f" stroke="#d9534f" points="374.5,-191 297.5,-191 297.5,-167 374.5,-167 374.5,-191"/>
+<text text-anchor="middle" x="336" y="-176.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Orbits_Track</text>
+</a>
+</g>
+</g>
+<!-- proc~domasking_&#45;&gt;proc~orbits_track -->
+<g id="proc~~domasking_~~CallsGraph_edge5" class="edge">
+<title>proc~domasking_&#45;&gt;proc~orbits_track</title>
+<path fill="none" stroke="#ff0000" d="M76.13,-252.28C87.62,-248.97 100.33,-245.33 112,-242 172.43,-224.77 242.13,-205.12 287.29,-192.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="288.43,-195.72 297.11,-189.65 286.53,-188.99 288.43,-195.72"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~domasking_~~CallsGraph_node13" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~domasking_~~CallsGraph_node13"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="377,-401 295,-401 295,-377 377,-377 377,-401"/>
+<text text-anchor="middle" x="336" y="-386.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~orb_halo&#45;&gt;proc~mapl_return -->
+<g id="proc~~domasking_~~CallsGraph_edge6" class="edge">
+<title>proc~orb_halo&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M209.61,-371.9C230.71,-374.78 259.96,-378.77 284.9,-382.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="284.56,-385.65 294.94,-383.54 285.5,-378.72 284.56,-385.65"/>
+</g>
+<!-- proc~flatten_latlon -->
+<g id="proc~~domasking_~~CallsGraph_node10" class="node">
+<title>proc~flatten_latlon</title>
+<g id="a_proc~~domasking_~~CallsGraph_node10"><a xlink:href="../proc/flatten_latlon.html" xlink:title="flatten_latlon">
+<polygon fill="#d9534f" stroke="#d9534f" points="377,-275 295,-275 295,-251 377,-251 377,-275"/>
+<text text-anchor="middle" x="336" y="-260.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">flatten_latlon</text>
+</a>
+</g>
+</g>
+<!-- proc~orb_mask_lonlat&#45;&gt;proc~flatten_latlon -->
+<g id="proc~~domasking_~~CallsGraph_edge7" class="edge">
+<title>proc~orb_mask_lonlat&#45;&gt;proc~flatten_latlon</title>
+<path fill="none" stroke="#cbff00" d="M230.15,-263C247.59,-263 267.23,-263 284.76,-263"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="284.8,-266.5 294.8,-263 284.8,-259.5 284.8,-266.5"/>
+</g>
+<!-- proc~ijsearch -->
+<g id="proc~~domasking_~~CallsGraph_node12" class="node">
+<title>proc~ijsearch</title>
+<g id="a_proc~~domasking_~~CallsGraph_node12"><a xlink:href="../proc/ijsearch.html" xlink:title="ijsearch">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="363,-233 309,-233 309,-209 363,-209 363,-233"/>
+<text text-anchor="middle" x="336" y="-218.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ijsearch</text>
+</a>
+</g>
+</g>
+<!-- proc~orb_mask_lonlat&#45;&gt;proc~ijsearch -->
+<g id="proc~~domasking_~~CallsGraph_edge8" class="edge">
+<title>proc~orb_mask_lonlat&#45;&gt;proc~ijsearch</title>
+<path fill="none" stroke="#cbff00" d="M225.13,-250.96C248.56,-244.57 276.99,-236.82 299.06,-230.8"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="299.99,-234.18 308.71,-228.17 298.14,-227.42 299.99,-234.18"/>
+</g>
+<!-- proc~orb_edges_1d -->
+<g id="proc~~domasking_~~CallsGraph_node14" class="node">
+<title>proc~orb_edges_1d</title>
+<g id="a_proc~~domasking_~~CallsGraph_node14"><a xlink:href="../proc/orb_edges_1d.html" xlink:title="orb_edges_1d">
+<polygon fill="#d9534f" stroke="#d9534f" points="379.5,-359 292.5,-359 292.5,-335 379.5,-335 379.5,-359"/>
+<text text-anchor="middle" x="336" y="-344.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">orb_edges_1d</text>
+</a>
+</g>
+</g>
+<!-- proc~orb_mask_lonlat&#45;&gt;proc~orb_edges_1d -->
+<g id="proc~~domasking_~~CallsGraph_edge9" class="edge">
+<title>proc~orb_mask_lonlat&#45;&gt;proc~orb_edges_1d</title>
+<path fill="none" stroke="#cbff00" d="M230.05,-274.82C236.35,-277.35 242.5,-280.38 248,-284 268.52,-297.53 264.08,-311.59 284,-326 286.07,-327.5 288.26,-328.91 290.53,-330.24"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="289.06,-333.43 299.54,-334.97 292.31,-327.23 289.06,-333.43"/>
+</g>
+<!-- proc~pnt_in_rect -->
+<g id="proc~~domasking_~~CallsGraph_node15" class="node">
+<title>proc~pnt_in_rect</title>
+<g id="a_proc~~domasking_~~CallsGraph_node15"><a xlink:href="../proc/pnt_in_rect.html" xlink:title="pnt_in_rect">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="371,-317 301,-317 301,-293 371,-293 371,-317"/>
+<text text-anchor="middle" x="336" y="-302.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pnt_in_rect</text>
+</a>
+</g>
+</g>
+<!-- proc~orb_mask_lonlat&#45;&gt;proc~pnt_in_rect -->
+<g id="proc~~domasking_~~CallsGraph_edge10" class="edge">
+<title>proc~orb_mask_lonlat&#45;&gt;proc~pnt_in_rect</title>
+<path fill="none" stroke="#cbff00" d="M225.13,-275.04C245.75,-280.66 270.25,-287.34 290.87,-292.97"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="290.08,-296.38 300.65,-295.63 291.92,-289.62 290.08,-296.38"/>
+</g>
+<!-- proc~orb_swath_mask_lonlat&#45;&gt;proc~flatten_latlon -->
+<g id="proc~~domasking_~~CallsGraph_edge11" class="edge">
+<title>proc~orb_swath_mask_lonlat&#45;&gt;proc~flatten_latlon</title>
+<path fill="none" stroke="#00ff66" d="M225.13,-292.96C243.82,-287.87 265.7,-281.9 284.99,-276.64"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="286.09,-279.97 294.81,-273.96 284.24,-273.21 286.09,-279.97"/>
+</g>
+<!-- proc~orb_swath_mask_lonlat&#45;&gt;proc~ijsearch -->
+<g id="proc~~domasking_~~CallsGraph_edge12" class="edge">
+<title>proc~orb_swath_mask_lonlat&#45;&gt;proc~ijsearch</title>
+<path fill="none" stroke="#00ff66" d="M230.75,-292.89C236.8,-290.43 242.71,-287.49 248,-284 268.52,-270.47 264.08,-256.41 284,-242 288.65,-238.63 293.93,-235.69 299.28,-233.16"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="301.06,-236.2 308.86,-229.04 298.29,-229.77 301.06,-236.2"/>
+</g>
+<!-- proc~orb_swath_mask_lonlat&#45;&gt;proc~orb_edges_1d -->
+<g id="proc~~domasking_~~CallsGraph_edge13" class="edge">
+<title>proc~orb_swath_mask_lonlat&#45;&gt;proc~orb_edges_1d</title>
+<path fill="none" stroke="#00ff66" d="M225.13,-317.04C243.06,-321.93 263.92,-327.61 282.61,-332.71"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="281.89,-336.14 292.46,-335.4 283.73,-329.39 281.89,-336.14"/>
+</g>
+<!-- proc~orb_swath_mask_lonlat&#45;&gt;proc~pnt_in_rect -->
+<g id="proc~~domasking_~~CallsGraph_edge14" class="edge">
+<title>proc~orb_swath_mask_lonlat&#45;&gt;proc~pnt_in_rect</title>
+<path fill="none" stroke="#00ff66" d="M248.1,-305C262.43,-305 277.22,-305 290.44,-305"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="290.68,-308.5 300.68,-305 290.68,-301.5 290.68,-308.5"/>
+</g>
+<!-- proc~orbits_swath&#45;&gt;proc~orbits_track -->
+<g id="proc~~domasking_~~CallsGraph_edge16" class="edge">
+<title>proc~orbits_swath&#45;&gt;proc~orbits_track</title>
+<path fill="none" stroke="#0066ff" d="M221.06,-164.2C241.28,-166.83 265.95,-170.03 287.16,-172.79"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="286.89,-176.28 297.26,-174.1 287.79,-169.34 286.89,-176.28"/>
+</g>
+<!-- proc~find_sweeppoints -->
+<g id="proc~~domasking_~~CallsGraph_node8" class="node">
+<title>proc~find_sweeppoints</title>
+<g id="a_proc~~domasking_~~CallsGraph_node8"><a xlink:href="../proc/find_sweeppoints.html" xlink:title="find_sweeppoints">
+<polygon fill="#d9534f" stroke="#d9534f" points="388,-87 284,-87 284,-63 388,-63 388,-87"/>
+<text text-anchor="middle" x="336" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">find_sweeppoints</text>
+</a>
+</g>
+</g>
+<!-- proc~orbits_swath&#45;&gt;proc~find_sweeppoints -->
+<g id="proc~~domasking_~~CallsGraph_edge15" class="edge">
+<title>proc~orbits_swath&#45;&gt;proc~find_sweeppoints</title>
+<path fill="none" stroke="#0066ff" d="M203.06,-146.96C229.48,-132.56 273.9,-108.33 303.81,-92.01"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="305.87,-94.87 312.98,-87.01 302.52,-88.73 305.87,-94.87"/>
+</g>
+<!-- proc~satname2int -->
+<g id="proc~~domasking_~~CallsGraph_node16" class="node">
+<title>proc~satname2int</title>
+<g id="a_proc~~domasking_~~CallsGraph_node16"><a xlink:href="../proc/satname2int.html" xlink:title="satname2int">
+<polygon fill="#d9534f" stroke="#d9534f" points="530,-150 451,-150 451,-126 530,-126 530,-150"/>
+<text text-anchor="middle" x="490.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">satname2int</text>
+</a>
+</g>
+</g>
+<!-- proc~orbits_swath&#45;&gt;proc~satname2int -->
+<g id="proc~~domasking_~~CallsGraph_edge17" class="edge">
+<title>proc~orbits_swath&#45;&gt;proc~satname2int</title>
+<path fill="none" stroke="#0066ff" d="M221.01,-156.28C277.27,-152.45 379.63,-145.48 440.41,-141.34"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="440.79,-144.82 450.53,-140.65 440.31,-137.84 440.79,-144.82"/>
+</g>
+<!-- proc~built_vecsize -->
+<g id="proc~~domasking_~~CallsGraph_node7" class="node">
+<title>proc~built_vecsize</title>
+<g id="a_proc~~domasking_~~CallsGraph_node7"><a xlink:href="../proc/built_vecsize.html" xlink:title="built_vecsize">
+<polygon fill="#d9534f" stroke="#d9534f" points="673,-276 593,-276 593,-252 673,-252 673,-276"/>
+<text text-anchor="middle" x="633" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">built_vecsize</text>
+</a>
+</g>
+</g>
+<!-- proc~orbits_track&#45;&gt;proc~built_vecsize -->
+<g id="proc~~domasking_~~CallsGraph_edge18" class="edge">
+<title>proc~orbits_track&#45;&gt;proc~built_vecsize</title>
+<path fill="none" stroke="#cc00ff" d="M372.76,-191.11C378.1,-193.65 383.37,-196.61 388,-200 408.11,-214.73 401.98,-231.33 424,-243 473.29,-269.11 538.36,-271.44 582.5,-269.13"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="582.93,-272.61 592.69,-268.5 582.49,-265.63 582.93,-272.61"/>
+</g>
+<!-- proc~find_waypointslat -->
+<g id="proc~~domasking_~~CallsGraph_node9" class="node">
+<title>proc~find_waypointslat</title>
+<g id="a_proc~~domasking_~~CallsGraph_node9"><a xlink:href="../proc/find_waypointslat.html" xlink:title="find_waypointslat">
+<polygon fill="#d9534f" stroke="#d9534f" points="543,-234 438,-234 438,-210 543,-210 543,-234"/>
+<text text-anchor="middle" x="490.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">find_waypointslat</text>
+</a>
+</g>
+</g>
+<!-- proc~orbits_track&#45;&gt;proc~find_waypointslat -->
+<g id="proc~~domasking_~~CallsGraph_edge19" class="edge">
+<title>proc~orbits_track&#45;&gt;proc~find_waypointslat</title>
+<path fill="none" stroke="#cc00ff" d="M374.7,-189.63C393.49,-194.93 416.54,-201.43 437.03,-207.2"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="436.28,-210.63 446.86,-209.98 438.18,-203.89 436.28,-210.63"/>
+</g>
+<!-- proc~get_time -->
+<g id="proc~~domasking_~~CallsGraph_node11" class="node">
+<title>proc~get_time</title>
+<g id="a_proc~~domasking_~~CallsGraph_node11"><a xlink:href="../proc/get_time.html" xlink:title="get_time">
+<polygon fill="#d9534f" stroke="#d9534f" points="520,-192 461,-192 461,-168 520,-168 520,-192"/>
+<text text-anchor="middle" x="490.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_time</text>
+</a>
+</g>
+</g>
+<!-- proc~orbits_track&#45;&gt;proc~get_time -->
+<g id="proc~~domasking_~~CallsGraph_edge20" class="edge">
+<title>proc~orbits_track&#45;&gt;proc~get_time</title>
+<path fill="none" stroke="#cc00ff" d="M374.7,-179.25C397.8,-179.4 427.3,-179.59 450.62,-179.75"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="450.82,-183.25 460.85,-179.81 450.87,-176.25 450.82,-183.25"/>
+</g>
+<!-- proc~orbits_track&#45;&gt;proc~satname2int -->
+<g id="proc~~domasking_~~CallsGraph_edge21" class="edge">
+<title>proc~orbits_track&#45;&gt;proc~satname2int</title>
+<path fill="none" stroke="#cc00ff" d="M374.7,-168.87C394.72,-163.48 419.56,-156.8 441.01,-151.04"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="442.16,-154.35 450.91,-148.37 440.35,-147.59 442.16,-154.35"/>
+</g>
+<!-- interface~linspace -->
+<g id="proc~~domasking_~~CallsGraph_node17" class="node">
+<title>interface~linspace</title>
+<g id="a_proc~~domasking_~~CallsGraph_node17"><a xlink:href="../interface/linspace.html" xlink:title="linspace">
+<polygon fill="#a7506f" stroke="#a7506f" points="519,-108 462,-108 462,-84 519,-84 519,-108"/>
+<text text-anchor="middle" x="490.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">linspace</text>
+</a>
+</g>
+</g>
+<!-- proc~find_sweeppoints&#45;&gt;interface~linspace -->
+<g id="proc~~domasking_~~CallsGraph_edge22" class="edge">
+<title>proc~find_sweeppoints&#45;&gt;interface~linspace</title>
+<path fill="none" stroke="#ff9900" d="M388.2,-82.05C408.94,-84.91 432.45,-88.14 451.6,-90.78"/>
+<polygon fill="#ff9900" stroke="#ff9900" points="451.36,-94.28 461.75,-92.18 452.32,-87.35 451.36,-94.28"/>
+</g>
+<!-- proc~get_azimuth -->
+<g id="proc~~domasking_~~CallsGraph_node19" class="node">
+<title>proc~get_azimuth</title>
+<g id="a_proc~~domasking_~~CallsGraph_node19"><a xlink:href="../proc/get_azimuth.html" xlink:title="get_azimuth">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="529.5,-66 451.5,-66 451.5,-42 529.5,-42 529.5,-66"/>
+<text text-anchor="middle" x="490.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_azimuth</text>
+</a>
+</g>
+</g>
+<!-- proc~find_sweeppoints&#45;&gt;proc~get_azimuth -->
+<g id="proc~~domasking_~~CallsGraph_edge23" class="edge">
+<title>proc~find_sweeppoints&#45;&gt;proc~get_azimuth</title>
+<path fill="none" stroke="#ff9900" d="M388.2,-67.95C405.26,-65.6 424.19,-62.99 441.03,-60.67"/>
+<polygon fill="#ff9900" stroke="#ff9900" points="441.78,-64.1 451.21,-59.27 440.83,-57.17 441.78,-64.1"/>
+</g>
+<!-- proc~get_reckon -->
+<g id="proc~~domasking_~~CallsGraph_node22" class="node">
+<title>proc~get_reckon</title>
+<g id="a_proc~~domasking_~~CallsGraph_node22"><a xlink:href="../proc/get_reckon.html" xlink:title="get_reckon">
+<polygon fill="#d9534f" stroke="#d9534f" points="526,-24 455,-24 455,0 526,0 526,-24"/>
+<text text-anchor="middle" x="490.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_reckon</text>
+</a>
+</g>
+</g>
+<!-- proc~find_sweeppoints&#45;&gt;proc~get_reckon -->
+<g id="proc~~domasking_~~CallsGraph_edge24" class="edge">
+<title>proc~find_sweeppoints&#45;&gt;proc~get_reckon</title>
+<path fill="none" stroke="#ff9900" d="M359.87,-62.87C377.19,-53.96 401.73,-41.9 424,-33 430.79,-30.29 438.07,-27.68 445.23,-25.27"/>
+<polygon fill="#ff9900" stroke="#ff9900" points="446.43,-28.55 454.85,-22.12 444.25,-21.9 446.43,-28.55"/>
+</g>
+<!-- proc~find_waypointslat&#45;&gt;proc~built_vecsize -->
+<g id="proc~~domasking_~~CallsGraph_edge26" class="edge">
+<title>proc~find_waypointslat&#45;&gt;proc~built_vecsize</title>
+<path fill="none" stroke="#cbff00" d="M531.76,-234.04C547.76,-238.82 566.31,-244.36 583.07,-249.37"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="582.12,-252.74 592.7,-252.25 584.12,-246.04 582.12,-252.74"/>
+</g>
+<!-- proc~built_vec -->
+<g id="proc~~domasking_~~CallsGraph_node18" class="node">
+<title>proc~built_vec</title>
+<g id="a_proc~~domasking_~~CallsGraph_node18"><a xlink:href="../proc/built_vec.html" xlink:title="built_vec">
+<polygon fill="#d9534f" stroke="#d9534f" points="663,-234 603,-234 603,-210 663,-210 663,-234"/>
+<text text-anchor="middle" x="633" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">built_vec</text>
+</a>
+</g>
+</g>
+<!-- proc~find_waypointslat&#45;&gt;proc~built_vec -->
+<g id="proc~~domasking_~~CallsGraph_edge25" class="edge">
+<title>proc~find_waypointslat&#45;&gt;proc~built_vec</title>
+<path fill="none" stroke="#cbff00" d="M543.02,-222C559.44,-222 577.33,-222 592.73,-222"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="592.95,-225.5 602.95,-222 592.95,-218.5 592.95,-225.5"/>
+</g>
+<!-- proc~get_latlon -->
+<g id="proc~~domasking_~~CallsGraph_node21" class="node">
+<title>proc~get_latlon</title>
+<g id="a_proc~~domasking_~~CallsGraph_node21"><a xlink:href="../proc/get_latlon.html" xlink:title="get_latlon">
+<polygon fill="#d9534f" stroke="#d9534f" points="665.5,-192 600.5,-192 600.5,-168 665.5,-168 665.5,-192"/>
+<text text-anchor="middle" x="633" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_latlon</text>
+</a>
+</g>
+</g>
+<!-- proc~find_waypointslat&#45;&gt;proc~get_latlon -->
+<g id="proc~~domasking_~~CallsGraph_edge27" class="edge">
+<title>proc~find_waypointslat&#45;&gt;proc~get_latlon</title>
+<path fill="none" stroke="#cbff00" d="M531.76,-209.96C550.18,-204.46 571.99,-197.94 590.55,-192.39"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="591.63,-195.72 600.21,-189.5 589.63,-189.01 591.63,-195.72"/>
+</g>
+<!-- proc~ods_julian -->
+<g id="proc~~domasking_~~CallsGraph_node24" class="node">
+<title>proc~ods_julian</title>
+<g id="a_proc~~domasking_~~CallsGraph_node24"><a xlink:href="../proc/ods_julian.html" xlink:title="ODS_Julian">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="668,-150 598,-150 598,-126 668,-126 668,-150"/>
+<text text-anchor="middle" x="633" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ODS_Julian</text>
+</a>
+</g>
+</g>
+<!-- proc~get_time&#45;&gt;proc~ods_julian -->
+<g id="proc~~domasking_~~CallsGraph_edge28" class="edge">
+<title>proc~get_time&#45;&gt;proc~ods_julian</title>
+<path fill="none" stroke="#00ff66" d="M520.27,-171.4C539.77,-165.57 565.9,-157.76 587.99,-151.16"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="589.24,-154.44 597.82,-148.22 587.23,-147.73 589.24,-154.44"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~domasking_~~CallsGraph_node20" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~domasking_~~CallsGraph_node20"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="548,-380 433,-380 433,-356 548,-356 548,-380"/>
+<text text-anchor="middle" x="490.5" y="-365.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~domasking_~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#0066ff" d="M377.07,-383.48C391.04,-381.56 407.12,-379.34 422.67,-377.2"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="423.36,-380.64 432.79,-375.81 422.4,-373.71 423.36,-380.64"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~domasking_~~CallsGraph_node23" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~domasking_~~CallsGraph_node23"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="557,-422 424,-422 424,-398 557,-398 557,-422"/>
+<text text-anchor="middle" x="490.5" y="-407.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~domasking_~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0066ff" d="M377.07,-394.52C388.35,-396.07 401,-397.81 413.65,-399.55"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="413.37,-403.05 423.75,-400.95 414.33,-396.11 413.37,-403.05"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocdomasking_CallsGraph = svgPanZoom('#procdomasking_CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~domasking_~~CalledByGraph Pages: 1 -->
+<svg id="procdomasking_CalledByGraph" width="174pt" height="32pt"
+ viewBox="0.00 0.00 174.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~domasking_~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~domasking_~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 170,-28 170,4 -4,4"/>
+<!-- proc~domasking_ -->
+<g id="proc~~domasking_~~CalledByGraph_node1" class="node">
+<title>proc~domasking_</title>
+<polygon fill="none" stroke="black" points="166,-24 90,-24 90,0 166,0 166,-24"/>
+<text text-anchor="middle" x="128" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">DoMasking_</text>
+</g>
+<!-- proc~run_~3 -->
+<g id="proc~~domasking_~~CalledByGraph_node2" class="node">
+<title>proc~run_~3</title>
+<g id="a_proc~~domasking_~~CalledByGraph_node2"><a xlink:href="../proc/run_~3.html" xlink:title="Run_">
+<polygon fill="#d9534f" stroke="#d9534f" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_~3&#45;&gt;proc~domasking_ -->
+<g id="proc~~domasking_~~CalledByGraph_edge1" class="edge">
+<title>proc~run_~3&#45;&gt;proc~domasking_</title>
+<path fill="none" stroke="#ff0000" d="M54.01,-12C61.92,-12 70.86,-12 79.72,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="80,-15.5 90,-12 80,-8.5 80,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">       </span><span class="k">subroutine </span><span class="n">DoMasking_</span><span class="w"> </span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">im</span><span class="p">,</span><span class="w"> </span><span class="n">jm</span><span class="p">,</span><span class="w"> </span><span class="n">lons</span><span class="p">,</span><span class="w"> </span><span class="n">lats</span><span class="p">,</span><span class="w"> </span><span class="n">undef</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">sat_name</span><span class="p">,</span><span class="w"> </span><span class="n">nymd</span><span class="p">,</span><span class="w"> </span><span class="n">nhms</span><span class="p">,</span><span class="w"> </span><span class="n">dt</span><span class="p">,</span><span class="w"> </span><span class="n">swath</span><span class="p">,</span><span class="w">  </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">ihalo</span><span class="p">,</span><span class="w"> </span><span class="n">jhalo</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="p">)</span>
+
+<span class="w">       </span><span class="k">use </span><span class="n">MAPL_NominalOrbitsMod</span>
+
+<span class="w">       </span><span class="k">implicit NONE</span>
+
+<span class="c">! !INPUT PARAMETERS:</span>
+
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">im</span><span class="p">,</span><span class="w"> </span><span class="n">jm</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">ihalo</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">jhalo</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lons</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">)</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lats</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">)</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">swath</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">undef</span>
+
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">sat_name</span><span class="w">     </span><span class="c">!! Satellite name</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dt</span><span class="w">      </span><span class="c">!! delta t in secs</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nymd</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="c">!! Beginning/ending date: YYYYMMDD</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nhms</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="c">!! Beginning/ending time: HHMMSS</span>
+
+<span class="c">! !OUTPUT PARAMETERS:</span>
+
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w">    </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">)</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w">    </span><span class="c">!! Error return code</span>
+<span class="w">                                       </span><span class="c">!! = 0  all is well</span>
+<span class="w">                                       </span><span class="c">!! = 3  memory allocation error</span>
+
+<span class="c">!                               ----</span>
+
+<span class="w">       </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w"> </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dp</span><span class="o">=</span><span class="nb">SELECTED_REAL_KIND</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">307</span><span class="p">)</span>
+
+<span class="c">!      Local workspace</span>
+<span class="c">!      ---------------</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">isegs</span><span class="p">,</span><span class="w"> </span><span class="n">jsegs</span><span class="p">,</span><span class="w"> </span><span class="n">mask</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">)</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">dp</span><span class="p">)</span><span class="kd">::</span><span class="w">  </span><span class="n">V_mean</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">dp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">SwathWidth</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">/</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="w"> </span><span class="o">/</span><span class="p">)</span>
+
+<span class="w">       </span><span class="kt">integer </span><span class="n">nobs</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">dp</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tlons</span><span class="p">(:)</span><span class="w">   </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">dp</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tlats</span><span class="p">(:)</span><span class="w">   </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">dp</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">slons</span><span class="p">(:,:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">dp</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">slats</span><span class="p">(:,:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+
+<span class="w">       </span><span class="n">SwathWidth</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">swath</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="c">! type conversion</span>
+
+<span class="c">!      Interpoaltion parameters; swath(3) is the swath resolution, in km</span>
+<span class="c">!      -----------------------------------------------------------------</span>
+<span class="w">       </span><span class="n">V_mean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">7.5</span><span class="w">             </span><span class="c">! Mean sat speed in km/s; assumes a 90 minute period</span>
+<span class="w">                                </span><span class="c">! this should be a function of satellite.</span>
+<span class="w">       </span><span class="n">isegs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">nint</span><span class="p">((</span><span class="n">swath</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="n">swath</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">swath</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="c">! segments across-track</span>
+<span class="w">       </span><span class="n">jsegs</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">V_mean</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">dt</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">swath</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w">               </span><span class="c">! segments along-track</span>
+
+<span class="c">!      Simple masking without swath</span>
+<span class="c">!      ----------------------------</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">swath</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">swath</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="c">!         Compute tracks</span>
+<span class="c">!         --------------</span>
+<span class="w">          </span><span class="k">call </span><span class="n">orbits_track</span><span class="p">(</span><span class="n">tlons</span><span class="p">,</span><span class="n">tlats</span><span class="p">,</span><span class="w"> </span><span class="n">sat_name</span><span class="p">,</span><span class="w"> </span><span class="n">nymd</span><span class="p">,</span><span class="w"> </span><span class="n">nhms</span><span class="p">,</span><span class="w"> </span><span class="n">dt</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+
+<span class="c">!         Simple masking</span>
+<span class="c">!         --------------</span>
+<span class="w">          </span><span class="n">mask</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">          </span><span class="k">call </span><span class="n">orb_mask_lonlat</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="n">lons</span><span class="p">,</span><span class="n">lats</span><span class="p">,</span><span class="n">tlons</span><span class="p">,</span><span class="n">tlats</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">tlons</span><span class="p">),</span><span class="n">jsegs</span><span class="p">,</span><span class="o">-</span><span class="mi">18</span><span class="mf">0.</span><span class="p">,</span><span class="mi">18</span><span class="mf">0.</span><span class="p">)</span>
+
+<span class="w">          </span><span class="k">deallocate</span><span class="p">(</span><span class="n">tlons</span><span class="p">,</span><span class="n">tlats</span><span class="p">)</span>
+
+<span class="w">       </span><span class="k">else</span>
+
+<span class="c">!         Compute tracks</span>
+<span class="c">!         --------------</span>
+<span class="w">          </span><span class="k">call </span><span class="n">orbits_swath</span><span class="p">(</span><span class="n">slons</span><span class="p">,</span><span class="n">slats</span><span class="p">,</span><span class="w"> </span><span class="n">sat_name</span><span class="p">,</span><span class="w"> </span><span class="n">nymd</span><span class="p">,</span><span class="w"> </span><span class="n">nhms</span><span class="p">,</span><span class="w"> </span><span class="n">dt</span><span class="p">,</span><span class="n">SwathWidth</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">,</span><span class="w"> </span><span class="n">wrap</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.)</span>
+
+<span class="c">!         Swath masking</span>
+<span class="c">!         -------------</span>
+<span class="w">          </span><span class="n">nobs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">slons</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span>
+<span class="w">          </span><span class="n">mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+
+<span class="w">          </span><span class="k">call </span><span class="n">orb_swath_mask_lonlat</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="n">lons</span><span class="p">,</span><span class="n">lats</span><span class="p">,</span><span class="n">slons</span><span class="p">,</span><span class="n">slats</span><span class="p">,</span><span class="n">nobs</span><span class="p">,</span><span class="n">isegs</span><span class="p">,</span><span class="n">jsegs</span><span class="p">,</span><span class="o">-</span><span class="mi">18</span><span class="mf">0.</span><span class="p">,</span><span class="mi">18</span><span class="mf">0.</span><span class="p">)</span>
+
+<span class="w">          </span><span class="k">deallocate</span><span class="p">(</span><span class="n">slons</span><span class="p">,</span><span class="n">slats</span><span class="p">)</span>
+
+<span class="w">       </span><span class="k">end if</span>
+
+<span class="c">!      Add optional halo</span>
+<span class="c">!      -----------------</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">ihalo</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">sum</span><span class="p">(</span><span class="n">jhalo</span><span class="p">))</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          call </span><span class="n">orb_halo</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="n">mask</span><span class="p">,</span><span class="n">ihalo</span><span class="p">,</span><span class="n">jhalo</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if</span>
+
+<span class="c">!      Apply mask to field</span>
+<span class="c">!      -------------------</span>
+<span class="w">       </span><span class="n">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">       </span><span class="k">where</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">mask</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">undef</span>
+
+<span class="c">!      All done</span>
+<span class="c">!      --------</span>
+<span class="w">     </span><span class="k">end subroutine </span><span class="n">DoMasking_</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-07T17:48:42.464780             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
