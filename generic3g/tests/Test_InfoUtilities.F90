@@ -2,15 +2,11 @@
 
 module Test_InfoUtilities
    use mapl3g_ESMF_info_keys
-   use mapl3g_InfoUtilities, only: MAPL_InfoGetShared
-   use mapl3g_InfoUtilities, only: MAPL_InfosetShared
-   use mapl3g_InfoUtilities, only: MAPL_InfoGetPrivate
-   use mapl3g_InfoUtilities, only: MAPL_InfoSetPrivate
-   use mapl3g_InfoUtilities, only: MAPL_InfoSetNamespace
+   use mapl3g_InfoUtilities
    use esmf
    use funit
 
-   implicit none
+   implicit none (type, external)
 
 contains
 
@@ -108,5 +104,26 @@ contains
       call ESMF_StateDestroy(state_b, _RC)
 
    end subroutine test_setPrivate_is_private
+
+   @test
+   subroutine test_setInternal()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      integer(ESMF_KIND_I4), allocatable :: i(:)
+
+      state = ESMF_StateCreate(name='import', _RC)
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetInternal(state, short_name='f', key='a', values=[1, 2], _RC)
+      call MAPL_InfoGetInternal(state, short_name='f', key='a', values=i, _RC)
+
+      @assert_that(i, is(equal_to([1,2])))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+
+   end subroutine test_setInternal
 
 end module Test_InfoUtilities
