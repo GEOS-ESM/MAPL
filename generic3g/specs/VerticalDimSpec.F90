@@ -24,6 +24,7 @@ module mapl3g_VerticalDimSpec
       private
       integer :: id = -1
    contains
+      procedure :: get_id
       procedure :: make_info
    end type VerticalDimSpec
 
@@ -43,6 +44,11 @@ module mapl3g_VerticalDimSpec
       
 contains
 
+   function get_id(this) result(id)
+      class(VerticalDimSpec), intent(in) :: this
+      integer :: id
+      id = this%id
+   end function get_id
 
    elemental logical function equal_to(a, b)
       type(VerticalDimSpec), intent(in) :: a, b
