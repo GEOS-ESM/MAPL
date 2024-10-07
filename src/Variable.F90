@@ -28,8 +28,9 @@ module pFIO_VariableMod
       type (StringAttributeMap) :: attributes
       type (UnlimitedEntity) :: const_value
       integer :: deflation = 0 ! default no compression
-      integer :: quantize_algorithm = 1 ! default bitgroom
+      integer :: quantize_algorithm = 0 ! default no quantization
       integer :: quantize_level = 0 ! default no quantize_level
+      integer :: zstandard_level = 0 ! default no zstandard
       integer, allocatable :: chunksizes(:)
    contains
       procedure :: get_type
@@ -51,6 +52,7 @@ module pFIO_VariableMod
       procedure :: set_deflation
       procedure :: get_quantize_algorithm
       procedure :: get_quantize_level
+      procedure :: get_zstandard_level
       procedure :: is_attribute_present
       generic :: operator(==) => equal
       generic :: operator(/=) => not_equal
@@ -69,7 +71,7 @@ module pFIO_VariableMod
 contains
 
 
-   function new_Variable(unusable, type, dimensions, chunksizes,const_value, deflation, quantize_algorithm, quantize_level, rc) result(var)
+   function new_Variable(unusable, type, dimensions, chunksizes,const_value, deflation, quantize_algorithm, quantize_level, zstandard_level, rc) result(var)
       type (Variable) :: var
       integer, optional, intent(in) :: type
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -79,14 +81,16 @@ contains
       integer, optional, intent(in) :: deflation
       integer, optional, intent(in) :: quantize_algorithm
       integer, optional, intent(in) :: quantize_level
+      integer, optional, intent(in) :: zstandard_level
       integer, optional, intent(out) :: rc
 
       integer:: empty(0)
 
       var%type = -1
       var%deflation = 0
-      var%quantize_algorithm = 1
+      var%quantize_algorithm = 0
       var%quantize_level = 0
+      var%zstandard_level = 0
       var%chunksizes = empty
       var%dimensions = StringVector()
       var%attributes = StringAttributeMap()
@@ -118,6 +122,10 @@ contains
 
       if (present(quantize_level)) then
          var%quantize_level = quantize_level
+      endif
+
+      if (present(zstandard_level)) then
+         var%zstandard_level = zstandard_level
       endif
 
       _RETURN(_SUCCESS)
@@ -313,6 +321,13 @@ contains
       quantizeLevel=this%quantize_level
    end function get_quantize_level
 
+   function get_zstandard_level(this) result(zstandardLevel)
+      class (Variable), target, intent(In) :: this
+      integer :: zstandardLevel
+
+      zstandardLevel=this%zstandard_level
+   end function get_zstandard_level
+
    logical function equal(a, b)
       class (Variable), target, intent(in) :: a
       type (Variable), target, intent(in) :: b
@@ -388,6 +403,7 @@ contains
       buffer = [buffer, serialize_intrinsic(this%deflation)]
       buffer = [buffer, serialize_intrinsic(this%quantize_algorithm)]
       buffer = [buffer, serialize_intrinsic(this%quantize_level)]
+      buffer = [buffer, serialize_intrinsic(this%zstandard_level)]
 
       if( .not. allocated(this%chunksizes)) then
         buffer =[buffer,[1]]
@@ -452,6 +468,9 @@ contains
          n = n + length
          call deserialize_intrinsic(buffer(n:),this%quantize_level)
          length = serialize_buffer_length(this%quantize_level)
+         n = n + length
+         call deserialize_intrinsic(buffer(n:),this%zstandard_level)
+         length = serialize_buffer_length(this%zstandard_level)
          n = n + length
          call deserialize_intrinsic(buffer(n:),this%chunksizes)
          _RETURN(_SUCCESS)

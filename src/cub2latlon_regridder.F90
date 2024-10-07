@@ -559,13 +559,14 @@ contains
       integer :: p
       integer, allocatable :: counts(:)
       integer, allocatable :: displs(:)
-      integer :: ierror
+      integer :: ierror, rc
 
       allocate(counts(0:pet_count-1))
       allocate(displs(0:pet_count-1))
 
       call mpi_allgather(len(local), 1, MPI_INTEGER, &
            & counts, 1, MPI_INTEGER, MPI_COMM_WORLD, ierror)
+      _VERIFY(ierror)
 
       displs(0) = 0
       do p = 1, pet_count - 1
@@ -575,6 +576,7 @@ contains
       allocate(character(len=sum(counts)) :: global)
       call mpi_allgatherv(local, len(local), MPI_CHAR, &
            global, counts, displs, MPI_CHAR, MPI_COMM_WORLD, ierror)
+      _VERIFY(ierror)
 
    end function all_gather
 
@@ -600,6 +602,7 @@ contains
      if (present(missing)) then
         have_missing = any(missing == src_array)
         call MPI_AllReduce(have_missing, any_missing, 1, MPI_LOGICAL, MPI_LOR, MPI_COMM_WORLD, ierror)
+        _VERIFY(ierror)
         if (any_missing) then
            local_key = run_length_encode(reshape(src_array,[size(src_array)]) == missing)
            global_key = all_gather(local_key)

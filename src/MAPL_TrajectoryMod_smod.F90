@@ -51,6 +51,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
 
          traj%clock=clock
+         if (present(GENSTATE)) traj%GENSTATE => GENSTATE
          call ESMF_ClockGet ( clock, CurrTime=currTime, _RC )
          call ESMF_ConfigGetAttribute(config, value=time_integer, label=trim(string)//'Epoch:', default=0, _RC)
          _ASSERT(time_integer /= 0, 'Epoch value in config wrong')
@@ -890,14 +891,17 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call MPI_Scatterv( this%lons, sendcount, &
               displs, MPI_REAL8,  lons_chunk, &
               recvcount, MPI_REAL8, 0, mpic, ierr)
+         _VERIFY(ierr)
 
          call MPI_Scatterv( this%lats, sendcount, &
               displs, MPI_REAL8,  lats_chunk, &
               recvcount, MPI_REAL8, 0, mpic, ierr)
+         _VERIFY(ierr)
 
          call MPI_Scatterv( this%times_R8, sendcount, &
               displs, MPI_REAL8,  times_R8_chunk, &
               recvcount, MPI_REAL8, 0, mpic, ierr)
+         _VERIFY(ierr)
 
          ! -- root
          this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
@@ -1071,6 +1075,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   call MPI_gatherv ( p_acc_chunk_2d, nsend, MPI_REAL, &
                        p_acc_rt_2d, recvcount, displs, MPI_REAL,&
                        iroot, mpic, ierr )
+                  _VERIFY(ierr)
 
                   if (mapl_am_i_root()) then
                      !
@@ -1105,7 +1110,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         if (nx>0) then
                            do ig = 1, this%obs(k)%ngeoval
                               if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
-                                 call lgr%debug('%a %a', 'append:2d inner put_var item%xname', trim(item%xname))
                                  call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p2d(1:nx), &
                                       start=[is],count=[nx])
                               end if
@@ -1136,12 +1140,14 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         call MPI_gatherv ( p_dst_t(1,k), nsend, MPI_REAL, &
                              p_acc_rt_3d(1,k), recvcount, displs, MPI_REAL,&
                              iroot, mpic, ierr )
+                        _VERIFY(ierr)
                      end do
                      deallocate (p_dst_t)
                   else
                      call MPI_gatherv ( p_dst, nsend_v, MPI_REAL, &
                           p_dst_rt, recvcount_v, displs_v, MPI_REAL,&
                           iroot, mpic, ierr )
+                     _VERIFY(ierr)
                      p_acc_rt_3d = reshape ( p_dst_rt, shape(p_acc_rt_3d), order=[2,1] )
                   end if
 
@@ -1173,7 +1179,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         if (nx>0) then
                            do ig = 1, this%obs(k)%ngeoval
                               if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
-                                 call lgr%debug('%a %a', 'append:3d inner put_var item%xname', trim(item%xname))
                                  call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p3d(:,:), &
                                       start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
                               end if

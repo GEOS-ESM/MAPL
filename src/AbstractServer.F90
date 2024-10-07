@@ -357,7 +357,7 @@ contains
       class(AbstractServer),intent(in) :: this
       integer, intent(in) :: id
       integer :: rank
-      integer :: rank_tmp, ierror
+      integer :: rank_tmp, ierror, rc
 
       integer :: node_rank,innode_rank
       logical :: yes
@@ -371,6 +371,7 @@ contains
       rank = 0
       if (yes) rank_tmp = this%rank
       call Mpi_Allreduce(rank_tmp,rank,1, MPI_INTEGER, MPI_SUM, this%comm, ierror)
+      _VERIFY(ierror)
 
    end function get_writing_PE
 
