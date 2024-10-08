@@ -5,6 +5,7 @@ module mapl3g_TimeInterpolateAction
    use mapl3g_regridder_mgr
    use mapl3g_InfoUtilities
    use MAPL_FieldUtils
+   use MAPL_Constants, only: MAPL_UNDEFINED_REAL
    use mapl_ErrorHandling
    use esmf
 
@@ -57,7 +58,7 @@ contains
       call ESMF_StateGet(importState, 'import[1]', itemType=itemType, _RC)
       _ASSERT(itemType == ESMF_STATEITEM_FIELDBUNDLE, 'Expected FieldBundle in importState.')
 
-      call ESMF_StateGet(importState, 'export[1]', itemType=itemType, _RC)
+      call ESMF_StateGet(exportState, 'export[1]', itemType=itemType, _RC)
       _ASSERT(itemType == ESMF_STATEITEM_FIELD, 'Expected Field in exportState.')
 
       call ESMF_StateGet(importState, itemName='import[1]', fieldbundle=bundle_in, _RC)
@@ -106,7 +107,11 @@ contains
       y = weights(1)
       do i = 1, fieldCount
          call assign_fptr(fieldList(i), xi, _RC)
-         y = y + weights(i+1) * xi
+         where (xi /= MAPL_UNDEFINED_REAL .and. y /= MAPL_UNDEFINED_REAL)
+            y = y + weights(i+1) * xi
+         elsewhere
+            y = MAPL_UNDEFINED_REAL
+         end where
       end do
 
       _RETURN(_SUCCESS)

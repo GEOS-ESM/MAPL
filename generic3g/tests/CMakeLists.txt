@@ -31,6 +31,8 @@ set (test_srcs
   Test_FieldInfo.pf
   Test_GenericGridComp.pf
 
+  Test_TimeInterpolateAction.pf
+  
   Test_ModelVerticalGrid.pf
   Test_FixedLevelsVerticalGrid.pf
   Test_VerticalLinearMap.pf
