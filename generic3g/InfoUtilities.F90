@@ -41,12 +41,14 @@ module mapl3g_InfoUtilities
    public :: MAPL_InfoSetInternal
    public :: MAPL_InfoSetNamespace
 
+   ! Direct access through ESMF_Info object
    interface MAPL_InfoGet
       procedure :: info_get_string
       procedure :: info_get_i4
       procedure :: info_get_r4_1d
    end interface MAPL_InfoGet
 
+   ! Access info object from esmf stateitem
    interface MAPL_InfoGetShared
       procedure :: info_get_state_shared_string
       procedure :: info_get_stateitem_shared_i4
@@ -74,6 +76,7 @@ module mapl3g_InfoUtilities
       procedure :: info_set_stateitem_internal_r4_1d
    end interface MAPL_InfoSetInternal
 
+   ! Control namespace in state
    interface MAPL_InfoSetNamespace
       procedure :: set_namespace
    end interface MAPL_InfoSetNamespace
@@ -137,56 +140,8 @@ contains
       _RETURN(_SUCCESS)
    end subroutine info_get_r4_1d
 
-   ! Getters (namespace: shared)
-   ! ---------------------------
 
-
-   ! Getters (namespace: private)
-   ! ----------------------------
-
-   ! Setters (namespace: private)
-   ! ----------------------------
-
-   ! Getters (namespace: internal)
-   ! -----------------------------
-   subroutine info_get_internal_r4_1d(info, key, values, unusable, rc)
-      type(ESMF_Info), intent(in) :: info
-      character(*), intent(in) :: key
-      real(ESMF_KIND_R4), allocatable, intent(out) :: values(:)
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      logical :: is_present
-
-      is_present = ESMF_InfoIsPresent(info, key=KEY_INTERNAL//key, _RC)
-      _ASSERT(is_present,  "Key not found in info object: " // KEY_INTERNAL // key)
-
-      call ESMF_InfoGetAlloc(info, key=KEY_INTERNAL//key, values=values, scalarToArray=.true., _RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine info_get_internal_r4_1d
-
-   ! Setters (namespace: internal)
-   ! ----------------------------
-
-   subroutine info_get_bundle_internal_r4_1d(bundle, key, values, rc)
-      type(ESMF_FieldBundle), intent(in) :: bundle
-      character(*), intent(in) :: key
-      real(kind=ESMF_KIND_R4), allocatable, intent(out) :: values(:)
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ESMF_Info) :: info
-
-      call ESMF_InfoGetFromHost(bundle,info, _RC)
-      call MAPL_InfoGet(info, key=KEY_INTERNAL//key, values=values, _RC)
-      
-      _RETURN(_SUCCESS)
-   end subroutine info_get_bundle_internal_r4_1d
-
-   ! Accessors on ESMF_State objects
-   ! ------------------------------
+   ! Shared accessors
 
    subroutine info_get_state_shared_string(state, key, value, unusable, rc)
       type(ESMF_State), intent(in) :: state
@@ -221,10 +176,7 @@ contains
    end subroutine info_set_state_shared_string
 
 
-   ! Accessors for state items (extra arg for name)
-   ! ----------------------------------------------
-
-   subroutine info_get_stateitem_shared_i4(state, short_name, key, value, rc)
+    subroutine info_get_stateitem_shared_i4(state, short_name, key, value, rc)
       type(ESMF_State), intent(in) :: state
       character(*), intent(in) :: short_name
       character(*), intent(in) :: key
@@ -256,6 +208,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine info_set_stateitem_shared_i4
 
+   ! Private accessors
    subroutine info_get_stateitem_private_i4(state, short_name, key, value, rc)
       type(ESMF_State), intent(in) :: state
       character(*), intent(in) :: short_name
@@ -276,7 +229,6 @@ contains
       
       _RETURN(_SUCCESS)
    end subroutine info_get_stateitem_private_i4
-
 
    subroutine info_set_stateitem_private_i4(state, short_name, key, value, rc)
       type(ESMF_State), intent(in) :: state
@@ -300,7 +252,21 @@ contains
    end subroutine info_set_stateitem_private_i4
 
 
-   ! Internal 
+   ! Internal accessors
+   subroutine info_get_bundle_internal_r4_1d(bundle, key, values, rc)
+      type(ESMF_FieldBundle), intent(in) :: bundle
+      character(*), intent(in) :: key
+      real(kind=ESMF_KIND_R4), allocatable, intent(out) :: values(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: info
+
+      call ESMF_InfoGetFromHost(bundle,info, _RC)
+      call MAPL_InfoGet(info, key=KEY_INTERNAL//key, values=values, _RC)
+      
+      _RETURN(_SUCCESS)
+   end subroutine info_get_bundle_internal_r4_1d
 
    subroutine info_get_stateitem_internal_r4_1d(state, short_name, key, values, rc)
       type(ESMF_State), intent(in) :: state
@@ -318,9 +284,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine info_get_stateitem_internal_r4_1d
 
-
-
-  subroutine info_set_stateitem_internal_r4_1d(state, short_name, key, values, rc)
+   subroutine info_set_stateitem_internal_r4_1d(state, short_name, key, values, rc)
       type(ESMF_State), intent(in) :: state
       character(*), intent(in) :: short_name
       character(*), intent(in) :: key
