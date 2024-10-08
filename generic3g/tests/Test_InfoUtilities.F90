@@ -111,15 +111,16 @@ contains
       type(ESMF_Field) :: field
       integer :: status
       real(ESMF_KIND_R4), allocatable :: w(:)
+      real(ESMF_KIND_R4), parameter = expected(2) = [1., 2.]
 
       state = ESMF_StateCreate(name='import', _RC)
       field = ESMF_FieldEmptyCreate(name='f', _RC)
       call ESMF_StateAdd(state, [field], _RC)
 
-      call MAPL_InfoSetInternal(state, short_name='f', key='a', values=[1., 2.], _RC)
+      call MAPL_InfoSetInternal(state, short_name='f', key='a', values=expected, _RC)
       call MAPL_InfoGetInternal(state, short_name='f', key='a', values=w, _RC)
 
-      @assert_that(w, is(equal_to([1.,2.])))
+      @assert_that(w, is(equal_to(expected)))
 
       call ESMF_FieldDestroy(field, _RC)
       call ESMF_StateDestroy(state, _RC)
