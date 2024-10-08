@@ -142,6 +142,9 @@ contains
          x = 2. * i
       end do
 
+      ! Set an isolated point in the input to UNDEF and verify that
+      ! the result is undefined at the same location.
+      
       x(2) = MAPL_UNDEFINED_REAL
       bracket = ESMF_FieldBundleCreate(name='import[1]', multiflag=.true., fieldList=b, _RC)
       call ESMF_StateAdd(importState, [bracket], _RC)
