@@ -41,7 +41,7 @@ module HistoryTrajectoryMod
      logical :: do_vertical_regrid
 
      type(LocstreamRegridder) :: regridder
-     type(TimeData)           :: time_info
+     type(TimeData)           :: timeinfo
      type(ESMF_Clock)         :: clock
      type(ESMF_Alarm), public :: alarm
      type(ESMF_Time)          :: RingTime

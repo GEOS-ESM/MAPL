@@ -278,7 +278,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          if (.not. present(reinitialize)) then
             if(present(bundle))   this%bundle=bundle
             if(present(items))    this%items=items
-            if(present(timeInfo)) this%time_info=timeInfo
+            if(present(timeInfo)) this%timeinfo=timeInfo
             if (present(vdata)) then
                this%vdata=vdata
             else
@@ -326,7 +326,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          do k=1, this%nobs_type
             call this%obs(k)%metadata%add_dimension(this%index_name_x, this%obs(k)%nobs_epoch)
-            if (this%time_info%integer_time) then
+            if (this%timeinfo%integer_time) then
                v = Variable(type=PFIO_INT32,dimensions=this%index_name_x)
             else
                v = Variable(type=PFIO_REAL64,dimensions=this%index_name_x)

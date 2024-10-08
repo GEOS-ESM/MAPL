@@ -34,7 +34,7 @@ module MaskSamplerMod
      private
      !     character(len=:), allocatable :: grid_file_name
      character(len=ESMF_MAXSTR) :: grid_file_name
-     !   we need on each PET
+     !     we need on each PET
      !     npt_mask, index_mask(1:2,npt_mask)=[i,j]
      !
      integer :: npt_mask
@@ -44,7 +44,7 @@ module MaskSamplerMod
      type(GriddedIOitemVector) :: items
      type(VerticalData) :: vdata
      logical :: do_vertical_regrid
-     type(TimeData)           :: time_info
+     type(TimeData)           :: timeinfo
      type(ESMF_Clock)         :: clock
      type(ESMF_Time)          :: RingTime
      type(ESMF_TimeInterval)  :: epoch_frequency
@@ -100,7 +100,6 @@ module MaskSamplerMod
      procedure :: add_metadata
 !!     procedure :: create_file_handle
      procedure :: append_file => output_to_server
-!     procedure :: create_new_bundle
      procedure :: create_grid => create_Geosat_grid_find_mask
      procedure :: compute_time_for_current
      procedure :: set_param

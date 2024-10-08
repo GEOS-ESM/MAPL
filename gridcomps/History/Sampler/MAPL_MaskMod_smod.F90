@@ -39,7 +39,6 @@ module function MaskSampler_from_config(config,string,clock,GENSTATE,rc) result(
   call ESMF_ClockGet ( clock, CurrTime=currTime, _RC )
   if (mapl_am_I_root()) write(6,*) 'string', string
 
-
   call ESMF_ConfigGetAttribute(config, value=mask%grid_file_name,label=trim(string)//'obs_files:',    default="",  _RC)
   call ESMF_ConfigGetAttribute(config, value=mask%index_name_x,  label=trim(string)//'index_name_x:', default="x", _RC)
   call ESMF_ConfigGetAttribute(config, value=mask%index_name_y,  label=trim(string)//'index_name_y:', default="y", _RC)
@@ -48,7 +47,6 @@ module function MaskSampler_from_config(config,string,clock,GENSTATE,rc) result(
   call ESMF_ConfigGetAttribute(config, value=mask%var_name_proj, label=trim(string)//'var_name_proj:',default="",  _RC)
   call ESMF_ConfigGetAttribute(config, value=mask%att_name_proj, label=trim(string)//'att_name_proj:',default="",  _RC)
   call ESMF_ConfigGetAttribute(config, value=mask%thin_factor,   label=trim(string)//'thin_factor:',  default=-1,  _RC)
-
 
   if (mapl_am_I_root()) write(6,*) 'thin_factor:', mask%thin_factor
   call ESMF_ConfigGetAttribute(config, value=STR1, label=trim(string)//'obs_file_begin:', default="", _RC)
@@ -85,7 +83,6 @@ module function MaskSampler_from_config(config,string,clock,GENSTATE,rc) result(
        label=trim(string) // 'obs_file_interval:', _RC)
   _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
   if (mapl_am_I_root()) write(6,105) 'obs_file_interval:', trim(STR1)
-
 
   i= index( trim(STR1), ' ' )
   if (i>0) then
@@ -129,7 +126,7 @@ module subroutine initialize_(this,items,bundle,timeInfo,vdata,reinitialize,rc)
    if (.not. present(reinitialize)) then
       if(present(bundle))   this%bundle=bundle
       if(present(items))    this%items=items
-      if(present(timeInfo)) this%time_info=timeInfo
+      if(present(timeInfo)) this%timeinfo=timeInfo
       if(present(vdata)) then
          this%vdata=vdata
       else
@@ -183,6 +180,105 @@ module subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chu
 
 end subroutine set_param
       
+
+module subroutine  add_metadata(this,rc)
+    class(MaskSampler), intent(inout) :: this
+    integer, optional, intent(out)          :: rc
+
+    type(variable)   :: v
+    type(ESMF_Field) :: field
+    integer          :: fieldCount
+    integer          :: field_rank
+    integer          :: nstation
+    logical          :: is_present
+    integer          :: ub(ESMF_MAXDIM)
+    integer          :: lb(ESMF_MAXDIM)
+    logical          :: do_vertical_regrid
+    integer          :: status
+    integer          :: i
+
+    character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
+    character(len=ESMF_MAXSTR) :: var_name, long_name, units, vdims
+    character(len=40) :: datetime_units
+
+
+    !__ 1. metadata add_dimension,
+    !     add_variable for time, mask_points, latlon, 
+    !
+    call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC) ! specify lev in fmd
+
+    call this%timeinfo%add_time_to_metadata(this%metadata,_RC)
+    v = this%timeinfo%define_time_variable(_RC)
+    call this%metadata%add_variable('time',v,_RC)
+    
+    call this%metadata%add_dimension('mask_index', this%npt_mask_tot)
+
+    v = Variable(type=pFIO_REAL64, dimensions='mask_index')
+    call v%add_attribute('long_name','longitude')
+    call v%add_attribute('unit','degree_east')
+    call this%metadata%add_variable('longitude',v)
+
+    v = Variable(type=pFIO_REAL64, dimensions='mask_index')
+    call v%add_attribute('long_name','latitude')
+    call v%add_attribute('unit','degree_north')
+    call this%metadata%add_variable('latitude',v)
+
+    
+    ! To be added when values are available
+    !v = Variable(type=pFIO_INT32, dimensions='mask_index')
+    !call v%add_attribute('long_name','The Cubed Sphere Global Face ID')
+    !call this%metadata%add_variable('mask_CS_Face_ID',v)
+    !
+    !v = Variable(type=pFIO_INT32, dimensions='mask_index')
+    !call v%add_attribute('long_name','The Cubed Sphere Global Index I')
+    !call this%metadata%add_variable('mask_CS_global_index_I',v)
+    !
+    !v = Variable(type=pFIO_INT32, dimensions='mask_index')
+    !call v%add_attribute('long_name','The Cubed Sphere Global Index J')
+    !call this%metadata%add_variable('mask_CS_global_index_J',v)
+
+
+    !__ 2. filemetadata: extract field from bundle, add_variable to metadata
+    !
+    call ESMF_FieldBundleGet(this%bundle, fieldCount=fieldCount, _RC)
+    allocate (fieldNameList(fieldCount), _STAT)
+    call ESMF_FieldBundleGet(this%bundle, fieldNameList=fieldNameList, _RC)
+    do i=1, fieldCount
+       var_name=trim(fieldNameList(i))
+       call ESMF_FieldBundleGet(this%bundle,var_name,field=field,_RC)
+       call ESMF_FieldGet(field,rank=field_rank,_RC)
+       call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=is_present,_RC)
+       if ( is_present ) then
+          call ESMF_AttributeGet(field, NAME="LONG_NAME",VALUE=long_name, _RC)
+       else
+          long_name = var_name
+       endif
+       call ESMF_AttributeGet(field,name="UNITS",isPresent=is_present,_RC)
+       if ( is_present ) then
+          call ESMF_AttributeGet(field, NAME="UNITS",VALUE=units, _RC)
+       else
+          units = 'unknown'
+       endif
+       if (field_rank==2) then
+          vdims = "mask_index,time"
+          v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
+       else if (field_rank==3) then
+          vdims = "lev,mask_index,time"
+          call ESMF_FieldGet(field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+          v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
+       end if
+       call v%add_attribute('units',         trim(units))
+       call v%add_attribute('long_name',     trim(long_name))
+       call v%add_attribute('missing_value', MAPL_UNDEF)
+       call v%add_attribute('_FillValue',    MAPL_UNDEF)
+       call v%add_attribute('valid_range',   (/-MAPL_UNDEF,MAPL_UNDEF/))
+       call this%metadata%add_variable(trim(var_name),v,_RC)
+    end do
+    deallocate (fieldNameList, _STAT)
+
+    _RETURN(_SUCCESS)
+  end subroutine add_metadata
+
 
      module subroutine create_Geosat_grid_find_mask(this, rc)
        use pflogger, only: Logger, logging
@@ -597,102 +693,6 @@ end subroutine set_param
      end subroutine create_Geosat_grid_find_mask
 
 
-module subroutine  add_metadata(this,rc)
-    class(MaskSampler), intent(inout) :: this
-    integer, optional, intent(out)          :: rc
-
-    type(variable)   :: v
-    type(ESMF_Field) :: field
-    integer          :: fieldCount
-    integer          :: field_rank
-    integer          :: nstation
-    logical          :: is_present
-    integer          :: ub(ESMF_MAXDIM)
-    integer          :: lb(ESMF_MAXDIM)
-    logical          :: do_vertical_regrid
-    integer          :: status
-    integer          :: i
-
-    character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
-    character(len=ESMF_MAXSTR) :: var_name, long_name, units, vdims
-    character(len=40) :: datetime_units
-
-
-    !__ 1. metadata add_dimension,
-    !     add_variable for time, latlon, mask_points
-    !
-    call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC) ! specify lev in fmd
-    call this%time_info%add_time_to_metadata(this%metadata,_RC)
-    call this%metadata%add_dimension('mask_index', this%npt_mask_tot)
-
-    v = Variable(type=pFIO_REAL64, dimensions='mask_index')
-    call v%add_attribute('long_name','longitude')
-    call v%add_attribute('unit','degree_east')
-    call this%metadata%add_variable('longitude',v)
-
-    v = Variable(type=pFIO_REAL64, dimensions='mask_index')
-    call v%add_attribute('long_name','latitude')
-    call v%add_attribute('unit','degree_north')
-    call this%metadata%add_variable('latitude',v)
-
-    v = this%time_info%define_time_variable(_RC)
-    call this%metadata%add_variable('time',v,_RC)
-    
-    ! To be added when values are available
-    !v = Variable(type=pFIO_INT32, dimensions='mask_index')
-    !call v%add_attribute('long_name','The Cubed Sphere Global Face ID')
-    !call this%metadata%add_variable('mask_CS_Face_ID',v)
-    !
-    !v = Variable(type=pFIO_INT32, dimensions='mask_index')
-    !call v%add_attribute('long_name','The Cubed Sphere Global Index I')
-    !call this%metadata%add_variable('mask_CS_global_index_I',v)
-    !
-    !v = Variable(type=pFIO_INT32, dimensions='mask_index')
-    !call v%add_attribute('long_name','The Cubed Sphere Global Index J')
-    !call this%metadata%add_variable('mask_CS_global_index_J',v)
-
-
-    !__ 2. filemetadata: extract field from bundle, add_variable to metadata
-    !
-    call ESMF_FieldBundleGet(this%bundle, fieldCount=fieldCount, _RC)
-    allocate (fieldNameList(fieldCount), _STAT)
-    call ESMF_FieldBundleGet(this%bundle, fieldNameList=fieldNameList, _RC)
-    do i=1, fieldCount
-       var_name=trim(fieldNameList(i))
-       call ESMF_FieldBundleGet(this%bundle,var_name,field=field,_RC)
-       call ESMF_FieldGet(field,rank=field_rank,_RC)
-       call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=is_present,_RC)
-       if ( is_present ) then
-          call ESMF_AttributeGet(field, NAME="LONG_NAME",VALUE=long_name, _RC)
-       else
-          long_name = var_name
-       endif
-       call ESMF_AttributeGet(field,name="UNITS",isPresent=is_present,_RC)
-       if ( is_present ) then
-          call ESMF_AttributeGet(field, NAME="UNITS",VALUE=units, _RC)
-       else
-          units = 'unknown'
-       endif
-       if (field_rank==2) then
-          vdims = "mask_index,time"
-          v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
-       else if (field_rank==3) then
-          vdims = "lev,mask_index,time"
-          call ESMF_FieldGet(field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-          v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
-       end if
-       call v%add_attribute('units',         trim(units))
-       call v%add_attribute('long_name',     trim(long_name))
-       call v%add_attribute('missing_value', MAPL_UNDEF)
-       call v%add_attribute('_FillValue',    MAPL_UNDEF)
-       call v%add_attribute('valid_range',   (/-MAPL_UNDEF,MAPL_UNDEF/))
-       call this%metadata%add_variable(trim(var_name),v,_RC)
-    end do
-    deallocate (fieldNameList, _STAT)
-
-    _RETURN(_SUCCESS)
-  end subroutine add_metadata
-
 
  module subroutine output_to_server(this,current_time,filename,oClients,rc)
     implicit none
@@ -729,7 +729,10 @@ module subroutine  add_metadata(this,rc)
     integer, allocatable :: local_start(:)
     integer, allocatable :: global_start(:)
     integer, allocatable :: global_count(:)
-
+    real, allocatable :: times(:)
+    logical :: have_time
+    integer :: tindex
+    
     ! __ s1. find local_start, global_start, etc.
     this%obs_written=1
     
@@ -752,17 +755,31 @@ module subroutine  add_metadata(this,rc)
     recvcounts_3d(:) = nz * this%recvcounts(:)
     displs_3d(:)     = nz * this%displs(:)
     
+    !   use griddedio logic
+    !__ 1. stage data :  time variable, lat/lon
+    !   
+    Have_time = this%timeInfo%am_i_initialized()
+    allocate(local_start,source=[1,1])
+    allocate(global_start,source=[1,this%obs_written])
+    allocate(global_count,source=[nx,1])
 
-    !__ 1. put_var: time variable
-    !
-    allocate( rtimes(1), _STAT )
-    rtimes(1) = this%compute_time_for_current(current_time,_RC) ! rtimes: seconds since opening file
-    if (mapl_am_i_root()) then
-       call this%formatter%put_var('time',rtimes(1:1),&
-            start=[this%obs_written],count=[1],_RC)
+    if (have_time) then
+       times = this%timeInfo%compute_time_vector(this%metadata,_RC)
+       ref = ArrayReference(times)
+       call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
+       tindex = size(times)
+       if (tindex==1) then
+          call this%stage2DLatLon(filename,oClients=oClients,_RC)
+       end if
+    else
+       tindex = -1
+       call this%stage2DLatLon(filename,oClients=oClients,_RC)
     end if
 
-
+    deallocate (local_start)
+    deallocate (global_start)
+    deallocate (global_count)
+    
     !__ 2. put_var: ungridded_dim from src to dst [use index_mask]
     !
     !   Currently mask only pickup values
@@ -771,6 +788,7 @@ module subroutine  add_metadata(this,rc)
     !if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
     !   call this%vdata%setup_eta_to_pressure(_RC)
     !endif
+    !
     !
     iter = this%items%begin()
     do while (iter /= this%items%end())
@@ -791,11 +809,18 @@ module subroutine  add_metadata(this,rc)
              allocate(global_count,source=[nx,1])
              call oClients%collective_stage_data(this%write_collection_id,trim(this%ofile),trim(item%xname), &
                   ref,start=local_start, global_start=global_start, global_count=global_count)
-
+             deallocate (local_start, global_start, global_count)
+             
           else if (rank==3) then
              call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
              call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
              _ASSERT (this%vdata%lm == (ub(1)-lb(1)+1), 'vertical level is different from CS grid')
+
+             allocate(arr(nx, lb(1):ub(1)))
+             allocate(local_start,source=[1,1,1])
+             allocate(global_start,source=[1,1,this%obs_written])
+             allocate(global_count,source=[nx,nz,1])
+
              do k= lb(1), ub(1)
                 do j=1, nx
                    ix = this%index_mask(1,j)
@@ -806,11 +831,9 @@ module subroutine  add_metadata(this,rc)
              !! write(6,'(2x,a,2x,i5,3x,10f8.1)') 'pet, p_dst_3d(j)', mypet, p_dst_3d(::10)
 
              ref = ArrayReference(arr)
-             allocate(local_start,source=[1,1,1])
-             allocate(global_start,source=[1,1,this%obs_written])
-             allocate(global_count,source=[nx,nz,1])
              call oClients%collective_stage_data(this%write_collection_id,trim(this%ofile),trim(item%xname), &
                   ref,start=local_start, global_start=global_start, global_count=global_count)
+             deallocate (arr, local_start, global_start, global_count)
 
           else
              _FAIL('grid2LS regridder: rank > 3 not implemented')
