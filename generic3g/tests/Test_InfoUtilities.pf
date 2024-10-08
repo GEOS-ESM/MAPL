@@ -53,6 +53,7 @@ contains
       type(ESMF_Field) :: field
       integer :: status
       integer :: i
+      integer, parameter :: expected = 1
 
       state = ESMF_StateCreate(name='import', _RC)
       call MAPL_InfoSetNameSpace(state, namespace='compA', _RC)
@@ -60,10 +61,10 @@ contains
       field = ESMF_FieldEmptyCreate(name='f', _RC)
       call ESMF_StateAdd(state, [field], _RC)
 
-      call MAPL_InfoSetPrivate(state, short_name='f', key='a', value=1, _RC)
+      call MAPL_InfoSetPrivate(state, short_name='f', key='a', value=expected, _RC)
       call MAPL_InfoGetPrivate(state, short_name='f', key='a', value=i, _RC)
 
-      @assert_that(i, is(1))
+      @assert_that(i, is(expected))
 
       call ESMF_FieldDestroy(field, _RC)
       call ESMF_StateDestroy(state, _RC)
