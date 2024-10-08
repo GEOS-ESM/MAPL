@@ -64,7 +64,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added MAPL_Reverse_Schmidt to reverse the stretched grid for indices computation
+
 ### Changed
+
+- Propagated the error message from MAPL_HorzIJIndex subroutine
 
 ### Fixed
 
