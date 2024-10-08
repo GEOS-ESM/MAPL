@@ -5,13 +5,13 @@ module mapl3g_FieldCondensedArray_private
    implicit none
 
    private
-   public :: get_fptr_shape, ARRAY_RANK
+   public :: get_fptr_shape_private, ARRAY_RANK
 
    integer, parameter :: ARRAY_RANK = 3
 
 contains
 
-   function get_fptr_shape(gridToFieldMap, localElementCount, has_vertical, rc) &
+   function get_fptr_shape_private(gridToFieldMap, localElementCount, has_vertical, rc) &
          &result(fptr_shape)
       integer :: fptr_shape(ARRAY_RANK)
       integer, intent(in) :: gridToFieldMap(:)
@@ -39,6 +39,6 @@ contains
       fptr_shape = [horz_size, vert_size, ungridded_size]
       _RETURN(_SUCCESS)
 
-   end function get_fptr_shape
+   end function get_fptr_shape_private
 
 end module mapl3g_FieldCondensedArray_private

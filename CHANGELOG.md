@@ -48,6 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update executables using FLAP to use fArgParse
 - Update `Findudunits.cmake` to link with libdl and look for the `udunits2.xml` file (as some MAPL tests require it)
 - Modified `ESMF_GridComp` creation in `GenericGridComp` to use `ESMF_CONTEXT_PARENT_VM` by default.
+- Changed `get_fptr_shape` in `FieldCondensedArray*.F90`
 
 ### Fixed
 
