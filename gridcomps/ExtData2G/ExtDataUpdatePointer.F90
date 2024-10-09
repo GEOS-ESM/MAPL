@@ -54,15 +54,15 @@ module MAPL_ExtDataPointerUpdate
       type(ESMF_Clock), intent(inout) :: clock
       integer, optional, intent(out) :: rc
 
-      integer :: status,int_time,year,month,day,hour,minute,second,neg_index
+      integer :: status,int_time,year,month,day,hour,minute,second
       logical :: negative_offset
-      type(ESMF_TimeInterval) :: dt
+      type(ESMF_TimeInterval) :: timestep
       integer :: multiplier
       integer :: i
       logical :: is_heartbeat
 
       this%last_checked = time
-      dt = ESMF_ClockGet(clock, timestep=dt, _RC)
+      call ESMF_ClockGet(clock, timestep=timestep, _RC)
       if (update_freq == "-") then
          this%single_shot = .true.
       else if (update_freq /= "PT0S") then
@@ -78,9 +78,9 @@ module MAPL_ExtDataPointerUpdate
       end if
       i = index(update_offset,"-") + 1
       negative_offset = i > 1
-      call heartbeat_string(update_offset(i:), is_heartbeat=is_heartbeat, multiplier)
+      call parse_heartbeat_timestring(update_offset(i:), is_heartbeat=is_heartbeat, multiplier=multiplier)
       if(is_heartbeat) then
-         this%offset = multiplier * dt
+         this%offset = multiplier * timestep
       else
          this%offset=string_to_esmf_timeinterval(update_offset(i:),_RC)
       end if
@@ -90,7 +90,7 @@ module MAPL_ExtDataPointerUpdate
 
    end subroutine create_from_parameters
 
-   subroutine heartbeat_string(timestring, is_heartbeat, multiplier)
+   subroutine parse_heartbeat_timestring(timestring, is_heartbeat, multiplier)
       character(len=*), intent(in) :: timestring
       logical, intent(out) :: is_heartbeat
       integer, intent(out) :: multiplier
@@ -103,20 +103,25 @@ module MAPL_ExtDataPointerUpdate
       i = index(uppercase, HEARTBEAT)
       is_heartbeat = (i > 0)
 
-   end subroutine heartbeat_string
+   end subroutine parse_heartbeat_timestring
 
-   function convert_heartbeat(timestring, multiplier) result(tintv)
-      type(ESMF_TimeInterval) :: tintv
-      character(len=*), intent(in) :: timestring
-      integer, optional, intent(in) :: multiplier
-      integer :: multiplier_
-      type(ESMF_TimeInterval) :: heartbeat
+   function to_upper(s) result(u)
+      character(len=:), allocatable :: u
+      character(len=*), intent(in) :: s
+      character(len=*), parameter :: LOWER = 'qwertyuiopasdfghjklzxcvbnm'
+      character(len=*), parameter :: UPPER = 'QWERTYUIOPASDFGHJKLZXCVBNM'
+      character :: ch
+      integer :: i, j
 
-      multiplier_ = 1
-      if(present(multiplier)) multiplier_=multiplier
-      tintv = multiplier_ * heartbeat 
+      u = s
+      do i = 1, len(u)
+         ch = u(i:i)
+         j = index(LOWER, ch)
+         if(j > 0) ch = UPPER(j:j)
+         u(i:i) = ch
+      end do
 
-   end function convert_heartbeat
+   end function to_upper
 
    subroutine check_update(this,do_update,use_time,current_time,first_time,rc)
       class(ExtDataPointerUpdate), intent(inout) :: this
