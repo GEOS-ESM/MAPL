@@ -37,10 +37,12 @@ module MAPL_ExtDataPointerUpdate
    function get_adjusted_time(this,time,rc) result(adjusted_time)
       type(ESMF_Time) :: adjusted_time
       class(ExtDataPointerUpdate), intent(inout) :: this
-      type(ESMF_Time), intent(in) :: time
+      type(ESMF_Time), optional, intent(in) :: time
       integer, optional, intent(out) :: rc
 
-      adjusted_time = time+this%offset
+      adjusted_time = this%last_ring
+      if(present(time)) adjusted_time = time
+      adjusted_time = adjusted_time+this%offset
 
       _RETURN(_SUCCESS)
    end function
@@ -141,7 +143,7 @@ module MAPL_ExtDataPointerUpdate
          if (first_time) then
             do_update = .true.
             this%first_time_updated = .true.
-            use_time = this%get_adjusted_time(last_ring)
+            use_time = this%get_adjusted_time(this%last_ring)
          else
             ! normal flow
             next_ring = this%last_ring
@@ -170,7 +172,7 @@ module MAPL_ExtDataPointerUpdate
                     if (this%first_time_updated) then
                        do_update=.true.
                        this%first_time_updated = .false.
-                       use_time = this%get_adjusted_time(last_ring)
+                       use_time = this%get_adjusted_time(this%last_ring)
                     end if
                ! otherwise we land on a time when the alarm would ring and we would update
                else if (this%last_ring == current_time) then
