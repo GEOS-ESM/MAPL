@@ -1,0 +1,515 @@
+#include "MAPL_TestErr.h"
+
+module Test_InfoUtilities
+   use mapl3g_ESMF_info_keys
+   use mapl3g_InfoUtilities
+   use esmf
+   use funit
+
+   implicit none (type, external)
+
+contains
+
+   @test
+   subroutine test_set_namespace()
+      type(ESMF_State) :: state
+      integer :: status
+      character(:), allocatable :: name
+      character(*), parameter :: expected = 'comp_A'
+
+      state = ESMF_StateCreate(name='export', _RC)
+      call MAPL_InfoSetNamespace(state, namespace=expected, _RC)
+      call MAPL_InfoGetShared(state, key='namespace', value=name, _RC)
+
+      @assertEqual(expected, name)
+
+      call ESMF_StateDestroy(state, _RC)
+   end subroutine test_set_namespace
+
+   @test
+   subroutine test_set_stateitem_shared_string()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      character(:), allocatable :: s
+      character(*), parameter :: expected = 'hello'
+
+      state = ESMF_StateCreate(name='export', _RC)
+
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetShared(state, short_name='f', key='a', value=expected, _RC)
+      call MAPL_InfoGetShared(state, short_name='f', key='a', value=s, _RC)
+
+      @assertEqual(expected, s)
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+
+   end subroutine test_set_stateitem_shared_string
+
+   @test
+   subroutine test_set_stateitem_shared_logical()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      logical :: l
+      logical, parameter :: expected = .true.
+
+      state = ESMF_StateCreate(name='export', _RC)
+
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetShared(state, short_name='f', key='a', value=expected, _RC)
+      l = .false.
+      call MAPL_InfoGetShared(state, short_name='f', key='a', value=l, _RC)
+
+      @assert_that(l, is(true()))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+
+   end subroutine test_set_stateitem_shared_logical
+
+   @test
+   subroutine test_set_stateitem_shared_i4()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      integer(kind=ESMF_KIND_I4) :: i
+      integer(kind=ESMF_KIND_I4), parameter :: expected = 1
+
+      state = ESMF_StateCreate(name='export', _RC)
+
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetShared(state, short_name='f', key='a', value=expected, _RC)
+      call MAPL_InfoGetShared(state, short_name='f', key='a', value=i, _RC)
+
+      @assert_that(i, is(expected))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+
+   end subroutine test_set_stateitem_shared_i4
+
+   @test
+   subroutine test_set_stateitem_shared_r4()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      real(kind=ESMF_KIND_R4) :: r
+      real(kind=ESMF_KIND_R4), parameter :: expected = 1.0
+
+      state = ESMF_StateCreate(name='export', _RC)
+
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetShared(state, short_name='f', key='a', value=expected, _RC)
+      call MAPL_InfoGetShared(state, short_name='f', key='a', value=r, _RC)
+
+      @assert_that(r, is(expected))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+
+   end subroutine test_set_stateitem_shared_r4
+
+   @test
+   subroutine test_set_stateitem_shared_r8()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      real(kind=ESMF_KIND_R8) :: r
+      real(kind=ESMF_KIND_R8), parameter :: expected = 1.0
+
+      state = ESMF_StateCreate(name='export', _RC)
+
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetShared(state, short_name='f', key='a', value=expected, _RC)
+      call MAPL_InfoGetShared(state, short_name='f', key='a', value=r, _RC)
+
+      @assert_that(r, is(expected))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+
+   end subroutine test_set_stateitem_shared_r8
+
+   @test
+   subroutine test_set_stateitem_shared_r4_1d()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      real(kind=ESMF_KIND_R4), allocatable :: r(:)
+      real(kind=ESMF_KIND_R4), parameter :: expected(*) = [1.0, 2.0, 5.0]
+
+      state = ESMF_StateCreate(name='export', _RC)
+
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetShared(state, short_name='f', key='a', values=expected, _RC)
+      call MAPL_InfoGetShared(state, short_name='f', key='a', values=r, _RC)
+
+      @assert_that(r, is(equal_to(expected)))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+
+   end subroutine test_set_stateitem_shared_r4_1d
+
+
+   @test
+   subroutine test_set_stateitem_private_string()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      character(:), allocatable :: s
+      character(*), parameter :: expected = 'hello'
+
+      state = ESMF_StateCreate(name='import', _RC)
+      call MAPL_InfoSetNameSpace(state, namespace='compA', _RC)
+
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetPrivate(state, short_name='f', key='a', value=expected, _RC)
+      call MAPL_InfoGetPrivate(state, short_name='f', key='a', value=s, _RC)
+
+      @assertEqual(expected, s)
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+
+   end subroutine test_set_stateitem_private_string
+
+   @test
+   subroutine test_set_stateitem_private_logical()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      logical :: l
+      logical, parameter :: expected = .true.
+
+      state = ESMF_StateCreate(name='import', _RC)
+      call MAPL_InfoSetNameSpace(state, namespace='compA', _RC)
+
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetPrivate(state, short_name='f', key='a', value=expected, _RC)
+      l = .false.
+      call MAPL_InfoGetPrivate(state, short_name='f', key='a', value=l, _RC)
+
+      @assert_that(l, is(true()))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+
+   end subroutine test_set_stateitem_private_logical
+
+   @test
+   subroutine test_set_stateitem_private_i4()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      integer(kind=ESMF_KIND_I4) :: i
+      integer(kind=ESMF_KIND_I4), parameter :: expected = 1
+
+      state = ESMF_StateCreate(name='import', _RC)
+      call MAPL_InfoSetNameSpace(state, namespace='compA', _RC)
+
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetPrivate(state, short_name='f', key='a', value=expected, _RC)
+      call MAPL_InfoGetPrivate(state, short_name='f', key='a', value=i, _RC)
+
+      @assert_that(i, is(expected))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+
+   end subroutine test_set_stateitem_private_i4
+
+
+   @test
+   subroutine test_set_stateitem_private_r4()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      real(kind=ESMF_KIND_R4) :: r
+      real(kind=ESMF_KIND_R4), parameter :: expected = 1.0
+
+      state = ESMF_StateCreate(name='import', _RC)
+      call MAPL_InfoSetNameSpace(state, namespace='compA', _RC)
+
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetPrivate(state, short_name='f', key='a', value=expected, _RC)
+      call MAPL_InfoGetPrivate(state, short_name='f', key='a', value=r, _RC)
+
+      @assert_that(r, is(expected))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+
+   end subroutine test_set_stateitem_private_r4
+
+   @test
+   subroutine test_set_stateitem_private_r8()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      real(kind=ESMF_KIND_R8) :: r
+      real(kind=ESMF_KIND_R8), parameter :: expected = 1.0
+
+      state = ESMF_StateCreate(name='import', _RC)
+      call MAPL_InfoSetNameSpace(state, namespace='compA', _RC)
+
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetPrivate(state, short_name='f', key='a', value=expected, _RC)
+      call MAPL_InfoGetPrivate(state, short_name='f', key='a', value=r, _RC)
+
+      @assert_that(r, is(expected))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+
+   end subroutine test_set_stateitem_private_r8
+
+   @test
+   subroutine test_set_stateitem_private_r4_1d()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      real(kind=ESMF_KIND_R4), allocatable :: r(:)
+      real(kind=ESMF_KIND_R4), parameter :: expected(*) = [1.0, 3.0, 7.0]
+
+      state = ESMF_StateCreate(name='import', _RC)
+      call MAPL_InfoSetNameSpace(state, namespace='compA', _RC)
+
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetPrivate(state, short_name='f', key='a', values=expected, _RC)
+      call MAPL_InfoGetPrivate(state, short_name='f', key='a', values=r, _RC)
+
+      @assert_that(r, is(equal_to(expected)))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+
+   end subroutine test_set_stateitem_private_r4_1d
+
+   @test
+   ! Check that field shared in 2 states does not overwrite info between gridcomps.
+   subroutine test_setPrivate_is_private()
+      type(ESMF_State) :: state_a
+      type(ESMF_State) :: state_b
+      type(ESMF_Field) :: field
+      integer :: status
+      integer :: i_a, i_b
+
+      state_a = ESMF_StateCreate(name='import', _RC)
+      call MAPL_InfoSetNameSpace(state_a, namespace='compA', _RC)
+
+      state_b = ESMF_StateCreate(name='import', _RC)
+      call MAPL_InfoSetNameSpace(state_b, namespace='compB', _RC)
+
+
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state_a, [field], _RC)
+      call ESMF_StateAdd(state_b, [field], _RC)
+
+      call MAPL_InfoSetPrivate(state_a, short_name='f', key='a', value=1, _RC)
+      call MAPL_InfoSetPrivate(state_b, short_name='f', key='a', value=2, _RC)
+
+      call MAPL_InfoGetPrivate(state_a, short_name='f', key='a', value=i_a, _RC)
+      call MAPL_InfoGetPrivate(state_b, short_name='f', key='a', value=i_b, _RC)
+
+      @assert_that(i_a, is(1))
+      @assert_that(i_b, is(2))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state_a, _RC)
+      call ESMF_StateDestroy(state_b, _RC)
+
+   end subroutine test_setPrivate_is_private
+
+
+   @test
+   subroutine test_set_stateitem_internal_string()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      character(len=:), allocatable :: s
+      character(len=*), parameter :: expected = 'hello'
+
+      state = ESMF_StateCreate(name='import', _RC)
+
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetInternal(state, short_name='f', key='a', value=expected, _RC)
+      call MAPL_InfoGetInternal(state, short_name='f', key='a', value=s, _RC)
+
+      @assert_that(s, is(expected))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+
+   end subroutine test_set_stateitem_internal_string
+
+   @test
+   subroutine test_set_stateitem_internal_logical()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      logical :: l
+      logical, parameter :: expected = .true.
+
+      state = ESMF_StateCreate(name='import', _RC)
+
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetInternal(state, short_name='f', key='a', value=expected, _RC)
+      l = .false.
+      call MAPL_InfoGetInternal(state, short_name='f', key='a', value=l, _RC)
+
+      @assert_that(l, is(true()))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+
+   end subroutine test_set_stateitem_internal_logical
+
+   @test
+   subroutine test_set_stateitem_internal_i4()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      integer(kind=ESMF_KIND_I4) :: i
+      integer(kind=ESMF_KIND_I4), parameter :: expected = 1
+
+      state = ESMF_StateCreate(name='import', _RC)
+
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetInternal(state, short_name='f', key='a', value=expected, _RC)
+      call MAPL_InfoGetInternal(state, short_name='f', key='a', value=i, _RC)
+
+      @assert_that(i, is(expected))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+
+   end subroutine test_set_stateitem_internal_i4
+
+   @test
+   subroutine test_set_stateitem_internal_r4()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      real(kind=ESMF_KIND_R4) :: r
+      real(kind=ESMF_KIND_R4), parameter :: expected = 1.0
+
+      state = ESMF_StateCreate(name='import', _RC)
+
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetInternal(state, short_name='f', key='a', value=expected, _RC)
+      call MAPL_InfoGetInternal(state, short_name='f', key='a', value=r, _RC)
+
+      @assert_that(r, is(expected))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+
+   end subroutine test_set_stateitem_internal_r4
+
+   @test
+   subroutine test_set_stateitem_internal_r8()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      real(kind=ESMF_KIND_R8) :: r
+      real(kind=ESMF_KIND_R8), parameter :: expected = 1.0
+
+      state = ESMF_StateCreate(name='import', _RC)
+
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetInternal(state, short_name='f', key='a', value=expected, _RC)
+      call MAPL_InfoGetInternal(state, short_name='f', key='a', value=r, _RC)
+
+      @assert_that(r, is(expected))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+
+   end subroutine test_set_stateitem_internal_r8
+
+   @test
+   subroutine test_set_stateitem_internal_r4_1d()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      real(kind=ESMF_KIND_R4), allocatable :: r(:)
+      real(kind=ESMF_KIND_R4), parameter :: expected(2) = [1., 2.]
+
+      state = ESMF_StateCreate(name='import', _RC)
+
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetInternal(state, short_name='f', key='a', values=expected, _RC)
+      call MAPL_InfoGetInternal(state, short_name='f', key='a', values=r, _RC)
+
+      @assert_that(r, is(equal_to(expected)))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+
+   end subroutine test_set_stateitem_internal_r4_1d
+
+
+   @test
+   subroutine test_setInternal_bundle()
+      type(ESMF_State) :: state
+      type(ESMF_FieldBundle) :: bundle
+      integer :: status
+      real(ESMF_KIND_R4), allocatable :: w(:)
+      real(ESMF_KIND_R4), parameter :: expected(2) = [1., 2.]
+
+      state = ESMF_StateCreate(name='import', _RC)
+      bundle = ESMF_FieldBundleCreate(name='b', _RC)
+      call ESMF_StateAdd(state, [bundle], _RC)
+
+      call MAPL_InfoSetInternal(state, short_name='b', key='a', values=expected, _RC)
+      call MAPL_InfoGetInternal(state, short_name='b', key='a', values=w, _RC)
+
+      @assert_that(w, is(equal_to(expected)))
+
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+      call ESMF_StateDestroy(state, _RC)
+
+   end subroutine test_setInternal_bundle
+
+end module Test_InfoUtilities
+
+
