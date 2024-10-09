@@ -42,9 +42,9 @@ contains
       integer, intent(out) :: rc
 
       type(ESMF_Geom) :: geom
-      type(VirtualConnectionPt) :: ple_pt
+      type(VirtualConnectionPt) :: ple_pt, pl_pt
       type(VariableSpec) :: var_spec
-      class(StateItemSpec), allocatable :: ple_spec
+      class(StateItemSpec), allocatable :: ple_spec, pl_spec
       type(StateItemExtension), pointer :: extension
       class(StateItemSpec), pointer :: spec
       integer :: status
@@ -71,13 +71,33 @@ contains
       _VERIFY(status)
       call ple_spec%set_geometry(geom=geom, vertical_grid=vgrid, _RC)
 
+      pl_pt = VirtualConnectionPt(state_intent='export', short_name='PL')
+      var_spec = VariableSpec(&
+           short_name='PL', &
+           state_intent=ESMF_STATEINTENT_EXPORT, &
+           standard_name='air_pressure', &
+           units='hPa', &
+           vertical_dim_spec=VERTICAL_DIM_CENTER, &
+           default_value=12.)
+      allocate(pl_spec, source=make_itemSpec(var_spec, r, rc=status))
+      _VERIFY(status)
+      call pl_spec%set_geometry(geom=geom, vertical_grid=vgrid, _RC)
+
       call r%add_primary_spec(ple_pt, ple_spec)
+      call r%add_primary_spec(pl_pt, pl_spec)
 
       extension => r%get_primary_extension(ple_pt, _RC)
       spec => extension%get_spec()
       call spec%set_active()
       call spec%create(_RC)
       call spec%allocate(_RC)
+
+      extension => r%get_primary_extension(pl_pt, _RC)
+      spec => extension%get_spec()
+      call spec%set_active()
+      call spec%create(_RC)
+      call spec%allocate(_RC)
+
    end subroutine setup
 
    function make_geom(rc) result(geom)
@@ -214,8 +234,8 @@ contains
 
    @test
    ! Request the specific coordinate corresponding particular geom/unit.
-   ! Here we request different units which should return a coordinate
-   ! scaled by 100 (hPa = 100 Pa)
+   ! Here we request different vertical_dim_spec which should return
+   ! the coordinates of PL
    subroutine test_get_coordinate_field_change_vertical_dim_spec()
       type(ModelVerticalGrid) :: vgrid
       type(ESMF_Field) :: vcoord
@@ -232,22 +252,11 @@ contains
       call vgrid%get_coordinate_field( &
            vcoord, coupler, &
            standard_name='air_pressure', geom=geom, typekind=ESMF_TYPEKIND_R4, &
-           units='Pa', vertical_dim_spec=VERTICAL_DIM_CENTER, _RC)
-      @assert_that(associated(coupler), is(true()))
-      _HERE
+           units='hPa', vertical_dim_spec=VERTICAL_DIM_CENTER, _RC)
+      @assert_that(associated(coupler), is(false()))
 
-      ! call r%allocate(_RC)
-
-      ! call ESMF_FieldGet(vcoord, fArrayPtr=a, _RC)
-      ! ! usually update is called on imports, but here we don't have an import handy,
-      ! ! so we force updates on all export couplers in registry r.
-      ! couplers = r%get_export_couplers()
-      ! do i = 1, couplers%size()
-      !    driver = couplers%of(i)
-      !    call driver%ptr%initialize(_RC)
-      !    call driver%ptr%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
-      ! end do
-      ! @assert_that(a, every_item(is(equal_to(300.))))
+      call ESMF_FieldGet(vcoord, fArrayPtr=a, _RC)
+      @assert_that(a, every_item(is(equal_to(12.))))
    end subroutine test_get_coordinate_field_change_vertical_dim_spec
 
 end module Test_ModelVerticalGrid
