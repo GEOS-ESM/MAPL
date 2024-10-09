@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added MAPL_Reverse_Schmidt to reverse the stretched grid for indices computation
+
 ### Changed
+
+- Propagated the error message from MAPL_HorzIJIndex subroutine
 
 ### Fixed
 
@@ -18,6 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.49.1] - 2024-10-07
+
+### Fixed
+
+- Removed erroneous asserts that blocked some use cases in creating route handles
 
 ## [2.49.0] - 2024-10-04
 
