@@ -56,8 +56,13 @@ module MAPL_ExtDataPointerUpdate
 
       integer :: status,int_time,year,month,day,hour,minute,second,neg_index
       logical :: negative_offset
+      type(ESMF_TimeInterval) :: dt
+      integer :: multiplier
+      integer :: i
+      logical :: is_heartbeat
 
       this%last_checked = time
+      dt = ESMF_ClockGet(clock, timestep=dt, _RC)
       if (update_freq == "-") then
          this%single_shot = .true.
       else if (update_freq /= "PT0S") then
@@ -71,21 +76,47 @@ module MAPL_ExtDataPointerUpdate
          this%last_ring = this%reference_time
          this%update_freq = string_to_esmf_timeinterval(update_freq,_RC)
       end if
-      negative_offset = .false.
-      if (index(update_offset,"-") > 0) then
-         negative_offset = .true.
-         neg_index = index(update_offset,"-")
-      end if
-      if (negative_offset) then
-         this%offset=string_to_esmf_timeinterval(update_offset(neg_index+1:),_RC)
-         this%offset = -this%offset
+      i = index(update_offset,"-") + 1
+      negative_offset = i > 1
+      call heartbeat_string(update_offset(i:), is_heartbeat=is_heartbeat, multiplier)
+      if(is_heartbeat) then
+         this%offset = multiplier * dt
       else
-         this%offset=string_to_esmf_timeinterval(update_offset,_RC)
+         this%offset=string_to_esmf_timeinterval(update_offset(i:),_RC)
       end if
+      if(negative_offset) this%offset = -this%offset
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(clock)
 
    end subroutine create_from_parameters
+
+   subroutine heartbeat_string(timestring, is_heartbeat, multiplier)
+      character(len=*), intent(in) :: timestring
+      logical, intent(out) :: is_heartbeat
+      integer, intent(out) :: multiplier
+      character(len=*), parameter :: HEARTBEAT = 'HEARTBEAT'
+      character(len=:), allocatable :: uppercase
+      integer :: i
+
+      multiplier = 1
+      uppercase = to_upper(timestring)
+      i = index(uppercase, HEARTBEAT)
+      is_heartbeat = (i > 0)
+
+   end subroutine heartbeat_string
+
+   function convert_heartbeat(timestring, multiplier) result(tintv)
+      type(ESMF_TimeInterval) :: tintv
+      character(len=*), intent(in) :: timestring
+      integer, optional, intent(in) :: multiplier
+      integer :: multiplier_
+      type(ESMF_TimeInterval) :: heartbeat
+
+      multiplier_ = 1
+      if(present(multiplier)) multiplier_=multiplier
+      tintv = multiplier_ * heartbeat 
+
+   end function convert_heartbeat
 
    subroutine check_update(this,do_update,use_time,current_time,first_time,rc)
       class(ExtDataPointerUpdate), intent(inout) :: this
@@ -101,11 +132,11 @@ module MAPL_ExtDataPointerUpdate
          _RETURN(_SUCCESS)
       end if
       if (this%simple_alarm_created) then
-         use_time = current_time+this%offset
+         use_time = this%get_adjusted_time(current_time)
          if (first_time) then
             do_update = .true.
             this%first_time_updated = .true.
-            use_time = this%last_ring + this%offset
+            use_time = this%get_adjusted_time(last_ring)
          else
             ! normal flow
             next_ring = this%last_ring
@@ -126,7 +157,7 @@ module MAPL_ExtDataPointerUpdate
                   do while(next_ring >= current_time)
                      next_ring=next_ring-this%update_freq
                   enddo
-                  use_time = next_ring+this%offset
+                  use_time = this%get_adjusted_time(next_ring)
                   this%last_ring = next_ring
                   do_update = .true.
                ! alarm never rang during the previous advance, only update the previous update was the first time
@@ -134,20 +165,20 @@ module MAPL_ExtDataPointerUpdate
                     if (this%first_time_updated) then
                        do_update=.true.
                        this%first_time_updated = .false.
-                       use_time = this%last_ring + this%offset
+                       use_time = this%get_adjusted_time(last_ring)
                     end if
                ! otherwise we land on a time when the alarm would ring and we would update
                else if (this%last_ring == current_time) then
                   do_update =.true.
                   this%first_time_updated = .false.
-                  use_time = current_time+this%offset
+                  use_time = this%get_adjusted_time(current_time)
                end if
             end if
          end if
       else
          do_update = .true.
          if (this%single_shot) this%disabled = .true.
-         use_time = current_time+this%offset
+         use_time = this%get_adjusted_time(current_time)
       end if
       this%last_checked = current_time
 
