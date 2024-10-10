@@ -80,7 +80,7 @@ workflows:
             - build-and-test-MAPL-on-<< matrix.compiler >>-using-Unix Makefiles
           baselibs_version: *baselibs_version
 
-  build-and-run-GEOSgcm:
+  build-GEOSgcm:
     jobs:
       # Build GEOSgcm
       - ci/build:
@@ -99,6 +99,8 @@ workflows:
           checkout_mapl_branch: true
           persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
 
+  run-GEOSgcm:
+    jobs:
       # Run GCM (1 hour, no ExtData)
       - ci/run_gcm:
           name: run-GCM-on-<< matrix.compiler >>
@@ -113,6 +115,8 @@ workflows:
           baselibs_version: *baselibs_version
           bcs_version: *bcs_version
 
+  run-GEOSgcm-coupled:
+    jobs:
       # Run Coupled GCM (1 hour, no ExtData)
       - ci/run_gcm:
           name: run-coupled-GCM-on-<< matrix.compiler >>
