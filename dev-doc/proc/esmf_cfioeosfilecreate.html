@@ -1,0 +1,732 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>ESMF_CFIOEosFileCreate &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>ESMF_CFIOEosFileCreate
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">130 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ESMF_CFIOEosMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/esmf_cfioeosmod.f90.html'>ESMF_CFIOEosMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/esmf_cfioeosmod.html'>ESMF_CFIOEosMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">ESMF_CFIOEosFileCreate</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/esmf_cfioeosfilecreate.html#src">ESMF_CFIOEosFileCreate</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine ESMF_CFIOEosFileCreate(cfio, rc)  
+</h2>
+    
+
+    <p><code>ESMF_CFIOEosFileCreate</code> &ndash; Create a CFIO output file with meta data</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cfio~57"></span>
+              type(<a href='../type/esmf_cfio.html'>ESMF_CFIO</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>cfio</strong></td>
+            <td>
+                <p>a CFIO object</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~2174"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                <p>Error return code:
+0   all is well
+-1 Time increment is 0
+-2  allocate memory error
+-3  Num of int/char/real elements and Cnt don&rsquo;t match
+-12  error determining default precision
+-18 incorrect time increment
+-30 can&rsquo;t open file
+-31 error from NF90_DEF_DIM
+-32 error from NF90_DEF_VAR (dimension variable)
+-33 error from NF90_PUT_ATT (dimension attribute)
+-34 error from NF90_DEF_VAR (variable)
+-35  error from NF90_PUT_ATT (variable attribute)
+-36  error from NF90_PUT_ATT (global attribute)
+-37  error from NF90_ENDDEF
+-38  error from NF90_PUT_VAR (dimension variable)
+-39 Num of real var elements and Cnt differ
+-55  error from NF90_REDEF (enter define mode)
+-56  error from NF90_ENDDEF (exit define mode)</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~esmf_cfioeosfilecreate~~CallsGraph Pages: 1 -->
+<svg id="procesmf_cfioeosfilecreateCallsGraph" width="404pt" height="260pt"
+ viewBox="0.00 0.00 404.00 260.42" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~esmf_cfioeosfilecreate~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 256.42)">
+<title>proc~~esmf_cfioeosfilecreate~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-256.42 400,-256.42 400,4 -4,4"/>
+<!-- proc~esmf_cfioeosfilecreate -->
+<g id="proc~~esmf_cfioeosfilecreate~~CallsGraph_node1" class="node">
+<title>proc~esmf_cfioeosfilecreate</title>
+<polygon fill="none" stroke="black" points="143,-128.42 0,-128.42 0,-104.42 143,-104.42 143,-128.42"/>
+<text text-anchor="middle" x="71.5" y="-114.02" font-family="Helvetica,sans-Serif" font-size="10.50">ESMF_CFIOEosFileCreate</text>
+</g>
+<!-- eos_putcharatt -->
+<g id="proc~~esmf_cfioeosfilecreate~~CallsGraph_node2" class="node">
+<title>eos_putcharatt</title>
+<polygon fill="#777777" stroke="#777777" points="271,-252.42 179,-252.42 179,-228.42 271,-228.42 271,-252.42"/>
+<text text-anchor="middle" x="225" y="-238.02" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">eos_putcharatt</text>
+</g>
+<!-- proc~esmf_cfioeosfilecreate&#45;&gt;eos_putcharatt -->
+<g id="proc~~esmf_cfioeosfilecreate~~CallsGraph_edge1" class="edge">
+<title>proc~esmf_cfioeosfilecreate&#45;&gt;eos_putcharatt</title>
+<path fill="none" stroke="#ff0000" d="M82.62,-128.56C100.4,-149.31 139.16,-192.01 179,-219.42 180.9,-220.73 182.9,-221.99 184.96,-223.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="183.72,-226.52 194.18,-228.21 187.06,-220.37 183.72,-226.52"/>
+</g>
+<!-- eos_putintatt -->
+<g id="proc~~esmf_cfioeosfilecreate~~CallsGraph_node3" class="node">
+<title>eos_putintatt</title>
+<polygon fill="#777777" stroke="#777777" points="266,-210.42 184,-210.42 184,-186.42 266,-186.42 266,-210.42"/>
+<text text-anchor="middle" x="225" y="-196.02" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">eos_putintatt</text>
+</g>
+<!-- proc~esmf_cfioeosfilecreate&#45;&gt;eos_putintatt -->
+<g id="proc~~esmf_cfioeosfilecreate~~CallsGraph_edge2" class="edge">
+<title>proc~esmf_cfioeosfilecreate&#45;&gt;eos_putintatt</title>
+<path fill="none" stroke="#ff0000" d="M92.64,-128.62C113.85,-141.32 148.36,-161.53 179,-177.42 181.91,-178.92 184.94,-180.45 188.01,-181.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="186.64,-185.17 197.17,-186.34 189.67,-178.86 186.64,-185.17"/>
+</g>
+<!-- eos_putrealatt -->
+<g id="proc~~esmf_cfioeosfilecreate~~CallsGraph_node4" class="node">
+<title>eos_putrealatt</title>
+<polygon fill="#777777" stroke="#777777" points="269,-168.42 181,-168.42 181,-144.42 269,-144.42 269,-168.42"/>
+<text text-anchor="middle" x="225" y="-154.02" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">eos_putrealatt</text>
+</g>
+<!-- proc~esmf_cfioeosfilecreate&#45;&gt;eos_putrealatt -->
+<g id="proc~~esmf_cfioeosfilecreate~~CallsGraph_edge3" class="edge">
+<title>proc~esmf_cfioeosfilecreate&#45;&gt;eos_putrealatt</title>
+<path fill="none" stroke="#ff0000" d="M117.95,-128.42C134.64,-132.82 153.67,-137.85 170.96,-142.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="170.35,-145.87 180.91,-145.04 172.14,-139.1 170.35,-145.87"/>
+</g>
+<!-- proc~eos_create_ -->
+<g id="proc~~esmf_cfioeosfilecreate~~CallsGraph_node5" class="node">
+<title>proc~eos_create_</title>
+<g id="a_proc~~esmf_cfioeosfilecreate~~CallsGraph_node5"><a xlink:href="../proc/eos_create_.html" xlink:title="EOS_Create_">
+<polygon fill="#d9534f" stroke="#d9534f" points="265,-88.42 185,-88.42 185,-64.42 265,-64.42 265,-88.42"/>
+<text text-anchor="middle" x="225" y="-74.02" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">EOS_Create_</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfioeosfilecreate&#45;&gt;proc~eos_create_ -->
+<g id="proc~~esmf_cfioeosfilecreate~~CallsGraph_edge4" class="edge">
+<title>proc~esmf_cfioeosfilecreate&#45;&gt;proc~eos_create_</title>
+<path fill="none" stroke="#ff0000" d="M117.95,-104.42C135.97,-99.66 156.73,-94.18 175.07,-89.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="176.21,-92.65 184.98,-86.72 174.42,-85.89 176.21,-92.65"/>
+</g>
+<!-- proc~err -->
+<g id="proc~~esmf_cfioeosfilecreate~~CallsGraph_node6" class="node">
+<title>proc~err</title>
+<g id="a_proc~~esmf_cfioeosfilecreate~~CallsGraph_node6"><a xlink:href="../proc/err.html" xlink:title="err">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="378.5,-128.42 324.5,-128.42 324.5,-104.42 378.5,-104.42 378.5,-128.42"/>
+<text text-anchor="middle" x="351.5" y="-114.02" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">err</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfioeosfilecreate&#45;&gt;proc~err -->
+<g id="proc~~esmf_cfioeosfilecreate~~CallsGraph_edge5" class="edge">
+<title>proc~esmf_cfioeosfilecreate&#45;&gt;proc~err</title>
+<path fill="none" stroke="#ff0000" d="M143.01,-116.42C197.55,-116.42 270.84,-116.42 314.14,-116.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="314.21,-119.92 324.21,-116.42 314.21,-112.92 314.21,-119.92"/>
+</g>
+<!-- proc~getlist -->
+<g id="proc~~esmf_cfioeosfilecreate~~CallsGraph_node7" class="node">
+<title>proc~getlist</title>
+<g id="a_proc~~esmf_cfioeosfilecreate~~CallsGraph_node7"><a xlink:href="../proc/getlist.html" xlink:title="getList">
+<polygon fill="#d9534f" stroke="#d9534f" points="252,-46.42 198,-46.42 198,-22.42 252,-22.42 252,-46.42"/>
+<text text-anchor="middle" x="225" y="-32.02" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">getList</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfioeosfilecreate&#45;&gt;proc~getlist -->
+<g id="proc~~esmf_cfioeosfilecreate~~CallsGraph_edge6" class="edge">
+<title>proc~esmf_cfioeosfilecreate&#45;&gt;proc~getlist</title>
+<path fill="none" stroke="#ff0000" d="M92.64,-104.21C113.85,-91.51 148.36,-71.31 179,-55.42 182.08,-53.82 185.3,-52.21 188.54,-50.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="190.14,-53.74 197.65,-46.27 187.11,-47.43 190.14,-53.74"/>
+</g>
+<!-- proc~getmaxlencnt -->
+<g id="proc~~esmf_cfioeosfilecreate~~CallsGraph_node8" class="node">
+<title>proc~getmaxlencnt</title>
+<g id="a_proc~~esmf_cfioeosfilecreate~~CallsGraph_node8"><a xlink:href="../proc/getmaxlencnt.html" xlink:title="getMaxLenCnt">
+<polygon fill="#d9534f" stroke="#d9534f" points="396,-25.42 307,-25.42 307,-1.42 396,-1.42 396,-25.42"/>
+<text text-anchor="middle" x="351.5" y="-11.02" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">getMaxLenCnt</text>
+</a>
+</g>
+</g>
+<!-- proc~esmf_cfioeosfilecreate&#45;&gt;proc~getmaxlencnt -->
+<g id="proc~~esmf_cfioeosfilecreate~~CallsGraph_edge7" class="edge">
+<title>proc~esmf_cfioeosfilecreate&#45;&gt;proc~getmaxlencnt</title>
+<path fill="none" stroke="#ff0000" d="M80.31,-104.15C95.82,-81.12 132.98,-32.03 179,-13.42 216.31,1.67 262.02,0.83 296.87,-3.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="296.49,-6.81 306.86,-4.65 297.4,0.13 296.49,-6.81"/>
+</g>
+<!-- proc~eos_create_&#45;&gt;proc~err -->
+<g id="proc~~esmf_cfioeosfilecreate~~CallsGraph_edge8" class="edge">
+<title>proc~eos_create_&#45;&gt;proc~err</title>
+<path fill="none" stroke="#00ff91" d="M263.35,-88.42C279.61,-93.64 298.57,-99.73 314.65,-104.9"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="313.65,-108.25 324.24,-107.98 315.79,-101.59 313.65,-108.25"/>
+</g>
+<!-- proc~identifydim -->
+<g id="proc~~esmf_cfioeosfilecreate~~CallsGraph_node9" class="node">
+<title>proc~identifydim</title>
+<g id="a_proc~~esmf_cfioeosfilecreate~~CallsGraph_node9"><a xlink:href="../proc/identifydim.html" xlink:title="IdentifyDim">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="388.5,-86.42 314.5,-86.42 314.5,-62.42 388.5,-62.42 388.5,-86.42"/>
+<text text-anchor="middle" x="351.5" y="-72.02" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">IdentifyDim</text>
+</a>
+</g>
+</g>
+<!-- proc~eos_create_&#45;&gt;proc~identifydim -->
+<g id="proc~~esmf_cfioeosfilecreate~~CallsGraph_edge9" class="edge">
+<title>proc~eos_create_&#45;&gt;proc~identifydim</title>
+<path fill="none" stroke="#00ff91" d="M265.05,-75.79C277.43,-75.59 291.24,-75.37 304.08,-75.16"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="304.19,-78.66 314.13,-75 304.08,-71.66 304.19,-78.66"/>
+</g>
+<!-- proc~getlist&#45;&gt;proc~getmaxlencnt -->
+<g id="proc~~esmf_cfioeosfilecreate~~CallsGraph_edge10" class="edge">
+<title>proc~getlist&#45;&gt;proc~getmaxlencnt</title>
+<path fill="none" stroke="#4800ff" d="M252.1,-30.01C265.08,-27.82 281.28,-25.09 296.76,-22.48"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="297.51,-25.9 306.79,-20.79 296.35,-19 297.51,-25.9"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">      </span><span class="k">subroutine </span><span class="n">ESMF_CFIOEosFileCreate</span><span class="w"> </span><span class="p">(</span><span class="n">cfio</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="c">!</span>
+<span class="c">! !INPUT PARAMETERS:</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_CFIO</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cfio</span><span class="w">       </span><span class="c">!! a CFIO object</span>
+<span class="c">!</span>
+<span class="c">! !OUTPUT PARAMETERS:</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w">      </span><span class="c">!! Error return code:</span>
+<span class="w">                      </span><span class="c">!! 0   all is well</span>
+<span class="w">                      </span><span class="c">!! -1 Time increment is 0</span>
+<span class="w">                      </span><span class="c">!! -2  allocate memory error</span>
+<span class="w">                      </span><span class="c">!! -3  Num of int/char/real elements and Cnt don&#39;t match</span>
+<span class="w">                      </span><span class="c">!! -12  error determining default precision</span>
+<span class="w">                      </span><span class="c">!! -18 incorrect time increment</span>
+<span class="w">                      </span><span class="c">!! -30 can&#39;t open file</span>
+<span class="w">                      </span><span class="c">!! -31 error from NF90_DEF_DIM</span>
+<span class="w">                      </span><span class="c">!! -32 error from NF90_DEF_VAR (dimension variable)</span>
+<span class="w">                      </span><span class="c">!! -33 error from NF90_PUT_ATT (dimension attribute)</span>
+<span class="w">                      </span><span class="c">!! -34 error from NF90_DEF_VAR (variable)</span>
+<span class="w">                      </span><span class="c">!! -35  error from NF90_PUT_ATT (variable attribute)</span>
+<span class="w">                      </span><span class="c">!! -36  error from NF90_PUT_ATT (global attribute)</span>
+<span class="w">                      </span><span class="c">!! -37  error from NF90_ENDDEF</span>
+<span class="w">                      </span><span class="c">!! -38  error from NF90_PUT_VAR (dimension variable)</span>
+<span class="w">                      </span><span class="c">!! -39 Num of real var elements and Cnt differ</span>
+<span class="w">                      </span><span class="c">!! -55  error from NF90_REDEF (enter define mode)</span>
+<span class="w">                      </span><span class="c">!! -56  error from NF90_ENDDEF (exit define mode)</span>
+<span class="c">!</span>
+<span class="c">!------------------------------------------------------------------------------</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">maxLen</span><span class="p">,</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">       </span><span class="kt">character</span><span class="w"> </span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MVARLEN</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vname</span><span class="p">(:),</span><span class="w"> </span><span class="n">vtitle</span><span class="p">(:),</span><span class="w"> </span><span class="n">vunits</span><span class="p">(:)</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">kmvar</span><span class="p">(:)</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">valid_range</span><span class="p">(:,:),</span><span class="w"> </span><span class="n">packing_range</span><span class="p">(:,:)</span>
+
+<span class="w">       </span><span class="k">allocate</span><span class="p">(</span><span class="n">vname</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">mVars</span><span class="p">),</span><span class="w"> </span><span class="n">vtitle</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">mVars</span><span class="p">),</span><span class="w"> </span><span class="n">vunits</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">mVars</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="n">kmvar</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">mVars</span><span class="p">),</span><span class="w"> </span><span class="n">valid_range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">cfio</span><span class="p">%</span><span class="n">mVars</span><span class="p">),</span><span class="w"> </span><span class="n">packing_range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">cfio</span><span class="p">%</span><span class="n">mVars</span><span class="p">))</span>
+
+<span class="w">       </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">mVars</span>
+<span class="w">          </span><span class="n">vname</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">vName</span><span class="p">)</span>
+<span class="w">          </span><span class="n">vtitle</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">vTitle</span><span class="p">)</span>
+<span class="w">          </span><span class="n">vunits</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">vUnits</span><span class="p">)</span>
+<span class="w">          </span><span class="n">kmvar</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">grids</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">km</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">twoDimVar</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">kmvar</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">          </span><span class="n">valid_range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">validRange</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">          </span><span class="n">valid_range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">validRange</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">          </span><span class="n">packing_range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">packingRange</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">          </span><span class="n">packing_range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="n">packingRange</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">       </span><span class="k">enddo</span>
+
+<span class="k">       call </span><span class="n">EOS_Create_</span><span class="w"> </span><span class="p">(</span><span class="n">cfio</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">fName</span><span class="p">),</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">title</span><span class="p">),</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">source</span><span class="p">),</span><span class="w">   </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">contact</span><span class="p">),</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">varObjs</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">amiss</span><span class="p">,</span><span class="w">                         </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">cfio</span><span class="p">%</span><span class="n">grids</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">im</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">grids</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">jm</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">grids</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">km</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">grids</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">lon</span><span class="p">,</span><span class="w">  </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">cfio</span><span class="p">%</span><span class="n">grids</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">lat</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">grids</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">lev</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">grids</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">levUnits</span><span class="p">),</span><span class="w">       </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">cfio</span><span class="p">%</span><span class="n">date</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">begTime</span><span class="p">,</span><span class="w">  </span><span class="n">cfio</span><span class="p">%</span><span class="n">timeInc</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">mVars</span><span class="p">,</span><span class="w"> </span><span class="n">vname</span><span class="p">,</span><span class="w"> </span><span class="n">vtitle</span><span class="p">,</span><span class="w">        </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">vunits</span><span class="p">,</span><span class="w"> </span><span class="n">kmvar</span><span class="p">,</span><span class="w"> </span><span class="n">valid_range</span><span class="p">,</span><span class="w"> </span><span class="n">packing_range</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">prec</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">rtcode</span><span class="w"> </span><span class="p">)</span>
+
+<span class="c">!      put global attributes</span>
+<span class="w">       </span><span class="k">call </span><span class="n">EOS_PutCharAtt</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">fid</span><span class="p">,</span><span class="s1">&#39;Conventions&#39;</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">convention</span><span class="p">))&amp;</span>
+<span class="w">                             </span><span class="p">,</span><span class="n">cfio</span><span class="p">%</span><span class="n">convention</span><span class="p">,</span><span class="w"> </span><span class="n">rtcode</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;can&#39;t write Conventions&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="n">rtcode</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">          </span><span class="k">return</span>
+<span class="k">       end if</span>
+
+<span class="k">       call </span><span class="n">EOS_PutCharAtt</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;title&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">title</span><span class="p">)),</span><span class="w">        </span><span class="p">&amp;</span>
+<span class="w">                             </span><span class="n">cfio</span><span class="p">%</span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="n">rtcode</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;can&#39;t write title&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="n">rtcode</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">          </span><span class="k">return</span>
+<span class="k">       end if</span>
+
+<span class="k">       call </span><span class="n">EOS_PutCharAtt</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;history&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">history</span><span class="p">)),</span><span class="w">    </span><span class="p">&amp;</span>
+<span class="w">                             </span><span class="n">cfio</span><span class="p">%</span><span class="n">history</span><span class="p">,</span><span class="w"> </span><span class="n">rtcode</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;can&#39;t write history&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="n">rtcode</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">          </span><span class="k">return</span>
+<span class="k">       end if</span>
+
+<span class="k">       call </span><span class="n">EOS_PutCharAtt</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">fid</span><span class="p">,</span><span class="s1">&#39;institution&#39;</span><span class="p">,</span><span class="w">                          </span><span class="p">&amp;</span>
+<span class="w">                            </span><span class="nb">len</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">institution</span><span class="p">)),</span><span class="w">                     </span><span class="p">&amp;</span>
+<span class="w">                            </span><span class="n">cfio</span><span class="p">%</span><span class="n">institution</span><span class="p">,</span><span class="w"> </span><span class="n">rtcode</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;can&#39;t write institution&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="n">rtcode</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">          </span><span class="k">return</span>
+<span class="k">       end if</span>
+
+<span class="k">       call </span><span class="n">EOS_PutCharAtt</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;source&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">source</span><span class="p">)),</span><span class="w">      </span><span class="p">&amp;</span>
+<span class="w">                             </span><span class="n">cfio</span><span class="p">%</span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">rtcode</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;can&#39;t write source&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="n">rtcode</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">          </span><span class="k">return</span>
+<span class="k">       end if</span>
+
+<span class="k">       call </span><span class="n">EOS_PutCharAtt</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">fid</span><span class="p">,</span><span class="s1">&#39;references&#39;</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">references</span><span class="p">)),&amp;</span>
+<span class="w">                             </span><span class="n">cfio</span><span class="p">%</span><span class="n">references</span><span class="p">,</span><span class="w"> </span><span class="n">rtcode</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;can&#39;t write references&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="n">rtcode</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">          </span><span class="k">return</span>
+<span class="k">       end if</span>
+
+<span class="k">       call </span><span class="n">EOS_PutCharAtt</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">fid</span><span class="p">,</span><span class="s1">&#39;comment&#39;</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">comment</span><span class="p">)),</span><span class="w">      </span><span class="p">&amp;</span>
+<span class="w">                             </span><span class="n">cfio</span><span class="p">%</span><span class="n">comment</span><span class="p">,</span><span class="w"> </span><span class="n">rtcode</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;can&#39;t write comment&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="n">rtcode</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">          </span><span class="k">return</span>
+<span class="k">       end if</span>
+
+<span class="k">       call </span><span class="n">EOS_PutCharAtt</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;contact&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">contact</span><span class="p">)),</span><span class="w">    </span><span class="p">&amp;</span>
+<span class="w">                             </span><span class="n">cfio</span><span class="p">%</span><span class="n">contact</span><span class="p">,</span><span class="w"> </span><span class="n">rtcode</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;can&#39;t write contact&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="n">rtcode</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">          </span><span class="k">return</span>
+<span class="k">       end if</span>
+
+<span class="c">!      get integer attributes from iList</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">associated</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">iList</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          call </span><span class="n">getMaxLenCnt</span><span class="p">(</span><span class="n">maxLen</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttInt</span><span class="p">,</span><span class="w"> </span><span class="n">iList</span><span class="o">=</span><span class="n">cfio</span><span class="p">%</span><span class="n">iList</span><span class="p">)</span>
+<span class="w">          </span><span class="k">allocate</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">attIntNames</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttInt</span><span class="p">),</span><span class="w">                           </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="n">cfio</span><span class="p">%</span><span class="n">attIntCnts</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttInt</span><span class="p">),</span><span class="w">                            </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="n">cfio</span><span class="p">%</span><span class="n">attInts</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttInt</span><span class="p">,</span><span class="n">maxLen</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;can&#39;t allocate mem: attIntCnts&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="k">          end if</span>
+
+<span class="k">          call </span><span class="n">getList</span><span class="p">(</span><span class="n">iList</span><span class="o">=</span><span class="n">cfio</span><span class="p">%</span><span class="n">iList</span><span class="p">,</span><span class="w"> </span><span class="n">intAttNames</span><span class="o">=</span><span class="n">cfio</span><span class="p">%</span><span class="n">attIntNames</span><span class="p">,</span><span class="w">       </span><span class="p">&amp;</span>
+<span class="w">                       </span><span class="n">intAttCnts</span><span class="o">=</span><span class="n">cfio</span><span class="p">%</span><span class="n">attIntCnts</span><span class="p">,</span><span class="w"> </span><span class="n">intAtts</span><span class="o">=</span><span class="n">cfio</span><span class="p">%</span><span class="n">attInts</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if</span>
+
+<span class="c">!      write user defined integer attributes</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttInt</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttInt</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">attIntCnts</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">attInts</span><span class="p">(</span><span class="n">i</span><span class="p">,:))</span><span class="w"> </span><span class="p">)</span><span class="w">  </span><span class="k">then</span>
+<span class="k">                </span><span class="n">rtcode</span><span class="o">=</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;EosFileCreate: Num of int elements and Cnt differ&quot;</span><span class="w">  </span><span class="p">&amp;</span>
+<span class="w">                            </span><span class="p">,</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">                </span><span class="k">return</span>
+<span class="k">             end if</span>
+
+<span class="k">             call </span><span class="n">EOS_PutIntAtt</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">attIntNames</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w">              </span><span class="p">&amp;</span>
+<span class="w">                                 </span><span class="n">cfio</span><span class="p">%</span><span class="n">attIntCnts</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">attInts</span><span class="p">(</span><span class="n">i</span><span class="p">,:),</span><span class="w">      </span><span class="p">&amp;</span>
+<span class="w">                                 </span><span class="n">cfio</span><span class="p">%</span><span class="n">prec</span><span class="p">,</span><span class="w"> </span><span class="n">rtcode</span><span class="w"> </span><span class="p">)</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;error in EOS_PutIntAtt&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="n">rtcode</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">                </span><span class="k">return</span>
+<span class="k">             end if</span>
+
+<span class="k">          end do</span>
+<span class="k">       end if</span>
+
+<span class="c">!      get real attributes from rList</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">associated</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">rList</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          call </span><span class="n">getMaxLenCnt</span><span class="p">(</span><span class="n">maxLen</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttReal</span><span class="p">,</span><span class="w"> </span><span class="n">rList</span><span class="o">=</span><span class="n">cfio</span><span class="p">%</span><span class="n">rList</span><span class="p">)</span>
+<span class="w">          </span><span class="k">allocate</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">attRealNames</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttReal</span><span class="p">),</span><span class="w">                       </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="n">cfio</span><span class="p">%</span><span class="n">attRealCnts</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttReal</span><span class="p">),</span><span class="w">                        </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="n">cfio</span><span class="p">%</span><span class="n">attReals</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttReal</span><span class="p">,</span><span class="n">maxLen</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;can&#39;t allocate mem: attRealNames&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="k">          end if</span>
+
+<span class="k">          call </span><span class="n">getList</span><span class="p">(</span><span class="n">rList</span><span class="o">=</span><span class="n">cfio</span><span class="p">%</span><span class="n">rList</span><span class="p">,</span><span class="w"> </span><span class="n">realAttNames</span><span class="o">=</span><span class="n">cfio</span><span class="p">%</span><span class="n">attRealNames</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span>
+<span class="w">                       </span><span class="n">realAttCnts</span><span class="o">=</span><span class="n">cfio</span><span class="p">%</span><span class="n">attRealCnts</span><span class="p">,</span><span class="w"> </span><span class="n">realAtts</span><span class="o">=</span><span class="n">cfio</span><span class="p">%</span><span class="n">attReals</span><span class="w"> </span><span class="p">)</span>
+<span class="w">          </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttReal</span>
+<span class="w">          </span><span class="k">end do</span>
+<span class="k">       end if</span>
+
+<span class="c">!      write user defined real attributes</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttReal</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttReal</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">attRealCnts</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">attReals</span><span class="p">(</span><span class="n">i</span><span class="p">,:))</span><span class="w"> </span><span class="p">)</span><span class="w">  </span><span class="k">then</span>
+<span class="k">                </span><span class="n">rtcode</span><span class="o">=</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;EosFileCreate: Num of real elements and Cnt differ&quot;</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                            </span><span class="p">,</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">                </span><span class="k">return</span>
+<span class="k">             end if</span>
+<span class="k">             call </span><span class="n">EOS_PutRealAtt</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">attRealNames</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w">            </span><span class="p">&amp;</span>
+<span class="w">                                 </span><span class="n">cfio</span><span class="p">%</span><span class="n">attRealCnts</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w">                        </span><span class="p">&amp;</span>
+<span class="w">                                 </span><span class="n">cfio</span><span class="p">%</span><span class="n">attReals</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="n">cfio</span><span class="p">%</span><span class="n">attRealCnts</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span><span class="w">     </span><span class="p">&amp;</span>
+<span class="w">                                 </span><span class="n">cfio</span><span class="p">%</span><span class="n">prec</span><span class="p">,</span><span class="w"> </span><span class="n">rtcode</span><span class="w"> </span><span class="p">)</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;error in EOS_PutRealAtt&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="n">rtcode</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">                </span><span class="k">return</span>
+<span class="k">             end if</span>
+<span class="k">          end do</span>
+<span class="k">       end if</span>
+
+<span class="c">!      get char attributes from cList</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">associated</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">cList</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          call </span><span class="n">getMaxLenCnt</span><span class="p">(</span><span class="n">maxLen</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttChar</span><span class="p">,</span><span class="w"> </span><span class="n">cList</span><span class="o">=</span><span class="n">cfio</span><span class="p">%</span><span class="n">cList</span><span class="p">)</span>
+<span class="w">          </span><span class="k">allocate</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">attCharNames</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttChar</span><span class="p">),</span><span class="w">                      </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="n">cfio</span><span class="p">%</span><span class="n">attCharCnts</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttChar</span><span class="p">),</span><span class="w">                       </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="n">cfio</span><span class="p">%</span><span class="n">attChars</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttChar</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">rtcode</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;can&#39;t allocate mem: attCharNames&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">             </span><span class="k">return</span>
+<span class="k">          end if</span>
+<span class="k">          call </span><span class="n">getList</span><span class="p">(</span><span class="n">cList</span><span class="o">=</span><span class="n">cfio</span><span class="p">%</span><span class="n">cList</span><span class="p">,</span><span class="w"> </span><span class="n">charAttNames</span><span class="o">=</span><span class="n">cfio</span><span class="p">%</span><span class="n">attCharNames</span><span class="p">,</span><span class="w">  </span><span class="p">&amp;</span>
+<span class="w">                       </span><span class="n">charAttCnts</span><span class="o">=</span><span class="n">cfio</span><span class="p">%</span><span class="n">attCharCnts</span><span class="p">,</span><span class="w"> </span><span class="n">charAtts</span><span class="o">=</span><span class="n">cfio</span><span class="p">%</span><span class="n">attChars</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if</span>
+
+<span class="c">!      write user defined char attributes</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttChar</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">nAttChar</span>
+<span class="w">             </span><span class="k">call </span><span class="n">EOS_PutCharAtt</span><span class="p">(</span><span class="n">cfio</span><span class="p">%</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">attCharNames</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w">       </span><span class="p">&amp;</span>
+<span class="w">                                 </span><span class="n">cfio</span><span class="p">%</span><span class="n">attCharCnts</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">cfio</span><span class="p">%</span><span class="n">attChars</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                                 </span><span class="n">rtcode</span><span class="w"> </span><span class="p">)</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">(</span><span class="s2">&quot;error in EOS_PutCharAtt&quot;</span><span class="p">,</span><span class="n">rtcode</span><span class="p">,</span><span class="n">rtcode</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+<span class="w">                </span><span class="k">return</span>
+<span class="k">             end if</span>
+<span class="k">          end do</span>
+<span class="k">       end if</span>
+
+<span class="k">       </span><span class="n">cfio</span><span class="p">%</span><span class="n">isOpen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+
+<span class="w">       </span><span class="n">rtcode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rtcode</span>
+
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">ESMF_CFIOEosFileCreate</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-10T17:19:28.791982             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

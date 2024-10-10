@@ -1,0 +1,1450 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_FieldRead &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_FieldRead
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">208 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/BinIO.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/binio.f90.html'>BinIO.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/biniomod.html'>BinIOMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_FieldRead</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_fieldread.html#src">MAPL_FieldRead</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine MAPL_FieldRead(UNIT, field, ARRDES, HomePE, ignoreEOF, RC)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unit~28"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>UNIT</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-field~22"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>field</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-arrdes~20"></span>
+              type(<a href='../type/arrdescr.html'>ArrDescr</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ARRDES</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-homepe"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>HomePE</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ignoreeof~3"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ignoreEOF</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~174"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_fieldread~~CallsGraph Pages: 1 -->
+<svg id="procmapl_fieldreadCallsGraph" width="295pt" height="662pt"
+ viewBox="0.00 0.00 295.00 662.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_fieldread~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 658)">
+<title>proc~~mapl_fieldread~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-658 291,-658 291,4 -4,4"/>
+<!-- proc~mapl_fieldread -->
+<g id="proc~~mapl_fieldread~~CallsGraph_node1" class="node">
+<title>proc~mapl_fieldread</title>
+<polygon fill="none" stroke="black" points="98,-339 0,-339 0,-315 98,-315 98,-339"/>
+<text text-anchor="middle" x="49" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_FieldRead</text>
+</g>
+<!-- ESMF_AttributeGet -->
+<g id="proc~~mapl_fieldread~~CallsGraph_node2" class="node">
+<title>ESMF_AttributeGet</title>
+<g id="a_proc~~mapl_fieldread~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_attributeget.html" xlink:title="ESMF_AttributeGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="266,-654 155,-654 155,-630 266,-630 266,-654"/>
+<text text-anchor="middle" x="210.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_AttributeGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_fieldread&#45;&gt;ESMF_AttributeGet -->
+<g id="proc~~mapl_fieldread~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_fieldread&#45;&gt;ESMF_AttributeGet</title>
+<path fill="none" stroke="#ff0000" d="M49.58,-339.12C48.71,-383.6 51.88,-539.46 134,-621 137.44,-624.42 141.38,-627.29 145.63,-629.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="144.15,-632.87 154.68,-634.04 147.18,-626.56 144.15,-632.87"/>
+</g>
+<!-- ESMF_DistGridGet -->
+<g id="proc~~mapl_fieldread~~CallsGraph_node3" class="node">
+<title>ESMF_DistGridGet</title>
+<g id="a_proc~~mapl_fieldread~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_distgridget.html" xlink:title="ESMF_DistGridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="264.5,-612 156.5,-612 156.5,-588 264.5,-588 264.5,-612"/>
+<text text-anchor="middle" x="210.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DistGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_fieldread&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~mapl_fieldread~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_fieldread&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#ff0000" d="M50.24,-339.06C51.74,-379.37 62.14,-510.68 134,-579 137.85,-582.66 142.27,-585.69 147.01,-588.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="145.89,-591.53 156.45,-592.41 148.74,-585.13 145.89,-591.53"/>
+</g>
+<!-- ESMF_GridGet -->
+<g id="proc~~mapl_fieldread~~CallsGraph_node4" class="node">
+<title>ESMF_GridGet</title>
+<g id="a_proc~~mapl_fieldread~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridget.html" xlink:title="ESMF_GridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="254.5,-570 166.5,-570 166.5,-546 254.5,-546 254.5,-570"/>
+<text text-anchor="middle" x="210.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_fieldread&#45;&gt;ESMF_GridGet -->
+<g id="proc~~mapl_fieldread~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_fieldread&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#ff0000" d="M51.16,-339.06C55.25,-374.9 72.3,-481.7 134,-537 140.41,-542.74 148.26,-546.93 156.45,-549.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="155.56,-553.37 166.15,-553.06 157.68,-546.7 155.56,-553.37"/>
+</g>
+<!-- esmf_arrayget -->
+<g id="proc~~mapl_fieldread~~CallsGraph_node5" class="node">
+<title>esmf_arrayget</title>
+<polygon fill="#777777" stroke="#777777" points="255.5,-528 165.5,-528 165.5,-504 255.5,-504 255.5,-528"/>
+<text text-anchor="middle" x="210.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_arrayget</text>
+</g>
+<!-- proc~mapl_fieldread&#45;&gt;esmf_arrayget -->
+<g id="proc~~mapl_fieldread~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_fieldread&#45;&gt;esmf_arrayget</title>
+<path fill="none" stroke="#ff0000" d="M52.53,-339.28C59.58,-370.33 82.41,-452.49 134,-495 140.34,-500.23 147.9,-504.16 155.74,-507.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="154.8,-510.48 165.39,-510.25 156.96,-503.83 154.8,-510.48"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~mapl_fieldread~~CallsGraph_node6" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="253,-486 168,-486 168,-462 253,-462 253,-486"/>
+<text text-anchor="middle" x="210.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~mapl_fieldread&#45;&gt;esmf_fieldget -->
+<g id="proc~~mapl_fieldread~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_fieldread&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ff0000" d="M54.65,-339.15C64.93,-364.38 92.06,-422.61 134,-453 141.2,-458.22 149.65,-462.14 158.24,-465.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="157.36,-468.48 167.94,-468.02 159.38,-461.78 157.36,-468.48"/>
+</g>
+<!-- interface~mapl_am_i_root -->
+<g id="proc~~mapl_fieldread~~CallsGraph_node7" class="node">
+<title>interface~mapl_am_i_root</title>
+<g id="a_proc~~mapl_fieldread~~CallsGraph_node7"><a xlink:href="../interface/mapl_am_i_root.html" xlink:title="MAPL_Am_I_Root">
+<polygon fill="#a7506f" stroke="#a7506f" points="261.5,-444 159.5,-444 159.5,-420 261.5,-420 261.5,-444"/>
+<text text-anchor="middle" x="210.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_fieldread&#45;&gt;interface~mapl_am_i_root -->
+<g id="proc~~mapl_fieldread~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_fieldread&#45;&gt;interface~mapl_am_i_root</title>
+<path fill="none" stroke="#ff0000" d="M58.87,-339.26C72.8,-357.6 101.58,-392.08 134,-411 138.85,-413.83 144.09,-416.29 149.48,-418.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="148.69,-421.87 159.28,-421.95 151.05,-415.28 148.69,-421.87"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_fieldread~~CallsGraph_node8" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_fieldread~~CallsGraph_node8"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="250,-402 171,-402 171,-378 250,-378 250,-402"/>
+<text text-anchor="middle" x="210.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_fieldread&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_fieldread~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_fieldread&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M71.24,-339.05C87.92,-348.16 111.94,-360.51 134,-369 142.58,-372.3 151.89,-375.32 160.94,-377.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="160.05,-381.37 170.63,-380.72 161.96,-374.63 160.05,-381.37"/>
+</g>
+<!-- interface~mapl_commsbcast -->
+<g id="proc~~mapl_fieldread~~CallsGraph_node9" class="node">
+<title>interface~mapl_commsbcast</title>
+<g id="a_proc~~mapl_fieldread~~CallsGraph_node9"><a xlink:href="../interface/mapl_commsbcast.html" xlink:title="MAPL_CommsBcast">
+<polygon fill="#a7506f" stroke="#a7506f" points="268.5,-360 152.5,-360 152.5,-336 268.5,-336 268.5,-360"/>
+<text text-anchor="middle" x="210.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsBcast</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_fieldread&#45;&gt;interface~mapl_commsbcast -->
+<g id="proc~~mapl_fieldread~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_fieldread&#45;&gt;interface~mapl_commsbcast</title>
+<path fill="none" stroke="#ff0000" d="M98.29,-333.36C112.14,-335.18 127.51,-337.21 142.29,-339.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="142.03,-342.65 152.4,-340.48 142.94,-335.71 142.03,-342.65"/>
+</g>
+<!-- interface~mapl_deallocnodearray~2 -->
+<g id="proc~~mapl_fieldread~~CallsGraph_node10" class="node">
+<title>interface~mapl_deallocnodearray~2</title>
+<g id="a_proc~~mapl_fieldread~~CallsGraph_node10"><a xlink:href="../interface/mapl_deallocnodearray~2.html" xlink:title="MAPL_DeAllocNodeArray">
+<polygon fill="#a7506f" stroke="#a7506f" points="283,-318 138,-318 138,-294 283,-294 283,-318"/>
+<text text-anchor="middle" x="210.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DeAllocNodeArray</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_fieldread&#45;&gt;interface~mapl_deallocnodearray~2 -->
+<g id="proc~~mapl_fieldread~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_fieldread&#45;&gt;interface~mapl_deallocnodearray~2</title>
+<path fill="none" stroke="#ff0000" d="M98.29,-320.64C107.64,-319.41 117.68,-318.09 127.76,-316.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="128.38,-320.21 137.83,-315.44 127.46,-313.27 128.38,-320.21"/>
+</g>
+<!-- interface~mapl_syncsharedmemory -->
+<g id="proc~~mapl_fieldread~~CallsGraph_node11" class="node">
+<title>interface~mapl_syncsharedmemory</title>
+<g id="a_proc~~mapl_fieldread~~CallsGraph_node11"><a xlink:href="../interface/mapl_syncsharedmemory.html" xlink:title="MAPL_SyncSharedMemory">
+<polygon fill="#a7506f" stroke="#a7506f" points="287,-276 134,-276 134,-252 287,-252 287,-276"/>
+<text text-anchor="middle" x="210.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SyncSharedMemory</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_fieldread&#45;&gt;interface~mapl_syncsharedmemory -->
+<g id="proc~~mapl_fieldread~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_fieldread&#45;&gt;interface~mapl_syncsharedmemory</title>
+<path fill="none" stroke="#ff0000" d="M71.24,-314.95C87.92,-305.84 111.94,-293.49 134,-285 139.45,-282.9 145.19,-280.92 150.98,-279.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="152.18,-282.36 160.72,-276.08 150.13,-275.67 152.18,-282.36"/>
+</g>
+<!-- interface~mapl_varread -->
+<g id="proc~~mapl_fieldread~~CallsGraph_node12" class="node">
+<title>interface~mapl_varread</title>
+<g id="a_proc~~mapl_fieldread~~CallsGraph_node12"><a xlink:href="../interface/mapl_varread.html" xlink:title="MAPL_VarRead">
+<polygon fill="#a7506f" stroke="#a7506f" points="256,-234 165,-234 165,-210 256,-210 256,-234"/>
+<text text-anchor="middle" x="210.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarRead</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_fieldread&#45;&gt;interface~mapl_varread -->
+<g id="proc~~mapl_fieldread~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_fieldread&#45;&gt;interface~mapl_varread</title>
+<path fill="none" stroke="#ff0000" d="M58.87,-314.74C72.8,-296.4 101.58,-261.92 134,-243 140.46,-239.23 147.63,-236.11 154.91,-233.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="156.39,-236.73 164.84,-230.35 154.25,-230.07 156.39,-236.73"/>
+</g>
+<!-- interface~read_parallel -->
+<g id="proc~~mapl_fieldread~~CallsGraph_node13" class="node">
+<title>interface~read_parallel</title>
+<g id="a_proc~~mapl_fieldread~~CallsGraph_node13"><a xlink:href="../interface/read_parallel.html" xlink:title="READ_PARALLEL">
+<polygon fill="#a7506f" stroke="#a7506f" points="260.5,-192 160.5,-192 160.5,-168 260.5,-168 260.5,-192"/>
+<text text-anchor="middle" x="210.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">READ_PARALLEL</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_fieldread&#45;&gt;interface~read_parallel -->
+<g id="proc~~mapl_fieldread~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_fieldread&#45;&gt;interface~read_parallel</title>
+<path fill="none" stroke="#ff0000" d="M54.65,-314.85C64.93,-289.62 92.06,-231.39 134,-201 139.13,-197.28 144.9,-194.22 150.9,-191.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="152.29,-194.92 160.46,-188.17 149.86,-188.35 152.29,-194.92"/>
+</g>
+<!-- proc~mapl_backspace -->
+<g id="proc~~mapl_fieldread~~CallsGraph_node14" class="node">
+<title>proc~mapl_backspace</title>
+<g id="a_proc~~mapl_fieldread~~CallsGraph_node14"><a xlink:href="../proc/mapl_backspace.html" xlink:title="MAPL_Backspace">
+<polygon fill="#d9534f" stroke="#d9534f" points="262.5,-150 158.5,-150 158.5,-126 262.5,-126 262.5,-150"/>
+<text text-anchor="middle" x="210.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Backspace</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_fieldread&#45;&gt;proc~mapl_backspace -->
+<g id="proc~~mapl_fieldread~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_fieldread&#45;&gt;proc~mapl_backspace</title>
+<path fill="none" stroke="#ff0000" d="M52.53,-314.72C59.58,-283.67 82.41,-201.51 134,-159 138.51,-155.29 143.62,-152.23 149.02,-149.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="150.35,-152.95 158.31,-145.96 147.73,-146.46 150.35,-152.95"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_fieldread~~CallsGraph_node15" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_fieldread~~CallsGraph_node15"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="251.5,-108 169.5,-108 169.5,-84 251.5,-84 251.5,-108"/>
+<text text-anchor="middle" x="210.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_fieldread&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_fieldread~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_fieldread&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M51.16,-314.94C55.25,-279.1 72.3,-172.3 134,-117 141.22,-110.53 150.27,-106.03 159.57,-102.92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="160.63,-106.25 169.29,-100.14 158.71,-99.52 160.63,-106.25"/>
+</g>
+<!-- proc~mapl_tilemaskget -->
+<g id="proc~~mapl_fieldread~~CallsGraph_node16" class="node">
+<title>proc~mapl_tilemaskget</title>
+<g id="a_proc~~mapl_fieldread~~CallsGraph_node16"><a xlink:href="../proc/mapl_tilemaskget.html" xlink:title="MAPL_TileMaskGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="266,-66 155,-66 155,-42 266,-42 266,-66"/>
+<text text-anchor="middle" x="210.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TileMaskGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_fieldread&#45;&gt;proc~mapl_tilemaskget -->
+<g id="proc~~mapl_fieldread~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_fieldread&#45;&gt;proc~mapl_tilemaskget</title>
+<path fill="none" stroke="#ff0000" d="M50.24,-314.94C51.74,-274.63 62.14,-143.32 134,-75 137.51,-71.66 141.51,-68.84 145.79,-66.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="147.34,-69.61 154.9,-62.19 144.36,-63.27 147.34,-69.61"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_fieldread~~CallsGraph_node17" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_fieldread~~CallsGraph_node17"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="248.5,-24 172.5,-24 172.5,0 248.5,0 248.5,-24"/>
+<text text-anchor="middle" x="210.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_fieldread&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_fieldread~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_fieldread&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M49.58,-314.88C48.71,-270.4 51.88,-114.54 134,-33 141.68,-25.37 151.88,-20.46 162.29,-17.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="163.42,-20.63 172.26,-14.79 161.71,-13.84 163.42,-20.63"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_fieldread~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_fieldreadCalledByGraph" width="641pt" height="275pt"
+ viewBox="0.00 0.00 641.00 275.24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_fieldread~~CalledByGraph" class="graph" transform="scale(0.61 0.61) rotate(0) translate(4 446)">
+<title>proc~~mapl_fieldread~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-446 1044,-446 1044,4 -4,4"/>
+<!-- proc~mapl_fieldread -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node1" class="node">
+<title>proc~mapl_fieldread</title>
+<polygon fill="none" stroke="black" points="563,-284 465,-284 465,-260 563,-260 563,-284"/>
+<text text-anchor="middle" x="514" y="-269.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_FieldRead</text>
+</g>
+<!-- interface~mapl_varread -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node2" class="node">
+<title>interface~mapl_varread</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node2"><a xlink:href="../interface/mapl_varread.html" xlink:title="MAPL_VarRead">
+<polygon fill="#a7506f" stroke="#a7506f" points="728,-169 637,-169 637,-145 728,-145 728,-169"/>
+<text text-anchor="middle" x="682.5" y="-154.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarRead</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_fieldread&#45;&gt;interface~mapl_varread -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge6" class="edge">
+<title>proc~mapl_fieldread&#45;&gt;interface~mapl_varread</title>
+<path fill="none" stroke="#ff0000" d="M536.76,-259.94C554.94,-253.39 581.04,-244.97 601,-232 624.43,-216.77 646.05,-193.47 660.97,-176.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="663.73,-178.84 667.74,-169.04 658.49,-174.21 663.73,-178.84"/>
+</g>
+<!-- interface~mapl_varread&#45;&gt;proc~mapl_fieldread -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge3" class="edge">
+<title>interface~mapl_varread&#45;&gt;proc~mapl_fieldread</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M676.32,-169.15C664.65,-189.49 634.7,-228.1 601,-250 592.42,-255.58 582.7,-260.31 572.96,-264.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="571.48,-260.95 563.26,-267.64 573.86,-267.53 571.48,-260.95"/>
+</g>
+<!-- proc~mapl_bundleread -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node3" class="node">
+<title>proc~mapl_bundleread</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node3"><a xlink:href="../proc/mapl_bundleread.html" xlink:title="MAPL_BundleRead">
+<polygon fill="#d9534f" stroke="#d9534f" points="1040,-314 929,-314 929,-290 1040,-290 1040,-314"/>
+<text text-anchor="middle" x="984.5" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_BundleRead</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varread&#45;&gt;proc~mapl_bundleread -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge16" class="edge">
+<title>interface~mapl_varread&#45;&gt;proc~mapl_bundleread</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M702.77,-169.06C718.72,-178.67 742.23,-191.97 764,-201 819.2,-223.91 839.11,-213.15 893,-239 918.07,-251.03 943.82,-269.68 961.41,-283.58"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="959.37,-286.43 969.35,-289.97 963.76,-280.97 959.37,-286.43"/>
+</g>
+<!-- proc~mapl_statevarread -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node4" class="node">
+<title>proc~mapl_statevarread</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node4"><a xlink:href="../proc/mapl_statevarread.html" xlink:title="MAPL_StateVarRead">
+<polygon fill="#d9534f" stroke="#d9534f" points="887.5,-314 769.5,-314 769.5,-290 887.5,-290 887.5,-314"/>
+<text text-anchor="middle" x="828.5" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StateVarRead</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varread&#45;&gt;proc~mapl_statevarread -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge17" class="edge">
+<title>interface~mapl_varread&#45;&gt;proc~mapl_statevarread</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M688.13,-169.18C698.14,-193.91 724.17,-250.27 764,-281 766.01,-282.55 768.14,-283.99 770.36,-285.33"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="768.77,-288.44 779.25,-289.98 772.01,-282.24 768.77,-288.44"/>
+</g>
+<!-- proc~mapl_varread_r4_2d -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node8" class="node">
+<title>proc~mapl_varread_r4_2d</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node8"><a xlink:href="../proc/mapl_varread_r4_2d.html" xlink:title="MAPL_VarRead_R4_2d">
+<polygon fill="#d9534f" stroke="#d9534f" points="893,-192 764,-192 764,-168 893,-168 893,-192"/>
+<text text-anchor="middle" x="828.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarRead_R4_2d</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varread&#45;&gt;proc~mapl_varread_r4_2d -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge23" class="edge">
+<title>interface~mapl_varread&#45;&gt;proc~mapl_varread_r4_2d</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M728.27,-157.85C744.55,-159.89 762.99,-162.8 779.53,-165.93"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="779.06,-169.41 789.55,-167.91 780.41,-162.54 779.06,-169.41"/>
+</g>
+<!-- proc~mapl_varread_r4_3d -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node9" class="node">
+<title>proc~mapl_varread_r4_3d</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node9"><a xlink:href="../proc/mapl_varread_r4_3d.html" xlink:title="MAPL_VarRead_R4_3d">
+<polygon fill="#d9534f" stroke="#d9534f" points="893,-150 764,-150 764,-126 893,-126 893,-150"/>
+<text text-anchor="middle" x="828.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarRead_R4_3d</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varread&#45;&gt;proc~mapl_varread_r4_3d -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge24" class="edge">
+<title>interface~mapl_varread&#45;&gt;proc~mapl_varread_r4_3d</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M727.1,-144.99C735.61,-143.56 744.75,-142.19 753.92,-140.96"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="754.39,-144.43 763.86,-139.69 753.5,-137.49 754.39,-144.43"/>
+</g>
+<!-- proc~mapl_varread_r4_4d -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node10" class="node">
+<title>proc~mapl_varread_r4_4d</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node10"><a xlink:href="../proc/mapl_varread_r4_4d.html" xlink:title="MAPL_VarRead_R4_4d">
+<polygon fill="#d9534f" stroke="#d9534f" points="893,-108 764,-108 764,-84 893,-84 893,-108"/>
+<text text-anchor="middle" x="828.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarRead_R4_4d</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varread&#45;&gt;proc~mapl_varread_r4_4d -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge25" class="edge">
+<title>interface~mapl_varread&#45;&gt;proc~mapl_varread_r4_4d</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M694.47,-144.9C707.85,-135.01 731.51,-122.21 754.34,-112.12"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="755.88,-115.27 763.7,-108.12 753.13,-108.84 755.88,-115.27"/>
+</g>
+<!-- proc~mapl_varread_r8_2d -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node11" class="node">
+<title>proc~mapl_varread_r8_2d</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node11"><a xlink:href="../proc/mapl_varread_r8_2d.html" xlink:title="MAPL_VarRead_R8_2d">
+<polygon fill="#d9534f" stroke="#d9534f" points="893,-66 764,-66 764,-42 893,-42 893,-66"/>
+<text text-anchor="middle" x="828.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarRead_R8_2d</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varread&#45;&gt;proc~mapl_varread_r8_2d -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge26" class="edge">
+<title>interface~mapl_varread&#45;&gt;proc~mapl_varread_r8_2d</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M688.68,-144.96C699.31,-126.69 725.09,-93.63 755.05,-72.02"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="757.27,-74.74 763.61,-66.25 753.36,-68.94 757.27,-74.74"/>
+</g>
+<!-- proc~mapl_varread_r8_3d -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node12" class="node">
+<title>proc~mapl_varread_r8_3d</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node12"><a xlink:href="../proc/mapl_varread_r8_3d.html" xlink:title="MAPL_VarRead_R8_3d">
+<polygon fill="#d9534f" stroke="#d9534f" points="893,-24 764,-24 764,0 893,0 893,-24"/>
+<text text-anchor="middle" x="828.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarRead_R8_3d</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varread&#45;&gt;proc~mapl_varread_r8_3d -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge27" class="edge">
+<title>interface~mapl_varread&#45;&gt;proc~mapl_varread_r8_3d</title>
+<path fill="none" stroke="#3200ff" stroke-dasharray="5,2" d="M686.47,-144.82C694.44,-119.86 718.28,-64.6 755.82,-30.83"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="758.09,-33.49 763.51,-24.38 753.59,-28.13 758.09,-33.49"/>
+</g>
+<!-- proc~mapl_varread_r8_4d -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node13" class="node">
+<title>proc~mapl_varread_r8_4d</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node13"><a xlink:href="../proc/mapl_varread_r8_4d.html" xlink:title="MAPL_VarRead_R8_4d">
+<polygon fill="#d9534f" stroke="#d9534f" points="893,-272 764,-272 764,-248 893,-248 893,-272"/>
+<text text-anchor="middle" x="828.5" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VarRead_R8_4d</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_varread&#45;&gt;proc~mapl_varread_r8_4d -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge28" class="edge">
+<title>interface~mapl_varread&#45;&gt;proc~mapl_varread_r8_4d</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M699.76,-169.17C714.96,-184.21 739.02,-208.78 764,-225 775.55,-232.5 789.62,-238.53 801.58,-243.72"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="800.46,-247.05 811.03,-247.89 803.29,-240.65 800.46,-247.05"/>
+</g>
+<!-- proc~mapl_bundleread&#45;&gt;proc~mapl_fieldread -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge1" class="edge">
+<title>proc~mapl_bundleread&#45;&gt;proc~mapl_fieldread</title>
+<path fill="none" stroke="#ff0000" d="M940.58,-314.07C925.65,-317.7 908.7,-321.2 893,-323 775.19,-336.49 637.23,-306.15 564.96,-286.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="565.78,-283.3 555.21,-284.03 563.94,-290.05 565.78,-283.3"/>
+</g>
+<!-- proc~mapl_statevarread&#45;&gt;proc~mapl_fieldread -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_statevarread&#45;&gt;proc~mapl_fieldread</title>
+<path fill="none" stroke="#ff0000" d="M769.46,-296.43C713.51,-291.06 629.29,-282.97 573.26,-277.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="573.43,-274.09 563.14,-276.62 572.76,-281.06 573.43,-274.09"/>
+</g>
+<!-- proc~mapl_statevarread&#45;&gt;proc~mapl_bundleread -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge15" class="edge">
+<title>proc~mapl_statevarread&#45;&gt;proc~mapl_bundleread</title>
+<path fill="none" stroke="#00ff00" d="M887.72,-302C897.81,-302 908.37,-302 918.62,-302"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="918.75,-305.5 928.75,-302 918.75,-298.5 918.75,-305.5"/>
+</g>
+<!-- proc~mapl_climupdate -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node5" class="node">
+<title>proc~mapl_climupdate</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node5"><a xlink:href="../proc/mapl_climupdate.html" xlink:title="MAPL_ClimUpdate">
+<polygon fill="#d9534f" stroke="#d9534f" points="568.5,-232 459.5,-232 459.5,-208 568.5,-208 568.5,-232"/>
+<text text-anchor="middle" x="514" y="-217.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ClimUpdate</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_climupdate&#45;&gt;interface~mapl_varread -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge4" class="edge">
+<title>proc~mapl_climupdate&#45;&gt;interface~mapl_varread</title>
+<path fill="none" stroke="#ff0000" d="M568.83,-208.98C579.63,-206.17 590.79,-202.85 601,-199 618.84,-192.28 637.78,-182.54 652.81,-174.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="654.66,-177.1 661.61,-169.11 651.19,-171.02 654.66,-177.1"/>
+</g>
+<!-- proc~mapl_esmfstatereadfromfile -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node6" class="node">
+<title>proc~mapl_esmfstatereadfromfile</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node6"><a xlink:href="../proc/mapl_esmfstatereadfromfile.html" xlink:title="MAPL_ESMFStateReadFromFile">
+<polygon fill="#d9534f" stroke="#d9534f" points="601,-190 427,-190 427,-166 601,-166 601,-190"/>
+<text text-anchor="middle" x="514" y="-175.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMFStateReadFromFile</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_esmfstatereadfromfile&#45;&gt;interface~mapl_varread -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge5" class="edge">
+<title>proc~mapl_esmfstatereadfromfile&#45;&gt;interface~mapl_varread</title>
+<path fill="none" stroke="#ff0000" d="M601.18,-167.13C609.88,-166.03 618.54,-164.94 626.78,-163.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="627.47,-167.34 636.96,-162.62 626.6,-160.4 627.47,-167.34"/>
+</g>
+<!-- proc~mapl_readforcingx -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node7" class="node">
+<title>proc~mapl_readforcingx</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node7"><a xlink:href="../proc/mapl_readforcingx.html" xlink:title="MAPL_ReadForcingX">
+<polygon fill="#d9534f" stroke="#d9534f" points="574,-148 454,-148 454,-124 574,-124 574,-148"/>
+<text text-anchor="middle" x="514" y="-133.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ReadForcingX</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_readforcingx&#45;&gt;interface~mapl_varread -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge7" class="edge">
+<title>proc~mapl_readforcingx&#45;&gt;interface~mapl_varread</title>
+<path fill="none" stroke="#ff0000" d="M574.17,-143.46C591.28,-145.62 609.87,-147.97 626.7,-150.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="626.56,-153.6 636.92,-151.38 627.43,-146.65 626.56,-153.6"/>
+</g>
+<!-- proc~mapl_varread_r4_2d&#45;&gt;interface~mapl_varread -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge8" class="edge">
+<title>proc~mapl_varread_r4_2d&#45;&gt;interface~mapl_varread</title>
+<path fill="none" stroke="#ff0000" d="M763.75,-176.53C752.89,-174.9 741.77,-173.02 731.41,-171.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="731.82,-167.57 721.33,-169.07 730.47,-174.44 731.82,-167.57"/>
+</g>
+<!-- proc~mapl_varread_r4_3d&#45;&gt;interface~mapl_varread -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge9" class="edge">
+<title>proc~mapl_varread_r4_3d&#45;&gt;interface~mapl_varread</title>
+<path fill="none" stroke="#ff0000" d="M783.74,-150.04C769.47,-152.44 753.44,-154.66 738.45,-156.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="737.85,-152.87 728.27,-157.39 738.58,-159.83 737.85,-152.87"/>
+</g>
+<!-- proc~mapl_varread_r4_4d&#45;&gt;interface~mapl_varread -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge10" class="edge">
+<title>proc~mapl_varread_r4_4d&#45;&gt;interface~mapl_varread</title>
+<path fill="none" stroke="#ff0000" d="M811.09,-108.06C798.13,-113.63 779.68,-119.55 764,-126 753.28,-130.41 742.01,-135.62 731.41,-140.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="729.86,-137.45 722.29,-144.86 732.83,-143.79 729.86,-137.45"/>
+</g>
+<!-- proc~mapl_varread_r8_2d&#45;&gt;interface~mapl_varread -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge11" class="edge">
+<title>proc~mapl_varread_r8_2d&#45;&gt;interface~mapl_varread</title>
+<path fill="none" stroke="#ff0000" d="M806.4,-66.07C793.49,-70.57 777.01,-75.9 764,-84 740.72,-98.5 719.22,-121.08 704.31,-137.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="701.65,-135.21 697.54,-144.98 706.84,-139.9 701.65,-135.21"/>
+</g>
+<!-- proc~mapl_varread_r8_3d&#45;&gt;interface~mapl_varread -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge12" class="edge">
+<title>proc~mapl_varread_r8_3d&#45;&gt;interface~mapl_varread</title>
+<path fill="none" stroke="#ff0000" d="M803.05,-24.05C790.41,-28.09 775.31,-33.28 764,-42 731.21,-67.3 707.77,-109.98 694.92,-135.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="691.77,-134.3 690.52,-144.83 698.06,-137.38 691.77,-134.3"/>
+</g>
+<!-- proc~mapl_varread_r8_4d&#45;&gt;interface~mapl_varread -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge13" class="edge">
+<title>proc~mapl_varread_r8_4d&#45;&gt;interface~mapl_varread</title>
+<path fill="none" stroke="#ff0000" d="M772.12,-247.83C769.32,-246.3 766.6,-244.69 764,-243 736.43,-225.1 709.98,-197.03 695.32,-177.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="698.09,-175.4 689.45,-169.27 692.38,-179.45 698.09,-175.4"/>
+</g>
+<!-- proc~readrestart -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node14" class="node">
+<title>proc~readrestart</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node14"><a xlink:href="../proc/readrestart.html" xlink:title="ReadRestart">
+<polygon fill="#d9534f" stroke="#d9534f" points="552.5,-106 475.5,-106 475.5,-82 552.5,-82 552.5,-106"/>
+<text text-anchor="middle" x="514" y="-91.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ReadRestart</text>
+</a>
+</g>
+</g>
+<!-- proc~readrestart&#45;&gt;interface~mapl_varread -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge14" class="edge">
+<title>proc~readrestart&#45;&gt;interface~mapl_varread</title>
+<path fill="none" stroke="#ff0000" d="M552.85,-101.17C568.06,-104.58 585.61,-109.2 601,-115 618.84,-121.72 637.78,-131.46 652.81,-139.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="651.19,-142.98 661.61,-144.89 654.66,-136.9 651.19,-142.98"/>
+</g>
+<!-- proc~mapl_genericinitialize -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node15" class="node">
+<title>proc~mapl_genericinitialize</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node15"><a xlink:href="../proc/mapl_genericinitialize.html" xlink:title="MAPL_GenericInitialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="379.5,-337 246.5,-337 246.5,-313 379.5,-313 379.5,-337"/>
+<text text-anchor="middle" x="313" y="-322.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericInitialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericinitialize&#45;&gt;proc~mapl_esmfstatereadfromfile -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge18" class="edge">
+<title>proc~mapl_genericinitialize&#45;&gt;proc~mapl_esmfstatereadfromfile</title>
+<path fill="none" stroke="#ff9900" d="M331.01,-312.97C347.61,-300.67 372.94,-280.39 391,-259 411.06,-235.24 401.96,-217.45 427,-199 429.11,-197.44 431.32,-196 433.61,-194.67"/>
+<polygon fill="#ff9900" stroke="#ff9900" points="435.44,-197.66 442.78,-190.02 432.28,-191.42 435.44,-197.66"/>
+</g>
+<!-- proc~mapl_genericstaterestore -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node16" class="node">
+<title>proc~mapl_genericstaterestore</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node16"><a xlink:href="../proc/mapl_genericstaterestore.html" xlink:title="MAPL_GenericStateRestore">
+<polygon fill="#d9534f" stroke="#d9534f" points="391,-232 235,-232 235,-208 391,-208 391,-232"/>
+<text text-anchor="middle" x="313" y="-217.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericStateRestore</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericstaterestore&#45;&gt;proc~mapl_esmfstatereadfromfile -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge19" class="edge">
+<title>proc~mapl_genericstaterestore&#45;&gt;proc~mapl_esmfstatereadfromfile</title>
+<path fill="none" stroke="#ff9900" d="M371.03,-207.96C394.44,-203.02 421.73,-197.26 446.08,-192.12"/>
+<polygon fill="#ff9900" stroke="#ff9900" points="446.9,-195.53 455.97,-190.04 445.46,-188.68 446.9,-195.53"/>
+</g>
+<!-- proc~mapl_genericstaterestore&#45;&gt;proc~mapl_genericstaterestore -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge34" class="edge">
+<title>proc~mapl_genericstaterestore&#45;&gt;proc~mapl_genericstaterestore</title>
+<path fill="none" stroke="#cbff00" d="M279.93,-232.01C268.38,-240.97 279.41,-250 313,-250 334,-250 346.18,-246.47 349.54,-241.64"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="352.75,-240.24 346.07,-232.01 346.17,-242.61 352.75,-240.24"/>
+</g>
+<!-- proc~mapl_readforcing1 -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node17" class="node">
+<title>proc~mapl_readforcing1</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node17"><a xlink:href="../proc/mapl_readforcing1.html" xlink:title="MAPL_ReadForcing1">
+<polygon fill="#d9534f" stroke="#d9534f" points="372.5,-106 253.5,-106 253.5,-82 372.5,-82 372.5,-106"/>
+<text text-anchor="middle" x="313" y="-91.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ReadForcing1</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_readforcing1&#45;&gt;proc~mapl_readforcingx -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge21" class="edge">
+<title>proc~mapl_readforcing1&#45;&gt;proc~mapl_readforcingx</title>
+<path fill="none" stroke="#cbff00" d="M371.03,-106.04C394.44,-110.98 421.73,-116.74 446.08,-121.88"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="445.46,-125.32 455.97,-123.96 446.9,-118.47 445.46,-125.32"/>
+</g>
+<!-- proc~mapl_readforcing2 -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node18" class="node">
+<title>proc~mapl_readforcing2</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node18"><a xlink:href="../proc/mapl_readforcing2.html" xlink:title="MAPL_ReadForcing2">
+<polygon fill="#d9534f" stroke="#d9534f" points="372.5,-148 253.5,-148 253.5,-124 372.5,-124 372.5,-148"/>
+<text text-anchor="middle" x="313" y="-133.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ReadForcing2</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_readforcing2&#45;&gt;proc~mapl_readforcingx -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge22" class="edge">
+<title>proc~mapl_readforcing2&#45;&gt;proc~mapl_readforcingx</title>
+<path fill="none" stroke="#cbff00" d="M372.63,-136C394.9,-136 420.48,-136 443.65,-136"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="443.76,-139.5 453.76,-136 443.76,-132.5 443.76,-139.5"/>
+</g>
+<!-- proc~mapl_staterefresh -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node19" class="node">
+<title>proc~mapl_staterefresh</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node19"><a xlink:href="../proc/mapl_staterefresh.html" xlink:title="MAPL_StateRefresh">
+<polygon fill="#d9534f" stroke="#d9534f" points="370,-190 256,-190 256,-166 370,-166 370,-190"/>
+<text text-anchor="middle" x="313" y="-175.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StateRefresh</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_staterefresh&#45;&gt;proc~mapl_esmfstatereadfromfile -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge20" class="edge">
+<title>proc~mapl_staterefresh&#45;&gt;proc~mapl_esmfstatereadfromfile</title>
+<path fill="none" stroke="#ff9900" d="M370.23,-178C384.65,-178 400.58,-178 416.42,-178"/>
+<polygon fill="#ff9900" stroke="#ff9900" points="416.79,-181.5 426.79,-178 416.79,-174.5 416.79,-181.5"/>
+</g>
+<!-- interface~mapl_readforcing -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node20" class="node">
+<title>interface~mapl_readforcing</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node20"><a xlink:href="../interface/mapl_readforcing.html" xlink:title="MAPL_ReadForcing">
+<polygon fill="#a7506f" stroke="#a7506f" points="155.5,-127 43.5,-127 43.5,-103 155.5,-103 155.5,-127"/>
+<text text-anchor="middle" x="99.5" y="-112.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ReadForcing</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_readforcing&#45;&gt;proc~mapl_readforcing1 -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge36" class="edge">
+<title>interface~mapl_readforcing&#45;&gt;proc~mapl_readforcing1</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M155.52,-109.54C182.22,-106.89 214.59,-103.67 242.94,-100.86"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="243.58,-104.31 253.18,-99.84 242.89,-97.35 243.58,-104.31"/>
+</g>
+<!-- interface~mapl_readforcing&#45;&gt;proc~mapl_readforcing2 -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge37" class="edge">
+<title>interface~mapl_readforcing&#45;&gt;proc~mapl_readforcing2</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M155.52,-120.46C182.22,-123.11 214.59,-126.33 242.94,-129.14"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="242.89,-132.65 253.18,-130.16 243.58,-125.69 242.89,-132.65"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node21" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node21"><a xlink:href="../proc/initialize.html" xlink:title="Initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="128,-442 71,-442 71,-418 128,-418 128,-442"/>
+<text text-anchor="middle" x="99.5" y="-427.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge29" class="edge">
+<title>proc~initialize&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#ff0000" d="M128.24,-427.3C148.54,-424.57 176.38,-419.23 199,-409 235.14,-392.66 270.87,-363.28 292.18,-343.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="294.64,-346.45 299.62,-337.1 289.9,-341.31 294.64,-346.45"/>
+</g>
+<!-- proc~initialize_ -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node22" class="node">
+<title>proc~initialize_</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node22"><a xlink:href="../proc/initialize_.html" xlink:title="Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="130.5,-400 68.5,-400 68.5,-376 130.5,-376 130.5,-400"/>
+<text text-anchor="middle" x="99.5" y="-385.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge30" class="edge">
+<title>proc~initialize_&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#ff0000" d="M130.52,-382.78C150.18,-379.07 176.33,-373.59 199,-367 224.27,-359.65 251.98,-349.39 273.63,-340.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="275.13,-344.02 283.13,-337.06 272.54,-337.52 275.13,-344.02"/>
+</g>
+<!-- proc~initialize_~2 -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node23" class="node">
+<title>proc~initialize_~2</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node23"><a xlink:href="../proc/initialize_~2.html" xlink:title="Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="130.5,-358 68.5,-358 68.5,-334 130.5,-334 130.5,-358"/>
+<text text-anchor="middle" x="99.5" y="-343.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_~2&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge31" class="edge">
+<title>proc~initialize_~2&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#ff0000" d="M130.8,-342.99C158.26,-340.26 199.88,-336.13 236.31,-332.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="236.83,-335.98 246.43,-331.51 236.13,-329.02 236.83,-335.98"/>
+</g>
+<!-- proc~initialize_~3 -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node24" class="node">
+<title>proc~initialize_~3</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node24"><a xlink:href="../proc/initialize_~3.html" xlink:title="Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="130.5,-316 68.5,-316 68.5,-292 130.5,-292 130.5,-316"/>
+<text text-anchor="middle" x="99.5" y="-301.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_~3&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge32" class="edge">
+<title>proc~initialize_~3&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#ff0000" d="M130.8,-307.01C158.26,-309.74 199.88,-313.87 236.31,-317.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="236.13,-320.98 246.43,-318.49 236.83,-314.02 236.13,-320.98"/>
+</g>
+<!-- proc~initialize_~5 -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node25" class="node">
+<title>proc~initialize_~5</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node25"><a xlink:href="../proc/initialize_~5.html" xlink:title="Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="130.5,-274 68.5,-274 68.5,-250 130.5,-250 130.5,-274"/>
+<text text-anchor="middle" x="99.5" y="-259.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_~5&#45;&gt;proc~mapl_genericinitialize -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge33" class="edge">
+<title>proc~initialize_~5&#45;&gt;proc~mapl_genericinitialize</title>
+<path fill="none" stroke="#ff0000" d="M130.52,-267.22C150.18,-270.93 176.33,-276.41 199,-283 224.27,-290.35 251.98,-300.61 273.63,-309.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="272.54,-312.48 283.13,-312.94 275.13,-305.98 272.54,-312.48"/>
+</g>
+<!-- proc~mapl_genericrefresh -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node26" class="node">
+<title>proc~mapl_genericrefresh</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node26"><a xlink:href="../proc/mapl_genericrefresh.html" xlink:title="MAPL_GenericRefresh">
+<polygon fill="#d9534f" stroke="#d9534f" points="163.5,-190 35.5,-190 35.5,-166 163.5,-166 163.5,-190"/>
+<text text-anchor="middle" x="99.5" y="-175.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GenericRefresh</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericrefresh&#45;&gt;proc~mapl_staterefresh -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge38" class="edge">
+<title>proc~mapl_genericrefresh&#45;&gt;proc~mapl_staterefresh</title>
+<path fill="none" stroke="#cc00ff" d="M163.67,-178C189.57,-178 219.56,-178 245.76,-178"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="245.98,-181.5 255.98,-178 245.98,-174.5 245.98,-181.5"/>
+</g>
+<!-- proc~refresh_state -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_node27" class="node">
+<title>proc~refresh_state</title>
+<g id="a_proc~~mapl_fieldread~~CalledByGraph_node27"><a xlink:href="../proc/refresh_state.html" xlink:title="MAPL_CapGridComp%refresh_state">
+<polygon fill="#d9534f" stroke="#d9534f" points="199,-232 0,-232 0,-208 199,-208 199,-232"/>
+<text text-anchor="middle" x="99.5" y="-217.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridComp%refresh_state</text>
+</a>
+</g>
+</g>
+<!-- proc~refresh_state&#45;&gt;proc~mapl_genericstaterestore -->
+<g id="proc~~mapl_fieldread~~CalledByGraph_edge35" class="edge">
+<title>proc~refresh_state&#45;&gt;proc~mapl_genericstaterestore</title>
+<path fill="none" stroke="#cbff00" d="M199.13,-220C207.63,-220 216.19,-220 224.59,-220"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="224.74,-223.5 234.74,-220 224.74,-216.5 224.74,-223.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_fieldreadCalledByGraph = svgPanZoom('#procmapl_fieldreadCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_FieldRead</span><span class="p">(</span><span class="n">UNIT</span><span class="p">,</span><span class="n">FIELD</span><span class="p">,</span><span class="w"> </span><span class="n">ARRDES</span><span class="p">,</span><span class="w"> </span><span class="n">HomePE</span><span class="p">,</span><span class="w"> </span><span class="n">ignoreEOF</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="p">)</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                     </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">UNIT</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w">           </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ArrDescr</span><span class="p">),</span><span class="w">     </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ARRDES</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w">   </span><span class="k">optional</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">HomePE</span><span class="p">(:)</span>
+<span class="w">    </span><span class="kt">logical</span><span class="p">,</span><span class="w">           </span><span class="k">optional</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ignoreEOF</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w">           </span><span class="k">optional</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
+
+<span class="c">! Local vars</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Array</span><span class="p">)</span><span class="w">                  </span><span class="kd">::</span><span class="w"> </span><span class="k">array</span>
+<span class="k">    type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_DELayout</span><span class="p">)</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">layout</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">GRID</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                            </span><span class="kd">::</span><span class="w"> </span><span class="n">rank</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                            </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="nb">KIND</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">var_1d</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="nb">KIND</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:,:)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">var_2d</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="nb">KIND</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:,:,:)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">var_3d</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="nb">KIND</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:,:,:,:)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">var_4d</span>
+
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="nb">KIND</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">vr8_1d</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="nb">KIND</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:,:)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">vr8_2d</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="nb">KIND</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:,:,:)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">vr8_3d</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="nb">KIND</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:,:,:,:)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">vr8_4d</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TypeKind_Flag</span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">tk</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">FORMATTED</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                            </span><span class="kd">::</span><span class="w"> </span><span class="n">dims</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                            </span><span class="kd">::</span><span class="w"> </span><span class="n">J</span><span class="p">,</span><span class="w"> </span><span class="n">K</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">mask</span><span class="p">(:)</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_DistGrid</span><span class="p">)</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">distGrid</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                            </span><span class="kd">::</span><span class="w"> </span><span class="nb">stat</span>
+<span class="nb">    </span><span class="kt">logical</span><span class="w">                            </span><span class="kd">::</span><span class="w"> </span><span class="n">ignoreEOF_</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">unit</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">arrdes</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">FORMATTED</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;NO&quot;</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="k">       inquire</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="n">UNIT</span><span class="p">,</span><span class="w"> </span><span class="n">formatted</span><span class="o">=</span><span class="n">FORMATTED</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">ignoreEOF</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">ignoreEOF_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ignoreEOF</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="k">       </span><span class="n">ignoreEOF_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_GridGet</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">distGrid</span><span class="o">=</span><span class="n">distGrid</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_DistGridGet</span><span class="p">(</span><span class="n">distGrid</span><span class="p">,</span><span class="w"> </span><span class="n">delayout</span><span class="o">=</span><span class="n">layout</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ignoreEOF_</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">unit</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="w">       </span><span class="c">! test for end-of-file by</span>
+<span class="w">       </span><span class="c">! making a blank read followed by backspace</span>
+
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_am_i_root</span><span class="p">(</span><span class="n">layout</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          read</span><span class="w"> </span><span class="p">(</span><span class="n">UNIT</span><span class="p">,</span><span class="w"> </span><span class="n">IOSTAT</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       call </span><span class="n">MAPL_CommsBcast</span><span class="p">(</span><span class="n">layout</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">ROOT</span><span class="o">=</span><span class="n">MAPL_Root</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="nb">stat</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="nb">STAT</span><span class="p">)</span>
+
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">status</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">IOSTAT_END</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_Backspace</span><span class="p">(</span><span class="n">UNIT</span><span class="p">,</span><span class="w"> </span><span class="n">layout</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;DIMS&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">DIMS</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">DIMS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_DimsTileOnly</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">DIMS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_DimsTileTile</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">HomePE</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">mask</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">HomePE</span>
+<span class="w">       </span><span class="k">else</span>
+<span class="k">          call </span><span class="n">MAPL_TileMaskGet</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">endif</span>
+<span class="k">    end if</span>
+
+<span class="k">    call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="k">Array</span><span class="o">=</span><span class="k">array</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_ArrayGet</span><span class="p">(</span><span class="k">array</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="o">=</span><span class="n">tk</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="o">=</span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="n">tk</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          call </span><span class="n">ESMF_ArrayGet</span><span class="p">(</span><span class="k">array</span><span class="p">,</span><span class="w"> </span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">var_1d</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">var_1d</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="n">DIMS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_DimsTileOnly</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">DIMS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_DimsTileTile</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                call </span><span class="n">MAPL_VarRead</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">var_1d</span><span class="p">,</span><span class="w"> </span><span class="n">arrdes</span><span class="o">=</span><span class="n">arrdes</span><span class="p">,</span><span class="w"> </span><span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">             </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">DIMS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_DimsVertOnly</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">DIMS</span><span class="o">==</span><span class="n">MAPL_DimsNone</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                call </span><span class="n">READ_PARALLEL</span><span class="p">(</span><span class="n">layout</span><span class="p">,</span><span class="w"> </span><span class="n">var_1d</span><span class="p">,</span><span class="w"> </span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">arrdes</span><span class="o">=</span><span class="n">arrdes</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">             </span><span class="k">else</span>
+<span class="k">                </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_FAILURE</span><span class="p">)</span>
+<span class="w">             </span><span class="k">endif</span>
+<span class="k">          end if</span>
+<span class="k">       else</span>
+<span class="k">          call </span><span class="n">ESMF_ArrayGet</span><span class="p">(</span><span class="k">array</span><span class="p">,</span><span class="w"> </span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">vr8_1d</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">vr8_1d</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="n">DIMS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_DimsTileOnly</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">DIMS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_DimsTileTile</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                call </span><span class="n">MAPL_VarRead</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">vr8_1d</span><span class="p">,</span><span class="w"> </span><span class="n">arrdes</span><span class="o">=</span><span class="n">arrdes</span><span class="p">,</span><span class="w"> </span><span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">             </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">DIMS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_DimsVertOnly</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">DIMS</span><span class="o">==</span><span class="n">MAPL_DimsNone</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                call </span><span class="n">READ_PARALLEL</span><span class="p">(</span><span class="n">layout</span><span class="p">,</span><span class="w"> </span><span class="n">vr8_1d</span><span class="p">,</span><span class="w"> </span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">arrdes</span><span class="o">=</span><span class="n">arrdes</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">             </span><span class="k">else</span>
+<span class="k">                </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_FAILURE</span><span class="p">)</span>
+<span class="w">             </span><span class="k">endif</span>
+<span class="k">          end if</span>
+<span class="k">       end if</span>
+<span class="k">    else if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="n">tk</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          call </span><span class="n">ESMF_ArrayGet</span><span class="p">(</span><span class="k">array</span><span class="p">,</span><span class="w"> </span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">var_2d</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">var_2d</span><span class="p">))</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">!ALT: temp kludge</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">FORMATTED</span><span class="o">==</span><span class="s2">&quot;YES&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">                call </span><span class="n">READ_PARALLEL</span><span class="p">(</span><span class="n">layout</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                     </span><span class="n">var_2d</span><span class="p">(</span><span class="nb">lbound</span><span class="p">(</span><span class="n">var_2d</span><span class="p">,</span><span class="mi">1</span><span class="p">),:),</span><span class="w"> </span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">             </span><span class="k">else</span>
+<span class="k">                if</span><span class="w"> </span><span class="p">(</span><span class="n">DIMS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_DimsTileOnly</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                   do </span><span class="n">J</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">var_2d</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">                      </span><span class="k">call </span><span class="n">MAPL_VarRead</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">var_2d</span><span class="p">(:,</span><span class="n">J</span><span class="p">),</span><span class="w"> </span><span class="n">arrdes</span><span class="o">=</span><span class="n">arrdes</span><span class="p">,</span><span class="w"> </span><span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                   </span><span class="k">end do</span>
+<span class="k">                else if</span><span class="w"> </span><span class="p">(</span><span class="n">DIMS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_DimsTileTile</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                   call </span><span class="n">MAPL_VarRead</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">var_2d</span><span class="p">,</span><span class="w"> </span><span class="n">arrdes</span><span class="o">=</span><span class="n">arrdes</span><span class="p">,</span><span class="w"> </span><span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                </span><span class="k">else</span>
+<span class="k">                   call </span><span class="n">MAPL_VarRead</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">var_2d</span><span class="p">,</span><span class="w"> </span><span class="n">arrdes</span><span class="o">=</span><span class="n">arrdes</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                </span><span class="k">end if</span>
+<span class="k">             end if</span>
+<span class="k">          end if</span>
+<span class="k">       else</span>
+<span class="k">          call </span><span class="n">ESMF_ArrayGet</span><span class="p">(</span><span class="k">array</span><span class="p">,</span><span class="w"> </span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">vr8_2d</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">vr8_2d</span><span class="p">))</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">!ALT: temp kludge</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">FORMATTED</span><span class="o">==</span><span class="s2">&quot;YES&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">                call </span><span class="n">READ_PARALLEL</span><span class="p">(</span><span class="n">layout</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                     </span><span class="n">vr8_2d</span><span class="p">(</span><span class="nb">lbound</span><span class="p">(</span><span class="n">vr8_2d</span><span class="p">,</span><span class="mi">1</span><span class="p">),:),</span><span class="w"> </span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">             </span><span class="k">else</span>
+<span class="k">                if</span><span class="w"> </span><span class="p">(</span><span class="n">DIMS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_DimsTileOnly</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                   do </span><span class="n">J</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">vr8_2d</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">                      </span><span class="k">call </span><span class="n">MAPL_VarRead</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">vr8_2d</span><span class="p">(:,</span><span class="n">J</span><span class="p">),</span><span class="w"> </span><span class="n">arrdes</span><span class="o">=</span><span class="n">arrdes</span><span class="p">,</span><span class="w"> </span><span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                   </span><span class="k">end do</span>
+<span class="k">                else if</span><span class="w"> </span><span class="p">(</span><span class="n">DIMS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_DimsTileTile</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                   call </span><span class="n">MAPL_VarRead</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">vr8_2d</span><span class="p">,</span><span class="w"> </span><span class="n">arrdes</span><span class="o">=</span><span class="n">arrdes</span><span class="p">,</span><span class="w"> </span><span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                </span><span class="k">else</span>
+<span class="k">                   call </span><span class="n">MAPL_VarRead</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">vr8_2d</span><span class="p">,</span><span class="w"> </span><span class="n">arrdes</span><span class="o">=</span><span class="n">arrdes</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                </span><span class="k">end if</span>
+<span class="k">             end if</span>
+<span class="k">          end if</span>
+<span class="k">       endif</span>
+<span class="k">    else if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="n">tk</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          call </span><span class="n">ESMF_ArrayGet</span><span class="p">(</span><span class="k">array</span><span class="p">,</span><span class="w"> </span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">var_3d</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">var_3d</span><span class="p">))</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">!ALT: temp kludge</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">FORMATTED</span><span class="o">==</span><span class="s2">&quot;YES&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">                call </span><span class="n">READ_PARALLEL</span><span class="p">(</span><span class="n">layout</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                     </span><span class="n">var_3d</span><span class="p">(</span><span class="nb">lbound</span><span class="p">(</span><span class="n">var_3d</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="nb">lbound</span><span class="p">(</span><span class="n">var_3d</span><span class="p">,</span><span class="mi">2</span><span class="p">),:),</span><span class="w"> </span><span class="n">unit</span><span class="p">)</span>
+<span class="w">             </span><span class="k">else</span>
+<span class="k">                if</span><span class="w"> </span><span class="p">(</span><span class="n">DIMS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_DimsTileOnly</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                   do </span><span class="n">J</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">var_3d</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">                      </span><span class="k">do </span><span class="n">K</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">var_3d</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">                         </span><span class="k">call </span><span class="n">MAPL_VarRead</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">var_3d</span><span class="p">(:,</span><span class="n">J</span><span class="p">,</span><span class="n">K</span><span class="p">),</span><span class="w"> </span><span class="n">arrdes</span><span class="o">=</span><span class="n">arrdes</span><span class="p">,</span><span class="w"> </span><span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                      </span><span class="k">end do</span>
+<span class="k">                   end do</span>
+<span class="k">                else</span>
+<span class="k">                   call </span><span class="n">MAPL_VarRead</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">var_3d</span><span class="p">,</span><span class="w"> </span><span class="n">arrdes</span><span class="o">=</span><span class="n">arrdes</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                </span><span class="k">end if</span>
+<span class="k">             endif</span>
+<span class="k">          end if</span>
+<span class="k">       else</span>
+<span class="k">          call </span><span class="n">ESMF_ArrayGet</span><span class="p">(</span><span class="k">array</span><span class="p">,</span><span class="w"> </span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">vr8_3d</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">vr8_3d</span><span class="p">))</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">!ALT: temp kludge</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">FORMATTED</span><span class="o">==</span><span class="s2">&quot;YES&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">                call </span><span class="n">READ_PARALLEL</span><span class="p">(</span><span class="n">layout</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                     </span><span class="n">vr8_3d</span><span class="p">(</span><span class="nb">lbound</span><span class="p">(</span><span class="n">vr8_3d</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="nb">lbound</span><span class="p">(</span><span class="n">vr8_3d</span><span class="p">,</span><span class="mi">2</span><span class="p">),:),</span><span class="w"> </span><span class="n">unit</span><span class="p">)</span>
+<span class="w">             </span><span class="k">else</span>
+<span class="k">                if</span><span class="w"> </span><span class="p">(</span><span class="n">DIMS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_DimsTileOnly</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                   do </span><span class="n">J</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">vr8_3d</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">                      </span><span class="k">do </span><span class="n">K</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">vr8_3d</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">                         </span><span class="k">call </span><span class="n">MAPL_VarRead</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">vr8_3d</span><span class="p">(:,</span><span class="n">J</span><span class="p">,</span><span class="n">K</span><span class="p">),</span><span class="w"> </span><span class="n">arrdes</span><span class="o">=</span><span class="n">arrdes</span><span class="p">,</span><span class="w"> </span><span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                      </span><span class="k">end do</span>
+<span class="k">                   end do</span>
+<span class="k">                else</span>
+<span class="k">                   call </span><span class="n">MAPL_VarRead</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">vr8_3d</span><span class="p">,</span><span class="w"> </span><span class="n">arrdes</span><span class="o">=</span><span class="n">arrdes</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                </span><span class="k">end if</span>
+<span class="k">             endif</span>
+<span class="k">          end if</span>
+<span class="k">       endif</span>
+<span class="k">    else if</span><span class="w"> </span><span class="p">(</span><span class="n">rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="n">tk</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          call </span><span class="n">ESMF_ArrayGet</span><span class="p">(</span><span class="k">array</span><span class="p">,</span><span class="w"> </span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">var_4d</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">MAPL_VarRead</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">var_4d</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="k">else</span>
+<span class="k">          call </span><span class="n">ESMF_ArrayGet</span><span class="p">(</span><span class="k">array</span><span class="p">,</span><span class="w"> </span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayptr</span><span class="o">=</span><span class="n">vr8_4d</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">MAPL_VarRead</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">vr8_4d</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">    else</span>
+<span class="k">       </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="w"> </span><span class="s2">&quot;ERROR: unsupported RANK&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="k">endif</span>
+<span class="k">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">DIMS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_DimsTileOnly</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">DIMS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MAPL_DimsTileTile</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       if</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="nb">present</span><span class="p">(</span><span class="n">HomePE</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">DEALOC_</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">    end if</span>
+
+<span class="k">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_FieldRead</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-10T17:19:28.791982             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,827 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>create_cubed_sphere_grid &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>create_cubed_sphere_grid
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">77 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/cub2latlon_regridder.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/cub2latlon_regridder.f90.html'>cub2latlon_regridder.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/supportmod.html'>SupportMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">create_cubed_sphere_grid</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/create_cubed_sphere_grid.html#src">create_cubed_sphere_grid</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine create_cubed_sphere_grid(this, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/regridsupport.html'>RegridSupport</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~1276"></span>
+              class(<a href='../type/regridsupport.html'>RegridSupport</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~650"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~create_cubed_sphere_grid~~CallsGraph Pages: 1 -->
+<svg id="proccreate_cubed_sphere_gridCallsGraph" width="641pt" height="225pt"
+ viewBox="0.00 0.00 641.00 224.74" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph" class="graph" transform="scale(0.74 0.74) rotate(0) translate(4 298.93)">
+<title>proc~~create_cubed_sphere_grid~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-298.93 860,-298.93 860,4 -4,4"/>
+<!-- proc~create_cubed_sphere_grid -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_node1" class="node">
+<title>proc~create_cubed_sphere_grid</title>
+<polygon fill="none" stroke="black" points="238,-170 0,-170 0,-146 238,-146 238,-170"/>
+<text text-anchor="middle" x="119" y="-155.6" font-family="Helvetica,sans-Serif" font-size="10.50">RegridSupport%create_cubed_sphere_grid</text>
+</g>
+<!-- ESMF_DistGridGet -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_node2" class="node">
+<title>ESMF_DistGridGet</title>
+<g id="a_proc~~create_cubed_sphere_grid~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_distgridget.html" xlink:title="ESMF_DistGridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="594,-291 486,-291 486,-267 594,-267 594,-291"/>
+<text text-anchor="middle" x="540" y="-276.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DistGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~create_cubed_sphere_grid&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_edge1" class="edge">
+<title>proc~create_cubed_sphere_grid&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#ff0000" d="M130.4,-170.19C153.22,-195.91 210.77,-255.15 274,-277 340.01,-299.81 420.92,-296.27 475.84,-289.61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="476.31,-293.08 485.78,-288.34 475.42,-286.14 476.31,-293.08"/>
+</g>
+<!-- ESMF_GridAddItem -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_node3" class="node">
+<title>ESMF_GridAddItem</title>
+<g id="a_proc~~create_cubed_sphere_grid~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridadditem.html" xlink:title="ESMF_GridAddItem">
+<polygon fill="#a7506f" stroke="#a7506f" points="418.5,-108 305.5,-108 305.5,-84 418.5,-84 418.5,-108"/>
+<text text-anchor="middle" x="362" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridAddItem</text>
+</a>
+</g>
+</g>
+<!-- proc~create_cubed_sphere_grid&#45;&gt;ESMF_GridAddItem -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_edge2" class="edge">
+<title>proc~create_cubed_sphere_grid&#45;&gt;ESMF_GridAddItem</title>
+<path fill="none" stroke="#ff0000" d="M164.07,-145.97C194.83,-137.65 236.86,-126.43 274,-117 282.54,-114.83 291.55,-112.6 300.43,-110.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="301.46,-113.78 310.35,-108.02 299.8,-106.98 301.46,-113.78"/>
+</g>
+<!-- ESMF_GridCreateCubedSphere -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_node4" class="node">
+<title>ESMF_GridCreateCubedSphere</title>
+<g id="a_proc~~create_cubed_sphere_grid~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridcreatecubedsphere.html" xlink:title="ESMF_GridCreateCubedSphere">
+<polygon fill="#a7506f" stroke="#a7506f" points="450,-66 274,-66 274,-42 450,-42 450,-66"/>
+<text text-anchor="middle" x="362" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridCreateCubedSphere</text>
+</a>
+</g>
+</g>
+<!-- proc~create_cubed_sphere_grid&#45;&gt;ESMF_GridCreateCubedSphere -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_edge3" class="edge">
+<title>proc~create_cubed_sphere_grid&#45;&gt;ESMF_GridCreateCubedSphere</title>
+<path fill="none" stroke="#ff0000" d="M138.69,-145.86C166.93,-128.01 222.66,-94.65 274,-75 279.81,-72.78 285.93,-70.73 292.12,-68.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="293.21,-72.2 301.87,-66.09 291.3,-65.47 293.21,-72.2"/>
+</g>
+<!-- ESMF_GridGet -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_node5" class="node">
+<title>ESMF_GridGet</title>
+<g id="a_proc~~create_cubed_sphere_grid~~CallsGraph_node5"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridget.html" xlink:title="ESMF_GridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="406,-24 318,-24 318,0 406,0 406,-24"/>
+<text text-anchor="middle" x="362" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~create_cubed_sphere_grid&#45;&gt;ESMF_GridGet -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_edge4" class="edge">
+<title>proc~create_cubed_sphere_grid&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#ff0000" d="M131.08,-145.93C154.78,-120.89 213.19,-63.08 274,-33 284.45,-27.83 296.25,-23.89 307.7,-20.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="308.74,-24.25 317.64,-18.51 307.1,-17.44 308.74,-24.25"/>
+</g>
+<!-- proc~get_dimension -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_node6" class="node">
+<title>proc~get_dimension</title>
+<g id="a_proc~~create_cubed_sphere_grid~~CallsGraph_node6"><a xlink:href="../proc/get_dimension.html" xlink:title="FileMetadata%get_dimension">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="446.5,-150 277.5,-150 277.5,-126 446.5,-126 446.5,-150"/>
+<text text-anchor="middle" x="362" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadata%get_dimension</text>
+</a>
+</g>
+</g>
+<!-- proc~create_cubed_sphere_grid&#45;&gt;proc~get_dimension -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_edge5" class="edge">
+<title>proc~create_cubed_sphere_grid&#45;&gt;proc~get_dimension</title>
+<path fill="none" stroke="#ff0000" d="M238.03,-148.21C247.75,-147.4 257.49,-146.59 267.01,-145.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="267.55,-149.27 277.22,-144.95 266.97,-142.29 267.55,-149.27"/>
+</g>
+<!-- proc~mapl_distgridget -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_node7" class="node">
+<title>proc~mapl_distgridget</title>
+<g id="a_proc~~create_cubed_sphere_grid~~CallsGraph_node7"><a xlink:href="../proc/mapl_distgridget.html" xlink:title="MAPL_DistGridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="416,-268 308,-268 308,-244 416,-244 416,-268"/>
+<text text-anchor="middle" x="362" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DistGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~create_cubed_sphere_grid&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_edge6" class="edge">
+<title>proc~create_cubed_sphere_grid&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#ff0000" d="M143.02,-170.07C172.73,-185.34 226.28,-211.83 274,-230 284.26,-233.91 295.39,-237.62 306.14,-240.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="305.29,-244.34 315.87,-243.88 307.31,-237.64 305.29,-244.34"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_node8" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~create_cubed_sphere_grid~~CallsGraph_node8"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="581,-191 499,-191 499,-167 581,-167 581,-191"/>
+<text text-anchor="middle" x="540" y="-176.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~create_cubed_sphere_grid&#45;&gt;proc~mapl_return -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_edge7" class="edge">
+<title>proc~create_cubed_sphere_grid&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M238.11,-163.92C320.7,-168.06 426.87,-173.38 488.49,-176.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="488.56,-179.98 498.72,-176.98 488.91,-172.99 488.56,-179.98"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_node9" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~create_cubed_sphere_grid~~CallsGraph_node9"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="578,-233 502,-233 502,-209 578,-209 578,-233"/>
+<text text-anchor="middle" x="540" y="-218.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~create_cubed_sphere_grid&#45;&gt;proc~mapl_verify -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_edge8" class="edge">
+<title>proc~create_cubed_sphere_grid&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M188.54,-170C215.19,-174.56 246,-179.68 274,-184 349.97,-195.71 438.44,-207.74 491.52,-214.79"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="491.27,-218.28 501.65,-216.13 492.19,-211.34 491.27,-218.28"/>
+</g>
+<!-- proc~get_dimension&#45;&gt;proc~mapl_return -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_edge11" class="edge">
+<title>proc~get_dimension&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ffff" d="M414.85,-150.08C438.26,-155.53 465.8,-161.95 488.98,-167.35"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="488.43,-170.81 498.96,-169.67 490.01,-163.99 488.43,-170.81"/>
+</g>
+<!-- at -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_node10" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="854.5,-129 800.5,-129 800.5,-105 854.5,-105 854.5,-129"/>
+<text text-anchor="middle" x="827.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_dimension&#45;&gt;at -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_edge9" class="edge">
+<title>proc~get_dimension&#45;&gt;at</title>
+<path fill="none" stroke="#00ffff" d="M418.13,-125.99C439.25,-121.96 463.64,-117.98 486,-116 596.49,-106.2 727.95,-111.3 790.27,-114.73"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="790.19,-118.23 800.37,-115.3 790.59,-111.24 790.19,-118.23"/>
+</g>
+<!-- find -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_node11" class="node">
+<title>find</title>
+<polygon fill="#777777" stroke="#777777" points="567,-149 513,-149 513,-125 567,-125 567,-149"/>
+<text text-anchor="middle" x="540" y="-134.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">find</text>
+</g>
+<!-- proc~get_dimension&#45;&gt;find -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_edge10" class="edge">
+<title>proc~get_dimension&#45;&gt;find</title>
+<path fill="none" stroke="#00ffff" d="M446.62,-137.52C466.26,-137.41 486.2,-137.3 502.5,-137.21"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="502.66,-140.71 512.64,-137.15 502.62,-133.71 502.66,-140.71"/>
+</g>
+<!-- proc~mapl_distgridget&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_distgridget&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#003fff" d="M416.28,-262.96C435.07,-265.42 456.36,-268.2 475.88,-270.75"/>
+<polygon fill="#003fff" stroke="#003fff" points="475.53,-274.24 485.9,-272.06 476.44,-267.29 475.53,-274.24"/>
+</g>
+<!-- proc~mapl_distgridget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_distgridget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#003fff" d="M416.28,-245.4C440.34,-240.62 468.53,-235.01 491.81,-230.38"/>
+<polygon fill="#003fff" stroke="#003fff" points="492.67,-233.78 501.8,-228.4 491.31,-226.92 492.67,-233.78"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_node12" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~create_cubed_sphere_grid~~CallsGraph_node12"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="754,-181 639,-181 639,-157 754,-157 754,-181"/>
+<text text-anchor="middle" x="696.5" y="-166.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#7f00ff" d="M581.19,-176.4C595.78,-175.45 612.67,-174.36 628.93,-173.31"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="629.18,-176.8 638.94,-172.66 628.73,-169.81 629.18,-176.8"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_node13" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~create_cubed_sphere_grid~~CallsGraph_node13"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="763,-228 630,-228 630,-204 763,-204 763,-228"/>
+<text text-anchor="middle" x="696.5" y="-213.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7f00ff" d="M581.19,-188.62C597.71,-192.58 617.2,-197.25 635.35,-201.6"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="634.74,-205.05 645.28,-203.97 636.37,-198.24 634.74,-205.05"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00bf" d="M578.01,-219.8C590.63,-219.39 605.24,-218.92 619.77,-218.45"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="619.92,-221.95 629.8,-218.13 619.69,-214.95 619.92,-221.95"/>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_edge17" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#00ffff" d="M727.42,-156.94C746.35,-149.31 770.93,-139.4 790.87,-131.36"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="792.27,-134.57 800.24,-127.59 789.66,-128.08 792.27,-134.57"/>
+</g>
+<!-- insert -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_node14" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="854.5,-181 800.5,-181 800.5,-157 854.5,-157 854.5,-181"/>
+<text text-anchor="middle" x="827.5" y="-166.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_edge18" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#00ffff" d="M754.08,-169C766.29,-169 778.89,-169 790.08,-169"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="790.32,-172.5 800.32,-169 790.32,-165.5 790.32,-172.5"/>
+</g>
+<!-- proc~initialize~15 -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_node15" class="node">
+<title>proc~initialize~15</title>
+<g id="a_proc~~create_cubed_sphere_grid~~CallsGraph_node15"><a xlink:href="../proc/initialize~15.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="856,-228 799,-228 799,-204 856,-204 856,-228"/>
+<text text-anchor="middle" x="827.5" y="-213.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~15 -->
+<g id="proc~~create_cubed_sphere_grid~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~15</title>
+<path fill="none" stroke="#7f00ff" d="M763.13,-216C771.88,-216 780.59,-216 788.63,-216"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="788.77,-219.5 798.77,-216 788.77,-212.5 788.77,-219.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproccreate_cubed_sphere_gridCallsGraph = svgPanZoom('#proccreate_cubed_sphere_gridCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~create_cubed_sphere_grid~~CalledByGraph Pages: 1 -->
+<svg id="proccreate_cubed_sphere_gridCalledByGraph" width="568pt" height="32pt"
+ viewBox="0.00 0.00 568.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~create_cubed_sphere_grid~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~create_cubed_sphere_grid~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 564,-28 564,4 -4,4"/>
+<!-- proc~create_cubed_sphere_grid -->
+<g id="proc~~create_cubed_sphere_grid~~CalledByGraph_node1" class="node">
+<title>proc~create_cubed_sphere_grid</title>
+<polygon fill="none" stroke="black" points="560,-24 322,-24 322,0 560,0 560,-24"/>
+<text text-anchor="middle" x="441" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">RegridSupport%create_cubed_sphere_grid</text>
+</g>
+<!-- proc~create_esmf_grids -->
+<g id="proc~~create_cubed_sphere_grid~~CalledByGraph_node2" class="node">
+<title>proc~create_esmf_grids</title>
+<g id="a_proc~~create_cubed_sphere_grid~~CalledByGraph_node2"><a xlink:href="../proc/create_esmf_grids.html" xlink:title="RegridSupport%create_esmf_grids">
+<polygon fill="#d9534f" stroke="#d9534f" points="286,-24 90,-24 90,0 286,0 286,-24"/>
+<text text-anchor="middle" x="188" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridSupport%create_esmf_grids</text>
+</a>
+</g>
+</g>
+<!-- proc~create_esmf_grids&#45;&gt;proc~create_cubed_sphere_grid -->
+<g id="proc~~create_cubed_sphere_grid~~CalledByGraph_edge1" class="edge">
+<title>proc~create_esmf_grids&#45;&gt;proc~create_cubed_sphere_grid</title>
+<path fill="none" stroke="#ff0000" d="M286.04,-12C294.47,-12 303.08,-12 311.71,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="311.83,-15.5 321.83,-12 311.83,-8.5 311.83,-15.5"/>
+</g>
+<!-- program~main~9 -->
+<g id="proc~~create_cubed_sphere_grid~~CalledByGraph_node3" class="node">
+<title>program~main~9</title>
+<g id="a_proc~~create_cubed_sphere_grid~~CalledByGraph_node3"><a xlink:href="../program/main~9.html" xlink:title="main">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
+</a>
+</g>
+</g>
+<!-- program~main~9&#45;&gt;proc~create_esmf_grids -->
+<g id="proc~~create_cubed_sphere_grid~~CalledByGraph_edge2" class="edge">
+<title>program~main~9&#45;&gt;proc~create_esmf_grids</title>
+<path fill="none" stroke="#ff0000" d="M54.26,-12C61.77,-12 70.46,-12 79.72,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="79.97,-15.5 89.97,-12 79.97,-8.5 79.97,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">create_cubed_sphere_grid</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">RegridSupport</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_DistGrid</span><span class="p">)</span><span class="kd">::</span><span class="w"> </span><span class="n">distgrid</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">deToTileMap</span><span class="p">(</span><span class="mi">0</span><span class="p">:</span><span class="n">pet_count</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">minIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">:</span><span class="n">pet_count</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">maxIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">:</span><span class="n">pet_count</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ijms</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span><span class="n">NX</span><span class="p">,</span><span class="n">NY</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">lcnts</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nPetPerTile</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">Xdim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">cfio_cubed_sphere</span><span class="p">%</span><span class="n">get_dimension</span><span class="p">(</span><span class="s1">&#39;Xdim&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">LM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">cfio_cubed_sphere</span><span class="p">%</span><span class="n">get_dimension</span><span class="p">(</span><span class="s1">&#39;lev&#39;</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="c">! ignore status</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">status</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">pFIO_SUCCESS</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        </span><span class="n">this</span><span class="p">%</span><span class="n">LM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">        </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pFIO_SUCCESS</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="n">nPetPerTile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pet_count</span><span class="o">/</span><span class="n">n_tiles</span>
+<span class="w">      </span><span class="n">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">nint</span><span class="p">(</span><span class="nb">sqrt</span><span class="p">(</span><span class="kt">real</span><span class="p">(</span><span class="n">nPetPerTile</span><span class="o">*</span><span class="n">this</span><span class="p">%</span><span class="n">Xdim</span><span class="p">)</span><span class="o">/</span><span class="n">this</span><span class="p">%</span><span class="n">Xdim</span><span class="p">))</span>
+<span class="w">      </span><span class="n">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="k">do while</span><span class="p">(</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">nPetPerTile</span><span class="p">,</span><span class="n">nx</span><span class="p">).</span><span class="n">NE</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">         </span><span class="n">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nx</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">      </span><span class="k">enddo</span>
+<span class="k">      </span><span class="n">ny</span><span class="o">=</span><span class="n">nPetPerTile</span><span class="o">/</span><span class="n">nx</span>
+<span class="w">      </span><span class="n">ijms</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="n">NX</span>
+<span class="w">      </span><span class="n">ijms</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="n">NY</span>
+<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="mi">6</span>
+<span class="w">         </span><span class="n">ijms</span><span class="p">(:,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">ijms</span><span class="p">(:,</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="k">enddo</span>
+
+<span class="k">      </span><span class="n">this</span><span class="p">%</span><span class="n">grid_cubed_sphere</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_GridCreateCubedSphere</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">Xdim</span><span class="p">,</span><span class="w"> </span><span class="n">regDecompPTile</span><span class="o">=</span><span class="n">ijms</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridGet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">grid_cubed_sphere</span><span class="p">,</span><span class="w"> </span><span class="n">distgrid</span><span class="o">=</span><span class="n">distgrid</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_DistGridGet</span><span class="p">(</span><span class="n">distgrid</span><span class="p">,</span><span class="w"> </span><span class="n">deToTileMap</span><span class="o">=</span><span class="n">deToTileMap</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_DistGridGet</span><span class="p">(</span><span class="n">distgrid</span><span class="p">,</span><span class="w"> </span><span class="n">MaxIndex</span><span class="o">=</span><span class="n">maxIndex</span><span class="p">,</span><span class="w"> </span><span class="n">MinIndex</span><span class="o">=</span><span class="n">minIndex</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">my_tile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">deToTileMap</span><span class="p">(</span><span class="n">local_pet</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridGet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">grid_cubed_sphere</span><span class="p">,</span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">staggerloc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CENTER</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">exclusiveCount</span><span class="o">=</span><span class="n">lcnts</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridAddItem</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">grid_cubed_sphere</span><span class="p">,</span><span class="n">itemflag</span><span class="o">=</span><span class="n">ESMF_GRIDITEM_MASK</span><span class="p">,</span><span class="n">staggerloc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CENTER</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="p">&amp;</span><span class="w"> </span><span class="n">itemTypeKind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_I4</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">nx_loc</span><span class="o">=</span><span class="n">lcnts</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">ny_loc</span><span class="o">=</span><span class="n">lcnts</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">      </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">my_tile</span><span class="p">)</span>
+<span class="w">         </span><span class="k">case</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">x_1</span><span class="o">=</span><span class="n">minIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">local_pet</span><span class="p">)</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">x_n</span><span class="o">=</span><span class="n">maxIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">local_pet</span><span class="p">)</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">y_1</span><span class="o">=</span><span class="n">minIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">local_pet</span><span class="p">)</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">y_n</span><span class="o">=</span><span class="n">maxIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">local_pet</span><span class="p">)</span>
+<span class="w">         </span><span class="k">case</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">x_1</span><span class="o">=</span><span class="n">minIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">local_pet</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">Xdim</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">x_n</span><span class="o">=</span><span class="n">maxIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">local_pet</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">Xdim</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">y_1</span><span class="o">=</span><span class="n">minIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">local_pet</span><span class="p">)</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">y_n</span><span class="o">=</span><span class="n">maxIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">local_pet</span><span class="p">)</span>
+<span class="w">         </span><span class="k">case</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">x_1</span><span class="o">=</span><span class="n">minIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">local_pet</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">Xdim</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">x_n</span><span class="o">=</span><span class="n">maxIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">local_pet</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">Xdim</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">y_1</span><span class="o">=</span><span class="n">minIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">local_pet</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">Xdim</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">y_n</span><span class="o">=</span><span class="n">maxIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">local_pet</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">Xdim</span>
+<span class="w">         </span><span class="k">case</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">x_1</span><span class="o">=</span><span class="n">minIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">local_pet</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="o">*</span><span class="n">this</span><span class="p">%</span><span class="n">Xdim</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">x_n</span><span class="o">=</span><span class="n">maxIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">local_pet</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="o">*</span><span class="n">this</span><span class="p">%</span><span class="n">Xdim</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">y_1</span><span class="o">=</span><span class="n">minIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">local_pet</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">Xdim</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">y_n</span><span class="o">=</span><span class="n">maxIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">local_pet</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">Xdim</span>
+<span class="w">         </span><span class="k">case</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">x_1</span><span class="o">=</span><span class="n">minIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">local_pet</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="o">*</span><span class="n">this</span><span class="p">%</span><span class="n">Xdim</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">x_n</span><span class="o">=</span><span class="n">maxIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">local_pet</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="o">*</span><span class="n">this</span><span class="p">%</span><span class="n">Xdim</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">y_1</span><span class="o">=</span><span class="n">minIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">local_pet</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="o">*</span><span class="n">this</span><span class="p">%</span><span class="n">Xdim</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">y_n</span><span class="o">=</span><span class="n">maxIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">local_pet</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="o">*</span><span class="n">this</span><span class="p">%</span><span class="n">Xdim</span>
+<span class="w">         </span><span class="k">case</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">x_1</span><span class="o">=</span><span class="n">minIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">local_pet</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">3</span><span class="o">*</span><span class="n">this</span><span class="p">%</span><span class="n">Xdim</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">x_n</span><span class="o">=</span><span class="n">maxIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">local_pet</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">3</span><span class="o">*</span><span class="n">this</span><span class="p">%</span><span class="n">Xdim</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">y_1</span><span class="o">=</span><span class="n">minIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">local_pet</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="o">*</span><span class="n">this</span><span class="p">%</span><span class="n">Xdim</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">y_n</span><span class="o">=</span><span class="n">maxIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">local_pet</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="o">*</span><span class="n">this</span><span class="p">%</span><span class="n">Xdim</span>
+<span class="w">      </span><span class="k">end select</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">create_cubed_sphere_grid</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-10T17:19:28.791982             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
