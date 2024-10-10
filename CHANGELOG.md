@@ -72,6 +72,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Trapped more errors from Extdata's i-server
+
 ### Removed
 
 ### Deprecated

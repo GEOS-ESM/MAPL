@@ -1029,7 +1029,7 @@ contains
          iter = this%request_backlog%begin()
      enddo
 
-     call this%clear_RequestHandle()
+     call this%clear_RequestHandle(_RC)
      call this%clear_hist_collections()
 
      _RETURN(_SUCCESS)
@@ -1068,7 +1068,7 @@ contains
          iter = this%request_backlog%begin()
        enddo
 
-       call this%clear_RequestHandle()
+       call this%clear_RequestHandle(_RC)
 
        _RETURN(_SUCCESS)
        _UNUSED_DUMMY(message)
