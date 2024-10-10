@@ -127,19 +127,13 @@ contains
        type(FieldSpec) :: goal_spec
        integer :: i
 
-       if (vertical_dim_spec == VERTICAL_DIM_CENTER) then
-          v_pt = VirtualConnectionPt(state_intent='export', short_name="PL")
-          new_extension => this%registry%get_primary_extension(v_pt, _RC)
-       else if (vertical_dim_spec == VERTICAL_DIM_EDGE) then
-          v_pt = VirtualConnectionPt(state_intent='export', short_name="PLE")
-          goal_spec = FieldSpec( &
-               geom=geom, vertical_grid=this, vertical_dim_spec=vertical_dim_spec, &
-               typekind=typekind, standard_name=standard_name, units=units, ungridded_dims=UngriddedDims())
-          new_extension => this%registry%extend(v_pt, goal_spec, _RC)
-          coupler => new_extension%get_producer()
-       else
-          _FAIL("vertical_dim_spec should be one of VERTICAL_DIM_EDGE/CENTER")
-       end if
+       v_pt = VirtualConnectionPt(state_intent='export', short_name="PLE")
+       goal_spec = FieldSpec( &
+            geom=geom, vertical_grid=this, vertical_dim_spec=vertical_dim_spec, &
+            typekind=typekind, standard_name=standard_name, units=units, ungridded_dims=UngriddedDims())
+
+       new_extension => this%registry%extend(v_pt, goal_spec, _RC)
+       coupler => new_extension%get_producer()
        new_spec => new_extension%get_spec()
        select type (new_spec)
        type is (FieldSpec)
