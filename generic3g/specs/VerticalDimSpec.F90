@@ -86,7 +86,7 @@ contains
       ! case default
       !    _FAIL("Invalid vertical dim spec")
       end select
-      write(unit, '("VerticalDimSpec{",a,">}")', iostat=iostat, iomsg=iomsg) dim_spec_str
+      write(unit, '("VerticalDimSpec{",a,"}")', iostat=iostat, iomsg=iomsg) trim(dim_spec_str)
 
       _UNUSED_DUMMY(iotype)
       _UNUSED_DUMMY(v_list)
