@@ -79,7 +79,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.0% of total for source files.">138 statements</a>
+                 title=" 0.0% of total for source files.">139 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -504,18 +504,18 @@ large graphs.</div>
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M309.46,-222C300.4,-222 291.22,-222 282.35,-222"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="282.09,-218.5 272.09,-222 282.09,-225.5 282.09,-218.5"/>
 </g>
-<!-- sourcefile~mapl_generic.f90 -->
+<!-- sourcefile~mapl_generic.f90~2 -->
 <g id="sourcefile~~fastclientthread.f90~~AfferentGraph_node9" class="node">
-<title>sourcefile~mapl_generic.f90</title>
-<g id="a_sourcefile~~fastclientthread.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/mapl_generic.f90.html" xlink:title="MAPL_Generic.F90">
+<title>sourcefile~mapl_generic.f90~2</title>
+<g id="a_sourcefile~~fastclientthread.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/mapl_generic.f90~2.html" xlink:title="MAPL_Generic.F90">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="443.5,-192 332.5,-192 332.5,-168 443.5,-168 443.5,-192"/>
 <text text-anchor="middle" x="388" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Generic.F90</text>
 </a>
 </g>
 </g>
-<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~clientmanager.f90 -->
+<!-- sourcefile~mapl_generic.f90~2&#45;&gt;sourcefile~clientmanager.f90 -->
 <g id="sourcefile~~fastclientthread.f90~~AfferentGraph_edge8" class="edge">
-<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~clientmanager.f90</title>
+<title>sourcefile~mapl_generic.f90~2&#45;&gt;sourcefile~clientmanager.f90</title>
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M338.28,-192.04C318.72,-196.87 296.01,-202.48 275.56,-207.53"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="274.59,-204.17 265.72,-209.96 276.27,-210.96 274.59,-204.17"/>
 </g>
@@ -817,14 +817,15 @@ large graphs.</div>
 <a id="ln-181" name="ln-181" href="#ln-181"></a><span class="w">   </span><span class="k">end function </span><span class="n">stage_nondistributed_data</span>
 <a id="ln-182" name="ln-182" href="#ln-182"></a>
 <a id="ln-183" name="ln-183" href="#ln-183"></a><span class="w">   </span><span class="c">! The data has been copied out and post no wait after isend</span>
-<a id="ln-184" name="ln-184" href="#ln-184"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">post_wait_all</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-184" name="ln-184" href="#ln-184"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">post_wait_all</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
 <a id="ln-185" name="ln-185" href="#ln-185"></a><span class="w">      </span><span class="k">use </span><span class="n">pFIO_AbstractRequestHandleMod</span>
 <a id="ln-186" name="ln-186" href="#ln-186"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">FastClientThread</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
-<a id="ln-187" name="ln-187" href="#ln-187"></a><span class="w">      </span><span class="c">! do nothing on purpose</span>
-<a id="ln-188" name="ln-188" href="#ln-188"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
-<a id="ln-189" name="ln-189" href="#ln-189"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">post_wait_all</span>
-<a id="ln-190" name="ln-190" href="#ln-190"></a>
-<a id="ln-191" name="ln-191" href="#ln-191"></a><span class="k">end module </span><span class="n">pFIO_FastClientThreadMod</span>
+<a id="ln-187" name="ln-187" href="#ln-187"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-188" name="ln-188" href="#ln-188"></a><span class="w">      </span><span class="c">! do nothing on purpose</span>
+<a id="ln-189" name="ln-189" href="#ln-189"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-190" name="ln-190" href="#ln-190"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">post_wait_all</span>
+<a id="ln-191" name="ln-191" href="#ln-191"></a>
+<a id="ln-192" name="ln-192" href="#ln-192"></a><span class="k">end module </span><span class="n">pFIO_FastClientThreadMod</span>
 </pre></div>
 
       </section>
@@ -846,7 +847,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-10-09T13:56:39.396093             </p>
+ on 2024-10-10T14:35:28.408827             </p>
           </div>
         </div>
         <br>

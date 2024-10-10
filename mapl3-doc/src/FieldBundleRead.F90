@@ -237,8 +237,8 @@ module MAPL_ESMFFieldBundleRead
          end if
          call cfio%request_data_from_file(trim(file_name),timeindex=time_index,rc=status)
          _VERIFY(status)
-         call i_clients%done_collective_prefetch()
-         call i_clients%wait()
+         call i_clients%done_collective_prefetch(_RC)
+         call i_clients%wait(_RC)
          call cfio%process_data_from_file(rc=status)
          _VERIFY(status)
 

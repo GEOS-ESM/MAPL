@@ -603,8 +603,8 @@ CONTAINS
    call MAPL_TimerOff(MAPLSTATE,"---prefetch")
    call MAPL_TimerOn(MAPLSTATE,"---IclientDone")
 
-   call i_Clients%done_collective_prefetch()
-   call i_Clients%wait()
+   call i_Clients%done_collective_prefetch(_RC)
+   call i_Clients%wait(_RC)
 
    call MAPL_TimerOff(MAPLSTATE,"---IclientDone")
 

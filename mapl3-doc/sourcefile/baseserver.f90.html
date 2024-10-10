@@ -79,7 +79,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.1% of total for source files.">260 statements</a>
+                 title=" 0.1% of total for source files.">264 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -950,21 +950,21 @@ large graphs.</div>
 <a id="ln-224" name="ln-224" href="#ln-224"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
 <a id="ln-225" name="ln-225" href="#ln-225"></a><span class="w">   </span><span class="k">end function</span>
 <a id="ln-226" name="ln-226" href="#ln-226"></a>
-<a id="ln-227" name="ln-227" href="#ln-227"></a><span class="k">   subroutine </span><span class="n">clear_RequestHandle</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-227" name="ln-227" href="#ln-227"></a><span class="k">   subroutine </span><span class="n">clear_RequestHandle</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
 <a id="ln-228" name="ln-228" href="#ln-228"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">BaseServer</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
-<a id="ln-229" name="ln-229" href="#ln-229"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ServerThread</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">thread_ptr</span>
-<a id="ln-230" name="ln-230" href="#ln-230"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="n">n</span>
-<a id="ln-231" name="ln-231" href="#ln-231"></a>
+<a id="ln-229" name="ln-229" href="#ln-229"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-230" name="ln-230" href="#ln-230"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ServerThread</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">thread_ptr</span>
+<a id="ln-231" name="ln-231" href="#ln-231"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">status</span>
 <a id="ln-232" name="ln-232" href="#ln-232"></a>
 <a id="ln-233" name="ln-233" href="#ln-233"></a><span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">threads</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
 <a id="ln-234" name="ln-234" href="#ln-234"></a>
 <a id="ln-235" name="ln-235" href="#ln-235"></a><span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">n</span>
 <a id="ln-236" name="ln-236" href="#ln-236"></a><span class="w">         </span><span class="n">thread_ptr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">threads</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-<a id="ln-237" name="ln-237" href="#ln-237"></a><span class="w">         </span><span class="k">call </span><span class="n">thread_ptr</span><span class="p">%</span><span class="n">clear_RequestHandle</span><span class="p">()</span>
+<a id="ln-237" name="ln-237" href="#ln-237"></a><span class="w">         </span><span class="k">call </span><span class="n">thread_ptr</span><span class="p">%</span><span class="n">clear_RequestHandle</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <a id="ln-238" name="ln-238" href="#ln-238"></a><span class="w">      </span><span class="k">enddo</span>
-<a id="ln-239" name="ln-239" href="#ln-239"></a>
+<a id="ln-239" name="ln-239" href="#ln-239"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
 <a id="ln-240" name="ln-240" href="#ln-240"></a>
-<a id="ln-241" name="ln-241" href="#ln-241"></a><span class="k">   end subroutine </span><span class="n">clear_RequestHandle</span>
+<a id="ln-241" name="ln-241" href="#ln-241"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">clear_RequestHandle</span>
 <a id="ln-242" name="ln-242" href="#ln-242"></a>
 <a id="ln-243" name="ln-243" href="#ln-243"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">set_collective_request</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p">,</span><span class="w"> </span><span class="n">have_done</span><span class="p">)</span>
 <a id="ln-244" name="ln-244" href="#ln-244"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">BaseServer</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
@@ -1079,7 +1079,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-10-09T13:56:39.396093             </p>
+ on 2024-10-10T14:35:28.408827             </p>
           </div>
         </div>
         <br>
