@@ -5,13 +5,12 @@ module mapl3g_VerticalLinearMap
    use mapl_ErrorHandling
    use mapl3g_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp
    use mapl3g_CSR_SparseMatrix, only: add_row
-   use mapl3g_CSR_SparseMatrix, only: sparse_matmul_sp => matmul
    use, intrinsic :: iso_fortran_env, only: REAL32
 
    implicit none
    private
 
-   public :: compute_linear_map_fixedlevels_to_fixedlevels
+   public :: compute_linear_map
 
    type IndexValuePair
       integer :: index
@@ -28,10 +27,10 @@ module mapl3g_VerticalLinearMap
 
 contains
 
-   ! Compute linear interpolation transformation matrix (src*matrix = dst)
-   ! when regridding (vertical) from fixed-levels to fixed-levels
+   ! Compute linear interpolation transformation matrix,
+   ! src*matrix = dst, when regridding (vertical) from src to dst
    ! NOTE: find_bracket_ below ASSUMEs that src array is monotonic and decreasing
-   subroutine compute_linear_map_fixedlevels_to_fixedlevels(src, dst, matrix, rc)
+   subroutine compute_linear_map(src, dst, matrix, rc)
       real(REAL32), intent(in) :: src(:)
       real(REAL32), intent(in) :: dst(:)
       type(SparseMatrix_sp), intent(out) :: matrix
@@ -40,10 +39,13 @@ contains
 
       real(REAL32) :: val, weight(2)
       integer :: ndx, status
-      type(IndexValuePair) :: pair(2) ! [pair(1), pair(2)] is a bracket
+      type(IndexValuePair) :: pair(2)
 
+#ifndef NDEBUG
       _ASSERT(maxval(dst) <= maxval(src), "maxval(dst) > maxval(src)")
       _ASSERT(minval(dst) >= minval(src), "minval(dst) < minval(src)")
+      _ASSERT(is_decreasing(src), "src array is not decreasing")
+#endif
 
       ! allocate(matrix(size(dst), size(src)), source=0., _STAT)
       ! Expected 2 non zero entries in each row
@@ -51,7 +53,7 @@ contains
       do ndx = 1, size(dst)
          val = dst(ndx)
          call find_bracket_(val, src, pair)
-         call compute_linear_interpolation_weights_(val, pair%value_, weight)
+         call compute_weights_(val, pair%value_, weight)
          if (pair(1) == pair(2)) then
             ! matrix(ndx, pair(1)%index) = weight(1)
             call add_row(matrix, ndx, pair(1)%index, [weight(1)])
@@ -63,9 +65,9 @@ contains
       end do
 
       _RETURN(_SUCCESS)
-   end subroutine compute_linear_map_fixedlevels_to_fixedlevels
+   end subroutine compute_linear_map
 
-   ! Find array bracket containing val
+   ! Find array bracket [pair_1, pair_2] containing val
    ! ASSUME: array is monotonic and decreasing
    subroutine find_bracket_(val, array, pair)
       real(REAL32), intent(in) :: val
@@ -87,7 +89,8 @@ contains
       pair(2) = IndexValuePair(ndx2, array(ndx2))
    end subroutine find_bracket_
 
-   subroutine compute_linear_interpolation_weights_(val, value_, weight)
+   ! Compute linear interpolation weights
+   subroutine compute_weights_(val, value_, weight)
       real(REAL32), intent(in) :: val
       real(REAL32), intent(in) :: value_(2)
       real(REAL32), intent(out) :: weight(2)
@@ -102,7 +105,7 @@ contains
          weight(1) = abs(value_(2) - val)/denominator
          weight(2) = abs(val - value_(1))/denominator
       end if
-   end subroutine compute_linear_interpolation_weights_
+   end subroutine compute_weights_
 
    elemental logical function equal_to(a, b)
       type(IndexValuePair), intent(in) :: a, b
@@ -114,5 +117,17 @@ contains
       type(IndexValuePair), intent(in) :: a, b
       not_equal_to = .not. (a==b)
    end function not_equal_to
+
+   logical function is_decreasing(array)
+      real(REAL32), intent(in) :: array(:)
+      integer :: ndx
+      is_decreasing = .true.
+      do ndx = 1, size(array)-1
+         if (array(ndx) < array(ndx+1)) then
+            is_decreasing = .false.
+            exit
+         end if
+      end do
+   end function is_decreasing
 
 end module mapl3g_VerticalLinearMap

@@ -65,7 +65,6 @@ contains
       action%v_out_coupler => v_out_coupler
 
       action%method = method
-
    end function new_VerticalRegridAction
 
    subroutine initialize(this, importState, exportState, clock, rc)
@@ -88,7 +87,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine initialize
-
 
    subroutine run(this, importState, exportState, clock, rc)
       use esmf
@@ -133,11 +131,9 @@ contains
             x_out(i,j,k) = x_in(i,j,k)*(v_out(i,j,k)-v_in(i,j,k))
          end do
       end do
-            
 
       _RETURN(_SUCCESS)
    end subroutine run
-
 
    pure logical function equal_to(a, b)
       type(Vertical_RegridMethod_Flag), intent(in) :: a, b

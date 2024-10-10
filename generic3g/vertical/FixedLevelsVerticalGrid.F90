@@ -1,13 +1,16 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_FixedLevelsVerticalGrid
+
+   use mapl_ErrorHandling
    use mapl3g_VerticalGrid
    use mapl3g_GriddedComponentDriver
-   use mapl_ErrorHandling
+   use mapl3g_VerticalDimSpec
    use esmf, only: ESMF_TypeKind_Flag
    use esmf, only: ESMF_Field
    use esmf, only: ESMF_Geom
    use, intrinsic :: iso_fortran_env, only: REAL32
+
    implicit none
    private
 
@@ -38,7 +41,6 @@ module mapl3g_FixedLevelsVerticalGrid
       module procedure not_equal_FixedLevelsVerticalGrid
    end interface operator(/=)
 
-
 contains
 
    function new_FixedLevelsVerticalGrid_r32(standard_name, levels, units) result(grid)
@@ -51,7 +53,6 @@ contains
       grid%standard_name = standard_name
       grid%levels = levels
       grid%units = units
-
    end function new_FixedLevelsVerticalGrid_r32
 
    integer function get_num_levels(this) result(num_levels)
@@ -59,7 +60,7 @@ contains
       num_levels = size(this%levels)
    end function get_num_levels
 
-   subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, rc)
+   subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, vertical_dim_spec, rc)
        class(FixedLevelsVerticalGrid), intent(in) :: this
        type(ESMF_Field), intent(out) :: field
        type(GriddedComponentDriver), pointer, intent(out) :: coupler
@@ -67,6 +68,7 @@ contains
        type(ESMF_Geom), intent(in) :: geom
        type(ESMF_TypeKind_Flag), intent(in) :: typekind
        character(*), intent(in) :: units
+       type(VerticalDimSpec), intent(in) :: vertical_dim_spec
        integer, optional, intent(out) :: rc
 
        _FAIL('not implemented')
@@ -78,6 +80,7 @@ contains
        _UNUSED_DUMMY(geom)
        _UNUSED_DUMMY(typekind)
        _UNUSED_DUMMY(units)
+       _UNUSED_DUMMY(vertical_dim_spec)
     end subroutine get_coordinate_field
 
     logical function can_connect_to(this, src, rc)
