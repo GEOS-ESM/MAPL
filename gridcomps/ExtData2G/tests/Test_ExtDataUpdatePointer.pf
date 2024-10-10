@@ -1,0 +1,84 @@
+module Test_ExtDataUpdatePointer
+   use MAPL_ExtDataPointerUpdate
+   use funit
+   use esmf
+   implicit none
+
+   type(ExtDataPointerUpdate) :: ex
+
+   integer, parameter :: TIME_STEP_IN_SECONDS = 500
+   character(len=*), parameter :: START_TIME_STRING = '20241231T123000'
+   character(len=*), parameter :: TIME_STRING = '20241231T124000'
+   character(len=*), parameter :: UPDATE_TIME = 'T200000'
+   character(len=*), parameter :: UPDATE_FREQ = '-'
+   character(len=*), parameter :: DEFAULT_UPDATE_OFFSET = 'PT900H'
+   integer :: status_stack(1024)
+   integer :: status_stack_size = 0
+   type(ESMF_Time) :: start_time
+   type(ESMF_TimeInterval) :: timestep
+   type(ESMF_Time) :: time
+   type(ESMF_Clock) :: clock
+   integer :: status
+   integer, parameter :: SUCCESS = 0
+   integer, parameter :: FAIL = -1
+   integer :: past_status
+
+contains
+
+   @Test
+   subroutine test_get_adjusted_time_without_time_argument()
+      @assertTrue(.FALSE.)
+   end subroutine test_get_adjusted_time_without_time_argument
+
+   @Test
+   subroutine test_get_adjusted_time_with_time_argument()
+      @assertTrue(.FALSE.)
+   end subroutine test_get_adjusted_time_with_time_argument
+
+   @Before
+   subroutine set_up()
+      status = SUCCESS
+      status_stack = status
+      status_stack_size = 0
+      call ESMF_Initialize(defaultCalKind=ESMF_CALKIND_GREGORIAN, rc=status)
+      call add_status(status_stack, status_stack_size, status)
+      call ESMF_TimeIntervalSet(timestep, s=TIME_STEP_IN_SECONDS, rc=status)
+      call add_status(status_stack, status_stack_size, status)
+      call ESMF_TimeSet(start_time, timeString=START_TIME_STRING, rc=status)
+      call add_status(status_stack, status_stack_size, status)
+!      call ESMF_TimeSet(start_time, yy=START_YY, mm=START_MM, dd=START_DD, rc=status) 
+!      call ESMF_TimeSet(start_time, h=START_H, m=START_M, s=START_S, rc=status)
+      clock = call ESMF_ClockCreate(timestep=timestep, startTime=start_time, rc=status)
+      call add_status(status_stack, status_stack_size, status)
+      call ESMF_TimeSet(time, timeString=TIME_STRING, rc=status)
+      call add_status(status_stack, status_stack_size, status)
+      ex = ExtDataUpdatePointer()
+   end subroutine set_up
+
+   @After
+   subroutine tear_down()
+      call ESMF_ClockDestroy(clock, rc=status)
+      call add_status(status_stack, status_stack_size, status)
+      call ESMF_Finalize(rc=status)
+      call add_status(status_stack, status_stack_size, status)
+   end subroutine tear_down
+
+   logical function os_true(intval) result(lval)
+      integer, intent(in) :: intval
+
+      lval = (intval == 0)
+
+   end function os_true
+
+   subroutine add_status(status_stack, size_ss, status) result(sz)
+      integer, intent(inout) :: status_stack(:)
+      integer, intent(inout) :: size_ss
+      integer, intent(in) :: status
+      
+      size_ss = min(ss_size+1, size(status_stack))
+      status_stack(2:size_ss) = status_stack(1:size(status_stack)-1)
+      status_stack(1) = status
+
+   end subroutine add_status
+
+end module Test_ExtDataUpdatePointer
