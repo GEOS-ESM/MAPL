@@ -1262,7 +1262,7 @@ module MAPL_GriddedIOMod
         end if
         call i_Clients%collective_prefetch_data( &
              this%read_collection_id, fileName, trim(names(i)), &
-             & ref, start=localStart, global_start=globalStart, global_count=globalCount)
+             & ref, start=localStart, global_start=globalStart, global_count=globalCount, _RC)
         deallocate(localStart,globalStart,globalCount)
      enddo
      deallocate(gridLocalStart,gridGlobalStart,gridGlobalCount)
