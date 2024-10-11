@@ -906,17 +906,14 @@ contains
       match = .false.
       select type (spec)
       type is (FieldSpec)
-         match_grid = same_vertical_grid(spec%vertical_grid, this%vertical_grid)
-         match_dim_spec = (spec%vertical_dim_spec == this%vertical_dim_spec)
-         match = (match_grid .and. match_dim_spec)
+         match = same_vertical_grid(spec%vertical_grid, this%vertical_grid)
       end select
 
    contains
 
-      logical function same_vertical_grid(src_grid, dst_grid, rc)
+      logical function same_vertical_grid(src_grid, dst_grid)
          class(VerticalGrid), intent(in) :: src_grid
          class(VerticalGrid), allocatable, intent(in) :: dst_grid
-         integer, optional, intent(out) :: rc
 
          same_vertical_grid = .true.
          if (.not. allocated(dst_grid)) return ! mirror grid
