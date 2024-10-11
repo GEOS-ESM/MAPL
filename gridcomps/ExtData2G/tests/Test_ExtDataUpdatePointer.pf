@@ -97,7 +97,6 @@ contains
       write(offset_string, fmt='("PT", I03, "S")', iostat=ios) OFFSET_IN_SECONDS
       _VERIFY(ios)
       call ESMF_TimeIntervalSet(offset, s=OFFSET_IN_SECONDS, _RC)
-      !call ESMF_TimeSet(time, timeString=DEFAULT_TIMESTRING, _RC)
       call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, offset_string, time, clock, _RC)
       actual_matches_expected = (ex%get_adjusted_time(time) == (time + offset))
       @assertTrue(actual_matches_expected, 'Adjusted time does match expected time.')
@@ -125,4 +124,64 @@ contains
       @assertTrue(actual_matches_expected, 'use_time does not match expected time.')
 
    end subroutine test_create_from_parameters_string_positive
+
+   @Test
+   subroutine test_create_from_parameters_string_negative()
+      type(ExtDataPointerUpdate) :: ex
+      integer :: status, rc
+      character(len=32) :: offset_string
+      integer, parameter :: OFFSET_IN_SECONDS = 300
+      type(ESMF_TimeInterval) :: offset
+      integer :: ios
+      logical, parameter :: FIRST_TIME = .TRUE.
+      logical :: actual_matches_expected, do_update
+      type(ESMF_Time) :: use_time, current_time
+
+      write(offset_string, fmt='("PT", I03, "S")', iostat=ios) OFFSET_IN_SECONDS
+      offset_string = '-' // offset_string
+      _VERIFY(ios)
+      call ESMF_TimeIntervalSet(offset, s=-OFFSET_IN_SECONDS, _RC)
+      call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, offset_string, time, clock, _RC)
+      call ex%check_update(do_update, use_time, current_time, FIRST_TIME, _RC)
+      actual_matches_expected = (use_time == reference_time-offset)
+      @assertTrue(actual_matches_expected, 'use_time does not match expected time.')
+
+   end subroutine test_create_from_parameters_string_negative
+
+   @Test
+   subroutine test_create_from_parameters_heartbeat_positive()
+      type(ExtDataPointerUpdate) :: ex
+      integer :: status, rc
+      character(len=*), parameter :: OFFSET_STRING = HEARTBEAT_STRING
+      type(ESMF_TimeInterval) :: offset
+      logical, parameter :: FIRST_TIME = .TRUE.
+      logical :: actual_matches_expected, do_update
+      type(ESMF_Time) :: use_time, current_time
+
+      offset = timestep
+      call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, OFFSET_STRING, time, clock, _RC)
+      call ex%check_update(do_update, use_time, current_time, FIRST_TIME, _RC)
+      actual_matches_expected = (use_time == reference_time+offset)
+      @assertTrue(actual_matches_expected, 'use_time does not match expected time.')
+
+   end subroutine test_create_from_parameters_heartbeat_positive
+
+   @Test
+   subroutine test_create_from_parameters_heartbeat_negative()
+      type(ExtDataPointerUpdate) :: ex
+      integer :: status, rc
+      character(len=*), parameter :: OFFSET_STRING = '-' // HEARTBEAT_STRING
+      type(ESMF_TimeInterval) :: offset
+      logical, parameter :: FIRST_TIME = .TRUE.
+      logical :: actual_matches_expected, do_update
+      type(ESMF_Time) :: use_time, current_time
+
+      offset = -timestep
+      call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, OFFSET_STRING, time, clock, _RC)
+      call ex%check_update(do_update, use_time, current_time, FIRST_TIME, _RC)
+      actual_matches_expected = (use_time == reference_time+offset)
+      @assertTrue(actual_matches_expected, 'use_time does not match expected time.')
+
+   end subroutine test_create_from_parameters_heartbeat_negative
+
 end module Test_ExtDataUpdatePointer

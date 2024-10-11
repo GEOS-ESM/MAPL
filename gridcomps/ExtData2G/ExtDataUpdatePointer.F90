@@ -11,6 +11,7 @@ module MAPL_ExtDataPointerUpdate
    private
 
    public :: ExtDataPointerUpdate
+   public :: HEARTBEAT_STRING
 
    type :: ExtDataPointerUpdate
       private
@@ -32,7 +33,9 @@ module MAPL_ExtDataPointerUpdate
          procedure :: get_adjusted_time
    end type
 
-   contains
+   character(len=*), parameter :: HEARTBEAT_STRING = 'HEARTBEAT'
+   
+contains
 
    function get_adjusted_time(this,time,rc) result(adjusted_time)
       type(ESMF_Time) :: adjusted_time
@@ -94,13 +97,10 @@ module MAPL_ExtDataPointerUpdate
       character(len=*), intent(in) :: timestring
       logical, intent(out) :: is_heartbeat
       integer, intent(out) :: multiplier
-      character(len=*), parameter :: HEARTBEAT = 'HEARTBEAT'
-      character(len=:), allocatable :: uppercase
       integer :: i
 
       multiplier = 1
-      uppercase = to_upper(timestring)
-      i = index(uppercase, HEARTBEAT)
+      i = index(to_upper(timestring), HEARTBEAT_STRING)
       is_heartbeat = (i > 0)
 
    end subroutine parse_heartbeat_timestring
