@@ -27,7 +27,7 @@ module mapl3g_FieldSpec
    use mapl3g_VerticalGrid
    use mapl3g_VerticalRegridAction
    use mapl3g_VerticalDimSpec
-   use mapl3g_VerticalDimSpecRegridAction
+   use mapl3g_ConvertVerticalDimSpecAction
    use mapl3g_AbstractActionSpec
    use mapl3g_NullAction
    use mapl3g_CopyAction
@@ -955,7 +955,7 @@ contains
 
       select type (spec)
       type is (FieldSpec)
-         action = VerticalDimSpecRegridAction(spec%vertical_dim_spec, this%vertical_dim_spec)
+         action = ConvertVerticalDimSpecAction(spec%vertical_dim_spec, this%vertical_dim_spec)
          spec%vertical_dim_spec = this%vertical_dim_spec
       end select
 

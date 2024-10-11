@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 
-module mapl3g_VerticalDimSpecRegridAction
+module mapl3g_ConvertVerticalDimSpecAction
 
    use mapl_ErrorHandling
    use mapl3g_ExtensionAction
@@ -10,33 +10,33 @@ module mapl3g_VerticalDimSpecRegridAction
 
    implicit none
 
-   type, extends(ExtensionAction) :: VerticalDimSpecRegridAction
+   type, extends(ExtensionAction) :: ConvertVerticalDimSpecAction
       private
       type(VerticalDimSpec) :: src_vdimspec
       type(VerticalDimSpec) :: dst_vdimspec
    contains
       procedure :: initialize
       procedure :: run
-   end type VerticalDimSpecRegridAction
+   end type ConvertVerticalDimSpecAction
 
-   interface VerticalDimSpecRegridAction
-      module procedure new_VerticalDimSpecRegridAction
-   end interface VerticalDimSpecRegridAction
+   interface ConvertVerticalDimSpecAction
+      module procedure new_ConvertVerticalDimSpecAction
+   end interface ConvertVerticalDimSpecAction
 
 contains
 
-   function new_VerticalDimSpecRegridAction(src_vdimspec, dst_vdimspec) result(action)
-      type(VerticalDimSpecRegridAction) :: action
+   function new_ConvertVerticalDimSpecAction(src_vdimspec, dst_vdimspec) result(action)
+      type(ConvertVerticalDimSpecAction) :: action
       type(VerticalDimSpec), intent(in) :: src_vdimspec
       type(VerticalDimSpec), intent(in) :: dst_vdimspec
 
       action%src_vdimspec = src_vdimspec
       action%dst_vdimspec = dst_vdimspec
-   end function new_VerticalDimSpecRegridAction
+   end function new_ConvertVerticalDimSpecAction
 
    subroutine initialize(this, importState, exportState, clock, rc)
       use esmf
-      class(VerticalDimSpecRegridAction), intent(inout) :: this
+      class(ConvertVerticalDimSpecAction), intent(inout) :: this
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
       type(ESMF_Clock) :: clock      
@@ -52,7 +52,7 @@ contains
 
    subroutine run(this, importState, exportState, clock, rc)
       use esmf
-      class(VerticalDimSpecRegridAction), intent(inout) :: this
+      class(ConvertVerticalDimSpecAction), intent(inout) :: this
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
       type(ESMF_Clock) :: clock      
@@ -76,4 +76,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine run
 
-end module mapl3g_VerticalDimSpecRegridAction
+end module mapl3g_ConvertVerticalDimSpecAction
