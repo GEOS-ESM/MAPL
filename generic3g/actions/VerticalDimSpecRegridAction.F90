@@ -5,6 +5,7 @@ module mapl3g_VerticalDimSpecRegridAction
    use mapl_ErrorHandling
    use mapl3g_ExtensionAction
    use mapl3g_VerticalDimSpec
+   use MAPL_FieldUtils, only: assign_fptr
    use esmf
 
    implicit none
@@ -41,7 +42,6 @@ contains
       type(ESMF_Clock) :: clock      
       integer, optional, intent(out) :: rc
 
-      print *, "VerticalDimSpecRegridAction::initialize"
       ! No-op
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
@@ -58,13 +58,20 @@ contains
       type(ESMF_Clock) :: clock      
       integer, optional, intent(out) :: rc
 
-      ! integer :: status
-      ! type(ESMF_Field) :: f_in, f_out
+      integer :: top, bottom, status
+      type(ESMF_Field) :: f_in, f_out
+      real(kind=ESMF_KIND_R4), pointer :: x4_in(:,:,:), x4_out(:,:,:)
 
-      ! call ESMF_StateGet(importState, itemName='import[1]', field=f_in, _RC)
-      ! call ESMF_StateGet(exportState, itemName='export[1]', field=f_out, _RC)
+      call ESMF_StateGet(importState, itemName="import[1]", field=f_in, _RC)
+      call ESMF_StateGet(exportState, itemName="export[1]", field=f_out, _RC)
 
-      ! call FieldCopy(f_in, f_out, _RC)
+      call ESMF_FieldGet(f_in, fArrayPtr=x4_in, _RC)
+      call ESMF_FieldGet(f_out, fArrayPtr=x4_out, _RC)
+
+      ! Compute edge average
+      top = lbound(x4_in, 3)
+      bottom = ubound(x4_in, 3)
+      x4_out = 0.5 * (x4_in(:, :, top+1:bottom) + x4_in(:, :, top:bottom-1))
 
       _RETURN(_SUCCESS)
    end subroutine run
