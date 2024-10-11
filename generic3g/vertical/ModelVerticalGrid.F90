@@ -127,7 +127,7 @@ contains
        type(FieldSpec) :: goal_spec
        integer :: i
 
-       v_pt = VirtualConnectionPt(state_intent='export', short_name="PLE")
+       v_pt = VirtualConnectionPt(state_intent='export', short_name=this%variants%of(1))
        goal_spec = FieldSpec( &
             geom=geom, vertical_grid=this, vertical_dim_spec=vertical_dim_spec, &
             typekind=typekind, standard_name=standard_name, units=units, ungridded_dims=UngriddedDims())
