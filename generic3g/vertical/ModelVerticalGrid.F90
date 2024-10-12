@@ -30,9 +30,9 @@ module mapl3g_ModelVerticalGrid
       integer :: num_levels = -1
       type(StringVector) :: variants
 
-      ! character(:), allocatable :: short_name
-      ! character(:), allocatable :: standard_name
-      ! type(ESMF_Field) :: reference_field
+      !# character(:), allocatable :: short_name
+      !# character(:), allocatable :: standard_name
+      !# type(ESMF_Field) :: reference_field
       type(StateRegistry), pointer :: registry => null()
    contains
       procedure :: get_num_levels
@@ -67,15 +67,15 @@ contains
    function new_ModelVerticalGrid_basic(num_levels) result(vgrid)
       type(ModelVerticalGrid) :: vgrid
       integer, intent(in) :: num_levels
-      ! character(*), intent(in) :: short_name
-      ! character(*), intent(in) :: standard_name
-      ! type(StateRegistry), pointer, intent(in) :: registry
+      !# character(*), intent(in) :: short_name
+      !# character(*), intent(in) :: standard_name
+      !# type(StateRegistry), pointer, intent(in) :: registry
 
       call vgrid%set_id()
       vgrid%num_levels = num_levels
-      ! vgrid%short_name = short_name
-      ! vgrid%standard_name = standard_name
-      ! vgrid%registry => registry
+      !# vgrid%short_name = short_name
+      !# vgrid%standard_name = standard_name
+      !# vgrid%registry => registry
    end function new_ModelVerticalGrid_basic
 
 
