@@ -1,0 +1,306 @@
+! This class is to support propagation of time-dependent Field
+! attributes across couplers as well as to provide guidance to the
+! containt Action objects on when to recompute internal items.
+
+#include "MAPL_Exceptions.h"
+module mapl3g_FieldBundleDelta
+   use mapl3g_LU_Bound
+   use mapl3g_FieldDelta
+   use mapl3g_InfoUtilities
+   use mapl_FieldUtilities
+   use mapl_FieldPointerUtilities
+   use mapl3g_esmf_info_keys
+   use mapl_ErrorHandling
+   use mapl_KeywordEnforcer
+   use esmf
+   implicit none (type, external)
+   private
+
+   public :: FieldBundleDelta
+
+   type :: FieldBundleDelta
+      private
+      type(FieldDelta) :: field_delta ! constant across bundle
+      real(ESMF_KIND_R4), allocatable :: interpolation_weights(:)
+   contains
+      procedure :: initialize_bundle_delta
+      generic :: initialize => initialize_bundle_delta
+      procedure :: update_bundle
+      procedure :: reallocate_bundle
+   end type FieldBundleDelta
+
+
+   interface FieldBundleDelta
+      procedure new_FieldBundleDelta
+      procedure new_FieldBundleDelta_field_delta
+   end interface FieldBundleDelta
+
+contains
+
+   function new_FieldBundleDelta(fieldCount, geom, typekind, num_levels, units, interpolation_weights) result(bundle_delta)
+      type(FieldBundleDelta) :: bundle_delta
+      integer, optional, intent(in) :: fieldCount
+      type(ESMF_Geom), optional, intent(in) :: geom
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
+      integer, optional, intent(in) :: num_levels
+      character(*), optional, intent(in) :: units
+      real(ESMF_KIND_R4), intent(in), optional :: interpolation_weights(:)
+
+      associate (field_delta => FieldDelta(geom=geom, typekind=typekind, num_levels=num_levels, units=units))
+        bundle_delta = FieldBundleDelta(field_delta, fieldCount, interpolation_weights)
+      end associate
+
+   end function new_FieldBundleDelta
+
+   function new_FieldBundleDelta_field_delta(field_delta, fieldCount, interpolation_weights) result(bundle_delta)
+      type(FieldBundleDelta) :: bundle_delta
+      type(FieldDelta), intent(in) :: field_delta
+      integer, optional, intent(in) :: fieldCount
+      real(ESMF_KIND_R4), optional, intent(in) :: interpolation_weights(:)
+
+      bundle_delta%field_delta = field_delta
+
+      if (present(interpolation_weights)) then
+         bundle_delta%interpolation_weights = interpolation_weights
+      end if
+
+   end function new_FieldBundleDelta_field_delta
+
+
+   ! delta = bundle_b - bundle_a
+   subroutine initialize_bundle_delta(this, bundle_a, bundle_b, rc) 
+      class(FieldBundleDelta), intent(out) :: this
+      type(ESMF_FieldBundle), intent(in) :: bundle_a
+      type(ESMF_FieldBundle), intent(in) :: bundle_b
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call compute_interpolation_weights_delta(this%interpolation_weights, bundle_a, bundle_b, _RC)
+      call compute_field_delta(this%field_delta, bundle_a, bundle_b, _RC)
+
+      _RETURN(_SUCCESS)
+
+
+   contains
+
+      subroutine compute_interpolation_weights_delta(interpolation_weights, bundle_a, bundle_b, rc)
+         real(ESMF_KIND_R4), allocatable, intent(out) :: interpolation_weights(:)
+         type(ESMF_FieldBundle), intent(in) :: bundle_a
+         type(ESMF_FieldBundle), intent(in) :: bundle_b
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         real(ESMF_KIND_R4), allocatable :: weights_a(:), weights_b(:)
+
+         call MAPL_InfoGetInternal(bundle_a, key=KEY_INTERPOLATION_WEIGHTS, values=weights_a, _RC)
+         call MAPL_InfoGetInternal(bundle_b, key=KEY_INTERPOLATION_WEIGHTS, values=weights_b, _RC)
+
+         if (any(weights_a /= weights_b)) then
+            interpolation_weights = weights_b
+         end if
+
+         _RETURN(_SUCCESS)
+
+      end subroutine compute_interpolation_weights_delta
+
+      subroutine compute_field_delta(field_delta, bundle_a, bundle_b, rc)
+         type(FieldDelta), intent(out) :: field_delta
+         type(ESMF_FieldBundle), intent(in) :: bundle_a
+         type(ESMF_FieldBundle), intent(in) :: bundle_b
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         integer :: fieldCount_a, fieldCount_b
+         type(ESMF_Field), allocatable :: fieldList_a(:), fieldList_b(:)
+
+         call ESMF_FieldBundleGet(bundle_a, fieldCount=fieldCount_a, _RC)
+         call ESMF_FieldBundleGet(bundle_b, fieldCount=fieldCount_b, _RC)
+         allocate(fieldList_a(fieldCount_a), fieldList_b(fieldCount_b))
+         
+         if ((fieldCount_a > 0) .and. (fieldCount_b > 0)) then
+            call ESMF_FieldBundleGet(bundle_a, fieldList=fieldList_a, _RC)
+            call ESMF_FieldBundleGet(bundle_b, fieldList=fieldList_b, _RC)
+            call field_delta%initialize(fieldList_a(1), fieldList_b(1), _RC)
+            _RETURN(_SUCCESS)
+         end if
+
+         if (fieldCount_b > 0) then
+            call ESMF_FieldBundleGet(bundle_b, fieldList=fieldList_b, _RC)
+            ! full FieldDelta
+            call field_delta%initialize(fieldList_b(1), _RC)
+            _RETURN(_SUCCESS)
+         end if
+
+         ! Otherwise nothing to do. Fields are either going away
+         ! (n_fields_b = 0) or there are no fields on either side
+         ! (n_fields_a = 0 and n_fields_b = 0).
+            
+         _RETURN(_SUCCESS)
+      end subroutine compute_field_delta
+      
+
+   end subroutine initialize_bundle_delta
+
+   subroutine update_bundle(this, bundle, ignore, rc)
+      class(FieldBundleDelta), intent(in) :: this
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      character(*), intent(in), optional :: ignore
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: ignore_
+      type(ESMF_Field), allocatable :: fieldList(:)
+
+      ignore_ = ''
+      if (present(ignore)) ignore_ = ignore
+
+      call this%reallocate_bundle(bundle, ignore=ignore_, _RC)
+      call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
+      call this%field_delta%update_fields(fieldList, ignore=ignore_, _RC)
+
+      ! unique attribute in bundle
+      call update_interpolation_weights(this%interpolation_weights, bundle, ignore=ignore_, _RC)
+
+      _RETURN(_SUCCESS)
+   contains
+
+      subroutine update_units(units, field, ignore, rc)
+         character(*), optional, intent(in) :: units
+         type(ESMF_Field), intent(inout) :: field
+         character(*), intent(in), optional :: ignore
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         integer :: i
+         type(ESMF_Field), allocatable :: fieldList(:)
+
+         _RETURN_UNLESS(present(units))
+         _RETURN_IF(ignore == 'units')
+
+         call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
+         do i = 1, size(fieldList)
+            call MAPL_InfoSetInternal(fieldList(i), key=KEY_UNITS, value=units, _RC)
+         end do
+
+         _RETURN(_SUCCESS)
+      end subroutine update_units
+
+      subroutine update_interpolation_weights(interpolation_weights, bundle, ignore, rc)
+         real(ESMF_KIND_R4), optional, intent(in) :: interpolation_weights(:)
+         type(ESMF_FieldBundle), intent(inout) :: bundle
+         character(*), intent(in) :: ignore
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+
+         _RETURN_UNLESS(present(interpolation_weights))
+         _RETURN_IF(ignore == 'interpolation_weights')
+
+         call MAPL_InfoSetInternal(bundle, KEY_INTERPOLATION_WEIGHTS, values=interpolation_weights, _RC)
+
+         _RETURN(_SUCCESS)
+      end subroutine update_interpolation_weights
+
+   end subroutine update_bundle
+
+
+   ! If the size of the bundle is not changing, then any reallocation is
+   ! relegated to fields through the FieldDelta component.
+   ! Otherwise we need to create or destroy fields in the bundle.
+   
+   subroutine reallocate_bundle(this, bundle, ignore, unusable, rc)
+      class(FieldBundleDelta), intent(in) :: this
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      character(*), intent(in) :: ignore
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Field), allocatable :: fieldList(:)
+      type(ESMF_Geom) :: bundle_geom
+      integer :: i
+      type(LU_Bound), allocatable :: bounds(:)
+      type(LU_Bound) :: vertical_bounds
+      type(ESMF_TypeKind_Flag) :: typekind
+      integer, allocatable :: ungriddedLbound(:), ungriddedUbound(:)
+      type(ESMF_Info) :: ungridded_info
+      type(ESMF_Info) :: vertical_info
+      integer :: old_field_count, new_field_count
+      integer :: num_levels
+      character(:), allocatable :: units, vloc
+      character(ESMF_MAXSTR), allocatable :: fieldNameList(:)
+
+      ! Easy case 1: field count unchanged
+      call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
+      _RETURN_UNLESS(allocated(this%interpolation_weights))
+      new_field_count = size(this%interpolation_weights) - 1
+      old_field_count = size(fieldList)
+      _RETURN_IF(new_field_count == old_field_count)
+
+      ! Easy case 2: field count changing to zero
+      if (new_field_count == 0) then! "/dev/null" case
+         call destroy_fields(fieldList, _RC)
+         _RETURN(_SUCCESS)
+      end if
+
+      ! Hard case: need to create new fields?
+      _ASSERT(size(fieldList) == 0, 'fieldCount should only change to or from zero.  ExtData use case.')
+      deallocate(fieldList)
+      allocate(fieldList(new_field_count))
+
+      ! Need geom, typekind, and bounds to allocate fields before 
+      call MAPL_FieldBundleGet(bundle, geom=bundle_geom, _RC)
+      call MAPL_FieldBundleGet(bundle, typekind=typekind, ungriddedUBound=ungriddedUbound, _RC)
+      ungriddedLBound = [(1, i = 1, size(ungriddedUBound))]
+
+      ungridded_info = MAPL_InfoCreateFromInternal(bundle, key=KEY_UNGRIDDED_DIMS, _RC)
+      call MAPL_InfoGetInternal(bundle, KEY_UNITS, value=units, _RC)
+
+      call MAPL_InfoGetInternal(bundle, KEY_VLOC, value=vloc, _RC)
+      if (vloc /= "VERTICAL_DIM_NONE") then
+         call MAPL_InfoGetInternal(bundle, KEY_NUM_LEVELS, value=num_levels, _RC)
+      end if
+
+      do i = 1, new_field_count
+         fieldList(i) = ESMF_FieldEmptyCreate(_RC)
+         call ESMF_FieldEmptySet(fieldList(i), geom=bundle_geom, _RC)
+         call ESMF_FieldEmptyComplete(fieldList(i), typekind=typekind, &
+              ungriddedLbound=ungriddedLBound, ungriddedUbound=ungriddedUBound, _RC)
+         call MAPL_InfoSetInternal(fieldList(i), KEY_UNGRIDDED_DIMS, value=ungridded_info, _RC)
+         call MAPL_InfoSetInternal(fieldList(i), KEY_VLOC, value=vloc, _RC)
+         if (vloc /= "VERTICAL_DIM_NONE") then
+            call MAPL_InfoSetInternal(fieldList(i), KEY_NUM_LEVELS, value=num_levels, _RC)
+         end if
+         call MAPL_InfoSetInternal(fieldList(i), KEY_UNITS, value=units, _RC)
+      end do
+
+      call ESMF_InfoDestroy(ungridded_info, _RC)
+
+      allocate(fieldNameList(old_field_count))
+      call ESMF_FieldBundleGet(bundle, fieldNameList=fieldNameList, _RC)
+      call ESMF_FieldBundleRemove(bundle, fieldNameList, multiflag=.true., _RC)
+
+      call ESMF_FieldBundleAdd(bundle, fieldList, multiFlag=.true., relaxedFlag=.true., _RC)
+
+      _RETURN(_SUCCESS)
+
+   contains
+
+      subroutine destroy_fields(fieldList, rc)
+         type(ESMF_Field), intent(inout) :: fieldList(:)
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         integer :: i
+
+         do i = 1, size(fieldList)
+            call ESMF_FieldDestroy(fieldList(i), _RC)
+         end do
+
+         _RETURN(_SUCCESS)
+      end subroutine destroy_fields
+      
+   end subroutine reallocate_bundle
+
+end module mapl3g_FieldBundleDelta

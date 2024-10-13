@@ -47,6 +47,7 @@ module mapl3g_InfoUtilities
 
    interface MAPL_InfoCreateFromInternal
       procedure :: info_field_create_from_internal
+      procedure :: info_bundle_create_from_internal
    end interface MAPL_InfoCreateFromInternal
 
    ! Direct access through ESMF_Info object
@@ -101,7 +102,9 @@ module mapl3g_InfoUtilities
    interface MAPL_InfoGetInternal
       procedure :: info_field_get_internal_string
       procedure :: info_field_get_internal_i4
-      procedure :: info_get_bundle_internal_r4_1d
+      procedure :: info_bundle_get_internal_string
+      procedure :: info_bundle_get_internal_i4
+      procedure :: info_bundle_get_internal_r4_1d
       procedure :: info_stateitem_get_internal_string
       procedure :: info_stateitem_get_internal_logical
       procedure :: info_stateitem_get_internal_i4
@@ -111,8 +114,13 @@ module mapl3g_InfoUtilities
    end interface MAPL_InfoGetInternal
 
    interface MAPL_InfoSetInternal
+      procedure :: info_field_set_internal_info
       procedure :: info_field_set_internal_string
       procedure :: info_field_set_internal_i4
+      procedure :: info_bundle_set_internal_info
+      procedure :: info_bundle_set_internal_string
+      procedure :: info_bundle_set_internal_i4
+      procedure :: info_bundle_set_internal_r4_1d
       procedure :: info_stateitem_set_internal_string
       procedure :: info_stateitem_set_internal_logical
       procedure :: info_stateitem_set_internal_i4
@@ -242,19 +250,49 @@ contains
 
    ! MAPL_InfoCreateFromInternal
 
-   function info_field_create_from_internal(field, rc) result(info)
+   function info_field_create_from_internal(field, key, rc) result(info)
       type(ESMF_Info) :: info
       type(ESMF_Field), intent(in) :: field
+      character(*), optional, intent(in) :: key
       integer, optional, intent(out) :: rc
 
       type(ESMF_Info) :: host_info
       integer :: status
+      character(:), allocatable :: key_
 
       call ESMF_InfoGetFromHost(field, host_info, _RC)
-      info = ESMF_InfoCreate(host_info, key=INFO_INTERNAL_NAMESPACE, _RC)
+
+      key_ = INFO_INTERNAL_NAMESPACE
+      if (present(key)) then
+         key_ = concat(key_, key)
+      end if
+
+      info = ESMF_InfoCreate(host_info, key=key_, _RC)
 
       _RETURN(_SUCCESS)
    end function info_field_create_from_internal
+
+   function info_bundle_create_from_internal(bundle, key, rc) result(info)
+      type(ESMF_Info) :: info
+      type(ESMF_FieldBundle), intent(in) :: bundle
+      character(*), optional, intent(in) :: key
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Info) :: host_info
+      integer :: status
+      character(:), allocatable :: key_
+
+      call ESMF_InfoGetFromHost(bundle, host_info, _RC)
+
+      key_ = INFO_INTERNAL_NAMESPACE
+      if (present(key)) then
+         key_ = concat(key_, key)
+      end if
+
+      info = ESMF_InfoCreate(host_info, key=key_, _RC)
+
+      _RETURN(_SUCCESS)
+   end function info_bundle_create_from_internal
 
    ! MAPL_InfoGetShared
 
@@ -771,7 +809,37 @@ contains
       _RETURN(_SUCCESS)
    end subroutine info_field_get_internal_i4
 
-   subroutine info_get_bundle_internal_r4_1d(bundle, key, values, rc)
+   subroutine info_bundle_get_internal_string(bundle, key, value, rc)
+      type(ESMF_FieldBundle), intent(in) :: bundle
+      character(*), intent(in) :: key
+      character(:), allocatable, intent(out) :: value
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: info
+
+      call ESMF_InfoGetFromHost(bundle, info, _RC)
+      call MAPL_InfoGet(info, key=concat(INFO_INTERNAL_NAMESPACE,key), value=value, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine info_bundle_get_internal_string
+
+   subroutine info_bundle_get_internal_i4(bundle, key, value, rc)
+      type(ESMF_FieldBundle), intent(in) :: bundle
+      character(*), intent(in) :: key
+      integer(kind=ESMF_KIND_I4), intent(out) :: value
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: info
+
+      call ESMF_InfoGetFromHost(bundle, info, _RC)
+      call MAPL_InfoGet(info, key=concat(INFO_INTERNAL_NAMESPACE,key), value=value, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine info_bundle_get_internal_i4
+
+   subroutine info_bundle_get_internal_r4_1d(bundle, key, values, rc)
       type(ESMF_FieldBundle), intent(in) :: bundle
       character(*), intent(in) :: key
       real(kind=ESMF_KIND_R4), allocatable, intent(out) :: values(:)
@@ -784,7 +852,7 @@ contains
       call MAPL_InfoGet(info, key=concat(INFO_INTERNAL_NAMESPACE,key), values=values, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine info_get_bundle_internal_r4_1d
+   end subroutine info_bundle_get_internal_r4_1d
 
    subroutine info_stateitem_get_internal_string(state, short_name, key, value, rc)
       type(ESMF_State), intent(in) :: state
@@ -884,6 +952,21 @@ contains
 
    ! MAPL_InfoSetInternal
 
+   subroutine info_field_set_internal_info(field, key, value, rc)
+      type(ESMF_Field), intent(in) :: field
+      character(*), intent(in) :: key
+      type(ESMF_Info), intent(in) :: value
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: field_info
+
+      call ESMF_InfoGetFromHost(field, field_info, _RC)
+      call MAPL_InfoSet(field_info, key=concat(INFO_INTERNAL_NAMESPACE,key), value=value, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine info_field_set_internal_info
+
    subroutine info_field_set_internal_string(field, key, value, rc)
       type(ESMF_Field), intent(in) :: field
       character(*), intent(in) :: key
@@ -913,6 +996,66 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine info_field_set_internal_i4
+
+   subroutine info_bundle_set_internal_info(bundle, key, value, rc)
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      character(*), intent(in) :: key
+      type(ESMF_Info), intent(in) :: value
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: bundle_info
+
+      call ESMF_InfoGetFromHost(bundle, bundle_info, _RC)
+      call MAPL_InfoSet(bundle_info, key=concat(INFO_INTERNAL_NAMESPACE,key), value=value, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine info_bundle_set_internal_info
+
+   subroutine info_bundle_set_internal_string(bundle, key, value, rc)
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      character(*), intent(in) :: key
+      character(*), intent(in) :: value
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: info
+
+      call ESMF_InfoGetFromHost(bundle, info, _RC)
+      call MAPL_InfoSet(info, key=concat(INFO_INTERNAL_NAMESPACE,key), value=value, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine info_bundle_set_internal_string
+
+   subroutine info_bundle_set_internal_i4(bundle, key, value, rc)
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      character(*), intent(in) :: key
+      integer, intent(in) :: value
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: info
+
+      call ESMF_InfoGetFromHost(bundle, info, _RC)
+      call MAPL_InfoSet(info, key=concat(INFO_INTERNAL_NAMESPACE,key), value=value, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine info_bundle_set_internal_i4
+
+   subroutine info_bundle_set_internal_r4_1d(bundle, key, values, rc)
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      character(*), intent(in) :: key
+      real(kind=ESMF_KIND_R4), dimension(:), intent(in) :: values
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: info
+
+      call ESMF_InfoGetFromHost(bundle, info, _RC)
+      call MAPL_InfoSet(info, key=concat(INFO_INTERNAL_NAMESPACE,key), values=values, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine info_bundle_set_internal_r4_1d
 
    subroutine info_stateitem_set_internal_string(state, short_name, key, value, rc)
       type(ESMF_State), intent(in) :: state

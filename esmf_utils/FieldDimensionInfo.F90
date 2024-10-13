@@ -183,7 +183,9 @@ contains
       type(UngriddedDims) :: dims
 
       do i=1, size(info)
+         _HERE
          dims = make_ungriddedDims(info(i), key=KEY_UNGRIDDED_DIMS, _RC)
+         _HERE
          call merge_ungridded_dims(vec, dims, rc)
       end do
       _RETURN(_SUCCESS)
@@ -198,7 +200,9 @@ contains
       type(ESMF_Info) :: info
 
       info = MAPL_InfoCreateFromInternal(field, _RC)
+      _HERE
       ungridded = make_UngriddedDims(info, key=KEY_UNGRIDDED_DIMS, _RC)
+      _HERE
       call ESMF_InfoDestroy(info, _RC)
 
       _RETURN(_SUCCESS)
