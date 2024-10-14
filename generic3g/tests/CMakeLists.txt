@@ -6,7 +6,6 @@ add_subdirectory(gridcomps)
 
 set (test_srcs
 
-  Test_InfoUtilities.pf
   Test_VirtualConnectionPt.pf
 
   Test_SimpleLeafGridComp.pf

@@ -15,7 +15,7 @@ contains
       type(ESMF_State) :: state
       integer :: status
       character(:), allocatable :: name
-      character(*), parameter :: expected = 'comp_A'
+      character(*), parameter :: expected = '/comp_A'
 
       state = ESMF_StateCreate(name='export', _RC)
       call MAPL_InfoSetNamespace(state, namespace=expected, _RC)
@@ -25,6 +25,28 @@ contains
 
       call ESMF_StateDestroy(state, _RC)
    end subroutine test_set_namespace
+
+   @test
+   subroutine test_info_get_internal_info()
+      type(ESMF_Info) :: info
+      type(ESMF_Info) :: subinfo
+      integer :: status
+      type(ESMF_Field) :: field
+      integer, parameter :: expected = 1
+      integer :: found
+
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call MAPL_InfoSetInternal(field, key='d', value=expected, _RC)
+      call MAPL_InfoSetInternal(field, key='a', value=2, _RC)
+
+      subinfo = MAPL_InfoCreateFromInternal(field, _RC)
+      call ESMF_InfoGet(subinfo, key='d', value=found, _RC)
+      @assert_that(found, is(expected))
+
+      call ESMF_InfoDestroy(subinfo)
+      call ESMF_FieldDestroy(field)
+      
+   end subroutine test_info_get_internal_info
 
    @test
    subroutine test_set_stateitem_shared_string()
@@ -175,7 +197,7 @@ contains
       character(*), parameter :: expected = 'hello'
 
       state = ESMF_StateCreate(name='import', _RC)
-      call MAPL_InfoSetNameSpace(state, namespace='compA', _RC)
+      call MAPL_InfoSetNameSpace(state, namespace='/compA', _RC)
 
       field = ESMF_FieldEmptyCreate(name='f', _RC)
       call ESMF_StateAdd(state, [field], _RC)
@@ -199,7 +221,7 @@ contains
       logical, parameter :: expected = .true.
 
       state = ESMF_StateCreate(name='import', _RC)
-      call MAPL_InfoSetNameSpace(state, namespace='compA', _RC)
+      call MAPL_InfoSetNameSpace(state, namespace='/compA', _RC)
 
       field = ESMF_FieldEmptyCreate(name='f', _RC)
       call ESMF_StateAdd(state, [field], _RC)
@@ -224,7 +246,7 @@ contains
       integer(kind=ESMF_KIND_I4), parameter :: expected = 1
 
       state = ESMF_StateCreate(name='import', _RC)
-      call MAPL_InfoSetNameSpace(state, namespace='compA', _RC)
+      call MAPL_InfoSetNameSpace(state, namespace='/compA', _RC)
 
       field = ESMF_FieldEmptyCreate(name='f', _RC)
       call ESMF_StateAdd(state, [field], _RC)
@@ -249,7 +271,7 @@ contains
       real(kind=ESMF_KIND_R4), parameter :: expected = 1.0
 
       state = ESMF_StateCreate(name='import', _RC)
-      call MAPL_InfoSetNameSpace(state, namespace='compA', _RC)
+      call MAPL_InfoSetNameSpace(state, namespace='/compA', _RC)
 
       field = ESMF_FieldEmptyCreate(name='f', _RC)
       call ESMF_StateAdd(state, [field], _RC)
@@ -273,7 +295,7 @@ contains
       real(kind=ESMF_KIND_R8), parameter :: expected = 1.0
 
       state = ESMF_StateCreate(name='import', _RC)
-      call MAPL_InfoSetNameSpace(state, namespace='compA', _RC)
+      call MAPL_InfoSetNameSpace(state, namespace='/compA', _RC)
 
       field = ESMF_FieldEmptyCreate(name='f', _RC)
       call ESMF_StateAdd(state, [field], _RC)
@@ -297,7 +319,7 @@ contains
       real(kind=ESMF_KIND_R4), parameter :: expected(*) = [1.0, 3.0, 7.0]
 
       state = ESMF_StateCreate(name='import', _RC)
-      call MAPL_InfoSetNameSpace(state, namespace='compA', _RC)
+      call MAPL_InfoSetNameSpace(state, namespace='/compA', _RC)
 
       field = ESMF_FieldEmptyCreate(name='f', _RC)
       call ESMF_StateAdd(state, [field], _RC)
@@ -322,10 +344,10 @@ contains
       integer :: i_a, i_b
 
       state_a = ESMF_StateCreate(name='import', _RC)
-      call MAPL_InfoSetNameSpace(state_a, namespace='compA', _RC)
+      call MAPL_InfoSetNameSpace(state_a, namespace='/compA', _RC)
 
       state_b = ESMF_StateCreate(name='import', _RC)
-      call MAPL_InfoSetNameSpace(state_b, namespace='compB', _RC)
+      call MAPL_InfoSetNameSpace(state_b, namespace='/compB', _RC)
 
 
       field = ESMF_FieldEmptyCreate(name='f', _RC)
@@ -347,6 +369,24 @@ contains
 
    end subroutine test_setPrivate_is_private
 
+
+   @test
+   subroutine test_field_set_string()
+      type(ESMF_Field) :: field
+      integer :: status
+      character(len=:), allocatable :: s
+      character(len=*), parameter :: expected = 'hello'
+
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+
+      call MAPL_InfoSetInternal(field, key='a', value=expected, _RC)
+      call MAPL_InfoGetInternal(field, key='a', value=s, _RC)
+
+      @assert_that(s, is(expected))
+
+      call ESMF_FieldDestroy(field, _RC)
+
+   end subroutine test_field_set_string
 
    @test
    subroutine test_set_stateitem_internal_string()
