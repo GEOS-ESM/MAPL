@@ -40,6 +40,7 @@ module mapl3g_FieldSpec
    use mapl3g_FieldDictionary
    use mapl3g_GriddedComponentDriver
    use mapl3g_VariableSpec, only: VariableSpec
+   use mapl3g_VerticalRegridMethod
    use udunits2f, only: UDUNITS_are_convertible => are_convertible, udunit
    use gftl2_StringVector
    use esmf
@@ -160,7 +161,7 @@ module mapl3g_FieldSpec
       type(ESMF_Geom), allocatable :: geom
       type(ESMF_TypeKind_Flag) :: typekind
       character(:), allocatable :: units
-      type(Vertical_RegridMethod_Flag), allocatable :: regrid_method
+      type(VerticalRegridMethod), allocatable :: regrid_method
    contains
       procedure :: adapt_one => adapt_vertical_grid
       procedure :: match_one => adapter_match_vertical_grid
@@ -861,7 +862,7 @@ contains
       type(ESMF_Geom), optional, intent(in) :: geom
       type(ESMF_Typekind_Flag), intent(in) :: typekind
       character(*), optional, intent(in) :: units
-      type(Vertical_RegridMethod_Flag), optional, intent(in) :: regrid_method
+      type(VerticalRegridMethod), optional, intent(in) :: regrid_method
 
       if (present(vertical_grid)) adapter%vertical_grid = vertical_grid
       if (present(vertical_dim_spec)) adapter%vertical_dim_spec = vertical_dim_spec
