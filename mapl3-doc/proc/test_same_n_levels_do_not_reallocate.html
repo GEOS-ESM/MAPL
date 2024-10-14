@@ -1,0 +1,567 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>test_same_n_levels_do_not_reallocate &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>test_same_n_levels_do_not_reallocate
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">79 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_FieldUtilities.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_fieldutilities.pf.html'>Test_FieldUtilities.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_fieldutilities.html'>Test_FieldUtilities</a></li>
+            <li class="breadcrumb-item active" aria-current="page">test_same_n_levels_do_not_reallocate</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/test_same_n_levels_do_not_reallocate.html#src">test_same_n_levels_do_not_reallocate</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine test_same_n_levels_do_not_reallocate(this)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~3145"></span>
+              class(<a href='../type/esmf_testmethod.html'>ESMF_TestMethod</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~test_same_n_levels_do_not_reallocate~~CallsGraph Pages: 1 -->
+<svg id="proctest_same_n_levels_do_not_reallocateCallsGraph" width="418pt" height="536pt"
+ viewBox="0.00 0.00 418.00 536.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 532)">
+<title>proc~~test_same_n_levels_do_not_reallocate~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-532 414,-532 414,4 -4,4"/>
+<!-- proc~test_same_n_levels_do_not_reallocate -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_node1" class="node">
+<title>proc~test_same_n_levels_do_not_reallocate</title>
+<polygon fill="none" stroke="black" points="214,-276 0,-276 0,-252 214,-252 214,-276"/>
+<text text-anchor="middle" x="107" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_same_n_levels_do_not_reallocate</text>
+</g>
+<!-- ESMF_GeomCreate -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_node2" class="node">
+<title>ESMF_GeomCreate</title>
+<g id="a_proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_geomcreate.html" xlink:title="ESMF_GeomCreate">
+<polygon fill="#a7506f" stroke="#a7506f" points="387,-528 273,-528 273,-504 387,-504 387,-528"/>
+<text text-anchor="middle" x="330" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GeomCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~test_same_n_levels_do_not_reallocate&#45;&gt;ESMF_GeomCreate -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_edge1" class="edge">
+<title>proc~test_same_n_levels_do_not_reallocate&#45;&gt;ESMF_GeomCreate</title>
+<path fill="none" stroke="#ff0000" d="M111.77,-276.03C124.46,-314.41 169.37,-435 250,-495 254.16,-498.1 258.75,-500.74 263.55,-502.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="262.42,-506.31 273,-506.86 265.07,-499.83 262.42,-506.31"/>
+</g>
+<!-- ESMF_GeomDestroy -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_node3" class="node">
+<title>ESMF_GeomDestroy</title>
+<g id="a_proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_geomdestroy.html" xlink:title="ESMF_GeomDestroy">
+<polygon fill="#d9534f" stroke="#d9534f" points="389.5,-486 270.5,-486 270.5,-462 389.5,-462 389.5,-486"/>
+<text text-anchor="middle" x="330" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GeomDestroy</text>
+</a>
+</g>
+</g>
+<!-- proc~test_same_n_levels_do_not_reallocate&#45;&gt;ESMF_GeomDestroy -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_edge2" class="edge">
+<title>proc~test_same_n_levels_do_not_reallocate&#45;&gt;ESMF_GeomDestroy</title>
+<path fill="none" stroke="#ff0000" d="M113.64,-276.41C129.71,-310.34 179.21,-405.28 250,-453 253.35,-455.26 256.92,-457.27 260.64,-459.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="259.54,-462.4 270.11,-463.11 262.29,-455.96 259.54,-462.4"/>
+</g>
+<!-- ESMF_GridCreateNoPeriDim -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_node4" class="node">
+<title>ESMF_GridCreateNoPeriDim</title>
+<g id="a_proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridcreatenoperidim.html" xlink:title="ESMF_GridCreateNoPeriDim">
+<polygon fill="#a7506f" stroke="#a7506f" points="410,-444 250,-444 250,-420 410,-420 410,-444"/>
+<text text-anchor="middle" x="330" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridCreateNoPeriDim</text>
+</a>
+</g>
+</g>
+<!-- proc~test_same_n_levels_do_not_reallocate&#45;&gt;ESMF_GridCreateNoPeriDim -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_edge3" class="edge">
+<title>proc~test_same_n_levels_do_not_reallocate&#45;&gt;ESMF_GridCreateNoPeriDim</title>
+<path fill="none" stroke="#ff0000" d="M116.04,-276.02C135.52,-304.16 188.2,-374.69 250,-411 253.19,-412.87 256.54,-414.58 260,-416.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="258.75,-419.41 269.33,-419.92 261.38,-412.92 258.75,-419.41"/>
+</g>
+<!-- ESMF_GridDestroy -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_node5" class="node">
+<title>ESMF_GridDestroy</title>
+<g id="a_proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_node5"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_griddestroy.html" xlink:title="ESMF_GridDestroy">
+<polygon fill="#d9534f" stroke="#d9534f" points="384.5,-402 275.5,-402 275.5,-378 384.5,-378 384.5,-402"/>
+<text text-anchor="middle" x="330" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridDestroy</text>
+</a>
+</g>
+</g>
+<!-- proc~test_same_n_levels_do_not_reallocate&#45;&gt;ESMF_GridDestroy -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_edge4" class="edge">
+<title>proc~test_same_n_levels_do_not_reallocate&#45;&gt;ESMF_GridDestroy</title>
+<path fill="none" stroke="#ff0000" d="M120.98,-276.3C144.71,-298.14 197.5,-343.75 250,-369 254.96,-371.38 260.22,-373.53 265.59,-375.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="264.72,-378.85 275.32,-378.67 266.93,-372.2 264.72,-378.85"/>
+</g>
+<!-- anyexceptions -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_node6" class="node">
+<title>anyexceptions</title>
+<polygon fill="#777777" stroke="#777777" points="374.5,-360 285.5,-360 285.5,-336 374.5,-336 374.5,-360"/>
+<text text-anchor="middle" x="330" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">anyexceptions</text>
+</g>
+<!-- proc~test_same_n_levels_do_not_reallocate&#45;&gt;anyexceptions -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_edge5" class="edge">
+<title>proc~test_same_n_levels_do_not_reallocate&#45;&gt;anyexceptions</title>
+<path fill="none" stroke="#ff0000" d="M131.9,-276C159.75,-289.65 207.39,-311.99 250,-327 258.08,-329.85 266.74,-332.52 275.27,-334.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="274.59,-338.38 285.16,-337.66 276.45,-331.64 274.59,-338.38"/>
+</g>
+<!-- assert_that -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_node7" class="node">
+<title>assert_that</title>
+<polygon fill="#777777" stroke="#777777" points="365.5,-318 294.5,-318 294.5,-294 365.5,-294 365.5,-318"/>
+<text text-anchor="middle" x="330" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assert_that</text>
+</g>
+<!-- proc~test_same_n_levels_do_not_reallocate&#45;&gt;assert_that -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_edge6" class="edge">
+<title>proc~test_same_n_levels_do_not_reallocate&#45;&gt;assert_that</title>
+<path fill="none" stroke="#ff0000" d="M171.33,-276.04C207.47,-282.9 251.9,-291.35 284.37,-297.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="283.99,-301.01 294.47,-299.44 285.3,-294.13 283.99,-301.01"/>
+</g>
+<!-- esmf_fieldcreate -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_node8" class="node">
+<title>esmf_fieldcreate</title>
+<polygon fill="#777777" stroke="#777777" points="380.5,-276 279.5,-276 279.5,-252 380.5,-252 380.5,-276"/>
+<text text-anchor="middle" x="330" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldcreate</text>
+</g>
+<!-- proc~test_same_n_levels_do_not_reallocate&#45;&gt;esmf_fieldcreate -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_edge7" class="edge">
+<title>proc~test_same_n_levels_do_not_reallocate&#45;&gt;esmf_fieldcreate</title>
+<path fill="none" stroke="#ff0000" d="M214.29,-264C233.16,-264 252.18,-264 269.17,-264"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="269.47,-267.5 279.47,-264 269.47,-260.5 269.47,-267.5"/>
+</g>
+<!-- esmf_fielddestroy -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_node9" class="node">
+<title>esmf_fielddestroy</title>
+<polygon fill="#777777" stroke="#777777" points="383,-234 277,-234 277,-210 383,-210 383,-234"/>
+<text text-anchor="middle" x="330" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fielddestroy</text>
+</g>
+<!-- proc~test_same_n_levels_do_not_reallocate&#45;&gt;esmf_fielddestroy -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_edge8" class="edge">
+<title>proc~test_same_n_levels_do_not_reallocate&#45;&gt;esmf_fielddestroy</title>
+<path fill="none" stroke="#ff0000" d="M171.33,-251.96C201.35,-246.26 237.1,-239.47 266.95,-233.79"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="267.67,-237.22 276.84,-231.91 266.36,-230.34 267.67,-237.22"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_node10" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="372.5,-192 287.5,-192 287.5,-168 372.5,-168 372.5,-192"/>
+<text text-anchor="middle" x="330" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~test_same_n_levels_do_not_reallocate&#45;&gt;esmf_fieldget -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_edge9" class="edge">
+<title>proc~test_same_n_levels_do_not_reallocate&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ff0000" d="M131.9,-252C159.75,-238.35 207.39,-216.01 250,-201 258.75,-197.92 268.18,-195.04 277.37,-192.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="278.48,-195.79 287.21,-189.79 276.65,-189.04 278.48,-195.79"/>
+</g>
+<!-- interface~fieldreallocate -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_node11" class="node">
+<title>interface~fieldreallocate</title>
+<g id="a_proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_node11"><a xlink:href="../interface/fieldreallocate.html" xlink:title="FieldReallocate">
+<polygon fill="#a7506f" stroke="#a7506f" points="377,-150 283,-150 283,-126 377,-126 377,-150"/>
+<text text-anchor="middle" x="330" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldReallocate</text>
+</a>
+</g>
+</g>
+<!-- proc~test_same_n_levels_do_not_reallocate&#45;&gt;interface~fieldreallocate -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_edge10" class="edge">
+<title>proc~test_same_n_levels_do_not_reallocate&#45;&gt;interface~fieldreallocate</title>
+<path fill="none" stroke="#ff0000" d="M120.98,-251.7C144.71,-229.86 197.5,-184.25 250,-159 257.27,-155.5 265.22,-152.52 273.17,-150"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="274.23,-153.34 282.83,-147.15 272.25,-146.62 274.23,-153.34"/>
+</g>
+<!-- interface~mapl_infosetinternal -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_node12" class="node">
+<title>interface~mapl_infosetinternal</title>
+<g id="a_proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_node12"><a xlink:href="../interface/mapl_infosetinternal.html" xlink:title="MAPL_InfoSetInternal">
+<polygon fill="#a7506f" stroke="#a7506f" points="392.5,-108 267.5,-108 267.5,-84 392.5,-84 392.5,-108"/>
+<text text-anchor="middle" x="330" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_InfoSetInternal</text>
+</a>
+</g>
+</g>
+<!-- proc~test_same_n_levels_do_not_reallocate&#45;&gt;interface~mapl_infosetinternal -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_edge11" class="edge">
+<title>proc~test_same_n_levels_do_not_reallocate&#45;&gt;interface~mapl_infosetinternal</title>
+<path fill="none" stroke="#ff0000" d="M116.04,-251.98C135.52,-223.84 188.2,-153.31 250,-117 253.19,-115.13 256.54,-113.42 260,-111.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="261.38,-115.08 269.33,-108.08 258.75,-108.59 261.38,-115.08"/>
+</g>
+<!-- sourcelocation -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_node13" class="node">
+<title>sourcelocation</title>
+<polygon fill="#777777" stroke="#777777" points="375.5,-66 284.5,-66 284.5,-42 375.5,-42 375.5,-66"/>
+<text text-anchor="middle" x="330" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sourcelocation</text>
+</g>
+<!-- proc~test_same_n_levels_do_not_reallocate&#45;&gt;sourcelocation -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_edge12" class="edge">
+<title>proc~test_same_n_levels_do_not_reallocate&#45;&gt;sourcelocation</title>
+<path fill="none" stroke="#ff0000" d="M113.64,-251.59C129.71,-217.66 179.21,-122.72 250,-75 257.35,-70.04 265.82,-66.26 274.43,-63.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="275.56,-66.67 284.14,-60.46 273.56,-59.97 275.56,-66.67"/>
+</g>
+<!-- true -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_node14" class="node">
+<title>true</title>
+<polygon fill="#777777" stroke="#777777" points="357,-24 303,-24 303,0 357,0 357,-24"/>
+<text text-anchor="middle" x="330" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">true</text>
+</g>
+<!-- proc~test_same_n_levels_do_not_reallocate&#45;&gt;true -->
+<g id="proc~~test_same_n_levels_do_not_reallocate~~CallsGraph_edge13" class="edge">
+<title>proc~test_same_n_levels_do_not_reallocate&#45;&gt;true</title>
+<path fill="none" stroke="#ff0000" d="M111.77,-251.97C124.46,-213.59 169.37,-93 250,-33 262.28,-23.86 278.23,-18.7 292.58,-15.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="293.42,-19.19 302.67,-14.03 292.22,-12.29 293.42,-19.19"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_same_n_levels_do_not_reallocate</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">f</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">other_geom</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldStatus_Flag</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field_status</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x</span><span class="p">(:,:,:,:)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TypeKind_Flag</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">typekind</span>
+
+<span class="w">      </span><span class="n">grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_GridCreateNoPeriDim</span><span class="p">(</span><span class="n">maxIndex</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;I_AM_GROOT&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">geom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_GeomCreate</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;in&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">ungriddedLbound</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">ungriddedUbound</span><span class="o">=</span><span class="p">[</span><span class="n">ORIGINAL_NUM_LEVELS</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_InfoSetInternal</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="o">=</span><span class="n">KEY_NUM_LEVELS</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">ORIGINAL_NUM_LEVELS</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_InfoSetInternal</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="o">=</span><span class="n">KEY_VLOC</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="s1">&#39;VERTICAL_DIM_EDGE&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">fArrayPtr</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FILL_VALUE</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">FieldReallocate</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">num_levels</span><span class="o">=</span><span class="n">ORIGINAL_NUM_LEVELS</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="o">=</span><span class="n">field_status</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="o">=</span><span class="n">typekind</span><span class="p">,</span><span class="w"> </span><span class="n">geom</span><span class="o">=</span><span class="n">other_geom</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">field_status</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_FIELDSTATUS_COMPLETE</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">typekind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">other_geom</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+
+<span class="w">      </span><span class="c">! Check that Field data is unchanged</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">fArrayPtr</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="k">all</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FILL_VALUE</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldDestroy</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridDestroy</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_GeomDestroy</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_same_n_levels_do_not_reallocate</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-14T14:45:19.029470             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

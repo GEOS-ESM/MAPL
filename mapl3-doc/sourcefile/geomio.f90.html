@@ -1,0 +1,668 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>GeomIO.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>GeomIO.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">6 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/GeomIO.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">GeomIO.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_geomio.html">mapl3g_geomio</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/geomio.f90.html#src">GeomIO.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~geomio.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilegeomiof90EfferentGraph" width="641pt" height="327pt"
+ viewBox="0.00 0.00 641.00 327.48" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~geomio.f90~~EfferentGraph" class="graph" transform="scale(0.95 0.95) rotate(0) translate(4 339.32)">
+<title>sourcefile~~geomio.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-339.32 668,-339.32 668,4 -4,4"/>
+<!-- sourcefile~geomio.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~geomio.f90</title>
+<polygon fill="none" stroke="black" points="664,-127.32 586,-127.32 586,-103.32 664,-103.32 664,-127.32"/>
+<text text-anchor="middle" x="625" y="-112.92" font-family="Helvetica,sans-Serif" font-size="10.50">GeomIO.F90</text>
+</g>
+<!-- sourcefile~geom_pfio.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~geom_pfio.f90</title>
+<g id="a_sourcefile~~geomio.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/geom_pfio.f90.html" xlink:title="Geom_PFIO.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-127.32 291,-127.32 291,-103.32 386,-103.32 386,-127.32"/>
+<text text-anchor="middle" x="338.5" y="-112.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Geom_PFIO.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~geomio.f90&#45;&gt;sourcefile~geom_pfio.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~geomio.f90&#45;&gt;sourcefile~geom_pfio.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M595.79,-127.37C568.54,-138.09 525.8,-152.49 487,-155.32"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M485,-155.32C445.56,-158.19 402.05,-143.77 372.98,-131.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="374.26,-128.2 363.7,-127.38 371.45,-134.61 374.26,-128.2"/>
+</g>
+<!-- sourcefile~geomcatagorizer.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~geomcatagorizer.f90</title>
+<g id="a_sourcefile~~geomio.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/geomcatagorizer.f90.html" xlink:title="GeomCatagorizer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="550,-87.32 422,-87.32 422,-63.32 550,-63.32 550,-87.32"/>
+<text text-anchor="middle" x="486" y="-72.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GeomCatagorizer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~geomio.f90&#45;&gt;sourcefile~geomcatagorizer.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~geomio.f90&#45;&gt;sourcefile~geomcatagorizer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M585.84,-104.18C571.02,-99.85 553.83,-94.83 537.98,-90.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="538.9,-86.83 528.32,-87.38 536.93,-93.55 538.9,-86.83"/>
+</g>
+<!-- sourcefile~sharedio.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~sharedio.f90</title>
+<g id="a_sourcefile~~geomio.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/sharedio.f90.html" xlink:title="SharedIO.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="255,-167.32 172,-167.32 172,-143.32 255,-143.32 255,-167.32"/>
+<text text-anchor="middle" x="213.5" y="-152.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SharedIO.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~geomio.f90&#45;&gt;sourcefile~sharedio.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~geomio.f90&#45;&gt;sourcefile~sharedio.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M485,-155.32C408.66,-160.88 319.87,-159.36 265.44,-157.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="265.47,-154.02 255.35,-157.16 265.22,-161.02 265.47,-154.02"/>
+</g>
+<!-- sourcefile~geom_pfio.f90&#45;&gt;sourcefile~sharedio.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~geom_pfio.f90&#45;&gt;sourcefile~sharedio.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M300.6,-127.32C288.3,-131.32 274.44,-135.83 261.49,-140.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="260.23,-136.77 251.8,-143.19 262.4,-143.43 260.23,-136.77"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~geomio.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="122.5,-41.32 13.5,-41.32 13.5,-17.32 122.5,-17.32 122.5,-41.32"/>
+<text text-anchor="middle" x="68" y="-26.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~geom_pfio.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~geom_pfio.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M290.83,-117.45C267.74,-117.77 239.53,-117.07 214.5,-113.32"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M212.5,-113.32C168.94,-106.8 174.73,-71.3 136,-50.32 132.54,-48.45 128.89,-46.71 125.15,-45.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="126.32,-41.81 115.73,-41.4 123.75,-48.32 126.32,-41.81"/>
+</g>
+<!-- sourcefile~geom_mgr.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~geom_mgr.f90</title>
+<g id="a_sourcefile~~geomio.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/geom_mgr.f90.html" xlink:title="geom_mgr.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="113.5,-125.32 22.5,-125.32 22.5,-101.32 113.5,-101.32 113.5,-125.32"/>
+<text text-anchor="middle" x="68" y="-110.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">geom_mgr.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~geom_pfio.f90&#45;&gt;sourcefile~geom_mgr.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~geom_pfio.f90&#45;&gt;sourcefile~geom_mgr.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M212.5,-113.32C183.33,-108.96 150.46,-108.63 123.54,-109.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="123.38,-106.04 113.53,-109.94 123.67,-113.03 123.38,-106.04"/>
+</g>
+<!-- sourcefile~pfio.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_node11" class="node">
+<title>sourcefile~pfio.f90</title>
+<g id="a_sourcefile~~geomio.f90~~EfferentGraph_node11"><a xlink:href="../sourcefile/pfio.f90.html" xlink:title="pFIO.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="97,-83.32 39,-83.32 39,-59.32 97,-59.32 97,-83.32"/>
+<text text-anchor="middle" x="68" y="-68.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~geom_pfio.f90&#45;&gt;sourcefile~pfio.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~geom_pfio.f90&#45;&gt;sourcefile~pfio.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M212.5,-113.32C201.95,-111.74 145.83,-94.89 106.98,-83.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="107.61,-79.55 97.02,-79.97 105.56,-86.24 107.61,-79.55"/>
+</g>
+<!-- sourcefile~geomcatagorizer.f90&#45;&gt;sourcefile~geom_pfio.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~geomcatagorizer.f90&#45;&gt;sourcefile~geom_pfio.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M441.35,-87.32C426.16,-91.5 408.96,-96.23 393.07,-100.59"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="392.09,-97.23 383.38,-103.26 393.95,-103.98 392.09,-97.23"/>
+</g>
+<!-- sourcefile~geomcatagorizer.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~geomcatagorizer.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M471.12,-63.24C453,-48.35 419.6,-23.84 386,-14.32 299.2,10.27 193.75,-2.73 129.02,-15.3"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="128.11,-11.91 118.99,-17.3 129.48,-18.77 128.11,-11.91"/>
+</g>
+<!-- sourcefile~grid_pfio.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~grid_pfio.f90</title>
+<g id="a_sourcefile~~geomio.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/grid_pfio.f90.html" xlink:title="Grid_PFIO.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="381,-47.32 296,-47.32 296,-23.32 381,-23.32 381,-47.32"/>
+<text text-anchor="middle" x="338.5" y="-32.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Grid_PFIO.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~geomcatagorizer.f90&#45;&gt;sourcefile~grid_pfio.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~geomcatagorizer.f90&#45;&gt;sourcefile~grid_pfio.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M441.35,-63.32C425.54,-58.97 407.54,-54.03 391.12,-49.51"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="391.7,-46.04 381.13,-46.76 389.84,-52.79 391.7,-46.04"/>
+</g>
+<!-- sourcefile~geomcatagorizer.f90&#45;&gt;sourcefile~pfio.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~geomcatagorizer.f90&#45;&gt;sourcefile~pfio.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M421.82,-74.71C334.48,-73.87 179.5,-72.38 107.61,-71.69"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="107.25,-68.19 97.22,-71.59 107.18,-75.19 107.25,-68.19"/>
+</g>
+<!-- sourcefile~base_base.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~base_base.f90</title>
+<g id="a_sourcefile~~geomio.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/base_base.f90.html" xlink:title="Base_Base.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="114.5,-167.32 21.5,-167.32 21.5,-143.32 114.5,-143.32 114.5,-167.32"/>
+<text text-anchor="middle" x="68" y="-152.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base_Base.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~sharedio.f90&#45;&gt;sourcefile~base_base.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~sharedio.f90&#45;&gt;sourcefile~base_base.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M171.76,-155.32C157.15,-155.32 140.41,-155.32 124.74,-155.32"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="124.64,-151.82 114.64,-155.32 124.64,-158.82 124.64,-151.82"/>
+</g>
+<!-- sourcefile~sharedio.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~sharedio.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M190.6,-143.25C184.02,-138.86 177.19,-133.46 172,-127.32 147.62,-98.47 164.44,-75.19 136,-50.32 134.49,-49 132.89,-47.76 131.23,-46.59"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="132.83,-43.47 122.44,-41.41 129.27,-49.5 132.83,-43.47"/>
+</g>
+<!-- sourcefile~fielddimensioninfo.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~fielddimensioninfo.f90</title>
+<g id="a_sourcefile~~geomio.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/fielddimensioninfo.f90.html" xlink:title="FieldDimensionInfo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="136,-335.32 0,-335.32 0,-311.32 136,-311.32 136,-335.32"/>
+<text text-anchor="middle" x="68" y="-320.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldDimensionInfo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~sharedio.f90&#45;&gt;sourcefile~fielddimensioninfo.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~sharedio.f90&#45;&gt;sourcefile~fielddimensioninfo.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M209.56,-167.62C202.21,-195.74 180.33,-265.18 136,-302.32 134.42,-303.64 132.76,-304.88 131.04,-306.04"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="128.9,-303.23 121.95,-311.22 132.37,-309.31 128.9,-303.23"/>
+</g>
+<!-- sourcefile~sharedio.f90&#45;&gt;sourcefile~geom_mgr.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~sharedio.f90&#45;&gt;sourcefile~geom_mgr.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M171.76,-143.4C155.69,-138.69 137.05,-133.24 120.1,-128.28"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="120.92,-124.87 110.34,-125.42 118.95,-131.59 120.92,-124.87"/>
+</g>
+<!-- sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~infoutilities.f90</title>
+<g id="a_sourcefile~~geomio.f90~~EfferentGraph_node10"><a xlink:href="../sourcefile/infoutilities.f90.html" xlink:title="InfoUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="115,-293.32 21,-293.32 21,-269.32 115,-269.32 115,-293.32"/>
+<text text-anchor="middle" x="68" y="-278.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">InfoUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~sharedio.f90&#45;&gt;sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~sharedio.f90&#45;&gt;sourcefile~infoutilities.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M206.98,-167.33C196.36,-189.12 171,-235.2 136,-260.32 132.49,-262.84 128.67,-265.06 124.69,-267.03"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="122.97,-263.96 115.19,-271.14 125.75,-270.38 122.97,-263.96"/>
+</g>
+<!-- sourcefile~sharedio.f90&#45;&gt;sourcefile~pfio.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~sharedio.f90&#45;&gt;sourcefile~pfio.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M193.48,-143.13C186.53,-138.43 178.73,-132.86 172,-127.32 154.76,-113.15 155.17,-103.75 136,-92.32 127.13,-87.03 116.78,-82.94 106.92,-79.84"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="107.86,-76.47 97.29,-77.06 105.92,-83.19 107.86,-76.47"/>
+</g>
+<!-- sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_node12" class="node">
+<title>sourcefile~ungriddeddim.f90</title>
+<g id="a_sourcefile~~geomio.f90~~EfferentGraph_node12"><a xlink:href="../sourcefile/ungriddeddim.f90.html" xlink:title="UngriddedDim.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="124,-251.32 12,-251.32 12,-227.32 124,-227.32 124,-251.32"/>
+<text text-anchor="middle" x="68" y="-236.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDim.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~sharedio.f90&#45;&gt;sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~sharedio.f90&#45;&gt;sourcefile~ungriddeddim.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M200.61,-167.66C186.42,-181.73 161.42,-204.56 136,-218.32 132.54,-220.19 128.89,-221.93 125.15,-223.53"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="123.75,-220.32 115.73,-227.24 126.32,-226.83 123.75,-220.32"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_node13" class="node">
+<title>sourcefile~ungriddeddims.f90</title>
+<g id="a_sourcefile~~geomio.f90~~EfferentGraph_node13"><a xlink:href="../sourcefile/ungriddeddims.f90.html" xlink:title="UngriddedDims.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="127,-209.32 9,-209.32 9,-185.32 127,-185.32 127,-209.32"/>
+<text text-anchor="middle" x="68" y="-194.92" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDims.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~sharedio.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~geomio.f90~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~sharedio.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M171.76,-167.24C155.69,-171.95 137.05,-177.4 120.1,-182.37"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="118.95,-179.05 110.34,-185.22 120.92,-185.77 118.95,-179.05"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilegeomiof90EfferentGraph = svgPanZoom('#sourcefilegeomiof90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~geomio.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilegeomiof90AfferentGraph" width="465pt" height="116pt"
+ viewBox="0.00 0.00 465.00 116.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~geomio.f90~~AfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 112)">
+<title>sourcefile~~geomio.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 461,-112 461,4 -4,4"/>
+<!-- sourcefile~geomio.f90 -->
+<g id="sourcefile~~geomio.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~geomio.f90</title>
+<polygon fill="none" stroke="black" points="78,-87 0,-87 0,-63 78,-63 78,-87"/>
+<text text-anchor="middle" x="39" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">GeomIO.F90</text>
+</g>
+<!-- sourcefile~historycollectiongridcomp.f90 -->
+<g id="sourcefile~~geomio.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~historycollectiongridcomp.f90</title>
+<g id="a_sourcefile~~geomio.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/historycollectiongridcomp.f90.html" xlink:title="HistoryCollectionGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="294,-108 114,-108 114,-84 294,-84 294,-108"/>
+<text text-anchor="middle" x="204" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~historycollectiongridcomp.f90&#45;&gt;sourcefile~geomio.f90 -->
+<g id="sourcefile~~geomio.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~historycollectiongridcomp.f90&#45;&gt;sourcefile~geomio.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M113.87,-84.52C105.09,-83.39 96.43,-82.27 88.3,-81.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="88.68,-77.74 78.32,-79.94 87.79,-84.69 88.68,-77.74"/>
+</g>
+<!-- sourcefile~restarthandler.f90 -->
+<g id="sourcefile~~geomio.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~restarthandler.f90</title>
+<g id="a_sourcefile~~geomio.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/restarthandler.f90.html" xlink:title="RestartHandler.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="261,-66 147,-66 147,-42 261,-42 261,-66"/>
+<text text-anchor="middle" x="204" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RestartHandler.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~restarthandler.f90&#45;&gt;sourcefile~geomio.f90 -->
+<g id="sourcefile~~geomio.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~restarthandler.f90&#45;&gt;sourcefile~geomio.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M146.9,-61.23C127.79,-63.69 106.6,-66.42 88.17,-68.79"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="87.71,-65.32 78.24,-70.07 88.6,-72.27 87.71,-65.32"/>
+</g>
+<!-- sourcefile~historygridcomp.f90 -->
+<g id="sourcefile~~geomio.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~historygridcomp.f90</title>
+<g id="a_sourcefile~~geomio.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/historygridcomp.f90.html" xlink:title="HistoryGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="457,-108 330,-108 330,-84 457,-84 457,-108"/>
+<text text-anchor="middle" x="393.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~historygridcomp.f90&#45;&gt;sourcefile~historycollectiongridcomp.f90 -->
+<g id="sourcefile~~geomio.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~historygridcomp.f90&#45;&gt;sourcefile~historycollectiongridcomp.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M329.8,-96C321.54,-96 312.91,-96 304.22,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="304.01,-92.5 294.01,-96 304.01,-99.5 304.01,-92.5"/>
+</g>
+<!-- sourcefile~read_restart.f90 -->
+<g id="sourcefile~~geomio.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~read_restart.f90</title>
+<g id="a_sourcefile~~geomio.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/read_restart.f90.html" xlink:title="read_restart.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="443,-66 344,-66 344,-42 443,-42 443,-66"/>
+<text text-anchor="middle" x="393.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_restart.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~read_restart.f90&#45;&gt;sourcefile~restarthandler.f90 -->
+<g id="sourcefile~~geomio.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~read_restart.f90&#45;&gt;sourcefile~restarthandler.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M343.73,-54C321.6,-54 295.1,-54 271.22,-54"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="271.16,-50.5 261.16,-54 271.16,-57.5 271.16,-50.5"/>
+</g>
+<!-- sourcefile~write_restart.f90~2 -->
+<g id="sourcefile~~geomio.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~write_restart.f90~2</title>
+<g id="a_sourcefile~~geomio.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/write_restart.f90~2.html" xlink:title="write_restart.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="444,-24 343,-24 343,0 444,0 444,-24"/>
+<text text-anchor="middle" x="393.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">write_restart.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~write_restart.f90~2&#45;&gt;sourcefile~restarthandler.f90 -->
+<g id="sourcefile~~geomio.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~write_restart.f90~2&#45;&gt;sourcefile~restarthandler.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M342.75,-23.14C319.96,-28.25 292.68,-34.36 268.44,-39.79"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="267.6,-36.39 258.61,-41.99 269.13,-43.22 267.6,-36.39"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="k">module </span><span class="n">mapl3g_geomio</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_GeomCatagorizer</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_GeomPFIO</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_sharedIO</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="k">end module </span><span class="n">mapl3g_geomio</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-14T14:45:19.029470             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
