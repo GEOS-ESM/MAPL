@@ -583,7 +583,6 @@ contains
       select type(src_spec)
       class is (FieldSpec)
          can_convert_units = can_connect_units(this%units, src_spec%units, _RC)
-
          can_connect_to = all ([ &
               can_match(this%geom,src_spec%geom), &
               can_match(this%vertical_grid, src_spec%vertical_grid), &
@@ -901,8 +900,6 @@ contains
       class(VerticalGridAdapter), intent(in) :: this
       class(StateItemSpec), intent(in) :: spec
 
-      logical :: match_grid, match_dim_spec
-
       match = .false.
       select type (spec)
       type is (FieldSpec)
@@ -966,7 +963,7 @@ contains
       match = .false.
       select type (spec)
       type is (FieldSpec)
-         match = (spec%vertical_dim_spec == this%vertical_dim_spec)
+         match = match_vertical_dim_spec(spec%vertical_dim_spec, this%vertical_dim_spec)
       end select
    end function adapter_match_vertical_dim_spec
 
