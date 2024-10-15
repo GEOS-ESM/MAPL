@@ -212,11 +212,13 @@ contains
       @assert_that(a, every_item(is(equal_to(300.))))
    end subroutine test_get_coordinate_field_change_units
 
-   @test
+   @test(type=ESMF_TestMethod, npes=[1])
    ! Request the specific coordinate corresponding particular geom/unit.
    ! Here we request different vertical_dim_spec which should return
    ! the coordinates of PL
-   subroutine test_get_coordinate_field_change_vertical_dim_spec()
+   subroutine test_get_coordinate_field_change_vertical_dim_spec(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
       type(ModelVerticalGrid) :: vgrid
       type(ESMF_Field) :: vcoord
       type(ESMF_Geom) :: geom
