@@ -31,6 +31,7 @@ module MAPL_ExtDataPointerUpdate
          procedure :: is_single_shot
          procedure :: disable
          procedure :: get_adjusted_time
+         procedure :: get_offset
    end type
 
    character(len=*), parameter :: HEARTBEAT_STRING = 'HEARTBEAT'
@@ -48,6 +49,17 @@ contains
       _RETURN(_SUCCESS)
    end function
 
+   function get_offset(this, rc) result(offset)
+      type(ESMF_TimeInterval) :: offset
+      class(ExtDataPointerUpdate), intent(in) :: this
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      offset = this%offset
+      _RETURN(_SUCCESS)
+
+   end function get_offset
+      
    subroutine create_from_parameters(this,update_time,update_freq,update_offset,time,clock,rc)
       class(ExtDataPointerUpdate), intent(inout) :: this
       character(len=*), intent(in) :: update_time
