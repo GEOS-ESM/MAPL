@@ -17,6 +17,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.50.0] - 2024-10-10
+
+### Added
+
+- Added `MAPL_Reverse_Schmidt` to reverse the stretched grid for indices computation
+
+### Changed
+
+- Propagated the error message from `MAPL_HorzIJIndex` subroutine
+- Updated minimum CMake version to 3.23
+
+### Fixed
+
+- Trapped more errors from Extdata's i-server
+
+## [2.49.1] - 2024-10-07
+
+### Fixed
+
+- Removed erroneous asserts that blocked some use cases in creating route handles
+
 ## [2.49.0] - 2024-10-04
 
 ### Added
