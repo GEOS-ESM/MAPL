@@ -45,7 +45,8 @@ module mapl_checkpoint_support_mod
       integer(kind=INT64) :: create_file_time
       integer(kind=INT64) :: close_file_time
       contains
-         procedure :: set_parameters
+         procedure :: set_parameters_by_config
+         procedure :: set_parameters_by_cli
          procedure :: compute_decomposition
          procedure :: allocate_n_arrays
          procedure :: create_arrays
@@ -94,7 +95,7 @@ module mapl_checkpoint_support_mod
 
 contains
 
-   subroutine set_parameters(this,config_file)
+   subroutine set_parameters_by_config(this,config_file)
       class(test_support), intent(inout) :: this
       character(len=*), intent(in) :: config_file
       type(ESMF_Config) :: config
@@ -170,7 +171,46 @@ contains
          end if
       end function
 
-   end subroutine
+   end subroutine set_parameters_by_config
+
+   subroutine set_parameters_by_cli(this,cli)
+      class(test_support), intent(inout) :: this
+      type(cli_options), intent(in) :: cli
+
+      logical :: is_present
+      integer :: comm_size, status,error_code,rc
+
+      this%extra_info = .false.
+      this%write_barrier = cli%write_barrier
+      this%do_writes = cli%do_writes
+      this%do_chunking = .true.
+      this%gather_3d = cli%gather_3d
+      this%split_file = cli%split_file
+      this%nx = cli%nx
+      this%ny = cli%ny
+      this%im_world = cli%im_world
+      this%lm = cli%lm
+      this%num_writers = cli%num_writers
+      this%num_arrays = cli%num_arrays
+      this%n_trials = cli%n_trials
+      this%random = cli%random_data
+
+      this%write_counter = 0
+      this%write_3d_time = 0
+      this%write_2d_time = 0
+      this%create_file_time = 0
+      this%close_file_time = 0
+      this%data_volume = 0.d0
+      this%time_writing = 0.d0
+      this%mpi_time = 0.0
+      call MPI_COMM_SIZE(MPI_COMM_WORLD,comm_size,status)
+      _VERIFY(status)
+      if (comm_size /= (this%nx*this%ny*6)) then
+         call MPI_Abort(mpi_comm_world,error_code,status)
+         _VERIFY(status)
+      endif
+
+   end subroutine set_parameters_by_cli
 
    subroutine reset(this)
       class(test_support), intent(inout) :: this
@@ -822,49 +862,56 @@ program checkpoint_tester
       type="string", &
       default="*")
 
-   option => options%at("nx")
-   if (associated(option)) call cast(option, cli%nx)
-
-   option => options%at("ny")
-   if (associated(option)) call cast(option, cli%ny)
-
-   option => options%at("im_world")
-   if (associated(option)) call cast(option, cli%im_world)
-
-   option => options%at("lm")
-   if (associated(option)) call cast(option, cli%lm)
-
-   option => options%at("num_writers")
-   if (associated(option)) call cast(option, cli%num_writers)
-
-   option => options%at("num_arrays")
-   if (associated(option)) call cast(option, cli%num_arrays)
-
-   option => options%at("ntrials")
-   if (associated(option)) call cast(option, cli%n_trials)
-
-   option => options%at("split_file")
-   if (associated(option)) call cast(option, cli%split_file)
-
-   option => options%at("gather_3d")
-   if (associated(option)) call cast(option, cli%gather_3d)
-
-   option => options%at("write_barrier")
-   if (associated(option)) call cast(option, cli%write_barrier)
-
-   option => options%at("random_data")
-   if (associated(option)) call cast(option, cli%random_data)
-
-   option => options%at("do_writes")
-   if (associated(option)) call cast(option, cli%do_writes)
-
+   ! We first look for a configuration file
    option => options%at("config_file")
    if (associated(option)) call cast(option, cli%config_file)
 
+   ! if we have it, we load the configuration file
+   if (cli%config_file /= "*") then
+      call support%set_parameters_by_config(cli%config_file)
+   else
 
+      option => options%at("nx")
+      if (associated(option)) call cast(option, cli%nx)
 
+      option => options%at("ny")
+      if (associated(option)) call cast(option, cli%ny)
 
-   call support%set_parameters("checkpoint_benchmark.rc")
+      option => options%at("im_world")
+      if (associated(option)) call cast(option, cli%im_world)
+
+      option => options%at("lm")
+      if (associated(option)) call cast(option, cli%lm)
+
+      option => options%at("num_writers")
+      if (associated(option)) call cast(option, cli%num_writers)
+
+      option => options%at("num_arrays")
+      if (associated(option)) call cast(option, cli%num_arrays)
+
+      option => options%at("ntrials")
+      if (associated(option)) call cast(option, cli%n_trials)
+
+      option => options%at("split_file")
+      if (associated(option)) call cast(option, cli%split_file)
+
+      option => options%at("gather_3d")
+      if (associated(option)) call cast(option, cli%gather_3d)
+
+      option => options%at("write_barrier")
+      if (associated(option)) call cast(option, cli%write_barrier)
+
+      option => options%at("random_data")
+      if (associated(option)) call cast(option, cli%random_data)
+
+      option => options%at("do_writes")
+      if (associated(option)) call cast(option, cli%do_writes)
+
+      call support%set_parameters_by_cli(cli)
+
+   end if
+
+   !call support%set_parameters("checkpoint_benchmark.rc")
    call MPI_Barrier(MPI_COMM_WORLD,status)
    _VERIFY(status)
 
