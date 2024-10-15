@@ -90,6 +90,7 @@ module mapl_checkpoint_support_mod
       logical :: write_barrier = .false.
       logical :: random_data = .true.
       logical :: do_writes = .true.
+      logical :: netcdf_writes = .true.
       character(len=:), allocatable :: config_file
    end type cli_options
 
@@ -183,6 +184,7 @@ contains
       this%extra_info = .false.
       this%write_barrier = cli%write_barrier
       this%do_writes = cli%do_writes
+      this%netcdf_writes = cli%netcdf_writes
       this%do_chunking = .true.
       this%gather_3d = cli%gather_3d
       this%split_file = cli%split_file
@@ -209,6 +211,7 @@ contains
          call MPI_Abort(mpi_comm_world,error_code,status)
          _VERIFY(status)
       endif
+      write (*,*) "comm_size: ", comm_size
 
    end subroutine set_parameters_by_cli
 
@@ -867,6 +870,11 @@ program checkpoint_tester
       action="store_true", &
       default=.true.)
 
+   call parser%add_argument("--netcdf_writes", &
+      help="Write data as netcdf", &
+      action="store_true", &
+      default=.true.)
+
    options = parser%parse_args()
 
    option => options%at("verbose")
@@ -874,51 +882,61 @@ program checkpoint_tester
 
    ! We first look for a configuration file
    option => options%at("config_file")
-   write(*,*) "config_file: associated(option) = ",associated(option)
    if (associated(option)) call cast(option, cli%config_file)
 
    ! if we have it, we load the configuration file
    if (allocated(cli%config_file)) then
+      if (verbose .and. rank == 0) write(*,*) "Using configuration file ",cli%config_file
       call support%set_parameters_by_config(cli%config_file)
    else
 
       option => options%at("nx")
-      write(*,*) "nx: associated(option) = ",associated(option)
       if (associated(option)) call cast(option, cli%nx)
-      write(*,*) "cli%nx = ",cli%nx
+      if (verbose .and. rank == 0) write(*,*) "nx = ",cli%nx
 
       option => options%at("ny")
       if (associated(option)) call cast(option, cli%ny)
+      if (verbose .and. rank == 0) write(*,*) "ny = ",cli%ny
 
       option => options%at("im_world")
       if (associated(option)) call cast(option, cli%im_world)
+      if (verbose .and. rank == 0) write(*,*) "im_world = ",cli%im_world
 
       option => options%at("lm")
       if (associated(option)) call cast(option, cli%lm)
+      if (verbose .and. rank == 0) write(*,*) "lm = ",cli%lm
 
       option => options%at("num_writers")
       if (associated(option)) call cast(option, cli%num_writers)
+      if (verbose .and. rank == 0) write(*,*) "num_writers = ",cli%num_writers
 
       option => options%at("num_arrays")
       if (associated(option)) call cast(option, cli%num_arrays)
+      if (verbose .and. rank == 0) write(*,*) "num_arrays = ",cli%num_arrays
 
       option => options%at("ntrials")
       if (associated(option)) call cast(option, cli%n_trials)
+      if (verbose .and. rank == 0) write(*,*) "n_trials = ",cli%n_trials
 
       option => options%at("split_file")
       if (associated(option)) call cast(option, cli%split_file)
+      if (verbose .and. rank == 0) write(*,*) "split_file = ",cli%split_file
 
       option => options%at("gather_3d")
       if (associated(option)) call cast(option, cli%gather_3d)
+      if (verbose .and. rank == 0) write(*,*) "gather_3d = ",cli%gather_3d
 
       option => options%at("write_barrier")
       if (associated(option)) call cast(option, cli%write_barrier)
+      if (verbose .and. rank == 0) write(*,*) "write_barrier = ",cli%write_barrier
 
       option => options%at("random_data")
       if (associated(option)) call cast(option, cli%random_data)
+      if (verbose .and. rank == 0) write(*,*) "random_data = ",cli%random_data
 
       option => options%at("do_writes")
       if (associated(option)) call cast(option, cli%do_writes)
+      if (verbose .and. rank == 0) write(*,*) "do_writes = ",cli%do_writes
 
       call support%set_parameters_by_cli(cli)
 
