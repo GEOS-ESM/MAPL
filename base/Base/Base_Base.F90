@@ -715,7 +715,7 @@ module MAPL_Base
 
      module subroutine MAPL_Reverse_Schmidt(Grid, stretched, npts,lon,lat,lonR8,latR8, lonRe, latRe, rc)
        use ESMF, only: ESMF_KIND_R8, ESMF_GRid
-       implicit none
+       implicit none (type, external)
        !ARGUMENTS:
        type(ESMF_Grid),              intent(inout) :: Grid        ! ESMF grid
        logical,                      intent(out  ) :: stretched

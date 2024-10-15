@@ -7,7 +7,7 @@ module mapl_restart_support_mod
    use MAPL_ErrorHandlingMod
    use MAPL_MemUtilsMod
    use, intrinsic :: iso_fortran_env, only: INT64, REAL64, REAL32
-   implicit none
+   implicit none (type, external)
 
    real(kind=REAL64), parameter :: byte_to_mega = (1.0d0/1024.0d0)*(1.0d0/1024.0d0)
    type array_wrapper
@@ -606,7 +606,7 @@ program checkpoint_tester
    use NetCDF
    use mapl_restart_support_mod
    use, intrinsic :: iso_fortran_env, only: REAL64, INT64
-   implicit NONE
+   implicit none (type, external)
 
    integer :: status,rank,reader_size,reader_rank,comm_size,i
    type(test_support) :: support

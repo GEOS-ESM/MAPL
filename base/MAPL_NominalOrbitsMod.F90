@@ -707,7 +707,7 @@ SUBROUTINE  ECI2ECEF(iSat,fraction2day,  ECI_est, ECEF_est)
 END SUBROUTINE ECI2ECEF
 
 SUBROUTINE get_time(iSat, nymd, nhms, fraction2day, ntime_day)
-        IMPLICIT  NONE
+        implicit none (type, external)
         INTEGER, INTENT(IN) :: iSat, nymd, nhms
         REAL(dp), INTENT(OUT)   :: fraction2day, ntime_day
         INTEGER :: Year, Month, Day, Hour, Minute, Seconds
@@ -816,7 +816,7 @@ end function ODS_Julian
 
 SUBROUTINE linspace1(d1,d2,n,y)
        ! from d1 to d2, n by n -> y
-         IMPLICIT   NONE
+        implicit none (type, external)
         REAL(dp), INTENT(IN)   :: d1, d2, n
         INTEGER            :: n2, i
         REAL(dp), DIMENSION(:), INTENT(INOUT) :: y
@@ -829,7 +829,7 @@ SUBROUTINE linspace1(d1,d2,n,y)
 END SUBROUTINE linspace1
 
 SUBROUTINE linspace2(d1,d2,n,y)
-        IMPLICIT   NONE
+        implicit none (type, external)
         REAL(dp), INTENT(IN)   :: d1, d2
         INTEGER, INTENT(IN)   :: n
         INTEGER            :: n2, i
@@ -1283,7 +1283,7 @@ SUBROUTINE ss(ar)
 END SUBROUTINE ss
 
 SUBROUTINE orbits(lat, lon, iSat, nymd, nhms) ! for now time has to be after
-       IMPLICIT  NONE
+       implicit none (type, external)
        INTEGER, INTENT(IN)   :: iSat
        INTEGER, INTENT(IN)   :: nymd, nhms
        REAL(dp), INTENT(OUT)     :: lat,lon
