@@ -730,6 +730,7 @@ program checkpoint_tester
    type(ArgParser), target :: parser
    type(StringUnlimitedMap) :: options
    type(cli_options) :: cli
+   class(*), pointer :: option
 
    call system_clock(count=start_app,count_rate=count_rate)
    call MPI_Init(status)
@@ -745,6 +746,7 @@ program checkpoint_tester
    call MPI_Barrier(MPI_COMM_WORLD,status)
    _VERIFY(status)
 
+   call parser%initialize()
    parser = ArgParser()
 
    call parser%add_argument("--nx", &
@@ -819,6 +821,48 @@ program checkpoint_tester
       action="store", &
       type="string", &
       default="*")
+
+   option => options%at("nx")
+   if (associated(option)) call cast(option, cli%nx)
+
+   option => options%at("ny")
+   if (associated(option)) call cast(option, cli%ny)
+
+   option => options%at("im_world")
+   if (associated(option)) call cast(option, cli%im_world)
+
+   option => options%at("lm")
+   if (associated(option)) call cast(option, cli%lm)
+
+   option => options%at("num_writers")
+   if (associated(option)) call cast(option, cli%num_writers)
+
+   option => options%at("num_arrays")
+   if (associated(option)) call cast(option, cli%num_arrays)
+
+   option => options%at("ntrials")
+   if (associated(option)) call cast(option, cli%n_trials)
+
+   option => options%at("split_file")
+   if (associated(option)) call cast(option, cli%split_file)
+
+   option => options%at("gather_3d")
+   if (associated(option)) call cast(option, cli%gather_3d)
+
+   option => options%at("write_barrier")
+   if (associated(option)) call cast(option, cli%write_barrier)
+
+   option => options%at("random_data")
+   if (associated(option)) call cast(option, cli%random_data)
+
+   option => options%at("do_writes")
+   if (associated(option)) call cast(option, cli%do_writes)
+
+   option => options%at("config_file")
+   if (associated(option)) call cast(option, cli%config_file)
+
+
+
 
    call support%set_parameters("checkpoint_benchmark.rc")
    call MPI_Barrier(MPI_COMM_WORLD,status)
