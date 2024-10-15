@@ -49,14 +49,11 @@ contains
       _RETURN(_SUCCESS)
    end function
 
-   function get_offset(this, rc) result(offset)
+   function get_offset(this) result(offset)
       type(ESMF_TimeInterval) :: offset
       class(ExtDataPointerUpdate), intent(in) :: this
-      integer, optional, intent(out) :: rc
-      integer :: status
 
       offset = this%offset
-      _RETURN(_SUCCESS)
 
    end function get_offset
       
@@ -109,14 +106,36 @@ contains
       character(len=*), intent(in) :: timestring
       logical, intent(out) :: is_heartbeat
       integer, intent(out) :: multiplier
-      integer :: i
+      character(len=:), allocatable :: found_string
 
       multiplier = 1
-      i = index(to_upper(timestring), HEARTBEAT_STRING)
-      is_heartbeat = (i > 0)
+      call split_on(to_upper(timestring), HEARTBEAT_STRING, found_string=found_string)
+      is_heartbeat = len(found_string) > 0
+      ! For now, multiplier is simply set to 1. In the future, as needed, the before_string
+      ! and after_string arguments of split_on can be used to parse for a multiplier.
 
    end subroutine parse_heartbeat_timestring
 
+   subroutine split_on(string, substring, found_string, before_string, after_string)
+      character(len=*), intent(in) :: string, substring
+      character(len=:), allocatable, intent(out) :: found_string
+      character(len=:), optional, allocatable, intent(out) :: before_string, after_string
+      integer :: i
+
+      i = index(to_upper(string), substring)
+      found_string = ''
+      if(i > 0) found_string = string(i:i+len(substring)-1)
+      if(present(before_string)) then
+         before_string = ''
+         if(i > 1) before_string = string(:i-1)
+      end if
+      if(present(after_string)) then
+         after_string = ''
+         if(i + len(substring) <= len(string)) after_string = string(i+len(substring):)
+      end if
+
+   end subroutine split_on
+      
    function to_upper(s) result(u)
       character(len=:), allocatable :: u
       character(len=*), intent(in) :: s
