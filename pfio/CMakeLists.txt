@@ -91,6 +91,26 @@ set (srcs
   StringVectorUtil.F90
   )
 
+if (BUILD_WITH_PFLOGGER)
+  find_package (PFLOGGER REQUIRED)
+endif ()
+
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE ${MAPL_LIBRARY_TYPE})
+
+target_link_libraries (${this} PUBLIC GFTL::gftl-v2 GFTL_SHARED::gftl-shared-v2 PFLOGGER::pflogger PRIVATE MPI::MPI_Fortran OpenMP::OpenMP_Fortran)
+target_include_directories (${this} PUBLIC
+          $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+
+set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
+# Kludge for OSX security and DYLD_LIBRARY_PATH ...
+foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
+  target_link_libraries(${this} PRIVATE "-Xlinker -rpath -Xlinker ${dir}")
+endforeach()
+
+if (SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
+  target_compile_definitions(${this} PRIVATE SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
+endif ()
+
 ###############################################################
 # Check to see if quantize capability is present in netcdf-c. #
 ###############################################################
@@ -143,26 +163,6 @@ if (NETCDF_HAS_ZSTD)
   target_compile_definitions(${this} PRIVATE NF_HAS_ZSTD)
 else ()
   message(STATUS "netCDF does not have zstandard capability")
-endif ()
-
-if (BUILD_WITH_PFLOGGER)
-  find_package (PFLOGGER REQUIRED)
-endif ()
-
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE ${MAPL_LIBRARY_TYPE})
-
-target_link_libraries (${this} PUBLIC GFTL::gftl-v2 GFTL_SHARED::gftl-shared-v2 PFLOGGER::pflogger PRIVATE MPI::MPI_Fortran OpenMP::OpenMP_Fortran)
-target_include_directories (${this} PUBLIC
-          $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
-
-set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-# Kludge for OSX security and DYLD_LIBRARY_PATH ...
-foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
-  target_link_libraries(${this} PRIVATE "-Xlinker -rpath -Xlinker ${dir}")
-endforeach()
-
-if (SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
-  target_compile_definitions(${this} PRIVATE SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
 endif ()
 
 ecbuild_add_executable (
