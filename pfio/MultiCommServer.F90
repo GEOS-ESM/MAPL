@@ -471,7 +471,7 @@ contains
 
 
       call this%clear_DataReference()
-      call this%clear_RequestHandle()
+      call this%clear_RequestHandle(_RC)
       call this%set_AllBacklogIsEmpty(.true.)
       this%serverthread_done_msgs(:) = .false.
 
