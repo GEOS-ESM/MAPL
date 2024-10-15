@@ -109,7 +109,7 @@ check_c_source_compiles("
   NETCDF_HAS_QUANTIZE)
 if (NETCDF_HAS_QUANTIZE)
   message(STATUS "netCDF has quantize capability")
-  add_definitions(-DNF_HAS_QUANTIZE)
+  target_compile_definitions(${this} PRIVATE NF_HAS_QUANTIZE)
 else ()
   message(STATUS "netCDF does not have quantize capability")
 endif ()
@@ -128,9 +128,19 @@ check_c_source_compiles("
   }
   "
   NETCDF_HAS_ZSTD)
+
+# NOTE: Even if the check above succeeds, zstandard is *not*
+# possible with Baselibs (builds HDF5, netCDF as static)
+# so we want to check for Baselibs first.
+
+if (Baselibs_FOUND)
+  message(STATUS "Baselibs found, zstandard capability not possible")
+  set(NETCDF_HAS_ZSTD FALSE)
+endif ()
+
 if (NETCDF_HAS_ZSTD)
   message(STATUS "netCDF has zstandard capability")
-  add_definitions(-DNF_HAS_ZSTD)
+  target_compile_definitions(${this} PRIVATE NF_HAS_ZSTD)
 else ()
   message(STATUS "netCDF does not have zstandard capability")
 endif ()

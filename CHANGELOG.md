@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed issue of some Baselibs builds appearing to support zstandard. This is not possible due to Baselibs building HDF5 and netCDF as static libraries
+
 ### Removed
 
 ### Deprecated
