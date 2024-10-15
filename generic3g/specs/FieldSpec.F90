@@ -23,6 +23,8 @@ module mapl3g_FieldSpec
    use mapl3g_ActualConnectionPt
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
+   use mapl3g_esmf_info_keys
+   use mapl3g_InfoUtilities
    use mapl3g_ExtensionAction
    use mapl3g_VerticalGrid
    use mapl3g_VerticalRegridAction
@@ -794,25 +796,25 @@ contains
       call ESMF_InfoGetFromHost(field, field_info, _RC)
 
       ungridded_dims_info = this%ungridded_dims%make_info(_RC)
-      call ESMF_InfoSet(field_info, key='MAPL/ungridded_dims', value=ungridded_dims_info, _RC)
+      call ESMF_InfoSet(field_info, key=INFO_INTERNAL_NAMESPACE//KEY_UNGRIDDED_DIMS, value=ungridded_dims_info, _RC)
       call ESMF_InfoDestroy(ungridded_dims_info, _RC)
 
       vertical_dim_info = this%vertical_dim_spec%make_info(_RC)
-      call ESMF_InfoSet(field_info, key='MAPL/vertical_dim', value=vertical_dim_info, _RC)
+      call ESMF_InfoSet(field_info, key=INFO_INTERNAL_NAMESPACE//KEY_VERT_DIM, value=vertical_dim_info, _RC)
       call ESMF_InfoDestroy(vertical_dim_info, _RC)
 
       vertical_grid_info = this%vertical_grid%make_info(_RC)
-      call ESMF_InfoSet(field_info, key='MAPL/vertical_grid', value=vertical_grid_info, _RC)
+      call ESMF_InfoSet(field_info, key=INFO_INTERNAL_NAMESPACE//KEY_VERT_GRID, value=vertical_grid_info, _RC)
       call ESMF_InfoDestroy(vertical_grid_info, _RC)
 
       if (allocated(this%units)) then
-         call ESMF_InfoSet(field_info, key='MAPL/units', value=this%units, _RC)
+         call MAPL_InfoSetInternal(field,key='/units', value= this%units, _RC)
       end if
       if (allocated(this%long_name)) then
-         call ESMF_InfoSet(field_info, key='MAPL/long_name', value=this%long_name, _RC)
+         call MAPL_InfoSetInternal(field,key='/long_name', value=this%long_name, _RC)
       end if
       if (allocated(this%standard_name)) then
-         call ESMF_InfoSet(field_info, key='MAPL/standard_name', value=this%standard_name, _RC)
+         call MAPL_InfoSetInternal(field,key='/standard_name', value=this%standard_name, _RC)
       end if
 
       _RETURN(_SUCCESS)

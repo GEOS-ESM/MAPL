@@ -5,18 +5,18 @@ module mapl3g_esmf_info_keys
 
    implicit none
 
-   public :: KEY_SHARED
-   public :: KEY_PRIVATE
-   public :: KEY_INTERNAL
+   public :: INFO_SHARED_NAMESPACE
+   public :: INFO_PRIVATE_NAMESPACE
+   public :: INFO_INTERNAL_NAMESPACE
    public :: KEY_UNGRIDDED_DIMS
    public :: KEY_VERT_DIM
-   public :: KEY_VERT_GEOM
+   public :: KEY_VERT_GRID
    public :: KEY_UNITS
    public :: KEY_LONG_NAME
    public :: KEY_STANDARD_NAME
    public :: KEY_NUM_LEVELS
    public :: KEY_VLOC
-   public :: KEY_NUM_UNGRID_DIMS
+   public :: KEY_NUM_UNGRIDDED_DIMS
    public :: KEYSTUB_DIM
    public :: KEY_UNGRIDDED_NAME
    public :: KEY_UNGRIDDED_UNITS
@@ -26,27 +26,27 @@ module mapl3g_esmf_info_keys
    private
 
    ! FieldSpec info keys
-   character(len=*), parameter :: PREFIX = 'MAPL/'
-   character(len=*), parameter :: KEY_SHARED = PREFIX // 'shared/'
-   character(len=*), parameter :: KEY_PRIVATE = PREFIX // 'private/'
-   character(len=*), parameter :: KEY_INTERNAL = PREFIX // 'internal/'
+   character(len=*), parameter :: PREFIX = '/MAPL'
+   character(len=*), parameter :: INFO_SHARED_NAMESPACE   = PREFIX // '/shared'
+   character(len=*), parameter :: INFO_PRIVATE_NAMESPACE  = PREFIX // '/private'
+   character(len=*), parameter :: INFO_INTERNAL_NAMESPACE = PREFIX // '/internal'
 
-   character(len=*), parameter :: KEY_UNGRIDDED_DIMS = PREFIX // 'ungridded_dims/'
-   character(len=*), parameter :: KEY_VERT_DIM = PREFIX // 'vertical_dim/'
-   character(len=*), parameter :: KEY_VERT_GEOM = PREFIX // 'vertical_geom/'
-   character(len=*), parameter :: KEY_UNITS = PREFIX // 'units'
-   character(len=*), parameter :: KEY_LONG_NAME = PREFIX // 'long_name'
-   character(len=*), parameter :: KEY_STANDARD_NAME = PREFIX // 'standard_name'
+   character(len=*), parameter :: KEY_UNGRIDDED_DIMS = '/ungridded_dims'
+   character(len=*), parameter :: KEY_VERT_DIM = '/vertical_dim'
+   character(len=*), parameter :: KEY_VERT_GRID = '/vertical_grid'
+   character(len=*), parameter :: KEY_UNITS = '/units'
+   character(len=*), parameter :: KEY_LONG_NAME = '/long_name'
+   character(len=*), parameter :: KEY_STANDARD_NAME = '/standard_name'
 
    ! VerticalGeom info keys
-   character(len=*), parameter :: KEY_NUM_LEVELS = KEY_VERT_GEOM // 'num_levels'
+   character(len=*), parameter :: KEY_NUM_LEVELS = KEY_VERT_GRID // '/num_levels'
 
    ! VerticalDimSpec info keys
-   character(len=*), parameter :: KEY_VLOC = KEY_VERT_DIM // 'vloc'
+   character(len=*), parameter :: KEY_VLOC = KEY_VERT_DIM // '/vloc'
 
    ! UngriddedDims info keys
-   character(len=*), parameter :: KEY_NUM_UNGRID_DIMS = KEY_UNGRIDDED_DIMS // 'num_ungridded_dimensions'
-   character(len=*), parameter :: KEYSTUB_DIM = KEY_UNGRIDDED_DIMS // 'dim_'
+   character(len=*), parameter :: KEY_NUM_UNGRIDDED_DIMS = KEY_UNGRIDDED_DIMS // '/num_ungridded_dimensions'
+   character(len=*), parameter :: KEYSTUB_DIM = KEY_UNGRIDDED_DIMS // '/dim_'
 
    ! UngriddedDim info keys
    character(len=*), parameter :: KEY_UNGRIDDED_NAME = 'name'
@@ -54,9 +54,9 @@ module mapl3g_esmf_info_keys
    character(len=*), parameter :: KEY_UNGRIDDED_COORD = 'coordinates'
 
    character(len=*), parameter :: KEY_DIM_STRINGS(9) = [ &
-      KEYSTUB_DIM // '1', KEYSTUB_DIM // '2', KEYSTUB_DIM // '3', &
-      KEYSTUB_DIM // '4', KEYSTUB_DIM // '5', KEYSTUB_DIM // '6', &
-      KEYSTUB_DIM // '7', KEYSTUB_DIM // '8', KEYSTUB_DIM // '9']
+      KEYSTUB_DIM // '/1', KEYSTUB_DIM // '/2', KEYSTUB_DIM // '/3', &
+      KEYSTUB_DIM // '/4', KEYSTUB_DIM // '/5', KEYSTUB_DIM // '/6', &
+      KEYSTUB_DIM // '/7', KEYSTUB_DIM // '/8', KEYSTUB_DIM // '/9']
 
 contains
 

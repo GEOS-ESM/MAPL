@@ -1,8 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_VerticalDimSpec
-
-   !use mapl3g_UngriddedDimSpec
+   use mapl3g_esmf_info_keys
    use esmf, only: ESMF_Info
    use esmf, only: ESMF_InfoCreate
    use esmf, only: ESMF_InfoSet

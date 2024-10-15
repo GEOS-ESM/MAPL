@@ -2,11 +2,18 @@
 #include "unused_dummy.H"
 module Test_FieldUtilities
    use mapl_FieldUtilities
+   use mapl3g_ESMF_Info_Keys
+   use mapl3g_InfoUtilities
    use esmf
    use ESMF_TestMethod_mod
    use funit
    implicit none
 
+   integer, parameter :: ORIGINAL_NUM_LEVELS = 5
+   real, parameter :: FILL_VALUE = 99.
+   character(*), parameter :: ORIGINAL_UNITS = 'm'
+   character(*), parameter :: REFERENCE_UNITS = 'km'
+   
 contains
 
    @test(type=ESMF_TestMethod, npes=[1])
@@ -24,6 +31,9 @@ contains
       geom = ESMF_GeomCreate(grid, _RC)
 
       f = ESMF_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
+      call MAPL_InfoSetInternal(f, key=KEY_NUM_LEVELS, value=ORIGINAL_NUM_LEVELS, _RC)
+      call MAPL_InfoSetInternal(f, key=KEY_VLOC, value='VERTICAL_DIM_EDGE', _RC)
+
       call FieldReallocate(f, typekind=ESMF_TYPEKIND_R8, _RC)
 
       call ESMF_FieldGet(f, status=field_status, typekind=typekind, _RC)
@@ -42,7 +52,7 @@ contains
       class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_Field) :: f
       type(ESMF_Grid) :: grid
-      type(ESMF_Geom) :: geom
+      type(ESMF_Geom) :: geom, other_geom
 
       integer :: status
       type(ESMF_FieldStatus_Flag) :: field_status
@@ -52,17 +62,21 @@ contains
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom = ESMF_GeomCreate(grid, _RC)
       f = ESMF_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
+      call MAPL_InfoSetInternal(f, key=KEY_NUM_LEVELS, value=ORIGINAL_NUM_LEVELS, _RC)
+      call MAPL_InfoSetInternal(f, key=KEY_VLOC, value='VERTICAL_DIM_EDGE', _RC)
+
       call ESMF_FieldGet(f, fArrayPtr=x, _RC)
-      x = 99
+      x = FILL_VALUE
 
       call FieldReallocate(f, typekind=ESMF_TYPEKIND_R4, _RC)
 
-      call ESMF_FieldGet(f, status=field_status, typekind=typekind, _RC)
+      call ESMF_FieldGet(f, status=field_status, typekind=typekind, geom=other_geom, _RC)
       @assert_that(field_status == ESMF_FIELDSTATUS_COMPLETE, is(true()))
       @assert_that(typekind == ESMF_TYPEKIND_R4, is(true()))
+      @assert_that(other_geom == geom, is(true()))
 
       call ESMF_FieldGet(f, fArrayPtr=x, _RC)
-      @assert_that(all(x == 99), is(true()))
+      @assert_that(all(x == FILL_VALUE), is(true()))
 
       call ESMF_FieldDestroy(f, _RC)
       call ESMF_GridDestroy(grid, _RC)
@@ -86,6 +100,8 @@ contains
       grid1 = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom1 = ESMF_GeomCreate(grid1, _RC)
       f = ESMF_FieldCreate(geom1, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
+      call MAPL_InfoSetInternal(f, key=KEY_NUM_LEVELS, value=ORIGINAL_NUM_LEVELS, _RC)
+      call MAPL_InfoSetInternal(f, key=KEY_VLOC, value='VERTICAL_DIM_EDGE', _RC)
 
       grid2 = ESMF_GridCreateNoPeriDim(maxIndex=[3,5], name='I_AM_GROOT', _RC)
       geom2 = ESMF_GeomCreate(grid2, _RC)
@@ -122,8 +138,17 @@ contains
       grid1 = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom1 = ESMF_GeomCreate(grid1, _RC)
       f = ESMF_FieldCreate(geom1, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
+      call MAPL_InfoSetInternal(f, key=KEY_NUM_LEVELS, value=ORIGINAL_NUM_LEVELS, _RC)
+      call MAPL_InfoSetInternal(f, key=KEY_VLOC, value='VERTICAL_DIM_EDGE', _RC)
+
+      call MAPL_InfoSetInternal(f, key=KEY_NUM_LEVELS, value=ORIGINAL_NUM_LEVELS, _RC)
+      call MAPL_InfoSetInternal(f, key=KEY_VLOC, value='VERTICAL_DIM_EDGE', _RC)
+
+
       call ESMF_FieldGet(f, fArrayPtr=x, _RC)
-      x = 99
+      call MAPL_InfoSetInternal(f, key=KEY_NUM_LEVELS, value=ORIGINAL_NUM_LEVELS, _RC)
+      call MAPL_InfoSetInternal(f, key=KEY_VLOC, value='VERTICAL_DIM_EDGE', _RC)
+      x = FILL_VALUE
 
       geom2 = geom1
       call FieldReallocate(f, geom=geom2, _RC) ! same geom
@@ -133,7 +158,7 @@ contains
       @assert_that(typekind == ESMF_TYPEKIND_R4, is(true()))
 
       call ESMF_FieldGet(f, fArrayPtr=x, _RC)
-      @assert_that(all(x == 99), is(true()))
+      @assert_that(all(x == FILL_VALUE), is(true()))
 
       call ESMF_FieldDestroy(f, _RC)
       call ESMF_GridDestroy(grid1, _RC)
@@ -142,10 +167,11 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_same_geom_do_not_reallocate
 
+
     @test(type=ESMF_TestMethod, npes=[1])
    ! Probably exceedingly rare, but MAPL3 allows the vertical grid to change with time
    ! which could change the number of levels ...
-   subroutine test_change_ungridded_bounds(this)
+   subroutine test_change_n_levels(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_Field) :: f
       type(ESMF_Grid) :: grid
@@ -153,15 +179,19 @@ contains
 
       integer :: status
       type(ESMF_FieldStatus_Flag) :: field_status
-      real(ESMF_KIND_R4), pointer :: x(:,:,:,:)
       type(ESMF_TypeKind_Flag) :: typekind
+      real(ESMF_KIND_R4), pointer :: x(:,:,:,:)
 
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom = ESMF_GeomCreate(grid, _RC)
 
       f = ESMF_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', &
-           ungriddedLbound=[1,1], ungriddedUbound=[5,3], _RC)
-      call FieldReallocate(f, ungriddedUbound=[4,3], _RC)
+           ungriddedLbound=[1,1], ungriddedUbound=[ORIGINAL_NUM_LEVELS,3], _RC)
+      call MAPL_InfoSetInternal(f, key=KEY_NUM_LEVELS, value=ORIGINAL_NUM_LEVELS, _RC)
+      call MAPL_InfoSetInternal(f, key=KEY_VLOC, value='VERTICAL_DIM_EDGE', _RC)
+
+
+      call FieldReallocate(f, num_levels=4, _RC)
 
       call ESMF_FieldGet(f, status=field_status, typekind=typekind, _RC)
       @assert_that(field_status == ESMF_FIELDSTATUS_COMPLETE, is(true()))
@@ -175,16 +205,15 @@ contains
       call ESMF_GeomDestroy(geom, _RC)
 
       _UNUSED_DUMMY(this)
-   end subroutine test_change_ungridded_bounds
+   end subroutine test_change_n_levels
+
 
     @test(type=ESMF_TestMethod, npes=[1])
-   ! Probably exceedingly rare, but MAPL3 allows the vertical grid to change with time
-   ! which could change the number of levels ...
-   subroutine test_same_ungridded_bounds_do_not_allocate(this)
+   subroutine test_same_n_levels_do_not_reallocate(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(ESMF_Field) :: f
       type(ESMF_Grid) :: grid
-      type(ESMF_Geom) :: geom
+      type(ESMF_Geom) :: geom, other_geom
 
       integer :: status
       type(ESMF_FieldStatus_Flag) :: field_status
@@ -195,25 +224,85 @@ contains
       geom = ESMF_GeomCreate(grid, _RC)
 
       f = ESMF_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', &
-           ungriddedLbound=[1,1], ungriddedUbound=[5,3], _RC)
+           ungriddedLbound=[1,1], ungriddedUbound=[ORIGINAL_NUM_LEVELS,3], _RC)
+      call MAPL_InfoSetInternal(f, key=KEY_NUM_LEVELS, value=ORIGINAL_NUM_LEVELS, _RC)
+      call MAPL_InfoSetInternal(f, key=KEY_VLOC, value='VERTICAL_DIM_EDGE', _RC)
+
       call ESMF_FieldGet(f, fArrayPtr=x, _RC)
-      x = 99
+      x = FILL_VALUE
 
-      call FieldReallocate(f, ungriddedUbound=[5,3], _RC)
+      call FieldReallocate(f, num_levels=ORIGINAL_NUM_LEVELS, _RC)
 
-      call ESMF_FieldGet(f, status=field_status, typekind=typekind, _RC)
+      call ESMF_FieldGet(f, status=field_status, typekind=typekind, geom=other_geom, _RC)
       @assert_that(field_status == ESMF_FIELDSTATUS_COMPLETE, is(true()))
       @assert_that(typekind == ESMF_TYPEKIND_R4, is(true()))
+      @assert_that(other_geom == geom, is(true()))
 
+      ! Check that Field data is unchanged
       call ESMF_FieldGet(f, fArrayPtr=x, _RC)
-      @assert_that(all(x == 99), is(true()))
-      @assert_that(shape(x), is(equal_to([4,4,5,3])))
+      @assert_that(all(x == FILL_VALUE), is(true()))
 
       call ESMF_FieldDestroy(f, _RC)
       call ESMF_GridDestroy(grid, _RC)
       call ESMF_GeomDestroy(geom, _RC)
 
       _UNUSED_DUMMY(this)
-   end subroutine test_same_ungridded_bounds_do_not_allocate
+   end subroutine test_same_n_levels_do_not_reallocate
+
+
+    @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_field_update_from_field_ignore_geom(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Field) :: f, f_ref
+      type(ESMF_Grid) :: grid, grid_ref
+      type(ESMF_Geom) :: geom, geom_ref, new_geom
+      character(:), allocatable :: new_units
+
+      integer :: status
+      type(ESMF_FieldStatus_Flag) :: field_status
+      real(ESMF_KIND_R8), pointer :: x8(:,:,:,:)
+      type(ESMF_TypeKind_Flag) :: typekind
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
+      geom = ESMF_GeomCreate(grid, _RC)
+
+      grid_ref = ESMF_GridCreateNoPeriDim(maxIndex=[7,7], name='I_AM_GROOT', _RC)
+      geom_ref = ESMF_GeomCreate(grid_ref, _RC)
+
+      f = ESMF_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', &
+           ungriddedLbound=[1,1], ungriddedUbound=[ORIGINAL_NUM_LEVELS+1,3], _RC)
+
+      f_ref = ESMF_FieldCreate(geom_ref, typekind=ESMF_TYPEKIND_R8, name='in', &
+           ungriddedLbound=[1,1], ungriddedUbound=[ORIGINAL_NUM_LEVELS,3], _RC)
+
+      call MAPL_InfoSetInternal(f, key=KEY_NUM_LEVELS, value=ORIGINAL_NUM_LEVELS+1, _RC)
+      call MAPL_InfoSetInternal(f, key=KEY_VLOC, value='VERTICAL_DIM_EDGE', _RC)
+      call MAPL_InfoSetInternal(f, key=KEY_UNITS, value=ORIGINAL_UNITS)
+
+      call MAPL_InfoSetInternal(f_ref, key=KEY_NUM_LEVELS, value=ORIGINAL_NUM_LEVELS, _RC)
+      call MAPL_InfoSetInternal(f_ref, key=KEY_VLOC, value='VERTICAL_DIM_EDGE', _RC)
+      call MAPL_InfoSetInternal(f_ref, key=KEY_UNITS, value=REFERENCE_UNITS)
+
+      call FieldUpdate(f, f_ref, ignore='geom', _RC)
+
+      call ESMF_FieldGet(f, status=field_status, typekind=typekind, geom=new_geom, _RC)
+      @assert_that(field_status == ESMF_FIELDSTATUS_COMPLETE, is(true()))
+      @assert_that(typekind == ESMF_TYPEKIND_R8, is(true()))
+      @assert_that(new_geom == geom, is(true()))
+
+      call MAPL_InfoGetInternal(f, key=KEY_UNITS, value=new_units, _RC)
+      @assertEqual(REFERENCE_UNITS, new_units)
+
+      ! check that field shape is changed due to new num levels
+      call ESMF_FieldGet(f, fArrayPtr=x8, _RC)
+      @assert_that(shape(x8),is(equal_to([4,4,ORIGINAL_NUM_LEVELS,3])))
+
+      call ESMF_FieldDestroy(f, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+      call ESMF_GeomDestroy(geom, _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_field_update_from_field_ignore_geom
+
 
 end module Test_FieldUtilities

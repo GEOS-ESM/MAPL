@@ -1,17 +1,15 @@
 #include "MAPL_Generic.h"
 module mapl3g_FieldDimensionInfo
-
+   use mapl3g_InfoUtilities
    use mapl3g_UngriddedDim
    use mapl3g_UngriddedDimVector
    use mapl3g_UngriddedDims
    use mapl3g_esmf_info_keys
    use gFTL2_StringVector
    use esmf, only: ESMF_Field, ESMF_FieldBundle, ESMF_FieldBundleGet
-   use esmf, only: ESMF_Info, ESMF_InfoIsPresent
+   use esmf, only: ESMF_Info, ESMF_InfoIsPresent, ESMF_InfoGet
    use esmf, only: ESMF_InfoDestroy, ESMF_InfoCreate
-   use esmf, only: ESMF_InfoGet, ESMF_InfoGetFromHost
-   use esmf, only: ESMF_InfoGetAlloc, ESMF_InfoPrint
-   use esmf, only: ESMF_MAXSTR, ESMF_SUCCESS
+   use esmf, only: ESMF_InfoPrint
    use Mapl_ErrorHandling
 
    implicit none
@@ -60,15 +58,15 @@ contains
 
    end function get_num_levels_bundle
 
-   integer function get_num_levels_bundle_info(info, rc) result(num)
-      type(ESMF_Info), intent(in) :: info(:)
+   integer function get_num_levels_bundle_info(infos, rc) result(num)
+      type(ESMF_Info), intent(in) :: infos(:)
       integer, optional, intent(out) :: rc
       integer :: status
       integer :: i, n
 
       num = 0
-      do i=1, size(info)
-         n = get_num_levels_info(info(i), _RC)
+      do i=1, size(infos)
+         n = get_num_levels_info(infos(i), _RC)
          num = max(num, n)
          if(n == 0) cycle
          _ASSERT(n == num, 'Fields with vertical levels must have the same number of levels.')
@@ -83,10 +81,11 @@ contains
       integer :: status
       type(ESMF_Info) :: info
 
-      call ESMF_InfoGetFromHost(field, info, _RC)
+      info = MAPL_InfoCreateFromInternal(field, _RC)
       num = get_num_levels_info(info, _RC)
-      _RETURN(_SUCCESS)
+      call ESMF_InfoDestroy(info, _RC)
 
+      _RETURN(_SUCCESS)
    end function get_num_levels_field
 
    integer function get_num_levels_info(info, rc) result(num)
@@ -98,9 +97,9 @@ contains
       num = 0
       spec_name = get_vertical_dim_spec_info(info, _RC)
       _RETURN_IF(spec_name == VERT_DIM_NONE)
-      call ESMF_InfoGet(info, key=KEY_NUM_LEVELS, value=num, _RC)
-      _RETURN(_SUCCESS)
+      call MAPL_InfoGet(info, key=KEY_NUM_LEVELS, value=num, _RC)
 
+      _RETURN(_SUCCESS)
    end function get_num_levels_info
 
    function get_vertical_dim_spec_names_bundle(bundle, rc) result(names)
@@ -140,10 +139,11 @@ contains
       integer :: status
       type(ESMF_Info) :: info
 
-      call ESMF_InfoGetFromHost(field, info, _RC)
+      info = MAPL_InfoCreateFromInternal(field, _RC)
       spec_name = get_vertical_dim_spec_info(info, _RC)
-      _RETURN(_SUCCESS)
+      call ESMF_InfoDestroy(info, _RC)
 
+      _RETURN(_SUCCESS)
    end function get_vertical_dim_spec_name_field
 
    function get_vertical_dim_spec_info(info, rc) result(spec_name)
@@ -152,15 +152,11 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       logical :: isPresent
-      character(len=ESMF_MAXSTR) :: raw
 
+      call MAPL_InfoGet(info, key=KEY_VLOC, value=spec_name, _RC)
       isPresent = ESMF_InfoIsPresent(info, key=KEY_VLOC, _RC)
-      _ASSERT(isPresent, 'Failed to get vertical dim spec name.')
-      call ESMF_InfoGet(info, key=KEY_VLOC, value=raw, _RC)
-      spec_name = trim(adjustl(raw))
 
       _RETURN(_SUCCESS)
-
    end function get_vertical_dim_spec_info
 
    function get_ungridded_dims_bundle(bundle, rc) result(dims)
@@ -201,10 +197,11 @@ contains
       integer :: status
       type(ESMF_Info) :: info
 
-      call ESMF_InfoGetFromHost(field, info, _RC)
+      info = MAPL_InfoCreateFromInternal(field, _RC)
       ungridded = make_ungridded_dims(info, _RC)
-      _RETURN(_SUCCESS)
+      call ESMF_InfoDestroy(info, _RC)
 
+      _RETURN(_SUCCESS)
    end function get_ungridded_dims_field
 
    function make_ungridded_dims(info, rc) result(dims)
@@ -215,7 +212,7 @@ contains
       integer :: num_dims, i
       type(UngriddedDim) :: ungridded
 
-      call ESMF_InfoGet(info, key=KEY_NUM_UNGRID_DIMS, value=num_dims, _RC)
+      call MAPL_InfoGet(info, key=KEY_NUM_UNGRIDDED_DIMS, value=num_dims, _RC)
       do i=1, num_dims
          ungridded = make_ungridded_dim(info, i, _RC)
          call dims%add_dim(ungridded, _RC)
@@ -231,7 +228,6 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_Info) :: dim_info
-      character(len=ESMF_MAXSTR) :: raw
       character(len=:), allocatable :: key
       character(len=:), allocatable :: name
       character(len=:), allocatable :: units
@@ -246,11 +242,9 @@ contains
          _FAIL('Key ' // trim(key) // ' not found in ' // trim(json_repr))
       end if
       dim_info = ESMF_InfoCreate(info, key=key, _RC)
-      call ESMF_InfoGet(dim_info, key=KEY_UNGRIDDED_NAME, value=raw, _RC)
-      name = trim(adjustl(raw))
-      call ESMF_InfoGet(dim_info, key=KEY_UNGRIDDED_UNITS, value=raw, _RC)
-      units = trim(adjustl(raw))
-      call ESMF_InfoGetAlloc(dim_info, key=KEY_UNGRIDDED_COORD, values=coordinates, _RC)
+      call MAPL_InfoGet(dim_info, key=KEY_UNGRIDDED_NAME, value=name, _RC)
+      call MAPL_InfoGet(dim_info, key=KEY_UNGRIDDED_UNITS, value=units, _RC)
+      call MAPL_InfoGet(dim_info, key=KEY_UNGRIDDED_COORD, values=coordinates, _RC)
       call ESMF_InfoDestroy(dim_info, _RC)
       ungridded_dim = UngriddedDim(coordinates, name=name, units=units)
       _RETURN(_SUCCESS)
@@ -311,6 +305,7 @@ contains
       type(ESMF_Info), allocatable :: bundle_info(:)
       type(ESMF_FieldBundle), intent(in) :: bundle
       integer, optional, intent(out) :: rc
+
       integer :: status
       integer :: field_count, i
       type(ESMF_Field), allocatable :: fields(:)
@@ -323,8 +318,7 @@ contains
       call ESMF_FieldBundleGet(bundle, fieldList=fields, _RC)
       allocate(bundle_info(field_count))
       do i=1, field_count
-         call ESMF_InfoGetFromHost(fields(i), info, _RC)
-         bundle_info(i) = info
+         bundle_info(i) = MAPL_InfoCreateFromInternal(fields(i), _RC)
       end do
       _RETURN(_SUCCESS)
 
