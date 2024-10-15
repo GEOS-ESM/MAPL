@@ -58,6 +58,40 @@ module mapl_checkpoint_support_mod
          procedure :: reset
    end type
 
+   ! This will define the command line options we will use
+   ! The RC file currently has:
+   !   NX: 4 # NX and NY are the decomposition of each face of the cubed sphere
+   !   NY: 4
+   !   IM_WORLD: 90 # the cubed-sphere resolution to write
+   !   LM: 137 # number of levels in each 3D variable
+   !   NUM_WRITERS: 1 # number of processes that will write (must be multiple of 6
+   !   NUM_ARRAYS: 5 # number of 3D arrays to write
+   !   NTRIALS: 2 # number of trials
+   !   # the rest of these are optional
+   !   SPLIT_FILE: .false. # whether each process writes to it's own file or the same file default false
+   !   GATHER_3D: .false. # whether to gather a level at a time or full variables, default false
+   !   WRITE_BARRIER: .false. # put a barrier after the write
+   !   RANDOM_DATA: .true. # whether to put random data in the array to be written
+   !   DO_WRITES: .true. # whether to skip writing, so you can just time the MPI. default false
+   !
+   ! We also want a new option to allow reading through an rc file
+   !
+   type cli_options
+      integer :: nx
+      integer :: ny
+      integer :: im_world
+      integer :: lm
+      integer :: num_writers
+      integer :: num_arrays
+      integer :: n_trials
+      logical :: split_file = .false.
+      logical :: gather_3d = .false.
+      logical :: write_barrier = .false.
+      logical :: random_data = .true.
+      logical :: do_writes = .true.
+      character(len=:), allocatable :: config_file
+   end type cli_options
+
 contains
 
    subroutine set_parameters(this,config_file)
@@ -679,6 +713,7 @@ program checkpoint_tester
    use mapl_checkpoint_support_mod
    use MPI
    use NetCDF
+   use fargparse
    use, intrinsic :: iso_fortran_env, only: REAL64, INT64
    implicit NONE
 
@@ -691,6 +726,10 @@ program checkpoint_tester
    real(kind=REAL64), allocatable :: total_throughput(:), all_proc_throughput(:)
    real(kind=REAL64) :: mean_throughput, mean_fs_throughput
    real(kind=REAL64) :: std_throughput, std_fs_throughput
+
+   type(ArgParser), target :: parser
+   type(StringUnlimitedMap) :: options
+   type(cli_options) :: cli
 
    call system_clock(count=start_app,count_rate=count_rate)
    call MPI_Init(status)
@@ -705,6 +744,81 @@ program checkpoint_tester
    call ESMF_Initialize(logKindFlag=ESMF_LOGKIND_NONE,mpiCommunicator=MPI_COMM_WORLD)
    call MPI_Barrier(MPI_COMM_WORLD,status)
    _VERIFY(status)
+
+   parser = ArgParser()
+
+   call parser%add_argument("--nx", &
+      help="The number of cells in the x direction", &
+      action="store", &
+      type="integer", &
+      default=4)
+
+   call parser%add_argument("--ny", &
+      help="The number of cells in the y direction", &
+      action="store", &
+      type="integer", &
+      default=4)
+
+   call parser%add_argument("--im_world", &
+      help="The resolution of the cubed sphere", &
+      action="store", &
+      type="integer", &
+      default=90)
+
+   call parser%add_argument("--lm", &
+      help="The number of levels in each 3D variable", &
+      action="store", &
+      type="integer", &
+      default=137)
+
+   call parser%add_argument("--num_writers", &
+      help="The number of processes that will write", &
+      action="store", &
+      type="integer", &
+      default=1)
+
+   call parser%add_argument("--num_arrays", &
+      help="The number of 3D arrays to write", &
+      action="store", &
+      type="integer", &
+      default=5)
+
+   call parser%add_argument("--ntrials", &
+      help="The number of trials to run", &
+      action="store", &
+      type="integer", &
+      default=3)
+
+   call parser%add_argument("--split_file", &
+      help="Split the file into multiple files", &
+      action="store_true", &
+      default=.false.)
+
+   call parser%add_argument("--gather_3d", &
+      help="Gather 3D data", &
+      action="store_true", &
+      default=.false.)
+
+   call parser%add_argument("--write_barrier", &
+      help="Add a write barrier", &
+      action="store_true", &
+      default=.false.)
+
+   call parser%add_argument("--random_data", &
+      help="Use random data", &
+      action="store_true", &
+      default=.true.)
+
+   call parser%add_argument("--do_writes", &
+      help="Write data", &
+      action="store_true", &
+      default=.true.)
+
+   call parser%add_argument("--config_file", &
+      help="The configuration file to use", &
+      action="store", &
+      type="string", &
+      default="*")
 
    call support%set_parameters("checkpoint_benchmark.rc")
    call MPI_Barrier(MPI_COMM_WORLD,status)
