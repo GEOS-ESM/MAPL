@@ -771,6 +771,7 @@ program checkpoint_tester
    type(StringUnlimitedMap) :: options
    type(cli_options) :: cli
    class(*), pointer :: option
+   logical :: verbose
 
    call system_clock(count=start_app,count_rate=count_rate)
    call MPI_Init(status)
@@ -786,8 +787,18 @@ program checkpoint_tester
    call MPI_Barrier(MPI_COMM_WORLD,status)
    _VERIFY(status)
 
-   call parser%initialize()
+   call parser%initialize('checkpoint_simulator.x')
    parser = ArgParser()
+
+   call parser%add_argument("--config_file", &
+      help="The configuration file to use", &
+      action="store", &
+      type="string")
+
+   call parser%add_argument("--verbose", &
+      help="Be verbose", &
+      action="store_true", &
+      default=.false.)
 
    call parser%add_argument("--nx", &
       help="The number of cells in the x direction", &
@@ -856,23 +867,25 @@ program checkpoint_tester
       action="store_true", &
       default=.true.)
 
-   call parser%add_argument("--config_file", &
-      help="The configuration file to use", &
-      action="store", &
-      type="string", &
-      default="*")
+   options = parser%parse_args()
+
+   option => options%at("verbose")
+   if (associated(option)) call cast(option, verbose)
 
    ! We first look for a configuration file
    option => options%at("config_file")
+   write(*,*) "config_file: associated(option) = ",associated(option)
    if (associated(option)) call cast(option, cli%config_file)
 
    ! if we have it, we load the configuration file
-   if (cli%config_file /= "*") then
+   if (allocated(cli%config_file)) then
       call support%set_parameters_by_config(cli%config_file)
    else
 
       option => options%at("nx")
+      write(*,*) "nx: associated(option) = ",associated(option)
       if (associated(option)) call cast(option, cli%nx)
+      write(*,*) "cli%nx = ",cli%nx
 
       option => options%at("ny")
       if (associated(option)) call cast(option, cli%ny)
