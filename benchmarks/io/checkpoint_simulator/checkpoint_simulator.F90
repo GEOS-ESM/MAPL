@@ -6,6 +6,7 @@ module mapl_checkpoint_support_mod
    use MPI
    use NetCDF
    use MAPL_ErrorHandlingMod
+   use fargparse
    use, intrinsic :: iso_fortran_env, only: INT64, REAL64, REAL32
    implicit none
 
@@ -59,24 +60,6 @@ module mapl_checkpoint_support_mod
          procedure :: reset
    end type
 
-   ! This will define the command line options we will use
-   ! The RC file currently has:
-   !   NX: 4 # NX and NY are the decomposition of each face of the cubed sphere
-   !   NY: 4
-   !   IM_WORLD: 90 # the cubed-sphere resolution to write
-   !   LM: 137 # number of levels in each 3D variable
-   !   NUM_WRITERS: 1 # number of processes that will write (must be multiple of 6
-   !   NUM_ARRAYS: 5 # number of 3D arrays to write
-   !   NTRIALS: 2 # number of trials
-   !   # the rest of these are optional
-   !   SPLIT_FILE: .false. # whether each process writes to it's own file or the same file default false
-   !   GATHER_3D: .false. # whether to gather a level at a time or full variables, default false
-   !   WRITE_BARRIER: .false. # put a barrier after the write
-   !   RANDOM_DATA: .true. # whether to put random data in the array to be written
-   !   DO_WRITES: .true. # whether to skip writing, so you can just time the MPI. default false
-   !
-   ! We also want a new option to allow reading through an rc file
-   !
    type cli_options
       integer :: nx
       integer :: ny
@@ -91,10 +74,162 @@ module mapl_checkpoint_support_mod
       logical :: random_data = .true.
       logical :: do_writes = .true.
       logical :: netcdf_writes = .true.
+      logical :: do_chunking = .true.
       character(len=:), allocatable :: config_file
    end type cli_options
 
 contains
+
+   function parse_arguments() result(options)
+
+      type(StringUnlimitedMap) :: options
+      type(ArgParser), target :: parser
+
+      call parser%initialize('checkpoint_simulator.x')
+      parser = ArgParser()
+
+      call parser%add_argument("--config_file", &
+         help="The configuration file to use", &
+         action="store", &
+         type="string")
+
+      call parser%add_argument("--nx", &
+         help="The number of cells in the x direction (default=4)", &
+         action="store", &
+         type="integer", &
+         default=4)
+
+      call parser%add_argument("--ny", &
+         help="The number of cells in the y direction (default=4)", &
+         action="store", &
+         type="integer", &
+         default=4)
+
+      call parser%add_argument("--im_world", &
+         help="The resolution of the cubed sphere (default=90)", &
+         action="store", &
+         type="integer", &
+         default=90)
+
+      call parser%add_argument("--lm", &
+         help="The number of levels in each 3D variable (default=137)", &
+         action="store", &
+         type="integer", &
+         default=137)
+
+      call parser%add_argument("--num_writers", &
+         help="The number of processes that will write (default=1)", &
+         action="store", &
+         type="integer", &
+         default=1)
+
+      call parser%add_argument("--num_arrays", &
+         help="The number of 3D arrays to write (default=5)", &
+         action="store", &
+         type="integer", &
+         default=5)
+
+      call parser%add_argument("--ntrials", &
+         help="The number of trials to run (default=3)", &
+         action="store", &
+         type="integer", &
+         default=3)
+
+      call parser%add_argument("--split_file", &
+         help="Split the file into multiple files (default=False)", &
+         action="store_true", &
+         default=.false.)
+
+      call parser%add_argument("--gather_3d", &
+         help="Gather 3D data (default=False)", &
+         action="store_true", &
+         default=.false.)
+
+      call parser%add_argument("--write_barrier", &
+         help="Add a write barrier (default=False)", &
+         action="store_true", &
+         default=.false.)
+
+      call parser%add_argument("--no_random_data", &
+         help="Do not use random data (default=False)", &
+         action="store_true", &
+         default=.False.)
+
+      call parser%add_argument("--do_no_writes", &
+         help="Do not write data (default=False)", &
+         action="store_true", &
+         default=.False.)
+
+      call parser%add_argument("--no_netcdf_writes", &
+         help="Do not write data as netcdf (default=False)", &
+         action="store_true", &
+         default=.false.)
+
+      call parser%add_argument("--no_chunking", &
+         help="Do not chunk (default=False)", &
+         action="store_true", &
+         default=.false.)
+
+      options = parser%parse_args()
+
+   end function parse_arguments
+
+   subroutine get_cli_options(options, cli)
+      type(StringUnlimitedMap), intent(in) :: options
+      type(cli_options), intent(out) :: cli
+      class(*), pointer :: option
+      logical :: tmp
+
+      option => options%at("config_file")
+      if (associated(option)) call cast(option, cli%config_file)
+
+      option => options%at("nx")
+      if (associated(option)) call cast(option, cli%nx)
+
+      option => options%at("ny")
+      if (associated(option)) call cast(option, cli%ny)
+
+      option => options%at("im_world")
+      if (associated(option)) call cast(option, cli%im_world)
+
+      option => options%at("lm")
+      if (associated(option)) call cast(option, cli%lm)
+
+      option => options%at("num_writers")
+      if (associated(option)) call cast(option, cli%num_writers)
+
+      option => options%at("num_arrays")
+      if (associated(option)) call cast(option, cli%num_arrays)
+
+      option => options%at("ntrials")
+      if (associated(option)) call cast(option, cli%n_trials)
+
+      option => options%at("split_file")
+      if (associated(option)) call cast(option, cli%split_file)
+
+      option => options%at("gather_3d")
+      if (associated(option)) call cast(option, cli%gather_3d)
+
+      option => options%at("write_barrier")
+      if (associated(option)) call cast(option, cli%write_barrier)
+
+      option => options%at("no_random_data")
+      if (associated(option)) call cast(option, tmp)
+      cli%random_data = .not. tmp
+
+      option => options%at("do_no_writes")
+      if (associated(option)) call cast(option, tmp)
+      cli%do_writes = .not. tmp
+
+      option => options%at("no_netcdf_writes")
+      if (associated(option)) call cast(option, tmp)
+      cli%netcdf_writes = .not. tmp
+
+      option => options%at("no_chunking")
+      if (associated(option)) call cast(option, tmp)
+      cli%do_chunking = .not. tmp
+
+   end subroutine get_cli_options
 
    subroutine set_parameters_by_config(this,config_file)
       class(test_support), intent(inout) :: this
@@ -185,7 +320,7 @@ contains
       this%write_barrier = cli%write_barrier
       this%do_writes = cli%do_writes
       this%netcdf_writes = cli%netcdf_writes
-      this%do_chunking = .true.
+      this%do_chunking = cli%do_chunking
       this%gather_3d = cli%gather_3d
       this%split_file = cli%split_file
       this%nx = cli%nx
@@ -211,7 +346,6 @@ contains
          call MPI_Abort(mpi_comm_world,error_code,status)
          _VERIFY(status)
       endif
-      write (*,*) "comm_size: ", comm_size
 
    end subroutine set_parameters_by_cli
 
@@ -433,20 +567,25 @@ contains
               write(fc,'(I0.3)')writer_rank
               fname = "checkpoint_"//fc//".nc4"
               status = nf90_create(fname,ior(NF90_NETCDF4,NF90_CLOBBER), this%ncid)
+              _VERIFY(status)
               chunk_factor = 1
            else
               fname = "checkpoint.nc4"
               status = nf90_create(fname,create_mode, this%ncid, comm=this%writers_comm, info=info)
+              _VERIFY(status)
               chunk_factor = this%num_writers
            end if
            status = nf90_def_dim(this%ncid,"lon",this%im_world,xdim)
+           _VERIFY(status)
            if (this%split_file) then
               y_size = this%im_world*6/this%num_writers
            else
               y_size = this%im_world*6
            end if
            status = nf90_def_dim(this%ncid,"lat",y_size,ydim)
+           _VERIFY(status)
            status = nf90_def_dim(this%ncid,"lev",this%lm,zdim)
+           _VERIFY(status)
            if (this%gather_3d) then
               z_chunk = this%lm
            else
@@ -455,11 +594,15 @@ contains
            do i=1,this%num_arrays
               if (this%do_chunking) then
                  status = nf90_def_var(this%ncid,this%bundle(i)%field_name,NF90_FLOAT,[xdim,ydim,zdim],varid,chunksizes=[this%im_world,y_size/chunk_factor,z_chunk])
+                 _VERIFY(status)
               else
                  status = nf90_def_var(this%ncid,this%bundle(i)%field_name,NF90_FLOAT,[xdim,ydim,zdim],varid)
+                 _VERIFY(status)
               end if
               status = nf90_def_var_fill(this%ncid,varid,NF90_NOFILL,0)
+              _VERIFY(status)
               !status = nf90_var_par_access(this%ncid,varid,NF90_COLLECTIVE) ! you can turn this on if you really want to hork up performance
+              !_VERIFY(status)
            enddo
            status = nf90_enddef(this%ncid)
         end if
@@ -558,15 +701,19 @@ contains
              jsize=jsize + (this%jn(myrow+j) - this%j1(myrow+j) + 1)
           enddo
           allocate(VAR(IM_WORLD,jsize,this%lm), stat=status)
+          _VERIFY(status)
           allocate(recvbuf(IM_WORLD*jsize*this%lm), stat=status)
+          _VERIFY(status)
        end if
 
        if(myiorank/=0) then
           allocate(recvbuf(0), stat=status)
+          _VERIFY(status)
        endif
 
        call mpi_gatherv( local_var, size(local_var), MPI_REAL, recvbuf, recvcounts, displs, MPI_REAL, &
                       0, this%gather_comm, status )
+       _VERIFY(status)
        call system_clock(count=end_mpi)
        this%time_mpi = this%mpi_time  + (end_mpi - start_mpi)
        if (this%write_barrier) then
@@ -609,7 +756,9 @@ contains
           if (this%do_writes) then
              if (this%netcdf_writes) then
                 status = nf90_inq_varid(this%ncid,name=var_name ,varid=varid)
+                _VERIFY(status)
                 status = nf90_put_var(this%ncid,varid,var,start,cnt)
+                _VERIFY(status)
              else
                 write(this%ncid)var
              end if
@@ -726,7 +875,9 @@ contains
           if (this%do_writes) then
              if (this%netcdf_writes) then
                 status = nf90_inq_varid(this%ncid,name=var_name ,varid=varid)
+                _VERIFY(status)
                 status = nf90_put_var(this%ncid,varid,var,start,cnt)
+                _VERIFY(status)
              else
                 write(this%ncid)var
              end if
@@ -770,11 +921,8 @@ program checkpoint_tester
    real(kind=REAL64) :: mean_throughput, mean_fs_throughput
    real(kind=REAL64) :: std_throughput, std_fs_throughput
 
-   type(ArgParser), target :: parser
    type(StringUnlimitedMap) :: options
    type(cli_options) :: cli
-   class(*), pointer :: option
-   logical :: verbose
 
    call system_clock(count=start_app,count_rate=count_rate)
    call MPI_Init(status)
@@ -790,159 +938,19 @@ program checkpoint_tester
    call MPI_Barrier(MPI_COMM_WORLD,status)
    _VERIFY(status)
 
-   call parser%initialize('checkpoint_simulator.x')
-   parser = ArgParser()
+   options = parse_arguments()
 
-   call parser%add_argument("--config_file", &
-      help="The configuration file to use", &
-      action="store", &
-      type="string")
-
-   call parser%add_argument("--verbose", &
-      help="Be verbose", &
-      action="store_true", &
-      default=.false.)
-
-   call parser%add_argument("--nx", &
-      help="The number of cells in the x direction", &
-      action="store", &
-      type="integer", &
-      default=4)
-
-   call parser%add_argument("--ny", &
-      help="The number of cells in the y direction", &
-      action="store", &
-      type="integer", &
-      default=4)
-
-   call parser%add_argument("--im_world", &
-      help="The resolution of the cubed sphere", &
-      action="store", &
-      type="integer", &
-      default=90)
-
-   call parser%add_argument("--lm", &
-      help="The number of levels in each 3D variable", &
-      action="store", &
-      type="integer", &
-      default=137)
-
-   call parser%add_argument("--num_writers", &
-      help="The number of processes that will write", &
-      action="store", &
-      type="integer", &
-      default=1)
-
-   call parser%add_argument("--num_arrays", &
-      help="The number of 3D arrays to write", &
-      action="store", &
-      type="integer", &
-      default=5)
-
-   call parser%add_argument("--ntrials", &
-      help="The number of trials to run", &
-      action="store", &
-      type="integer", &
-      default=3)
-
-   call parser%add_argument("--split_file", &
-      help="Split the file into multiple files", &
-      action="store_true", &
-      default=.false.)
-
-   call parser%add_argument("--gather_3d", &
-      help="Gather 3D data", &
-      action="store_true", &
-      default=.false.)
-
-   call parser%add_argument("--write_barrier", &
-      help="Add a write barrier", &
-      action="store_true", &
-      default=.false.)
-
-   call parser%add_argument("--random_data", &
-      help="Use random data", &
-      action="store_true", &
-      default=.true.)
-
-   call parser%add_argument("--do_writes", &
-      help="Write data", &
-      action="store_true", &
-      default=.true.)
-
-   call parser%add_argument("--netcdf_writes", &
-      help="Write data as netcdf", &
-      action="store_true", &
-      default=.true.)
-
-   options = parser%parse_args()
-
-   option => options%at("verbose")
-   if (associated(option)) call cast(option, verbose)
-
-   ! We first look for a configuration file
-   option => options%at("config_file")
-   if (associated(option)) call cast(option, cli%config_file)
+   call get_cli_options(options,cli)
 
    ! if we have it, we load the configuration file
    if (allocated(cli%config_file)) then
-      if (verbose .and. rank == 0) write(*,*) "Using configuration file ",cli%config_file
+      if (rank == 0) write(*,*) "Using configuration file ",cli%config_file
+      if (rank == 0) write(*,*) "NOTE: This overrides any other command line options"
       call support%set_parameters_by_config(cli%config_file)
    else
-
-      option => options%at("nx")
-      if (associated(option)) call cast(option, cli%nx)
-      if (verbose .and. rank == 0) write(*,*) "nx = ",cli%nx
-
-      option => options%at("ny")
-      if (associated(option)) call cast(option, cli%ny)
-      if (verbose .and. rank == 0) write(*,*) "ny = ",cli%ny
-
-      option => options%at("im_world")
-      if (associated(option)) call cast(option, cli%im_world)
-      if (verbose .and. rank == 0) write(*,*) "im_world = ",cli%im_world
-
-      option => options%at("lm")
-      if (associated(option)) call cast(option, cli%lm)
-      if (verbose .and. rank == 0) write(*,*) "lm = ",cli%lm
-
-      option => options%at("num_writers")
-      if (associated(option)) call cast(option, cli%num_writers)
-      if (verbose .and. rank == 0) write(*,*) "num_writers = ",cli%num_writers
-
-      option => options%at("num_arrays")
-      if (associated(option)) call cast(option, cli%num_arrays)
-      if (verbose .and. rank == 0) write(*,*) "num_arrays = ",cli%num_arrays
-
-      option => options%at("ntrials")
-      if (associated(option)) call cast(option, cli%n_trials)
-      if (verbose .and. rank == 0) write(*,*) "n_trials = ",cli%n_trials
-
-      option => options%at("split_file")
-      if (associated(option)) call cast(option, cli%split_file)
-      if (verbose .and. rank == 0) write(*,*) "split_file = ",cli%split_file
-
-      option => options%at("gather_3d")
-      if (associated(option)) call cast(option, cli%gather_3d)
-      if (verbose .and. rank == 0) write(*,*) "gather_3d = ",cli%gather_3d
-
-      option => options%at("write_barrier")
-      if (associated(option)) call cast(option, cli%write_barrier)
-      if (verbose .and. rank == 0) write(*,*) "write_barrier = ",cli%write_barrier
-
-      option => options%at("random_data")
-      if (associated(option)) call cast(option, cli%random_data)
-      if (verbose .and. rank == 0) write(*,*) "random_data = ",cli%random_data
-
-      option => options%at("do_writes")
-      if (associated(option)) call cast(option, cli%do_writes)
-      if (verbose .and. rank == 0) write(*,*) "do_writes = ",cli%do_writes
-
       call support%set_parameters_by_cli(cli)
-
    end if
 
-   !call support%set_parameters("checkpoint_benchmark.rc")
    call MPI_Barrier(MPI_COMM_WORLD,status)
    _VERIFY(status)
 
