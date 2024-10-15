@@ -77,8 +77,12 @@ contains
       i = 1
       if(present(time_only)) then
          if(time_only) i = 4
+         _HERE, 'time_only: ', time_only
+         _HERE, 'i, i+k-1, k, size(n), size(fields): ', i, i+k-1, k, size(n)
+         _HERE, 'n = ', n
       end if
       n(i:i+k-1) = fields(1:k)
+      _HERE, 'n = ', n
       call ESMF_TimeSet(time, yy=n(1), mm=n(2), dd=n(3), h=n(4), m=n(5), s=n(6), _RC)
       _RETURN(_SUCCESS)
          
