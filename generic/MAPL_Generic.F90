@@ -351,10 +351,32 @@ module MAPL_GenericMod
       module procedure MAPL_AddAttributeToFields_I4
    end interface
 
+   interface
+      subroutine i_Run(gc, import_state, export_state, clock, unusable, rc)
+         use mapl_KeywordEnforcerMod
+         use ESMF
+         implicit none
+         type(ESMF_GridComp), intent(inout) :: gc
+         type(ESMF_State), intent(inout) :: import_state
+         type(ESMF_State), intent(inout) :: export_state
+         type(ESMF_Clock), intent(inout) :: clock
+         class(KeywordEnforcer), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
+      end subroutine i_Run
+   end interface
+
    ! =======================================================================
 
 
    integer, parameter :: LAST_ALARM = 99
+
+   ! The next variable is the lesser of two evils: we need a flag the represents MAPL_CustomRefresh
+   ! In PR 28xx the assuption was that we could use ESMF_ReadRestart, which has other issues
+   ! Here we intention us ESMF_Method_None, since it is very unlikely someone in the GEOS/MAPL
+   ! community will use that flag
+
+   type (ESMF_Method_Flag), public :: MAPL_Method_Refresh = ESMF_Method_None
+   integer, parameter, public :: MAPL_CustomRefreshPhase = 99
 
    type MAPL_GenericWrap
       type(MAPL_MetaComp       ), pointer :: MAPLOBJ
@@ -425,6 +447,10 @@ module MAPL_GenericMod
       integer                        , pointer :: phase_final(:)    => null()
       integer                        , pointer :: phase_record(:)   => null()
       integer                        , pointer :: phase_coldstart(:)=> null()
+      integer                        , pointer :: phase_refresh(:)=> null()
+      procedure(), public, nopass    , pointer :: customRefresh => null()
+      
+!      procedure(), pointer, nopass :: run_entry_point => null()
 
       ! Make accessors?
       type(ESMF_GridComp)                      :: RootGC
@@ -2859,9 +2885,13 @@ contains
          call MAPL_StateRefresh (GC, IMPORT, EXPORT, CLOCK, RC=status )
          _VERIFY(status)
 
-         if (associated(STATE%phase_coldstart)) then
-            call ESMF_GridCompReadRestart(GC, importState=import, &
-                    exportState=export, clock=CLOCK, phase=MAPL_MAX_PHASES+1, userRC=userRC, _RC)
+! I_Run
+         if (associated(STATE%customRefresh)) then
+            call ESMF_GridCompInitialize(GC, importState=import, &
+                    exportState=export, clock=CLOCK, &
+                    phase=MAPL_CustomRefreshPhase, &
+                    userRC=userRC, _RC)
+            _VERIFY(userRC)
          endif
 
       endif
@@ -3989,6 +4019,12 @@ contains
          phase = MAPL_AddMethod(META%phase_record, RC=status)
       else if (registeredMethod == ESMF_METHOD_READRESTART) then
          phase = MAPL_AddMethod(META%phase_coldstart, RC=status)
+      else if (registeredMethod == MAPL_METHOD_REFRESH) then
+         phase = MAPL_AddMethod(META%phase_refresh, RC=status)
+         meta%customRefresh => usersRoutine
+         call ESMF_GridCompSetEntryPoint(GC, ESMF_METHOD_INITIALIZE, &
+              usersRoutine, phase=MAPL_CustomRefreshPhase, _RC)
+         _RETURN(ESMF_SUCCESS)
       else
          _RETURN(ESMF_FAILURE)
       endif
