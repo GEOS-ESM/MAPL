@@ -18,6 +18,7 @@ module Test_ExtDataUpdatePointer
    integer, parameter :: START_TIME_FIELDS(*) = [2024, 01, 01, 0, 0, 0] 
    integer, parameter :: DEFAULT_TIME_FIELDS(*) = [REFERENCE_TIME_FIELDS(1:3), 0, 0, 0]
    integer, parameter :: UPDATE_TIME_FIELDS(*) = [0, 1, 1, REFERENCE_TIME_FIELDS(4:)]
+   integer, parameter :: STRLEN = 32
    character(len=*), parameter :: UPDATE_TIMESTRING = 'T20:00:00'
    character(len=*), parameter :: UPDATE_FREQ_STRING = '-'
    character(len=*), parameter :: ERR_MSG = 'Actual offset does match expected offset.'
@@ -93,11 +94,22 @@ contains
 
    end subroutine get_int_time
 
+   subroutine make_offset_string(offset, offset_string, rc)
+      integer, intent(in) :: offset
+      character(len=*), intent(out) :: offset_string
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      write(offset_string, fmt='("PT", I03, "S")', iostat=status) offset
+      _VERIFY(status)
+
+   end subroutine make_offset_string
+      
    @Test
    subroutine test_get_adjusted_time
       type(ExtDataPointerUpdate) :: ex
       integer :: status, rc
-      character(len=32) :: offset_string
+      character(len=STRLEN) :: offset_string
       type(ESMF_TimeInterval) :: offset
       integer :: ios
       integer, parameter :: OFFSET_IN_SECONDS = 300
@@ -113,19 +125,16 @@ contains
 
    end subroutine test_get_adjusted_time
 
-   
    @Test
    subroutine test_create_from_parameters_string_positive()
       type(ExtDataPointerUpdate) :: ex
       integer :: status, rc
-      character(len=32) :: offset_string
+      character(len=STRLEN) :: offset_string
       integer, parameter :: OFFSET_IN_SECONDS = 300
-      integer :: ios
       integer :: expected, actual
       type(ESMF_TimeInterval) :: interval
 
-      write(offset_string, fmt='("PT", I03, "S")', iostat=ios) OFFSET_IN_SECONDS
-      _VERIFY(ios)
+      call make_offset_string(OFFSET_IN_SECONDS, offset_string, _RC)
       expected = OFFSET_IN_SECONDS
       call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, offset_string, default_time, clock, _RC)
       interval = ex%get_offset()
@@ -133,19 +142,17 @@ contains
       @assertEqual(expected, actual, ERR_MSG)
 
    end subroutine test_create_from_parameters_string_positive
-
+     
    @Test
    subroutine test_create_from_parameters_string_negative()
       type(ExtDataPointerUpdate) :: ex
       integer :: status, rc
-      character(len=32) :: offset_string
+      character(len=STRLEN) :: offset_string
       integer, parameter :: OFFSET_IN_SECONDS = 300
-      integer :: ios
       integer :: expected, actual
       type(ESMF_TimeInterval) :: interval
 
-      write(offset_string, fmt='("PT", I03, "S")', iostat=ios) OFFSET_IN_SECONDS
-      _VERIFY(ios)
+      call make_offset_string(OFFSET_IN_SECONDS, offset_string, _RC)
       offset_string = '-' // offset_string
       expected = -OFFSET_IN_SECONDS
       call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, offset_string, default_time, clock, _RC)
@@ -188,5 +195,51 @@ contains
       @assertEqual(expected, actual, ERR_MSG)
 
    end subroutine test_create_from_parameters_heartbeat_negative
+
+   @Test
+   subroutine test_compare_positive_string_to_positive_heartbeat()
+      type(ExtDataPointerUpdate) :: ex_str, ex_hb
+      integer :: status, rc
+      type(ESMF_TimeInterval) :: intv_str, intv_hb
+      integer :: expected, actual
+      character(len=STRLEN) :: offset_string
+
+      call make_offset_string(TIME_STEP_IN_SECONDS, offset_string, _RC)
+
+      call ex_str%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, offset_string, default_time, clock, _RC)
+      intv_str = ex_str%get_offset()
+      call ESMF_TimeIntervalGet(intv_str, s=expected, _RC)
+
+      call ex_hb%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, HEARTBEAT_STRING, default_time, clock, _RC)
+      intv_hb = ex_hb%get_offset()
+      call ESMF_TimeIntervalGet(intv_hb, s=actual, _RC)
+
+      @assertEqual(expected, actual, ERR_MSG)
+
+   end subroutine test_compare_positive_string_to_positive_heartbeat
+
+   @Test
+   subroutine test_compare_negative_string_to_negative_heartbeat()
+      type(ExtDataPointerUpdate) :: ex_str, ex_hb
+      integer :: status, rc
+      type(ESMF_TimeInterval) :: intv_str, intv_hb
+      integer :: expected, actual
+      character(len=STRLEN) :: offset_string
+
+      call make_offset_string(TIME_STEP_IN_SECONDS, offset_string, _RC)
+      offset_string = '-' // offset_string
+
+      call ex_str%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, offset_string, default_time, clock, _RC)
+      intv_str = ex_str%get_offset()
+      call ESMF_TimeIntervalGet(intv_str, s=expected, _RC)
+
+      call ex_hb%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, '-' // HEARTBEAT_STRING, default_time, clock, _RC)
+      intv_hb = ex_hb%get_offset()
+      call ESMF_TimeIntervalGet(intv_hb, s=actual, _RC)
+
+      @assertEqual(expected, actual, ERR_MSG)
+
+   end subroutine test_compare_negative_string_to_negative_heartbeat
+
 
 end module Test_ExtDataUpdatePointer
