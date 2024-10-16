@@ -70,7 +70,7 @@ contains
       logical :: negative_offset
       type(ESMF_TimeInterval) :: timestep
       integer :: multiplier
-      integer :: i
+      integer :: i, j
       logical :: is_heartbeat
 
       this%last_checked = time
@@ -89,7 +89,10 @@ contains
          this%update_freq = string_to_esmf_timeinterval(update_freq,_RC)
       end if
       i = index(update_offset,"-") + 1
+      j = index(update_offset, '+') + 1
+      _ASSERT(i==1 .or. j==1, '"+" and "-" cannot both be present in update_offset string.')
       negative_offset = i > 1
+      if(.not. negative_offset) i = j
       call parse_heartbeat_timestring(update_offset(i:), is_heartbeat=is_heartbeat, multiplier=multiplier)
       if(is_heartbeat) then
          this%offset = multiplier * timestep
