@@ -843,19 +843,19 @@ contains
       end select
    end function adapter_match_geom
 
-   function new_VerticalGridAdapter(vertical_grid, geom, typekind, units, regrid_method) result(adapter)
-      type(VerticalGridAdapter) :: adapter
+   function new_VerticalGridAdapter(vertical_grid, geom, typekind, units, regrid_method) result(vertical_grid_adapter)
+      type(VerticalGridAdapter) :: vertical_grid_adapter
       class(VerticalGrid), optional, intent(in) :: vertical_grid
       type(ESMF_Geom), optional, intent(in) :: geom
       type(ESMF_Typekind_Flag), intent(in) :: typekind
       character(*), optional, intent(in) :: units
       type(VerticalRegridMethod), optional, intent(in) :: regrid_method
 
-      if (present(vertical_grid)) adapter%vertical_grid = vertical_grid
-      if (present(geom)) adapter%geom = geom
-      adapter%typekind = typekind
-      if (present(units)) adapter%units = units
-      if (present(regrid_method)) adapter%regrid_method = regrid_method
+      if (present(vertical_grid)) vertical_grid_adapter%vertical_grid = vertical_grid
+      if (present(geom)) vertical_grid_adapter%geom = geom
+      vertical_grid_adapter%typekind = typekind
+      if (present(units)) vertical_grid_adapter%units = units
+      if (present(regrid_method)) vertical_grid_adapter%regrid_method = regrid_method
    end function new_VerticalGridAdapter
 
    subroutine adapt_vertical_grid(this, spec, action, rc)
@@ -996,19 +996,13 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(VerticalGridAdapter) :: vertical_grid_adapter
 
       select type (goal_spec)
       type is (FieldSpec)
          allocate(adapters(4))
          allocate(adapters(1)%adapter, source=GeomAdapter(goal_spec%geom, goal_spec%regrid_param))
-         vertical_grid_adapter = VerticalGridAdapter( &
-              goal_spec%vertical_grid, &
-              goal_spec%geom, &
-              goal_spec%typekind, &
-              goal_spec%units, &
-              VERTICAL_REGRID_LINEAR)
-         allocate(adapters(2)%adapter, source=vertical_grid_adapter)
+         allocate(adapters(2)%adapter, &
+              source=VerticalGridAdapter(goal_spec%vertical_grid, goal_spec%geom, goal_spec%typekind, goal_spec%units, VERTICAL_REGRID_LINEAR))
          allocate(adapters(3)%adapter, source=TypeKindAdapter(goal_spec%typekind))
          allocate(adapters(4)%adapter, source=UnitsAdapter(goal_spec%units))
       type is (WildCardSpec)
