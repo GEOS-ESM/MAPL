@@ -2374,6 +2374,8 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 
    character(len=ESMF_MAXSTR), parameter :: IAm = 'Do_Regrid_'
 
+   external :: hhinterp
+
  ! start
 
    call hhinterp ( inBuf , ims_world, jms_world   , &

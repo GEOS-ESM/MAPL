@@ -18,7 +18,7 @@ module StationSamplerMod
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
   use, intrinsic :: iso_c_binding,   only: C_NULL_CHAR
-  implicit none (type, external)
+  implicit none (type)
   private
 
   public :: StationSampler
@@ -69,7 +69,7 @@ contains
 
   function new_StationSampler_readfile (bundle, filename, nskip_line, GENSTATE, rc) result(sampler)
     use pflogger, only             :  Logger, logging
-    implicit none (type, external)
+    implicit none (type)
     type(StationSampler)           :: sampler
     type(ESMF_FieldBundle), intent(in) :: bundle
     character(len=*), intent(in)   :: filename

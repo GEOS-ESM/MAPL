@@ -11,6 +11,7 @@
       real lats(jout), lats_out(iout*jout)
 
       integer i,j,loc
+      external interp_hh
 
       pi = 4.0*atan(1.0)
       dlin = 2*pi/ iin
@@ -76,6 +77,8 @@
       character(len=*), parameter :: Iam='hinterp_'
       integer :: imh, k
       real lons_save(iin)
+
+      external interp_hh
 
       pi = 4.0*atan(1.0)
 

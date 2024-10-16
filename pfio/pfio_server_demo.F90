@@ -15,7 +15,7 @@ module server_demo_CLI
 
    public :: CommandLineOptions
    public :: process_command_line
-   
+
    type CommandLineOptions
       character(len=:), allocatable :: file_1, file_2
       type (StringVector) :: requested_variables
@@ -79,18 +79,18 @@ contains
       end do
 
    contains
-      
+
       function get_next_argument() result(argument)
          character(len=:), allocatable :: argument
-         
+
          integer :: length
-         
+
          i_arg = i_arg + 1
-         
+
          call get_command_argument(i_arg, length=length)
          allocate(character(len=length) :: argument)
          call get_command_argument(i_arg, value=argument)
-         
+
       end function get_next_argument
 
       function parse_vars(buffer) result(vars)
@@ -113,7 +113,7 @@ contains
 
 
    end subroutine process_command_line
-   
+
 
 end module server_demo_CLI
 
@@ -125,7 +125,7 @@ module FakeExtDataMod_server
    use pFIO
    use gFTL2_StringVector
    use, intrinsic :: iso_fortran_env, only: REAL32
-   implicit none (type, external)
+   implicit none (type)
    private
 
    public :: FakeExtData
@@ -159,7 +159,7 @@ module FakeExtDataMod_server
    end type FakeExtData
 
 contains
-   
+
 
    subroutine init(this, options, comm, d_s)
       use gFTL2_StringIntegerMap
@@ -195,21 +195,21 @@ contains
       dims = file_metadata%get_dimensions()
       this%nlat = dims%at('lat')
       this%nlon = dims%at('lon')
-      
+
    end subroutine init
 
    subroutine run(this, step)
       class (FakeExtData), target, intent(inout) :: this
       integer, intent(in) :: step
-      
+
       type (ArrayReference) :: ref
 
       integer :: i_var
       !integer :: i
       integer :: lat0, lat1
       integer :: collection_id
-      !character(len=4) :: tmp    
- 
+      !character(len=4) :: tmp
+
       lat0 = 1 + (this%rank*this%nlat)/this%npes
       lat1 = (this%rank+1)*this%nlat/this%npes
 
@@ -255,7 +255,7 @@ contains
          end do
 
       end select
-      
+
    end subroutine run
 
 
@@ -275,7 +275,7 @@ program main
    use server_demo_CLI
    use FakeExtDataMod_server
    use MAPL_ExceptionHandling
-   implicit none (type, external)
+   implicit none (type)
 
    integer :: rank, npes, ierror, provided
    integer :: status, color, key, rc
@@ -327,7 +327,7 @@ program main
       else
          print*, options%server_type // '  not implemented'
          stop
-      endif    
+      endif
       call s%start()
    else ! client
       call extData%init(options, comm, d_s)
@@ -342,4 +342,4 @@ program main
    call MPI_finalize(ierror)
 
 end program main
-   
+

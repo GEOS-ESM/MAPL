@@ -12,7 +12,7 @@ module collective_demo_CLI
 
    public :: CommandLineOptions
    public :: process_command_line
-   
+
    type CommandLineOptions
       character(len=:), allocatable :: file_1, file_2
       type (StringVector) :: requested_variables
@@ -76,18 +76,18 @@ contains
       end do
 
    contains
-      
+
       function get_next_argument() result(argument)
          character(len=:), allocatable :: argument
-         
+
          integer :: length
-         
+
          i_arg = i_arg + 1
-         
+
          call get_command_argument(i_arg, length=length)
          allocate(character(len=length) :: argument)
          call get_command_argument(i_arg, value=argument)
-         
+
       end function get_next_argument
 
       function parse_vars(buffer) result(vars)
@@ -110,7 +110,7 @@ contains
 
 
    end subroutine process_command_line
-   
+
 
 end module collective_demo_CLI
 
@@ -123,7 +123,7 @@ module FakeExtDataMod_collective
    use pFIO
    use gFTL2_StringVector
    use, intrinsic :: iso_fortran_env, only: REAL32
-   implicit none (type, external)
+   implicit none (type)
    private
 
    public :: FakeExtData
@@ -157,7 +157,7 @@ module FakeExtDataMod_collective
    end type FakeExtData
 
 contains
-   
+
 
    subroutine init(this, options, comm, d_s, port_name)
       use gFTL2_StringIntegerMap
@@ -198,13 +198,13 @@ contains
       dims = file_metadata%get_dimensions()
       this%nlat = dims%at('lat')
       this%nlon = dims%at('lon')
-      
+
    end subroutine init
 
    subroutine run(this, step)
       class (FakeExtData), target, intent(inout) :: this
       integer, intent(in) :: step
-      
+
       type (ArrayReference) :: ref
 
       integer :: i_var,i
@@ -235,11 +235,11 @@ contains
       call system_clock(c2)
       !print*," step  1 : add_data_collection"
 
-      allocate(request_ids(this%vars%size(),num_request))      
+      allocate(request_ids(this%vars%size(),num_request))
 
       select case (step)
       case (1) ! read 1st file; prefetch 2nd
-       
+
         ! call system_clock(c1)
          do i_var = 1, this%vars%size()
             allocate(this%bundle(i_var)%x(this%nlon,lat0:lat1,1,1))
@@ -284,14 +284,14 @@ contains
          end do
 
       end select
-      
+
    end subroutine run
 
 
    subroutine finalize(this)
       class (FakeExtData), intent(inout) :: this
       deallocate(this%bundle)
-      print*,"client sent terminate signal" 
+      print*,"client sent terminate signal"
       call this%c%terminate()
    end subroutine finalize
 
@@ -305,7 +305,7 @@ program main
    use MAPL_ExceptionHandling
    use collective_demo_CLI
    use FakeExtDataMod_collective
-   implicit none (type, external)
+   implicit none (type)
 
    integer :: rank, npes, ierror, provided,required
    integer :: status, color, key, rc
@@ -337,7 +337,7 @@ program main
 !$   if(options%server_type == 'openmp') then
 !$     if (required > provided) stop "provided thread is not enough for openmp"
 !$     num_threads = 10
-!$     call omp_set_num_threads(num_threads) 
+!$     call omp_set_num_threads(num_threads)
 !$   endif
 
    d_s => get_directory_service(options%server_type)
@@ -349,7 +349,7 @@ program main
    _VERIFY(ierror)
 
    if (color == SERVER_COLOR .or. color == BOTH_COLOR) then ! server
-      
+
       server=>get_server(options%server_type,comm,d_s,'i_server')
       if (color == SERVER_COLOR) call server%start()
 
@@ -361,7 +361,7 @@ program main
       call extData%run(step=1)
       call extData%run(step=2)
       call extData%finalize()
- 
+
    end if
 
    call MPI_finalize(ierror)
@@ -380,7 +380,7 @@ contains
 
    function split_color(stype,split_rank) result(color)
       character(*),intent(in) :: stype
-      integer,intent(in) :: split_rank  
+      integer,intent(in) :: split_rank
       integer :: color
 
       select case (stype)
@@ -394,7 +394,7 @@ contains
          color = BOTH_COLOR
       case default
          stop "not known server type"
-      end select 
+      end select
 
    end function
 
@@ -422,7 +422,7 @@ contains
          print*,"using simple server"
       end select
 
-     
+
 
     end function
 

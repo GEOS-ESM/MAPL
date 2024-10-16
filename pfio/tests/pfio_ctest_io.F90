@@ -9,13 +9,13 @@ module ctest_io_CLI
    use pFIO
    use gFTL2_StringVector
    use gFTL2_StringIntegerMap
-   implicit none (type, external)
+   implicit none (type)
    private
 
    public :: CommandLineOptions0
    public :: process_command_line
    public :: DirectoryServicePointer
- 
+
    type CommandLineOptions0
       type (StringVector) :: requested_variables
 
@@ -105,18 +105,18 @@ contains
       end do
       _RETURN(_SUCCESS)
    contains
-      
+
       function get_next_argument() result(argument)
          character(len=:), allocatable :: argument
-         
+
          integer :: length
-         
+
          i_arg = i_arg + 1
-         
+
          call get_command_argument(i_arg, length=length)
          allocate(character(len=length) :: argument)
          call get_command_argument(i_arg, value=argument)
-         
+
       end function get_next_argument
 
       function parse_vars(buffer) result(vars)
@@ -139,7 +139,7 @@ contains
 
 
    end subroutine process_command_line
-   
+
 
 end module ctest_io_CLI
 
@@ -151,7 +151,7 @@ module FakeHistData0Mod
    use gFTL2_StringIntegerMap
    use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
    use, intrinsic :: iso_fortran_env, only: REAL32
-   implicit none (type, external)
+   implicit none (type)
    private
 
    public :: FakeHistData0
@@ -191,7 +191,7 @@ module FakeHistData0Mod
    end type FakeHistData0
 
 contains
-   
+
 
    subroutine init(this, options, comms,app_ds, N_iclient_g, N_oclient_g, rc)
       class (FakeHistData0),target, intent(inout) :: this
@@ -210,7 +210,7 @@ contains
       real, pointer :: testPtr(:)
 
       type (StringIntegerMap) :: dims
-      class(ClientThread), pointer :: threadPtr=>null()     
+      class(ClientThread), pointer :: threadPtr=>null()
 
       this%ic_vec = ClientThreadVector()
       this%oc_vec = ClientThreadVector()
@@ -248,14 +248,14 @@ contains
 
       allocate(this%bundle(this%vars%size()))
       allocate(this%hist_collection_ids(10))
-  
+
       if ( this%rank == 0) then
          call test_metadata%add_dimension('Xdim',48)
          call test_metadata%add_dimension('Ydim',48)
          call test_metadata%add_dimension('nf',6)
          call test_metadata%add_dimension('lev',72)
          call test_metadata%add_dimension('time',1)
- 
+
          do k = 1, this%vars%size()
             call test_metadata%add_variable(this%vars%at(k),Variable(type=pFIO_REAL32, dimensions='Xdim,Ydim,nf,lev,time'), rc=status)
             _VERIFY(status)
@@ -311,15 +311,15 @@ contains
       integer :: nx, nf, width, k, ith, jth, Xdim0, Xdim1, Ydim0, Ydim1
       integer :: status
 
-      class(ClientThread), pointer :: icPtr=>null()     
-      class(ClientThread), pointer :: ocPtr=>null()     
+      class(ClientThread), pointer :: icPtr=>null()
+      class(ClientThread), pointer :: ocPtr=>null()
 
 
       i = mod(this%npes, 6)
       if(i /=0 ) then; print*, " make sure the number of reading cores  is multiple of 6"; stop 1;endif
 
       nx = nint(sqrt(this%npes/6.))
-      
+
       if( nx*nx*6 /= this%npes ) then; print*, " make sure 6*M^2 cores to read"; stop 1; endif
 
       width = this%Xdim/nx
@@ -382,7 +382,7 @@ contains
 
          T = Variable(type=pFIO_REAL32, dimensions='Xdim,Ydim,nf,lev,time')
 
-         do i_var = 1, this%vars%size() 
+         do i_var = 1, this%vars%size()
             call fmd%add_variable( this%vars%at(i_var),T, rc=status)
             _VERIFY(status)
          enddo
@@ -397,7 +397,7 @@ contains
 
          do md_id = 1, collection_num
             ! writing
-            file_md_id = this%hist_collection_ids(md_id) 
+            file_md_id = this%hist_collection_ids(md_id)
             do i_var = 1, this%vars%size()
                ref = ArrayReference(this%bundle(i_var)%x)
                stage_ids(i_var,md_id) = &
@@ -418,9 +418,9 @@ contains
          !end do
          call system_clock(c2)
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1         
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
       end select
-      _RETURN(_SUCCESS)      
+      _RETURN(_SUCCESS)
    end subroutine run
 
 
@@ -431,14 +431,14 @@ contains
       class(ClientThread), pointer :: ocPtr=>null()
       deallocate(this%bundle)
       call Mpi_Barrier(this%comms(1),ierror)
-      print*,"iclient sent terminate signal" 
+      print*,"iclient sent terminate signal"
       icPtr=>this%ic_vec%at(1)
       call icPtr%terminate()
      ! call this%i_c%terminate()
       call Mpi_Barrier(this%comms(2),ierror)
       ocPtr=>this%oc_vec%at(1)
       call ocPtr%terminate()
-      print*,"oclient sent terminate signal" 
+      print*,"oclient sent terminate signal"
       !call this%o_c%terminate()
    end subroutine finalize
 
@@ -452,7 +452,7 @@ program main
    use MAPL_ExceptionHandling
    use FakeHistData0Mod
    use pFlogger, only: pflogger_init => initialize
-   implicit none (type, external)
+   implicit none (type)
 
    integer :: rank, npes, ierror, provided,required
    integer :: status, color, key
@@ -479,7 +479,7 @@ program main
    integer :: N_iclient_group, N_oclient_group,N_groups
    integer,allocatable :: local_comm_world(:), app_comms(:)
    integer :: md_id, exit_code
-   
+
    required = MPI_THREAD_MULTIPLE
    !call MPI_init_thread(required, provided, ierror)
    call MPI_init(ierror)
@@ -493,7 +493,7 @@ program main
    N_oclient_group = options%N_og
 
    N_groups = N_iclient_group + N_oclient_group
- 
+
    allocate(local_comm_world(N_groups))
    allocate(app_comms(N_groups))
 
@@ -511,7 +511,7 @@ program main
    else if (options%server_type == 'mpi' .or. &
             options%server_type == 'multilayer' .or. &
             options%server_type == 'multicomm'  .or. &
-            options%server_type == 'multigroup' ) then 
+            options%server_type == 'multigroup' ) then
       size_iclient = N_iclient_group*options%npes_iserver
       size_oclient = N_oclient_group*options%npes_oserver
       client_start = npes - size_iclient-size_oclient
@@ -525,7 +525,7 @@ program main
       size_iclient =  N_iclient_group*options%npes_iserver
       client_start = 0
       app_start_rank = 0
-      app_end_rank   = size_iclient - 1 
+      app_end_rank   = size_iclient - 1
    endif
 
    directory_service = DirectoryService(MPI_COMM_WORLD)
@@ -558,10 +558,10 @@ program main
       endif
 
       app_comms(i) = MPI_COMM_NULL
-      if (local_comm_world(i) /= MPI_COMM_NULL) then 
+      if (local_comm_world(i) /= MPI_COMM_NULL) then
          call MPI_comm_split(local_comm_world(i),color,key,app_comms(i), ierror)
       endif
-      
+
       if ( app_start_rank<= rank .and. rank <= app_end_rank ) then
          my_appcomm = app_comms(i)
       endif
@@ -600,16 +600,16 @@ program main
       endif
 
       app_comms(i) = MPI_COMM_NULL
-      if (local_comm_world(i) /= MPI_COMM_NULL) then 
+      if (local_comm_world(i) /= MPI_COMM_NULL) then
          call MPI_comm_split(local_comm_world(i),color,key,app_comms(i), ierror)
       endif
-      
+
       if (low_rank <= rank .and. rank < up_rank) then
         my_ocomm = app_comms(i)
       endif
    enddo
 
-   if (my_icomm /= MPI_COMM_NULL) then  
+   if (my_icomm /= MPI_COMM_NULL) then
       allocate(iserver, source = MpiServer(my_icomm, 'iserver'))
       call directory_service%publish(PortInfo('iserver',iserver), iserver, rc=status)
       if( my_appcomm == MPI_COMM_NULL) then ! mpi server
@@ -619,10 +619,10 @@ program main
    endif
 
    if( my_ocomm /= MPI_COMM_NULl) then
-     
+
       if (trim(options%server_type) == 'mpi' .or. &
           trim(options%server_type) == 'simple' .or. &
-          trim(options%server_type) == 'hybrid' ) then 
+          trim(options%server_type) == 'hybrid' ) then
         allocate(oserver, source = MpiServer(my_ocomm, 'oserver'))
       else if (trim(options%server_type) == 'multilayer') then
          allocate(oserver, source = MultiLayerServer(my_ocomm, 'oserver', &
@@ -636,14 +636,14 @@ program main
       endif
 
       call directory_service%publish(PortInfo('oserver',oserver), oserver, rc=status)
-      if (my_appcomm == MPI_COMM_NULL) then 
+      if (my_appcomm == MPI_COMM_NULL) then
          call directory_service%connect_to_client('oserver', oserver, rc=status)
          call oserver%start()
       endif
    endif
 
    if ( my_appcomm /= MPI_COMM_NULL) then
-      
+
       print*,"start app rank:", rank
 
       call histData%init(options,app_comms,directory_service, N_iclient_group, N_oclient_group)
@@ -652,7 +652,7 @@ program main
       call histData%finalize()
 
    end if
-  
+
    call Mpi_Barrier(MPI_COMM_WORLD,ierror)
    call system_clock(c3)
 

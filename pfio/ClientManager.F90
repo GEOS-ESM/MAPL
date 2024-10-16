@@ -14,7 +14,7 @@ module pFIO_ClientManagerMod
    use pFIO_StringVariableMapMod
    use gFTL_IntegerVector
 
-   implicit none (type, external)
+   implicit none (type)
    private
 
    public :: ClientManager

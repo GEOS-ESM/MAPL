@@ -31,7 +31,7 @@
       use netcdf
       use, intrinsic :: iso_fortran_env, only: INT16, INT32, INT64
       use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
-      implicit none (type, external)
+      implicit none (type)
 
 #if defined(HDFEOS) || defined(HDFSD)
       include "hdf.f90"
@@ -1270,7 +1270,7 @@
 !
 ! !USES:
 !
-      implicit none (type, external)
+      implicit none (type)
 !
 ! !INPUT PARAMETERS:
 !

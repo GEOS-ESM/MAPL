@@ -11,7 +11,7 @@ program  time_ave
    use, intrinsic :: iso_fortran_env, only: int32, int64, int16, real32, real64
    use ieee_arithmetic, only: isnan => ieee_is_nan
 
-   implicit none (type, external)
+   implicit none (type)
 
    integer  comm,myid,npes,ierror
    integer  imglobal
@@ -134,7 +134,7 @@ program  time_ave
 
 !call timebeg ('main')
 
-   call mpi_init                ( ierror ) 
+   call mpi_init                ( ierror )
    _VERIFY(ierror)
    comm = mpi_comm_world
    call mpi_comm_rank ( comm,myid,ierror )

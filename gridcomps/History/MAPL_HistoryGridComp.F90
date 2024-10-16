@@ -428,6 +428,8 @@ contains
     character(len=:), allocatable :: uppercase_algorithm
     character(len=2) :: tmpchar
 
+    external :: c_MAPL_LocStreamRestorePtr
+
 ! Begin
 !------
 

@@ -6,7 +6,7 @@
    use MAPL
    use gFTL_StringVector
 
-   implicit none (type, external)
+   implicit none (type)
 
    public
 
