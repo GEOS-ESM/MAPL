@@ -2,7 +2,7 @@ module mapl3g_Framework
 
 !  USE STATEMENTS
 
-   implicit none
+   implicit none (type, external)
 
    private
    public :: MAPL_initialize

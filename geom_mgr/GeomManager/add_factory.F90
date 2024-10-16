@@ -2,7 +2,7 @@
 
 submodule (mapl3g_GeomManager) add_factory_smod
 
-   implicit none
+   implicit none (type, external)
 
 contains
    

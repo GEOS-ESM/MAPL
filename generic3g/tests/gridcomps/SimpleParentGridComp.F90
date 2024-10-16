@@ -10,7 +10,7 @@ module SimpleParentGridComp
    use mapl3g_UserSetServices
    use scratchpad
    use esmf
-   implicit none
+   implicit none (type, external)
    private
 
    public :: setservices

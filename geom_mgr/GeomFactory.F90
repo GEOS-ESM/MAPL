@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_GeomFactory
-   implicit none
+   implicit none (type, external)
    private
 
    public :: GeomFactory
@@ -32,7 +32,7 @@ module mapl3g_GeomFactory
          use esmf, only: ESMF_HConfig
          use mapl3g_GeomSpec
          import GeomFactory
-         implicit none
+         implicit none (type, external)
 
          class(GeomSpec), allocatable :: spec
          class(GeomFactory), intent(in) :: this
@@ -44,7 +44,7 @@ module mapl3g_GeomFactory
          use pfio_FileMetadataMod
          use mapl3g_GeomSpec
          import GeomFactory
-         implicit none
+         implicit none (type, external)
 
          class(GeomSpec), allocatable :: spec
          class(GeomFactory), intent(in) :: this
@@ -56,7 +56,7 @@ module mapl3g_GeomFactory
          use esmf, only: ESMF_Geom
          use mapl3g_GeomSpec
          import GeomFactory
-         implicit none
+         implicit none (type, external)
 
          type(ESMF_Geom) :: geom
          class(GeomFactory), intent(in) :: this
@@ -69,7 +69,7 @@ module mapl3g_GeomFactory
          use pfio_FileMetadataMod
          use mapl_KeywordEnforcerMod
          import GeomFactory
-         implicit none
+         implicit none (type, external)
 
          type(FileMetadata) :: file_metadata
          class(GeomFactory), intent(in) :: this
@@ -83,7 +83,7 @@ module mapl3g_GeomFactory
          use mapl3g_GeomSpec
          use gFTL2_StringVector
          import GeomFactory
-         implicit none
+         implicit none (type, external)
 
          type(StringVector) :: gridded_dims
          class(GeomFactory), intent(in) :: this

@@ -3,7 +3,7 @@ module mapl3g_esmf_info_keys
 
    use MAPL_ErrorHandling
 
-   implicit none
+   implicit none (type, external)
 
    public :: INFO_SHARED_NAMESPACE
    public :: INFO_PRIVATE_NAMESPACE

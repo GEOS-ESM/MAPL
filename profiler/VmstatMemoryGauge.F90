@@ -4,7 +4,7 @@ module MAPL_VmstatMemoryGauge
    use MAPL_ErrorHandlingMod
    use, intrinsic :: iso_fortran_env, only: REAL64, INT64
    use MAPL_AbstractGauge
-   implicit none
+   implicit none (type, external)
    private
 
    public :: VmstatMemoryGauge

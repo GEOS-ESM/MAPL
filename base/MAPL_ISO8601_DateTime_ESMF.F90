@@ -9,7 +9,7 @@ module MAPL_ISO8601_DateTime_ESMF
    use MAPL_ISO8601_DateTime
    use MAPL_DateTime_Parsing
    use ESMF
-   implicit none
+   implicit none (type, external)
 
    public :: convert_ISO8601_to_esmf_time
    public :: convert_ISO8601_to_esmf_timeinterval

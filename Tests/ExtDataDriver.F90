@@ -10,7 +10,7 @@ program ExtData_Driver
   use ExtDataDriverMod
   use MAPL
 
-  implicit none
+  implicit none (type, external)
 
   integer :: status
   character(len=*), parameter :: Iam="ExtData_Driver"

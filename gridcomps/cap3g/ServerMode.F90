@@ -3,7 +3,7 @@
 module mapl3g_ServerMode
    use mapl3g_ApplicationMode
    use mapl_ErrorHandlingMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ServerMode

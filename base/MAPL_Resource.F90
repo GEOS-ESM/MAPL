@@ -97,7 +97,7 @@ module MAPL_ResourceMod
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
 
    ! !PUBLIC MEMBER FUNCTIONS:
-   implicit none
+   implicit none (type, external)
    private
 
    enum, bind(c)

@@ -8,7 +8,7 @@ module mapl3g_FieldCondensedArray
    use ESMF, only: ESMF_Field, ESMF_FieldGet
    use ESMF, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_KIND_I8
 
-   implicit none
+   implicit none (type, external)
    private
    public :: assign_fptr_condensed_array
 

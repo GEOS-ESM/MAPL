@@ -2,7 +2,7 @@
 
 submodule (mapl3g_GeomManager) find_factory_smod
 
-   implicit none
+   implicit none (type, external)
 
 !   abstract interface
 !      logical function I_FactoryPredicate(factory)

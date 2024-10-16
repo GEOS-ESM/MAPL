@@ -4,7 +4,7 @@ module mapl3g_NullRegridder
    use esmf
    use mapl3g_Regridder
    use mapl_ErrorHandlingMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: NULL_REGRIDDER

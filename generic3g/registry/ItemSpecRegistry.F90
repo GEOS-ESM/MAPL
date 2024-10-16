@@ -2,7 +2,7 @@ module mapl3g_ItemSpecRegistry
    use mapl3g_ConnectionPt
    use mapl3g_StateItemSpec
    use mapl3g_ConnPtStateItemSpecMap
-   implicit none
+   implicit none (type, external)
    private
   
    public :: ItemSpecRegistry

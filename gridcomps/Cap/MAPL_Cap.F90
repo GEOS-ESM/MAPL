@@ -16,7 +16,7 @@ module MAPL_CapMod
    use MAPL_ServerManager
    use MAPL_ApplicationSupport
    use, intrinsic :: iso_fortran_env, only: REAL64, INT64, OUTPUT_UNIT
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MAPL_Cap

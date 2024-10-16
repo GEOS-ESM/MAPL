@@ -3,7 +3,7 @@
 module mapl3g_ESMF_HConfigUtilities
    use esmf
    use mapl_ErrorHandling
-   implicit none
+   implicit none (type, external)
    private
 
    public :: write(formatted)

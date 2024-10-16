@@ -2,7 +2,7 @@
 
 module mapl3g_TimeAverageAction
    use mapl3g_ExtensionAction, only : ExtensionAction
-   implicit none
+   implicit none (type, external)
 
    private
    public :: TimeAverageAction

@@ -9,7 +9,7 @@ module MAPL_FileMetadataUtilsMod
    use ESMF
    use MAPL_ExceptionHandling
    use, intrinsic :: iso_fortran_env, only: REAL64,REAL32,INT64,INT32
-   implicit none
+   implicit none (type, external)
 
    private
    

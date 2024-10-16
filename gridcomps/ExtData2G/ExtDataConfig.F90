@@ -16,7 +16,7 @@ module MAPL_ExtDataConfig
    use MAPL_ExtDataTimeSampleMap
    use MAPL_TimeStringConversion
    use MAPL_ExtDataMask
-   implicit none
+   implicit none (type, external)
    private
 
    character(len=1), parameter :: rule_sep = "+"

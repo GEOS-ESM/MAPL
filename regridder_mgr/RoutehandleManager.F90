@@ -23,7 +23,7 @@ module mapl3g_RoutehandleManager
    use mapl3g_RoutehandleSpecVector
    use mapl3g_RoutehandleVector
    use mapl_ErrorHandlingMod
-   implicit none
+   implicit none (type, external)
 
    public :: RoutehandleManager
 

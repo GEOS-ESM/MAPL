@@ -10,7 +10,7 @@ module MAPL_AbstractRegridderMod
    use MAPL_ExceptionHandling
    use MAPL_RegridderSpecRouteHandleMap
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
-   implicit none
+   implicit none (type, external)
    private
 
    public :: AbstractRegridder
@@ -105,7 +105,7 @@ module MAPL_AbstractRegridderMod
          use MAPL_KeywordEnforcerMod
          use MAPL_RegridderSpec
          import AbstractRegridder
-         implicit none
+         implicit none (type, external)
          class (AbstractRegridder), intent(inout) :: this
          class (KeywordEnforcer), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc

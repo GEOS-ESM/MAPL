@@ -6,7 +6,7 @@ module mapl3g_GenericCoupler
    use mapl3g_GriddedComponentDriver
    use mapl_ErrorHandlingMod
    use esmf
-   implicit none
+   implicit none (type, external)
    private
 
    public :: setServices

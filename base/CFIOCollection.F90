@@ -12,7 +12,7 @@ module ESMF_CFIOCollectionMod
   use MAPL_AbstractGridFactoryMod
   use gFTL_StringIntegerMap
   use MAPL_ExceptionHandling
-  implicit none
+  implicit none (type, external)
   private
 
   public :: CFIOCollection

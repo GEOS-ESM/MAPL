@@ -5,7 +5,7 @@ module mapl3g_RoutehandleSpec
    use mapl3g_RoutehandleParam
    use mapl_ErrorHandlingMod
    use mapl3g_geom_mgr, only: MAPL_SameGeom
-   implicit none
+   implicit none (type, external)
    private
 
    public :: RoutehandleSpec

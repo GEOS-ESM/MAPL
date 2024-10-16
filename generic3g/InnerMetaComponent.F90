@@ -6,7 +6,7 @@ module mapl3g_InnerMetaComponent
    use :: mapl3g_ESMF_Interfaces, only: MAPL_UserCompGetInternalState
    use :: mapl3g_ESMF_Interfaces, only: MAPL_UserCompSetInternalState
    use esmf
-   implicit none
+   implicit none (type, external)
    private
 
    public :: InnerMetaComponent

@@ -5,7 +5,7 @@ module mapl3g_hconfig_params
    use :: pflogger, only: logger_t => logger
    use mapl_ErrorHandling
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: HConfigParams

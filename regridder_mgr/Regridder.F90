@@ -6,7 +6,7 @@ module mapl3g_Regridder
    use mapl3g_geom_mgr
    use mapl3g_RegridderSpec
    use mapl3g_VectorBasis
-   implicit none
+   implicit none (type, external)
    private
 
    public :: Regridder

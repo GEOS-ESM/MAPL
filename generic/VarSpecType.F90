@@ -13,7 +13,7 @@ module MAPL_VarSpecTypeMod
    use oomph, only: UngriddedDimSpec
    use oomph, only: DimsSpec
    use oomph, only: FieldSpec
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MAPL_VarSpecType

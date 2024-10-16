@@ -38,7 +38,7 @@ module MAPL_CapGridCompMod
 
   use iso_fortran_env
 
-  implicit none
+  implicit none (type, external)
   private
 
   character(*), parameter :: internal_cap_name = "InternalCapGridComp"

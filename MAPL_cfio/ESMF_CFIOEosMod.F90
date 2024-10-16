@@ -40,7 +40,7 @@
       use ESMF_CFIOFileMod
       use ESMF_CFIOwGrADSMod, only : CFIO_wGrADS
       use ESMF_CFIOrGrADSMod, only : CFIO_rGrADS
-      implicit none
+      implicit none (type, external)
 !------------------------------------------------------------------------------
 ! !PRIVATE TYPES:
       private
@@ -699,7 +699,7 @@
 !
 ! !USES:
 !
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !

@@ -7,7 +7,7 @@ module mapl3g_CopyAction
    use mapl_ErrorHandling
    use esmf
    use MAPL_FieldUtils
-   implicit none
+   implicit none (type, external)
 
    type, extends(ExtensionAction) :: CopyAction
       private

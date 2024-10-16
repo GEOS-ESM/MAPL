@@ -10,7 +10,7 @@ submodule (mapl3g_CubedSphereGeomSpec) CubedSphereGeomSpec_smod
    use mapl_Constants
    use esmf
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
-   implicit none
+   implicit none (type, external)
    real(ESMF_Kind_R8) :: undef_schmidt = 1d15
    
 contains

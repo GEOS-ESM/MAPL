@@ -6,7 +6,7 @@ module mapl3g_GeomPFIO
    use PFIO, only: i_Clients, o_Clients
    use mapl3g_geom_mgr
    use mapl3g_SharedIO
-   implicit none
+   implicit none (type, external)
    private
 
    public :: GeomPFIO

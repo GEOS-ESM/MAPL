@@ -12,7 +12,7 @@ submodule (mapl3g_CubedSphereGeomFactory) CubedSphereGeomFactory_smod
    use gFTL2_StringVector
    use esmf
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
-   implicit none
+   implicit none (type, external)
    real(kind=ESMF_Kind_R8) :: undef_schmidt = 1d15
 
 contains

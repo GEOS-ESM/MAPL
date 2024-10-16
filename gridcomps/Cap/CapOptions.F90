@@ -5,7 +5,7 @@ module mapl_CapOptionsMod
    use ESMF
    use mapl_KeywordEnforcerMod
    use mapl_ExceptionHandling
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MAPL_CapOptions

@@ -1,6 +1,6 @@
 module mapl3g_StateItem
    use esmf
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MAPL_STATEITEM_UNKNOWN

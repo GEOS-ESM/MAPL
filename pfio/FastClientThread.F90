@@ -11,7 +11,7 @@ module pFIO_FastClientThreadMod
    use pFIO_ClientThreadMod
    use pFIO_StageDataMessageMod
    use pFIO_CollectiveStageDataMessageMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: FastClientThread

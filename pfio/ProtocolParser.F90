@@ -24,7 +24,7 @@ module pFIO_ProtocolParserMod
    use pFIO_DummyMessageMod
    use pFIO_ForwardDataMessageMod
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ProtocolParser

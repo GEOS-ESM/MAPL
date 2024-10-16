@@ -8,7 +8,7 @@ module pFIO_ShmemReferenceMod
    use pFIO_AbstractDataReferenceMod
    use mpi
 
-   implicit none
+   implicit none (type, external)
 
    private
 

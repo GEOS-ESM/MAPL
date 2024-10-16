@@ -19,7 +19,7 @@ module mapl3g_GenericGridComp
    use esmf
    use :: mapl_KeywordEnforcer, only: KeywordEnforcer
    use :: mapl_ErrorHandling
-   implicit none
+   implicit none (type, external)
    private
 
    ! Procedures

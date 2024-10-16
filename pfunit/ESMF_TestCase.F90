@@ -4,7 +4,7 @@ module ESMF_TestCase_mod
    use pfunit, only: MpiTestCase, anyExceptions, catch
    use pfunit, only: throw
    use pf_exceptionlist, only: gatherExceptions
-   implicit none
+   implicit none (type, external)
 
    private
 

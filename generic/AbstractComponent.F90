@@ -1,5 +1,5 @@
 module mapl_AbstractComponent
-   implicit none
+   implicit none (type, external)
    private
 
    public :: AbstractComponent
@@ -33,7 +33,7 @@ module mapl_AbstractComponent
          use mapl_KeywordEnforcerMod
          use ESMF
          import AbstractComponent
-         implicit none
+         implicit none (type, external)
          class(AbstractComponent), intent(inout) :: this
          type(ESMF_State), intent(inout) :: import_state
          type(ESMF_State), intent(inout) :: export_state
@@ -45,14 +45,14 @@ module mapl_AbstractComponent
 
       subroutine i_SetName(this, name)
          import AbstractComponent
-         implicit none
+         implicit none (type, external)
          class(AbstractComponent), intent(inout) :: this
          character(*), intent(in) :: name
       end subroutine i_SetName
 
       function i_GetName(this) result(name)
          import AbstractComponent
-         implicit none
+         implicit none (type, external)
          character(:), allocatable :: name
          class(AbstractComponent), intent(in) :: this
       end function i_GetName
@@ -61,7 +61,7 @@ module mapl_AbstractComponent
       subroutine i_SetFramework(this, framework)
          use mapl_SurrogateFrameworkComponent
          import AbstractComponent
-         implicit none
+         implicit none (type, external)
          class(AbstractComponent), intent(inout) :: this
          class(SurrogateFrameworkComponent), target :: framework
       end subroutine i_SetFramework
@@ -69,7 +69,7 @@ module mapl_AbstractComponent
       function i_GetFramework(this) result(framework)
          use mapl_SurrogateFrameworkComponent
          import AbstractComponent
-         implicit none
+         implicit none (type, external)
          class(SurrogateFrameworkComponent), pointer :: framework
          class(AbstractComponent), intent(in) :: this
       end function i_GetFramework
@@ -77,7 +77,7 @@ module mapl_AbstractComponent
       function i_GetState(this) result(state)
          use ESMF
          import AbstractComponent
-         implicit none
+         implicit none (type, external)
          type(ESMF_State), pointer :: state
          class(AbstractComponent), target, intent(in) :: this
       end function i_GetState
@@ -86,7 +86,7 @@ module mapl_AbstractComponent
          use mapl_KeywordEnforcerMod
          use ESMF
          import AbstractComponent
-         implicit none
+         implicit none (type, external)
          class(AbstractComponent), intent(inout) :: this
          character(*), intent(in) :: name
          type(ESMF_Clock), intent(inout) :: clock
@@ -98,7 +98,7 @@ module mapl_AbstractComponent
       subroutine i_SetLogger(this, logger)
          use pfl_logger, only: t_Logger => Logger
          import AbstractComponent
-         implicit none
+         implicit none (type, external)
          class(AbstractComponent), intent(inout) :: this
          class(t_Logger), target :: logger
 
@@ -107,7 +107,7 @@ module mapl_AbstractComponent
       function i_GetLogger(this) result(logger)
          use pfl_logger, only: t_Logger => Logger
          import AbstractComponent
-         implicit none
+         implicit none (type, external)
          class(t_Logger), pointer :: logger
          class(AbstractComponent), intent(in) :: this
       end function i_GetLogger

@@ -4,7 +4,7 @@ module MAPL_PercentageColumn
    use, intrinsic :: iso_fortran_env, only: REAL64
    use MAPL_AbstractMeterNode
    use MAPL_AbstractColumn
-   implicit none
+   implicit none (type, external)
    private
 
    public :: PercentageColumn

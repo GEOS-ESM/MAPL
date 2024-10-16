@@ -3,7 +3,7 @@ module mapl3g_FieldDictionaryItem
    use gftl2_StringVector
    use esmf
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: FieldDictionaryItem

@@ -9,7 +9,7 @@ module MAPL_MemoryProfiler_private
    use MAPL_AdvancedMeter
    use MAPL_AbstractMeter
    use MAPL_MeterNode
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MemoryProfiler
@@ -67,7 +67,7 @@ module MAPL_MemoryProfiler
    use MAPL_MemoryProfiler_private
    use mapl_KeywordEnforcerMod
    use mapl_ErrorHandlingMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MemoryProfiler

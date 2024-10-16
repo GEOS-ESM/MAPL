@@ -2,7 +2,7 @@ program testhorz
 
 use MAPL_HorzTransformMod
 
-implicit none
+implicit none (type, external)
 
 integer, parameter :: imIN=144, imOUT=72
 integer, parameter :: jmIN=91,  jmOUT=46

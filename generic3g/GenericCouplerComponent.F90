@@ -8,7 +8,7 @@ module mapl3g_GenericCouplerComponent
    use :: esmf, only: ESMF_SUCCESS
    use :: mapl3g_ChildComponent
    use :: mapl_ErrorHandling
-   implicit none
+   implicit none (type, external)
    private
 
    public :: GenericCouplerComponent

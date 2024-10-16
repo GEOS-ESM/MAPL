@@ -2,7 +2,7 @@ module mapl3g_LonAxis
    use mapl3g_CoordinateAxis
    use pfio
    use esmf
-   implicit none
+   implicit none (type, external)
    private
 
    ! Constructor

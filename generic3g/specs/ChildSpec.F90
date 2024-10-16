@@ -3,7 +3,7 @@
 module mapl3g_ChildSpec
    use mapl3g_UserSetServices
    use mapl_KeywordEnforcer
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ChildSpec

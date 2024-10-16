@@ -1,6 +1,6 @@
 module mapl3g_ServiceProviderSpec
    use mapl3g_StateItemSpec
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ServiceProviderSpec

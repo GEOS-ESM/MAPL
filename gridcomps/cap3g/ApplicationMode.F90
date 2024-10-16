@@ -1,5 +1,5 @@
 module mapl3g_ApplicationMode
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ApplicationMode

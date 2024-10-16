@@ -9,7 +9,7 @@ module MAPL_FargparseCLIMod
    use mapl_KeywordEnforcerMod
    use mapl_ExceptionHandling
    use mapl_CapOptionsMod, only:  MAPL_CapOptions_ => MAPL_CapOptions !Rename is for backward compatibility. Remove renaming for 3.0
-   implicit none
+   implicit none (type, external)
    private
 
    public :: FargparseCLI

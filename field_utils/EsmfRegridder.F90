@@ -2,7 +2,7 @@ module mapl_EsmfRegridder
 
    use mapl_FieldBLAS, only: FieldGEMV, FieldsAreConformable
 
-   implicit none
+   implicit none (type, external)
 
    private
 

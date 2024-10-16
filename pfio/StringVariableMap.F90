@@ -31,7 +31,7 @@ module pFIO_StringVariableMapUtilMod
    use pFIO_VariableMod
    use pFIO_CoordinateVariableMod
    use pFIO_StringVariableMapMod
-   implicit none
+   implicit none (type, external)
    private
    public :: StringVariableMap_get_length
    public :: StringVariableMap_serialize

@@ -1,5 +1,5 @@
 module A
-  implicit none
+  implicit none (type, external)
 
   generic s => s1
 contains

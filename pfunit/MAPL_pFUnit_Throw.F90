@@ -1,5 +1,5 @@
 module MAPL_pFUnit_ThrowMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: throw

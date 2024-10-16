@@ -31,7 +31,7 @@ module MAPL_SunMod
   use, intrinsic :: iso_fortran_env, only: REAL64
   use pflogger, only: logging, Logger
 
-  implicit none
+  implicit none (type, external)
   private
 
 ! !PUBLIC MEMBER FUNCTIONS:
@@ -2108,7 +2108,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 !
    subroutine MAPL_SunGetSolarConstantFromNetcdfFile(CLOCK,fileName,SC,HK,MESOPHOT,JCALC4,rc)
 
-      implicit none
+      implicit none (type, external)
 
       type(ESMF_Clock), intent(in)           :: CLOCK
       character(len=*), intent(in)           :: fileName
@@ -2480,7 +2480,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 !
    subroutine MAPL_SunGetSolarConstantFromNRLFile(CLOCK,filename_in,SC,MG,SB,PersistSolar,rc)
 
-      implicit none
+      implicit none (type, external)
 
       type(ESMF_Clock), intent(in)       :: CLOCK
       character(len=*), intent(in)       :: filename_in
@@ -2801,7 +2801,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
          integer function num_lines_in_file(unit) result(count)
 
-            implicit none
+            implicit none (type, external)
 
             integer, intent(in) :: unit
 
@@ -2825,7 +2825,7 @@ subroutine  MAPL_SunOrbitQuery(ORBIT,           &
 
          integer function find_file_index(numlines, year, year_to_find, doy_to_find)
 
-            implicit none
+            implicit none (type, external)
 
             integer, intent(in) :: numlines
             integer, intent(in), dimension(numlines) :: year

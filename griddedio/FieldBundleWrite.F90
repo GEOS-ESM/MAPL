@@ -9,7 +9,7 @@ module MAPL_ESMFFieldBundleWrite
    use MAPL_VerticalDataMod
    use pFIO_ClientManagerMod, only: o_Clients
    use MAPL_ExceptionHandling
-   implicit none
+   implicit none (type, external)
    private
 
    public :: FieldBundleWriter

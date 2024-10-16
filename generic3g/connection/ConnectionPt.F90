@@ -1,6 +1,6 @@
 module mapl3g_ConnectionPt
    use mapl3g_VirtualConnectionPt
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ConnectionPt

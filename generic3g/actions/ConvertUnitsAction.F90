@@ -8,7 +8,7 @@ module mapl3g_ConvertUnitsAction
    use MAPL_FieldUtils
    use mapl_ErrorHandling
    use esmf
-   implicit none
+   implicit none (type, external)
 
    public :: ConvertUnitsAction
 

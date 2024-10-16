@@ -1,5 +1,5 @@
 module mapl3g_GridSpec
-   implicit none
+   implicit none (type, external)
    private
 
    public :: GridSpec

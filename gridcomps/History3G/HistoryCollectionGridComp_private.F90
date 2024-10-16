@@ -15,7 +15,7 @@ module mapl3g_HistoryCollectionGridComp_private
    use mapl3g_UngriddedDims
    use gFTL2_StringSet
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: make_geom

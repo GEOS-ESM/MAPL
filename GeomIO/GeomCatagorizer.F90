@@ -6,7 +6,7 @@ module mapl3g_GeomCatagorizer
    use mapl3g_GeomPFIO
    use pfio
 
-   implicit none
+   implicit none (type, external)
    private
 
    public make_geom_pfio

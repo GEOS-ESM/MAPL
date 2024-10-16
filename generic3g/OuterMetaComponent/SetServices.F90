@@ -7,7 +7,7 @@ submodule (mapl3g_OuterMetaComponent) SetServices_smod
    use mapl3g_GenericGridComp
    use mapl3g_BasicVerticalGrid
    use mapl3g_GriddedComponentDriverMap
-   implicit none
+   implicit none (type, external)
 
 contains
 

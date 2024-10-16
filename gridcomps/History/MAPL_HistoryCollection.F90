@@ -13,7 +13,7 @@ module MAPL_HistoryCollectionMod
   use StationSamplerMod
   use gFTL_StringStringMap
   use MAPL_EpochSwathMod
-  implicit none
+  implicit none (type, external)
 
   private
 

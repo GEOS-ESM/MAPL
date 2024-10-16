@@ -6,7 +6,7 @@ module pFIO_ExtDataCollectionMod
   use pFIO_FormatterPtrVectorMod
   use pFIO_ConstantsMod
   use MAPL_ExceptionHandling
-  implicit none
+  implicit none (type, external)
   private
 
   public :: ExtDataCollection

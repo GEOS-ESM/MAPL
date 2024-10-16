@@ -20,7 +20,7 @@ module mapl3g_BracketSpec
    use esmf
    use nuopc
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: BracketSpec

@@ -29,7 +29,7 @@ module MAPL_MemUtilsMod
 !these currently include efficient methods for memory-to-memory copy
 !including strided data and arbitrary gather-scatter vectors
 !also various memory and cache inquiry operators
-  implicit none
+  implicit none (type, external)
   private
 #ifdef _CRAYT3E
   integer :: pe, shmem_my_pe
@@ -741,7 +741,7 @@ integer :: status
 end subroutine MAPL_MemUtilsFree
 
 subroutine get_unit ( iunit )
-  implicit none
+  implicit none (type, external)
 !
   integer i
   integer ios

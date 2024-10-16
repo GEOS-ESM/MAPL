@@ -19,7 +19,7 @@
    use MAPL_ServerManager
    use MAPL_FileMetadataUtilsMod
 
-   implicit NONE
+   implicit none (type)
 
    real, parameter :: cs_stretch_uninit = -1.0
 
@@ -179,7 +179,7 @@ CONTAINS
     program ut_ReGridding
 
        use BundleTestSupport
-       implicit none
+       implicit none (type, external)
 
 !CONTAINS
 

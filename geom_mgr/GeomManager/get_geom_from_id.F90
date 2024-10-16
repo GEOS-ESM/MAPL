@@ -2,7 +2,7 @@
 
 submodule (mapl3g_GeomManager) get_geom_from_id_smod
 
-   implicit none
+   implicit none (type, external)
 
 contains
    

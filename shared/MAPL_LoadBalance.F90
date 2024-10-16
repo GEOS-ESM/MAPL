@@ -12,7 +12,7 @@ module MAPL_LoadBalanceMod
   use MAPL_SortMod
   use MAPL_ExceptionHandling
   use mpi
-  implicit none
+  implicit none (type, external)
   private
 
   public MAPL_BalanceWork

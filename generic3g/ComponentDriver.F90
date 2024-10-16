@@ -5,7 +5,7 @@ module mapl3g_ComponentDriver
    use mapl_ErrorHandlingMod
    use :: MaplShared, only: KeywordEnforcer
    use :: esmf
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ComponentDriver

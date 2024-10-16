@@ -2,7 +2,7 @@
 
 module MockClientMod
    use pFIO_ClientThreadMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MockClient

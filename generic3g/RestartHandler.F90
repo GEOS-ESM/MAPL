@@ -12,7 +12,7 @@ module mapl3g_RestartHandler
    use pFIO, only: i_Clients, o_Clients
    use pFlogger, only: logging, logger
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: RestartHandler

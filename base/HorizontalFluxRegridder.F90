@@ -10,7 +10,7 @@ module mapl_HorizontalFluxRegridder
    use mapl_KeywordEnforcerMod
    use mapl_ErrorHandlingMod
    use mapl_BaseMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: HorizontalFluxRegridder

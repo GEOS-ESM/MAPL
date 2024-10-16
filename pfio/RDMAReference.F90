@@ -9,7 +9,7 @@ module pFIO_RDMAReferenceMod
    use pFIO_AbstractDataReferenceMod
    use mpi
 
-   implicit none
+   implicit none (type, external)
 
    private
 

@@ -10,7 +10,7 @@ module mapl3g_ExtensionFamily
    use mapl3g_StateItemExtension
    use mapl3g_StateItemExtensionPtrVector
    use mapl_ErrorHandling
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ExtensionFamily

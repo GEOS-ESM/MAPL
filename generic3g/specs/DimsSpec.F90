@@ -1,7 +1,7 @@
 module mapl3g_DimsSpec
    use mapl3g_UngriddedDimSpec
    use mapl3g_VerticalStaggerLoc
-   implicit none
+   implicit none (type, external)
 
    private
 

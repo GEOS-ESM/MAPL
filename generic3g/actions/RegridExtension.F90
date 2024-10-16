@@ -1,6 +1,6 @@
 module mapl3g_RegridExtension
    use mapl3g_AbstractExportExtension
-   implicit none
+   implicit none (type, external)
    private
 
    public :: RegridExtension

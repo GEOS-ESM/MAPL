@@ -15,7 +15,7 @@ module MockServerThreadMod
    use pFIO_IdMessageMod
    use pFIO_PrefetchDataMessageMod
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MockServerThread

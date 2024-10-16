@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_RegridderFactory
-   implicit none
+   implicit none (type, external)
    private
 
    public :: RegridderFactory

@@ -31,7 +31,7 @@ module pFIO_MultiLayerServerMod
    use pFIO_StringAttributeMapUtilMod
    use mpi
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MultiLayerServer

@@ -1,5 +1,5 @@
 module mapl3g_AbstractRegistry
-   implicit none
+   implicit none (type, external)
    private
   
    public :: AbstractRegistry

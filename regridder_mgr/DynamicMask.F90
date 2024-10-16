@@ -7,7 +7,7 @@ module mapl3g_DynamicMask
    use esmf
    use mapl_ErrorHandlingMod
    use mapl_Base, only: MAPL_UNDEF
-   implicit none
+   implicit none (type, external)
    private
 
 

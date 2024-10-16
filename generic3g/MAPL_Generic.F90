@@ -59,7 +59,7 @@ module mapl3g_Generic
    use :: pflogger, only: logger_t => logger
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MAPL_GridCompGetOuterMeta

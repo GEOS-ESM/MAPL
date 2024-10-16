@@ -2,7 +2,7 @@
 
 submodule (mapl3g_GeomManager) make_geom_spec_from_hconfig_smod
 
-   implicit none
+   implicit none (type, external)
 
 contains
    

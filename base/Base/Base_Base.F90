@@ -21,7 +21,7 @@ module MAPL_Base
   !
   use ESMF, only: ESMF_MAXSTR
   use, intrinsic :: iso_fortran_env, only: REAL64
-  implicit NONE
+  implicit none (type, external)
   private
 
   ! !PUBLIC MEMBER FUNCTIONS:
@@ -302,7 +302,7 @@ module MAPL_Base
      end subroutine MAPL_tick
 
      integer module function MAPL_nhmsf (nsec)
-       implicit none
+       implicit none (type, external)
        integer  nsec
      end function MAPL_nhmsf
 
@@ -685,7 +685,7 @@ module MAPL_Base
      !  !INTERFACE:
      module subroutine MAPL_GetHorzIJIndex(npts,II,JJ,lon,lat,lonR8,latR8,Grid, rc)
        use ESMF, only: ESMF_KIND_R8, ESMF_GRid
-       implicit none
+       implicit none (type, external)
        !ARGUMENTS:
        integer,                      intent(in   ) :: npts ! number of points in lat and lon arrays
        integer,                      intent(inout) :: II(npts) ! array of the first index for each lat and lon
@@ -700,7 +700,7 @@ module MAPL_Base
 
      module subroutine MAPL_GetGlobalHorzIJIndex(npts,II,JJ,lon,lat,lonR8,latR8,Grid, rc)
        use ESMF, only: ESMF_KIND_R8, ESMF_GRid
-       implicit none
+       implicit none (type, external)
        !ARGUMENTS:
        integer,                      intent(in   ) :: npts ! number of points in lat and lon arrays
        integer,                      intent(inout) :: II(npts) ! array of the first index for each lat and lon
@@ -715,7 +715,7 @@ module MAPL_Base
 
      module subroutine MAPL_Reverse_Schmidt(Grid, stretched, npts,lon,lat,lonR8,latR8, lonRe, latRe, rc)
        use ESMF, only: ESMF_KIND_R8, ESMF_GRid
-       implicit none
+       implicit none (type, external)
        !ARGUMENTS:
        type(ESMF_Grid),              intent(inout) :: Grid        ! ESMF grid
        logical,                      intent(out  ) :: stretched

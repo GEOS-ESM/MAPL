@@ -5,7 +5,7 @@ module mapl3g_UngriddedDim
    use esmf, only: ESMF_Info
    use esmf, only: ESMF_InfoCreate
    use esmf, only: ESMF_InfoSet
-   implicit none
+   implicit none (type, external)
    private
 
    public :: UngriddedDim

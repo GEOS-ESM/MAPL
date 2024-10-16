@@ -1,6 +1,6 @@
 module ud2f_CptrWrapper
    use, intrinsic :: iso_c_binding, only: c_ptr, C_NULL_PTR, c_associated
-   implicit none
+   implicit none (type, external)
    private
 
    public :: CptrWrapper

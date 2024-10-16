@@ -2,7 +2,7 @@
 
 module mapl3g_Observer
    use mapl_ErrorHandlingMod
-   implicit none
+   implicit none (type, external)
    private
 
    ! Class

@@ -5,7 +5,7 @@ module ConfigurableParentGridComp
    use mapl_ErrorHandling
    use pFlogger, only: logger
    use esmf
-   implicit none
+   implicit none (type, external)
    private
 
    public :: setServices

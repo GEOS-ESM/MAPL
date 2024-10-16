@@ -2,7 +2,7 @@
 
 module mapl3g_VerticalGrid
    use mapl_ErrorHandling
-   implicit none
+   implicit none (type, external)
    private
 
    public :: VerticalGrid

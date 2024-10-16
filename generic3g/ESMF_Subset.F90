@@ -46,6 +46,6 @@ module mapl3g_ESMF_Subset
          ESMF_InfoGet, &
          ESMF_InfoIsSet
 
-   implicit none
+   implicit none (type, external)
    
 end module mapl3g_ESMF_Subset

@@ -6,7 +6,7 @@ program CapDriver_Main
    use MPI
    use MAPL
    use ExtDataUtRoot_GridCompMod, only:  ROOT_SetServices => SetServices
-   implicit none
+   implicit none (type, external)
 
    character(len=*), parameter :: Iam="CapDriver_Main"
    type (MAPL_Cap) :: cap

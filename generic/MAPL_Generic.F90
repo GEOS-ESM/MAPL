@@ -140,7 +140,7 @@ module MAPL_GenericMod
 
    ! !PUBLIC MEMBER FUNCTIONS:
 
-   implicit none
+   implicit none (type, external)
    private
 
    public MAPL_GenericSetServices
@@ -10868,6 +10868,9 @@ contains
       logical                      :: found
 
       type(ESMF_GridComp), pointer :: gridcomp
+
+      external :: c_MAPL_LocStreamRetrievePtr
+
       ! Retrieve the pointer to the internal state
       ! --------------------------------------------
 

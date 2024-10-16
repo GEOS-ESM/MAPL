@@ -13,7 +13,7 @@ module pFIO_MpiSocketMod
    use pFIO_ConstantsMod
    use pFIO_UtilitiesMod, only: word_size, i_to_string
    use mpi
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MpiSocket

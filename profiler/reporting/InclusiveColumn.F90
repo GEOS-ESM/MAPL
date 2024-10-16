@@ -4,7 +4,7 @@ module MAPL_InclusiveColumn
    use MAPL_AbstractMeterNode
    use MAPL_AbstractMeter
    use Mapl_DistributedMeter
-   implicit none
+   implicit none (type, external)
    private
 
    public :: InclusiveColumn

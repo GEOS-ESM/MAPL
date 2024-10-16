@@ -1,5 +1,5 @@
 module MAPL_ExceptionHandling
    use MAPL_ThrowMod
    use MAPL_ErrorHandlingMod
-   implicit none
+   implicit none (type, external)
 end module MAPL_ExceptionHandling

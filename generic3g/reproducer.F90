@@ -1,6 +1,6 @@
 module r_mapl3g_ChildSpec
    use r_mapl3g_UserSetServices
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ChildSpec
@@ -23,7 +23,7 @@ end module r_mapl3g_ChildSpec
 module r_mapl3g_ChildSpecMap
    use r_mapl3g_ChildSpec
 
-   implicit none
+   implicit none (type, external)
    type KeywordEnforcer
    end type KeywordEnforcer
 
@@ -1508,7 +1508,7 @@ subroutine map_s_erase_nonleaf(this, pos, side)
    end function map_s_iter_equal
 
    logical function map_s_iter_not_equal(a, b) result(ne)
-      implicit none
+      implicit none (type, external)
       class(map_SetIterator), intent(in) :: a, b
 
       ne = .not. (a == b)
@@ -1654,7 +1654,7 @@ subroutine map_s_erase_nonleaf(this, pos, side)
          interface
             logical function p(item)
                import
-               implicit none
+               implicit none (type, external)
                type(ChildSpecPair), intent(in) :: item
             end function p
          end interface
@@ -1676,7 +1676,7 @@ subroutine map_s_erase_nonleaf(this, pos, side)
          interface
             logical function q(item)
                import
-               implicit none
+               implicit none (type, external)
                type(ChildSpecPair), intent(in) :: item
             end function q
          end interface
@@ -2143,7 +2143,7 @@ subroutine map_s_erase_nonleaf(this, pos, side)
          interface
             logical function p(item)
                import
-               implicit none
+               implicit none (type, external)
                type(ChildSpecPair), intent(in) :: item
             end function p
          end interface
@@ -2165,7 +2165,7 @@ subroutine map_s_erase_nonleaf(this, pos, side)
          interface
             logical function q(item)
                import
-               implicit none
+               implicit none (type, external)
                type(ChildSpecPair), intent(in) :: item
             end function q
          end interface
@@ -2185,7 +2185,7 @@ module r_mapl3g_ComponentSpecBuilder
    use r_mapl3g_ChildSpecMap
    use r_mapl3g_ChildSpec
    use r_mapl3g_UserSetServices
-   implicit none
+   implicit none (type, external)
    private
 
    public :: var_build_ChildSpecMap
@@ -2250,7 +2250,7 @@ program main
    use r_mapl3g_ChildSpecMap
    use r_mapl3g_UserSetServices
    use r_mapl3g_ComponentSpecBuilder
-   implicit none
+   implicit none (type, external)
 
    type(ChildSpecMap), target :: expected, found
    integer :: status

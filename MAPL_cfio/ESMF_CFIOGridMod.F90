@@ -25,7 +25,7 @@
 ! !USES:
       use ESMF_CFIOUtilMod, only : MLEN, MVARLEN
       use, intrinsic :: ISO_FORTRAN_ENV, only: REAL64
-      implicit none
+      implicit none (type, external)
 
 !------------------------------------------------------------------------------
 ! !PRIVATE TYPES:

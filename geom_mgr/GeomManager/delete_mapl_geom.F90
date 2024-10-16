@@ -2,7 +2,7 @@
 
 submodule (mapl3g_GeomManager) delete_mapl_geom_smod
 
-   implicit none
+   implicit none (type, external)
 
 contains
    

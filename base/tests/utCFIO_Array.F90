@@ -15,7 +15,7 @@
    use ESMF_CfioMod
    use MAPL_CfioMod
 
-   implicit NONE
+   implicit none (type, external)
 
    type(ESMF_Grid)     :: grid2d, grid3d
    type (ESMF_VM)      :: VM
@@ -323,7 +323,7 @@ CONTAINS
 
   subroutine MAPL_GridGetLatLons ( grid, lons, lats )
 
-    implicit NONE
+    implicit none (type, external)
     type(ESMF_Grid) :: grid
 
     real, pointer   :: lons(:), lats(:)

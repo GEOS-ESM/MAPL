@@ -8,7 +8,7 @@ module MAPL_OpenMP_Support
     use mapl_KeywordEnforcerMod
     !$ use omp_lib
 
-    implicit none
+    implicit none (type, external)
     private
 
     public :: Interval

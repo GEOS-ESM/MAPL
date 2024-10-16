@@ -19,7 +19,7 @@ module MAPL_CubedSphereGridFactoryMod
    use MAPL_CommsMod
    use MAPL_Constants
    use, intrinsic :: iso_fortran_env, only: REAL64,REAL32
-   implicit none
+   implicit none (type)
    private
 
    public :: CubedSphereGridFactory

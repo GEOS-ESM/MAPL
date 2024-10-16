@@ -12,7 +12,7 @@ module mapl3g_MirrorVerticalGrid
    use esmf, only: ESMF_TypeKind_Flag
    use esmf, only: ESMF_Field
    use esmf, only: ESMF_Geom
-   implicit none
+   implicit none (type, external)
    private
    public :: MirrorVerticalGrid
 

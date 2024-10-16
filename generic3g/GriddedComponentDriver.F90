@@ -7,7 +7,7 @@ module mapl3g_GriddedComponentDriver
    use mapl_ErrorHandlingMod
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
    use :: esmf
-   implicit none
+   implicit none (type, external)
    private
 
    public :: GriddedComponentDriver

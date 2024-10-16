@@ -3,7 +3,7 @@ module mapl3g_HistoryGridComp_private
    use mapl_ErrorHandlingMod
    use mapl_keywordenforcermod
    use esmf
-   implicit none
+   implicit none (type, external)
    private
 
    public :: make_child_name

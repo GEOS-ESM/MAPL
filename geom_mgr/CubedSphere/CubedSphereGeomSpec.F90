@@ -4,7 +4,7 @@ module mapl3g_CubedSphereGeomSpec
    use mapl3g_GeomSpec
    use mapl3g_CubedSphereDecomposition
    use esmf, only: ESMF_KIND_R8, ESMF_CubedSphereTransform_Args
-   implicit none
+   implicit none (type, external)
    real(kind=ESMF_Kind_R8) :: undef_schmidt = 1d15
    private
 

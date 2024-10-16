@@ -64,7 +64,7 @@
   use pflogger, only: Logger, logging
   use mpi
 
-  implicit none
+  implicit none (type, external)
   private
 
 ! !PUBLIC MEMBER FUNCTIONS:
@@ -427,6 +427,8 @@ contains
     type(ESMF_Info) :: infoh
     character(len=:), allocatable :: uppercase_algorithm
     character(len=2) :: tmpchar
+
+    external :: c_MAPL_LocStreamRestorePtr
 
 ! Begin
 !------
@@ -4727,7 +4729,7 @@ ENDDO PARSER
     use ESMF
     use MAPL_CommsMod, only: MAPL_AM_I_ROOT
 
-    implicit none
+    implicit none (type, external)
 
 ! !ARGUMENTS:
 

@@ -12,7 +12,7 @@ program comp_testing_driver
   use MAPL_TimeDataMod
   use MAPL_GridManagerMod
 
-  implicit none
+  implicit none (type, external)
 
   call main()
 

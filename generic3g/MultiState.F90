@@ -5,7 +5,7 @@ module mapl3g_MultiState
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use esmf
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MultiState

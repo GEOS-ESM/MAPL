@@ -16,7 +16,7 @@ module pFIO_AbstractServerMod
    use pFIO_MessageVectorMod
    use mpi
 
-   implicit none
+   implicit none (type, external)
    private
    public :: AbstractServer
    public :: ioserver_profiler

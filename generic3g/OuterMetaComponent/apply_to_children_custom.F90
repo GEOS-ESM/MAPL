@@ -2,7 +2,7 @@
 
 submodule (mapl3g_OuterMetaComponent) apply_to_children_custom_smod
    use mapl3g_GriddedComponentDriverMap
-   implicit none
+   implicit none (type, external)
 
 contains
 

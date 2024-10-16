@@ -5,7 +5,7 @@ module ParentNoChild_GridComp
   use ESMF
   use MAPL
 
-  implicit none
+  implicit none (type, external)
   private
 
   public setservices

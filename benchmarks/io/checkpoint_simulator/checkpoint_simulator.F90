@@ -7,7 +7,7 @@ module mapl_checkpoint_support_mod
    use NetCDF
    use MAPL_ErrorHandlingMod
    use, intrinsic :: iso_fortran_env, only: INT64, REAL64, REAL32
-   implicit none
+   implicit none (type, external)
 
    real(kind=REAL64), parameter :: byte_to_mega = (1.0d0/1024.0d0)*(1.0d0/1024.0d0)
    type array_wrapper
@@ -680,7 +680,7 @@ program checkpoint_tester
    use MPI
    use NetCDF
    use, intrinsic :: iso_fortran_env, only: REAL64, INT64
-   implicit NONE
+   implicit none (type, external)
 
    integer :: status,rank,writer_size,writer_rank,comm_size,i,rc
    type(test_support) :: support

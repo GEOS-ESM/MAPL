@@ -1,7 +1,7 @@
 ! Flags for encodings for unit names and symbols
 ! The values are the same as the udunits2 utEncoding C enum
 module ud2f_encoding
-   implicit none
+   implicit none (type, external)
    public
 
    enum, bind(c)

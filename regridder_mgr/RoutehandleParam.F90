@@ -4,7 +4,7 @@ module mapl3g_RoutehandleParam
    use esmf
    use mapl3g_geom_mgr, only: MaplGeom, geom_manager, MAPL_SameGeom
    use mapl_ErrorHandlingMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: RoutehandleParam

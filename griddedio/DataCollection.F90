@@ -9,7 +9,7 @@ module MAPL_DataCollectionMod
   use gFTL2_StringIntegerMap
   use esmf
   use mapl_ErrorHandlingMod
-  implicit none
+  implicit none (type, external)
   private
 
   public :: MAPLDataCollection

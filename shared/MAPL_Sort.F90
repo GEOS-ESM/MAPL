@@ -48,7 +48,7 @@ module MAPL_SortMod
 
    use MAPL_ExceptionHandling
 
-  implicit none
+  implicit none (type, external)
   private
 
 ! !PUBLIC ROUTINES:

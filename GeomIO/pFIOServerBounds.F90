@@ -6,7 +6,7 @@ module mapl3g_pFIOServerBounds
    use gFTL2_StringVector
    use MAPL_BaseMod
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: pFIOServerBounds

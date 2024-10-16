@@ -2,7 +2,7 @@
 #include "unused_dummy.H"
 
 submodule (MaskSamplerGeosatMod)  MaskSamplerGeosat_implement
-  implicit none
+  implicit none (type, external)
 contains
 
 module function MaskSamplerGeosat_from_config(config,string,clock,GENSTATE,rc) result(mask)
@@ -153,7 +153,7 @@ end subroutine initialize_
 
      module subroutine create_Geosat_grid_find_mask(this, rc)
        use pflogger, only: Logger, logging
-       implicit none
+       implicit none (type, external)
 
        class(MaskSamplerGeosat), intent(inout) :: this
        integer, optional, intent(out)          :: rc
@@ -653,7 +653,7 @@ module subroutine  add_metadata(this,rc)
 
 
  module subroutine regrid_append_file(this,current_time,rc)
-    implicit none
+    implicit none (type, external)
 
     class(MaskSamplerGeosat), intent(inout) :: this
     type(ESMF_Time), intent(inout)          :: current_time

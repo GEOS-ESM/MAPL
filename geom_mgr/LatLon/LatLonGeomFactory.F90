@@ -10,7 +10,7 @@ module mapl3g_LatLonGeomFactory
    use pfio
    use esmf
    use mapl_KeywordEnforcer, only: KE => KeywordEnforcer
-   implicit none
+   implicit none (type, external)
    private
 
    public :: LatLonGeomFactory

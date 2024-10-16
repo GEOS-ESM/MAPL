@@ -11,7 +11,7 @@ module mapl3g_SharedIO
    use mapl3g_FieldDimensionInfo
    use esmf
 
-   implicit none
+   implicit none (type, external)
 
    public add_variables
    public add_variable

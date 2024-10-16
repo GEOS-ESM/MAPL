@@ -10,7 +10,7 @@ module performace_CLI
    use pFIO
    use gFTL_StringVector
    use gFTL2_StringIntegerMap
-   implicit none
+   implicit none (type, external)
    private
 
    public :: CommandLineOptions
@@ -136,7 +136,7 @@ module FakeHistDataMod
    use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    use mpi
-   implicit none
+   implicit none (type, external)
    private
 
    public :: FakeHistData
@@ -469,7 +469,7 @@ program main
    use FakeHistDataMod
    use MAPL_ExceptionHandling
    use pFlogger, only: pflogger_init => initialize
-   implicit none
+   implicit none (type, external)
 
    integer :: rank, npes, ierror
    integer :: status, key

@@ -13,7 +13,7 @@ module mapl3g_GridPFIO
    use MAPL_FieldPointerUtilities
    use mapl3g_pFIOServerBounds
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: GridPFIO

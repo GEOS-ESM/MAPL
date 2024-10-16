@@ -1,5 +1,5 @@
 module MAP_DistributedMeterNode
-   implicit none
+   implicit none (type, external)
    private
 
    public :: DistributedMeterNode

@@ -4,7 +4,7 @@ module MAPL_MallocGauge
    use, intrinsic :: iso_fortran_env, only: REAL64, INT64
    use, intrinsic :: iso_c_binding, only : C_INT
    use MAPL_AbstractGauge
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MallocGauge

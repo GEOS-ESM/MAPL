@@ -1,5 +1,5 @@
 module oomph_AbstractStateItemSpec
-   implicit none
+   implicit none (type, external)
    private
 
    public :: AbstractStateItemSpec

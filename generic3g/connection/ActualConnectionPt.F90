@@ -3,7 +3,7 @@
 module mapl3g_ActualConnectionPt
    use mapl3g_VirtualConnectionPt
    use mapl_KeywordEnforcer
-   implicit none
+   implicit none (type, external)
    private
   
    public :: ActualConnectionPt

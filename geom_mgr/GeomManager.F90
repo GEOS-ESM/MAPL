@@ -12,7 +12,7 @@ module mapl3g_GeomManager
    use pfio_FileMetadataMod
    use esmf
    use gftl2_IntegerVector
-   implicit none
+   implicit none (type, external)
    private
 
    public :: GeomManager
