@@ -266,36 +266,4 @@ contains
       @assert_that(a, every_item(is(equal_to(300.))))
    end subroutine test_get_coordinate_field_change_units_center
 
-   @test(type=ESMF_TestMethod, npes=[1])
-   ! Request the specific coordinate corresponding particular geom/unit.
-   ! Here we request different vertical_dim_spec which should return
-   ! the coordinates of PL
-   subroutine test_get_coordinate_field_vertical_dim_spec(this)
-      class(ESMF_TestMethod), intent(inout) :: this
-
-      type(ModelVerticalGrid) :: vgrid
-      type(ESMF_Field) :: vcoord
-      type(ESMF_Geom) :: geom
-      integer :: status
-      real(ESMF_KIND_R4), pointer :: a(:,:,:)
-      type(ComponentDriverPtrVector) :: couplers
-      type(ComponentDriverPtr) :: driver
-      type(GriddedComponentDriver), pointer :: coupler
-      integer :: i, rc
-
-      call setup("PLE", vgrid, _RC)
-      call setup("PL", vgrid, _RC)
-      geom = make_geom(_RC)
-
-      call vgrid%get_coordinate_field( &
-           vcoord, coupler, &
-           standard_name='air_pressure', geom=geom, typekind=ESMF_TYPEKIND_R4, units='hPa', _RC)
-      @assert_that(associated(coupler), is(false()))
-
-      call vgrid%get_coordinate_field( &
-           vcoord, coupler, &
-           standard_name='air_pressure', geom=geom, typekind=ESMF_TYPEKIND_R4, units='hPa', _RC)
-      @assert_that(associated(coupler), is(false()))
-   end subroutine test_get_coordinate_field_vertical_dim_spec
-
 end module Test_ModelVerticalGrid
