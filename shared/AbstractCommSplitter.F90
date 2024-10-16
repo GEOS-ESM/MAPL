@@ -3,7 +3,7 @@
 
 module MAPL_AbstractCommSplitterMod
    use MPI
-   implicit none
+   implicit none (type, external)
    private
 
    public :: AbstractCommSplitter

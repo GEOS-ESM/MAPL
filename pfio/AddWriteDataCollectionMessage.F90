@@ -8,7 +8,7 @@ module pFIO_AddWriteDataCollectionMessageMod
    use pFIO_AbstractMessageMod
    use pFIO_FileMetadataMod
    use pFIO_ConstantsMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: AddWriteDataCollectionMessage

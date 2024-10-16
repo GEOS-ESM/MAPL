@@ -8,7 +8,7 @@ module mapl_MaplComponent
    use mapl_BaseComponent
    use mapl_SurrogateFrameworkComponent
    use mapl_ErrorHandlingMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MaplComponent

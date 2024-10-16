@@ -7,7 +7,7 @@ module mapl_DecoratorComponent
    use mapl_AbstractComponent
    use mapl_MaplComponent
    use mapl_ErrorHandlingMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: DecoratorComponent

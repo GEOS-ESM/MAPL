@@ -1,6 +1,6 @@
 module MAPL_TimeUtilsMod
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: is_valid_date

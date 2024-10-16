@@ -12,7 +12,7 @@ module ExtData_DriverGridCompMod
   use MAPL_Profiler, only : get_global_time_profiler, BaseProfiler
   use mpi
 
-  implicit none
+  implicit none (type, external)
   private
 
   character(*), parameter :: internal_cap_name = "InternalCapGridComp"

@@ -1,5 +1,5 @@
 module Kernel_mod
-   implicit none
+   implicit none (type, external)
    public :: Kernel_T
 
    type, abstract :: Kernel_T

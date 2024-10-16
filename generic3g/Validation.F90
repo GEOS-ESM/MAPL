@@ -1,5 +1,5 @@
 module mapl3g_Validation
-   implicit none
+   implicit none (type, external)
    private
   
    public :: is_valid_name

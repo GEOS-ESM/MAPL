@@ -17,7 +17,7 @@ module mapl3g_MatchConnection
    use mapl_ErrorHandling
    use esmf
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MatchConnection

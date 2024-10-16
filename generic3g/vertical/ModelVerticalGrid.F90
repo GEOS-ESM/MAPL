@@ -18,7 +18,7 @@ module mapl3g_ModelVerticalGrid
    use mapl3g_GriddedComponentDriver
    use gftl2_StringVector
    use esmf
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ModelVerticalGrid

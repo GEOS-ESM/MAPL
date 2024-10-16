@@ -5,7 +5,7 @@ module MAPL_ExtDataNode
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
    use MAPL_BaseMod, only: MAPL_UNDEF
-   implicit none
+   implicit none (type, external)
    private
 
    type, public :: ExtDataNode

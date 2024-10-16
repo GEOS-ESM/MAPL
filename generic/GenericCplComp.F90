@@ -43,7 +43,7 @@ module MAPL_GenericCplCompMod
   use MAPL_VarSpecMiscMod
   use MAPL_ExceptionHandling
 
-  implicit none
+  implicit none (type, external)
   private
 
 ! !PUBLIC MEMBER FUNCTIONS:

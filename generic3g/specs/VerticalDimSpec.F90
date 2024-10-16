@@ -6,7 +6,7 @@ module mapl3g_VerticalDimSpec
    use esmf, only: ESMF_InfoCreate
    use esmf, only: ESMF_InfoSet
    use mapl_ErrorHandling
-   implicit none
+   implicit none (type, external)
    private
   
    public :: VerticalDimSpec

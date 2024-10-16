@@ -7,7 +7,7 @@
 
      use ESMF_CFIOMod, only: ESMF_CFIODownBit
 
-     implicit NONE
+     implicit none (type, external)
 
      integer, parameter :: im = 288, jm=181, lu=10
      real :: x(im,jm),  xmin, xmax

@@ -9,7 +9,7 @@ module MockGridFactoryMod
    use MAPL_AbstractGridFactoryMod
    use MAPL_KeywordEnforcerMod
    use pFIO
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MockGridFactory

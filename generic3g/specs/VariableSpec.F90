@@ -19,7 +19,7 @@ module mapl3g_VariableSpec
    use gFTL2_StringVector
    use nuopc
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: VariableSpec

@@ -18,7 +18,7 @@
 module mapl3g_ServiceRequesterSpec
    use mapl3g_StateItemSpec
    use gftl2_StringVector
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ServiceRequesterSpec

@@ -18,7 +18,7 @@ module MAPL_XYGridFactoryMod
    use MAPL_ObsUtilMod, only : ABI_XY_2_lonlat
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
-   implicit none
+   implicit none (type, external)
    private
 
    public :: XYGridFactory

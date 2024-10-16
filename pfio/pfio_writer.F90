@@ -21,7 +21,7 @@ program main
    use pFIO_UtilitiesMod 
    use mpi 
 
-   implicit none
+   implicit none (type, external)
    integer :: Inter_Comm
    integer :: ierr, rc
    integer :: rank

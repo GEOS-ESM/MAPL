@@ -3,7 +3,7 @@
 submodule (mapl3g_CubedSphereDecomposition) CubedSphereDecomposition_smod
    use mapl_ErrorHandlingMod
    use MAPL_Base
-   implicit none
+   implicit none (type, external)
 
 contains
 

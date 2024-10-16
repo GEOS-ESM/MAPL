@@ -6,7 +6,7 @@ program main
    use mapl_ErrorHandlingMod
    use mpi
    use, intrinsic :: iso_fortran_env, only: INT64
-   implicit none
+   implicit none (type, external)
 
    type(BW_BenchmarkSpec) :: spec
    integer :: status

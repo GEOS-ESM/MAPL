@@ -27,7 +27,7 @@ module pFIO_DirectoryServiceMod
    use pFIO_AbstractSocketVectorMod
    use pFIO_AbstractDirectoryServiceMod
    use mpi
-   implicit none
+   implicit none (type, external)
    private
 
    public :: Directory

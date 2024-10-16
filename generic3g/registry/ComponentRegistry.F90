@@ -1,5 +1,5 @@
 module mapl_ComponentRegistry
-   implicit none
+   implicit none (type, external)
    private
   
    public :: ComponentRegistry

@@ -7,7 +7,7 @@ module MAPL_LocstreamRegridderMod
    use MAPL_KeywordEnforcerMod
    use MAPL_ErrorHandlingMod
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: LocstreamRegridder

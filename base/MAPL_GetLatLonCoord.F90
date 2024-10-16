@@ -7,7 +7,7 @@ module MAPL_GetLatLonCoordMod
   use MAPL_BaseMod, only: MAPL_GridGet
   use MAPL_CommsMod
   use esmf
-  implicit none
+  implicit none (type, external)
   private
 
   public :: MAPL_GetLatLonCoord

@@ -1,5 +1,5 @@
 module MAPL_SplitCommunicatorMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: SplitCommunicator

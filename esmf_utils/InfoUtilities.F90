@@ -29,7 +29,7 @@ module mapl3g_InfoUtilities
    use esmf, only: ESMF_KIND_R4
    use esmf, only: ESMF_KIND_R8
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MAPL_InfoGet

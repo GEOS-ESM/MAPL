@@ -9,7 +9,7 @@ module pFIO_HistoryCollectionMod
   use pFIO_FileMetadataMod
   use pFIO_StringVariableMapMod
   use pFIO_ConstantsMod
-  implicit none
+  implicit none (type, external)
   private
 
   public :: HistoryCollection
@@ -146,7 +146,7 @@ module pFIO_HistoryCollectionVectorUtilMod
    use pFIO_HistoryCollectionMod
    use pFIO_HistoryCollectionVectorMod
    use pFIO_UtilitiesMod
-   implicit none
+   implicit none (type, external)
    private
 
    public:: HistoryCollectionVector_serialize

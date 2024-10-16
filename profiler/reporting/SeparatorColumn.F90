@@ -4,7 +4,7 @@ module MAPL_SeparatorColumn
    use MAPL_AbstractColumn
    use MAPL_AbstractMeterNode
    use Mapl_SimpleTextColumn
-   implicit none
+   implicit none (type, external)
    private
 
    public :: SeparatorColumn

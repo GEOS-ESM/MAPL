@@ -9,7 +9,7 @@ module MockUserGridComp
 !!$   use esmf, only: ESMF_METHOD_WRITERESTART
    use esmf, only: ESMF_SUCCESS
    use mapl_ErrorHandling
-   implicit none
+   implicit none (type, external)
    private
    
    public :: setServices

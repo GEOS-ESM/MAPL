@@ -3,7 +3,7 @@
 module mapl3g_GeometrySpec
    use mapl3g_geom_mgr, only: GeomSpec
    use mapl3g_VerticalGrid
-   implicit none
+   implicit none (type, external)
    private
 
    public :: GeometrySpec

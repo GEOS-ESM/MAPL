@@ -63,7 +63,7 @@ module MAPL_CFIOMod
 
   use, intrinsic :: iso_fortran_env, only: REAL64
 
-  implicit none
+  implicit none (type, external)
   private
 
 ! !PUBLIC MEMBER FUNCTIONS:
@@ -3532,7 +3532,7 @@ CONTAINS
     end subroutine shift180Lon2D_
 
     subroutine SwapV_(fld)
-    implicit none
+    implicit none (type, external)
     real,intent(inout) ::  fld(:,:,:)
     real,allocatable   :: work(:,:,:)
     integer im, jm, km
@@ -4227,7 +4227,7 @@ CONTAINS
   subroutine GridGetLatLons_ ( grid, lons, lats, rc )
 
     use MAPL_GetLatLonCoordMod
-    implicit NONE
+    implicit none (type, external)
     type(ESMF_Grid) :: grid
     real, pointer   :: lons(:), lats(:)
     integer, optional :: rc
@@ -5487,7 +5487,7 @@ CONTAINS
     contains
 
    subroutine SwapV_(fld)
-    implicit none
+    implicit none (type, external)
     real,intent(inout) ::  fld(:,:,:)
     real,allocatable   :: work(:,:,:)
     integer im, jm, km

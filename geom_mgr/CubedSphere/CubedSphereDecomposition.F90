@@ -1,7 +1,7 @@
 module mapl3g_CubedSphereDecomposition
    use mapl_KeywordEnforcer
    use esmf
-   implicit none
+   implicit none (type, external)
    private
 
    public :: CubedSphereDecomposition

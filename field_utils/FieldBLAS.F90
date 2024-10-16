@@ -4,7 +4,7 @@ module mapl_FieldBLAS
    use ESMF
    use MAPL_ExceptionHandling
    use MAPL_FieldPointerUtilities
-   implicit none
+   implicit none (type, external)
    private
 
    ! Level 1 BLAS

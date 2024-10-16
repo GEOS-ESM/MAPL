@@ -8,7 +8,7 @@ module mapl3g_HistoryGridComp
    use pFlogger, only: logger
    use esmf
    use pfio
-   implicit none
+   implicit none (type, external)
    private
 
    public :: setServices

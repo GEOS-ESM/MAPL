@@ -8,7 +8,7 @@ module mapl_StateSpecification
    use mapl_VarSpecVector
    use mapl_VarSpecMiscMod
    use MAPL_VarSpecTypeMod
-   implicit none
+   implicit none (type, external)
 
    private
 

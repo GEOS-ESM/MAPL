@@ -4,7 +4,7 @@ module pFIO_AbstractDirectoryServiceMod
    use pFIO_AbstractSocketMod
    use pFIO_AbstractSocketVectorMod
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: AbstractDirectoryService  

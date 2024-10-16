@@ -1,5 +1,5 @@
 module oomph_HorizontalStaggerLoc
-   implicit none
+   implicit none (type, external)
    private
 
    public :: HorizontalStaggerLoc

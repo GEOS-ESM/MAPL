@@ -6,7 +6,7 @@ submodule (MAPL_Shmem) Shmem_implementation
   use pflogger, only: logging, Logger
   use MAPL_ExceptionHandling
   use MAPL_Constants
-  implicit none
+  implicit none (type, external)
 
   interface
      subroutine perror(s) bind(c,name="perror")
@@ -377,7 +377,7 @@ contains
     end procedure MAPL_DeAllocNodeArray_6DR8
 
     module procedure MAPL_AllocNodeArray_1DL4
-    implicit none
+    implicit none (type, external)
       type(c_ptr) :: Caddr
       integer len, STATUS
 

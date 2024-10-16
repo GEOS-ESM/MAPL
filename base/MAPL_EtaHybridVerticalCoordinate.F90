@@ -5,7 +5,7 @@ module MAPL_EtaHybridVerticalCoordinateMod
    use ESMF
    use MAPL_ExceptionHandling
    use MAPL_KeywordEnforcerMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: EtaHybridVerticalCoordinate

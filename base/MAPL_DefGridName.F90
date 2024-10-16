@@ -1,5 +1,5 @@
 subroutine MAPL_DefGridName (im,jm,gridname,iamroot)
-implicit none
+implicit none (type, external)
 integer,intent(in)::im,jm
 logical,intent(in)::iamroot
 character(len=*),intent(out)::gridname

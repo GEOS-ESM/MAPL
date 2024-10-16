@@ -2,7 +2,7 @@ module oomph_DimsSpec
    use oomph_UngriddedDimSpec
    use oomph_HorizontalStaggerLoc
    use oomph_VerticalStaggerLoc
-   implicit none
+   implicit none (type, external)
 
    private
 

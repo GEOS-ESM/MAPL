@@ -9,7 +9,7 @@ program Test_VerticalLinearMap
    ! use mapl3g_VerticalLinearMap, only: apply_linear_map
    use, intrinsic :: iso_fortran_env, only: REAL32
 
-   implicit none
+   implicit none (type, external)
 
    real(REAL32), allocatable :: src(:), dst(:), fin(:)
    ! real(REAL32), allocatable :: matrix(:, :)

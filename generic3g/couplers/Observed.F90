@@ -2,7 +2,7 @@
 
 module mapl3g_Observable
    use mapl3g_Observer
-   implicit none
+   implicit none (type, external)
    private
 
    public :: Observable

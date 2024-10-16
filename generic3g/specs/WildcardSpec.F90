@@ -15,7 +15,7 @@ module mapl3g_WildcardSpec
    use esmf
    use pFlogger
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: WildcardSpec

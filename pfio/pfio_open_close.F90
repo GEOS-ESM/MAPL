@@ -5,7 +5,7 @@
 program main
   use MAPL_ExceptionHandling
   use pFIO
-  implicit none
+  implicit none (type, external)
 
   type (FileMetadata) :: file_metadata
   type (NetCDF4_FileFormatter) :: formatter

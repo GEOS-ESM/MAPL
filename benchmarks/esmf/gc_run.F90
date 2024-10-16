@@ -3,7 +3,7 @@
 module my_gc
    use esmf
    use mapl_ErrorHandlingMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: gc_t
@@ -94,7 +94,7 @@ program main
    use esmf
    use mapl_ErrorHandlingMod
    use iso_fortran_env, only: INT64
-   implicit none
+   implicit none (type, external)
 
    integer :: status
 

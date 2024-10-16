@@ -12,7 +12,7 @@ module pFIO_MpiServerMod
    use pFIO_AbstractServerMod
    use pFIO_BaseServerMod
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MpiServer

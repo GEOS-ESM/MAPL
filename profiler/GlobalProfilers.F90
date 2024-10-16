@@ -9,7 +9,7 @@ module mapl_GlobalProfilers
    use mapl_ErrorHandlingMod
    use mapl_MpiTimerGauge
    use mapl_MallocGauge
-   implicit none
+   implicit none (type, external)
    private
    
 

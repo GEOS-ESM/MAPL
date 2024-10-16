@@ -1,5 +1,5 @@
 module mapl_FileSystemUtilities
-   implicit none
+   implicit none (type, external)
    private
 
    public :: get_file_extension

@@ -3,7 +3,7 @@
 module mapl3g_VirtualConnectionPt
    use mapl_KeywordEnforcer
    use esmf
-   implicit none
+   implicit none (type, external)
    private
 
    public :: VirtualConnectionPt

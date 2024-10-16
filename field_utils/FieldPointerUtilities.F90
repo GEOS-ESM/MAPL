@@ -4,7 +4,7 @@ module MAPL_FieldPointerUtilities
    use ESMF
    use MAPL_ExceptionHandling
    use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer, c_loc
-   implicit none
+   implicit none (type, external)
    private
 
    public :: FieldsHaveUndef

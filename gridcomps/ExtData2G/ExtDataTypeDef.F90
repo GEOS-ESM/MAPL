@@ -9,7 +9,7 @@ module MAPL_ExtDataTypeDef
    use MAPL_NewArthParserMod
    use MAPL_ExtDataMask
    use mapl_ErrorHandlingMod
-   implicit none
+   implicit none (type, external)
 
    public PrimaryExport
    public DerivedExport

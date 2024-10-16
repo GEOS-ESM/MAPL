@@ -5,7 +5,7 @@ module MAPL_SimpleAlarm
    use ESMF
    use MAPL_ExceptionHandling
 
-   implicit none
+   implicit none (type, external)
    private
 
    public SimpleAlarm

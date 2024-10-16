@@ -9,7 +9,7 @@ module mapl3g_ComponentSpec
    use mapl3g_GeometrySpec
    use mapl_ErrorHandling
    use ESMF
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ComponentSpec

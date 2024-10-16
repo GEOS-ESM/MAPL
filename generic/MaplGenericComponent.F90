@@ -16,7 +16,7 @@ module mapl_MaplGenericComponent
    use mapl_MaplGrid
    use mapl_RunEntryPoint
    use mapl_EntryPointVector
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MaplGenericComponent
@@ -33,7 +33,7 @@ module mapl_MaplGenericComponent
    abstract interface
       subroutine UserMethod(gc, import, export, clock, rc)
          use ESMF
-         implicit none
+         implicit none (type, external)
          type (ESMF_GridComp), intent(inout) :: gc     ! Gridded component
          type (ESMF_State),    intent(inout) :: import ! Import state
          type (ESMF_State),    intent(inout) :: export ! Export state

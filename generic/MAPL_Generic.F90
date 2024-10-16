@@ -140,7 +140,7 @@ module MAPL_GenericMod
 
    ! !PUBLIC MEMBER FUNCTIONS:
 
-   implicit none
+   implicit none (type, external)
    private
 
    public MAPL_GenericSetServices

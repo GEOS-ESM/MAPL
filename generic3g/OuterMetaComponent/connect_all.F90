@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 
 submodule (mapl3g_OuterMetaComponent) connect_all_smod
-   implicit none
+   implicit none (type, external)
 
 contains
 

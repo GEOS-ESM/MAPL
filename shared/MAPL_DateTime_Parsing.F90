@@ -42,7 +42,7 @@ module MAPL_DateTime_Parsing
    use gFTL2_StringVector
    use, intrinsic :: iso_fortran_env, only: R64 => real64
 
-   implicit none
+   implicit none (type, external)
 
 ! PUBLIC =======================================================================
 

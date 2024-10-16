@@ -2,7 +2,7 @@
 ! interfaces of user routines that are passed to ESMF.
 
 module mapl_ESMF_Interfaces
-   implicit none
+   implicit none (type, external)
    private ! except
    public :: I_CallBackMethod
    public :: CallbackMethodWrapper

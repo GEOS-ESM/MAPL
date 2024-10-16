@@ -8,7 +8,7 @@ module mapl3g_hconfig_get_private
    use :: esmf, only: ESMF_HConfig, ESMF_HConfigIsDefined
    use mapl_ErrorHandling
 
-   implicit none
+   implicit none (type, external)
    private
    public :: get_value, HConfigParams, DEFAULT_TAG, ELLIPSIS
 

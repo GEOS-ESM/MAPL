@@ -11,7 +11,7 @@ program  time_ave
    use, intrinsic :: iso_fortran_env, only: int32, int64, int16, real32, real64
    use ieee_arithmetic, only: isnan => ieee_is_nan
 
-   implicit none
+   implicit none (type, external)
 
    integer  comm,myid,npes,ierror
    integer  imglobal
@@ -1394,7 +1394,7 @@ contains
    end function local_esmf_timeset
 
    function defined ( q,undef )
-      implicit none
+      implicit none (type, external)
       logical  defined
       real     q,undef
       defined = q /= undef

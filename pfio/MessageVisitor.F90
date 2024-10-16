@@ -23,7 +23,7 @@ module pFIO_MessageVisitorMod
    use pFIO_ModifyMetadataMessageMod
    use pFIO_ReplaceMetadataMessageMod
    use pFIO_AbstractRequestHandleMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MessageVisitor

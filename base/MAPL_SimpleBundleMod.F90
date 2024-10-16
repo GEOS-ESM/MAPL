@@ -31,7 +31,7 @@
    use MAPL_Constants, only: MAPL_PI
    use MAPL_ExceptionHandling
 
-   implicit NONE
+   implicit none (type, external)
    private
 
    public MAPL_SimpleBundleCreate
@@ -500,7 +500,7 @@ CONTAINS
   contains
 
     function csv_tokens_count_(str, delimiter) result(n)
-      implicit none
+      implicit none (type, external)
 
       integer                         :: n
       character(len=*), intent(in)    :: str
@@ -526,7 +526,7 @@ CONTAINS
     end function csv_tokens_count_
 
     subroutine csv_tokens_get_(str, list, delimiter, ignore, rc)
-      implicit none
+      implicit none (type, external)
 
       character(len=*), intent(in)     :: str
       character(len=*), intent(inout)  :: list(:)

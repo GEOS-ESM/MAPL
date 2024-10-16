@@ -1,6 +1,6 @@
 module Mapl_VarSpecPtrMod
    use MAPL_VarSpecMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MAPL_VarSpecPtr

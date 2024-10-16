@@ -2,7 +2,7 @@
 
 module mapl3g_VerticalRegridMethod
 
-   implicit none
+   implicit none (type, external)
    private
    
    public :: VerticalRegridMethod_Flag

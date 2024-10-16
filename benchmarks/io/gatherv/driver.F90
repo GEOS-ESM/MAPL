@@ -5,7 +5,7 @@ program main
    use mapl_GathervKernel
    use mapl_ErrorHandlingMod
    use mpi
-   implicit none
+   implicit none (type, external)
 
    type(GathervSpec) :: spec
    integer :: status

@@ -11,7 +11,7 @@ module MAPL_ExternalGridFactoryMod
    use MAPL_Constants
    use, intrinsic :: iso_fortran_env, only: REAL32
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ExternalGridFactory

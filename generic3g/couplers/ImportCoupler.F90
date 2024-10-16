@@ -1,6 +1,6 @@
 module mapl3g_ImportCoupler
    use mapl3g_GenericCoupler
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ImportCoupler

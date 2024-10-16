@@ -2,7 +2,7 @@
 module mapl3g_FieldCondensedArray_private
 
    use MAPL_ExceptionHandling
-   implicit none
+   implicit none (type, external)
 
    private
    public :: get_fptr_shape_private, ARRAY_RANK

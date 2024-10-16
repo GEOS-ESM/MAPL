@@ -9,7 +9,7 @@ module mapl3g_Cap
    use mapl_ErrorHandling
    use esmf
    use MAPL_TimeStringConversion, only: hconfig_to_esmf_timeinterval
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MAPL_run_driver

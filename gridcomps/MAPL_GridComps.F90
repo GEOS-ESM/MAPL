@@ -5,5 +5,5 @@ module MAPL_GridCompsMod
    use mapl_FargParseCLIMod
 #endif
    use mapl_CapOptionsMod
-   implicit none
+   implicit none (type, external)
 end module MAPL_GridCompsMod

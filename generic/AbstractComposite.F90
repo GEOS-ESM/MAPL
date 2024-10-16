@@ -1,5 +1,5 @@
 module mapl_AbstractComposite
-   implicit none
+   implicit none (type, external)
    private
 
    public :: AbstractComposite

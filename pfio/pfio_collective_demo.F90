@@ -7,7 +7,7 @@
 module collective_demo_CLI
    use MAPL_ExceptionHandling
    use gFTL2_StringVector
-   implicit none
+   implicit none (type, external)
    private
 
    public :: CommandLineOptions
@@ -123,7 +123,7 @@ module FakeExtDataMod_collective
    use pFIO
    use gFTL2_StringVector
    use, intrinsic :: iso_fortran_env, only: REAL32
-   implicit none
+   implicit none (type, external)
    private
 
    public :: FakeExtData
@@ -305,7 +305,7 @@ program main
    use MAPL_ExceptionHandling
    use collective_demo_CLI
    use FakeExtDataMod_collective
-   implicit none
+   implicit none (type, external)
 
    integer :: rank, npes, ierror, provided,required
    integer :: status, color, key, rc

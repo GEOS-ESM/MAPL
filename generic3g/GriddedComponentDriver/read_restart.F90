@@ -4,7 +4,7 @@ submodule(mapl3g_GriddedComponentDriver) read_restart_smod
    use :: mapl_ErrorHandling
    use :: mapl3g_OuterMetaComponent
    use :: mapl3g_MethodPhasesMapUtils
-   implicit none
+   implicit none (type, external)
 
 contains
 

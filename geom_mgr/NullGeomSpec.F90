@@ -2,7 +2,7 @@
 ! factory methods that return GeomSpec objects.
 module mapl3g_NullGeomSpec
    use mapl3g_GeomSpec
-   implicit none
+   implicit none (type, external)
 
    type, extends(GeomSpec) :: NullGeomSpec
    contains

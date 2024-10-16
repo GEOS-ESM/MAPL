@@ -9,7 +9,7 @@ module mapl3g_TimeInterpolateAction
    use mapl_ErrorHandling
    use esmf
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: TimeInterpolateAction

@@ -21,7 +21,7 @@ module mapl3g_FieldDictionary
    use mapl3g_FieldDictionaryItem
    use mapl3g_FieldDictionaryItemMap
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: FieldDictionary

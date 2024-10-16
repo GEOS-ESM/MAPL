@@ -8,7 +8,7 @@ module mapl3g_FixedLevelsVerticalGrid
    use esmf, only: ESMF_Field
    use esmf, only: ESMF_Geom
    use, intrinsic :: iso_fortran_env, only: REAL32
-   implicit none
+   implicit none (type, external)
    private
 
    public :: FixedLevelsVerticalGrid

@@ -40,7 +40,7 @@ module pFIO_MultiCommServerMod
    use pFIO_MpiSocketMod
    use mpi
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MultiCommServer

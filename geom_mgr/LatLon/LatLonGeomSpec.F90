@@ -6,7 +6,7 @@ module mapl3g_LatLonGeomSpec
    use mapl3g_LonAxis
    use mapl3g_LatAxis
    use esmf, only: ESMF_KIND_R8, ESMF_HCONFIG
-   implicit none
+   implicit none (type, external)
    private
 
    public :: LatLonGeomSpec

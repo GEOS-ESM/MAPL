@@ -1,5 +1,5 @@
 module scratchpad
-   implicit none
+   implicit none (type, external)
    private
 
    public :: log

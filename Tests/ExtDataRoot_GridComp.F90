@@ -16,7 +16,7 @@ MODULE ExtDataUtRoot_GridCompMod
       !use m_set_eta, only: set_eta
       use, intrinsic :: iso_fortran_env, only: REAL64
 
-      IMPLICIT NONE
+      implicit none (type, external)
       PRIVATE
 
       PUBLIC SetServices
@@ -146,7 +146,7 @@ MODULE ExtDataUtRoot_GridCompMod
 
       SUBROUTINE Initialize_ ( GC, IMPORT, EXPORT, CLOCK, rc )
 
-         implicit NONE
+         implicit none (type, external)
 
          type(ESMF_Clock),  intent(inout) :: CLOCK     ! The clock
 
@@ -241,7 +241,7 @@ MODULE ExtDataUtRoot_GridCompMod
 
       SUBROUTINE Run_ ( GC, IMPORT, EXPORT, CLOCK, rc )
 
-         implicit NONE
+         implicit none (type, external)
 
          type(ESMF_Clock),  intent(inout) :: CLOCK     ! The clock
 

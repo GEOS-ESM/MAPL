@@ -11,7 +11,7 @@ module MAPL_ExtDataFileStream
    use MAPL_FileMetadataUtilsMod
    use MAPL_StringTemplate
    use pfio_FileMetadataMod
-   implicit none
+   implicit none (type, external)
    private
 
    type, public :: ExtDataFileStream

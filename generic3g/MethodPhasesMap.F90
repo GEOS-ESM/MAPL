@@ -72,7 +72,7 @@ module mapl3g_MethodPhasesMapUtils
    use :: esmf, only: ESMF_METHOD_RUN
    use :: esmf, only: ESMF_METHOD_FINALIZE
    use :: gftl2_StringVector
-   implicit none
+   implicit none (type, external)
    private
 
    public :: add_phase
@@ -165,7 +165,7 @@ end module mapl3g_MethodPhasesMapUtils
 module mapl3g_MethodPhasesMap
    use mapl3g_MethodPhasesMap_private
    use mapl3g_MethodPhasesMapUtils
-   implicit none
+   implicit none (type, external)
 
 contains
 

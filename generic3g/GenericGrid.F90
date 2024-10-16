@@ -1,7 +1,7 @@
 module mapl3_GenericGrid
    use ESMF, only: ESMF_Grid
    use ESMF, only: ESMF_Locstream
-   implicit none
+   implicit none (type, external)
    private
 
    public :: GenericGrid

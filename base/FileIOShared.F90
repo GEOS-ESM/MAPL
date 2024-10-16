@@ -26,7 +26,7 @@ module FileIOSharedMod
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env
   use mpi
-  implicit none
+  implicit none (type, external)
   private
 
   ! public types

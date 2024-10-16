@@ -9,7 +9,7 @@ module MAPL_Shmem
   use MAPL_Constants
   use mpi
 
-  implicit none
+  implicit none (type, external)
   private
 
   public :: MAPL_GetNodeInfo
@@ -66,7 +66,7 @@ module MAPL_Shmem
   interface
      module function shmget(key, size, shmflg) bind(c, name="shmget")
        use, intrinsic :: ISO_C_BINDING
-       implicit none
+       implicit none (type, external)
        integer (c_int)              :: shmget
        integer (c_key_t),     value :: key
        integer (c_size_t),    value :: size
@@ -75,7 +75,7 @@ module MAPL_Shmem
 
      module function shmat(shmid, shmaddr, shmflg) bind(c, name="shmat")
        use, intrinsic :: ISO_C_BINDING
-       implicit none
+       implicit none (type, external)
        type (c_ptr)           :: shmat
        integer (c_int), value :: shmid
        type (c_ptr),    value :: shmaddr
@@ -84,14 +84,14 @@ module MAPL_Shmem
 
      module function shmdt(shmaddr) bind(c, name="shmdt")
        use, intrinsic :: ISO_C_BINDING
-       implicit none
+       implicit none (type, external)
        integer (c_int)     :: shmdt
        type (c_ptr), value :: shmaddr
      end function shmdt
 
      module function shmctl(shmid, cmd, buf) bind(c, name="shmctl")
        use, intrinsic :: ISO_C_BINDING
-       implicit none
+       implicit none (type, external)
        integer (c_int)        :: shmctl
        integer (c_int), value :: shmid
        integer (c_int), value :: cmd

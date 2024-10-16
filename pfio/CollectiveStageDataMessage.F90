@@ -4,7 +4,7 @@ module pFIO_CollectiveStageDataMessageMod
    use pFIO_UtilitiesMod
    use pFIO_AbstractDataReferenceMod
    use mapl_KeywordEnforcerMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: CollectiveStageDataMessage

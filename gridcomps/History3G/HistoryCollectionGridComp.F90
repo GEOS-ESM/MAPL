@@ -12,7 +12,7 @@ module mapl3g_HistoryCollectionGridComp
    use pfio
    use esmf
    
-   implicit none
+   implicit none (type, external)
    private
 
    public :: setServices

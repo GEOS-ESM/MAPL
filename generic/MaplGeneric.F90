@@ -17,5 +17,5 @@ module MaplGeneric
    use mapl_maplgenericcomponent
    use mapl_StubComponent
    
-   implicit none
+   implicit none (type, external)
 end module MaplGeneric

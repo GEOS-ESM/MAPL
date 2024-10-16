@@ -9,7 +9,7 @@ module MAPL_StubProfiler
    use MAPL_AbstractMeterNode
    use MAPL_MeterNode
    use mapl_ErrorHandlingMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: StubProfiler

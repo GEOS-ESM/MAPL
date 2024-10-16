@@ -9,7 +9,7 @@ module MAPL_ExtDataBracket
    use MAPL_ExtDataConstants
    use MAPL_CommsMod
    use MAPL_FieldUtils
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ExtDataBracket

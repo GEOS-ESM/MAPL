@@ -68,7 +68,7 @@
    use MAPL_ExtDataPrimaryExportVectorMod
    use MAPL_ExtDataDerivedExportVectorMod
 
-   IMPLICIT NONE
+   implicit none (type, external)
    PRIVATE
 !
 ! !PUBLIC MEMBER FUNCTIONS:
@@ -205,7 +205,7 @@ CONTAINS
 !
    SUBROUTINE Initialize_ ( GC, IMPORT, EXPORT, CLOCK, rc )
 
-   implicit NONE
+   implicit none (type, external)
 
    type(ESMF_Clock),  intent(inout)   :: CLOCK   !! The clock
 
@@ -460,7 +460,7 @@ CONTAINS
 !
    SUBROUTINE Run_ ( GC, IMPORT, EXPORT, CLOCK, rc )
 
-   implicit NONE
+   implicit none (type, external)
 
    type(ESMF_Clock),  intent(inout) :: CLOCK     !! The clock
 
@@ -688,7 +688,7 @@ CONTAINS
 !
    SUBROUTINE Finalize_ ( GC, IMPORT, EXPORT, CLOCK, rc )
 
-   implicit NONE
+   implicit none (type, external)
 
    type(ESMF_Clock),  intent(inout) :: CLOCK     !! The clock
 

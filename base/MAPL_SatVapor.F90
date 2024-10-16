@@ -44,7 +44,7 @@ module MAPL_SatVaporMod
 !
 !  use MAPL_Constants
 !
-  implicit none
+  implicit none (type, external)
   private
 !
 ! !PUBLIC MEMBER FUNCTIONS:

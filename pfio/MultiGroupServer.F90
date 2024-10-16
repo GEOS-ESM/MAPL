@@ -48,7 +48,7 @@ module pFIO_MultiGroupServerMod
    use mpi
    use pFlogger, only: logging, Logger
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MultiGroupServer

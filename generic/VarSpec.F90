@@ -5,7 +5,7 @@ module MAPL_VarSpecMod
    use MAPL_ErrorHandlingMod
    use MAPL_Constants
    use pFlogger
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MAPL_VarSpec

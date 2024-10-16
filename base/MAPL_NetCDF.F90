@@ -12,7 +12,7 @@ module MAPL_NetCDF
    use MAPL_DateTime_Parsing_ESMF
    use MAPL_CF_Time
 
-   implicit none
+   implicit none (type, external)
 
    public :: convert_NetCDF_DateTime_to_ESMF
    public :: get_ESMF_Time_from_NetCDF_DateTime

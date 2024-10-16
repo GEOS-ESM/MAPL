@@ -27,7 +27,7 @@ module MAPL_GriddedIOMod
   use, intrinsic :: iso_fortran_env, only: REAL64
   use ieee_arithmetic, only: isnan => ieee_is_nan
   use netcdf, only: nf90_inq_libvers
-  implicit none
+  implicit none (type, external)
 
   private
   public :: MAPL_GriddedIO

@@ -28,7 +28,7 @@
       use netcdf
       use, intrinsic :: ISO_FORTRAN_ENV, only: INT16, REAL32, REAL64
 
-      implicit none
+      implicit none (type, external)
 !------------------------------------------------------------------------------
 ! !PRIVATE TYPES:
       private
@@ -1874,7 +1874,7 @@
 !
 ! !USES:
 !
-      Implicit NONE
+      implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !

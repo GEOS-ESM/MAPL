@@ -10,7 +10,7 @@
 module server_demo_CLI
    use MAPL_ExceptionHandling
    use gFTL2_StringVector
-   implicit none
+   implicit none (type, external)
    private
 
    public :: CommandLineOptions
@@ -125,7 +125,7 @@ module FakeExtDataMod_server
    use pFIO
    use gFTL2_StringVector
    use, intrinsic :: iso_fortran_env, only: REAL32
-   implicit none
+   implicit none (type, external)
    private
 
    public :: FakeExtData
@@ -275,7 +275,7 @@ program main
    use server_demo_CLI
    use FakeExtDataMod_server
    use MAPL_ExceptionHandling
-   implicit none
+   implicit none (type, external)
 
    integer :: rank, npes, ierror, provided
    integer :: status, color, key, rc

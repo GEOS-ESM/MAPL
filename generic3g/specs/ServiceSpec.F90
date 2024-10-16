@@ -20,7 +20,7 @@ module mapl3g_ServiceSpec
    use mapl3g_VerticalGrid
    use esmf
    use gftl2_StringVector
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ServiceSpec

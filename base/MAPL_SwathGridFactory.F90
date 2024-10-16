@@ -20,7 +20,7 @@ module MAPL_SwathGridFactoryMod
    use pflogger,    only : Logger, logging
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
-   implicit none
+   implicit none (type, external)
    integer, parameter :: gridLabel_max = 20
    integer, parameter :: mx_file = 300
    private
@@ -211,7 +211,7 @@ contains
 
    subroutine add_horz_coordinates_from_file(this, grid, unusable, rc)
       use MAPL_BaseMod, only: MAPL_grid_interior
-      implicit none
+      implicit none (type, external)
       class (SwathGridFactory), intent(in) :: this
       type (ESMF_Grid), intent(inout) :: grid
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -418,7 +418,7 @@ contains
 
    subroutine initialize_from_config_with_prefix(this, config, prefix, unusable, rc)
       use MPI
-      implicit none
+      implicit none (type, external)
       class (SwathGridFactory), intent(inout) :: this
       type (ESMF_Config), intent(inout) :: config
       character(len=*), intent(in) :: prefix

@@ -18,7 +18,7 @@ module mapl3g_MaplFramework
    use pflogger, only: Logger
    use mpi
    use esmf
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MaplFramework

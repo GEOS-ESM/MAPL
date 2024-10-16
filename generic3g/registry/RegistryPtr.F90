@@ -1,6 +1,6 @@
 module mapl3g_RegistryPtr
    use mapl3g_AbstractRegistry
-   implicit none
+   implicit none (type, external)
    private
   
    public :: RegistryPtr

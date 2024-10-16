@@ -29,7 +29,7 @@ module pFIO_MockClientThreadMod
    use pFIO_ClientThreadMod
 
    use, intrinsic :: iso_fortran_env, only: REAL32
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MockClientThread

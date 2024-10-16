@@ -12,7 +12,7 @@ module mapl3g_RegridderManager
    use mapl3g_EsmfRegridderFactory
 
    use mapl_ErrorHandlingMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: RegridderManager

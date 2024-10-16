@@ -63,7 +63,7 @@
    use MAPL_ExtDataGridCompMod, only: ExtData_SetServices => SetServices
 
 
-   IMPLICIT NONE
+   implicit none (type, external)
    PRIVATE
 !
 ! !PUBLIC MEMBER FUNCTIONS:
@@ -154,7 +154,7 @@ CONTAINS
 
 ! !USES:
 
-   implicit NONE
+   implicit none (type, external)
 
 ! !INPUT PARAMETERS:
 
@@ -217,7 +217,7 @@ CONTAINS
 
 ! !USES:
 
-  implicit NONE
+  implicit none (type, external)
 
 ! !INPUT PARAMETERS:
 
@@ -272,7 +272,7 @@ CONTAINS
 
 ! !USES:
 
-  implicit NONE
+  implicit none (type, external)
 
 ! !INPUT PARAMETERS:
 
@@ -323,7 +323,7 @@ Program ut_ExtData
    use RUTMod,                  only: ROOT_SetServices    => SetServices
    use MAPL_ExtDataGridCompMod, only: ExtData_SetServices => SetServices
 
-   implicit NONE
+   implicit none (type, external)
 
    integer :: STATUS
    logical :: am_I_root

@@ -3,7 +3,7 @@
 
 #include "unused_dummy.H"
 module MAPL_String
-   implicit none
+   implicit none (type, external)
    private
 
    public :: String

@@ -41,7 +41,7 @@ module mapl_Profiler
    use mapl_SeparatorColumn
    use mapl_GlobalProfilers
 
-   implicit none
+   implicit none (type, external)
 
 contains
 

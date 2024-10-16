@@ -11,7 +11,7 @@ module mapl3g_StateItemExtension
    use mapl3g_MultiState
    use mapl_ErrorHandling
    use esmf
-   implicit none
+   implicit none (type, external)
    private
 
    public :: StateItemExtension

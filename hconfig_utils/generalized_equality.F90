@@ -1,7 +1,7 @@
 module mapl3g_generalized_equality
 
    use :: esmf, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_KIND_I4, ESMF_KIND_I8
-   implicit none
+   implicit none (type, external)
    private
 
    public :: are_equal

@@ -12,7 +12,7 @@ module main_mod
    use mpi
    use fargparse
 
-   implicit none
+   implicit none (type, external)
 
    contains
 
@@ -92,7 +92,7 @@ end module main_mod
 program main
       use main_mod
 
-      implicit none
+      implicit none (type, external)
 
       integer :: status
 

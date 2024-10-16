@@ -1,7 +1,7 @@
 
 submodule (MAPL_InterpMod) Interp_implementation
 
-  implicit none
+  implicit none (type, external)
 
 contains
 

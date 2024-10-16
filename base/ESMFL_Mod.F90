@@ -36,7 +36,7 @@ module ESMFL_MOD
   use MAPL_CommsMod
   use MAPL_ExceptionHandling
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
-  implicit none
+  implicit none (type, external)
   private
 
 !
@@ -1156,7 +1156,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    subroutine ESMFL_RegridStore (srcFLD, SRCgrid2D, dstFLD, DSTgrid2D, &
                                  vm, rh, rc)
 !
-   implicit NONE
+   implicit none (type, external)
 
 ! !ARGUMENTS:
 
@@ -1483,7 +1483,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    subroutine FieldRegrid1 (srcFLD, Sgrid2D, dstFLD, Dgrid2D, &
                                    vm, rh, fname, rc)
 !
-  implicit NONE
+  implicit none (type, external)
 
 ! !ARGUMENTS:
 
@@ -1659,7 +1659,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
    subroutine BundleRegrid1 (srcBUN, Sgrid2D, dstBUN, Dgrid2D, &
                              vm, rh, rc)
 !
-  implicit NONE
+  implicit none (type, external)
 
 ! !ARGUMENTS:
 
@@ -1862,7 +1862,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !
    subroutine BundleRegrid (srcBUN, dstBUN, rc)
 !
-  implicit NONE
+  implicit none (type, external)
 
 ! !ARGUMENTS:
 
@@ -2172,7 +2172,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !
    subroutine assign_slices_ (nslices, mype, npe, slice_pe, nfirst, nlast)
 !
-  implicit NONE
+  implicit none (type, external)
 
 ! !ARGUMENTS:
 
@@ -2244,7 +2244,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !
    subroutine Do_Gathers_ (BUN, BUF)
 !
-  implicit NONE
+  implicit none (type, external)
 
 ! !ARGUMENTS:
 
@@ -2360,7 +2360,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !
    subroutine Do_Regrid_ (n, inBuf, outBuf)
 !
-  implicit NONE
+  implicit none (type, external)
 
 ! !ARGUMENTS:
 
@@ -2398,7 +2398,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !
    subroutine Do_Scatters_ (BUN, BUF)
 !
-  implicit NONE
+  implicit none (type, external)
 
 ! !ARGUMENTS:
 
@@ -2550,7 +2550,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !-------------------------------------------------------------------------
    subroutine FlipLons_(q)
 !-------------------------------------------------------------------------
-     implicit none
+     implicit none (type, external)
      real,dimension(:,:),intent(inout) :: q
      integer :: j
      do j=1,size(q,2)
@@ -2561,7 +2561,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !-------------------------------------------------------------------------
    subroutine FlipLonsi_(q)
 !-------------------------------------------------------------------------
-     implicit none
+     implicit none (type, external)
      real,dimension(:),intent(inout) :: q
      integer :: im
      real,dimension(size(q,1)/2) :: d
@@ -2574,7 +2574,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !-------------------------------------------------------------------------
    subroutine FlipPoles_(rbufr)
 !-------------------------------------------------------------------------
-     implicit none
+     implicit none (type, external)
      real(kind=REAL32),dimension(:,:),intent(inout) :: rbufr
      real(kind=REAL32),allocatable, dimension(:,:) :: sfcin
      integer :: im,jm
@@ -2600,7 +2600,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !
    subroutine StateRegrid (srcSTA, dstSTA, rc)
 !
-  implicit NONE
+  implicit none (type, external)
 
 ! !ARGUMENTS:
 
@@ -2766,7 +2766,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !
    subroutine ESMFL_FieldGetDims(FLD, gCPD, lCPD, lm, ar)
 !
-  implicit NONE
+  implicit none (type, external)
 
 ! !ARGUMENTS:
 
@@ -2833,7 +2833,7 @@ function ESMFL_StateFieldIsNeeded(STATE, NAME, RC) result(NEEDED)
 !
    subroutine BundleDiff (srcBUN, dstBUN, rc)
 !
-  implicit NONE
+  implicit none (type, external)
 
 ! !ARGUMENTS:
 
@@ -3017,7 +3017,7 @@ CONTAINS
         subroutine stats_ (lu,mx,my,k,a1,&
                            atype,htype,amiss,header,inc, a2)
 
-        implicit none
+        implicit none (type, external)
 
         integer lu              ! Output unit
         integer mx,my           ! Array sizes
@@ -3171,7 +3171,7 @@ CONTAINS
 !
    subroutine StateDiff (srcSTA, dstSTA, rc)
 !
-  implicit NONE
+  implicit none (type, external)
 
 ! !ARGUMENTS:
 
@@ -3260,7 +3260,7 @@ CONTAINS
    end subroutine StateDiff
 
    subroutine StateStatistics(srcSTA, rc)
-     implicit NONE
+     implicit none (type, external)
      type(ESMF_State), intent(inout)  :: srcSTA
      integer, optional, intent(out)   :: rc     ! return code
      integer :: status
@@ -3272,7 +3272,7 @@ CONTAINS
    end subroutine StateStatistics
 
    subroutine BundleStatistics(srcBUN, rc)
-     implicit NONE
+     implicit none (type, external)
      type(ESMF_FieldBundle), intent(inout) :: srcBUN
      integer, optional, intent(out)   :: rc     ! return code
 
@@ -3296,7 +3296,7 @@ CONTAINS
    subroutine ESMFL_GridDistBlockSet (Egrid, ist, jst, il, jl, &
                                       rlons, rlats, rc)
 !
-  implicit NONE
+  implicit none (type, external)
 
 ! !ARGUMENTS:
 
@@ -3974,7 +3974,7 @@ CONTAINS
 !
 ! !ARGUMENTS:
 !
-    implicit NONE
+    implicit none (type, external)
     type(ESMF_FieldBundle), intent(inout)         :: BUNDLE
     type(ESMF_State),  intent(INout)            :: STATE
     integer, optional                        :: rc
@@ -4168,7 +4168,7 @@ CONTAINS
 
   subroutine MAPL_AreaMean_2d_r8_bitrep ( qave, q, area, grid, bitreproducible, rc )
 
-    implicit none
+    implicit none (type, external)
 
     ! Arguments
     real(kind=REAL64), intent(  OUT) :: qave
@@ -4258,7 +4258,7 @@ CONTAINS
 
   subroutine MAPL_AreaMean_2d_r8 ( qave, q, area, grid, rc )
 
-    implicit none
+    implicit none (type, external)
 
     ! Arguments
     real(kind=REAL64), intent(  OUT) :: qave
@@ -4320,7 +4320,7 @@ CONTAINS
   end subroutine MAPL_AreaMean_2d_r8
 
   logical function check_list_ (this,list)
-  implicit none
+  implicit none (type, external)
   character(len=*), intent(in) :: this
   character(len=*), intent(in) :: list
   integer i,ll,ls,le

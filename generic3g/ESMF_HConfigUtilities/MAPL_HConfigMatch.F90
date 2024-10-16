@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 
 submodule (mapl3g_ESMF_HConfigUtilities) MAPL_HConfigMatch_smod
-   implicit none
+   implicit none (type, external)
 
 
 contains

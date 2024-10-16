@@ -1,5 +1,5 @@
       subroutine hinterp2 ( qin,iin,jin,qout,iout,jout,mlev,undef )
-      implicit   none
+      implicit none (type, external)
       integer    iin,jin,       iout,jout, mlev
       real   qin(iin,jin,mlev), qout(iout,jout,mlev)
       real undef,pi,dlin,dpin,dlout,dpout
@@ -62,9 +62,9 @@
 
       subroutine hhinterp ( qin,iin,jin,qout,iout,jout,mlev,undef, &
                             lons_in,lats_in )
-      implicit   none
+      implicit none (type, external)
       integer    iin,jin,       iout,jout, mlev
-      real   qin(iin,jin,mlev), qout(iout,jout,mlev) 
+      real   qin(iin,jin,mlev), qout(iout,jout,mlev)
       real undef,pi,dlin,dpin,dlout,dpout
       real lons_in (iin) , lats_in (jin)
       real lons_out(iout), lats_out(jout)
@@ -157,7 +157,7 @@
       return
       contains
       subroutine myhflip2_ ( q,im,jm )
-      implicit none
+      implicit none (type, external)
       integer  im,jm,i,j
       real, intent(inout) :: q(im,jm)
       real, allocatable   :: dum(:)
@@ -203,7 +203,7 @@
 !*                  GODDARD LABORATORY FOR ATMOSPHERES                 *
 !***********************************************************************
 
-      implicit none
+      implicit none (type, external)
 
 ! Input Variables
 ! ---------------
@@ -359,7 +359,7 @@
       if( lam_ip0.gt.lam_ip1 ) lam_ip1 = lam_ip1 + 2*pi
 
 
-! Compute and Adjust Latitude Weights   
+! Compute and Adjust Latitude Weights
 ! Note:  Latitude Index Boundaries are Adjusted during Interpolation
 ! ------------------------------------------------------------------
           phi_jm1 =  lat_cmp(jm1(i))
@@ -485,17 +485,17 @@
                + wc_ip0jp1(i) * q_cmp( ip0(i),jp1(i),L ) &
                + wc_im1jp1(i) * q_cmp( im1(i),jp1(i),L ) &
                + wc_im2jp1(i) * q_cmp( im2(i),jp1(i),L ) &
-  
+
                + wc_ip1jp0(i) * q_cmp( ip1(i),jp0(i),L ) &
                + wc_ip0jp0(i) * q_cmp( ip0(i),jp0(i),L ) &
                + wc_im1jp0(i) * q_cmp( im1(i),jp0(i),L ) &
                + wc_im2jp0(i) * q_cmp( im2(i),jp0(i),L ) &
-  
+
                + wc_ip1jm1(i) * q_cmp( ip1(i),jm1(i),L ) &
                + wc_ip0jm1(i) * q_cmp( ip0(i),jm1(i),L ) &
                + wc_im1jm1(i) * q_cmp( im1(i),jm1(i),L ) &
                + wc_im2jm1(i) * q_cmp( im2(i),jm1(i),L ) &
-  
+
                + wc_ip1jm2(i) * q_cmp( ip1(i),jm2(i),L ) &
                + wc_ip0jm2(i) * q_cmp( ip0(i),jm2(i),L ) &
                + wc_im1jm2(i) * q_cmp( im1(i),jm2(i),L ) &
@@ -536,4 +536,4 @@
 
       return
 
-      end 
+      end

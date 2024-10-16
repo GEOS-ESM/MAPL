@@ -8,7 +8,7 @@ module mapl3g_CubedSphereGeomFactory
    use gftl2_StringVector
    use pfio
    use esmf
-   implicit none
+   implicit none (type, external)
    private
 
    public :: CubedSphereGeomFactory

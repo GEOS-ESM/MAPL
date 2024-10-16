@@ -2,7 +2,7 @@
 
 submodule (mapl3g_GeomManager) initialize_smod
 
-   implicit none
+   implicit none (type, external)
 
 contains
    

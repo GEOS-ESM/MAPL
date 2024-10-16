@@ -3,7 +3,7 @@
 module mapl3g_GeomUtilities
    use esmf
    use mapl_ErrorHandlingMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MAPL_GeomSetId

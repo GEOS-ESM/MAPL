@@ -1,6 +1,6 @@
 module mapl_ComponentSpecification
    use mapl_StateSpecification
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ComponentSpecification

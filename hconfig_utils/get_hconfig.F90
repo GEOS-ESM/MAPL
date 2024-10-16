@@ -11,7 +11,7 @@ module mapl3g_get_hconfig
    use :: esmf, only: ESMF_HConfigAsR8, ESMF_HConfigAsR8Seq
    use mapl_ErrorHandling
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: get_hconfig

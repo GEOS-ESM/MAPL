@@ -26,7 +26,7 @@ module Plain_netCDF_Time
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
   use, intrinsic :: iso_c_binding, only: C_INT
-  implicit none
+  implicit none (type, external)
   public
 
   interface convert_time_nc2esmf
@@ -66,7 +66,7 @@ contains
 
   subroutine get_ncfile_dimension(filename, nlon, nlat, tdim, key_lon, key_lat, key_time, rc)
     use netcdf
-    implicit none
+    implicit none (type, external)
     character(len=*), intent(in) :: filename
     integer, optional,intent(out) :: nlat, nlon, tdim
     character(len=*), optional, intent(in)  :: key_lon, key_lat, key_time
@@ -103,7 +103,7 @@ contains
   subroutine get_attribute_from_group(filename, group_name, var_name, attr_name, attr, rc)
     use netcdf
     use pfio_NetCDF_Supplement
-    implicit none
+    implicit none (type, external)
     character(len=*), intent(in) :: filename, group_name, var_name, attr_name
     character(len=*), intent(INOUT) :: attr
     integer, optional, intent(out) :: rc
@@ -153,7 +153,7 @@ contains
 
   subroutine get_v2d_netcdf_R4(filename, name, array, Xdim, Ydim, rc)
     use netcdf
-    implicit none
+    implicit none (type, external)
     character(len=*), intent(in) :: name, filename
     integer, intent(in) :: Xdim, Ydim
     real, dimension(Xdim,Ydim), intent(out) :: array
@@ -182,7 +182,7 @@ contains
 
   subroutine get_v2d_netcdf_R8(filename, name, array, Xdim, Ydim, rc)
     use netcdf
-    implicit none
+    implicit none (type, external)
     character(len=*), intent(in) :: name, filename
     integer, intent(in) :: Xdim, Ydim
     real(REAL64), dimension(Xdim,Ydim), intent(out) :: array
@@ -211,7 +211,7 @@ contains
 
   subroutine get_v1d_netcdf_R8(filename, name, array, Xdim, group_name, rc)
     use netcdf
-    implicit none
+    implicit none (type, external)
     character(len=*), intent(in) :: name, filename
     character(len=*), optional, intent(in) :: group_name
     integer, intent(in) :: Xdim
@@ -239,7 +239,7 @@ contains
 
   subroutine get_v1d_netcdf_R8_complete(filename, varname, array, att_name, att_value, group_name, rc)
     use netcdf
-    implicit none
+    implicit none (type, external)
     character(len=*), intent(in) :: filename
     character(len=*), intent(in) :: varname
     real(REAL64), intent(inout) :: array(:)
@@ -282,7 +282,7 @@ contains
 
   subroutine get_att_real_netcdf(filename, varname, att_name, att_value, group_name, rc)
     use netcdf
-    implicit none
+    implicit none (type, external)
     character(len=*), intent(in) :: filename
     character(len=*), intent(in) :: varname
     character(len=*), intent(in) :: att_name
@@ -310,7 +310,7 @@ contains
 
   subroutine get_att_char_netcdf(filename, varname, att_name, att_value, group_name, rc)
     use netcdf
-    implicit none
+    implicit none (type, external)
     character(len=*), intent(in) :: filename
     character(len=*), intent(in) :: varname
     character(len=*), intent(in) :: att_name
@@ -339,7 +339,7 @@ contains
 
   subroutine check_nc_status(status, rc)
     use netcdf
-    implicit none
+    implicit none (type, external)
     integer, intent(in) :: status
     integer, intent(out), optional :: rc
 
@@ -351,7 +351,7 @@ contains
 
   subroutine time_nc_int_2_esmf(time, tunit, n, rc)
     use ESMF
-    implicit none
+    implicit none (type, external)
 
     type(ESMF_TIME), intent(out) :: time
     integer, intent(in) :: n
@@ -378,7 +378,7 @@ contains
 
   subroutine time_esmf_2_nc_int(time, tunit, n, rc)
     use ESMF
-    implicit none
+    implicit none (type, external)
 
     type(ESMF_TIME), intent(in) :: time
     integer(ESMF_KIND_I8), intent(out) :: n
@@ -408,7 +408,7 @@ contains
   ! dt = n sec
   subroutine parse_timeunit_i4(tunit, n, t0, dt, rc)
     use ESMF
-    implicit none
+    implicit none (type, external)
 
     character(len=*), intent(in) :: tunit
     integer, intent(in) :: n
@@ -427,7 +427,7 @@ contains
 
   subroutine parse_timeunit_i8(tunit, n, t0, dt, rc)
     use ESMF
-    implicit none
+    implicit none (type, external)
 
     character(len=*), intent(in) :: tunit
     integer(ESMF_KIND_I8), intent(in) :: n
@@ -574,7 +574,7 @@ contains
 
 
   subroutine bisect_find_LB_R8_I8(xa, x, n, n_LB, n_UB, rc)
-    implicit none
+    implicit none (type, external)
     real(ESMF_KIND_R8), intent(in) :: xa(:)   ! 1D array
     real(ESMF_KIND_R8), intent(in) :: x       ! pt
     integer(ESMF_KIND_I8), intent(out) :: n   !  out: bisect index
@@ -666,7 +666,7 @@ module MAPL_scan_pattern_in_file
 
 contains
   subroutine scan_begin (iunps, substring, rew)
-    implicit none
+    implicit none (type, external)
     ! unit of input
     integer, intent(in) :: iunps
     ! Label to be matched
@@ -692,7 +692,7 @@ contains
   subroutine scan_contain (iunps, stop_string, rew)
     !---------------------------------------------------------------------
     !
-    implicit none
+    implicit none (type, external)
     integer, intent(in) :: iunps
     character (len=*), intent(in) :: stop_string
     logical, intent(in) :: rew            ! if rewind
@@ -714,7 +714,7 @@ contains
   subroutine scan_count_match_bgn (iunps, string, count, rew)
     !---------------------------------------------------------------------
     !
-    implicit none
+    implicit none (type, external)
     integer, intent(in) :: iunps
     character (len=*), intent(in) :: string
     integer, intent(out) :: count
@@ -739,7 +739,7 @@ contains
   subroutine go_last_patn (iunps, substring, outline, rew)
     !---------------------------------------------------------------------
     !
-    implicit none
+    implicit none (type, external)
     integer, intent(in) :: iunps
     logical, intent(in) :: rew
     character (len=*), intent(in) :: substring
@@ -779,7 +779,7 @@ contains
     ! only begin with
     ! string:  main-str
     ! substring:  sub-str
-    IMPLICIT NONE
+    implicit none (type, external)
     CHARACTER (LEN=*), INTENT(IN) :: string, substring
     LOGICAL                       :: matchbgn
     if (index(string, substring).eq.1) then
@@ -797,7 +797,7 @@ contains
     !
     ! ... .TRUE. if string is contained in substring, .FALSE. otherwise
     !
-    IMPLICIT NONE
+    implicit none (type, external)
     !
     CHARACTER (LEN=*), INTENT(IN) :: string, substring
     LOGICAL                       :: matches

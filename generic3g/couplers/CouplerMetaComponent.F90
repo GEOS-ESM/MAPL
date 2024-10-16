@@ -9,7 +9,7 @@ module mapl3g_CouplerMetaComponent
    use mapl_ErrorHandlingMod
    use mapl3g_ESMF_Interfaces
    use esmf
-   implicit none
+   implicit none (type, external)
    private
 
    ! Class

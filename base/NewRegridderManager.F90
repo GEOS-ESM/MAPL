@@ -12,7 +12,7 @@ module mapl_NewRegridderManager_private
    use mapl_HorizontalFluxRegridder
    use MAPL_EsmfRegridderMod
    use mapl_RegridMethods
-   implicit none
+   implicit none (type, external)
    private
 
    public :: NewRegridderManager
@@ -172,7 +172,7 @@ end module mapl_NewRegridderManager_private
 
 module mapl_NewRegridderManager
    use mapl_NewRegridderManager_private
-   implicit none
+   implicit none (type, external)
    private
 
    public :: new_regridder_manager

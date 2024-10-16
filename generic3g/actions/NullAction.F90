@@ -7,7 +7,7 @@
 module mapl3g_NullAction
    use mapl3g_ExtensionAction
    use mapl_ErrorHandling
-   implicit none
+   implicit none (type, external)
    private
 
    public :: NullAction

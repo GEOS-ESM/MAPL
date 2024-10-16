@@ -7,7 +7,7 @@ module mapl3g_MaplGeom
    use pfio_FileMetadataMod, only: FileMetadata
    use ESMF, only: ESMF_Geom
    use gftl2_StringVector
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MaplGeom

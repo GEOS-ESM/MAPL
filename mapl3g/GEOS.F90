@@ -4,7 +4,7 @@
 program geos
    use mapl3
    use esmf
-   implicit none
+   implicit none (type, external)
 
    integer :: status
    type(ESMF_HConfig) :: hconfig

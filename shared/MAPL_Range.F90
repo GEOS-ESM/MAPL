@@ -5,7 +5,7 @@ module MAPL_RangeMod
   use, intrinsic :: iso_fortran_env, only: REAL32
   use, intrinsic :: iso_fortran_env, only: REAL64
   use MAPL_ExceptionHandling
-  implicit none
+  implicit none (type, external)
   private
 
   public :: MAPL_Range

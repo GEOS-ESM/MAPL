@@ -3,7 +3,7 @@ module MAPL_SimpleColumn
    use GFTL_UnlimitedVector
    use MAPL_AbstractMeterNode
    use MAPL_DistributedMeter
-   implicit none
+   implicit none (type, external)
    private
 
    public :: SimpleColumn

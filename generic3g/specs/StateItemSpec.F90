@@ -5,7 +5,7 @@ module mapl3g_StateItemSpec
    use mapl3g_ActualPtVector
    use mapl3g_ExtensionAction
    use gftl2_stringvector
-   implicit none
+   implicit none (type, external)
    private
 
    public :: StateItemSpec

@@ -32,7 +32,7 @@ module mapl_FieldUnits
    use MaplShared
    use ESMF
 
-   implicit none
+   implicit none (type, external)
 
    public :: FieldUnitsConverter
    public :: GetFieldUnitsConverter

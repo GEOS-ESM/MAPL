@@ -9,7 +9,7 @@ module mapl3g_VerticalRegridActionNew
    use esmf
    use, intrinsic :: iso_fortran_env, only: REAL32
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: VerticalRegridAction

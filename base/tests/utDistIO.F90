@@ -13,7 +13,7 @@
 
    use m_zeit
 
-   implicit NONE
+   implicit none (type, external)
 
    type(ESMF_Grid)     :: grid
    type (ESMF_VM)      :: VM

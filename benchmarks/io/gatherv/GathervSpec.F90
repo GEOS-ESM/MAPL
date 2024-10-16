@@ -5,7 +5,7 @@ module mapl_GathervSpec
    use fArgParse
    use mpi
    use, intrinsic :: iso_fortran_env, only: INT64
-   implicit none
+   implicit none (type, external)
    private
 
    public :: GathervSpec

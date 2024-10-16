@@ -3,7 +3,7 @@
 submodule (mapl3g_OuterMetaComponent) initialize_user_smod
    use mapl3g_ComponentDriverPtrVector
    use mapl3g_CouplerMetaComponent, only: GENERIC_COUPLER_INITIALIZE
-   implicit none
+   implicit none (type, external)
 
 contains
 

@@ -15,7 +15,7 @@ module MAPL_ExtdataAbstractFileHandler
    use MAPL_FileMetadataUtilsMod
    use MAPL_TimeStringConversion
    use MAPL_StringTemplate
-   implicit none
+   implicit none (type, external)
    private
    public :: ExtDataAbstractFileHandler
 

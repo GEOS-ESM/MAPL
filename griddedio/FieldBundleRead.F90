@@ -22,7 +22,7 @@ module MAPL_ESMFFieldBundleRead
    use MAPL_StringTemplate
    use gFTL2_StringVector
    use MAPL_RegridMethods
-   implicit none
+   implicit none (type, external)
    private
 
    public MAPL_create_bundle_from_metdata_id

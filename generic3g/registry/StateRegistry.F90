@@ -21,7 +21,7 @@ module mapl3g_StateRegistry
    use mapl3g_VerticalGrid
    use mapl_ErrorHandling
    use esmf, only: ESMF_Geom
-   implicit none
+   implicit none (type, external)
    private
 
    public :: StateRegistry

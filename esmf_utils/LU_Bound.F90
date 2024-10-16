@@ -1,5 +1,5 @@
 module mapl3g_LU_Bound
-   implicit none
+   implicit none (type, external)
    private
 
    public :: LU_Bound

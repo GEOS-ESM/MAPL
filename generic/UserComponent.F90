@@ -6,7 +6,7 @@ module UserComponent_mod
    use mapl_keywordenforcermod
    use mapl_MaplComponent
    use mapl_ErrorHandlingMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: UserComponent

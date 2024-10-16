@@ -9,7 +9,7 @@ module pFIO_ReplaceMetadataMessageMod
    use pFIO_StringVariableMapMod
    use pFIO_StringVariableMapUtilMod
    use mapl_KeywordEnforcerMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ReplaceMetadataMessage

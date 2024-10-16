@@ -10,7 +10,7 @@ module mapl3g_CapGridComp
    use :: esmf, only: ESMF_METHOD_INITIALIZE
    use :: esmf, only: ESMF_METHOD_RUN
    use :: esmf, only: ESMF_SUCCESS
-   implicit none
+   implicit none (type, external)
 
    private
 

@@ -12,7 +12,7 @@ module mapl3g_FieldDimensionInfo
    use esmf, only: ESMF_InfoPrint
    use Mapl_ErrorHandling
 
-   implicit none
+   implicit none (type, external)
 
    private
 

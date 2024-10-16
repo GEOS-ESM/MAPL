@@ -3,7 +3,7 @@
 module mapl_GathervKernel
    use mapl_ErrorHandlingMod
    use mpi
-   implicit none
+   implicit none (type, external)
    private
 
    public :: GathervKernel
