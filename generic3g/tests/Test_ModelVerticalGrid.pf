@@ -187,11 +187,12 @@ contains
       @assert_that(a, every_item(is(equal_to(3.))))
    end subroutine test_get_coordinate_field_simple
 
-   @test
+   @test(type=ESMF_TestMethod, npes=[1])
    ! Request the specific coordinate corresponding particular geom/unit.
    ! Here we request different units which should return a coordinate
    ! scaled by 100 (hPa = 100 Pa)
-   subroutine test_get_coordinate_field_change_units_edge()
+   subroutine test_get_coordinate_field_change_units_edge(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(ModelVerticalGrid) :: vgrid
       type(ESMF_Field) :: vcoord
       type(ESMF_Geom) :: geom
@@ -226,11 +227,12 @@ contains
       @assert_that(a, every_item(is(equal_to(300.))))
    end subroutine test_get_coordinate_field_change_units_edge
 
-   @test
+   @test(type=ESMF_TestMethod, npes=[1])
    ! Request the specific coordinate corresponding particular geom/unit.
    ! Here we request different units which should return a coordinate
    ! scaled by 100 (hPa = 100 Pa)
-   subroutine test_get_coordinate_field_change_units_center()
+   subroutine test_get_coordinate_field_change_units_center(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(ModelVerticalGrid) :: vgrid
       type(ESMF_Field) :: vcoord
       type(ESMF_Geom) :: geom

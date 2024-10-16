@@ -29,7 +29,6 @@ module mapl3g_FieldSpec
    use mapl3g_VerticalGrid
    use mapl3g_VerticalRegridAction
    use mapl3g_VerticalDimSpec
-   use mapl3g_ConvertVerticalDimSpecAction
    use mapl3g_AbstractActionSpec
    use mapl3g_NullAction
    use mapl3g_CopyAction
