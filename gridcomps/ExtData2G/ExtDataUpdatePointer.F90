@@ -102,14 +102,18 @@ contains
 
    end subroutine create_from_parameters
 
-   subroutine parse_heartbeat_timestring(timestring, is_heartbeat, multiplier)
+   subroutine parse_heartbeat_timestring(timestring, is_heartbeat, multiplier, rc)
       character(len=*), intent(in) :: timestring
       logical, intent(out) :: is_heartbeat
       integer, intent(out) :: multiplier
       character(len=:), allocatable :: found_string
+      character(len=:), allocatable :: upper
+      integer, optional, intent(out) :: rc
+      integer :: status
 
       multiplier = 1
-      call split_on(to_upper(timestring), HEARTBEAT_STRING, found_string=found_string)
+      upper = ESMF_UtilStringUpperCase(timestring, _RC)
+      call split_on(upper, HEARTBEAT_STRING, found_string=found_string)
       is_heartbeat = len(found_string) > 0
       ! For now, multiplier is simply set to 1. In the future, as needed, the before_string
       ! and after_string arguments of split_on can be used to parse for a multiplier.
@@ -122,7 +126,7 @@ contains
       character(len=:), optional, allocatable, intent(out) :: before_string, after_string
       integer :: i
 
-      i = index(to_upper(string), substring)
+      i = index(string, substring)
       found_string = ''
       if(i > 0) found_string = string(i:i+len(substring)-1)
       if(present(before_string)) then

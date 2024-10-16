@@ -1,4 +1,4 @@
-set(MODULE_DIRECTORY "${esma_include}/gridcomps/ExtData2G/ExtData2G/tests")
+set(MODULE_DIRECTORY "${esma_include}/gridcomps/ExtData2G/tests")
 
 set (test_srcs
   Test_ExtDataUpdatePointer.pf
@@ -14,7 +14,7 @@ set_tests_properties(MAPL.ExtData2G.tests PROPERTIES LABELS "ESSENTIAL")
 # With this test, it was shown that if you are building with the GNU Fortran
 # compiler and *not* on APPLE, then you need to link with the dl library.
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND NOT APPLE)
-  target_link_libraries(ExtData2G.tests ${CMAKE_DL_LIBS})
+  target_link_libraries(MAPL.ExtData2G.tests ${CMAKE_DL_LIBS})
 endif ()
 
 add_dependencies(build-tests MAPL.ExtData2G.tests)
