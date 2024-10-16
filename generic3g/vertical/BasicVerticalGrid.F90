@@ -5,7 +5,6 @@ module mapl3g_BasicVerticalGrid
    use mapl_ErrorHandling
    use mapl3g_VerticalGrid
    use mapl3g_GriddedComponentDriver
-   use mapl3g_VerticalDimSpec
    use esmf, only: ESMF_TypeKind_Flag
    use esmf, only: ESMF_Field
    use esmf, only: ESMF_Geom
@@ -60,7 +59,7 @@ contains
       num_levels = this%num_levels
    end function
       
-   subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, vertical_dim_spec, rc)
+   subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, rc)
       class(BasicVerticalGrid), intent(in) :: this
       type(ESMF_Field), intent(out) :: field
       type(GriddedComponentDriver), pointer, intent(out) :: coupler
@@ -68,7 +67,6 @@ contains
       type(ESMF_Geom), intent(in) :: geom
       type(ESMF_TypeKind_Flag), intent(in) :: typekind
       character(*), intent(in) :: units
-      type(VerticalDimSpec), intent(in) :: vertical_dim_spec
       integer, optional, intent(out) :: rc
 
       _FAIL('BasicVerticalGrid should have been connected to a different subclass before this is called.')
@@ -78,7 +76,6 @@ contains
       _UNUSED_DUMMY(geom)
       _UNUSED_DUMMY(typekind)
       _UNUSED_DUMMY(units)
-      _UNUSED_DUMMY(vertical_dim_spec)
    end subroutine get_coordinate_field
 
    elemental logical function equal_to(a, b)

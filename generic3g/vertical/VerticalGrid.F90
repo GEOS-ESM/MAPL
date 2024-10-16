@@ -29,9 +29,8 @@ module mapl3g_VerticalGrid
          class(VerticalGrid), intent(in) :: this
       end function I_get_num_levels
 
-      subroutine I_get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, vertical_dim_spec, rc)
+      subroutine I_get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, rc)
          use mapl3g_GriddedComponentDriver
-         use mapl3g_VerticalDimSpec
          use esmf, only: ESMF_Geom, ESMF_TypeKind_Flag, ESMF_Field
          import VerticalGrid
 
@@ -42,7 +41,6 @@ module mapl3g_VerticalGrid
          type(ESMF_Geom), intent(in) :: geom
          type(ESMF_TypeKind_Flag), intent(in) :: typekind
          character(*), intent(in) :: units
-         type(VerticalDimSpec), intent(in) :: vertical_dim_spec
          integer, optional, intent(out) :: rc
       end subroutine I_get_coordinate_field
 

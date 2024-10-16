@@ -144,22 +144,9 @@ module mapl3g_FieldSpec
       procedure :: new_GeomAdapter
    end interface GeomAdapter
 
-   type, extends(StateItemAdapter) :: VerticalDimSpecAdapter
-      private
-      type(VerticalDimSpec), allocatable :: vertical_dim_spec
-   contains
-      procedure :: adapt_one => adapt_vertical_dim_spec
-      procedure :: match_one => adapter_match_vertical_dim_spec
-   end type VerticalDimSpecAdapter
-
-   interface VerticalDimSpecAdapter
-      procedure :: new_VerticalDimSpecAdapter
-   end interface VerticalDimSpecAdapter
-
    type, extends(StateItemAdapter) :: VerticalGridAdapter
       private
       class(VerticalGrid), allocatable :: vertical_grid
-      type(VerticalDimSpec), allocatable :: vertical_dim_spec
       type(ESMF_Geom), allocatable :: geom
       type(ESMF_TypeKind_Flag) :: typekind
       character(:), allocatable :: units
@@ -857,17 +844,15 @@ contains
       end select
    end function adapter_match_geom
 
-   function new_VerticalGridAdapter(vertical_grid, vertical_dim_spec, geom, typekind, units, regrid_method) result(adapter)
+   function new_VerticalGridAdapter(vertical_grid, geom, typekind, units, regrid_method) result(adapter)
       type(VerticalGridAdapter) :: adapter
       class(VerticalGrid), optional, intent(in) :: vertical_grid
-      type(VerticalDimSpec), optional, intent(in) :: vertical_dim_spec
       type(ESMF_Geom), optional, intent(in) :: geom
       type(ESMF_Typekind_Flag), intent(in) :: typekind
       character(*), optional, intent(in) :: units
       type(VerticalRegridMethod), optional, intent(in) :: regrid_method
 
       if (present(vertical_grid)) adapter%vertical_grid = vertical_grid
-      if (present(vertical_dim_spec)) adapter%vertical_dim_spec = vertical_dim_spec
       if (present(geom)) adapter%geom = geom
       adapter%typekind = typekind
       if (present(units)) adapter%units = units
@@ -888,9 +873,9 @@ contains
       select type (spec)
       type is (FieldSpec)
          call spec%vertical_grid%get_coordinate_field(v_in_coord, v_in_coupler, &
-              'ignore', spec%geom, spec%typekind, spec%units, spec%vertical_dim_spec, _RC)
+              'ignore', spec%geom, spec%typekind, spec%units, _RC)
          call this%vertical_grid%get_coordinate_field(v_out_coord, v_out_coupler, &
-              'ignore', this%geom, this%typekind, this%units, this%vertical_dim_spec, _RC)
+              'ignore', this%geom, this%typekind, this%units, _RC)
          action = VerticalRegridAction(v_in_coord, v_out_coupler, v_out_coord, v_out_coupler, this%regrid_method)
          spec%vertical_grid = this%vertical_grid
       end select
@@ -936,39 +921,6 @@ contains
       end function same_vertical_grid
 
    end function adapter_match_vertical_grid
-
-   function new_VerticalDimSpecAdapter(vertical_dim_spec) result(vertical_dim_spec_adapter)
-      type(VerticalDimSpecAdapter) :: vertical_dim_spec_adapter
-      type(VerticalDimSpec), intent(in) :: vertical_dim_spec
-
-      vertical_dim_spec_adapter%vertical_dim_spec = vertical_dim_spec
-   end function new_VerticalDimSpecAdapter
-
-   subroutine adapt_vertical_dim_spec(this, spec, action, rc)
-      class(VerticalDimSpecAdapter), intent(in) :: this
-      class(StateItemSpec), intent(inout) :: spec
-      class(ExtensionAction), allocatable, intent(out) :: action
-      integer, optional, intent(out) :: rc
-
-      select type (spec)
-      type is (FieldSpec)
-         action = ConvertVerticalDimSpecAction(spec%vertical_dim_spec, this%vertical_dim_spec)
-         spec%vertical_dim_spec = this%vertical_dim_spec
-      end select
-
-      _RETURN(_SUCCESS)
-   end subroutine adapt_vertical_dim_spec
-
-   logical function adapter_match_vertical_dim_spec(this, spec) result(match)
-      class(VerticalDimSpecAdapter), intent(in) :: this
-      class(StateItemSpec), intent(in) :: spec
-
-      match = .false.
-      select type (spec)
-      type is (FieldSpec)
-         match = match_vertical_dim_spec(spec%vertical_dim_spec, this%vertical_dim_spec)
-      end select
-   end function adapter_match_vertical_dim_spec
 
    function new_TypekindAdapter(typekind) result(typekind_adapter)
       type(TypekindAdapter) :: typekind_adapter
@@ -1049,19 +1001,17 @@ contains
 
       select type (goal_spec)
       type is (FieldSpec)
-         allocate(adapters(5))
+         allocate(adapters(4))
          allocate(adapters(1)%adapter, source=GeomAdapter(goal_spec%geom, goal_spec%regrid_param))
-         allocate(adapters(2)%adapter, source=VerticalDimSpecAdapter(goal_spec%vertical_dim_spec))
          vertical_grid_adapter = VerticalGridAdapter( &
               goal_spec%vertical_grid, &
-              goal_spec%vertical_dim_spec, &
               goal_spec%geom, &
               goal_spec%typekind, &
               goal_spec%units, &
               VERTICAL_REGRID_LINEAR)
-         allocate(adapters(3)%adapter, source=vertical_grid_adapter)
-         allocate(adapters(4)%adapter, source=TypeKindAdapter(goal_spec%typekind))
-         allocate(adapters(5)%adapter, source=UnitsAdapter(goal_spec%units))
+         allocate(adapters(2)%adapter, source=vertical_grid_adapter)
+         allocate(adapters(3)%adapter, source=TypeKindAdapter(goal_spec%typekind))
+         allocate(adapters(4)%adapter, source=UnitsAdapter(goal_spec%units))
       type is (WildCardSpec)
          adapters = goal_spec%make_adapters(goal_spec, _RC)
       class default

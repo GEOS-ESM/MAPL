@@ -2,6 +2,7 @@
 
 module mapl3g_ModelVerticalGrid
 
+   use mapl_ErrorHandling
    use mapl3g_VerticalGrid
    use mapl3g_StateRegistry
    use mapl3g_MultiState
@@ -13,10 +14,9 @@ module mapl3g_ModelVerticalGrid
    use mapl3g_StateItemExtension
    use mapl3g_ExtensionFamily
    use mapl3g_ExtensionAction
-   use mapl3g_VerticalDimSpec
    use mapl3g_StateItemExtensionPtrVector
-   use mapl_ErrorHandling
    use mapl3g_GriddedComponentDriver
+   use mapl3g_VerticalDimSpec
    use gftl2_StringVector
    use esmf
 
@@ -109,7 +109,7 @@ contains
        registry => this%registry
     end function get_registry
 
-    subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, vertical_dim_spec, rc)
+    subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, rc)
        class(ModelVerticalGrid), intent(in) :: this
        type(ESMF_Field), intent(out) :: field
        type(GriddedComponentDriver), pointer, intent(out) :: coupler
@@ -117,17 +117,28 @@ contains
        type(ESMF_Geom), intent(in) :: geom
        type(ESMF_TypeKind_Flag), intent(in) :: typekind
        character(*), intent(in) :: units
-       type(VerticalDimSpec), intent(in) :: vertical_dim_spec
        integer, optional, intent(out) :: rc
 
        integer :: status
+       character(len=ESMF_MAXSTR) :: short_name
        type(VirtualConnectionPt) :: v_pt
        type(StateItemExtension), pointer :: new_extension
        class(StateItemSpec), pointer :: new_spec
        type(FieldSpec) :: goal_spec
+       type(VerticalDimSpec) :: vertical_dim_spec
        integer :: i
 
-       v_pt = VirtualConnectionPt(state_intent='export', short_name=this%variants%of(1))
+       short_name = this%variants%of(1)
+       v_pt = VirtualConnectionPt(state_intent='export', short_name=short_name)
+       select case (short_name)
+       case ("PLE")
+          vertical_dim_spec = VERTICAL_DIM_EDGE
+       case ("PL")
+          vertical_dim_spec = VERTICAL_DIM_CENTER
+       case default
+          _FAIL("short name should be one of PL/PLE, not" // trim(short_name))
+       end select
+
        goal_spec = FieldSpec( &
             geom=geom, vertical_grid=this, vertical_dim_spec=vertical_dim_spec, &
             typekind=typekind, standard_name=standard_name, units=units, ungridded_dims=UngriddedDims())

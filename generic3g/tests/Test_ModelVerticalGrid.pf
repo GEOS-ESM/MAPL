@@ -1,4 +1,5 @@
 #include "MAPL_TestErr.h"
+#include "MAPL_Generic.h"
 
 ! We use ESMF_TestMethod rather than basic TestMethod just in case
 ! there are any implied barriers is the ESMF construction in these
@@ -7,6 +8,7 @@
 
 module Test_ModelVerticalGrid
 
+   use mapl_ErrorHandling
    use mapl3g_VerticalDimSpec
    use mapl3g_ModelVerticalGrid
    use mapl3g_StateRegistry
@@ -37,43 +39,54 @@ module Test_ModelVerticalGrid
 
 contains
 
-   subroutine setup(vgrid, rc)
+   subroutine setup(var_name, vgrid, rc)
+      character(*), intent(in) :: var_name
       type(ModelVerticalGrid), intent(out) :: vgrid
       integer, intent(out) :: rc
 
+      type(VerticalDimSpec) :: vertical_dim_spec
       type(ESMF_Geom) :: geom
-      type(VirtualConnectionPt) :: ple_pt, pl_pt
+      type(VirtualConnectionPt) :: v_pt
       type(VariableSpec) :: var_spec
-      class(StateItemSpec), allocatable :: ple_spec, pl_spec
+      class(StateItemSpec), allocatable :: fld_spec
       type(StateItemExtension), pointer :: extension
       class(StateItemSpec), pointer :: spec
       integer :: status
+
+      select case (var_name)
+      case ("PLE")
+         vertical_dim_spec = VERTICAL_DIM_EDGE
+      case ("PL")
+         vertical_dim_spec = VERTICAL_DIM_CENTER
+      case default
+         _FAIL("var_name should be one of PLE/PL, not" // trim(var_name))
+      end select
 
       rc = 0
       ! Inside user "set_geom" phase.
       geom = make_geom(_RC)
       vgrid = ModelVerticalGrid(num_levels=LM)
-      call vgrid%add_variant(short_name='PLE')
+      call vgrid%add_variant(short_name=var_name)
 
       ! inside OuterMeta
       r = StateRegistry('dyn')
       call vgrid%set_registry(r) ! MAPL_SetVerticalGrid(...)
 
-      ple_pt = VirtualConnectionPt(state_intent='export', short_name='PLE')
+      v_pt = VirtualConnectionPt(state_intent='export', short_name=var_name)
       var_spec = VariableSpec(&
-           short_name='PLE', &
+           short_name=var_name, &
            state_intent=ESMF_STATEINTENT_EXPORT, &
            standard_name='air_pressure', &
            units='hPa', &
-           vertical_dim_spec=VERTICAL_DIM_EDGE, &
+           vertical_dim_spec=vertical_dim_spec, &
            default_value=3.)
-      allocate(ple_spec, source=make_itemSpec(var_spec, r, rc=status))
+      allocate(fld_spec, source=make_itemSpec(var_spec, r, rc=status))
       _VERIFY(status)
-      call ple_spec%set_geometry(geom=geom, vertical_grid=vgrid, _RC)
+      call fld_spec%set_geometry(geom=geom, vertical_grid=vgrid, _RC)
 
-      call r%add_primary_spec(ple_pt, ple_spec)
+      call r%add_primary_spec(v_pt, fld_spec)
 
-      extension => r%get_primary_extension(ple_pt, _RC)
+      extension => r%get_primary_extension(v_pt, _RC)
       spec => extension%get_spec()
       call spec%set_active()
       call spec%create(_RC)
@@ -132,9 +145,9 @@ contains
       type(MultiState) :: multi_state
       type(StateItemExtension), pointer :: extension
       type(ESMF_Field) :: ple
-      integer :: status
+      integer :: rc, status
 
-      call setup(vgrid, _RC)
+      call setup("PLE", vgrid, _RC)
 
       ple_pt = VirtualConnectionPt(state_intent='export', short_name='PLE')
       extension => r%get_primary_extension(ple_pt, _RC)
@@ -159,16 +172,15 @@ contains
       type(GriddedComponentDriver), pointer :: coupler
       type(ESMF_Field) :: vcoord
       type(ESMF_Geom) :: geom
-      integer :: status
+      integer :: rc, status
       real(ESMF_KIND_R4), pointer :: a(:,:,:)
 
-      call setup(vgrid, _RC)
+      call setup("PLE", vgrid, _RC)
       geom = make_geom(_RC)
 
       call vgrid%get_coordinate_field( &
            vcoord, coupler, &
-           standard_name='air_pressure', geom=geom, typekind=ESMF_TYPEKIND_R4, &
-           units='hPa', vertical_dim_spec=VERTICAL_DIM_EDGE, _RC)
+           standard_name='air_pressure', geom=geom, typekind=ESMF_TYPEKIND_R4, units='hPa', _RC)
       @assert_that(associated(coupler), is(false()))
 
       call ESMF_FieldGet(vcoord, fArrayPtr=a, _RC)
@@ -179,7 +191,7 @@ contains
    ! Request the specific coordinate corresponding particular geom/unit.
    ! Here we request different units which should return a coordinate
    ! scaled by 100 (hPa = 100 Pa)
-   subroutine test_get_coordinate_field_change_units()
+   subroutine test_get_coordinate_field_change_units_edge()
       type(ModelVerticalGrid) :: vgrid
       type(ESMF_Field) :: vcoord
       type(ESMF_Geom) :: geom
@@ -188,14 +200,15 @@ contains
       type(ComponentDriverPtrVector) :: couplers
       type(ComponentDriverPtr) :: driver
       type(GriddedComponentDriver), pointer :: coupler
-      integer :: i
+      integer :: i, rc
 
-      call setup(vgrid, _RC)
+      call setup("PLE", vgrid, _RC)
+      ! call setup("PL", vgrid, _RC)
       geom = make_geom(_RC)
+
       call vgrid%get_coordinate_field( &
            vcoord, coupler, &
-           standard_name='air_pressure', geom=geom, typekind=ESMF_TYPEKIND_R4, &
-           units='Pa', vertical_dim_spec=VERTICAL_DIM_EDGE, _RC)
+           standard_name='air_pressure', geom=geom, typekind=ESMF_TYPEKIND_R4, units='Pa', _RC)
       @assert_that(associated(coupler), is(true()))
 
       call r%allocate(_RC)
@@ -209,16 +222,15 @@ contains
          call driver%ptr%initialize(_RC)
          call driver%ptr%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
       end do
+      @assert_that(shape(a), is(equal_to([IM, JM, LM+1])))
       @assert_that(a, every_item(is(equal_to(300.))))
-   end subroutine test_get_coordinate_field_change_units
+   end subroutine test_get_coordinate_field_change_units_edge
 
-   @test(type=ESMF_TestMethod, npes=[1])
+   @test
    ! Request the specific coordinate corresponding particular geom/unit.
-   ! Here we request different vertical_dim_spec which should return
-   ! the coordinates of PL
-   subroutine test_get_coordinate_field_change_vertical_dim_spec(this)
-      class(ESMF_TestMethod), intent(inout) :: this
-
+   ! Here we request different units which should return a coordinate
+   ! scaled by 100 (hPa = 100 Pa)
+   subroutine test_get_coordinate_field_change_units_center()
       type(ModelVerticalGrid) :: vgrid
       type(ESMF_Field) :: vcoord
       type(ESMF_Geom) :: geom
@@ -227,17 +239,17 @@ contains
       type(ComponentDriverPtrVector) :: couplers
       type(ComponentDriverPtr) :: driver
       type(GriddedComponentDriver), pointer :: coupler
-      integer :: i
+      integer :: i, rc
 
-      call setup(vgrid, _RC)
+      call setup("PL", vgrid, _RC)
       geom = make_geom(_RC)
+
       call vgrid%get_coordinate_field( &
            vcoord, coupler, &
-           standard_name='air_pressure', geom=geom, typekind=ESMF_TYPEKIND_R4, &
-           units='hPa', vertical_dim_spec=VERTICAL_DIM_CENTER, _RC)
+           standard_name='air_pressure', geom=geom, typekind=ESMF_TYPEKIND_R4, units='Pa', _RC)
       @assert_that(associated(coupler), is(true()))
 
-      call r%allocate(_RC) ! Why are we doing this?
+      call r%allocate(_RC)
 
       call ESMF_FieldGet(vcoord, fArrayPtr=a, _RC)
       ! usually update is called on imports, but here we don't have an import handy,
@@ -248,9 +260,40 @@ contains
          call driver%ptr%initialize(_RC)
          call driver%ptr%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
       end do
-      call ESMF_FieldGet(vcoord, fArrayPtr=a, _RC)
       @assert_that(shape(a), is(equal_to([IM, JM, LM])))
-      @assert_that(a, every_item(is(equal_to(3.))))
-   end subroutine test_get_coordinate_field_change_vertical_dim_spec
+      @assert_that(a, every_item(is(equal_to(300.))))
+   end subroutine test_get_coordinate_field_change_units_center
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Request the specific coordinate corresponding particular geom/unit.
+   ! Here we request different vertical_dim_spec which should return
+   ! the coordinates of PL
+   subroutine test_get_coordinate_field_vertical_dim_spec(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ModelVerticalGrid) :: vgrid
+      type(ESMF_Field) :: vcoord
+      type(ESMF_Geom) :: geom
+      integer :: status
+      real(ESMF_KIND_R4), pointer :: a(:,:,:)
+      type(ComponentDriverPtrVector) :: couplers
+      type(ComponentDriverPtr) :: driver
+      type(GriddedComponentDriver), pointer :: coupler
+      integer :: i, rc
+
+      call setup("PLE", vgrid, _RC)
+      call setup("PL", vgrid, _RC)
+      geom = make_geom(_RC)
+
+      call vgrid%get_coordinate_field( &
+           vcoord, coupler, &
+           standard_name='air_pressure', geom=geom, typekind=ESMF_TYPEKIND_R4, units='hPa', _RC)
+      @assert_that(associated(coupler), is(false()))
+
+      call vgrid%get_coordinate_field( &
+           vcoord, coupler, &
+           standard_name='air_pressure', geom=geom, typekind=ESMF_TYPEKIND_R4, units='hPa', _RC)
+      @assert_that(associated(coupler), is(false()))
+   end subroutine test_get_coordinate_field_vertical_dim_spec
 
 end module Test_ModelVerticalGrid
