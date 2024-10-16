@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Added commandline options to `checkpoint_benchmark.x` and `restart_benchmark.x` to allow for easier testing of different configurations. Note that the old configuration file style of input is allowed via the `--config_file` option (which overrides any other command line options)
+
 ### Fixed
 
 ### Removed
