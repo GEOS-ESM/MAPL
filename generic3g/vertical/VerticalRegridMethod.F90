@@ -5,16 +5,16 @@ module mapl3g_VerticalRegridMethod
    implicit none
    private
    
-   public :: VerticalRegridMethod_Flag
+   public :: VerticalRegridMethod
    public :: VERTICAL_REGRID_UNKNOWN
    public :: VERTICAL_REGRID_LINEAR
    public :: VERTICAL_REGRID_CONSERVATIVE
    public :: operator(==), operator(/=)
 
-   type :: VerticalRegridMethod_Flag
+   type :: VerticalRegridMethod
       private
       integer :: id = -1
-   end type VerticalRegridMethod_Flag
+   end type VerticalRegridMethod
 
    interface operator(==)
       procedure :: equal_to
@@ -24,19 +24,19 @@ module mapl3g_VerticalRegridMethod
       procedure :: not_equal_to
    end interface operator(/=)
 
-   type(VerticalRegridMethod_Flag), parameter :: VERTICAL_REGRID_UNKNOWN = VerticalRegridMethod_Flag(-1)
-   type(VerticalRegridMethod_Flag), parameter :: VERTICAL_REGRID_LINEAR = VerticalRegridMethod_Flag(1)
-   type(VerticalRegridMethod_Flag), parameter :: VERTICAL_REGRID_CONSERVATIVE = VerticalRegridMethod_Flag(2)
+   type(VerticalRegridMethod), parameter :: VERTICAL_REGRID_UNKNOWN = VerticalRegridMethod(-1)
+   type(VerticalRegridMethod), parameter :: VERTICAL_REGRID_LINEAR = VerticalRegridMethod(1)
+   type(VerticalRegridMethod), parameter :: VERTICAL_REGRID_CONSERVATIVE = VerticalRegridMethod(2)
 
 contains
 
    elemental logical function equal_to(a, b)
-      type(VerticalRegridMethod_Flag), intent(in) :: a, b
+      type(VerticalRegridMethod), intent(in) :: a, b
       equal_to = (a%id == b%id)
    end function equal_to
 
    elemental logical function not_equal_to(a, b)
-      type(VerticalRegridMethod_Flag), intent(in) :: a, b
+      type(VerticalRegridMethod), intent(in) :: a, b
       not_equal_to = .not. (a==b)
    end function not_equal_to
 

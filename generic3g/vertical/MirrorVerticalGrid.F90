@@ -6,14 +6,17 @@
 ! by whatever source grid is connected to it.
 
 module mapl3g_MirrorVerticalGrid
+
+   use mapl_ErrorHandling
    use mapl3g_VerticalGrid
    use mapl3g_GriddedComponentDriver
-   use mapl_ErrorHandling
    use esmf, only: ESMF_TypeKind_Flag
    use esmf, only: ESMF_Field
    use esmf, only: ESMF_Geom
+
    implicit none
    private
+
    public :: MirrorVerticalGrid
 
    type, extends(VerticalGrid) :: MirrorVerticalGrid
@@ -53,14 +56,14 @@ contains
 
       _FAIL('MirrorVerticalGrid should have been replaced before this procedure was called.')
  
-        _UNUSED_DUMMY(this)
-       _UNUSED_DUMMY(field)
-       _UNUSED_DUMMY(coupler)
-       _UNUSED_DUMMY(standard_name)
-       _UNUSED_DUMMY(geom)
-       _UNUSED_DUMMY(typekind)
-       _UNUSED_DUMMY(units)
- end subroutine get_coordinate_field
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(field)
+      _UNUSED_DUMMY(coupler)
+      _UNUSED_DUMMY(standard_name)
+      _UNUSED_DUMMY(geom)
+      _UNUSED_DUMMY(typekind)
+      _UNUSED_DUMMY(units)
+   end subroutine get_coordinate_field
 
    logical function can_connect_to(this, src, rc)
       class(MirrorVerticalGrid), intent(in) :: this
@@ -69,9 +72,9 @@ contains
 
       can_connect_to = .false.
       _RETURN(_SUCCESS)
-
-       _UNUSED_DUMMY(this)
-       _UNUSED_DUMMY(src)
-   end function
+      
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(src)
+   end function can_connect_to
 
 end module mapl3g_MirrorVerticalGrid
