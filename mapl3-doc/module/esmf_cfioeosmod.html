@@ -188,12 +188,12 @@
         <ul class="list-group list-group-flush">
             <li class="list-group-item">
               <ul class="list-inline">
-                  <li class="list-inline-item"><a href='esmf_cfioutilmod.html'>ESMF_CFIOUtilMod</a></li>
                   <li class="list-inline-item">ESMF_CFIOwGrADSMod</li>
-                  <li class="list-inline-item">ESMF_CFIOrGrADSMod</li>
                   <li class="list-inline-item"><a href='esmf_cfiovarinfomod.html'>ESMF_CFIOVarInfoMod</a></li>
+                  <li class="list-inline-item"><a href='esmf_cfioutilmod.html'>ESMF_CFIOUtilMod</a></li>
                   <li class="list-inline-item"><a href='esmf_cfiofilemod.html'>ESMF_CFIOFileMod</a></li>
                   <li class="list-inline-item"><a href='esmf_cfiogridmod.html'>ESMF_CFIOGridMod</a></li>
+                  <li class="list-inline-item">ESMF_CFIOrGrADSMod</li>
               </ul>
             </li>
             <li class="list-group-item">
@@ -498,7 +498,218 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-cfio~36"></span>
+              <span class="anchor" id="variable-cfio~25"></span>
+              type(<a href='../type/esmf_cfio.html'>ESMF_CFIO</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>cfio</strong></td>
+            <td>
+                <p>a CFIO obj</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vname~15"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vName</strong></td>
+            <td>
+                <p>Variable name</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-field~66"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>field</strong>(:,:,:)</td>
+            <td>
+                <p>array contains data</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-date~20"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>date</strong></td>
+            <td>
+                <p>yyyymmdd</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-curtime~16"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>curTime</strong></td>
+            <td>
+                <p>hhmmss</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-kbeg~5"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>kbeg</strong></td>
+            <td>
+                <p>first level to write</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-kount~5"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>kount</strong></td>
+            <td>
+                <p>number of levels to write</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-timestring~9"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>timeString</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-docomp"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>doComp</strong></td>
+            <td>
+                <p>do szip compression</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dochunk"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>doChunk</strong></td>
+            <td>
+                <p>do szip compression
+string expression for date and time</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~896"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                <p>Error return code:
+0   all is well
+ rc = -2  time is inconsistent with increment
+ rc = -3  number of levels is incompatible with file
+ rc = -4  im is incompatible with file
+ rc = -5  jm is incompatible with file
+ rc = -6  time must fall on a minute boundary
+ rc = -7  error in diffdate
+ rc = -12  error determining default precision
+ rc = -13  error determining variable type
+ rc = -15  data outside of valid range
+ rc = -16  data outside of packing range
+ rc = -17  data outside of pack and valid range
+ rc = -38  error from NF90_PUT_VAR (dimension variable)
+ rc = -40  error from NF90_INQ_VARID
+ rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
+ rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
+ rc = -43  error from NF90_INQ_VARID (time variable)
+ rc = -44  error from NF90_GET_ATT (time attribute)
+ rc = -45  error from NF90_PUT_VAR
+ rc = -46  error from NF90_GET_VAR
+ rc = -52  error from NF90_INQUIRE_VARIABLE
+ rc = -53  error from NF90_GET_ATT</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+          </li>
+          <li class="list-group-item">
+                <h3>
+    private  subroutine ESMF_CFIOEosVarWrite2D_(cfio, vName, field, date, curTime, kbeg, kount, timeString, doComp, doChunk, rc)  
+
+    </h3>
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cfio~27"></span>
               type(<a href='../type/esmf_cfio.html'>ESMF_CFIO</a>),
             </td>
 <td>intent(in)</td>
@@ -528,7 +739,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-field~124"></span>
+              <span class="anchor" id="variable-field~68"></span>
               real,
             </td>
 <td>intent(in)</td>
@@ -536,14 +747,14 @@ large graphs.</div>
               
             </td>
             <td>::</td>
-            <td><strong>field</strong>(:,:,:)</td>
+            <td><strong>field</strong>(:,:)</td>
             <td>
                 <p>array contains data</p>
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-date~33"></span>
+              <span class="anchor" id="variable-date~22"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -558,7 +769,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-curtime~23"></span>
+              <span class="anchor" id="variable-curtime~18"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -573,7 +784,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-kbeg~16"></span>
+              <span class="anchor" id="variable-kbeg~6"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -588,7 +799,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-kount~13"></span>
+              <span class="anchor" id="variable-kount~6"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -649,218 +860,7 @@ string expression for date and time</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~2112"></span>
-              integer,
-            </td>
-<td>intent(out),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>rc</strong></td>
-            <td>
-                <p>Error return code:
-0   all is well
- rc = -2  time is inconsistent with increment
- rc = -3  number of levels is incompatible with file
- rc = -4  im is incompatible with file
- rc = -5  jm is incompatible with file
- rc = -6  time must fall on a minute boundary
- rc = -7  error in diffdate
- rc = -12  error determining default precision
- rc = -13  error determining variable type
- rc = -15  data outside of valid range
- rc = -16  data outside of packing range
- rc = -17  data outside of pack and valid range
- rc = -38  error from NF90_PUT_VAR (dimension variable)
- rc = -40  error from NF90_INQ_VARID
- rc = -41  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lat or lon)
- rc = -42  error from NF90_INQ_DIMID or NF90_INQUIRE_DIMENSION (lev)
- rc = -43  error from NF90_INQ_VARID (time variable)
- rc = -44  error from NF90_GET_ATT (time attribute)
- rc = -45  error from NF90_PUT_VAR
- rc = -46  error from NF90_GET_VAR
- rc = -52  error from NF90_INQUIRE_VARIABLE
- rc = -53  error from NF90_GET_ATT</p>
-            </td>
-        </tr>
-    </tbody>
-  </table>
-
-
-          </li>
-          <li class="list-group-item">
-                <h3>
-    private  subroutine ESMF_CFIOEosVarWrite2D_(cfio, vName, field, date, curTime, kbeg, kount, timeString, doComp, doChunk, rc)  
-
-    </h3>
-  
-
-  <h4>Arguments</h4>
-      <table class="table table-striped varlist">
-    <thead>
-      <tr>
-        <th scope="col">Type</th>
-<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
-        <th scope="col"></th>
-        <th scope="col">Name</th>
-        <th scope="col"></th>
-    </thead>
-    <tbody>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-cfio~38"></span>
-              type(<a href='../type/esmf_cfio.html'>ESMF_CFIO</a>),
-            </td>
-<td>intent(in)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>cfio</strong></td>
-            <td>
-                <p>a CFIO obj</p>
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-vname~19"></span>
-              character(len=*),
-            </td>
-<td>intent(in)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>vName</strong></td>
-            <td>
-                <p>Variable name</p>
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-field~126"></span>
-              real,
-            </td>
-<td>intent(in)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>field</strong>(:,:)</td>
-            <td>
-                <p>array contains data</p>
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-date~35"></span>
-              integer,
-            </td>
-<td>intent(in),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>date</strong></td>
-            <td>
-                <p>yyyymmdd</p>
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-curtime~25"></span>
-              integer,
-            </td>
-<td>intent(in),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>curTime</strong></td>
-            <td>
-                <p>hhmmss</p>
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-kbeg~17"></span>
-              integer,
-            </td>
-<td>intent(in),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>kbeg</strong></td>
-            <td>
-                <p>first level to write</p>
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-kount~14"></span>
-              integer,
-            </td>
-<td>intent(in),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>kount</strong></td>
-            <td>
-                <p>number of levels to write</p>
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-timestring~13"></span>
-              character(len=*),
-            </td>
-<td>intent(in),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>timeString</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-docomp~5"></span>
-              logical,
-            </td>
-<td>intent(in),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>doComp</strong></td>
-            <td>
-                <p>do szip compression</p>
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-dochunk~5"></span>
-              logical,
-            </td>
-<td>intent(in),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>doChunk</strong></td>
-            <td>
-                <p>do szip compression
-string expression for date and time</p>
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-rc~2114"></span>
+              <span class="anchor" id="variable-rc~898"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -899,7 +899,7 @@ string expression for date and time</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-cfio~37"></span>
+              <span class="anchor" id="variable-cfio~26"></span>
               type(<a href='../type/esmf_cfio.html'>ESMF_CFIO</a>),
             </td>
 <td>intent(in)</td>
@@ -914,7 +914,7 @@ string expression for date and time</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-vname~18"></span>
+              <span class="anchor" id="variable-vname~16"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -929,7 +929,7 @@ string expression for date and time</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-field~125"></span>
+              <span class="anchor" id="variable-field~67"></span>
               real,
             </td>
 <td>intent(in)</td>
@@ -944,7 +944,7 @@ string expression for date and time</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-date~34"></span>
+              <span class="anchor" id="variable-date~21"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -959,7 +959,7 @@ string expression for date and time</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-curtime~24"></span>
+              <span class="anchor" id="variable-curtime~17"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -974,7 +974,7 @@ string expression for date and time</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-timestring~12"></span>
+              <span class="anchor" id="variable-timestring~10"></span>
               character(len=*),
             </td>
 <td>intent(in),</td>
@@ -989,7 +989,7 @@ string expression for date and time</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-docomp~4"></span>
+              <span class="anchor" id="variable-docomp~2"></span>
               logical,
             </td>
 <td>intent(in),</td>
@@ -1004,7 +1004,7 @@ string expression for date and time</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-dochunk~4"></span>
+              <span class="anchor" id="variable-dochunk~2"></span>
               logical,
             </td>
 <td>intent(in),</td>
@@ -1020,7 +1020,7 @@ string expression for date and time</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~2113"></span>
+              <span class="anchor" id="variable-rc~897"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1070,7 +1070,7 @@ string expression for date and time</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-cfio~39"></span>
+              <span class="anchor" id="variable-cfio~28"></span>
               type(<a href='../type/esmf_cfio.html'>ESMF_CFIO</a>),
             </td>
 <td>intent(inout)</td>
@@ -1085,7 +1085,7 @@ string expression for date and time</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~2115"></span>
+              <span class="anchor" id="variable-rc~899"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1127,7 +1127,7 @@ string expression for date and time</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-cfio~35"></span>
+              <span class="anchor" id="variable-cfio~24"></span>
               type(<a href='../type/esmf_cfio.html'>ESMF_CFIO</a>),
             </td>
 <td>intent(inout)</td>
@@ -1142,7 +1142,7 @@ string expression for date and time</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~2111"></span>
+              <span class="anchor" id="variable-rc~895"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -1203,7 +1203,7 @@ string expression for date and time</p>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-10-14T14:45:19.029470             </p>
+ on 2024-10-16T18:52:24.664505             </p>
           </div>
         </div>
         <br>

@@ -1,14 +1,17 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_BasicVerticalGrid
+
+   use mapl_ErrorHandling
    use mapl3g_VerticalGrid
    use mapl3g_GriddedComponentDriver
-   use mapl_ErrorHandling
    use esmf, only: ESMF_TypeKind_Flag
    use esmf, only: ESMF_Field
    use esmf, only: ESMF_Geom
+
    implicit none
    private
+
    public :: BasicVerticalGrid
 
    type, extends(VerticalGrid) :: BasicVerticalGrid
@@ -84,6 +87,5 @@ contains
       type(BasicVerticalGrid), intent(in) :: a, b
       not_equal_to = .not. (a == b)
    end function not_equal_to
-
 
 end module mapl3g_BasicVerticalGrid

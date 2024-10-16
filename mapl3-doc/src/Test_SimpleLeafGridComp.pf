@@ -1,5 +1,6 @@
 #include "MAPL_TestErr.h"
 module Test_SimpleLeafGridComp
+
    use mapl3g_Generic
    use mapl3g_GenericPhases
    use mapl3g_UserSetServices
@@ -12,6 +13,7 @@ module Test_SimpleLeafGridComp
    use nuopc
    use pFunit
    use scratchpad
+
    implicit none
 
 contains
@@ -43,9 +45,7 @@ contains
       end if
       call clear_log()
       rc = 0
-
    end subroutine setup
-
 
    subroutine tearDown(outer_gc, hconfig)
       type(ESMF_GridComp), intent(inout) :: outer_gc
@@ -53,7 +53,6 @@ contains
 
       call clear_log()
       call ESMF_HConfigDestroy(hconfig)
-
    end subroutine tearDown
 
    @test(npes=[0])

@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_StateItemSpec
+
    use mapl_ErrorHandling
    use mapl3g_ActualPtVector
    use mapl3g_ExtensionAction
@@ -61,7 +62,7 @@ module mapl3g_StateItemSpec
       procedure :: get_raw_dependencies
       procedure :: set_dependencies
       procedure :: set_raw_dependencies
-  end type StateItemSpec
+   end type StateItemSpec
 
    type :: StateItemSpecPtr
       class(StateItemSpec), pointer :: ptr => null()
@@ -79,7 +80,6 @@ module mapl3g_StateItemSpec
          class(ExtensionAction), allocatable, intent(out) :: action
          integer, optional, intent(out) :: rc
       end subroutine I_adapt_one
-
 
       ! Detect if "this" matches attribute in spec.
       logical function I_match_one(this, spec) result(match)
@@ -154,7 +154,6 @@ module mapl3g_StateItemSpec
          integer, optional, intent(out) :: rc
       end subroutine I_set_geometry
 
-
       ! Returns an ordered list of adapters that priorities matching
       ! rules for connecting a family of extension to a goal spec.
       ! The intent is that the adapters are ordered to prioritize
@@ -170,6 +169,7 @@ module mapl3g_StateItemSpec
          class(StateItemSpec), intent(in) :: goal_spec
          integer, optional, intent(out) :: rc
       end function I_make_adapters
+
    end interface
 
 contains
@@ -191,14 +191,12 @@ contains
       else
          this%allocated =  .true.
       end if
-
    end subroutine set_allocated
 
    pure logical function is_allocated(this)
       class(StateItemSpec), intent(in) :: this
       is_allocated = this%allocated
    end function is_allocated
-
 
    pure subroutine set_active(this, active)
       class(StateItemSpec), intent(inout) :: this
@@ -209,7 +207,6 @@ contains
       else
          this%active =  .true.
       end if
-
    end subroutine set_active
 
    pure logical function is_active(this)
