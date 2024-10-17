@@ -281,39 +281,7 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine create
 
-   subroutine MAPL_FieldEmptySet(field, geom, rc)
-      type(ESMF_Field), intent(inout) :: field
-      type(ESMF_Geom), intent(inout) :: geom
-      integer, optional, intent(out) ::rc
-
-      type(ESMF_GeomType_Flag) :: geom_type
-      type(ESMF_Grid) :: grid
-      type(ESMF_Mesh) :: mesh
-      type(ESMF_XGrid) :: xgrid
-      type(ESMF_LocStream) :: locstream
-      integer :: status
-
-      call ESMF_GeomGet(geom, geomtype=geom_type, _RC)
-      if(geom_type == ESMF_GEOMTYPE_GRID) then
-         call ESMF_GeomGet(geom, grid=grid, _RC)
-         call ESMF_FieldEmptySet(field, grid, _RC)
-      else if (geom_type == ESMF_GEOMTYPE_MESH) then
-         call ESMF_GeomGet(geom, mesh=mesh, _RC)
-         call ESMF_FieldEmptySet(field, mesh, _RC)
-      else if (geom_type == ESMF_GEOMTYPE_XGRID) then
-         call ESMF_GeomGet(geom, xgrid=xgrid, _RC)
-         call ESMF_FieldEmptySet(field, xgrid, _RC)
-      else if (geom_type == ESMF_GEOMTYPE_LOCSTREAM) then
-         call ESMF_GeomGet(geom, locstream=locstream, _RC)
-         call ESMF_FieldEmptySet(field, locstream, _RC)
-      else
-         _FAIL('Unsupported type of Geom')
-      end if
-
-      _RETURN(ESMF_SUCCESS)
-   end subroutine MAPL_FieldEmptySet
-
-   subroutine destroy(this, rc)
+  subroutine destroy(this, rc)
       class(FieldSpec), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
@@ -339,7 +307,7 @@ contains
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       _RETURN_IF(fstatus == ESMF_FIELDSTATUS_COMPLETE)
 
-      call MAPL_FieldEmptySet(this%payload, this%geom, _RC)
+      call ESMF_FieldEmptySet(this%payload, this%geom, _RC)
 
       bounds = get_ungridded_bounds(this, _RC)
       call ESMF_FieldEmptyComplete(this%payload, this%typekind, &
