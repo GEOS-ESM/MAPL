@@ -1,0 +1,176 @@
+#include "MAPL_TestErr.h"
+module Test_TimeInterpolateAction
+   use mapl3g_TimeInterpolateAction
+   use mapl3g_InfoUtilities
+   use MAPL_FieldPointerUtilities
+   use ESMF_TestMethod_mod
+   use MAPL_Constants, only: MAPL_UNDEFINED_REAL
+   use esmf
+   use funit
+   implicit none
+
+contains
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Verify that the interpolation of an empty bracket with
+   ! weights=[7.]  produces a constant field with value 7.
+   subroutine test_interp_constant(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_FieldBundle) :: bracket
+      type(ESMF_Field) :: f
+      type(TimeinterpolateAction) :: action
+      type(ESMF_Clock) :: clock
+      type(ESMF_Geom) :: geom
+      type(ESMF_Grid) :: grid
+      integer :: status
+      real(kind=ESMF_KIND_R4), pointer :: x(:)
+
+      importState = ESMF_StateCreate(_RC)
+      exportState = ESMF_StateCreate(_RC)
+
+      bracket = ESMF_FieldBundleCreate(name='import[1]', _RC)
+
+      call ESMF_StateAdd(importState, [bracket], _RC)
+      call MAPL_InfoSetInternal(importState, 'import[1]', 'weights', values=[7.0], _RC)
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
+      geom = ESMF_GeomCreate(grid, _RC)
+      f = ESMF_FieldEmptyCreate(name='export[1]', _RC)
+      call ESMF_FieldEmptySet(f, geom=geom, _RC)
+      call ESMF_FieldEmptyComplete(f, typekind=ESMF_TYPEKIND_R4, _RC)
+      call ESMF_StateAdd(exportState, [f], _RC)
+
+      call action%run(importState, exportState, clock, _RC)
+
+      call assign_fptr(f, x, _RC)
+      @assert_that(x, every_item(is(equal_to(7.))))
+
+      call ESMF_FieldDestroy(f, _RC)
+      call ESMF_FieldBundleDestroy(bracket, _RC)
+      call ESMF_StateDestroy(importState, _RC)
+      call ESMF_StateDestroy(exportState, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+      call ESMF_GeomDestroy(geom, _RC)
+      
+   end subroutine test_interp_constant
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Verify that the interpolation of an bracket with
+   ! weights=[1., 0.5, 0.5] and constant fields with values 2 and 4 produces
+   ! a constant field with value 1. + (0.5 * 2) + (0.5 * 4) = 4.
+   subroutine test_interp_midway(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_FieldBundle) :: bracket
+      type(ESMF_Field) :: f
+      type(TimeinterpolateAction) :: action
+      type(ESMF_Clock) :: clock
+      type(ESMF_Geom) :: geom
+      type(ESMF_Grid) :: grid
+      integer :: status
+      integer :: i
+      real(kind=ESMF_KIND_R4), pointer :: x(:)
+      type(ESMF_Field) :: b(2)
+
+      importState = ESMF_StateCreate(_RC)
+      exportState = ESMF_StateCreate(_RC)
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
+      geom = ESMF_GeomCreate(grid, _RC)
+
+      do i = 1, 2
+         b(i) = ESMF_FieldEmptyCreate(name='b', _RC)
+         call ESMF_FieldEmptySet(b(i), geom=geom, _RC)
+         call ESMF_FieldEmptyComplete(b(i), typekind=ESMF_TYPEKIND_R4, _RC)
+         call assign_fptr(b(i), x, _RC)
+         x = 2. * i
+      end do
+      bracket = ESMF_FieldBundleCreate(name='import[1]', multiflag=.true., fieldList=b, _RC)
+      call ESMF_StateAdd(importState, [bracket], _RC)
+      call MAPL_InfoSetInternal(importState, 'import[1]', 'weights', values=[1.0, 0.5, 0.5], _RC)
+
+      f = ESMF_FieldEmptyCreate(name='export[1]', _RC)
+      call ESMF_FieldEmptySet(f, geom=geom, _RC)
+      call ESMF_FieldEmptyComplete(f, typekind=ESMF_TYPEKIND_R4, _RC)
+      call ESMF_StateAdd(exportState, [f], _RC)
+
+      call action%run(importState, exportState, clock, _RC)
+
+      call assign_fptr(f, x, _RC)
+      @assert_that(x, every_item(is(equal_to(4.))))
+
+      call ESMF_FieldDestroy(f, _RC)
+      call ESMF_FieldDestroy(b(1), _RC)
+      call ESMF_FieldDestroy(b(2), _RC)
+      call ESMF_FieldBundleDestroy(bracket, _RC)
+      call ESMF_StateDestroy(importState, _RC)
+      call ESMF_StateDestroy(exportState, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+      call ESMF_GeomDestroy(geom, _RC)
+      
+   end subroutine test_interp_midway
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Verify that MAPL UNDEF is respected.
+   subroutine test_mapl_undef(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_FieldBundle) :: bracket
+      type(ESMF_Field) :: f
+      type(TimeinterpolateAction) :: action
+      type(ESMF_Clock) :: clock
+      type(ESMF_Geom) :: geom
+      type(ESMF_Grid) :: grid
+      integer :: status
+      integer :: i
+      real(kind=ESMF_KIND_R4), pointer :: x(:)
+      type(ESMF_Field) :: b(2)
+
+      importState = ESMF_StateCreate(_RC)
+      exportState = ESMF_StateCreate(_RC)
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
+      geom = ESMF_GeomCreate(grid, _RC)
+
+      do i = 1, 2
+         b(i) = ESMF_FieldEmptyCreate(name='b', _RC)
+         call ESMF_FieldEmptySet(b(i), geom=geom, _RC)
+         call ESMF_FieldEmptyComplete(b(i), typekind=ESMF_TYPEKIND_R4, _RC)
+         call assign_fptr(b(i), x, _RC)
+         x = 2. * i
+      end do
+
+      ! Set an isolated point in the input to UNDEF and verify that
+      ! the result is undefined at the same location.
+      
+      x(2) = MAPL_UNDEFINED_REAL
+      bracket = ESMF_FieldBundleCreate(name='import[1]', multiflag=.true., fieldList=b, _RC)
+      call ESMF_StateAdd(importState, [bracket], _RC)
+      call MAPL_InfoSetInternal(importState, 'import[1]', 'weights', values=[1.0, 0.5, 0.5], _RC)
+
+      f = ESMF_FieldEmptyCreate(name='export[1]', _RC)
+      call ESMF_FieldEmptySet(f, geom=geom, _RC)
+      call ESMF_FieldEmptyComplete(f, typekind=ESMF_TYPEKIND_R4, _RC)
+      call ESMF_StateAdd(exportState, [f], _RC)
+
+      call action%run(importState, exportState, clock, _RC)
+
+      call assign_fptr(f, x, _RC)
+      @assert_that(x(1), is(equal_to(4.)))
+      @assert_that(x(2), is(equal_to(MAPL_UNDEFINED_REAL)))
+      @assert_that(x(3:), every_item(is(equal_to(4.))))
+
+      call ESMF_FieldDestroy(f, _RC)
+      call ESMF_FieldDestroy(b(1), _RC)
+      call ESMF_FieldDestroy(b(2), _RC)
+      call ESMF_FieldBundleDestroy(bracket, _RC)
+      call ESMF_StateDestroy(importState, _RC)
+      call ESMF_StateDestroy(exportState, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+      call ESMF_GeomDestroy(geom, _RC)
+      
+   end subroutine test_mapl_undef
+
+end module Test_TimeInterpolateAction

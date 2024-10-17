@@ -23,6 +23,8 @@ module mapl3g_FieldSpec
    use mapl3g_ActualConnectionPt
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
+   use mapl3g_esmf_info_keys
+   use mapl3g_InfoUtilities
    use mapl3g_ExtensionAction
    use mapl3g_VerticalGrid
    use mapl3g_VerticalRegridAction
@@ -39,6 +41,7 @@ module mapl3g_FieldSpec
    use mapl3g_FieldDictionary
    use mapl3g_GriddedComponentDriver
    use mapl3g_VariableSpec, only: VariableSpec
+   use mapl3g_VerticalRegridMethod
    use udunits2f, only: UDUNITS_are_convertible => are_convertible, udunit
    use gftl2_StringVector
    use esmf
@@ -108,7 +111,6 @@ module mapl3g_FieldSpec
 
       procedure :: set_info
       procedure :: set_geometry
-
    end type FieldSpec
 
    interface FieldSpec
@@ -147,7 +149,7 @@ module mapl3g_FieldSpec
       type(ESMF_Geom), allocatable :: geom
       type(ESMF_TypeKind_Flag) :: typekind
       character(:), allocatable :: units
-      type(Vertical_RegridMethod_Flag), allocatable :: regrid_method
+      type(VerticalRegridMethod), allocatable :: regrid_method
    contains
       procedure :: adapt_one => adapt_vertical_grid
       procedure :: match_one => adapter_match_vertical_grid
@@ -221,7 +223,6 @@ contains
       if (present(regrid_param)) field_spec%regrid_param = regrid_param
 
       if (present(default_value)) field_spec%default_value = default_value
-
    end function new_FieldSpec_geom
 
    function new_FieldSpec_varspec(variable_spec) result(field_spec)
@@ -240,9 +241,8 @@ contains
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, default_value)
 
       field_spec%long_name = 'unknown'
-
    end function new_FieldSpec_varspec
-      
+
    subroutine set_geometry(this, geom, vertical_grid, rc)
       class(FieldSpec), intent(inout) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
@@ -253,7 +253,7 @@ contains
 
       if (present(geom)) this%geom = geom
       if (present(vertical_grid)) this%vertical_grid = vertical_grid
-      
+
 !#      _SET_FIELD(this, variable_spec, vertical_dim_spec)
 !#      _SET_FIELD(this, variable_spec, typekind)
 !#      _SET_FIELD(this, variable_spec, ungridded_dims)
@@ -261,13 +261,12 @@ contains
 !#      _SET_ALLOCATED_FIELD(this, variable_spec, standard_name)
 !#      _SET_ALLOCATED_FIELD(this, variable_spec, units)
 !#      _SET_ALLOCATED_FIELD(this, variable_spec, default_value)
-!#      
+!#
 !#      this%regrid_param = EsmfRegridderParam() ! use default regrid method
 !#      regrid_method = get_regrid_method_(this%standard_name)
 !#      this%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
-      
+
       _RETURN(_SUCCESS)
-      
    end subroutine set_geometry
 
    subroutine create(this, rc)
@@ -358,7 +357,6 @@ contains
       call this%set_info(this%payload, _RC)
 
       _RETURN(ESMF_SUCCESS)
-
    end subroutine allocate
 
    function get_ungridded_bounds(this, rc) result(bounds)
@@ -400,7 +398,8 @@ contains
       _RETURN(_SUCCESS)
    end function get_vertical_bounds
 
-  subroutine connect_to(this, src_spec, actual_pt, rc)
+   subroutine connect_to(this, src_spec, actual_pt, rc)
+
       class(FieldSpec), intent(inout) :: this
       class(StateItemSpec), intent(inout) :: src_spec
       type(ActualConnectionPt), intent(in) :: actual_pt ! unused
@@ -437,7 +436,6 @@ contains
          call mirror(dst=this%vertical_dim_spec, src=src_spec%vertical_dim_spec)
          call mirror(dst=this%default_value, src=src_spec%default_value)
          call mirror(dst=this%ungridded_dims, src=src_spec%ungridded_dims)
-
       class default
          _FAIL('Cannot connect field spec to non field spec.')
       end select
@@ -446,7 +444,6 @@ contains
       _UNUSED_DUMMY(actual_pt)
 
    contains
-
 
       subroutine mirror_geom(dst, src)
          type(ESMF_Geom), allocatable, intent(inout) :: dst, src
@@ -463,7 +460,6 @@ contains
          end if
 
          _ASSERT(MAPL_SameGeom(dst, src), 'cannot connect mismatched geom without coupler.')
-
       end subroutine mirror_geom
 
       subroutine mirror_vertical_grid(dst, src)
@@ -480,10 +476,8 @@ contains
             return
          end if
 
-!         _ASSERT(MAPL_SameVerticalGrid(dst, src), 'cannot connect mismatched geom without coupler.')
-
+         ! _ASSERT(MAPL_SameVerticalGrid(dst, src), 'cannot connect mismatched geom without coupler.')
       end subroutine mirror_vertical_grid
-
 
       subroutine mirror_typekind(dst, src)
          type(ESMF_TypeKind_Flag), intent(inout) :: dst, src
@@ -531,7 +525,6 @@ contains
          if (.not. allocated(src)) then
             src = dst
          end if
-
       end subroutine mirror_string
 
       subroutine mirror_real(dst, src)
@@ -546,7 +539,6 @@ contains
          if (.not. allocated(src)) then
             src = dst
          end if
-
       end subroutine mirror_real
 
       subroutine mirror_ungriddedDims(dst, src)
@@ -564,14 +556,12 @@ contains
          if (src == mirror_dims) then
             src = dst
          end if
-
       end subroutine mirror_ungriddedDims
 
    end subroutine connect_to
 
-
-
    logical function can_connect_to(this, src_spec, rc)
+
       class(FieldSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: src_spec
       integer, optional, intent(out) :: rc
@@ -582,7 +572,6 @@ contains
       select type(src_spec)
       class is (FieldSpec)
          can_convert_units = can_connect_units(this%units, src_spec%units, _RC)
-
          can_connect_to = all ([ &
               can_match(this%geom,src_spec%geom), &
               can_match(this%vertical_grid, src_spec%vertical_grid), &
@@ -617,8 +606,8 @@ contains
 
          includes = .true.
       end function includes
-   end function can_connect_to
 
+   end function can_connect_to
 
    subroutine add_to_state(this, multi_state, actual_pt, rc)
       class(FieldSpec), intent(in) :: this
@@ -657,8 +646,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle
 
-
-
    logical function can_match_geom(a, b) result(can_match)
       type(ESMF_Geom), allocatable, intent(in) :: a, b
 
@@ -668,7 +655,6 @@ contains
       ! Otherwise, assume ESMF can provide regrid
       n_mirror = count([.not. allocated(a), .not. allocated(b)])
       can_match = n_mirror <= 1
-
    end function can_match_geom
 
    logical function can_match_vertical_grid(a, b) result(can_match)
@@ -680,7 +666,6 @@ contains
       ! Otherwise, see if regrid is supported
       n_mirror = count([.not. allocated(a), .not. allocated(b)])
       can_match = n_mirror <= 1
-
    end function can_match_vertical_grid
 
 
@@ -702,7 +687,6 @@ contains
       case (2)
          match = .true.
       end select
-
    end function match_geom
 
    logical function match_typekind(a, b) result(match)
@@ -712,7 +696,6 @@ contains
 
       n_mirror = count([a%dkind,b%dkind] == MAPL_TYPEKIND_MIRROR%dkind)
       match = (n_mirror == 1) .or. (n_mirror == 0 .and. a == b)
-
    end function match_typekind
 
    logical function match_string(a, b) result(match)
@@ -740,7 +723,6 @@ contains
 
       n_mirror = count([a,b] == VERTICAL_DIM_MIRROR)
       match = (n_mirror == 1) .or. (n_mirror == 0 .and. a == b)
-
    end function match_vertical_dim_spec
 
    logical function match_ungridded_dims(a, b) result(match)
@@ -752,7 +734,6 @@ contains
       mirror_dims = MIRROR_UNGRIDDED_DIMS()
       n_mirror = count([a == mirror_dims, b == mirror_dims])
       match = (n_mirror == 1) .or. (n_mirror == 0 .and. a == b)
-
    end function match_ungridded_dims
 
    logical function mirror(str)
@@ -801,25 +782,25 @@ contains
       call ESMF_InfoGetFromHost(field, field_info, _RC)
 
       ungridded_dims_info = this%ungridded_dims%make_info(_RC)
-      call ESMF_InfoSet(field_info, key='MAPL/ungridded_dims', value=ungridded_dims_info, _RC)
+      call ESMF_InfoSet(field_info, key=INFO_INTERNAL_NAMESPACE//KEY_UNGRIDDED_DIMS, value=ungridded_dims_info, _RC)
       call ESMF_InfoDestroy(ungridded_dims_info, _RC)
 
       vertical_dim_info = this%vertical_dim_spec%make_info(_RC)
-      call ESMF_InfoSet(field_info, key='MAPL/vertical_dim', value=vertical_dim_info, _RC)
+      call ESMF_InfoSet(field_info, key=INFO_INTERNAL_NAMESPACE//KEY_VERT_DIM, value=vertical_dim_info, _RC)
       call ESMF_InfoDestroy(vertical_dim_info, _RC)
 
       vertical_grid_info = this%vertical_grid%make_info(_RC)
-      call ESMF_InfoSet(field_info, key='MAPL/vertical_grid', value=vertical_grid_info, _RC)
+      call ESMF_InfoSet(field_info, key=INFO_INTERNAL_NAMESPACE//KEY_VERT_GRID, value=vertical_grid_info, _RC)
       call ESMF_InfoDestroy(vertical_grid_info, _RC)
 
       if (allocated(this%units)) then
-         call ESMF_InfoSet(field_info, key='MAPL/units', value=this%units, _RC)
+         call MAPL_InfoSetInternal(field,key='/units', value= this%units, _RC)
       end if
       if (allocated(this%long_name)) then
-         call ESMF_InfoSet(field_info, key='MAPL/long_name', value=this%long_name, _RC)
+         call MAPL_InfoSetInternal(field,key='/long_name', value=this%long_name, _RC)
       end if
       if (allocated(this%standard_name)) then
-         call ESMF_InfoSet(field_info, key='MAPL/standard_name', value=this%standard_name, _RC)
+         call MAPL_InfoSetInternal(field,key='/standard_name', value=this%standard_name, _RC)
       end if
 
       _RETURN(_SUCCESS)
@@ -834,7 +815,6 @@ contains
 
       geom_adapter%regrid_param = EsmfRegridderParam()
       if (present(regrid_param)) geom_adapter%regrid_param = regrid_param
-
    end function new_GeomAdapter
 
    subroutine adapt_geom(this, spec, action, rc)
@@ -861,7 +841,6 @@ contains
       type is (FieldSpec)
          match = match_geom(spec%geom, this%geom)
       end select
-
    end function adapter_match_geom
 
    function new_VerticalGridAdapter(vertical_grid, geom, typekind, units, regrid_method) result(vertical_grid_adapter)
@@ -870,14 +849,13 @@ contains
       type(ESMF_Geom), optional, intent(in) :: geom
       type(ESMF_Typekind_Flag), intent(in) :: typekind
       character(*), optional, intent(in) :: units
-      type(Vertical_RegridMethod_Flag), optional, intent(in) :: regrid_method
+      type(VerticalRegridMethod), optional, intent(in) :: regrid_method
 
       if (present(vertical_grid)) vertical_grid_adapter%vertical_grid = vertical_grid
       if (present(geom)) vertical_grid_adapter%geom = geom
       vertical_grid_adapter%typekind = typekind
       if (present(units)) vertical_grid_adapter%units = units
       if (present(regrid_method)) vertical_grid_adapter%regrid_method = regrid_method
-
    end function new_VerticalGridAdapter
 
    subroutine adapt_vertical_grid(this, spec, action, rc)
@@ -905,6 +883,7 @@ contains
    end subroutine adapt_vertical_grid
 
    logical function adapter_match_vertical_grid(this, spec) result(match)
+
       class(VerticalGridAdapter), intent(in) :: this
       class(StateItemSpec), intent(in) :: spec
 
@@ -916,33 +895,31 @@ contains
 
    contains
 
-     logical function same_vertical_grid(src_grid, dst_grid)
-        class(VerticalGrid), intent(in) :: src_grid
-        class(VerticalGrid), allocatable, intent(in) :: dst_grid
-         
+      logical function same_vertical_grid(src_grid, dst_grid)
+         class(VerticalGrid), intent(in) :: src_grid
+         class(VerticalGrid), allocatable, intent(in) :: dst_grid
+
          same_vertical_grid = .true.
          if (.not. allocated(dst_grid)) return ! mirror grid
-         
+
          same_vertical_grid = src_grid%same_id(dst_grid)
 
          block
-           use mapl3g_BasicVerticalGrid
-           ! "temporary kludge" while true vertical grid logic is being implemented
-           if (.not. same_vertical_grid) then
-              select type(src_grid)
-              type is (BasicVerticalGrid)
-                 select type (dst_grid)
-                 type is (BasicVerticalGrid)
-                    same_vertical_grid = (src_grid%get_num_levels() == dst_grid%get_num_levels())
-                 end select
-              end select
-           end if
+            use mapl3g_BasicVerticalGrid
+            ! "temporary kludge" while true vertical grid logic is being implemented
+            if (.not. same_vertical_grid) then
+               select type(src_grid)
+               type is (BasicVerticalGrid)
+                  select type (dst_grid)
+                  type is (BasicVerticalGrid)
+                     same_vertical_grid = (src_grid%get_num_levels() == dst_grid%get_num_levels())
+                  end select
+               end select
+            end if
          end block
-
       end function same_vertical_grid
-      
-   end function adapter_match_vertical_grid
 
+   end function adapter_match_vertical_grid
 
    function new_TypekindAdapter(typekind) result(typekind_adapter)
       type(TypekindAdapter) :: typekind_adapter
@@ -1036,13 +1013,9 @@ contains
       end select
 
       _RETURN(_SUCCESS)
-
    end function make_adapters
-
 
 end module mapl3g_FieldSpec
 
-
 #undef _SET_FIELD
 #undef _SET_ALLOCATED_FIELD
-

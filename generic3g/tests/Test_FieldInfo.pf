@@ -5,6 +5,8 @@ module Test_FieldInfo
    use mapl3g_BasicVerticalGrid
    use mapl3g_UngriddedDims
    use mapl3g_UngriddedDim
+   use mapl3g_esmf_info_keys
+   use mapl3g_InfoUtilities
    use esmf
    use funit
    implicit none
@@ -41,59 +43,60 @@ contains
       f = ESMF_FieldCreate(geom, ESMF_TYPEKIND_R4, ungriddedLbound=[1,1], ungriddedUbound=[2,3], _RC)
       call spec%set_info(f, _RC)
 
-      call ESMF_InfoGetFromHost(f, info, _RC)
+      info = MAPL_InfoCreateFromInternal(f, _RC)
 
-      found = ESMF_InfoIsPresent(info, key='MAPL/vertical_dim', _RC)
+      found = ESMF_InfoIsPresent(info, key=KEY_VERT_DIM, _RC)
       @assert_that(found, is(true()))
-      found = ESMF_InfoIsPresent(info, key='MAPL/vertical_dim/vloc', _RC)
+      found = ESMF_InfoIsPresent(info, key=KEY_VLOC, _RC)
       @assert_that(found, is(true()))
 
-      found = ESMF_InfoIsPresent(info, key='MAPL/vertical_grid', _RC)
+      found = ESMF_InfoIsPresent(info, key=KEY_VERT_GRID, _RC)
       @assert_that(found, is(true()))
-      found = ESMF_InfoIsPresent(info, key='MAPL/vertical_grid/num_levels', _RC)
+      found = ESMF_InfoIsPresent(info, key=KEY_NUM_LEVELS, _RC)
       @assert_that(found, is(true()))
-      call ESMF_InfoGet(info, 'MAPL/vertical_grid/num_levels',temp_int , _RC)
+      call MAPL_InfoGet(info, KEY_NUM_LEVELS, temp_int, _RC)
       @assert_that(temp_int, equal_to(4))
 
-      found = ESMF_InfoIsPresent(info, key='MAPL/ungridded_dims', _RC)
+      found = ESMF_InfoIsPresent(info, key=KEY_UNGRIDDED_DIMS, _RC)
       @assert_that(found, is(true()))
 
-      found = ESMF_InfoIsPresent(info, key='MAPL/ungridded_dims/dim_1', _RC)
+      found = ESMF_InfoIsPresent(info, key=KEY_UNGRIDDED_DIMS//'/dim_1', _RC)
       @assert_that(found, is(true()))
-      found = ESMF_InfoIsPresent(info, key='MAPL/ungridded_dims/dim_1/name', _RC)
+      found = ESMF_InfoIsPresent(info, key=KEY_UNGRIDDED_DIMS//'/dim_1/name', _RC)
       @assert_that(found, is(true()))
-      found = ESMF_InfoIsPresent(info, key='MAPL/ungridded_dims/dim_1/units', _RC)
+      found = ESMF_InfoIsPresent(info, key=KEY_UNGRIDDED_DIMS//'/dim_1/units', _RC)
       @assert_that(found, is(true()))
-      found = ESMF_InfoIsPresent(info, key='MAPL/ungridded_dims/dim_1/coordinates', _RC)
+      found = ESMF_InfoIsPresent(info, key=KEY_UNGRIDDED_DIMS//'/dim_1/coordinates', _RC)
       @assert_that(found, is(true()))
-      call ESMF_InfoGetAlloc(info, 'MAPL/ungridded_dims/dim_1/coordinates', coords, _RC)
+      call MAPL_InfoGet(info, KEY_UNGRIDDED_DIMS//'/dim_1/coordinates', coords, _RC)
       @assert_that(coords, equal_to([1.,2.]))
 
-      found = ESMF_InfoIsPresent(info, key='MAPL/ungridded_dims/dim_2', _RC)
+      found = ESMF_InfoIsPresent(info, key=KEY_UNGRIDDED_DIMS//'/dim_2', _RC)
       @assert_that(found, is(true()))
-      found = ESMF_InfoIsPresent(info, key='MAPL/ungridded_dims/dim_2/name', _RC)
+      found = ESMF_InfoIsPresent(info, key=KEY_UNGRIDDED_DIMS//'/dim_2/name', _RC)
       @assert_that(found, is(true()))
-      found = ESMF_InfoIsPresent(info, key='MAPL/ungridded_dims/dim_2/units', _RC)
+      found = ESMF_InfoIsPresent(info, key=KEY_UNGRIDDED_DIMS//'/dim_2/units', _RC)
       @assert_that(found, is(true()))
-      found = ESMF_InfoIsPresent(info, key='MAPL/ungridded_dims/dim_2/coordinates', _RC)
+      found = ESMF_InfoIsPresent(info, key=KEY_UNGRIDDED_DIMS//'/dim_2/coordinates', _RC)
       @assert_that(found, is(true()))
-      call ESMF_InfoGetAlloc(info, 'MAPL/ungridded_dims/dim_2/coordinates', coords, _RC)
+      call MAPL_InfoGet(info, KEY_UNGRIDDED_DIMS//'/dim_2/coordinates', coords, _RC)
       @assert_that(coords, equal_to([1.,2.,3.]))
 
-      found = ESMF_InfoIsPresent(info, key='MAPL/standard_name', _RC)
+      found = ESMF_InfoIsPresent(info, key='/standard_name', _RC)
       @assert_that(found, is(true()))
-      call ESMF_InfoGetCharAlloc(info, 'MAPL/standard_name', temp_string, _RC)
+      call MAPL_InfoGet(info, '/standard_name', temp_string, _RC)
       @assert_that(temp_string, equal_to("t"))
 
-      found = ESMF_InfoIsPresent(info, key='MAPL/long_name', _RC)
+      found = ESMF_InfoIsPresent(info, key='/long_name', _RC)
       @assert_that(found, is(true()))
-      call ESMF_InfoGetCharAlloc(info, 'MAPL/long_name', temp_string, _RC)
+      call MAPL_InfoGet(info, '/long_name', temp_string, _RC)
       @assert_that(temp_string, equal_to("p"))
 
-      found = ESMF_InfoIsPresent(info, key='MAPL/units', _RC)
+      found = ESMF_InfoIsPresent(info, key='/units', _RC)
       @assert_that(found, is(true()))
-      call ESMF_InfoGetCharAlloc(info, 'MAPL/units', temp_string, _RC)
+      call MAPL_InfoGet(info, '/units', temp_string, _RC)
       @assert_that(temp_string, equal_to("unknown"))
 
+      call ESMF_InfoDestroy(info)
    end subroutine test_field_set_info
 end module Test_FieldInfo

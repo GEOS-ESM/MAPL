@@ -1,13 +1,15 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_FixedLevelsVerticalGrid
+
+   use mapl_ErrorHandling
    use mapl3g_VerticalGrid
    use mapl3g_GriddedComponentDriver
-   use mapl_ErrorHandling
    use esmf, only: ESMF_TypeKind_Flag
    use esmf, only: ESMF_Field
    use esmf, only: ESMF_Geom
    use, intrinsic :: iso_fortran_env, only: REAL32
+
    implicit none
    private
 
@@ -38,7 +40,6 @@ module mapl3g_FixedLevelsVerticalGrid
       module procedure not_equal_FixedLevelsVerticalGrid
    end interface operator(/=)
 
-
 contains
 
    function new_FixedLevelsVerticalGrid_r32(standard_name, levels, units) result(grid)
@@ -51,7 +52,6 @@ contains
       grid%standard_name = standard_name
       grid%levels = levels
       grid%units = units
-
    end function new_FixedLevelsVerticalGrid_r32
 
    integer function get_num_levels(this) result(num_levels)

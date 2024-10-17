@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 module mapl3g_SharedIO
    use mapl_ErrorHandlingMod
-   use esmf
+   use mapl3g_InfoUtilities
    use pfio
    use gFTL2_StringVector
    use mapl3g_geom_mgr
@@ -9,6 +9,7 @@ module mapl3g_SharedIO
    use mapl3g_UngriddedDims
    use mapl3g_UngriddedDim
    use mapl3g_FieldDimensionInfo
+   use esmf
 
    implicit none
 
@@ -89,7 +90,6 @@ contains
       character(len=:), allocatable :: dims
       type(ESMF_TYPEKIND_FLAG) :: typekind
       integer :: pfio_type
-      type(ESMF_Info) :: info
       character(len=:), allocatable :: char
       character(len=ESMF_MAXSTR) :: fname
       type(MAPLGeom), pointer :: mapl_geom
@@ -112,10 +112,9 @@ contains
       dims = dims//",time"
       pfio_type = esmf_to_pfio_type(typekind ,_RC)
       v = Variable(type=pfio_type, dimensions=dims)
-      call ESMF_InfoGetFromHost(field, info, _RC)
-      call ESMF_InfoGetCharAlloc(info, 'MAPL/units', char, _RC)
+      call MAPL_InfoGetInternal(field, 'units', char, _RC)
       call v%add_attribute('units',char)
-      call ESMF_InfoGetCharAlloc(info, 'MAPL/standard_name', char, _RC)
+      call MAPL_InfoGetInternal(field, 'standard_name', char, _RC)
       call v%add_attribute('long_name',char)
       call metadata%add_variable(trim(fname), v, _RC)
       _RETURN(_SUCCESS)

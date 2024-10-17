@@ -1,36 +1,28 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_VerticalRegridAction
+
+   use mapl_ErrorHandling
    use mapl3g_ExtensionAction
    use mapl3g_GriddedComponentDriver
    use mapl3g_CouplerMetaComponent
-   use mapl_ErrorHandling
+   use mapl3g_VerticalRegridMethod
    use esmf
 
    implicit none
    private
 
    public :: VerticalRegridAction
-   public :: Vertical_RegridMethod_Flag
    public :: VERTICAL_REGRID_UNKNOWN
    public :: VERTICAL_REGRID_LINEAR
    public :: VERTICAL_REGRID_CONSERVATIVE
    public :: operator(==), operator(/=)
 
-   type :: Vertical_RegridMethod_Flag
-      private
-      integer :: id = -1
-   end type Vertical_RegridMethod_Flag
-
-   type(Vertical_RegridMethod_Flag), parameter :: VERTICAL_REGRID_UNKNOWN = Vertical_RegridMethod_Flag(-1)
-   type(Vertical_RegridMethod_Flag), parameter :: VERTICAL_REGRID_LINEAR = Vertical_RegridMethod_Flag(1)
-   type(Vertical_RegridMethod_Flag), parameter :: VERTICAL_REGRID_CONSERVATIVE = Vertical_RegridMethod_Flag(2)
-
    type, extends(ExtensionAction) :: VerticalRegridAction
       type(ESMF_Field) :: v_in_coord, v_out_coord
       type(GriddedComponentDriver), pointer :: v_in_coupler => null()
       type(GriddedComponentDriver), pointer :: v_out_coupler => null()
-      type(Vertical_RegridMethod_Flag) :: method = VERTICAL_REGRID_UNKNOWN
+      type(VerticalRegridMethod) :: method = VERTICAL_REGRID_UNKNOWN
    contains
       procedure :: initialize
       procedure :: run
@@ -40,14 +32,6 @@ module mapl3g_VerticalRegridAction
       procedure :: new_VerticalRegridAction
    end interface VerticalRegridAction
 
-   interface operator(==)
-      procedure :: equal_to
-   end interface operator(==)
-
-   interface operator(/=)
-      procedure :: not_equal_to
-   end interface operator(/=)
-
 contains
 
    function new_VerticalRegridAction(v_in_coord, v_in_coupler, v_out_coord, v_out_coupler, method) result(action)
@@ -56,7 +40,7 @@ contains
       type(GriddedComponentDriver), pointer, intent(in) :: v_in_coupler
       type(ESMF_Field), intent(in) :: v_out_coord
       type(GriddedComponentDriver), pointer, intent(in) :: v_out_coupler
-      type(Vertical_RegridMethod_Flag), intent(in) :: method
+      type(VerticalRegridMethod), intent(in) :: method
 
       action%v_in_coord = v_in_coord
       action%v_out_coord = v_out_coord
@@ -65,7 +49,6 @@ contains
       action%v_out_coupler => v_out_coupler
 
       action%method = method
-
    end function new_VerticalRegridAction
 
    subroutine initialize(this, importState, exportState, clock, rc)
@@ -88,7 +71,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine initialize
-
 
    subroutine run(this, importState, exportState, clock, rc)
       use esmf
@@ -133,20 +115,8 @@ contains
             x_out(i,j,k) = x_in(i,j,k)*(v_out(i,j,k)-v_in(i,j,k))
          end do
       end do
-            
 
       _RETURN(_SUCCESS)
    end subroutine run
-
-
-   pure logical function equal_to(a, b)
-      type(Vertical_RegridMethod_Flag), intent(in) :: a, b
-      equal_to = (a%id == b%id)
-   end function equal_to
-
-   pure logical function not_equal_to(a, b)
-      type(Vertical_RegridMethod_Flag), intent(in) :: a, b
-      not_equal_to = .not. (a==B)
-   end function not_equal_to
 
 end module mapl3g_VerticalRegridAction
