@@ -42,6 +42,7 @@ contains
       type(GriddedComponentDriver), pointer, intent(in) :: v_out_coupler
       type(VerticalRegridMethod), intent(in) :: method
 
+      _HERE
       action%v_in_coord = v_in_coord
       action%v_out_coord = v_out_coord
 
@@ -49,14 +50,15 @@ contains
       action%v_out_coupler => v_out_coupler
 
       action%method = method
+      print *, "Regrid method: ", method
    end function new_VerticalRegridAction
 
    subroutine initialize(this, importState, exportState, clock, rc)
       use esmf
       class(VerticalRegridAction), intent(inout) :: this
-      type(ESMF_State)      :: importState
-      type(ESMF_State)      :: exportState
-      type(ESMF_Clock)      :: clock      
+      type(ESMF_State) :: importState
+      type(ESMF_State) :: exportState
+      type(ESMF_Clock) :: clock
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -75,9 +77,9 @@ contains
    subroutine run(this, importState, exportState, clock, rc)
       use esmf
       class(VerticalRegridAction), intent(inout) :: this
-      type(ESMF_State)      :: importState
-      type(ESMF_State)      :: exportState
-      type(ESMF_Clock)      :: clock      
+      type(ESMF_State) :: importState
+      type(ESMF_State) :: exportState
+      type(ESMF_Clock) :: clock
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -87,12 +89,13 @@ contains
       real(ESMF_KIND_R4), pointer :: x_in(:,:,:)
       real(ESMF_KIND_R4), pointer :: x_out(:,:,:)
 
-      real(ESMF_KIND_R4), pointer :: v_in(:,:,:)
-      real(ESMF_KIND_R4), pointer :: v_out(:,:,:)
+      real(ESMF_KIND_R4), pointer :: v_in(:)
+      real(ESMF_KIND_R4), pointer :: v_out(:)
 
       integer :: i, j, k
       integer, parameter :: IM = 2, JM = 2, LM = 2
 
+      _HERE
       if (associated(this%v_in_coupler)) then
          call this%v_in_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
       end if
@@ -108,13 +111,17 @@ contains
       call ESMF_FieldGet(f_out, fArrayPtr=x_out, _RC)
 
       call ESMF_FieldGet(this%v_in_coord, fArrayPtr=v_in, _RC)
+      print *, "v_in: ", shape(v_in)
+      print *, v_in
       call ESMF_FieldGet(this%v_out_coord, fArrayPtr=v_out, _RC)
+      print *, "v_out: ", shape(v_out)
+      print *, v_out
 
-      do concurrent (i=1:IM, j=1:JM)
-         do k = 1, LM
-            x_out(i,j,k) = x_in(i,j,k)*(v_out(i,j,k)-v_in(i,j,k))
-         end do
-      end do
+      ! do concurrent (i=1:IM, j=1:JM)
+      !    do k = 1, LM
+      !       x_out(i,j,k) = x_in(i,j,k)*(v_out(i,j,k)-v_in(i,j,k))
+      !    end do
+      ! end do
 
       _RETURN(_SUCCESS)
    end subroutine run

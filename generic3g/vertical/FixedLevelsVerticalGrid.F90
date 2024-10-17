@@ -5,9 +5,7 @@ module mapl3g_FixedLevelsVerticalGrid
    use mapl_ErrorHandling
    use mapl3g_VerticalGrid
    use mapl3g_GriddedComponentDriver
-   use esmf, only: ESMF_TypeKind_Flag
-   use esmf, only: ESMF_Field
-   use esmf, only: ESMF_Geom
+   use esmf
    use, intrinsic :: iso_fortran_env, only: REAL32
 
    implicit none
@@ -69,13 +67,25 @@ contains
        character(*), intent(in) :: units
        integer, optional, intent(out) :: rc
 
-       _FAIL('not implemented')
+       integer :: status
 
-       _UNUSED_DUMMY(this)
-       _UNUSED_DUMMY(field)
+       ! Add the 1D array, levels(:), to an ESMF Field
+       field = ESMF_FieldEmptyCreate(name="FixedLevelsVerticalGrid", _RC)
+       call ESMF_FieldEmptySet(field, geom=geom, _RC)
+       call ESMF_FieldEmptyComplete( &
+            field, &
+            farray=this%levels, &
+            indexflag=ESMF_INDEX_DELOCAL, &
+            datacopyFlag=ESMF_DATACOPY_REFERENCE, &
+            gridToFieldMap=[0, 0], &
+            ungriddedLBound=[1], &
+            ungriddedUBound=[size(this%levels)], &
+            _RC)
+       call ESMF_FieldPrint(field)
+
+       _RETURN(_SUCCESS)
        _UNUSED_DUMMY(coupler)
        _UNUSED_DUMMY(standard_name)
-       _UNUSED_DUMMY(geom)
        _UNUSED_DUMMY(typekind)
        _UNUSED_DUMMY(units)
     end subroutine get_coordinate_field
