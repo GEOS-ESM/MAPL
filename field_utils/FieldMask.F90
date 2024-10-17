@@ -16,22 +16,26 @@ module mapl3_FieldMask
    
    abstract interface
 
-      logical function MaskFieldFunction(this, f)
+      function MaskFieldFunction(this, f) result(mask)
+         type(ESMF_Field) :: mask
          class(FieldMask), intent(in) :: this
-         type(ESMF_Field, intent(inout) :: f
+         type(ESMF_Field), intent(inout) :: f
       end function MaskFieldFunction
          
-      logical function MaskLRFieldFunction(this, left, right)
+      function MaskLRFieldFunction(this, left, right) result(mask)
+         type(ESMF_Field) :: mask
          class(FieldMask), intent(in) :: this
          type(ESMF_Field, intent(inout) :: left, right
       end function MaskLRFieldFunction
 
-      logical function MaskNegationFunction(this, nf)
+      function MaskNegationFunction(this, nf)
+         type(ESMF_Field) :: mask
          class(FieldMask), intent(in) :: this
          class(FieldMask), intent(in) :: nf
       end function MaskNegationFunction
          
-      logical function MaskCompositeFunction(this, left, right)
+      function MaskCompositeFunction(this, left, right)
+         type(ESMF_Field) :: mask
          class(FieldMask), intent(in) :: this
          class(FieldMask), intent(in) :: left, right
       end function MaskCompositeFunction

@@ -1,35 +1,26 @@
-module mapl3g_AccumulatorProcedures
 
-   use mapl3g_Accumulator
-   implicit none
-   private
-   public :: AccumlatorProcedures
+   subroutine add_acc_procedures(existing, addition, rc)
+      class(AccumulatorProcedures), allocatable, intent(inout) :: existing(:)
+      class(AccumulatorProcedures), pointer, intent(in) :: addition
+      integer, optional, intent(out) :: rc
+      integer :: status
+      integer :: i      
 
+      if(.not. allocated(existing))
+         existing = [addition]
+         _RETURN(_SUCCESS)
+      end if
+      do i=1, size(existing)
+         _ASSERT(existing(i)%name == addition%name, "AccumulatorProcedures name is already in use.") 
+      end do
+
+      existing = [type(AccumulatorProcedures) :: existing, addition]
+
+   end subroutine add_acc_procedures
    type :: AccumulatorProcedures
-      procedure(AccumulateProcedure), pointer :: accumulate => null()
-      procedure(CoupleProcedure), pointer :: couple => null()
-      procedure(ClearProcedure), pointer :: clear => null()
+      character(len=:), allocatable :: name
+      procedure(UpdateAccumulator), pointer :: accumulate => null()
+      procedure(ModifyAccumulator), pointer :: couple => null()
+      procedure(ModifyAccumulator), pointer :: clear => null()
    end type AccumulatorProcedures
 
-   abstract interface
-
-      subroutine AccumulateProcedure(acc, field_update, rc)
-         class(Accumulator), intent(inout) :: acc
-         type(ESMF_Field), intent(inout) :: field_update
-         integer, optional, intent(out) :: rc
-      end subroutine AccumulateProcedure
-
-      subroutine CoupleProcedure(acc, rc)
-         class(Accumulator), intent(inout) :: acc
-         integer, optional, intent(out) :: rc
-      end subroutine CoupleProcedure
-
-      subroutine ClearProcedure(acc, rc)
-         class(Accumulator), intent(inout) :: acc
-         type(ESMF_Field), intent(inout) :: field_update
-         integer, optional, intent(out) :: rc
-      end subroutine ClearProcedure
-
-   end interface interface
-
-end module mapl3g_AccumulatorProcedures

@@ -1,11 +1,10 @@
 #define _NAME field
 #include "function_overload.macro"
 
-   subroutine _SUB(field_out,left_field,right_field,set_undef,rc)
+   subroutine _SUB(field_out,left_field,right_field,rc)
       type(ESMF_Field), intent(inout) :: field_out
       type(ESMF_Field), intent(inout) :: left_field
       type(ESMF_Field), intent(inout) :: right_field
-      logical, optional, intent(in) :: set_undef
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -17,8 +16,7 @@
       type(ESMF_TypeKind_Flag) :: tk_out
       logical :: has_undef, conformable, setundef
 
-      setundef = .TRUE.
-      if(present(set_undef)) setundef = set_undef
+       setundef = .not. _KEEP_LEFT
 
       conformable = FieldsAreConformable(left_field,field_out,_RC)
       _ASSERT(conformable,"Left field passed to binary function is not conformable with result field.")

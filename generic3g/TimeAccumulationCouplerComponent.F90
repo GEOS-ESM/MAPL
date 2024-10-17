@@ -9,11 +9,6 @@ module mapl3g_TimeAccumulatorCouplerComponent
    type(AccumulatorProcedures) :: MinProcedures
    type(AccumulatorProcedures) :: MaxProcedures
    
-   integer, parameter :: SIMPLE_ACCUMULATOR = 0
-   integer, parameter :: MEAN_ACCUMULATOR = 1
-   integer, parameter :: MIN_ACCUMULATOR = 2
-   integer, parameter :: MAX_ACCUMULATOR = 3
-
 contains
 
    subroutine accumulate(acc, field_update, rc)
