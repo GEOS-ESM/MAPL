@@ -155,7 +155,7 @@ check_c_source_compiles("
 
 if (Baselibs_FOUND)
   message(STATUS "Baselibs found, zstandard capability not possible")
-  set(NETCDF_HAS_ZSTD FALSE)
+  set(NETCDF_HAS_ZSTD FALSE CACHE BOOL "netCDF has zstandard capability" FORCE)
 endif ()
 
 if (NETCDF_HAS_ZSTD)
