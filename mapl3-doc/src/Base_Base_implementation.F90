@@ -2801,8 +2801,8 @@ contains
     _ASSERT( IM_WORLD*6 == JM_WORLD, "It only works for cubed-sphere grid")
 
     allocate(lons(npts),lats(npts))
-    
-    call MAPL_Reverse_Schmidt(Grid, stretched, npts, lon=lon, lat=lat, lonR8=lonR8, latR8=latR8, lonRe=lons, latRe=lats, _RC) 
+
+    call MAPL_Reverse_Schmidt(Grid, stretched, npts, lon=lon, lat=lat, lonR8=lonR8, latR8=latR8, lonRe=lons, latRe=lats, _RC)
 
     dalpha = 2.0d0*alpha/IM_WORLD
 
@@ -2916,7 +2916,7 @@ contains
        if ( I1 == 1 .and. J1 == 1 ) then
           allocate(lonRe(j2-j1+1),      latRe(j2-j1+1))
           call MAPL_Reverse_Schmidt(grid, stretched, J2-J1+1, lonR8=corner_lons(1,:), &
-                                   latR8=corner_lats(1,:), lonRe=lonRe, latRe=latRe, _RC)  
+                                   latR8=corner_lats(1,:), lonRe=lonRe, latRe=latRe, _RC)
 
           allocate(accurate_lon(j2-j1+1), accurate_lat(j2-j1+1))
 
@@ -3422,32 +3422,34 @@ contains
   end function MAPL_GetCorrectedPhase
 
   module subroutine MAPL_Reverse_Schmidt(Grid, stretched, npts, lon, lat, lonR8, latR8, lonRe, latRe, rc)
-     type(ESMF_Grid), intent(inout) :: Grid 
+     type(ESMF_Grid), intent(inout) :: Grid
      logical, intent(out)           :: stretched
      integer,                      intent(in   ) :: npts        ! number of points in lat and lon arrays
      real, optional,               intent(in   ) :: lon(npts)   ! array of longitudes in radians
      real, optional,               intent(in   ) :: lat(npts)   ! array of latitudes in radians
      real(ESMF_KIND_R8), optional, intent(in   ) :: lonR8(npts) ! array of longitudes in radians
-     real(ESMF_KIND_R8), optional, intent(in   ) :: latR8(npts) !     
-     real(ESMF_KIND_R8), optional, intent(out  ) :: lonRe(npts) ! 
-     real(ESMF_KIND_R8), optional, intent(out  ) :: latRe(npts) ! 
+     real(ESMF_KIND_R8), optional, intent(in   ) :: latR8(npts) !
+     real(ESMF_KIND_R8), optional, intent(out  ) :: lonRe(npts) !
+     real(ESMF_KIND_R8), optional, intent(out  ) :: latRe(npts) !
      integer, optional, intent(out) :: rc
 
      logical :: factorPresent, lonPresent, latPresent
      integer :: status
      real(ESMF_KIND_R8) :: c2p1, c2m1, half_pi, two_pi, stretch_factor, target_lon, target_lat
-     real(ESMF_KIND_R8), dimension(npts) :: x,y,z, Xx, Yy, Zz  
+     real(ESMF_KIND_R8), dimension(npts) :: x,y,z, Xx, Yy, Zz
      logical, dimension(npts) :: n_s
+     type(ESMF_Info) :: infoh
 
      _RETURN_IF( npts == 0 )
- 
-     call ESMF_AttributeGet(grid, name='STRETCH_FACTOR', isPresent= factorPresent, _RC)
-     call ESMF_AttributeGet(grid, name='TARGET_LON',     isPresent= lonPresent,    _RC)
-     call ESMF_AttributeGet(grid, name='TARGET_LAT',     isPresent= latPresent,    _RC)
+
+     call ESMF_InfoGetFromHost(grid, infoh, _RC)
+     factorPresent = ESMF_InfoIsPresent(infoh, 'STRETCH_FACTOR', _RC)
+     lonPresent    = ESMF_InfoIsPresent(infoh, 'TARGET_LON',     _RC)
+     latPresent    = ESMF_InfoIsPresent(infoh, 'TARGET_LAT',     _RC)
 
      if ( factorPresent .and. lonPresent .and. latPresent) then
         stretched = .true.
-     else 
+     else
         stretched = .false.
      endif
 
@@ -3469,11 +3471,11 @@ contains
         _RETURN(_SUCCESS)
      endif
 
-     call ESMF_AttributeGet(grid, name='STRETCH_FACTOR', value=stretch_factor, _RC)
-     call ESMF_AttributeGet(grid, name='TARGET_LON',     value=target_lon,     _RC)
-     call ESMF_AttributeGet(grid, name='TARGET_LAT',     value=target_lat,     _RC)
+     call ESMF_InfoGet(infoh, 'STRETCH_FACTOR', value=stretch_factor, _RC)
+     call ESMF_InfoGet(infoh, 'TARGET_LON',     value=target_lon,     _RC)
+     call ESMF_InfoGet(infoh, 'TARGET_LAT',     value=target_lat,     _RC)
 
-     c2p1 = 1 + stretch_factor*stretch_factor 
+     c2p1 = 1 + stretch_factor*stretch_factor
      c2m1 = 1 - stretch_factor*stretch_factor
 
      half_pi = MAPL_PI_R8/2
@@ -3481,7 +3483,7 @@ contains
 
      target_lon = target_lon*MAPL_DEGREES_TO_RADIANS_R8
      target_lat = target_lat*MAPL_DEGREES_TO_RADIANS_R8
-  
+
      x = cos(latRe)*cos(lonRe - target_lon)
      y = cos(latRe)*sin(lonRe - target_lon)
      z = sin(latRe)
