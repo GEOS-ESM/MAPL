@@ -241,5 +241,51 @@ contains
 
    end subroutine test_compare_negative_string_to_negative_heartbeat
 
+   @Test
+   subroutine test_create_from_parameters_heartbeat_positive_explicit()
+      type(ExtDataPointerUpdate) :: ex
+      integer :: status, rc
+      character(len=*), parameter :: OFFSET_STRING = '+' // HEARTBEAT_STRING
+      type(ESMF_TimeInterval) :: offset, interval
+      integer :: expected, actual
+
+      offset = timestep
+      call ESMF_TimeIntervalGet(offset, s=expected, _RC)
+      call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, OFFSET_STRING, default_time, clock, _RC)
+      interval = ex%get_offset()
+      call ESMF_TimeIntervalGet(interval, s=actual, _RC)
+      @assertEqual(expected, actual, ERR_MSG)
+
+   end subroutine test_create_from_parameters_heartbeat_positive_explicit
+
+   @Test
+   subroutine test_create_from_parameters_heartbeat_positive_negative()
+      type(ExtDataPointerUpdate) :: ex
+      integer :: status, rc
+      character(len=*), parameter :: OFFSET_STRING = '+-' // HEARTBEAT_STRING
+      type(ESMF_TimeInterval) :: offset, interval
+      integer :: expected, actual
+
+      offset = timestep
+      call ESMF_TimeIntervalGet(offset, s=expected, _RC)
+      call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, OFFSET_STRING, default_time, clock, rc=status)
+      @assertFalse(status == 0, 'An exception should have been thrown.')
+
+   end subroutine test_create_from_parameters_heartbeat_positive_negative
+
+   @Test
+   subroutine test_create_from_parameters_heartbeat_negative_positive()
+      type(ExtDataPointerUpdate) :: ex
+      integer :: status, rc
+      character(len=*), parameter :: OFFSET_STRING = '-+' // HEARTBEAT_STRING
+      type(ESMF_TimeInterval) :: offset, interval
+      integer :: expected, actual
+
+      offset = timestep
+      call ESMF_TimeIntervalGet(offset, s=expected, _RC)
+      call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, OFFSET_STRING, default_time, clock, rc=status)
+      @assertFalse(status == 0, 'An exception should have been thrown.')
+
+   end subroutine test_create_from_parameters_heartbeat_negative_positive
 
 end module Test_ExtDataUpdatePointer
