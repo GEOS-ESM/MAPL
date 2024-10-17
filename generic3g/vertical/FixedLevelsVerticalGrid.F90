@@ -110,12 +110,12 @@ contains
       integer, intent(out) :: iostat
       character(*), intent(inout) :: iomsg
 
-      write(unit, "(a, 3x, a, a, 3x, a, a, 3x, a, *(g0, 1x), a)", iostat=iostat, iomsg=iomsg) &
-           "FixedLevelsVerticalGrid(" // new_line("a"), &
-           "standard name: ", this%standard_name // new_line("a"), &
-           "units: ", this%units // new_line("a"), &
-           "levels: ", this %levels, &
-           new_line("a") // ")"
+      write(unit, "(1x, a, a, 4x, a, a, a, 4x, a, a, a, 4x, a, *(g0, 1x), a, 1x, a)", iostat=iostat, iomsg=iomsg) &
+           "FixedLevelsVerticalGrid(", new_line("a"), &
+           "standard name: ", this%standard_name, new_line("a"), &
+           "units: ", this%units, new_line("a"), &
+           "levels: ", this %levels, new_line("a"), &
+           ")"
       if (iostat /= 0) return
 
       _UNUSED_DUMMY(iotype)
@@ -142,4 +142,3 @@ contains
    end function not_equal_FixedLevelsVerticalGrid
 
 end module mapl3g_FixedLevelsVerticalGrid
-
