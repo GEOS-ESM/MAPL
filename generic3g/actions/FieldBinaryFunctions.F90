@@ -12,12 +12,17 @@ module MAPL_FieldBinaryFunctions
 
 contains
 
+#define _KEEP_LEFT
+
 #define _FUNC Min
 #include "FieldBinaryFunctionTemplate.H"
 #undef _FUNC
 
 #define _FUNC Min
+#define _KEEP_LEFT
 #include "FieldBinaryFunctionTemplate.H"
 #undef _FUNC
+
+#undef _KEEP_LEFT
 
 end module MAPL_FieldBinaryFunctions

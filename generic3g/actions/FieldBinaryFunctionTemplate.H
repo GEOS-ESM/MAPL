@@ -14,9 +14,7 @@
       type(ESMF_Field) :: fields(3)
       type(ESMF_TypeKind_Flag) :: tk_in
       type(ESMF_TypeKind_Flag) :: tk_out
-      logical :: has_undef, conformable, setundef
-
-       setundef = .not. _KEEP_LEFT
+      logical :: has_undef, conformable
 
       conformable = FieldsAreConformable(left_field,field_out,_RC)
       _ASSERT(conformable,"Left field passed to binary function is not conformable with result field.")
@@ -60,7 +58,7 @@
             where(ptr_left /= undef(LEFT) .and. ptr_right /= undef(RIGHT))
                ptr_out = _FUNC(ptr_left, ptr_right)
             elsewhere
-               if(setundef) ptr_out = undef(OUT_)
+               if(_SETUNDEF) ptr_out = undef(OUT_)
            end where
          else
             ptr_out = _FUNC(ptr_left, ptr_right)
@@ -84,7 +82,7 @@
             where(ptr_left /= undef(LEFT) .and. ptr_right /= undef(RIGHT))
                ptr_out = _FUNC(ptr_left, ptr_right)
             elsewhere
-               if(setundef) ptr_out = undef(OUT_)
+               if(_SETUNDEF) ptr_out = undef(OUT_)
            end where
          else
             ptr_out = _FUNC(ptr_left, ptr_right)

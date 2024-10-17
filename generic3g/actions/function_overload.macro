@@ -1,0 +1,10 @@
+#define _IDENTITY(x)x
+#define _SUB __SUB(_NAME,_FUNC)
+#define __SUB(A,B) ___SUB(A,B)
+#define ___SUB(A,B) _IDENTITY(A)_IDENTITY(B)
+#if defined(_KEEP_LEFT)
+#   define _SETUNDEF .FALSE.
+#else
+#   define _SETUNDEF .TRUE.
+#   define _KEEP_LEFT .FALSE.
+#endif
