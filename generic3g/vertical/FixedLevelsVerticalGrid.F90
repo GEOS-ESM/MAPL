@@ -24,6 +24,8 @@ module mapl3g_FixedLevelsVerticalGrid
       procedure :: get_num_levels
       procedure :: get_coordinate_field
       procedure :: can_connect_to
+      procedure :: write_formatted
+      generic :: write(formatted) => write_formatted
    end type FixedLevelsVerticalGrid
 
    interface FixedLevelsVerticalGrid
@@ -42,8 +44,8 @@ contains
 
    function new_FixedLevelsVerticalGrid_r32(standard_name, levels, units) result(grid)
       type(FixedLevelsVerticalGrid) :: grid
-      real(REAL32), intent(in) :: levels(:)
       character(*), intent(in) :: standard_name
+      real(REAL32), intent(in) :: levels(:)
       character(*), intent(in) :: units
 
       call grid%set_id()
@@ -58,67 +60,86 @@ contains
    end function get_num_levels
 
    subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, rc)
-       class(FixedLevelsVerticalGrid), intent(in) :: this
-       type(ESMF_Field), intent(out) :: field
-       type(GriddedComponentDriver), pointer, intent(out) :: coupler
-       character(*), intent(in) :: standard_name
-       type(ESMF_Geom), intent(in) :: geom
-       type(ESMF_TypeKind_Flag), intent(in) :: typekind
-       character(*), intent(in) :: units
-       integer, optional, intent(out) :: rc
+      class(FixedLevelsVerticalGrid), intent(in) :: this
+      type(ESMF_Field), intent(out) :: field
+      type(GriddedComponentDriver), pointer, intent(out) :: coupler
+      character(*), intent(in) :: standard_name
+      type(ESMF_Geom), intent(in) :: geom
+      type(ESMF_TypeKind_Flag), intent(in) :: typekind
+      character(*), intent(in) :: units
+      integer, optional, intent(out) :: rc
 
-       integer :: status
+      integer :: status
 
-       ! Add the 1D array, levels(:), to an ESMF Field
-       field = ESMF_FieldEmptyCreate(name="FixedLevelsVerticalGrid", _RC)
-       call ESMF_FieldEmptySet(field, geom=geom, _RC)
-       call ESMF_FieldEmptyComplete( &
-            field, &
-            farray=this%levels, &
-            indexflag=ESMF_INDEX_DELOCAL, &
-            datacopyFlag=ESMF_DATACOPY_REFERENCE, &
-            gridToFieldMap=[0, 0], &
-            ungriddedLBound=[1], &
-            ungriddedUBound=[size(this%levels)], &
-            _RC)
-       call ESMF_FieldPrint(field)
+      ! Add the 1D array, levels(:), to an ESMF Field
+      field = ESMF_FieldEmptyCreate(name="FixedLevelsVerticalGrid", _RC)
+      call ESMF_FieldEmptySet(field, geom=geom, _RC)
+      call ESMF_FieldEmptyComplete( &
+           field, &
+           farray=this%levels, &
+           indexflag=ESMF_INDEX_DELOCAL, &
+           datacopyFlag=ESMF_DATACOPY_REFERENCE, &
+           gridToFieldMap=[0, 0], &
+           ungriddedLBound=[1], &
+           ungriddedUBound=[size(this%levels)], &
+           _RC)
 
-       _RETURN(_SUCCESS)
-       _UNUSED_DUMMY(coupler)
-       _UNUSED_DUMMY(standard_name)
-       _UNUSED_DUMMY(typekind)
-       _UNUSED_DUMMY(units)
-    end subroutine get_coordinate_field
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(coupler)
+      _UNUSED_DUMMY(standard_name)
+      _UNUSED_DUMMY(typekind)
+      _UNUSED_DUMMY(units)
+   end subroutine get_coordinate_field
 
-    logical function can_connect_to(this, src, rc)
-       class(FixedLevelsVerticalGrid), intent(in) :: this
-       class(VerticalGrid), intent(in) :: src
-       integer, optional, intent(out) :: rc
+   logical function can_connect_to(this, src, rc)
+      class(FixedLevelsVerticalGrid), intent(in) :: this
+      class(VerticalGrid), intent(in) :: src
+      integer, optional, intent(out) :: rc
 
-       can_connect_to = .false.
-       _FAIL('not implemented')
-       _UNUSED_DUMMY(this)
-       _UNUSED_DUMMY(src)
-    end function can_connect_to
+      can_connect_to = .false.
+      _FAIL("not implemented")
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(src)
+   end function can_connect_to
 
-    impure elemental logical function equal_FixedLevelsVerticalGrid(a, b) result(equal)
-       type(FixedLevelsVerticalGrid), intent(in) :: a, b
+   subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
+      class(FixedLevelsVerticalGrid), intent(in) :: this
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
 
-       equal = a%standard_name == b%standard_name
-       if (.not. equal) return       
-       equal = a%units == b%units
-       if (.not. equal) return       
-       equal = size(a%levels) == size(b%levels)
-       if (.not. equal) return       
-       equal = all(a%levels == b%levels)
-    end function equal_FixedLevelsVerticalGrid 
+      write(unit, "(a, 3x, a, a, 3x, a, a, 3x, a, *(g0, 1x), a)", iostat=iostat, iomsg=iomsg) &
+           "FixedLevelsVerticalGrid(" // new_line("a"), &
+           "standard name: ", this%standard_name // new_line("a"), &
+           "units: ", this%units // new_line("a"), &
+           "levels: ", this %levels, &
+           new_line("a") // ")"
+      if (iostat /= 0) return
 
-    impure elemental logical function not_equal_FixedLevelsVerticalGrid(a, b) result(not_equal)
-       type(FixedLevelsVerticalGrid), intent(in) :: a, b
+      _UNUSED_DUMMY(iotype)
+      _UNUSED_DUMMY(v_list)
+   end subroutine write_formatted
 
-       not_equal = .not. (a==b)
+   impure elemental logical function equal_FixedLevelsVerticalGrid(a, b) result(equal)
+      type(FixedLevelsVerticalGrid), intent(in) :: a, b
 
-    end function not_equal_FixedLevelsVerticalGrid 
+      equal = a%standard_name == b%standard_name
+      if (.not. equal) return
+      equal = a%units == b%units
+      if (.not. equal) return
+      equal = size(a%levels) == size(b%levels)
+      if (.not. equal) return
+      equal = all(a%levels == b%levels)
+   end function equal_FixedLevelsVerticalGrid
+
+   impure elemental logical function not_equal_FixedLevelsVerticalGrid(a, b) result(not_equal)
+      type(FixedLevelsVerticalGrid), intent(in) :: a, b
+
+      not_equal = .not. (a==b)
+
+   end function not_equal_FixedLevelsVerticalGrid
 
 end module mapl3g_FixedLevelsVerticalGrid
 
