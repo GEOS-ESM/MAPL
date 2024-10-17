@@ -63,10 +63,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Allow update offsets of &#177;timestep in ExtData2G
 
 ### Changed
 
+- Update ESMF version for Baselibs to match that of Spack for consistency
+
 ### Fixed
+
+- Fixed issue of some Baselibs builds appearing to support zstandard. This is not possible due to Baselibs building HDF5 and netCDF as static libraries
 
 ### Removed
 
