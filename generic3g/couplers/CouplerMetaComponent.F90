@@ -1,14 +1,18 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_CouplerMetaComponent
+
+   use mapl3g_CouplerPhases, only: GENERIC_COUPLER_UPDATE, GENERIC_COUPLER_INVALIDATE
    use mapl3g_ComponentDriver, only: ComponentDriver, ComponentDriverPtr
    use mapl3g_GriddedComponentDriver, only: GriddedComponentDriver
    use mapl3g_ComponentDriverVector, only: ComponentDriverVector
    use mapl3g_ComponentDriverPtrVector, only: ComponentDriverPtrVector
    use mapl3g_ExtensionAction
+   use mapl3g_VerticalRegridAction
    use mapl_ErrorHandlingMod
    use mapl3g_ESMF_Interfaces
    use esmf
+
    implicit none
    private
 
@@ -19,12 +23,6 @@ module mapl3g_CouplerMetaComponent
    public :: get_coupler_meta
    public :: attach_coupler_meta
    public :: free_coupler_meta
-
-   ! Phase indices
-   public :: GENERIC_COUPLER_INITIALIZE
-   public :: GENERIC_COUPLER_UPDATE
-   public :: GENERIC_COUPLER_INVALIDATE
-   public :: GENERIC_COUPLER_CLOCK_ADVANCE
 
    type :: CouplerMetaComponent
       private
@@ -52,13 +50,6 @@ module mapl3g_CouplerMetaComponent
       procedure, non_overridable :: set_stale
    end type CouplerMetaComponent
 
-   enum, bind(c)
-      enumerator :: GENERIC_COUPLER_INITIALIZE = 1
-      enumerator :: GENERIC_COUPLER_UPDATE
-      enumerator :: GENERIC_COUPLER_INVALIDATE
-      enumerator :: GENERIC_COUPLER_CLOCK_ADVANCE
-   end enum
-
    character(len=*), parameter :: COUPLER_META_PRIVATE_STATE = "CouplerMetaComponent Private State"
 
    type CouplerMetaWrapper
@@ -70,7 +61,6 @@ module mapl3g_CouplerMetaComponent
    end interface CouplerMetaComponent
 
 contains
-
 
    function new_CouplerMetaComponent(action, source) result (this)
       type(CouplerMetaComponent) :: this
@@ -87,7 +77,7 @@ contains
 
    end function new_CouplerMetaComponent
 
-  recursive subroutine initialize(this, importState, exportState, clock, rc)
+   recursive subroutine initialize(this, importState, exportState, clock, rc)
       class(CouplerMetaComponent), intent(inout) :: this
       type(ESMF_State), intent(inout) :: importState
       type(ESMF_State), intent(inout) :: exportState
@@ -109,10 +99,9 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      
       _RETURN_IF(this%is_up_to_date())
 
-!#      call this%propagate_attributes(_RC)
+      !# call this%propagate_attributes(_RC)
       call this%update_sources(_RC)
       
       call this%action%run(importState, exportState, clock, _RC)
@@ -138,26 +127,26 @@ contains
    end subroutine update_sources
 
    recursive subroutine invalidate(this, importState, exportState, clock, rc)
-        class(CouplerMetaComponent) :: this
-        type(ESMF_State) :: importState
-        type(ESMF_State) :: exportState
-        type(ESMF_Clock) :: clock
-        integer, intent(out) :: rc
+      class(CouplerMetaComponent) :: this
+      type(ESMF_State) :: importState
+      type(ESMF_State) :: exportState
+      type(ESMF_Clock) :: clock
+      integer, intent(out) :: rc
 
-        integer :: status
+      integer :: status
         
-        _RETURN_IF(this%is_stale())
+      _RETURN_IF(this%is_stale())
 
-        call this%invalidate_consumers(_RC)
-        call this%set_stale()
+      call this%invalidate_consumers(_RC)
+      call this%set_stale()
   
-        _RETURN(_SUCCESS)
-        _UNUSED_DUMMY(clock)
-        _UNUSED_DUMMY(exportState)
-        _UNUSED_DUMMY(importState)
-    end subroutine invalidate
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(clock)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(importState)
+   end subroutine invalidate
       
-    recursive subroutine invalidate_consumers(this, rc)
+   recursive subroutine invalidate_consumers(this, rc)
       class(CouplerMetaComponent), target :: this
       integer, intent(out) :: rc
 
@@ -174,27 +163,25 @@ contains
    end subroutine invalidate_consumers
 
    recursive subroutine clock_advance(this, importState, exportState, clock, rc)
-        class(CouplerMetaComponent), intent(inout) :: this
-        type(ESMF_State), intent(inout) :: importState
-        type(ESMF_State), intent(inout) :: exportState
-        type(ESMF_Clock), intent(inout) :: clock
-        integer, optional, intent(out) :: rc
+      class(CouplerMetaComponent), intent(inout) :: this
+      type(ESMF_State), intent(inout) :: importState
+      type(ESMF_State), intent(inout) :: exportState
+      type(ESMF_Clock), intent(inout) :: clock
+      integer, optional, intent(out) :: rc
 
-        integer :: status
-        type(ESMF_Alarm) :: alarm
-        logical :: is_ringing
+      integer :: status
+      type(ESMF_Alarm) :: alarm
+      logical :: is_ringing
 
-        call ESMF_ClockGetAlarm(clock, "MAPL::RUN_ALARM", alarm, _RC)
-        is_ringing = ESMF_AlarmIsRinging(alarm, _RC)
-        _RETURN_UNLESS(is_ringing)
+      call ESMF_ClockGetAlarm(clock, "MAPL::RUN_ALARM", alarm, _RC)
+      is_ringing = ESMF_AlarmIsRinging(alarm, _RC)
+      _RETURN_UNLESS(is_ringing)
 
-        _RETURN(_SUCCESS)
-        _UNUSED_DUMMY(this)
-        _UNUSED_DUMMY(exportState)
-        _UNUSED_DUMMY(importState)
-     end subroutine clock_advance
-
-
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(importState)
+   end subroutine clock_advance
       
    function add_consumer(this) result(consumer)
       class(ComponentDriver), pointer :: consumer
@@ -212,9 +199,7 @@ contains
       source_wrapper%ptr => source
 
       call this%sources%push_back(source_wrapper)
-
    end subroutine add_source
-
 
    function get_coupler_meta(gridcomp, rc) result(meta)
       type(CouplerMetaComponent), pointer :: meta
@@ -258,7 +243,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine free_coupler_meta
-
 
    pure subroutine set_up_to_date(this)
       class(CouplerMetaComponent), intent(inout) :: this

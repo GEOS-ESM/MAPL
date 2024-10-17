@@ -27,6 +27,8 @@ module mapl3g_FieldSpec
    use mapl3g_InfoUtilities
    use mapl3g_ExtensionAction
    use mapl3g_VerticalGrid
+   use mapl3g_BasicVerticalGrid
+   use mapl3g_FixedLevelsVerticalGrid
    use mapl3g_VerticalRegridAction
    use mapl3g_VerticalDimSpec
    use mapl3g_AbstractActionSpec
@@ -832,15 +834,18 @@ contains
       _RETURN(_SUCCESS)
    end subroutine adapt_geom
 
-   logical function adapter_match_geom(this, spec) result(match)
+   logical function adapter_match_geom(this, spec, rc) result(match)
       class(GeomAdapter), intent(in) :: this
       class(StateItemSpec), intent(in) :: spec
+      integer, optional, intent(out) :: rc
 
       match = .false.
       select type (spec)
       type is (FieldSpec)
          match = match_geom(spec%geom, this%geom)
       end select
+
+      _RETURN(_SUCCESS)
    end function adapter_match_geom
 
    function new_VerticalGridAdapter(vertical_grid, geom, typekind, units, regrid_method) result(vertical_grid_adapter)
@@ -882,41 +887,59 @@ contains
       _RETURN(_SUCCESS)
    end subroutine adapt_vertical_grid
 
-   logical function adapter_match_vertical_grid(this, spec) result(match)
+   logical function adapter_match_vertical_grid(this, spec, rc) result(match)
 
       class(VerticalGridAdapter), intent(in) :: this
       class(StateItemSpec), intent(in) :: spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
 
       match = .false.
       select type (spec)
       type is (FieldSpec)
-         match = same_vertical_grid(spec%vertical_grid, this%vertical_grid)
+         match = same_vertical_grid(spec%vertical_grid, this%vertical_grid, _RC)
       end select
+
+      _RETURN(_SUCCESS)
 
    contains
 
-      logical function same_vertical_grid(src_grid, dst_grid)
+      logical function same_vertical_grid(src_grid, dst_grid, rc)
          class(VerticalGrid), intent(in) :: src_grid
          class(VerticalGrid), allocatable, intent(in) :: dst_grid
+         integer, optional, intent(out) :: rc
 
          same_vertical_grid = .true.
-         if (.not. allocated(dst_grid)) return ! mirror grid
+         if (.not. allocated(dst_grid)) then
+            _RETURN(_SUCCESS) ! mirror grid
+         end if
 
          same_vertical_grid = src_grid%same_id(dst_grid)
+         if (same_vertical_grid) then
+            _RETURN(_SUCCESS)
+         end if
 
-         block
-            use mapl3g_BasicVerticalGrid
-            ! "temporary kludge" while true vertical grid logic is being implemented
-            if (.not. same_vertical_grid) then
-               select type(src_grid)
-               type is (BasicVerticalGrid)
-                  select type (dst_grid)
-                  type is (BasicVerticalGrid)
-                     same_vertical_grid = (src_grid%get_num_levels() == dst_grid%get_num_levels())
-                  end select
-               end select
-            end if
-         end block
+         select type(src_grid)
+         type is(BasicVerticalGrid)
+            select type(dst_grid)
+            type is(BasicVerticalGrid)
+               same_vertical_grid = (src_grid%get_num_levels() == dst_grid%get_num_levels())
+            class default
+               _FAIL("not implemented yet")
+            end select
+         type is(FixedLevelsVerticalGrid)
+            select type(dst_grid)
+            type is(FixedLevelsVerticalGrid)
+               same_vertical_grid = (src_grid == dst_grid)
+            class default
+               _FAIL("not implemented yet")
+            end select
+         class default
+            _FAIL("not implemented yet")
+         end select
+
+         _RETURN(_SUCCESS)
       end function same_vertical_grid
 
    end function adapter_match_vertical_grid
@@ -943,15 +966,18 @@ contains
       _RETURN(_SUCCESS)
    end subroutine adapt_typekind
 
-   logical function adapter_match_typekind(this, spec) result(match)
+   logical function adapter_match_typekind(this, spec, rc) result(match)
       class(TypekindAdapter), intent(in) :: this
       class(StateItemSpec), intent(in) :: spec
+      integer, optional, intent(out) :: rc
 
       match = .false.
       select type (spec)
       type is (FieldSpec)
          match = any(this%typekind == [spec%typekind,MAPL_TYPEKIND_MIRROR])
       end select
+
+      _RETURN(_SUCCESS)
    end function adapter_match_typekind
 
    function new_UnitsAdapter(units) result(units_adapter)
@@ -976,9 +1002,10 @@ contains
       _RETURN(_SUCCESS)
    end subroutine adapt_units
 
-  logical function adapter_match_units(this, spec) result(match)
+  logical function adapter_match_units(this, spec, rc) result(match)
       class(UnitsAdapter), intent(in) :: this
       class(StateItemSpec), intent(in) :: spec
+      integer, optional, intent(out) :: rc
 
       match = .false.
       select type (spec)
@@ -987,6 +1014,8 @@ contains
          if (.not. allocated(this%units)) return
          match = (this%units == spec%units)
       end select
+
+      _RETURN(_SUCCESS)
    end function adapter_match_units
 
    recursive function make_adapters(this, goal_spec, rc) result(adapters)
