@@ -63,6 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Allow update offsets of &#177;timestep in ExtData2G
 
 ### Changed
 
