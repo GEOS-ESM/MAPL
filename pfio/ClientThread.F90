@@ -33,7 +33,7 @@ module pFIO_ClientThreadMod
    use pFIO_ReplaceMetadataMessageMod
    use pFIO_StringVariableMapMod
 
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ClientThread

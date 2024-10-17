@@ -7,7 +7,7 @@ module MAPL_CF_Time
    use MAPL_ExceptionHandling
    use MAPL_DateTime_Parsing
 
-   implicit none
+   implicit none (type, external)
 
 ! Comment to test all procedures
    private

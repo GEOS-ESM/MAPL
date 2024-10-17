@@ -4,7 +4,7 @@ module MAPL_DownbitMod
    use mpi
    use MAPL_ExceptionHandling
 
-   implicit none
+   implicit none (type)
    private
 
    public :: DownBit
@@ -20,7 +20,7 @@ contains
 !--------------------------------------------------------------------------
 !>
 ! The routine `DownBit3D` returns a lower precision version of the input array
-! `x` which retains `nbits_to_keep` of precision. 
+! `x` which retains `nbits_to_keep` of precision.
 ! See routine `ESMF_CFIODownBit2D` or additional details. This version for
 ! rank 3 arrays, calls `ESMF_CFIODownBit2D()` for each vertical level.
 !
@@ -29,7 +29,7 @@ contains
 !
    subroutine DownBit3D ( x, xr, nbits_to_keep, undef, flops, mpi_comm, rc )
 
-     implicit NONE
+     implicit none (type, external)
 
 !
 ! !INPUT PARAMETERS:
@@ -88,10 +88,10 @@ contains
 !
 !#### History
 !- 06Dec2006  da Silva  Initial version.
-! 
+!
    subroutine DownBit2D ( x, xr, nbits_to_keep, undef, flops, mpi_comm, rc )
 
-     implicit NONE
+     implicit none (type, external)
 
 !
 ! !INPUT PARAMETERS:
@@ -191,7 +191,7 @@ contains
    end subroutine DownBit2D
 
    subroutine DownBit1D ( x, xr, nbits_to_keep, undef, flops, mpi_comm, rc )
-     implicit NONE
+     implicit none (type, external)
 !
 ! !INPUT PARAMETERS:
 !
@@ -249,6 +249,6 @@ contains
          max_value = local_max_value
       end if
       _RETURN(_SUCCESS)
-   end subroutine 
+   end subroutine
 
 end module MAPL_DownbitMod

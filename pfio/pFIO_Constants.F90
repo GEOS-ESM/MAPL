@@ -1,5 +1,5 @@
 module pFIO_ConstantsMod
-   implicit none
+   implicit none (type, external)
    private
 
    ! Type/kinds

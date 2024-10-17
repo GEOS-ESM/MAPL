@@ -17,7 +17,7 @@ module MAPL_LlcGridFactoryMod
    use pFIO
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
-   implicit none
+   implicit none (type, external)
    private
 
    public :: LlcGridFactory
@@ -84,6 +84,7 @@ module MAPL_LlcGridFactoryMod
       module procedure set_with_default_character
    end interface set_with_default
 
+   external :: ncclos, ncvgt, ncvinq, ncdinq
 
 contains
 

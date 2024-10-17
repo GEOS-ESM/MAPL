@@ -70,7 +70,7 @@
 module MAPL_ISO8601_DateTime
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
-   implicit none
+   implicit none (type, external)
 
 ! For testing private methods, leave the following line commented out.
 !   private

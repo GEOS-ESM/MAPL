@@ -2,7 +2,7 @@
 
 module ESMF_TestParameter_mod
    use pfunit, only: MpiTestParameter
-   implicit none
+   implicit none (type, external)
 
    private
 

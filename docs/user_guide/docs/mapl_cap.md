@@ -46,7 +46,7 @@ Usually, each of these, except `Run` and `Record`, is executed only once.
    use MAPLBase_Mod
    use GEOS_AgcmSimpleGridCompMod, only:  ROOT_SetServices => SetServices
 
-   implicit none
+   implicit none (type, external)
    integer           :: STATUS
    character(len=18) :: Iam="Main"
 

@@ -3,7 +3,7 @@ module mapl_ConcreteComposite
    use mapl_AbstractComposite
    use mapl_StringCompositeMap
    use gFTL_StringVector
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ConcreteComposite

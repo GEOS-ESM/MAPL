@@ -6,7 +6,7 @@ module MAPL_ExtDataRule
    use MAPL_TimeStringConversion
    use MAPL_ExtDataTimeSample
    use MAPL_ExtDataTimeSampleMap
-   implicit none
+   implicit none (type, external)
    private
 
    type, public :: ExtDataRule

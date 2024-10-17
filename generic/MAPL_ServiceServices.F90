@@ -7,7 +7,7 @@ module mapl_ServiceServices
   use mapl_RequestedServiceItemVector
   use mapl_ServiceServicesTypes
 
-  implicit none
+  implicit none (type, external)
   private
 
   public ProvidedServiceGet

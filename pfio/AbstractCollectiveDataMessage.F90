@@ -8,7 +8,7 @@ module pFIO_AbstractCollectiveDataMessageMod
    use pFIO_UtilitiesMod
    use pFIO_AbstractDataReferenceMod
    use mapl_KeywordEnforcerMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: AbstractCollectiveDataMessage

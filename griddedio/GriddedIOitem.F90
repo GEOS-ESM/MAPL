@@ -3,7 +3,7 @@
 module MAPL_GriddedIOitemMod
   use ESMF
   use, intrinsic :: ISO_C_BINDING
-  implicit none
+  implicit none (type, external)
   
   private
 

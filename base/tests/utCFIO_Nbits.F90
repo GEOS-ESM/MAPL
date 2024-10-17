@@ -14,7 +14,7 @@
    use ESMF_CfioMod
    use MAPL_CfioMod
 
-   implicit NONE
+   implicit none (type, external)
 
    type(ESMF_Grid)     :: grid
    type (ESMF_VM)      :: VM

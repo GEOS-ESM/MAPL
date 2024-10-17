@@ -1,6 +1,6 @@
 module MAPL_GridSpecMod
    use MAPL_GridTypeMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: GridSpec

@@ -3,7 +3,7 @@
 module mapl_GathervKernel
    use mapl_ErrorHandlingMod
    use mpi
-   implicit none
+   implicit none (type)
    private
 
    public :: GathervKernel
@@ -62,10 +62,10 @@ contains
         this%recvcnts(:) = this%n
         this%displs(:) = [(this%n*i, i=0,np-1)]
       end associate
-      
+
       _RETURN(_SUCCESS)
    end subroutine init
-      
+
 
 
    subroutine run(this, rc)
@@ -91,5 +91,5 @@ contains
       _RETURN(_SUCCESS)
    end subroutine run
 
-   
+
 end module mapl_GathervKernel

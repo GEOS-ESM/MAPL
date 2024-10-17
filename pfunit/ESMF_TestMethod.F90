@@ -3,7 +3,7 @@ module ESMF_TestMethod_mod
    use ESMF
    use ESMF_TestCase_mod
    use ESMF_TestParameter_mod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ESMF_TestMethod

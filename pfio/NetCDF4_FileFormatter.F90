@@ -20,7 +20,7 @@ module pFIO_NetCDF4_FileFormatterMod
    use pfio_NetCDF_Supplement
    use netcdf
    use mpi
-   implicit none
+   implicit none (type, external)
    private
 
    public :: NetCDF4_FileFormatter

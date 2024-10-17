@@ -3,7 +3,7 @@ module MAPL_MultiColumn
    use MAPL_TextColumnVector
    use MAPL_AbstractMeterNode
    use MAPL_SeparatorColumn
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MultiColumn

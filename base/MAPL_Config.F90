@@ -18,7 +18,7 @@
 module MAPL_ConfigMod
    use ESMF
    use MAPL_ExceptionHandling
-   implicit none
+   implicit none (type, external)
    private
 
    public :: MAPL_ConfigCreate

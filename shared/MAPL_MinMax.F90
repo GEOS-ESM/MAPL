@@ -1,6 +1,6 @@
 module MAPL_MinMaxMod
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
-   implicit none
+   implicit none (type, external)
    private
 
    public :: IntegerMinMax

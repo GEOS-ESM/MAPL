@@ -1,6 +1,6 @@
 module MAPL_TextColumn
    use MAPL_AbstractMeterNode
-   implicit none
+   implicit none (type, external)
    private
 
    public :: TextColumn

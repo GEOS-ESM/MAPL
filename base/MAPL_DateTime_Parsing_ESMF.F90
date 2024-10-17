@@ -6,7 +6,7 @@ module MAPL_DateTime_Parsing_ESMF
    use MAPL_DateTime_Parsing
    use ESMF
 
-   implicit none
+   implicit none (type, external)
 
    public :: set_ESMF_TimeInterval, set_ESMF_Time_from_ISO8601
 

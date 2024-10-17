@@ -5,7 +5,7 @@ module MAPL_ProfileReporter
    use MAPL_TextColumnVector
    use MAPL_MultiColumn
    use MAPL_BaseProfiler
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ProfileReporter

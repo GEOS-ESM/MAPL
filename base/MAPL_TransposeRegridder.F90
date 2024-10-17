@@ -8,7 +8,7 @@ module MAPL_TransposeRegridderMod
   use mapl_ErrorHandlingMod
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
   use ESMF
-  implicit none
+  implicit none (type, external)
   private
 
   public :: TransposeRegridder

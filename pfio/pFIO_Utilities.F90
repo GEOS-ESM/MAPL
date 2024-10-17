@@ -6,7 +6,7 @@ module pFIO_UtilitiesMod
    use, intrinsic :: iso_fortran_env, only: INT32,REAL32,INT64,REAL64
    use pFIO_ConstantsMod
    use MAPL_ExceptionHandling
-   implicit none
+   implicit none (type, external)
    private
 
    public :: serialize_buffer_length

@@ -1,7 +1,7 @@
 module MAPL_VarConnPoint
    use ESMF, only: ESMF_MAXSTR
    use oomph, only: ConnectionPoint
-   implicit none
+   implicit none (type, external)
    private
 
    public :: VarConnPoint

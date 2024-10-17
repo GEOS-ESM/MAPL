@@ -1,5 +1,5 @@
 module oomph_ConnectionPoint
-   implicit none
+   implicit none (type, external)
    private
 
    public :: ConnectionPoint

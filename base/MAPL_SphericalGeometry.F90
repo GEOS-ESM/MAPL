@@ -6,7 +6,7 @@ module MAPL_SphericalGeometry
    use MAPL_Constants
    use, intrinsic :: iso_fortran_env, only: REAL64,REAL32
 
-implicit none
+implicit none (type, external)
 private
 public get_points_in_spherical_domain
 public get_area_spherical_polygon

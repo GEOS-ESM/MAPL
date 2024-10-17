@@ -2,7 +2,7 @@ module mapl_CompositeComponent
    use mapl_AbstractFrameworkComponent
    use mapl_AbstractComposite
    use mapl_ConcreteComposite
-   implicit none
+   implicit none (type, external)
    private
 
    public :: CompositeComponent

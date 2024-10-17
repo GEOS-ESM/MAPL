@@ -1,6 +1,6 @@
 module MAPL_AbstractMeterNode
    use MAPL_AbstractMeter
-   implicit none
+   implicit none (type, external)
    private
 
    public :: AbstractMeterNode

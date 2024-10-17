@@ -11,7 +11,7 @@ module MAPL_ObsUtilMod
   use pFIO_NetCDF4_FileFormatterMod, only : NetCDF4_FileFormatter
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
   use, intrinsic :: iso_c_binding
-  implicit none
+  implicit none (type, external)
   integer, parameter :: mx_ngeoval = 60
   ! GRS80 by Moritz
   real(REAL64) :: r_eq=6378137.d0
@@ -64,7 +64,7 @@ module MAPL_ObsUtilMod
      function f_call_c_glob(search_name, filename, slen) &
            & result(stat)    bind(C, name="glob_C")
        use, intrinsic :: iso_c_binding
-       implicit none
+       implicit none (type, external)
        integer :: stat
        character (kind=c_char), intent(in) :: search_name(*)
        character (kind=c_char), intent(out) :: filename(*)
@@ -77,7 +77,7 @@ contains
   subroutine get_obsfile_Tbracket_from_epoch(currTime, &
        obsfile_start_time, obsfile_end_time, obsfile_interval, &
        epoch_frequency, obsfile_Ts_index, obsfile_Te_index, rc)
-    implicit none
+    implicit none (type, external)
     type(ESMF_Time), intent(in) :: currTime
     type(ESMF_Time), intent(in) :: obsfile_start_time, obsfile_end_time
     type(ESMF_TimeInterval), intent(in) :: obsfile_interval, epoch_frequency
@@ -272,7 +272,7 @@ contains
        obsfile_start_time, obsfile_end_time, obsfile_interval, &
        epoch_frequency, file_template, M, filenames, &
        T_offset_in_file_content, rc)
-    implicit none
+    implicit none (type, external)
     type(ESMF_Time), intent(in) :: currTime
     type(ESMF_Time), intent(in) :: obsfile_start_time, obsfile_end_time
     type(ESMF_TimeInterval), intent(in) :: obsfile_interval, epoch_frequency
@@ -825,7 +825,7 @@ contains
   ! From GOES-R SERIES PRODUCT DEFINITION AND USERS’ GUIDE
   !
   subroutine ABI_XY_2_lonlat (x, y, lambda0, lon, lat, mask)
-    implicit none
+    implicit none (type, external)
     real(REAL64), intent(in) :: x, y
     real(REAL64), intent(in) :: lambda0
     real(REAL64), intent(out):: lon, lat
@@ -867,7 +867,7 @@ contains
 
 
   subroutine lonlat_2_ABI_XY (lon, lat, lambda0, x, y, mask)
-    implicit none
+    implicit none (type, external)
     real(REAL64), intent(in) :: lon, lat
     real(REAL64), intent(in) :: lambda0
     real(REAL64), intent(out):: x, y
@@ -899,7 +899,7 @@ contains
 
 
   subroutine test_conversion
-    implicit none
+    implicit none (type, external)
     real*8 :: x0
     real*8 :: y0
     real*8 :: lam, the

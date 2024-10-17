@@ -5,7 +5,7 @@ module MAPL_StdDevColumn
    use MAPL_AbstractMeter
    use MAPL_AdvancedMeter
    use Mapl_DistributedMeter
-   implicit none
+   implicit none (type, external)
    private
 
    public :: StdDevColumn

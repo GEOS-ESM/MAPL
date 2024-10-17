@@ -10,7 +10,7 @@ module mapl_BaseProfiler
    use mapl_MeterNodeStack
    use mapl_ExceptionHandling
    use mapl_KeywordEnforcerMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: BaseProfiler

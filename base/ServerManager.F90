@@ -8,7 +8,7 @@ module MAPL_ServerManager
    use PFIO
    use MAPL_SimpleCommSplitterMod
    use MAPL_SplitCommunicatorMod
-   implicit none
+   implicit none (type)
    private
 
 
@@ -231,7 +231,7 @@ contains
                        npes_out_backend, './pfio_writer.x'))
 
            else if (oserver_type_ == 'multigroup' ) then
- 
+
               allocate(this%o_server, source = MultiGroupServer(this%split_comm%get_subcommunicator(), s_name, npes_out_backend, &
                                                                 with_profiler=with_profiler, rc=status), stat=stat_alloc)
               _VERIFY(status)

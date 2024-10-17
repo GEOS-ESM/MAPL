@@ -1,5 +1,5 @@
 module pFIO_AbstractSocketMod
-   implicit none
+   implicit none (type, external)
    private
 
    public :: AbstractSocket
@@ -20,7 +20,7 @@ module pFIO_AbstractSocketMod
       function receive(this, rc) result(message)
          use pFIO_AbstractMessageMod
          import AbstractSocket
-         implicit none
+         implicit none (type, external)
          class (AbstractMessage), pointer :: message
          class (AbstractSocket), intent(inout) :: this
          integer, optional, intent(out) :: rc
@@ -30,7 +30,7 @@ module pFIO_AbstractSocketMod
       subroutine send(this, message, rc)
          use pFIO_AbstractMessageMod
          import AbstractSocket
-         implicit none
+         implicit none (type, external)
          class (AbstractSocket), target, intent(inout) :: this
          class (AbstractMessage), intent(in) :: message
          integer, optional, intent(out) :: rc
