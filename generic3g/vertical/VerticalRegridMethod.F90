@@ -58,7 +58,7 @@ contains
       ! case default
       !    _FAIL("Invalid vertical dim spec")
       end select
-      write(unit, '("VerticalRegridMethod{",a,"}")', iostat=iostat, iomsg=iomsg) trim(regrid_method_str)
+      write(unit, '("VerticalRegridMethod(",a,")")', iostat=iostat, iomsg=iomsg) trim(regrid_method_str)
 
       _UNUSED_DUMMY(iotype)
       _UNUSED_DUMMY(v_list)
