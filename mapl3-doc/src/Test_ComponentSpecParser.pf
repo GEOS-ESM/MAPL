@@ -1,0 +1,183 @@
+#include "MAPL_ErrLog.h"
+module Test_ComponentSpecParser
+   use funit
+   use mapl3g_UserSetServices
+   use mapl3g_ComponentSpecParser
+   use mapl3g_ChildSpec
+   use mapl3g_ChildSpecMap
+   use mapl_ErrorHandling
+   use esmf
+   implicit none
+
+contains
+
+
+   ! setServices:
+   !      sharedObj: <dso_name>
+   !      userRoutine: <user_routine>  
+   @test
+   subroutine test_parse_setServices()
+      type(ESMF_HConfig) :: config
+      class(DSOSetServices), allocatable :: ss_expected
+
+      config = ESMF_HConfigCreate(content='{sharedObj: libA, userRoutine: procB}')
+
+      ss_expected = DSOSetServices('libA', 'procB')
+      @assert_that(parse_setservices(config) == ss_expected, is(true()))
+      
+   end subroutine test_parse_setServices
+
+   @test
+   subroutine test_parse_setServices_default()
+      type(ESMF_HConfig) :: config
+      class(DSOSetServices), allocatable :: ss_expected
+
+      config = ESMF_HConfigCreate(content='{sharedObj: libA}')
+
+      ss_expected = DSOSetServices('libA', 'setservices_')
+      @assert_that(parse_setservices(config) == ss_expected, is(true()))
+      
+   end subroutine test_parse_setServices_default
+
+   @test
+   subroutine test_equal_child_spec_ss_differs()
+      class(AbstractUserSetServices), allocatable :: ss_A
+      class(AbstractUserSetServices), allocatable :: ss_B
+
+      type(ChildSpec) :: cs_a, cs_b
+      ss_A = user_setservices('libA', 'setservices_')
+      ss_B = user_setservices(gamma)
+
+      cs_a = ChildSpec(ss_A)
+      cs_b = ChildSpec(ss_B)
+
+      @assert_that('OPERATOR(==)', cs_a == cs_b, is(false()))
+
+   contains
+      subroutine gamma(gc, rc)
+         use esmf
+         type(ESMF_GridComp) :: gc
+         integer, intent(out) :: rc
+      end subroutine gamma
+      
+   end subroutine test_equal_child_spec_ss_differs
+
+   @test
+   subroutine test_equal_child_spec_cfg_differs()
+      class(AbstractUserSetServices), allocatable :: ss
+
+      type(ChildSpec) :: a, b
+      
+      ss = user_setservices('libA', 'setservices_')
+
+      a = ChildSpec(ss, config_file='a.yml')
+
+      b = ChildSpec(ss)
+      @assert_that(a == b, is(false()))
+
+      b = ChildSpec(ss, config_file='a2.yml')
+      @assert_that(a == b, is(false()))
+
+      b = ChildSpec(ss)
+      @assert_that(a == b, is(false()))
+
+      b = ChildSpec(ss, config_file='a2.yml')
+      @assert_that(a == b, is(false()))
+          
+
+   contains
+      subroutine gamma(gc, rc)
+         use esmf
+         type(ESMF_GridComp) :: gc
+         integer, intent(out) :: rc
+      end subroutine gamma
+      
+   end subroutine test_equal_child_spec_cfg_differs
+
+   @test
+   subroutine test_parse_childSpec_basic()
+      type(ESMF_HConfig) :: config
+      type(ChildSpec) :: found
+      integer :: rc, status
+      type(ChildSpec) :: expected
+
+      config = ESMF_HConfigCreate(content='{sharedObj: libA, setServices: setservices_}')
+
+      expected = ChildSpec(user_setservices('libA', 'setservices_'))
+      found = parse_child(config, _RC)
+      @assert_that(expected == found, is(true()))
+
+   end subroutine test_parse_childSpec_basic
+
+
+   @test
+   subroutine test_parse_childSpec_with_config_file()
+      type(ESMF_HConfig) :: config
+      type(ChildSpec) :: found
+      integer :: status, rc
+
+      class(AbstractUserSetServices), allocatable :: ss
+      type(ChildSpec) :: expected
+
+      config = ESMF_HConfigCreate(content='{setServices: setservices_, sharedObj: libA, config_file: a.yml}')
+
+      ss = user_setservices('libA', 'setservices_')
+      expected = ChildSpec(ss, config_file='a.yml')
+      found = parse_child(config, _RC)
+      @assert_that(expected == found, is(true()))
+
+   end subroutine test_parse_childSpec_with_config_file
+
+
+   @test
+   subroutine test_parse_ChildSpecMap_empty()
+      type(ChildSpecMap) :: expected, found
+      integer :: status, rc
+
+      type(ESMF_HConfig) :: hconfig
+
+      hconfig = ESMF_HConfigCreate(content='{}')
+
+      found = parse_children(hconfig, _RC)
+      @assert_that(found == expected, is(true()))
+
+      call ESMF_HConfigDestroy(hconfig)
+   end subroutine test_parse_ChildSpecMap_empty
+
+   @test
+   subroutine test_parse_ChildSpecMap_1()
+      type(ESMF_HConfig), target :: config
+      type(ESMF_HConfig), pointer :: config_ptr
+      type(ChildSpecMap) :: expected, found
+      integer :: status, rc
+
+      config = ESMF_HConfigCreate(content='children: {A: {sharedObj: libA}}')
+      config_ptr => config
+      call expected%insert('A', ChildSpec(user_setservices('libA', 'setservices_')))
+      found = parse_children(config_ptr, _RC)
+      @assert_that(found == expected, is(true()))
+      
+   end subroutine test_parse_ChildSpecMap_1
+
+   @test
+   subroutine test_parse_ChildSpecMap_2()
+      type(ESMF_HConfig), target :: config
+      type(ESMF_HConfig), pointer :: config_ptr
+      type(ChildSpecMap) :: expected, found
+      integer :: status, rc
+
+      config = ESMF_HConfigCreate(content='children: {' // &
+           'A: {sharedObj: libA},' // &
+           'B: {sharedObj: libB}}')
+      config_ptr => config
+
+      call expected%insert('A', ChildSpec(user_setservices('libA', 'setservices_')))
+      call expected%insert('B', ChildSpec(user_setservices('libB', 'setservices_')))
+      found = parse_children(config_ptr, _RC)
+
+      @assert_that(found%of('A') == expected%of('A'), is(true()))
+      @assert_that(found%of('B') == expected%of('B'), is(true()))
+      
+   end subroutine test_parse_ChildSpecMap_2
+
+end module Test_ComponentSpecParser
