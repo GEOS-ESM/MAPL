@@ -79,20 +79,20 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title="<p> 0.0% of total for procedures.</p>Including implementation: 90 statements,  0.2% of total for procedures.">3 statements</a>
+                 title="<p> 0.0% of total for procedures.</p>Including implementation: 36 statements,  0.1% of total for procedures.">4 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/FlapCLI.F90"> Source File</a>
+              <a href="../src/CapOptions.F90"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/flapcli.f90.html'>FlapCLI.F90</a></li>
-                <li class="breadcrumb-item"><a href='../module/mapl_flapclimod.html'>MAPL_FlapCLIMod</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/capoptions.f90.html'>CapOptions.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_capoptionsmod.html'>mapl_CapOptionsMod</a></li>
             <li class="breadcrumb-item active" aria-current="page">MAPL_CapOptions</li>
           </ol>
         </nav>
@@ -136,7 +136,8 @@
       </a>
       <div id="modprocs-0" class="collapse">
         <div class="list-group list-group-flush">
-            <a class="list-group-item" href="../interface/mapl_capoptions~3.html#moduleprocedure-old_capoptions_from_flap">old_CapOptions_from_flap</a>
+            <a class="list-group-item" href="../interface/mapl_capoptions~3.html#moduleprocedure-new_capoptions">new_CapOptions</a>
+            <a class="list-group-item" href="../interface/mapl_capoptions~3.html#moduleprocedure-new_capoptions_copy">new_CapOptions_copy</a>
         </div>
       </div>
     </div>
@@ -156,7 +157,7 @@
 
         <h2>Module Procedures</h2>
             <div class="card">
-    <div class="card-header codesum"><span class="anchor" id="proc-old_capoptions_from_flap"></span> <h3>private  function old_CapOptions_from_Flap(flapCLI, unusable, rc) result(cap_options)  
+    <div class="card-header codesum"><span class="anchor" id="proc-new_capoptions"></span> <h3>private  function new_CapOptions(unusable, cap_rc_file, egress_file, ensemble_subdir_prefix, esmf_logging_mode, rc) result(cap_options)  
 </h3></div>
     <div class="card-body">
         
@@ -174,22 +175,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-flapcli~2"></span>
-              type(<a href='../type/mapl_flapcli.html'>MAPL_FlapCLI</a>),
-            </td>
-<td>intent(inout)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>flapCLI</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-unusable~413"></span>
+              <span class="anchor" id="variable-unusable~148"></span>
               class(<a href='../type/keywordenforcer~57.html'>KeywordEnforcer</a>),
             </td>
 <td>intent(in),</td>
@@ -204,7 +190,67 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~2342"></span>
+              <span class="anchor" id="variable-cap_rc_file~6"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>cap_rc_file</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-egress_file~2"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>egress_file</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ensemble_subdir_prefix~2"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ensemble_subdir_prefix</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-esmf_logging_mode~3"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_logkind_flag.html'>ESMF_LogKind_Flag</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>esmf_logging_mode</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~798"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -213,6 +259,50 @@
             </td>
             <td>::</td>
             <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='../type/mapl_capoptions.html'>MAPL_CapOptions</a>)</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-new_capoptions_copy"></span> <h3>private  function new_CapOptions_copy(options) result(copy)  
+</h3></div>
+    <div class="card-body">
+        
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-options~11"></span>
+              type(<a href='../type/mapl_capoptions.html'>MAPL_CapOptions</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>options</strong></td>
             <td>
                 
             </td>
@@ -246,7 +336,7 @@
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-10-18T19:02:46.934064             </p>
+ on 2024-10-18T19:27:59.070618             </p>
           </div>
         </div>
         <br>
