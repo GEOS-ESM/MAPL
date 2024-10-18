@@ -17,7 +17,7 @@ module mapl3g_TimeInterpolateAction
    type, extends(ExtensionAction) :: TimeInterpolateAction
    contains
       procedure :: initialize
-      procedure :: run
+      procedure :: update
    end type TimeInterpolateAction
 
    interface TimeInterpolateAction
@@ -42,7 +42,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine initialize
 
-   subroutine run(this, importState, exportState, clock, rc)
+   subroutine update(this, importState, exportState, clock, rc)
       class(TimeInterpolateAction), intent(inout) :: this
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
@@ -80,7 +80,7 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(clock)
-   end subroutine run
+   end subroutine update
 
 
    subroutine run_r4(bundle_in, field_out, rc)

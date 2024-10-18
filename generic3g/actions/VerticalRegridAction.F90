@@ -25,7 +25,7 @@ module mapl3g_VerticalRegridAction
       type(VerticalRegridMethod) :: method = VERTICAL_REGRID_UNKNOWN
    contains
       procedure :: initialize
-      procedure :: run
+      procedure :: update
    end type VerticalRegridAction
 
    interface VerticalRegridAction
@@ -72,7 +72,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine initialize
 
-   subroutine run(this, importState, exportState, clock, rc)
+   subroutine update(this, importState, exportState, clock, rc)
       use esmf
       class(VerticalRegridAction), intent(inout) :: this
       type(ESMF_State)      :: importState
@@ -117,6 +117,6 @@ contains
       end do
 
       _RETURN(_SUCCESS)
-   end subroutine run
+   end subroutine update
 
 end module mapl3g_VerticalRegridAction
