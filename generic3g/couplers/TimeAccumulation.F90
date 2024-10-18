@@ -1,14 +1,10 @@
-module mapl3g_TimeAccumulatorCouplerComponent
+module mapl3g_TimeAccumulation
    use mapl3g_GenericCouplerComponent
    use mapl3g_Accumulator
    use mapl3g_AccumulatorProcedures
    implicit none
    private
 
-   type(AccumulatorProcedures) :: MeanProcedures
-   type(AccumulatorProcedures) :: MinProcedures
-   type(AccumulatorProcedures) :: MaxProcedures
-   
 contains
 
    subroutine accumulate(acc, field_update, rc)
@@ -101,7 +97,7 @@ contains
 
    end function accumulateR8
 
-end module mapl3g_TimeAccumulatorCouplerComponent
+end module mapl3g_TimeAccumulation
 
 ! QUESTIONS
 ! Use ESMF_Field for counter:
