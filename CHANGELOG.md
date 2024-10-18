@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.50.1] - 2024-10-18
+
+### Fixed
+
+- Fixed unitialized variable bug in ExtData exposed by gfortran
+
 ## [2.50.0] - 2024-10-10
 
 ### Added
@@ -30,7 +36,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed unitialized variable bug in ExtData exposed by gfortran
 - Trapped more errors from Extdata's i-server
 
 ## [2.49.1] - 2024-10-07
