@@ -94,7 +94,7 @@ contains
       integer, parameter :: IM = 2, JM = 2, LM = 2
 
       if (associated(this%v_in_coupler)) then
-         call this%v_in_coupler%update(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
+         call this%v_in_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
       end if
 
       if (associated(this%v_out_coupler)) then
