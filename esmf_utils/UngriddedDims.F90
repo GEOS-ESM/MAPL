@@ -1,6 +1,8 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_UngriddedDims
+   use mapl3g_InfoUtilities
+   use mapl3g_ESMF_Info_Keys
    use mapl3g_UngriddedDimVector
    use mapl3g_UngriddedDim
    use mapl3g_LU_Bound
@@ -14,6 +16,7 @@ module mapl3g_UngriddedDims
    private
 
    public :: UngriddedDims
+   public :: make_UngriddedDims
    public :: mirror_ungridded_dims
    public :: operator(==)
    public :: operator(/=)
@@ -179,16 +182,16 @@ contains
       integer :: i
       type(UngriddedDim), pointer :: dim_spec
       type(ESMF_Info) :: dim_info
-      character(5) :: dim_key
+      character(:), allocatable :: dim_key
 
       info = ESMF_InfoCreate(_RC)
-      call ESMF_InfoSet(info, key='num_ungridded_dimensions', value=this%get_num_ungridded(), _RC)
+      call MAPL_InfoSet(info, key='num_ungridded_dimensions', value=this%get_num_ungridded(), _RC)
 
       do i = 1, this%get_num_ungridded()
          dim_spec => this%get_ith_dim_spec(i, _RC)
          dim_info = dim_spec%make_info(_RC)
 
-         write(dim_key, '("dim_", i0)') i
+         dim_key = make_dim_key(i)
          call ESMF_InfoSet(info, key=dim_key, value=dim_info, _RC)
          call ESMF_InfoDestroy(dim_info, _RC)
       end do
@@ -196,6 +199,41 @@ contains
 
       _RETURN(_SUCCESS)
    end function make_info
+
+   function make_ungriddedDims(info, key, rc) result(ungridded_dims)
+      type(UngriddedDims) :: ungridded_dims
+      type(ESMF_Info), intent(in) :: info
+      character(*), optional, intent(in) :: key
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: num_ungridded_dims
+      integer :: i
+      type(ESMF_Info) :: dim_info
+      character(:), allocatable :: dim_key
+      type(UngriddedDim), allocatable :: dim_specs(:)
+      character(:), allocatable :: full_key
+
+      ungridded_dims = UngriddedDims()
+      full_key = KEY_NUM_UNGRIDDED_DIMS
+      if (present(key)) then
+         full_key = key // full_key
+      end if
+
+      call MAPL_InfoGet(info, key=full_key, value=num_ungridded_dims, _RC)
+      allocate(dim_specs(num_ungridded_dims))
+
+      do i = 1, num_ungridded_dims
+         dim_key = make_dim_key(i, _RC)
+         dim_info = ESMF_InfoCreate(info, key=dim_key, _RC)
+         dim_specs(i) = make_ungriddedDim(dim_info, _RC)
+         call ESMF_InfoDestroy(dim_info, _RC)
+      end do
+
+      ungridded_dims = UngriddedDims(dim_specs)
+
+      _RETURN(_SUCCESS)
+   end function make_ungriddedDims
 
 end module mapl3g_UngriddedDims
 
