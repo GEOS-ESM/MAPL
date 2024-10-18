@@ -5,20 +5,20 @@ The code has the following command line options:
  optional arguments:
   -h, --help                 This message.
   --config_file              The configuration file to use
-  --nx                       The number of cells in the x direction (default=4)
-  --ny                       The number of cells in the y direction (default=4)
-  --im_world                 The resolution of the cubed sphere (default=90)
-  --lm                       The number of levels in each 3D variable (default=137)
-  --num_writers              The number of processes that will write (default=1)
-  --num_arrays               The number of 3D arrays to write (default=5)
-  --ntrials                  The number of trials to run (default=3)
-  --split_file               Split the file into multiple files (default=False)
-  --gather_3d                Gather 3D data (default=False)
-  --write_barrier            Add a write barrier (default=False)
-  --no_random_data           Do not use random data (default=False)
-  --do_no_writes             Do not write data (default=False)
-  --no_netcdf_writes         Do not write data as netcdf (default=False)
-  --no_chunking              Do not chunk (default=False)
+  --nx                       The number of cells in the x direction (default: 4)
+  --ny                       The number of cells in the y direction (default: 4)
+  --im_world                 The resolution of the cubed sphere (default: 90)
+  --lm                       The number of levels in each 3D variable (default: 137)
+  --num_writers              The number of processes that will write (default: 1)
+  --num_arrays               The number of 3D arrays to write (default: 5)
+  --ntrials                  The number of trials to run (default: 3)
+  --split_file               Split the file into multiple files (default: do not split)
+  --gather_3d                Gather all levels at once instead of one at a time (default: gather one at a time)
+  --write_barrier            Add a barrier after every write (default: no barrier)
+  --static_data              Use static data (rank of process) instead of random data (default: random data)
+  --suppress_writes          Do not write data (default: write data)
+  --write_binary             Write binary data instead of NetCDF (default: write NetCDF)
+  --no_chunking              Do not chunk output (default: chunk the output)
 ```
 
 NOTE 1: If you specify a `config_file` it must be an ESMF Config file with the following options:

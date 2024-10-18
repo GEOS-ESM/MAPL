@@ -94,79 +94,79 @@ contains
          type="string")
 
       call parser%add_argument("--nx", &
-         help="The number of cells in the x direction (default=4)", &
+         help="The number of cells in the x direction (default: 4)", &
          action="store", &
          type="integer", &
          default=4)
 
       call parser%add_argument("--ny", &
-         help="The number of cells in the y direction (default=4)", &
+         help="The number of cells in the y direction (default: 4)", &
          action="store", &
          type="integer", &
          default=4)
 
       call parser%add_argument("--im_world", &
-         help="The resolution of the cubed sphere (default=90)", &
+         help="The resolution of the cubed sphere (default: 90)", &
          action="store", &
          type="integer", &
          default=90)
 
       call parser%add_argument("--lm", &
-         help="The number of levels in each 3D variable (default=137)", &
+         help="The number of levels in each 3D variable (default: 137)", &
          action="store", &
          type="integer", &
          default=137)
 
       call parser%add_argument("--num_writers", &
-         help="The number of processes that will write (default=1)", &
+         help="The number of processes that will write (default: 1)", &
          action="store", &
          type="integer", &
          default=1)
 
       call parser%add_argument("--num_arrays", &
-         help="The number of 3D arrays to write (default=5)", &
+         help="The number of 3D arrays to write (default: 5)", &
          action="store", &
          type="integer", &
          default=5)
 
       call parser%add_argument("--ntrials", &
-         help="The number of trials to run (default=3)", &
+         help="The number of trials to run (default: 3)", &
          action="store", &
          type="integer", &
          default=3)
 
       call parser%add_argument("--split_file", &
-         help="Split the file into multiple files (default=False)", &
+         help="Split the file into multiple files (default: do not split)", &
          action="store_true", &
          default=.false.)
 
       call parser%add_argument("--gather_3d", &
-         help="Gather 3D data (default=False)", &
+         help="Gather all levels at once instead of one at a time (default: gather one at a time)", &
          action="store_true", &
          default=.false.)
 
       call parser%add_argument("--write_barrier", &
-         help="Add a write barrier (default=False)", &
+         help="Add a barrier after every write (default: no barrier)", &
          action="store_true", &
          default=.false.)
 
-      call parser%add_argument("--no_random_data", &
-         help="Do not use random data (default=False)", &
+      call parser%add_argument("--static_data", &
+         help="Use static data (rank of process) instead of random data (default: random data)", &
          action="store_true", &
          default=.False.)
 
-      call parser%add_argument("--do_no_writes", &
-         help="Do not write data (default=False)", &
+      call parser%add_argument("--suppress_writes", &
+         help="Do not write data (default: write data)", &
          action="store_true", &
          default=.False.)
 
-      call parser%add_argument("--no_netcdf_writes", &
-         help="Do not write data as netcdf (default=False)", &
+      call parser%add_argument("--write_binary", &
+         help="Write binary data instead of NetCDF (default: write NetCDF)", &
          action="store_true", &
          default=.false.)
 
       call parser%add_argument("--no_chunking", &
-         help="Do not chunk (default=False)", &
+         help="Do not chunk output (default: chunk the output)", &
          action="store_true", &
          default=.false.)
 
@@ -213,15 +213,15 @@ contains
       option => options%at("write_barrier")
       if (associated(option)) call cast(option, cli%write_barrier)
 
-      option => options%at("no_random_data")
+      option => options%at("static_data")
       if (associated(option)) call cast(option, tmp)
       cli%random_data = .not. tmp
 
-      option => options%at("do_no_writes")
+      option => options%at("suppress_writes")
       if (associated(option)) call cast(option, tmp)
       cli%do_writes = .not. tmp
 
-      option => options%at("no_netcdf_writes")
+      option => options%at("write_binary")
       if (associated(option)) call cast(option, tmp)
       cli%netcdf_writes = .not. tmp
 

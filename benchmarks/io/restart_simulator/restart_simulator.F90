@@ -92,74 +92,74 @@ contains
          type="string")
 
       call parser%add_argument("--nx", &
-         help="The number of cells in the x direction (default=4)", &
+         help="The number of cells in the x direction (default: 4)", &
          action="store", &
          type="integer", &
          default=4)
 
       call parser%add_argument("--ny", &
-         help="The number of cells in the y direction (default=4)", &
+         help="The number of cells in the y direction (default: 4)", &
          action="store", &
          type="integer", &
          default=4)
 
       call parser%add_argument("--im_world", &
-         help="The resolution of the cubed sphere (default=90)", &
+         help="The resolution of the cubed sphere (default: 90)", &
          action="store", &
          type="integer", &
          default=90)
 
       call parser%add_argument("--lm", &
-         help="The number of levels in each 3D variable (default=137)", &
+         help="The number of levels in each 3D variable (default: 137)", &
          action="store", &
          type="integer", &
          default=137)
 
       call parser%add_argument("--num_readers", &
-         help="The number of processes that will read (default=1)", &
+         help="The number of processes that will read (default: 1)", &
          action="store", &
          type="integer", &
          default=1)
 
       call parser%add_argument("--num_arrays", &
-         help="The number of 3D arrays to read (default=5)", &
+         help="The number of 3D arrays to read (default: 5)", &
          action="store", &
          type="integer", &
          default=5)
 
       call parser%add_argument("--ntrials", &
-         help="The number of trials to run (default=3)", &
+         help="The number of trials to run (default: 3)", &
          action="store", &
          type="integer", &
          default=3)
 
       call parser%add_argument("--split_file", &
-         help="Split the file into multiple files (default=False)", &
+         help="Read split files instead of a single file (default: read single file)", &
          action="store_true", &
          default=.false.)
 
       call parser%add_argument("--scatter_3d", &
-         help="Scatter 3D data (default=False)", &
+         help="Scatter all the levels at once instead of one at a time (default: scatter one at a time)", &
          action="store_true", &
          default=.false.)
 
       call parser%add_argument("--read_barrier", &
-         help="Add a read barrier (default=False)", &
+         help="Add a barrier after every read (default: no barrier)", &
          action="store_true", &
          default=.false.)
 
-      call parser%add_argument("--no_random_data", &
-         help="Do not random data (default=False)", &
+      call parser%add_argument("--static_data", &
+         help="Use static data (rank of process) instead of random data (default: random data)", &
          action="store_true", &
          default=.false.)
 
-      call parser%add_argument("--do_no_reads", &
-         help="Do not read data (default=False)", &
+      call parser%add_argument("--suppress_reads", &
+         help="Do not read data (default: read data)", &
          action="store_true", &
          default=.false.)
 
-      call parser%add_argument("--no_netcdf_reads", &
-         help="Do not read data as netcdf (default=False)", &
+      call parser%add_argument("--read_binary", &
+         help="Read binary data instead of netCDF (default: netCDF data)", &
          action="store_true", &
          default=.false.)
 
