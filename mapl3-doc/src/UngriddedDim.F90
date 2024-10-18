@@ -1,5 +1,6 @@
 #include "MAPL_Generic.h"
 module mapl3g_UngriddedDim
+   use mapl3g_InfoUtilities
    use mapl3g_LU_Bound
    use mapl_ErrorHandling
    use esmf, only: ESMF_Info
@@ -9,6 +10,7 @@ module mapl3g_UngriddedDim
    private
 
    public :: UngriddedDim
+   public :: make_ungriddedDim
    public :: operator(==)
    public :: operator(/=)
 
@@ -166,4 +168,18 @@ contains
       _RETURN(_SUCCESS)
    end function make_info
 
+   function make_ungriddedDim(info, rc) result(dim)
+      type(UngriddedDim) :: dim
+      type(ESMF_Info), intent(in) :: info
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      call MAPL_InfoGet(info, key='name', value=dim%name, _RC)
+      call MAPL_InfoGet(info, key='units', value=dim%units, _RC)
+      call MAPL_InfoGet(info, key='coordinates', values=dim%coordinates, _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_ungriddedDim
+
 end module mapl3g_UngriddedDim
+
