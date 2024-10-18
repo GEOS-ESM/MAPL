@@ -1,4 +1,6 @@
+#include "MAPL_Generic.h"
 module mapl3g_ExtensionAction
+   use mapl_ErrorHandling
    implicit none
    private
 
