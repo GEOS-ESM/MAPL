@@ -7,25 +7,6 @@ module mapl3g_TimeAccumulation
 
 contains
 
-   subroutine accumulate(acc, field_update, rc)
-      class(Accumulator), intent(inout) :: acc
-      type(ESMF_Field), intent(in) :: field_update
-      integer, optional, intent(out) :: rc
-      integer :: status
-   end subroutine accumulate
-
-   subroutine couple(acc, rc)
-      class(Accumulator), intent(inout) :: acc
-      integer, optional, intent(out) :: rc
-      integer :: status
-   end subroutine couple
-
-   subroutine clear(acc, rc)
-      class(Accumulator), intent(inout) :: acc
-      integer, optional, intent(out) :: rc
-      integer :: status
-   end subroutine clear
-
    subroutine initialize_Accumulator_internal(state, source_specs, destination_specs)
       type(AccumulatorInternal), pointer, intent(in) :: state
       type(VarSpec), intent(in) :: source_specs(:)
