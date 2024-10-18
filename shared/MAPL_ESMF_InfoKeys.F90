@@ -46,7 +46,7 @@ module mapl3g_esmf_info_keys
 
    ! UngriddedDims info keys
    character(len=*), parameter :: KEY_NUM_UNGRIDDED_DIMS = '/num_ungridded_dimensions'
-   character(len=*), parameter :: KEYSTUB_DIM = KEY_UNGRIDDED_DIMS // '/dim_'
+   character(len=*), parameter :: KEYSTUB_DIM = '/dim_'
 
    ! UngriddedDim info keys
    character(len=*), parameter :: KEY_UNGRIDDED_NAME = 'name'
@@ -54,9 +54,9 @@ module mapl3g_esmf_info_keys
    character(len=*), parameter :: KEY_UNGRIDDED_COORD = 'coordinates'
 
    character(len=*), parameter :: KEY_DIM_STRINGS(9) = [ &
-      KEYSTUB_DIM // '/1', KEYSTUB_DIM // '/2', KEYSTUB_DIM // '/3', &
-      KEYSTUB_DIM // '/4', KEYSTUB_DIM // '/5', KEYSTUB_DIM // '/6', &
-      KEYSTUB_DIM // '/7', KEYSTUB_DIM // '/8', KEYSTUB_DIM // '/9']
+      KEYSTUB_DIM // '1', KEYSTUB_DIM // '2', KEYSTUB_DIM // '3', &
+      KEYSTUB_DIM // '4', KEYSTUB_DIM // '5', KEYSTUB_DIM // '6', &
+      KEYSTUB_DIM // '7', KEYSTUB_DIM // '8', KEYSTUB_DIM // '9']
 
 contains
 
