@@ -1,0 +1,1208 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>create_Geosat_grid_find_mask &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>create_Geosat_grid_find_mask
+      <small>Module Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.2% of total for procedures.">341 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_GeosatMaskMod_smod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_geosatmaskmod_smod.f90.html'>MAPL_GeosatMaskMod_smod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/masksamplergeosat_implement.html'>MaskSamplerGeosat_implement</a></li>
+            <li class="breadcrumb-item active" aria-current="page">create_Geosat_grid_find_mask</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/create_geosat_grid_find_mask.html#src">create_Geosat_grid_find_mask</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>module subroutine create_Geosat_grid_find_mask(this, rc)  
+    <a href="../interface/create_geosat_grid_find_mask.html"><button type="button" class="btn btn-info depwarn">Interface &rarr;</button></a>
+</h2>
+        <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='../module/pflogger.html'>pflogger</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~create_geosat_grid_find_mask~~UsesGraph Pages: 1 -->
+<svg id="proccreate_geosat_grid_find_maskUsesGraph" width="641pt" height="136pt"
+ viewBox="0.00 0.00 641.00 135.78" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~create_geosat_grid_find_mask~~UsesGraph" class="graph" transform="scale(0.88 0.88) rotate(0) translate(4 150)">
+<title>proc~~create_geosat_grid_find_mask~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-150 723,-150 723,4 -4,4"/>
+<!-- proc~create_geosat_grid_find_mask -->
+<g id="proc~~create_geosat_grid_find_mask~~UsesGraph_node1" class="node">
+<title>proc~create_geosat_grid_find_mask</title>
+<polygon fill="none" stroke="black" points="719,-84 544,-84 544,-60 719,-60 719,-84"/>
+<text text-anchor="middle" x="631.5" y="-69.6" font-family="Helvetica,sans-Serif" font-size="10.50">create_Geosat_grid_find_mask</text>
+</g>
+<!-- module~pflogger -->
+<g id="proc~~create_geosat_grid_find_mask~~UsesGraph_node2" class="node">
+<title>module~pflogger</title>
+<g id="a_proc~~create_geosat_grid_find_mask~~UsesGraph_node2"><a xlink:href="../module/pflogger.html" xlink:title="pflogger">
+<polygon fill="#337ab7" stroke="#337ab7" points="508,-84 450,-84 450,-60 508,-60 508,-84"/>
+<text text-anchor="middle" x="479" y="-69.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pflogger</text>
+</a>
+</g>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;module~pflogger -->
+<g id="proc~~create_geosat_grid_find_mask~~UsesGraph_edge1" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;module~pflogger</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M543.83,-72C535.02,-72 526.43,-72 518.55,-72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="518.29,-68.5 508.29,-72 518.29,-75.5 518.29,-68.5"/>
+</g>
+<!-- module~pfl_keywordenforcermod -->
+<g id="proc~~create_geosat_grid_find_mask~~UsesGraph_node3" class="node">
+<title>module~pfl_keywordenforcermod</title>
+<g id="a_proc~~create_geosat_grid_find_mask~~UsesGraph_node3"><a xlink:href="../module/pfl_keywordenforcermod.html" xlink:title="PFL_KeywordEnforcerMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="148,-146 0,-146 0,-122 148,-122 148,-146"/>
+<text text-anchor="middle" x="74" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_KeywordEnforcerMod</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_keywordenforcermod -->
+<g id="proc~~create_geosat_grid_find_mask~~UsesGraph_edge2" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_keywordenforcermod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M352.5,-132C287.79,-141.67 213.65,-141.64 158.29,-139.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="158.32,-135.99 148.18,-139.06 158.02,-142.98 158.32,-135.99"/>
+</g>
+<!-- module~pfl_logger -->
+<g id="proc~~create_geosat_grid_find_mask~~UsesGraph_node4" class="node">
+<title>module~pfl_logger</title>
+<g id="a_proc~~create_geosat_grid_find_mask~~UsesGraph_node4"><a xlink:href="../module/pfl_logger.html" xlink:title="PFL_Logger">
+<polygon fill="#337ab7" stroke="#337ab7" points="257,-104 184,-104 184,-80 257,-80 257,-104"/>
+<text text-anchor="middle" x="220.5" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_Logger</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_logger -->
+<g id="proc~~create_geosat_grid_find_mask~~UsesGraph_edge3" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_logger</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M461.84,-84.03C449.3,-92.95 431.2,-104.92 414,-113 388.88,-124.81 381.96,-127.9 354.5,-132"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M352.5,-132C316.47,-137.38 276.65,-122 250.48,-108.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="251.97,-105.61 241.49,-104.05 248.71,-111.8 251.97,-105.61"/>
+</g>
+<!-- module~pfl_loggermanager -->
+<g id="proc~~create_geosat_grid_find_mask~~UsesGraph_node5" class="node">
+<title>module~pfl_loggermanager</title>
+<g id="a_proc~~create_geosat_grid_find_mask~~UsesGraph_node5"><a xlink:href="../module/pfl_loggermanager.html" xlink:title="PFL_LoggerManager">
+<polygon fill="#337ab7" stroke="#337ab7" points="414,-104 293,-104 293,-80 414,-80 414,-104"/>
+<text text-anchor="middle" x="353.5" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_LoggerManager</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_loggermanager -->
+<g id="proc~~create_geosat_grid_find_mask~~UsesGraph_edge4" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_loggermanager</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M449.98,-76.54C442.14,-77.81 433.25,-79.25 424.13,-80.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="423.5,-77.28 414.18,-82.33 424.61,-84.19 423.5,-77.28"/>
+</g>
+<!-- module~pfl_severitylevels -->
+<g id="proc~~create_geosat_grid_find_mask~~UsesGraph_node6" class="node">
+<title>module~pfl_severitylevels</title>
+<g id="a_proc~~create_geosat_grid_find_mask~~UsesGraph_node6"><a xlink:href="../module/pfl_severitylevels.html" xlink:title="PFL_SeverityLevels">
+<polygon fill="#337ab7" stroke="#337ab7" points="130.5,-62 17.5,-62 17.5,-38 130.5,-38 130.5,-62"/>
+<text text-anchor="middle" x="74" y="-47.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_SeverityLevels</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_severitylevels -->
+<g id="proc~~create_geosat_grid_find_mask~~UsesGraph_edge5" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_severitylevels</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M449.98,-70.47C386.47,-67 230.16,-58.47 140.68,-53.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="140.82,-50.09 130.64,-53.04 140.44,-57.08 140.82,-50.09"/>
+</g>
+<!-- module~pfl_wraparray -->
+<g id="proc~~create_geosat_grid_find_mask~~UsesGraph_node7" class="node">
+<title>module~pfl_wraparray</title>
+<g id="a_proc~~create_geosat_grid_find_mask~~UsesGraph_node7"><a xlink:href="../module/pfl_wraparray.html" xlink:title="PFL_WrapArray">
+<polygon fill="#337ab7" stroke="#337ab7" points="400,-24 307,-24 307,0 400,0 400,-24"/>
+<text text-anchor="middle" x="353.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">PFL_WrapArray</text>
+</a>
+</g>
+</g>
+<!-- module~pflogger&#45;&gt;module~pfl_wraparray -->
+<g id="proc~~create_geosat_grid_find_mask~~UsesGraph_edge6" class="edge">
+<title>module~pflogger&#45;&gt;module~pfl_wraparray</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M456.29,-59.94C444,-53.24 428.27,-44.9 414,-38 407.23,-34.73 399.95,-31.4 392.89,-28.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="394.02,-24.93 383.45,-24.12 391.21,-31.34 394.02,-24.93"/>
+</g>
+<!-- module~pfl_logger&#45;&gt;module~pfl_keywordenforcermod -->
+<g id="proc~~create_geosat_grid_find_mask~~UsesGraph_edge8" class="edge">
+<title>module~pfl_logger&#45;&gt;module~pfl_keywordenforcermod</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M183.87,-102.51C172.42,-105.87 159.68,-109.61 148,-113 141.12,-115 133.88,-117.1 126.73,-119.16"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="125.73,-115.8 117.09,-121.94 127.67,-122.53 125.73,-115.8"/>
+</g>
+<!-- module~pfl_logger&#45;&gt;module~pfl_severitylevels -->
+<g id="proc~~create_geosat_grid_find_mask~~UsesGraph_edge9" class="edge">
+<title>module~pfl_logger&#45;&gt;module~pfl_severitylevels</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M183.87,-81.49C172.42,-78.13 159.68,-74.39 148,-71 141.12,-69 133.88,-66.9 126.73,-64.84"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="127.67,-61.47 117.09,-62.06 125.73,-68.2 127.67,-61.47"/>
+</g>
+<!-- gFTL_StringUnlimitedMap -->
+<g id="proc~~create_geosat_grid_find_mask~~UsesGraph_node8" class="node">
+<title>gFTL_StringUnlimitedMap</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="148,-104 0,-104 0,-80 148,-80 148,-104"/>
+<text text-anchor="middle" x="74" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">gFTL_StringUnlimitedMap</text>
+</g>
+<!-- module~pfl_logger&#45;&gt;gFTL_StringUnlimitedMap -->
+<g id="proc~~create_geosat_grid_find_mask~~UsesGraph_edge7" class="edge">
+<title>module~pfl_logger&#45;&gt;gFTL_StringUnlimitedMap</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M183.78,-92C175.89,-92 167.2,-92 158.29,-92"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="158.16,-88.5 148.16,-92 158.16,-95.5 158.16,-88.5"/>
+</g>
+<!-- module~pfl_loggermanager&#45;&gt;module~pfl_logger -->
+<g id="proc~~create_geosat_grid_find_mask~~UsesGraph_edge10" class="edge">
+<title>module~pfl_loggermanager&#45;&gt;module~pfl_logger</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M292.75,-92C284.21,-92 275.54,-92 267.32,-92"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="267.2,-88.5 257.2,-92 267.2,-95.5 267.2,-88.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproccreate_geosat_grid_find_maskUsesGraph = svgPanZoom('#proccreate_geosat_grid_find_maskUsesGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+
+    <p>if (mapl_am_I_root()) write(6,*) &lsquo;nobs tot :&rsquo;, nx</p>
+<p>write(6,*)  &lsquo;ip, size(lons_ds)=&rsquo;, mypet, size(lons_ds)</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~3921"></span>
+              class(<a href='../type/masksamplergeosat.html'>MaskSamplerGeosat</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1356"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <table class="graph">
+<tr><td class="root" rowspan="67">create_Geosat_grid_find_mask</td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/abi_xy_2_lonlat.html">ABI_XY_2_lonlat</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">esmf_fieldbundleget</td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">esmf_fieldcreate</td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">esmf_fielddestroy</td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">esmf_fieldget</td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">esmf_fieldgetbounds</td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="https://mathomp4.github.io/esmf/proc/esmf_fieldhalo.html">ESMF_FieldHalo</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="https://mathomp4.github.io/esmf/proc/esmf_fieldhalostore.html">ESMF_FieldHaloStore</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="https://mathomp4.github.io/esmf/proc/esmf_fieldredist.html">ESMF_FieldRedist</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="https://mathomp4.github.io/esmf/proc/esmf_fieldredistrelease.html">ESMF_FieldRedistRelease</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="https://mathomp4.github.io/esmf/interface/esmf_fieldrediststore.html">ESMF_FieldRedistStore</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="https://mathomp4.github.io/esmf/interface/esmf_gridgetcoord.html">ESMF_GridGetCoord</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="https://mathomp4.github.io/esmf/interface/esmf_vmallfullreduce.html">ESMF_VMAllFullReduce</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="https://mathomp4.github.io/esmf/proc/esmf_vmbarrier.html">ESMF_VMBarrier</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="https://mathomp4.github.io/esmf/interface/esmf_vmget.html">ESMF_VMGet</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="https://mathomp4.github.io/esmf/proc/esmf_vmgetcurrent.html">ESMF_VMGetCurrent</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/get_att_real_netcdf.html">get_att_real_netcdf</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/get_ncfile_dimension.html">get_ncfile_dimension</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/get_v1d_netcdf_r8_complete.html">get_v1d_netcdf_R8_complete</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d94e8f"><a href="../proc/create_locstream.html">LocStreamFactory%create_locstream</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d94e8f"><a href="../proc/create_locstream_on_proc.html">LocStreamFactory%create_locstream_on_proc</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../type/loggermanager.html#boundprocedure-get_logger~2">LoggerManager%get_logger</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_am_i_root.html">MAPL_Am_I_Root</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_assert.html">MAPL_Assert</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_commsbcast.html">MAPL_CommsBcast</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_gethorzijindex.html">MAPL_GetHorzIJIndex</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/mapl_gridget.html">MAPL_GridGet</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/mapl_return.html">MAPL_Return</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_timeroff.html">MAPL_TimerOff</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_timeron.html">MAPL_TimerOn</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d94e8f"><a href="../proc/mapl_verify.html">MAPL_Verify</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">mpi_barrier</td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">mpi_gatherv</td></tr>
+<tr><td class="solidTop">w</td></tr>
+</table>
+          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~create_geosat_grid_find_mask~~CalledByGraph Pages: 1 -->
+<svg id="proccreate_geosat_grid_find_maskCalledByGraph" width="641pt" height="25pt"
+ viewBox="0.00 0.00 641.00 24.77" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~create_geosat_grid_find_mask~~CalledByGraph" class="graph" transform="scale(0.77 0.77) rotate(0) translate(4 28)">
+<title>proc~~create_geosat_grid_find_mask~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 824,-28 824,4 -4,4"/>
+<!-- proc~create_geosat_grid_find_mask -->
+<g id="proc~~create_geosat_grid_find_mask~~CalledByGraph_node1" class="node">
+<title>proc~create_geosat_grid_find_mask</title>
+<polygon fill="none" stroke="black" points="820,-24 645,-24 645,0 820,0 820,-24"/>
+<text text-anchor="middle" x="732.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">create_Geosat_grid_find_mask</text>
+</g>
+<!-- interface~create_geosat_grid_find_mask -->
+<g id="proc~~create_geosat_grid_find_mask~~CalledByGraph_node2" class="node">
+<title>interface~create_geosat_grid_find_mask</title>
+<g id="a_proc~~create_geosat_grid_find_mask~~CalledByGraph_node2"><a xlink:href="../interface/create_geosat_grid_find_mask.html" xlink:title="MaskSamplerGeosat%create_Geosat_grid_find_mask">
+<polygon fill="#a7506f" stroke="#a7506f" points="609,-24 315,-24 315,0 609,0 609,-24"/>
+<text text-anchor="middle" x="462" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaskSamplerGeosat%create_Geosat_grid_find_mask</text>
+</a>
+</g>
+</g>
+<!-- interface~create_geosat_grid_find_mask&#45;&gt;proc~create_geosat_grid_find_mask -->
+<g id="proc~~create_geosat_grid_find_mask~~CalledByGraph_edge1" class="edge">
+<title>interface~create_geosat_grid_find_mask&#45;&gt;proc~create_geosat_grid_find_mask</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M609.04,-12C617.69,-12 626.28,-12 634.66,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="634.77,-15.5 644.77,-12 634.77,-8.5 634.77,-15.5"/>
+</g>
+<!-- proc~initialize_~2 -->
+<g id="proc~~create_geosat_grid_find_mask~~CalledByGraph_node3" class="node">
+<title>proc~initialize_~2</title>
+<g id="a_proc~~create_geosat_grid_find_mask~~CalledByGraph_node3"><a xlink:href="../proc/initialize_~2.html" xlink:title="initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="279,-24 217,-24 217,0 279,0 279,-24"/>
+<text text-anchor="middle" x="248" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_~2&#45;&gt;interface~create_geosat_grid_find_mask -->
+<g id="proc~~create_geosat_grid_find_mask~~CalledByGraph_edge2" class="edge">
+<title>proc~initialize_~2&#45;&gt;interface~create_geosat_grid_find_mask</title>
+<path fill="none" stroke="#ff0000" d="M279.37,-12C286.86,-12 295.39,-12 304.58,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="304.8,-15.5 314.8,-12 304.8,-8.5 304.8,-15.5"/>
+</g>
+<!-- interface~initialize_ -->
+<g id="proc~~create_geosat_grid_find_mask~~CalledByGraph_node4" class="node">
+<title>interface~initialize_</title>
+<g id="a_proc~~create_geosat_grid_find_mask~~CalledByGraph_node4"><a xlink:href="../interface/initialize_.html" xlink:title="MaskSamplerGeosat%initialize_">
+<polygon fill="#a7506f" stroke="#a7506f" points="181,-24 0,-24 0,0 181,0 181,-24"/>
+<text text-anchor="middle" x="90.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaskSamplerGeosat%initialize_</text>
+</a>
+</g>
+</g>
+<!-- interface~initialize_&#45;&gt;proc~initialize_~2 -->
+<g id="proc~~create_geosat_grid_find_mask~~CalledByGraph_edge3" class="edge">
+<title>interface~initialize_&#45;&gt;proc~initialize_~2</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M181.05,-12C189.97,-12 198.68,-12 206.69,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="206.78,-15.5 216.78,-12 206.78,-8.5 206.78,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproccreate_geosat_grid_find_maskCalledByGraph = svgPanZoom('#proccreate_geosat_grid_find_maskCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">     </span><span class="k">module subroutine </span><span class="n">create_Geosat_grid_find_mask</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">       </span><span class="k">use </span><span class="n">pflogger</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">Logger</span><span class="p">,</span><span class="w"> </span><span class="n">logging</span>
+<span class="w">       </span><span class="k">implicit none</span>
+
+<span class="k">       class</span><span class="p">(</span><span class="n">MaskSamplerGeosat</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">Logger</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lgr</span>
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_routehandle</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RH</span>
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mypet</span><span class="p">,</span><span class="w"> </span><span class="n">petcount</span><span class="p">,</span><span class="w"> </span><span class="n">mpic</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iroot</span><span class="p">,</span><span class="w"> </span><span class="n">rootpet</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span>
+<span class="w">       </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_LocStream</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">LS_rt</span>
+<span class="w">       </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_LocStream</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">LS_ds</span>
+<span class="w">       </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_LocStream</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">LS_chunk</span>
+<span class="w">       </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">LocStreamFactory</span><span class="p">)</span><span class="kd">::</span><span class="w"> </span><span class="n">locstream_factory</span>
+<span class="w">       </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fieldA</span>
+<span class="w">       </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fieldB</span>
+
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">L</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n1</span><span class="p">,</span><span class="w"> </span><span class="n">n2</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nx</span><span class="p">,</span><span class="w"> </span><span class="n">ny</span><span class="p">,</span><span class="w"> </span><span class="n">nx_sum</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nlon</span><span class="p">,</span><span class="w"> </span><span class="n">nlat</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">arr</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">len</span>
+
+<span class="nb">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">IM</span><span class="p">,</span><span class="w"> </span><span class="n">JM</span><span class="p">,</span><span class="w"> </span><span class="n">LM</span><span class="p">,</span><span class="w"> </span><span class="n">COUNTS</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_DistGrid</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">distGrid</span>
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_DElayout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">layout</span>
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">VM</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">myid</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dimCount</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">II</span><span class="p">(:)</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">JJ</span><span class="p">(:)</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">obs_lons</span><span class="p">(:)</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">obs_lats</span><span class="p">(:)</span>
+
+<span class="w">       </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fieldI4</span>
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_routehandle</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RH_halo</span>
+<span class="w">       </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src_field</span><span class="p">,</span><span class="n">dst_field</span><span class="p">,</span><span class="n">acc_field</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">useableHalo_width</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rank</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eLB</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">eUB</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cLB</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">cUB</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tLB</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">tUB</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ecount</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ccount</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tcount</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">(</span><span class="n">ESMF_KIND_I4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">farrayPtr</span><span class="p">(:,:)</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ptA</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">NULL</span><span class="p">()</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ptB</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">NULL</span><span class="p">()</span>
+
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">filename</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unit</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ix</span><span class="p">,</span><span class="w"> </span><span class="n">jx</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i_1</span><span class="p">,</span><span class="w"> </span><span class="n">i_n</span><span class="p">,</span><span class="w"> </span><span class="n">j_1</span><span class="p">,</span><span class="w"> </span><span class="n">j_n</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x</span><span class="p">(:)</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">y</span><span class="p">(:)</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">REAL64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lambda0_deg</span><span class="p">,</span><span class="w"> </span><span class="n">lambda0</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">REAL64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x0</span><span class="p">,</span><span class="w"> </span><span class="n">y0</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">REAL64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lon0</span><span class="p">,</span><span class="w"> </span><span class="n">lat0</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">REAL64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lam_sat</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">mask0</span>
+<span class="w">       </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fn</span><span class="p">,</span><span class="w"> </span><span class="n">key_x</span><span class="p">,</span><span class="w"> </span><span class="n">key_y</span><span class="p">,</span><span class="w"> </span><span class="n">key_p</span><span class="p">,</span><span class="w"> </span><span class="n">key_p_att</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">Xdim_true</span><span class="p">,</span><span class="w"> </span><span class="n">Ydim_true</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">Xdim_red</span><span class="p">,</span><span class="w"> </span><span class="n">Ydim_red</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lons</span><span class="p">(:),</span><span class="w"> </span><span class="n">lats</span><span class="p">(:)</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lons_ds</span><span class="p">(:),</span><span class="w"> </span><span class="n">lats_ds</span><span class="p">(:)</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w">      </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mask</span><span class="p">(:,:)</span>
+
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_kind_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lons_ptr</span><span class="p">(:,:),</span><span class="w"> </span><span class="n">lats_ptr</span><span class="p">(:,:)</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nsend</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">recvcounts_loc</span><span class="p">(:)</span>
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">displs_loc</span><span class="p">(:)</span>
+
+<span class="w">       </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">sendcount</span><span class="p">(:),</span><span class="w"> </span><span class="n">displs</span><span class="p">(:)</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">recvcount</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="n">ip</span>
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nx2</span>
+
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lons_chunk</span><span class="p">(:)</span>
+<span class="w">       </span><span class="kt">real</span><span class="p">(</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lats_chunk</span><span class="p">(:)</span>
+
+<span class="w">       </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">imethod</span>
+
+
+<span class="w">       </span><span class="n">lgr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">logging</span><span class="p">%</span><span class="n">get_logger</span><span class="p">(</span><span class="s1">&#39;HISTORY.sampler&#39;</span><span class="p">)</span>
+
+<span class="w">       </span><span class="c">! Metacode:</span>
+<span class="w">       </span><span class="c">!   read ABI grid into  lons/lats, lons_chunk/lats_chunk</span>
+<span class="w">       </span><span class="c">!   gen LS_chunk and LS_ds with CS background grid</span>
+<span class="w">       </span><span class="c">!   find mask points on each PET with halo</span>
+<span class="w">       </span><span class="c">!   prepare recvcounts + displs for gatherv</span>
+<span class="w">       </span><span class="c">!</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_VMGetCurrent</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_VMGet</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">mpiCommunicator</span><span class="o">=</span><span class="n">mpic</span><span class="p">,</span><span class="w"> </span><span class="n">petcount</span><span class="o">=</span><span class="n">petcount</span><span class="p">,</span><span class="w"> </span><span class="n">localpet</span><span class="o">=</span><span class="n">mypet</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="n">iroot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">       </span><span class="n">ip</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mypet</span><span class="w">    </span><span class="c">! 0 to M-1</span>
+<span class="w">       </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">petCount</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_TimerOn</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">GENSTATE</span><span class="p">,</span><span class="s2">&quot;1_genABIgrid&quot;</span><span class="p">)</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mapl_am_i_root</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
+<span class="w">          </span><span class="c">! __s1.  SAT file</span>
+<span class="w">          </span><span class="c">!</span>
+<span class="w">          </span><span class="n">fn</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">grid_file_name</span>
+<span class="w">          </span><span class="n">key_x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">var_name_x</span>
+<span class="w">          </span><span class="n">key_y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">var_name_y</span>
+<span class="w">          </span><span class="n">key_p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">var_name_proj</span>
+<span class="w">          </span><span class="n">key_p_att</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">att_name_proj</span>
+<span class="w">          </span><span class="k">call </span><span class="n">get_ncfile_dimension</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span><span class="n">nlon</span><span class="o">=</span><span class="n">n1</span><span class="p">,</span><span class="n">nlat</span><span class="o">=</span><span class="n">n2</span><span class="p">,</span><span class="n">key_lon</span><span class="o">=</span><span class="n">key_x</span><span class="p">,</span><span class="n">key_lat</span><span class="o">=</span><span class="n">key_y</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">(</span><span class="n">n1</span><span class="p">),</span><span class="w"> </span><span class="n">y</span><span class="p">(</span><span class="n">n2</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">get_v1d_netcdf_R8_complete</span><span class="w"> </span><span class="p">(</span><span class="n">fn</span><span class="p">,</span><span class="w"> </span><span class="n">key_x</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">get_v1d_netcdf_R8_complete</span><span class="w"> </span><span class="p">(</span><span class="n">fn</span><span class="p">,</span><span class="w"> </span><span class="n">key_y</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">get_att_real_netcdf</span><span class="w"> </span><span class="p">(</span><span class="n">fn</span><span class="p">,</span><span class="w"> </span><span class="n">key_p</span><span class="p">,</span><span class="w"> </span><span class="n">key_p_att</span><span class="p">,</span><span class="w"> </span><span class="n">lambda0_deg</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="n">lam_sat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lambda0_deg</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">MAPL_DEGREES_TO_RADIANS_R8</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       call </span><span class="n">MAPL_CommsBcast</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="k">DATA</span><span class="o">=</span><span class="n">n1</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">ROOT</span><span class="o">=</span><span class="n">MAPL_Root</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_CommsBcast</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="k">DATA</span><span class="o">=</span><span class="n">n2</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">ROOT</span><span class="o">=</span><span class="n">MAPL_Root</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">.</span><span class="nb">NOT</span><span class="p">.</span><span class="w"> </span><span class="n">mapl_am_i_root</span><span class="p">()</span><span class="w"> </span><span class="p">)</span><span class="w">  </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">(</span><span class="n">n1</span><span class="p">),</span><span class="w"> </span><span class="n">y</span><span class="p">(</span><span class="n">n2</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_CommsBcast</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="k">DATA</span><span class="o">=</span><span class="n">lam_sat</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">ROOT</span><span class="o">=</span><span class="n">MAPL_Root</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_CommsBcast</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="k">DATA</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="o">=</span><span class="n">n1</span><span class="p">,</span><span class="w"> </span><span class="n">ROOT</span><span class="o">=</span><span class="n">MAPL_Root</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_CommsBcast</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="k">DATA</span><span class="o">=</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="o">=</span><span class="n">n2</span><span class="p">,</span><span class="w"> </span><span class="n">ROOT</span><span class="o">=</span><span class="n">MAPL_Root</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">       </span><span class="c">!</span>
+<span class="w">       </span><span class="c">! use thin_factor to reduce regridding matrix size</span>
+<span class="w">       </span><span class="c">!</span>
+<span class="w">       </span><span class="n">xdim_red</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">n1</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">thin_factor</span>
+<span class="w">       </span><span class="n">ydim_red</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">n2</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">thin_factor</span>
+<span class="w">       </span><span class="err">_</span><span class="n">ASSERT</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">xdim_red</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ydim_red</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;mask reduced points after thin_factor is less than Nproc!&#39;</span><span class="p">)</span>
+
+<span class="w">       </span><span class="c">! get nx2</span>
+<span class="w">       </span><span class="n">nx2</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">       </span><span class="n">k</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">       </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">xdim_red</span>
+<span class="w">          </span><span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">ydim_red</span>
+<span class="w">             </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">M</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ip</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                </span><span class="n">x0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">thin_factor</span><span class="w"> </span><span class="p">)</span>
+<span class="w">                </span><span class="n">y0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y</span><span class="p">(</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">thin_factor</span><span class="w"> </span><span class="p">)</span>
+<span class="w">                </span><span class="k">call </span><span class="n">ABI_XY_2_lonlat</span><span class="w"> </span><span class="p">(</span><span class="n">x0</span><span class="p">,</span><span class="w"> </span><span class="n">y0</span><span class="p">,</span><span class="w"> </span><span class="n">lam_sat</span><span class="p">,</span><span class="w"> </span><span class="n">lon0</span><span class="p">,</span><span class="w"> </span><span class="n">lat0</span><span class="p">,</span><span class="w"> </span><span class="n">mask</span><span class="o">=</span><span class="n">mask0</span><span class="p">)</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mask0</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                   </span><span class="n">nx2</span><span class="o">=</span><span class="n">nx2</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">                </span><span class="k">end if</span>
+<span class="k">             end if</span>
+<span class="k">          end do</span>
+<span class="k">       end do</span>
+<span class="k">       allocate</span><span class="w"> </span><span class="p">(</span><span class="n">lons_chunk</span><span class="p">(</span><span class="n">nx2</span><span class="p">),</span><span class="w"> </span><span class="n">lats_chunk</span><span class="p">(</span><span class="n">nx2</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+
+<span class="w">       </span><span class="c">! get lons_chunk/...</span>
+<span class="w">       </span><span class="n">nx2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">       </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">       </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">xdim_red</span>
+<span class="w">          </span><span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">ydim_red</span>
+<span class="w">             </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">M</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ip</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                </span><span class="n">x0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">thin_factor</span><span class="w"> </span><span class="p">)</span>
+<span class="w">                </span><span class="n">y0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y</span><span class="p">(</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">thin_factor</span><span class="w"> </span><span class="p">)</span>
+<span class="w">                </span><span class="k">call </span><span class="n">ABI_XY_2_lonlat</span><span class="w"> </span><span class="p">(</span><span class="n">x0</span><span class="p">,</span><span class="w"> </span><span class="n">y0</span><span class="p">,</span><span class="w"> </span><span class="n">lam_sat</span><span class="p">,</span><span class="w"> </span><span class="n">lon0</span><span class="p">,</span><span class="w"> </span><span class="n">lat0</span><span class="p">,</span><span class="w"> </span><span class="n">mask</span><span class="o">=</span><span class="n">mask0</span><span class="p">)</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mask0</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                   </span><span class="n">nx2</span><span class="o">=</span><span class="n">nx2</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">                   </span><span class="n">lons_chunk</span><span class="p">(</span><span class="n">nx2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lon0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">MAPL_RADIANS_TO_DEGREES</span>
+<span class="w">                   </span><span class="n">lats_chunk</span><span class="p">(</span><span class="n">nx2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lat0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">MAPL_RADIANS_TO_DEGREES</span>
+<span class="w">                </span><span class="k">end if</span>
+<span class="k">             end if</span>
+<span class="k">          end do</span>
+<span class="k">       end do</span>
+
+<span class="k">       </span><span class="n">arr</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="n">nx2</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_VMAllFullReduce</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">sendData</span><span class="o">=</span><span class="n">arr</span><span class="p">,</span><span class="w"> </span><span class="n">recvData</span><span class="o">=</span><span class="n">nx</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="nb">count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">reduceflag</span><span class="o">=</span><span class="n">ESMF_REDUCE_SUM</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+
+<span class="w">       </span><span class="c">! gatherV for lons/lats</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mapl_am_i_root</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">lons</span><span class="p">(</span><span class="n">nx</span><span class="p">),</span><span class="n">lats</span><span class="p">(</span><span class="n">nx</span><span class="p">),</span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">       </span><span class="k">else</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">lons</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="n">lats</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">       </span><span class="k">endif</span>
+
+<span class="k">       allocate</span><span class="p">(</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">recvcounts</span><span class="p">(</span><span class="n">petcount</span><span class="p">),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">displs</span><span class="p">(</span><span class="n">petcount</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="k">allocate</span><span class="p">(</span><span class="w"> </span><span class="n">recvcounts_loc</span><span class="p">(</span><span class="n">petcount</span><span class="p">),</span><span class="w"> </span><span class="n">displs_loc</span><span class="p">(</span><span class="n">petcount</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="n">recvcounts_loc</span><span class="p">(:)</span><span class="o">=</span><span class="mi">1</span>
+<span class="w">       </span><span class="n">displs_loc</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">       </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">petcount</span>
+<span class="w">          </span><span class="n">displs_loc</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">displs_loc</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">recvcounts_loc</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end do</span>
+<span class="k">       call </span><span class="n">MPI_gatherv</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">nx2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">recvcounts</span><span class="p">,</span><span class="w"> </span><span class="n">recvcounts_loc</span><span class="p">,</span><span class="w"> </span><span class="n">displs_loc</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,&amp;</span>
+<span class="w">            </span><span class="n">iroot</span><span class="p">,</span><span class="w"> </span><span class="n">mpic</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">mapl_am_i_root</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">this</span><span class="p">%</span><span class="n">recvcounts</span><span class="p">(:)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       </span><span class="n">this</span><span class="p">%</span><span class="n">displs</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">       </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">petcount</span>
+<span class="w">          </span><span class="n">this</span><span class="p">%</span><span class="n">displs</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">displs</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">recvcounts</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end do</span>
+
+<span class="k">       </span><span class="n">nsend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nx2</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MPI_gatherv</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">lons_chunk</span><span class="p">,</span><span class="w"> </span><span class="n">nsend</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_REAL8</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">lons</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">recvcounts</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">displs</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_REAL8</span><span class="p">,&amp;</span>
+<span class="w">            </span><span class="n">iroot</span><span class="p">,</span><span class="w"> </span><span class="n">mpic</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierr</span><span class="p">)</span><span class="w"> </span>
+<span class="w">       </span><span class="k">call </span><span class="n">MPI_gatherv</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">lats_chunk</span><span class="p">,</span><span class="w"> </span><span class="n">nsend</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_REAL8</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">lats</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">recvcounts</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">displs</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_REAL8</span><span class="p">,&amp;</span>
+<span class="w">            </span><span class="n">iroot</span><span class="p">,</span><span class="w"> </span><span class="n">mpic</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierr</span><span class="p">)</span><span class="w"> </span>
+
+
+<span class="c">!!       if (mapl_am_I_root()) write(6,*) &#39;nobs tot :&#39;, nx</span>
+
+<span class="w">       </span><span class="k">deallocate</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">recvcounts</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">displs</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">       </span><span class="k">deallocate</span><span class="w"> </span><span class="p">(</span><span class="n">recvcounts_loc</span><span class="p">,</span><span class="w"> </span><span class="n">displs_loc</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">       </span><span class="k">deallocate</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">GENSTATE</span><span class="p">,</span><span class="s2">&quot;1_genABIgrid&quot;</span><span class="p">)</span>
+
+
+<span class="w">       </span><span class="c">! __ s2. set distributed LS</span>
+<span class="w">       </span><span class="c">!</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_TimerOn</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">GENSTATE</span><span class="p">,</span><span class="s2">&quot;2_ABIgrid_LS&quot;</span><span class="p">)</span>
+
+<span class="w">       </span><span class="c">! -- root</span>
+<span class="w">       </span><span class="n">locstream_factory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocStreamFactory</span><span class="p">(</span><span class="n">lons</span><span class="p">,</span><span class="n">lats</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="n">LS_rt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">locstream_factory</span><span class="p">%</span><span class="n">create_locstream</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">       </span><span class="c">! -- proc</span>
+<span class="w">       </span><span class="n">locstream_factory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocStreamFactory</span><span class="p">(</span><span class="n">lons_chunk</span><span class="p">,</span><span class="n">lats_chunk</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="n">LS_chunk</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">locstream_factory</span><span class="p">%</span><span class="n">create_locstream_on_proc</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">       </span><span class="c">! -- distributed with background grid</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">bundle</span><span class="p">,</span><span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="n">LS_ds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">locstream_factory</span><span class="p">%</span><span class="n">create_locstream_on_proc</span><span class="p">(</span><span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">       </span><span class="n">fieldA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="w"> </span><span class="p">(</span><span class="n">LS_chunk</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R8</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="n">fieldB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="w"> </span><span class="p">(</span><span class="n">LS_ds</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;B&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R8</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="w"> </span><span class="n">fieldA</span><span class="p">,</span><span class="w"> </span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">ptA</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="w"> </span><span class="n">fieldB</span><span class="p">,</span><span class="w"> </span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">ptB</span><span class="p">)</span>
+
+<span class="w">       </span><span class="n">ptA</span><span class="p">(:)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lons_chunk</span><span class="p">(:)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_FieldRedistStore</span><span class="w"> </span><span class="p">(</span><span class="n">fieldA</span><span class="p">,</span><span class="w"> </span><span class="n">fieldB</span><span class="p">,</span><span class="w"> </span><span class="n">RH</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MPI_Barrier</span><span class="p">(</span><span class="n">mpic</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierr</span><span class="p">)</span><span class="w"> </span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_FieldRedist</span><span class="w">      </span><span class="p">(</span><span class="n">fieldA</span><span class="p">,</span><span class="w"> </span><span class="n">fieldB</span><span class="p">,</span><span class="w"> </span><span class="n">RH</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="n">lons_ds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ptB</span>
+
+<span class="w">       </span><span class="n">ptA</span><span class="p">(:)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lats_chunk</span><span class="p">(:)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MPI_Barrier</span><span class="p">(</span><span class="n">mpic</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierr</span><span class="p">)</span><span class="w"> </span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_FieldRedist</span><span class="w">      </span><span class="p">(</span><span class="n">fieldA</span><span class="p">,</span><span class="w"> </span><span class="n">fieldB</span><span class="p">,</span><span class="w"> </span><span class="n">RH</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="n">lats_ds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ptB</span>
+
+<span class="c">!!       write(6,*)  &#39;ip, size(lons_ds)=&#39;, mypet, size(lons_ds)</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_FieldDestroy</span><span class="p">(</span><span class="n">fieldA</span><span class="p">,</span><span class="n">nogarbage</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_FieldDestroy</span><span class="p">(</span><span class="n">fieldB</span><span class="p">,</span><span class="n">nogarbage</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_FieldRedistRelease</span><span class="p">(</span><span class="n">RH</span><span class="p">,</span><span class="w"> </span><span class="n">noGarbage</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">GENSTATE</span><span class="p">,</span><span class="s2">&quot;2_ABIgrid_LS&quot;</span><span class="p">)</span>
+
+
+<span class="w">       </span><span class="c">! __ s3. find n.n. CS pts for LS_ds (halo)</span>
+<span class="w">       </span><span class="c">!</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_TimerOn</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">GENSTATE</span><span class="p">,</span><span class="s2">&quot;3_CS_halo&quot;</span><span class="p">)</span>
+<span class="w">       </span><span class="n">obs_lons</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lons_ds</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">MAPL_DEGREES_TO_RADIANS_R8</span>
+<span class="w">       </span><span class="n">obs_lats</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lats_ds</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">MAPL_DEGREES_TO_RADIANS_R8</span>
+<span class="w">       </span><span class="n">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">lons_ds</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">II</span><span class="p">(</span><span class="n">nx</span><span class="p">),</span><span class="w"> </span><span class="n">JJ</span><span class="p">(</span><span class="n">nx</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_GetHorzIJIndex</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span><span class="n">II</span><span class="p">,</span><span class="n">JJ</span><span class="p">,</span><span class="n">lonR8</span><span class="o">=</span><span class="n">obs_lons</span><span class="p">,</span><span class="n">latR8</span><span class="o">=</span><span class="n">obs_lats</span><span class="p">,</span><span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_VMBarrier</span><span class="w"> </span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">       </span><span class="c">!</span>
+<span class="w">       </span><span class="c">! __  halo for mask</span>
+<span class="w">       </span><span class="c">!</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_GridGet</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">localCellCountPerDim</span><span class="o">=</span><span class="n">COUNTS</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="n">IM</span><span class="o">=</span><span class="w"> </span><span class="n">COUNTS</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">       </span><span class="n">JM</span><span class="o">=</span><span class="w"> </span><span class="n">COUNTS</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">       </span><span class="n">LM</span><span class="o">=</span><span class="w"> </span><span class="n">COUNTS</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">       </span><span class="n">useableHalo_width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">       </span><span class="n">fieldI4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="w"> </span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_I4</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">totalLwidth</span><span class="o">=</span><span class="p">[</span><span class="n">useableHalo_width</span><span class="p">,</span><span class="n">useableHalo_width</span><span class="p">],&amp;</span>
+<span class="w">            </span><span class="n">totalUwidth</span><span class="o">=</span><span class="p">[</span><span class="n">useableHalo_width</span><span class="p">,</span><span class="n">useableHalo_width</span><span class="p">],</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_FieldGetBounds</span><span class="w"> </span><span class="p">(</span><span class="n">fieldI4</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">exclusiveLBound</span><span class="o">=</span><span class="n">eLB</span><span class="p">,</span><span class="w"> </span><span class="n">exclusiveUBound</span><span class="o">=</span><span class="n">eUB</span><span class="p">,</span><span class="w"> </span><span class="n">exclusiveCount</span><span class="o">=</span><span class="n">ecount</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">totalLBound</span><span class="o">=</span><span class="n">tLB</span><span class="p">,</span><span class="w"> </span><span class="n">totalUBound</span><span class="o">=</span><span class="n">tUB</span><span class="p">,</span><span class="w"> </span><span class="n">totalCount</span><span class="o">=</span><span class="n">tcount</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">computationalLBound</span><span class="o">=</span><span class="n">cLB</span><span class="p">,</span><span class="w"> </span><span class="n">computationalUBound</span><span class="o">=</span><span class="n">cUB</span><span class="p">,</span><span class="w"> </span><span class="n">computationalCount</span><span class="o">=</span><span class="n">ccount</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="w"> </span><span class="p">(</span><span class="n">fieldI4</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">farrayPtr</span><span class="p">,</span><span class="w">  </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="n">farrayPtr</span><span class="p">(:,:)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">       </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">II</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">JJ</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             </span><span class="n">farrayPtr</span><span class="p">(</span><span class="w"> </span><span class="n">II</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">JJ</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">          </span><span class="k">endif</span>
+<span class="k">       enddo</span>
+
+<span class="k">       call </span><span class="n">ESMF_FieldHaloStore</span><span class="w"> </span><span class="p">(</span><span class="n">fieldI4</span><span class="p">,</span><span class="w"> </span><span class="n">routehandle</span><span class="o">=</span><span class="n">RH_halo</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_FieldHalo</span><span class="w"> </span><span class="p">(</span><span class="n">fieldI4</span><span class="p">,</span><span class="w"> </span><span class="n">routehandle</span><span class="o">=</span><span class="n">RH_halo</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">       </span><span class="n">k</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">       </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="n">eLB</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">eUB</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">          </span><span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="n">eLB</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">eUB</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">farrayPtr</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                  </span><span class="n">farrayPtr</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                  </span><span class="n">farrayPtr</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                  </span><span class="n">farrayPtr</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                  </span><span class="n">farrayPtr</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                </span><span class="n">farrayPtr</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
+<span class="w">             </span><span class="k">end if</span>
+<span class="k">             if</span><span class="w"> </span><span class="p">(</span><span class="n">farrayPtr</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)</span><span class="o">/=</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">          </span><span class="k">end do</span>
+<span class="k">       end do</span>
+<span class="k">       allocate</span><span class="p">(</span><span class="w"> </span><span class="n">mask</span><span class="p">(</span><span class="n">IM</span><span class="p">,</span><span class="w"> </span><span class="n">JM</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">       </span><span class="n">mask</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">IM</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">JM</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">abs</span><span class="p">(</span><span class="n">farrayPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">IM</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">JM</span><span class="p">))</span>
+
+<span class="w">       </span><span class="n">this</span><span class="p">%</span><span class="n">npt_mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">k</span>
+<span class="w">       </span><span class="k">allocate</span><span class="p">(</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">index_mask</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">k</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="n">arr</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="n">k</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_VMAllFullReduce</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">sendData</span><span class="o">=</span><span class="n">arr</span><span class="p">,</span><span class="w"> </span><span class="n">recvData</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">npt_mask_tot</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="nb">count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">reduceflag</span><span class="o">=</span><span class="n">ESMF_REDUCE_SUM</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">       </span><span class="n">k</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">       </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">IM</span>
+<span class="w">          </span><span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">JM</span>
+<span class="w">             </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">mask</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                </span><span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">                </span><span class="n">this</span><span class="p">%</span><span class="n">index_mask</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span>
+<span class="w">                </span><span class="n">this</span><span class="p">%</span><span class="n">index_mask</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span>
+<span class="w">             </span><span class="k">end if</span>
+<span class="k">          end do</span>
+<span class="k">       end do</span>
+<span class="k">       call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">GENSTATE</span><span class="p">,</span><span class="s2">&quot;3_CS_halo&quot;</span><span class="p">)</span>
+
+
+<span class="w">       </span><span class="c">! ----</span>
+<span class="w">       </span><span class="c">!  regridding is replaced by</span>
+<span class="w">       </span><span class="c">!  - selecting masked data on PET</span>
+<span class="w">       </span><span class="c">!  - mpi_gatherV</span>
+<span class="w">       </span><span class="c">!</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_TimerOn</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">GENSTATE</span><span class="p">,</span><span class="s2">&quot;4_gatherV&quot;</span><span class="p">)</span>
+
+<span class="w">       </span><span class="c">! __ s4.1 find this%lons/lats on root for NC output</span>
+<span class="w">       </span><span class="c">!</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_GridGetCoord</span><span class="w"> </span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">coordDim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">staggerloc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CENTER</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">lons_ptr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_GridGetCoord</span><span class="w"> </span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">coordDim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">staggerloc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CENTER</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">lats_ptr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">deallocate</span><span class="w"> </span><span class="p">(</span><span class="n">lons</span><span class="p">,</span><span class="w"> </span><span class="n">lats</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">       </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="n">lons</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">npt_mask</span><span class="p">),</span><span class="w"> </span><span class="n">lats</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">npt_mask</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">       </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">npt_mask</span>
+<span class="w">          </span><span class="n">ix</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">index_mask</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">)</span>
+<span class="w">          </span><span class="n">jx</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">index_mask</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">)</span>
+<span class="w">          </span><span class="n">lons</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lons_ptr</span><span class="w"> </span><span class="p">(</span><span class="n">ix</span><span class="p">,</span><span class="w"> </span><span class="n">jx</span><span class="p">)</span>
+<span class="w">          </span><span class="n">lats</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lats_ptr</span><span class="w"> </span><span class="p">(</span><span class="n">ix</span><span class="p">,</span><span class="w"> </span><span class="n">jx</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end do</span>
+
+
+<span class="k">       </span><span class="n">iroot</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mapl_am_i_root</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">lons</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">npt_mask_tot</span><span class="p">),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">lats</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">npt_mask_tot</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">       </span><span class="k">else</span>
+<span class="k">          allocate</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">lons</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">lats</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if</span>
+
+
+<span class="w">       </span><span class="c">! __ s4.2  find this%recvcounts / this%displs</span>
+<span class="w">       </span><span class="c">!</span>
+<span class="w">       </span><span class="k">allocate</span><span class="p">(</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">recvcounts</span><span class="p">(</span><span class="n">petcount</span><span class="p">),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">displs</span><span class="p">(</span><span class="n">petcount</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="k">allocate</span><span class="p">(</span><span class="w"> </span><span class="n">recvcounts_loc</span><span class="p">(</span><span class="n">petcount</span><span class="p">),</span><span class="w"> </span><span class="n">displs_loc</span><span class="p">(</span><span class="n">petcount</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="n">recvcounts_loc</span><span class="p">(:)</span><span class="o">=</span><span class="mi">1</span>
+<span class="w">       </span><span class="n">displs_loc</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">       </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">petcount</span>
+<span class="w">          </span><span class="n">displs_loc</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">displs_loc</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">recvcounts_loc</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end do</span>
+<span class="k">       call </span><span class="n">MPI_gatherv</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">npt_mask</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">recvcounts</span><span class="p">,</span><span class="w"> </span><span class="n">recvcounts_loc</span><span class="p">,</span><span class="w"> </span><span class="n">displs_loc</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,&amp;</span>
+<span class="w">            </span><span class="n">iroot</span><span class="p">,</span><span class="w"> </span><span class="n">mpic</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierr</span><span class="p">)</span><span class="w"> </span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">mapl_am_i_root</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">this</span><span class="p">%</span><span class="n">recvcounts</span><span class="p">(:)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       </span><span class="n">this</span><span class="p">%</span><span class="n">displs</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">       </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">petcount</span>
+<span class="w">          </span><span class="n">this</span><span class="p">%</span><span class="n">displs</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">displs</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">recvcounts</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end do</span>
+
+
+<span class="w">       </span><span class="c">! __ s4.3  gatherv lons/lats</span>
+<span class="w">       </span><span class="c">!</span>
+<span class="w">       </span><span class="n">nsend</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">npt_mask</span>
+<span class="w">       </span><span class="k">call </span><span class="n">MPI_gatherv</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">lons</span><span class="p">,</span><span class="w"> </span><span class="n">nsend</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_REAL8</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">lons</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">recvcounts</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">displs</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_REAL8</span><span class="p">,&amp;</span>
+<span class="w">            </span><span class="n">iroot</span><span class="p">,</span><span class="w"> </span><span class="n">mpic</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierr</span><span class="p">)</span><span class="w"> </span>
+<span class="w">       </span><span class="k">call </span><span class="n">MPI_gatherv</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">lats</span><span class="p">,</span><span class="w"> </span><span class="n">nsend</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_REAL8</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">lats</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">recvcounts</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">displs</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_REAL8</span><span class="p">,&amp;</span>
+<span class="w">            </span><span class="n">iroot</span><span class="p">,</span><span class="w"> </span><span class="n">mpic</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierr</span><span class="p">)</span><span class="w"> </span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">GENSTATE</span><span class="p">,</span><span class="s2">&quot;4_gatherV&quot;</span><span class="p">)</span>
+
+<span class="w">       </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">     </span><span class="k">end subroutine </span><span class="n">create_Geosat_grid_find_mask</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-18T19:02:42.777327             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

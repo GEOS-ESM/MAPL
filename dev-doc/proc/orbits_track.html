@@ -1,0 +1,883 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Orbits_Track &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Orbits_Track
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">37 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_NominalOrbitsMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_nominalorbitsmod.f90.html'>MAPL_NominalOrbitsMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_nominalorbitsmod.html'>MAPL_NominalOrbitsMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Orbits_Track</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/orbits_track.html#src">Orbits_Track</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine Orbits_Track(lons, lats, Sat_name, nymd, nhms, deltat, rc)  
+</h2>
+    
+
+    <p>The subroutine <code>Orbits_Track</code> calculates the satellite ground track during
+a given time interval. These calculations are performed using pre-calculated
+coefficients using combination of coordinate transformations, optimization
+techniques and mathematical modeling techniques.</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lons"></span>
+              real(kind=dp),
+            </td>
+<td></td>
+              <td></td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>lons</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lats"></span>
+              real(kind=dp),
+            </td>
+<td></td>
+              <td></td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>lats</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sat_name"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Sat_name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nymd"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nymd</strong>(2)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nhms"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nhms</strong>(2)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-deltat"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>deltat</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~25"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~orbits_track~~CallsGraph Pages: 1 -->
+<svg id="procorbits_trackCallsGraph" width="597pt" height="200pt"
+ viewBox="0.00 0.00 597.00 200.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~orbits_track~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 196)">
+<title>proc~~orbits_track~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-196 593,-196 593,4 -4,4"/>
+<!-- proc~orbits_track -->
+<g id="proc~~orbits_track~~CallsGraph_node1" class="node">
+<title>proc~orbits_track</title>
+<polygon fill="none" stroke="black" points="77,-129 0,-129 0,-105 77,-105 77,-129"/>
+<text text-anchor="middle" x="38.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50">Orbits_Track</text>
+</g>
+<!-- proc~built_vecsize -->
+<g id="proc~~orbits_track~~CallsGraph_node2" class="node">
+<title>proc~built_vecsize</title>
+<g id="a_proc~~orbits_track~~CallsGraph_node2"><a xlink:href="../proc/built_vecsize.html" xlink:title="built_vecsize">
+<polygon fill="#d9534f" stroke="#d9534f" points="334,-192 254,-192 254,-168 334,-168 334,-192"/>
+<text text-anchor="middle" x="294" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">built_vecsize</text>
+</a>
+</g>
+</g>
+<!-- proc~orbits_track&#45;&gt;proc~built_vecsize -->
+<g id="proc~~orbits_track~~CallsGraph_edge1" class="edge">
+<title>proc~orbits_track&#45;&gt;proc~built_vecsize</title>
+<path fill="none" stroke="#ff0000" d="M56.1,-129.1C70.42,-138.88 92.06,-152.11 113,-159 155.57,-173 206.5,-177.92 243.3,-179.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="243.64,-183.05 253.76,-179.92 243.9,-176.05 243.64,-183.05"/>
+</g>
+<!-- proc~find_waypointslat -->
+<g id="proc~~orbits_track~~CallsGraph_node3" class="node">
+<title>proc~find_waypointslat</title>
+<g id="a_proc~~orbits_track~~CallsGraph_node3"><a xlink:href="../proc/find_waypointslat.html" xlink:title="find_waypointslat">
+<polygon fill="#d9534f" stroke="#d9534f" points="218,-150 113,-150 113,-126 218,-126 218,-150"/>
+<text text-anchor="middle" x="165.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">find_waypointslat</text>
+</a>
+</g>
+</g>
+<!-- proc~orbits_track&#45;&gt;proc~find_waypointslat -->
+<g id="proc~~orbits_track~~CallsGraph_edge2" class="edge">
+<title>proc~orbits_track&#45;&gt;proc~find_waypointslat</title>
+<path fill="none" stroke="#ff0000" d="M77,-123.3C85.16,-124.67 93.99,-126.15 102.79,-127.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="102.25,-131.09 112.69,-129.3 103.41,-124.19 102.25,-131.09"/>
+</g>
+<!-- proc~get_time -->
+<g id="proc~~orbits_track~~CallsGraph_node4" class="node">
+<title>proc~get_time</title>
+<g id="a_proc~~orbits_track~~CallsGraph_node4"><a xlink:href="../proc/get_time.html" xlink:title="get_time">
+<polygon fill="#d9534f" stroke="#d9534f" points="195,-108 136,-108 136,-84 195,-84 195,-108"/>
+<text text-anchor="middle" x="165.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_time</text>
+</a>
+</g>
+</g>
+<!-- proc~orbits_track&#45;&gt;proc~get_time -->
+<g id="proc~~orbits_track~~CallsGraph_edge3" class="edge">
+<title>proc~orbits_track&#45;&gt;proc~get_time</title>
+<path fill="none" stroke="#ff0000" d="M77,-110.7C92.31,-108.13 110.02,-105.15 125.48,-102.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="126.48,-105.94 135.77,-100.83 125.32,-99.03 126.48,-105.94"/>
+</g>
+<!-- proc~satname2int -->
+<g id="proc~~orbits_track~~CallsGraph_node5" class="node">
+<title>proc~satname2int</title>
+<g id="a_proc~~orbits_track~~CallsGraph_node5"><a xlink:href="../proc/satname2int.html" xlink:title="satname2int">
+<polygon fill="#d9534f" stroke="#d9534f" points="205,-66 126,-66 126,-42 205,-42 205,-66"/>
+<text text-anchor="middle" x="165.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">satname2int</text>
+</a>
+</g>
+</g>
+<!-- proc~orbits_track&#45;&gt;proc~satname2int -->
+<g id="proc~~orbits_track~~CallsGraph_edge4" class="edge">
+<title>proc~orbits_track&#45;&gt;proc~satname2int</title>
+<path fill="none" stroke="#ff0000" d="M59.08,-104.87C73.67,-96.06 94.24,-84.14 113,-75 116.51,-73.29 120.2,-71.59 123.92,-69.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="125.34,-73.15 133.16,-66.01 122.59,-66.72 125.34,-73.15"/>
+</g>
+<!-- proc~find_waypointslat&#45;&gt;proc~built_vecsize -->
+<g id="proc~~orbits_track~~CallsGraph_edge6" class="edge">
+<title>proc~find_waypointslat&#45;&gt;proc~built_vecsize</title>
+<path fill="none" stroke="#7fff00" d="M202.75,-150.04C216.51,-154.6 232.37,-159.87 246.92,-164.7"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="246.15,-168.13 256.74,-167.96 248.36,-161.49 246.15,-168.13"/>
+</g>
+<!-- proc~built_vec -->
+<g id="proc~~orbits_track~~CallsGraph_node6" class="node">
+<title>proc~built_vec</title>
+<g id="a_proc~~orbits_track~~CallsGraph_node6"><a xlink:href="../proc/built_vec.html" xlink:title="built_vec">
+<polygon fill="#d9534f" stroke="#d9534f" points="324,-150 264,-150 264,-126 324,-126 324,-150"/>
+<text text-anchor="middle" x="294" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">built_vec</text>
+</a>
+</g>
+</g>
+<!-- proc~find_waypointslat&#45;&gt;proc~built_vec -->
+<g id="proc~~orbits_track~~CallsGraph_edge5" class="edge">
+<title>proc~find_waypointslat&#45;&gt;proc~built_vec</title>
+<path fill="none" stroke="#7fff00" d="M218.32,-138C230.11,-138 242.44,-138 253.62,-138"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="253.92,-141.5 263.92,-138 253.92,-134.5 253.92,-141.5"/>
+</g>
+<!-- proc~get_latlon -->
+<g id="proc~~orbits_track~~CallsGraph_node7" class="node">
+<title>proc~get_latlon</title>
+<g id="a_proc~~orbits_track~~CallsGraph_node7"><a xlink:href="../proc/get_latlon.html" xlink:title="get_latlon">
+<polygon fill="#d9534f" stroke="#d9534f" points="326.5,-108 261.5,-108 261.5,-84 326.5,-84 326.5,-108"/>
+<text text-anchor="middle" x="294" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_latlon</text>
+</a>
+</g>
+</g>
+<!-- proc~find_waypointslat&#45;&gt;proc~get_latlon -->
+<g id="proc~~orbits_track~~CallsGraph_edge7" class="edge">
+<title>proc~find_waypointslat&#45;&gt;proc~get_latlon</title>
+<path fill="none" stroke="#7fff00" d="M202.75,-125.96C218.11,-120.87 236.08,-114.9 251.92,-109.64"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="253.08,-112.94 261.47,-106.47 250.88,-106.3 253.08,-112.94"/>
+</g>
+<!-- proc~ods_julian -->
+<g id="proc~~orbits_track~~CallsGraph_node8" class="node">
+<title>proc~ods_julian</title>
+<g id="a_proc~~orbits_track~~CallsGraph_node8"><a xlink:href="../proc/ods_julian.html" xlink:title="ODS_Julian">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="329,-66 259,-66 259,-42 329,-42 329,-66"/>
+<text text-anchor="middle" x="294" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ODS_Julian</text>
+</a>
+</g>
+</g>
+<!-- proc~get_time&#45;&gt;proc~ods_julian -->
+<g id="proc~~orbits_track~~CallsGraph_edge8" class="edge">
+<title>proc~get_time&#45;&gt;proc~ods_julian</title>
+<path fill="none" stroke="#00ffff" d="M195.2,-86.47C211.07,-81.2 231.13,-74.54 248.94,-68.63"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="250.17,-71.91 258.56,-65.43 247.97,-65.26 250.17,-71.91"/>
+</g>
+<!-- proc~ecef2lla -->
+<g id="proc~~orbits_track~~CallsGraph_node9" class="node">
+<title>proc~ecef2lla</title>
+<g id="a_proc~~orbits_track~~CallsGraph_node9"><a xlink:href="../proc/ecef2lla.html" xlink:title="ECEF2LLA">
+<polygon fill="#d9534f" stroke="#d9534f" points="452.5,-192 386.5,-192 386.5,-168 452.5,-168 452.5,-192"/>
+<text text-anchor="middle" x="419.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ECEF2LLA</text>
+</a>
+</g>
+</g>
+<!-- proc~get_latlon&#45;&gt;proc~ecef2lla -->
+<g id="proc~~orbits_track~~CallsGraph_edge9" class="edge">
+<title>proc~get_latlon&#45;&gt;proc~ecef2lla</title>
+<path fill="none" stroke="#00ff00" d="M320.62,-108.04C325.27,-110.7 329.93,-113.72 334,-117 353.15,-132.42 350.21,-144.41 370,-159 372.32,-160.71 374.8,-162.32 377.37,-163.82"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="375.84,-166.97 386.32,-168.53 379.1,-160.78 375.84,-166.97"/>
+</g>
+<!-- proc~eci2ecef -->
+<g id="proc~~orbits_track~~CallsGraph_node10" class="node">
+<title>proc~eci2ecef</title>
+<g id="a_proc~~orbits_track~~CallsGraph_node10"><a xlink:href="../proc/eci2ecef.html" xlink:title="ECI2ECEF">
+<polygon fill="#d9534f" stroke="#d9534f" points="451.5,-150 387.5,-150 387.5,-126 451.5,-126 451.5,-150"/>
+<text text-anchor="middle" x="419.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ECI2ECEF</text>
+</a>
+</g>
+</g>
+<!-- proc~get_latlon&#45;&gt;proc~eci2ecef -->
+<g id="proc~~orbits_track~~CallsGraph_edge10" class="edge">
+<title>proc~get_latlon&#45;&gt;proc~eci2ecef</title>
+<path fill="none" stroke="#00ff00" d="M326.8,-106.82C342.19,-112.05 360.85,-118.4 377.32,-123.99"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="376.64,-127.46 387.23,-127.37 378.89,-120.83 376.64,-127.46"/>
+</g>
+<!-- proc~get_estimateeci -->
+<g id="proc~~orbits_track~~CallsGraph_node11" class="node">
+<title>proc~get_estimateeci</title>
+<g id="a_proc~~orbits_track~~CallsGraph_node11"><a xlink:href="../proc/get_estimateeci.html" xlink:title="get_estimateECI">
+<polygon fill="#d9534f" stroke="#d9534f" points="469,-108 370,-108 370,-84 469,-84 469,-108"/>
+<text text-anchor="middle" x="419.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_estimateECI</text>
+</a>
+</g>
+</g>
+<!-- proc~get_latlon&#45;&gt;proc~get_estimateeci -->
+<g id="proc~~orbits_track~~CallsGraph_edge11" class="edge">
+<title>proc~get_latlon&#45;&gt;proc~get_estimateeci</title>
+<path fill="none" stroke="#00ff00" d="M326.8,-96C336.76,-96 348.09,-96 359.31,-96"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="359.54,-99.5 369.54,-96 359.54,-92.5 359.54,-99.5"/>
+</g>
+<!-- proc~get_fraction -->
+<g id="proc~~orbits_track~~CallsGraph_node12" class="node">
+<title>proc~get_fraction</title>
+<g id="a_proc~~orbits_track~~CallsGraph_node12"><a xlink:href="../proc/get_fraction.html" xlink:title="get_fraction">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="457.5,-66 381.5,-66 381.5,-42 457.5,-42 457.5,-66"/>
+<text text-anchor="middle" x="419.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_fraction</text>
+</a>
+</g>
+</g>
+<!-- proc~get_latlon&#45;&gt;proc~get_fraction -->
+<g id="proc~~orbits_track~~CallsGraph_edge12" class="edge">
+<title>proc~get_latlon&#45;&gt;proc~get_fraction</title>
+<path fill="none" stroke="#00ff00" d="M326.8,-85.18C340.87,-80.4 357.68,-74.68 373.04,-69.46"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="374.54,-72.65 382.88,-66.11 372.29,-66.02 374.54,-72.65"/>
+</g>
+<!-- proc~rad2deg -->
+<g id="proc~~orbits_track~~CallsGraph_node13" class="node">
+<title>proc~rad2deg</title>
+<g id="a_proc~~orbits_track~~CallsGraph_node13"><a xlink:href="../proc/rad2deg.html" xlink:title="rad2deg">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="448.5,-24 390.5,-24 390.5,0 448.5,0 448.5,-24"/>
+<text text-anchor="middle" x="419.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">rad2deg</text>
+</a>
+</g>
+</g>
+<!-- proc~get_latlon&#45;&gt;proc~rad2deg -->
+<g id="proc~~orbits_track~~CallsGraph_edge13" class="edge">
+<title>proc~get_latlon&#45;&gt;proc~rad2deg</title>
+<path fill="none" stroke="#00ff00" d="M320.62,-83.96C325.27,-81.3 329.93,-78.28 334,-75 353.15,-59.58 350.21,-47.59 370,-33 373.45,-30.46 377.25,-28.14 381.17,-26.06"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="382.9,-29.11 390.39,-21.62 379.86,-22.81 382.9,-29.11"/>
+</g>
+<!-- interface~orbits_track0 -->
+<g id="proc~~orbits_track~~CallsGraph_node14" class="node">
+<title>interface~orbits_track0</title>
+<g id="a_proc~~orbits_track~~CallsGraph_node14"><a xlink:href="../interface/orbits_track0.html" xlink:title="Orbits_Track0">
+<polygon fill="#a7506f" stroke="#a7506f" points="589,-108 505,-108 505,-84 589,-84 589,-108"/>
+<text text-anchor="middle" x="547" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Orbits_Track0</text>
+</a>
+</g>
+</g>
+<!-- proc~get_estimateeci&#45;&gt;interface~orbits_track0 -->
+<g id="proc~~orbits_track~~CallsGraph_edge14" class="edge">
+<title>proc~get_estimateeci&#45;&gt;interface~orbits_track0</title>
+<path fill="none" stroke="#00ff66" d="M469.02,-96C477.46,-96 486.25,-96 494.76,-96"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="494.94,-99.5 504.94,-96 494.94,-92.5 494.94,-99.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~orbits_track~~CalledByGraph Pages: 1 -->
+<svg id="procorbits_trackCalledByGraph" width="420pt" height="74pt"
+ viewBox="0.00 0.00 420.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~orbits_track~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>proc~~orbits_track~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 416,-70 416,4 -4,4"/>
+<!-- proc~orbits_track -->
+<g id="proc~~orbits_track~~CalledByGraph_node1" class="node">
+<title>proc~orbits_track</title>
+<polygon fill="none" stroke="black" points="412,-45 335,-45 335,-21 412,-21 412,-45"/>
+<text text-anchor="middle" x="373.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">Orbits_Track</text>
+</g>
+<!-- proc~domasking_ -->
+<g id="proc~~orbits_track~~CalledByGraph_node2" class="node">
+<title>proc~domasking_</title>
+<g id="a_proc~~orbits_track~~CalledByGraph_node2"><a xlink:href="../proc/domasking_.html" xlink:title="DoMasking_">
+<polygon fill="#d9534f" stroke="#d9534f" points="173.5,-66 97.5,-66 97.5,-42 173.5,-42 173.5,-66"/>
+<text text-anchor="middle" x="135.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DoMasking_</text>
+</a>
+</g>
+</g>
+<!-- proc~domasking_&#45;&gt;proc~orbits_track -->
+<g id="proc~~orbits_track~~CalledByGraph_edge1" class="edge">
+<title>proc~domasking_&#45;&gt;proc~orbits_track</title>
+<path fill="none" stroke="#ff0000" d="M173.81,-56.93C206.88,-58.83 256.39,-59.97 299,-54 308.56,-52.66 318.62,-50.39 328.13,-47.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="329.13,-51.17 337.79,-45.06 327.21,-44.44 329.13,-51.17"/>
+</g>
+<!-- proc~orbits_swath -->
+<g id="proc~~orbits_track~~CalledByGraph_node4" class="node">
+<title>proc~orbits_swath</title>
+<g id="a_proc~~orbits_track~~CalledByGraph_node4"><a xlink:href="../proc/orbits_swath.html" xlink:title="Orbits_Swath">
+<polygon fill="#d9534f" stroke="#d9534f" points="299,-45 217,-45 217,-21 299,-21 299,-45"/>
+<text text-anchor="middle" x="258" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Orbits_Swath</text>
+</a>
+</g>
+</g>
+<!-- proc~domasking_&#45;&gt;proc~orbits_swath -->
+<g id="proc~~orbits_track~~CalledByGraph_edge6" class="edge">
+<title>proc~domasking_&#45;&gt;proc~orbits_swath</title>
+<path fill="none" stroke="#0000ff" d="M173.64,-47.53C184.12,-45.7 195.7,-43.68 206.82,-41.75"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="207.59,-45.16 216.85,-40 206.39,-38.27 207.59,-45.16"/>
+</g>
+<!-- proc~domasking_cs -->
+<g id="proc~~orbits_track~~CalledByGraph_node3" class="node">
+<title>proc~domasking_cs</title>
+<g id="a_proc~~orbits_track~~CalledByGraph_node3"><a xlink:href="../proc/domasking_cs.html" xlink:title="DoMasking_CS">
+<polygon fill="#d9534f" stroke="#d9534f" points="181,-24 90,-24 90,0 181,0 181,-24"/>
+<text text-anchor="middle" x="135.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DoMasking_CS</text>
+</a>
+</g>
+</g>
+<!-- proc~domasking_cs&#45;&gt;proc~orbits_track -->
+<g id="proc~~orbits_track~~CalledByGraph_edge2" class="edge">
+<title>proc~domasking_cs&#45;&gt;proc~orbits_track</title>
+<path fill="none" stroke="#ff0000" d="M181.22,-8.68C213.99,-7.05 259.47,-6.46 299,-12 308.56,-13.34 318.62,-15.61 328.13,-18.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="327.21,-21.56 337.79,-20.94 329.13,-14.83 327.21,-21.56"/>
+</g>
+<!-- proc~domasking_cs&#45;&gt;proc~orbits_swath -->
+<g id="proc~~orbits_track~~CalledByGraph_edge7" class="edge">
+<title>proc~domasking_cs&#45;&gt;proc~orbits_swath</title>
+<path fill="none" stroke="#0000ff" d="M181.03,-19.76C189.41,-21.22 198.23,-22.76 206.78,-24.25"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="206.19,-27.7 216.64,-25.97 207.39,-20.8 206.19,-27.7"/>
+</g>
+<!-- proc~orbits_swath&#45;&gt;proc~orbits_track -->
+<g id="proc~~orbits_track~~CalledByGraph_edge3" class="edge">
+<title>proc~orbits_swath&#45;&gt;proc~orbits_track</title>
+<path fill="none" stroke="#ff0000" d="M299.02,-33C307.27,-33 316.05,-33 324.56,-33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="324.75,-36.5 334.75,-33 324.75,-29.5 324.75,-36.5"/>
+</g>
+<!-- proc~run_~5 -->
+<g id="proc~~orbits_track~~CalledByGraph_node5" class="node">
+<title>proc~run_~5</title>
+<g id="a_proc~~orbits_track~~CalledByGraph_node5"><a xlink:href="../proc/run_~5.html" xlink:title="Run_">
+<polygon fill="#d9534f" stroke="#d9534f" points="54,-45 0,-45 0,-21 54,-21 54,-45"/>
+<text text-anchor="middle" x="27" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_~5&#45;&gt;proc~domasking_ -->
+<g id="proc~~orbits_track~~CalledByGraph_edge4" class="edge">
+<title>proc~run_~5&#45;&gt;proc~domasking_</title>
+<path fill="none" stroke="#ff0000" d="M54.05,-38.14C64.15,-40.13 76.03,-42.47 87.52,-44.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="86.97,-48.19 97.45,-46.7 88.32,-41.33 86.97,-48.19"/>
+</g>
+<!-- proc~run_~5&#45;&gt;proc~domasking_cs -->
+<g id="proc~~orbits_track~~CalledByGraph_edge5" class="edge">
+<title>proc~run_~5&#45;&gt;proc~domasking_cs</title>
+<path fill="none" stroke="#00ff00" d="M54.05,-27.86C61.84,-26.33 70.68,-24.58 79.59,-22.83"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="80.49,-26.22 89.62,-20.85 79.13,-19.35 80.49,-26.22"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">SUBROUTINE </span><span class="n">Orbits_Track</span><span class="p">(</span><span class="n">lons</span><span class="p">,</span><span class="w"> </span><span class="n">lats</span><span class="p">,</span><span class="w"> </span><span class="n">Sat_name</span><span class="p">,</span><span class="w"> </span><span class="n">nymd</span><span class="p">,</span><span class="w"> </span><span class="n">nhms</span><span class="p">,</span><span class="w"> </span><span class="n">deltat</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+
+<span class="w">       </span><span class="k">IMPLICIT NONE</span>
+<span class="c">! !INPUT PARAMETERS:</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Sat_name</span><span class="w"> </span><span class="c">! Satellite name</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nymd</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w">  </span><span class="c">! Beginning/ending date: YYYYMMDD</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nhms</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w">  </span><span class="c">! Beginning/ending time: HHMMSS</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">deltat</span><span class="w">   </span><span class="c">! Time step [secs]</span>
+
+<span class="c">! !OUTPUT PARAMETERS:</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">dp</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">lons</span><span class="p">(:)</span><span class="w">  </span><span class="c">! Ground track longitudes [degrees]  </span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">dp</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">lats</span><span class="p">(:)</span><span class="w">  </span><span class="c">! Ground track latitudes  [degrees]  </span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w">       </span><span class="c">! Error code = 0 all is well</span>
+<span class="w">                                      </span><span class="c">!            = 3 memory allocation error</span>
+<span class="w">      </span><span class="kt">REAL</span><span class="p">(</span><span class="n">dp</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">time_day</span>
+<span class="c">!</span>
+<span class="c">!     Other parameters!</span>
+<span class="w">      </span><span class="kt">REAL</span><span class="p">(</span><span class="n">dp</span><span class="p">),</span><span class="w"> </span><span class="k">DIMENSION</span><span class="p">(:),</span><span class="w"> </span><span class="k">ALLOCATABLE</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">obstime</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">dp</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">sim_start</span><span class="p">,</span><span class="w"> </span><span class="n">sim_end</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">dp</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">s_fraction2day</span><span class="p">,</span><span class="w"> </span><span class="n">e_fraction2day</span>
+<span class="w">      </span><span class="kt">INTEGER</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">ts</span><span class="p">,</span><span class="w"> </span><span class="n">las</span><span class="p">,</span><span class="w"> </span><span class="n">los</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">Sat</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">ierr1</span><span class="p">,</span><span class="w"> </span><span class="n">ierr2</span><span class="p">,</span><span class="w"> </span><span class="n">ierr3</span>
+<span class="w">      </span><span class="kt">REAL</span><span class="p">(</span><span class="n">dp</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">distlat</span><span class="w">  </span><span class="c">!lat is equal dis </span>
+<span class="w">      </span><span class="kt">INTEGER</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">say</span><span class="w">                   </span><span class="c">!()()()()()()</span>
+<span class="c">!     ............................................................................</span>
+
+<span class="w">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="c">! Initiate error code to 0</span>
+<span class="w">      </span><span class="k">CALL </span><span class="n">satname2int</span><span class="p">(</span><span class="n">Sat_name</span><span class="p">,</span><span class="w"> </span><span class="n">Sat</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="k">      CALL </span><span class="n">get_time</span><span class="p">(</span><span class="n">Sat</span><span class="p">,</span><span class="w"> </span><span class="n">nymd</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">nhms</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">s_fraction2day</span><span class="p">,</span><span class="w"> </span><span class="n">sim_start</span><span class="p">)</span><span class="w"> </span><span class="c">! handle time </span>
+<span class="w">      </span><span class="k">CALL </span><span class="n">get_time</span><span class="p">(</span><span class="n">Sat</span><span class="p">,</span><span class="w"> </span><span class="n">nymd</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">nhms</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">e_fraction2day</span><span class="p">,</span><span class="w"> </span><span class="n">sim_end</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">time_day</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">deltat</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="mf">4.0</span><span class="o">*</span><span class="mi">6</span><span class="mf">0.0</span><span class="o">*</span><span class="mi">6</span><span class="mf">0.0</span><span class="p">)</span><span class="w">  </span><span class="c">!()()()()</span>
+<span class="w">      </span><span class="k">CALL </span><span class="n">built_vecsize</span><span class="p">(</span><span class="n">sim_start</span><span class="p">,</span><span class="w"> </span><span class="n">sim_end</span><span class="p">,</span><span class="w"> </span><span class="n">time_day</span><span class="p">,</span><span class="w"> </span><span class="n">say</span><span class="p">)</span><span class="w"> </span><span class="c">! ()()()()()</span>
+
+<span class="w">      </span><span class="k">ALLOCATE</span><span class="p">(</span><span class="n">lons</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">say</span><span class="p">),</span><span class="w">  </span><span class="nb">stat</span><span class="o">=</span><span class="n">ierr1</span><span class="p">)</span><span class="w"> </span><span class="c">! deallocate in the driver</span>
+<span class="w">      </span><span class="k">ALLOCATE</span><span class="p">(</span><span class="n">lats</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">say</span><span class="p">),</span><span class="w">  </span><span class="nb">stat</span><span class="o">=</span><span class="n">ierr2</span><span class="p">)</span><span class="w"> </span><span class="c">! deallocate in the driver</span>
+<span class="w">      </span><span class="k">ALLOCATE</span><span class="p">(</span><span class="n">obstime</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">say</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">ierr3</span><span class="p">)</span><span class="w"> </span><span class="c">! deallocate in the driver</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">ierr1</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">ierr2</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w">  </span><span class="n">ierr3</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="c">!</span>
+<span class="w">         </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">         </span><span class="k">return</span>
+<span class="k">      endif</span>
+
+<span class="k">      </span><span class="n">distlat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="c">!for flagauto 0 option it is not used. later change to optional </span>
+<span class="w">      </span><span class="k">CALL </span><span class="n">find_waypointslat</span><span class="p">(</span><span class="n">Sat</span><span class="p">,</span><span class="w"> </span><span class="n">deltat</span><span class="p">,</span><span class="n">sim_start</span><span class="p">,</span><span class="n">sim_end</span><span class="p">,</span><span class="n">distlat</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                             </span><span class="n">obstime</span><span class="p">,</span><span class="w"> </span><span class="n">lats</span><span class="p">,</span><span class="w"> </span><span class="n">lons</span><span class="p">,</span><span class="w"> </span><span class="n">ts</span><span class="p">,</span><span class="w"> </span><span class="n">las</span><span class="p">,</span><span class="w"> </span><span class="n">los</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+
+<span class="k">END SUBROUTINE </span><span class="n">Orbits_Track</span><span class="w"> </span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-18T19:02:42.777327             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,822 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>deserialize &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>deserialize
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">26 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/AbstractCollectiveDataMessage.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/abstractcollectivedatamessage.f90.html'>AbstractCollectiveDataMessage.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_abstractcollectivedatamessagemod.html'>pFIO_AbstractCollectiveDataMessageMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">deserialize</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/deserialize~5.html#src">deserialize</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine deserialize(this, buffer, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/abstractcollectivedatamessage.html'>AbstractCollectiveDataMessage</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~1079"></span>
+              class(<a href='../type/abstractcollectivedatamessage.html'>AbstractCollectiveDataMessage</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-buffer~53"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>buffer</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~474"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~deserialize~5~~CallsGraph Pages: 1 -->
+<svg id="procdeserialize5CallsGraph" width="641pt" height="977pt"
+ viewBox="0.00 0.00 641.00 976.67" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~deserialize~5~~CallsGraph" class="graph" transform="scale(0.98 0.98) rotate(0) translate(4 994)">
+<title>proc~~deserialize~5~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-994 651,-994 651,4 -4,4"/>
+<!-- proc~deserialize~5 -->
+<g id="proc~~deserialize~5~~CallsGraph_node1" class="node">
+<title>proc~deserialize~5</title>
+<polygon fill="none" stroke="black" points="249,-318 0,-318 0,-294 249,-294 249,-318"/>
+<text text-anchor="middle" x="124.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50">AbstractCollectiveDataMessage%deserialize</text>
+</g>
+<!-- interface~deserialize_intrinsic -->
+<g id="proc~~deserialize~5~~CallsGraph_node2" class="node">
+<title>interface~deserialize_intrinsic</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node2"><a xlink:href="../interface/deserialize_intrinsic.html" xlink:title="deserialize_intrinsic">
+<polygon fill="#a7506f" stroke="#a7506f" points="410.5,-759 292.5,-759 292.5,-735 410.5,-735 410.5,-759"/>
+<text text-anchor="middle" x="351.5" y="-744.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">deserialize_intrinsic</text>
+</a>
+</g>
+</g>
+<!-- proc~deserialize~5&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize~5~~CallsGraph_edge1" class="edge">
+<title>proc~deserialize~5&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M131.75,-318.26C162.72,-378.95 299.78,-647.59 339.61,-725.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="336.51,-727.28 344.17,-734.6 342.74,-724.1 336.51,-727.28"/>
+</g>
+<!-- interface~serialize_buffer_length -->
+<g id="proc~~deserialize~5~~CallsGraph_node3" class="node">
+<title>interface~serialize_buffer_length</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node3"><a xlink:href="../interface/serialize_buffer_length.html" xlink:title="serialize_buffer_length">
+<polygon fill="#a7506f" stroke="#a7506f" points="418,-318 285,-318 285,-294 418,-294 418,-318"/>
+<text text-anchor="middle" x="351.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">serialize_buffer_length</text>
+</a>
+</g>
+</g>
+<!-- proc~deserialize~5&#45;&gt;interface~serialize_buffer_length -->
+<g id="proc~~deserialize~5~~CallsGraph_edge2" class="edge">
+<title>proc~deserialize~5&#45;&gt;interface~serialize_buffer_length</title>
+<path fill="none" stroke="#ff0000" d="M249.19,-306C257.81,-306 266.33,-306 274.57,-306"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="274.83,-309.5 284.83,-306 274.83,-302.5 274.83,-309.5"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~deserialize~5~~CallsGraph_node4" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node4"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="392.5,-66 310.5,-66 310.5,-42 392.5,-42 392.5,-66"/>
+<text text-anchor="middle" x="351.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~deserialize~5&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize~5~~CallsGraph_edge3" class="edge">
+<title>proc~deserialize~5&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M136.35,-293.85C172.44,-253.43 288.64,-123.28 333.04,-73.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="335.71,-75.82 339.76,-66.03 330.49,-71.16 335.71,-75.82"/>
+</g>
+<!-- proc~deserialize_int32_0d -->
+<g id="proc~~deserialize~5~~CallsGraph_node5" class="node">
+<title>proc~deserialize_int32_0d</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node5"><a xlink:href="../proc/deserialize_int32_0d.html" xlink:title="deserialize_int32_0d">
+<polygon fill="#d9534f" stroke="#d9534f" points="611,-990 490,-990 490,-966 611,-966 611,-990"/>
+<text text-anchor="middle" x="550.5" y="-975.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">deserialize_int32_0d</text>
+</a>
+</g>
+</g>
+<!-- interface~deserialize_intrinsic&#45;&gt;proc~deserialize_int32_0d -->
+<g id="proc~~deserialize~5~~CallsGraph_edge4" class="edge">
+<title>interface~deserialize_intrinsic&#45;&gt;proc~deserialize_int32_0d</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M354.54,-759.02C361.35,-795.21 386.79,-903.92 454,-957 461.61,-963.01 470.59,-967.39 479.93,-970.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="479.19,-973.99 489.77,-973.44 481.16,-967.27 479.19,-973.99"/>
+</g>
+<!-- proc~deserialize_int32_1d -->
+<g id="proc~~deserialize~5~~CallsGraph_node6" class="node">
+<title>proc~deserialize_int32_1d</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node6"><a xlink:href="../proc/deserialize_int32_1d.html" xlink:title="deserialize_int32_1d">
+<polygon fill="#d9534f" stroke="#d9534f" points="611,-948 490,-948 490,-924 611,-924 611,-948"/>
+<text text-anchor="middle" x="550.5" y="-933.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">deserialize_int32_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~deserialize_intrinsic&#45;&gt;proc~deserialize_int32_1d -->
+<g id="proc~~deserialize~5~~CallsGraph_edge5" class="edge">
+<title>interface~deserialize_intrinsic&#45;&gt;proc~deserialize_int32_1d</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M356.07,-759.04C365.99,-790.24 396.94,-874.11 454,-915 461.78,-920.58 470.77,-924.72 480.06,-927.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="479.23,-931.18 489.81,-930.6 481.17,-924.46 479.23,-931.18"/>
+</g>
+<!-- proc~deserialize_int64_0d -->
+<g id="proc~~deserialize~5~~CallsGraph_node7" class="node">
+<title>proc~deserialize_int64_0d</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node7"><a xlink:href="../proc/deserialize_int64_0d.html" xlink:title="deserialize_int64_0d">
+<polygon fill="#d9534f" stroke="#d9534f" points="611,-906 490,-906 490,-882 611,-882 611,-906"/>
+<text text-anchor="middle" x="550.5" y="-891.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">deserialize_int64_0d</text>
+</a>
+</g>
+</g>
+<!-- interface~deserialize_intrinsic&#45;&gt;proc~deserialize_int64_0d -->
+<g id="proc~~deserialize~5~~CallsGraph_edge6" class="edge">
+<title>interface~deserialize_intrinsic&#45;&gt;proc~deserialize_int64_0d</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M358.69,-759.35C372.21,-784.95 406.96,-843.86 454,-873 461.9,-877.89 470.78,-881.65 479.87,-884.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="479.19,-887.99 489.77,-887.34 481.1,-881.25 479.19,-887.99"/>
+</g>
+<!-- proc~deserialize_int64_1d -->
+<g id="proc~~deserialize~5~~CallsGraph_node8" class="node">
+<title>proc~deserialize_int64_1d</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node8"><a xlink:href="../proc/deserialize_int64_1d.html" xlink:title="deserialize_int64_1d">
+<polygon fill="#d9534f" stroke="#d9534f" points="611,-864 490,-864 490,-840 611,-840 611,-864"/>
+<text text-anchor="middle" x="550.5" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">deserialize_int64_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~deserialize_intrinsic&#45;&gt;proc~deserialize_int64_1d -->
+<g id="proc~~deserialize~5~~CallsGraph_edge7" class="edge">
+<title>interface~deserialize_intrinsic&#45;&gt;proc~deserialize_int64_1d</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M363.38,-759.12C380.68,-777.61 416.38,-812.65 454,-831 462.18,-834.99 471.12,-838.23 480.15,-840.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="479.38,-844.28 489.94,-843.48 481.19,-837.51 479.38,-844.28"/>
+</g>
+<!-- proc~deserialize_logical_0d -->
+<g id="proc~~deserialize~5~~CallsGraph_node9" class="node">
+<title>proc~deserialize_logical_0d</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node9"><a xlink:href="../proc/deserialize_logical_0d.html" xlink:title="deserialize_logical_0d">
+<polygon fill="#d9534f" stroke="#d9534f" points="615.5,-822 485.5,-822 485.5,-798 615.5,-798 615.5,-822"/>
+<text text-anchor="middle" x="550.5" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">deserialize_logical_0d</text>
+</a>
+</g>
+</g>
+<!-- interface~deserialize_intrinsic&#45;&gt;proc~deserialize_logical_0d -->
+<g id="proc~~deserialize~5~~CallsGraph_edge8" class="edge">
+<title>interface~deserialize_intrinsic&#45;&gt;proc~deserialize_logical_0d</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M378.32,-759.17C398.56,-768.34 427.62,-780.71 454,-789 461.46,-791.34 469.32,-793.52 477.21,-795.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="476.63,-798.98 487.18,-797.96 478.29,-792.18 476.63,-798.98"/>
+</g>
+<!-- proc~deserialize_logical_1d -->
+<g id="proc~~deserialize~5~~CallsGraph_node10" class="node">
+<title>proc~deserialize_logical_1d</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node10"><a xlink:href="../proc/deserialize_logical_1d.html" xlink:title="deserialize_logical_1d">
+<polygon fill="#d9534f" stroke="#d9534f" points="615.5,-780 485.5,-780 485.5,-756 615.5,-756 615.5,-780"/>
+<text text-anchor="middle" x="550.5" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">deserialize_logical_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~deserialize_intrinsic&#45;&gt;proc~deserialize_logical_1d -->
+<g id="proc~~deserialize~5~~CallsGraph_edge9" class="edge">
+<title>interface~deserialize_intrinsic&#45;&gt;proc~deserialize_logical_1d</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M410.54,-753.19C430.82,-755.35 453.87,-757.81 475.29,-760.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="475.01,-763.58 485.33,-761.16 475.75,-756.62 475.01,-763.58"/>
+</g>
+<!-- proc~deserialize_real32_0d -->
+<g id="proc~~deserialize~5~~CallsGraph_node11" class="node">
+<title>proc~deserialize_real32_0d</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node11"><a xlink:href="../proc/deserialize_real32_0d.html" xlink:title="deserialize_real32_0d">
+<polygon fill="#d9534f" stroke="#d9534f" points="614.5,-738 486.5,-738 486.5,-714 614.5,-714 614.5,-738"/>
+<text text-anchor="middle" x="550.5" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">deserialize_real32_0d</text>
+</a>
+</g>
+</g>
+<!-- interface~deserialize_intrinsic&#45;&gt;proc~deserialize_real32_0d -->
+<g id="proc~~deserialize~5~~CallsGraph_edge10" class="edge">
+<title>interface~deserialize_intrinsic&#45;&gt;proc~deserialize_real32_0d</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M410.54,-740.81C431.12,-738.62 454.54,-736.12 476.22,-733.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="476.8,-737.27 486.37,-732.73 476.06,-730.31 476.8,-737.27"/>
+</g>
+<!-- proc~deserialize_real32_1d -->
+<g id="proc~~deserialize~5~~CallsGraph_node12" class="node">
+<title>proc~deserialize_real32_1d</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node12"><a xlink:href="../proc/deserialize_real32_1d.html" xlink:title="deserialize_real32_1d">
+<polygon fill="#d9534f" stroke="#d9534f" points="614.5,-696 486.5,-696 486.5,-672 614.5,-672 614.5,-696"/>
+<text text-anchor="middle" x="550.5" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">deserialize_real32_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~deserialize_intrinsic&#45;&gt;proc~deserialize_real32_1d -->
+<g id="proc~~deserialize~5~~CallsGraph_edge11" class="edge">
+<title>interface~deserialize_intrinsic&#45;&gt;proc~deserialize_real32_1d</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M378.32,-734.83C398.56,-725.66 427.62,-713.29 454,-705 461.46,-702.66 469.32,-700.48 477.21,-698.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="478.29,-701.82 487.18,-696.04 476.63,-695.02 478.29,-701.82"/>
+</g>
+<!-- proc~deserialize_real64_0d -->
+<g id="proc~~deserialize~5~~CallsGraph_node13" class="node">
+<title>proc~deserialize_real64_0d</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node13"><a xlink:href="../proc/deserialize_real64_0d.html" xlink:title="deserialize_real64_0d">
+<polygon fill="#d9534f" stroke="#d9534f" points="614.5,-654 486.5,-654 486.5,-630 614.5,-630 614.5,-654"/>
+<text text-anchor="middle" x="550.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">deserialize_real64_0d</text>
+</a>
+</g>
+</g>
+<!-- interface~deserialize_intrinsic&#45;&gt;proc~deserialize_real64_0d -->
+<g id="proc~~deserialize~5~~CallsGraph_edge12" class="edge">
+<title>interface~deserialize_intrinsic&#45;&gt;proc~deserialize_real64_0d</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M363.38,-734.88C380.68,-716.39 416.38,-681.35 454,-663 461.16,-659.51 468.9,-656.59 476.77,-654.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="477.75,-657.52 486.41,-651.41 475.83,-650.78 477.75,-657.52"/>
+</g>
+<!-- proc~deserialize_real64_1d -->
+<g id="proc~~deserialize~5~~CallsGraph_node14" class="node">
+<title>proc~deserialize_real64_1d</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node14"><a xlink:href="../proc/deserialize_real64_1d.html" xlink:title="deserialize_real64_1d">
+<polygon fill="#d9534f" stroke="#d9534f" points="614.5,-612 486.5,-612 486.5,-588 614.5,-588 614.5,-612"/>
+<text text-anchor="middle" x="550.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">deserialize_real64_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~deserialize_intrinsic&#45;&gt;proc~deserialize_real64_1d -->
+<g id="proc~~deserialize~5~~CallsGraph_edge13" class="edge">
+<title>interface~deserialize_intrinsic&#45;&gt;proc~deserialize_real64_1d</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M358.69,-734.65C372.21,-709.05 406.96,-650.14 454,-621 460.93,-616.71 468.61,-613.29 476.53,-610.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="477.73,-613.86 486.26,-607.58 475.67,-607.17 477.73,-613.86"/>
+</g>
+<!-- proc~deserialize_string -->
+<g id="proc~~deserialize~5~~CallsGraph_node15" class="node">
+<title>proc~deserialize_string</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node15"><a xlink:href="../proc/deserialize_string.html" xlink:title="deserialize_string">
+<polygon fill="#d9534f" stroke="#d9534f" points="603.5,-570 497.5,-570 497.5,-546 603.5,-546 603.5,-570"/>
+<text text-anchor="middle" x="550.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">deserialize_string</text>
+</a>
+</g>
+</g>
+<!-- interface~deserialize_intrinsic&#45;&gt;proc~deserialize_string -->
+<g id="proc~~deserialize~5~~CallsGraph_edge14" class="edge">
+<title>interface~deserialize_intrinsic&#45;&gt;proc~deserialize_string</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M356.07,-734.96C365.99,-703.76 396.94,-619.89 454,-579 463.81,-571.97 475.54,-567.22 487.36,-564.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="488.33,-567.4 497.27,-561.71 486.74,-560.59 488.33,-567.4"/>
+</g>
+<!-- proc~serialize_buffer_length_int32_0d -->
+<g id="proc~~deserialize~5~~CallsGraph_node18" class="node">
+<title>proc~serialize_buffer_length_int32_0d</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node18"><a xlink:href="../proc/serialize_buffer_length_int32_0d.html" xlink:title="serialize_buffer_length_int32_0d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="642.5,-528 458.5,-528 458.5,-504 642.5,-504 642.5,-528"/>
+<text text-anchor="middle" x="550.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">serialize_buffer_length_int32_0d</text>
+</a>
+</g>
+</g>
+<!-- interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_int32_0d -->
+<g id="proc~~deserialize~5~~CallsGraph_edge15" class="edge">
+<title>interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_int32_0d</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M355.23,-318.03C363.55,-351.79 391.9,-448.06 454,-495 455.87,-496.41 457.82,-497.74 459.83,-498.97"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="458.52,-502.24 468.99,-503.86 461.82,-496.07 458.52,-502.24"/>
+</g>
+<!-- proc~serialize_buffer_length_int32_1d -->
+<g id="proc~~deserialize~5~~CallsGraph_node19" class="node">
+<title>proc~serialize_buffer_length_int32_1d</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node19"><a xlink:href="../proc/serialize_buffer_length_int32_1d.html" xlink:title="serialize_buffer_length_int32_1d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="642.5,-486 458.5,-486 458.5,-462 642.5,-462 642.5,-486"/>
+<text text-anchor="middle" x="550.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">serialize_buffer_length_int32_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_int32_1d -->
+<g id="proc~~deserialize~5~~CallsGraph_edge16" class="edge">
+<title>interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_int32_1d</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M357.2,-318.2C368.86,-346.74 402,-418.07 454,-453 456.44,-454.64 459,-456.16 461.63,-457.56"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="460.32,-460.81 470.86,-461.88 463.28,-454.47 460.32,-460.81"/>
+</g>
+<!-- proc~serialize_buffer_length_int64_0d -->
+<g id="proc~~deserialize~5~~CallsGraph_node20" class="node">
+<title>proc~serialize_buffer_length_int64_0d</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node20"><a xlink:href="../proc/serialize_buffer_length_int64_0d.html" xlink:title="serialize_buffer_length_int64_0d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="642.5,-444 458.5,-444 458.5,-420 642.5,-420 642.5,-444"/>
+<text text-anchor="middle" x="550.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">serialize_buffer_length_int64_0d</text>
+</a>
+</g>
+</g>
+<!-- interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_int64_0d -->
+<g id="proc~~deserialize~5~~CallsGraph_edge17" class="edge">
+<title>interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_int64_0d</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M360.63,-318.3C376.03,-340.56 411.72,-387.38 454,-411 457.49,-412.95 461.14,-414.71 464.89,-416.32"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="463.82,-419.65 474.41,-419.97 466.33,-413.12 463.82,-419.65"/>
+</g>
+<!-- proc~serialize_buffer_length_int64_1d -->
+<g id="proc~~deserialize~5~~CallsGraph_node21" class="node">
+<title>proc~serialize_buffer_length_int64_1d</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node21"><a xlink:href="../proc/serialize_buffer_length_int64_1d.html" xlink:title="serialize_buffer_length_int64_1d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="642.5,-402 458.5,-402 458.5,-378 642.5,-378 642.5,-402"/>
+<text text-anchor="middle" x="550.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">serialize_buffer_length_int64_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_int64_1d -->
+<g id="proc~~deserialize~5~~CallsGraph_edge18" class="edge">
+<title>interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_int64_1d</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M368.11,-318.06C387.29,-332.3 421.34,-355.73 454,-369 459.54,-371.25 465.37,-373.28 471.29,-375.11"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="470.75,-378.59 481.33,-377.99 472.68,-371.87 470.75,-378.59"/>
+</g>
+<!-- proc~serialize_buffer_length_logical_0d -->
+<g id="proc~~deserialize~5~~CallsGraph_node22" class="node">
+<title>proc~serialize_buffer_length_logical_0d</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node22"><a xlink:href="../proc/serialize_buffer_length_logical_0d.html" xlink:title="serialize_buffer_length_logical_0d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="647,-360 454,-360 454,-336 647,-336 647,-360"/>
+<text text-anchor="middle" x="550.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">serialize_buffer_length_logical_0d</text>
+</a>
+</g>
+</g>
+<!-- interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_logical_0d -->
+<g id="proc~~deserialize~5~~CallsGraph_edge19" class="edge">
+<title>interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_logical_0d</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M408.95,-318.04C432.14,-322.98 459.15,-328.74 483.26,-333.88"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="482.53,-337.3 493.04,-335.96 483.99,-330.45 482.53,-337.3"/>
+</g>
+<!-- proc~serialize_buffer_length_logical_1d -->
+<g id="proc~~deserialize~5~~CallsGraph_node23" class="node">
+<title>proc~serialize_buffer_length_logical_1d</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node23"><a xlink:href="../proc/serialize_buffer_length_logical_1d.html" xlink:title="serialize_buffer_length_logical_1d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="647,-318 454,-318 454,-294 647,-294 647,-318"/>
+<text text-anchor="middle" x="550.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">serialize_buffer_length_logical_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_logical_1d -->
+<g id="proc~~deserialize~5~~CallsGraph_edge20" class="edge">
+<title>interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_logical_1d</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M418.1,-306C426.38,-306 435.02,-306 443.73,-306"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="443.98,-309.5 453.98,-306 443.98,-302.5 443.98,-309.5"/>
+</g>
+<!-- proc~serialize_buffer_length_real32_0d -->
+<g id="proc~~deserialize~5~~CallsGraph_node24" class="node">
+<title>proc~serialize_buffer_length_real32_0d</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node24"><a xlink:href="../proc/serialize_buffer_length_real32_0d.html" xlink:title="serialize_buffer_length_real32_0d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="646,-276 455,-276 455,-252 646,-252 646,-276"/>
+<text text-anchor="middle" x="550.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">serialize_buffer_length_real32_0d</text>
+</a>
+</g>
+</g>
+<!-- interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_real32_0d -->
+<g id="proc~~deserialize~5~~CallsGraph_edge21" class="edge">
+<title>interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_real32_0d</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M408.95,-293.96C432.14,-289.02 459.15,-283.26 483.26,-278.12"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="483.99,-281.55 493.04,-276.04 482.53,-274.7 483.99,-281.55"/>
+</g>
+<!-- proc~serialize_buffer_length_real32_1d -->
+<g id="proc~~deserialize~5~~CallsGraph_node25" class="node">
+<title>proc~serialize_buffer_length_real32_1d</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node25"><a xlink:href="../proc/serialize_buffer_length_real32_1d.html" xlink:title="serialize_buffer_length_real32_1d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="646,-234 455,-234 455,-210 646,-210 646,-234"/>
+<text text-anchor="middle" x="550.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">serialize_buffer_length_real32_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_real32_1d -->
+<g id="proc~~deserialize~5~~CallsGraph_edge22" class="edge">
+<title>interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_real32_1d</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M368.11,-293.94C387.29,-279.7 421.34,-256.27 454,-243 459.54,-240.75 465.37,-238.72 471.29,-236.89"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="472.68,-240.13 481.33,-234.01 470.75,-233.41 472.68,-240.13"/>
+</g>
+<!-- proc~serialize_buffer_length_real64_0d -->
+<g id="proc~~deserialize~5~~CallsGraph_node26" class="node">
+<title>proc~serialize_buffer_length_real64_0d</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node26"><a xlink:href="../proc/serialize_buffer_length_real64_0d.html" xlink:title="serialize_buffer_length_real64_0d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="646,-192 455,-192 455,-168 646,-168 646,-192"/>
+<text text-anchor="middle" x="550.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">serialize_buffer_length_real64_0d</text>
+</a>
+</g>
+</g>
+<!-- interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_real64_0d -->
+<g id="proc~~deserialize~5~~CallsGraph_edge23" class="edge">
+<title>interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_real64_0d</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M360.63,-293.7C376.03,-271.44 411.72,-224.62 454,-201 457.49,-199.05 461.14,-197.29 464.89,-195.68"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="466.33,-198.88 474.41,-192.03 463.82,-192.35 466.33,-198.88"/>
+</g>
+<!-- proc~serialize_buffer_length_real64_1d -->
+<g id="proc~~deserialize~5~~CallsGraph_node27" class="node">
+<title>proc~serialize_buffer_length_real64_1d</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node27"><a xlink:href="../proc/serialize_buffer_length_real64_1d.html" xlink:title="serialize_buffer_length_real64_1d">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="646,-150 455,-150 455,-126 646,-126 646,-150"/>
+<text text-anchor="middle" x="550.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">serialize_buffer_length_real64_1d</text>
+</a>
+</g>
+</g>
+<!-- interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_real64_1d -->
+<g id="proc~~deserialize~5~~CallsGraph_edge24" class="edge">
+<title>interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_real64_1d</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M357.2,-293.8C368.86,-265.26 402,-193.93 454,-159 456.44,-157.36 459,-155.84 461.63,-154.44"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="463.28,-157.53 470.86,-150.12 460.32,-151.19 463.28,-157.53"/>
+</g>
+<!-- proc~serialize_buffer_length_string -->
+<g id="proc~~deserialize~5~~CallsGraph_node28" class="node">
+<title>proc~serialize_buffer_length_string</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node28"><a xlink:href="../proc/serialize_buffer_length_string.html" xlink:title="serialize_buffer_length_string">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="635,-108 466,-108 466,-84 635,-84 635,-108"/>
+<text text-anchor="middle" x="550.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">serialize_buffer_length_string</text>
+</a>
+</g>
+</g>
+<!-- interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_string -->
+<g id="proc~~deserialize~5~~CallsGraph_edge25" class="edge">
+<title>interface~serialize_buffer_length&#45;&gt;proc~serialize_buffer_length_string</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M355.23,-293.97C363.55,-260.21 391.9,-163.94 454,-117 455.87,-115.59 457.82,-114.26 459.83,-113.03"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="461.82,-115.93 468.99,-108.14 458.52,-109.76 461.82,-115.93"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~deserialize~5~~CallsGraph_node16" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node16"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="608,-66 493,-66 493,-42 608,-42 608,-66"/>
+<text text-anchor="middle" x="550.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~deserialize~5~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#0000ff" d="M392.84,-54C418.62,-54 452.68,-54 482.45,-54"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="482.78,-57.5 492.78,-54 482.78,-50.5 482.78,-57.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~deserialize~5~~CallsGraph_node17" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~deserialize~5~~CallsGraph_node17"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="617,-24 484,-24 484,0 617,0 617,-24"/>
+<text text-anchor="middle" x="550.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~deserialize~5~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0000ff" d="M392.84,-45.4C418.83,-39.86 453.24,-32.52 483.19,-26.14"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="484.11,-29.52 493.16,-24.01 482.65,-22.67 484.11,-29.52"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocdeserialize5CallsGraph = svgPanZoom('#procdeserialize5CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">deserialize</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractCollectiveDataMessage</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n</span>
+
+<span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">      </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">request_id</span><span class="p">)</span>
+<span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">request_id</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">collection_id</span><span class="p">)</span>
+<span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">collection_id</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">file_name</span><span class="p">)</span>
+<span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">file_name</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="n">this</span><span class="p">%</span><span class="n">var_name</span><span class="p">)</span>
+<span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">var_name</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">type_kind</span><span class="p">)</span>
+<span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">type_kind</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">start</span><span class="p">)</span>
+<span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">start</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="nb">count</span><span class="p">)</span>
+<span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="nb">count</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">global_start</span><span class="p">)</span>
+<span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">serialize_buffer_length</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">global_start</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">deserialize_intrinsic</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="n">n</span><span class="p">:),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">global_count</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">deserialize</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-18T19:02:42.777327             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

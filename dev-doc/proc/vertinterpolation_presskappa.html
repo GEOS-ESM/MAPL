@@ -1,0 +1,1297 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>vertInterpolation_pressKappa &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>vertInterpolation_pressKappa
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">182 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_VerticalInterpMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_verticalinterpmod.f90.html'>MAPL_VerticalInterpMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/linearverticalinterpolation_mod.html'>linearVerticalInterpolation_mod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">vertInterpolation_pressKappa</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/vertinterpolation_presskappa.html#src">vertInterpolation_pressKappa</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine vertInterpolation_pressKappa(fModel, fPres, ps, plevs, undef, PHIS, phis_units, rc)  
+</h2>
+    
+
+    <p>The subroutine <code>vertInterpolation_pressKappa</code> performs a linear vertical 
+interpolation from pressure levels to model levels in the pressure kappa 
+formulation. It is assumed that we have a top to bottom ordering of 
+the vertical levels.</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fmodel"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fModel</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fpres"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fPres</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ps~7"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ps</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-plevs~2"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>plevs</strong>(:)</td>
+            <td>
+                <p>pressure levels</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-undef~14"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>undef</strong></td>
+            <td>
+                <p>undefined value</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-phis"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>PHIS</strong></td>
+            <td>
+                <p>Surface Geopotential Heights</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-phis_units"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>phis_units</strong></td>
+            <td>
+                <p>units of phis</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1427"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~vertinterpolation_presskappa~~CallsGraph Pages: 1 -->
+<svg id="procvertinterpolation_presskappaCallsGraph" width="641pt" height="334pt"
+ viewBox="0.00 0.00 641.00 334.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph" class="graph" transform="scale(0.58 0.58) rotate(0) translate(4 575.43)">
+<title>proc~~vertinterpolation_presskappa~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-575.43 1108,-575.43 1108,4 -4,4"/>
+<!-- proc~vertinterpolation_presskappa -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_node1" class="node">
+<title>proc~vertinterpolation_presskappa</title>
+<polygon fill="none" stroke="black" points="169,-190 0,-190 0,-166 169,-166 169,-190"/>
+<text text-anchor="middle" x="84.5" y="-175.6" font-family="Helvetica,sans-Serif" font-size="10.50">vertInterpolation_pressKappa</text>
+</g>
+<!-- ESMF_AttributeGet -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_node2" class="node">
+<title>ESMF_AttributeGet</title>
+<g id="a_proc~~vertinterpolation_presskappa~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_attributeget.html" xlink:title="ESMF_AttributeGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="506,-546 395,-546 395,-522 506,-522 506,-546"/>
+<text text-anchor="middle" x="450.5" y="-531.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_AttributeGet</text>
+</a>
+</g>
+</g>
+<!-- proc~vertinterpolation_presskappa&#45;&gt;ESMF_AttributeGet -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge1" class="edge">
+<title>proc~vertinterpolation_presskappa&#45;&gt;ESMF_AttributeGet</title>
+<path fill="none" stroke="#ff0000" d="M89.46,-190.02C101.6,-225.37 141.42,-330.55 205,-395 263.92,-454.72 353.88,-496.89 406.68,-518.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="405.5,-521.46 416.09,-521.89 408.08,-514.96 405.5,-521.46"/>
+</g>
+<!-- ESMF_UtilStringLowerCase -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_node3" class="node">
+<title>ESMF_UtilStringLowerCase</title>
+<g id="a_proc~~vertinterpolation_presskappa~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_utilstringlowercase.html" xlink:title="ESMF_UtilStringLowerCase">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="359,-150 205,-150 205,-126 359,-126 359,-150"/>
+<text text-anchor="middle" x="282" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_UtilStringLowerCase</text>
+</a>
+</g>
+</g>
+<!-- proc~vertinterpolation_presskappa&#45;&gt;ESMF_UtilStringLowerCase -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge2" class="edge">
+<title>proc~vertinterpolation_presskappa&#45;&gt;ESMF_UtilStringLowerCase</title>
+<path fill="none" stroke="#ff0000" d="M144.16,-166C165.52,-161.63 189.86,-156.65 212.03,-152.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="212.95,-155.5 222.05,-150.06 211.55,-148.64 212.95,-155.5"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_node4" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="324.5,-108 239.5,-108 239.5,-84 324.5,-84 324.5,-108"/>
+<text text-anchor="middle" x="282" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~vertinterpolation_presskappa&#45;&gt;esmf_fieldget -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge3" class="edge">
+<title>proc~vertinterpolation_presskappa&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ff0000" d="M106.06,-165.88C129.41,-152.5 168.96,-131.01 205,-117 212.89,-113.93 221.4,-111.12 229.77,-108.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="230.84,-111.96 239.48,-105.84 228.91,-105.23 230.84,-111.96"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_node5" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~vertinterpolation_presskappa~~CallsGraph_node5"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="639.5,-219 560.5,-219 560.5,-195 639.5,-195 639.5,-219"/>
+<text text-anchor="middle" x="600" y="-204.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~vertinterpolation_presskappa&#45;&gt;interface~mapl_assert -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge4" class="edge">
+<title>proc~vertinterpolation_presskappa&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M169.15,-182.72C277.43,-188.84 462.59,-199.3 550.25,-204.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="550.27,-207.75 560.45,-204.82 550.66,-200.76 550.27,-207.75"/>
+</g>
+<!-- proc~interpval -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_node6" class="node">
+<title>proc~interpval</title>
+<g id="a_proc~~vertinterpolation_presskappa~~CallsGraph_node6"><a xlink:href="../proc/interpval.html" xlink:title="interpVal">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="312,-66 252,-66 252,-42 312,-42 312,-66"/>
+<text text-anchor="middle" x="282" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">interpVal</text>
+</a>
+</g>
+</g>
+<!-- proc~vertinterpolation_presskappa&#45;&gt;proc~interpval -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge5" class="edge">
+<title>proc~vertinterpolation_presskappa&#45;&gt;proc~interpval</title>
+<path fill="none" stroke="#ff0000" d="M96.08,-165.88C115.5,-144.38 159.1,-99.51 205,-75 216.32,-68.95 229.54,-64.52 241.75,-61.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="242.81,-64.68 251.71,-58.93 241.17,-57.87 242.81,-64.68"/>
+</g>
+<!-- proc~mapl_gridget -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_node7" class="node">
+<title>proc~mapl_gridget</title>
+<g id="a_proc~~vertinterpolation_presskappa~~CallsGraph_node7"><a xlink:href="../proc/mapl_gridget.html" xlink:title="MAPL_GridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="326,-386 238,-386 238,-362 326,-362 326,-386"/>
+<text text-anchor="middle" x="282" y="-371.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~vertinterpolation_presskappa&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge6" class="edge">
+<title>proc~vertinterpolation_presskappa&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M97.73,-190.26C130.64,-223.26 221.32,-314.17 261.46,-354.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="259.24,-357.14 268.78,-361.74 264.19,-352.19 259.24,-357.14"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_node8" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~vertinterpolation_presskappa~~CallsGraph_node8"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="641,-303 559,-303 559,-279 641,-279 641,-303"/>
+<text text-anchor="middle" x="600" y="-288.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~vertinterpolation_presskappa&#45;&gt;proc~mapl_return -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge7" class="edge">
+<title>proc~vertinterpolation_presskappa&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M140.05,-190.02C160.37,-194.21 183.67,-198.7 205,-202 337.99,-222.6 384.25,-177.65 506,-235 526.19,-244.51 523.12,-258.11 542,-270 544.64,-271.66 547.42,-273.22 550.29,-274.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="549.09,-277.98 559.64,-278.98 552.02,-271.62 549.09,-277.98"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_node9" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~vertinterpolation_presskappa~~CallsGraph_node9"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="638,-429 562,-429 562,-405 638,-405 638,-429"/>
+<text text-anchor="middle" x="600" y="-414.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~vertinterpolation_presskappa&#45;&gt;proc~mapl_verify -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge8" class="edge">
+<title>proc~vertinterpolation_presskappa&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M87.63,-190.26C95.58,-232.59 127.09,-374.55 205,-458 269.7,-527.3 302.82,-532.83 395,-555 442.97,-566.54 466.32,-584.31 506,-555 549.76,-522.68 504.59,-477.5 542,-438 545.14,-434.68 548.86,-431.88 552.86,-429.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="554.54,-432.6 561.97,-425.04 551.45,-426.32 554.54,-432.6"/>
+</g>
+<!-- proc~searchverticallocations -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_node10" class="node">
+<title>proc~searchverticallocations</title>
+<g id="a_proc~~vertinterpolation_presskappa~~CallsGraph_node10"><a xlink:href="../proc/searchverticallocations.html" xlink:title="searchVerticalLocations">
+<polygon fill="#d9534f" stroke="#d9534f" points="351.5,-24 212.5,-24 212.5,0 351.5,0 351.5,-24"/>
+<text text-anchor="middle" x="282" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">searchVerticalLocations</text>
+</a>
+</g>
+</g>
+<!-- proc~vertinterpolation_presskappa&#45;&gt;proc~searchverticallocations -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge9" class="edge">
+<title>proc~vertinterpolation_presskappa&#45;&gt;proc~searchverticallocations</title>
+<path fill="none" stroke="#ff0000" d="M92.06,-165.74C107.7,-137.72 150,-68.69 205,-33 207.61,-31.3 210.36,-29.74 213.21,-28.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="214.84,-31.41 222.54,-24.13 211.98,-25.02 214.84,-31.41"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_node14" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~vertinterpolation_presskappa~~CallsGraph_node14"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="835,-263 701,-263 701,-239 835,-239 835,-263"/>
+<text text-anchor="middle" x="768" y="-248.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge10" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M639.5,-217.21C660.96,-222.89 688.04,-230.07 711.72,-236.35"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="711.08,-239.8 721.64,-238.98 712.87,-233.03 711.08,-239.8"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_node15" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~vertinterpolation_presskappa~~CallsGraph_node15"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="842,-221 694,-221 694,-197 842,-197 842,-221"/>
+<text text-anchor="middle" x="768" y="-206.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge11" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M639.5,-207.46C652.78,-207.62 668.21,-207.81 683.66,-208"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="683.76,-211.5 693.8,-208.12 683.84,-204.5 683.76,-211.5"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_AttributeGet -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_AttributeGet</title>
+<path fill="none" stroke="#00a9ff" d="M294.4,-386.26C309.55,-402.7 336.98,-432.97 359,-460 375.84,-480.67 374.37,-491.1 395,-508 399.21,-511.45 403.95,-514.56 408.83,-517.34"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="407.21,-520.44 417.69,-521.98 410.46,-514.24 407.21,-520.44"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_return -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00a9ff" d="M315.54,-361.9C337.73,-353.91 367.9,-343.56 395,-336 446.96,-321.5 507.4,-308.66 548.94,-300.44"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="549.67,-303.87 558.81,-298.51 548.32,-297 549.67,-303.87"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00a9ff" d="M326.21,-382.92C346.96,-386.99 372.2,-391.64 395,-395 448.44,-402.88 510.15,-409.14 551.59,-412.94"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="551.39,-416.44 561.66,-413.85 552.02,-409.47 551.39,-416.44"/>
+</g>
+<!-- ESMF_DistGridGet -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_node11" class="node">
+<title>ESMF_DistGridGet</title>
+<g id="a_proc~~vertinterpolation_presskappa~~CallsGraph_node11"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_distgridget.html" xlink:title="ESMF_DistGridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="654,-471 546,-471 546,-447 654,-447 654,-471"/>
+<text text-anchor="middle" x="600" y="-456.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DistGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#00a9ff" d="M291.44,-386.05C308.13,-408.67 347.83,-456.87 395,-475 446.42,-494.76 510.4,-484.71 552.85,-473.72"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="553.89,-477.06 562.63,-471.07 552.06,-470.3 553.89,-477.06"/>
+</g>
+<!-- ESMF_GridGet -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_node12" class="node">
+<title>ESMF_GridGet</title>
+<g id="a_proc~~vertinterpolation_presskappa~~CallsGraph_node12"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridget.html" xlink:title="ESMF_GridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="644,-345 556,-345 556,-321 644,-321 644,-345"/>
+<text text-anchor="middle" x="600" y="-330.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_GridGet -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#00a9ff" d="M326.2,-364.99C346.94,-360.89 372.18,-356.25 395,-353 445.99,-345.73 504.53,-340.29 545.79,-336.93"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="546.2,-340.41 555.89,-336.12 545.64,-333.43 546.2,-340.41"/>
+</g>
+<!-- proc~mapl_distgridget -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_node16" class="node">
+<title>proc~mapl_distgridget</title>
+<g id="a_proc~~vertinterpolation_presskappa~~CallsGraph_node16"><a xlink:href="../proc/mapl_distgridget.html" xlink:title="MAPL_DistGridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="504.5,-466 396.5,-466 396.5,-442 504.5,-442 504.5,-466"/>
+<text text-anchor="middle" x="450.5" y="-451.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DistGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#00a9ff" d="M307.9,-386.04C330.58,-397 365.03,-413.62 395,-428 401.41,-431.08 408.26,-434.35 414.85,-437.5"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="413.72,-440.84 424.26,-441.98 416.74,-434.52 413.72,-440.84"/>
+</g>
+<!-- proc~mapl_getimsjms -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_node17" class="node">
+<title>proc~mapl_getimsjms</title>
+<g id="a_proc~~vertinterpolation_presskappa~~CallsGraph_node17"><a xlink:href="../proc/mapl_getimsjms.html" xlink:title="MAPL_GetImsJms">
+<polygon fill="#d9534f" stroke="#d9534f" points="502,-268 399,-268 399,-244 502,-244 502,-268"/>
+<text text-anchor="middle" x="450.5" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GetImsJms</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_getimsjms -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_getimsjms</title>
+<path fill="none" stroke="#00a9ff" d="M295.65,-361.85C315.61,-343.1 356.14,-306.71 395,-282 400.16,-278.72 405.79,-275.59 411.42,-272.7"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="413.36,-275.65 420.8,-268.1 410.28,-269.36 413.36,-275.65"/>
+</g>
+<!-- proc~mapl_gridhasde -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_node18" class="node">
+<title>proc~mapl_gridhasde</title>
+<g id="a_proc~~vertinterpolation_presskappa~~CallsGraph_node18"><a xlink:href="../proc/mapl_gridhasde.html" xlink:title="MAPL_GridHasDE">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="502.5,-386 398.5,-386 398.5,-362 502.5,-362 502.5,-386"/>
+<text text-anchor="middle" x="450.5" y="-371.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridHasDE</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde</title>
+<path fill="none" stroke="#00a9ff" d="M326.31,-374C345.19,-374 367.65,-374 388.2,-374"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="388.42,-377.5 398.42,-374 388.42,-370.5 388.42,-377.5"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_node13" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~vertinterpolation_presskappa~~CallsGraph_node13"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1002,-200 887,-200 887,-176 1002,-176 1002,-200"/>
+<text text-anchor="middle" x="944.5" y="-185.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#0000ff" d="M641.09,-280.95C647.25,-278.14 653.16,-274.55 658,-270 686.99,-242.72 660.68,-209.76 694,-188 754.13,-148.73 841.04,-160.33 894.81,-173.38"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="894.23,-176.84 904.78,-175.9 895.95,-170.05 894.23,-176.84"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_node19" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~vertinterpolation_presskappa~~CallsGraph_node19"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1011,-288 878,-288 878,-264 1011,-264 1011,-288"/>
+<text text-anchor="middle" x="944.5" y="-273.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0000ff" d="M641.3,-289.24C696.83,-286.8 797.94,-282.37 867.82,-279.31"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="868.06,-282.81 877.89,-278.87 867.75,-275.81 868.06,-282.81"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#aa00ff" d="M634.55,-404.92C642.28,-402.06 650.45,-398.98 658,-396 747.89,-360.57 852.27,-315.75 906.5,-292.18"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="907.94,-295.37 915.71,-288.17 905.14,-288.95 907.94,-295.37"/>
+</g>
+<!-- at -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_node21" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1102.5,-232 1048.5,-232 1048.5,-208 1102.5,-208 1102.5,-232"/>
+<text text-anchor="middle" x="1075.5" y="-217.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge23" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#aaff00" d="M993.9,-200.01C1008.6,-203.65 1024.49,-207.59 1038.24,-211.01"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="1037.74,-214.49 1048.29,-213.5 1039.43,-207.69 1037.74,-214.49"/>
+</g>
+<!-- insert -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_node22" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1102.5,-190 1048.5,-190 1048.5,-166 1102.5,-166 1102.5,-190"/>
+<text text-anchor="middle" x="1075.5" y="-175.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge24" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#aaff00" d="M1002.08,-183.61C1014.29,-182.67 1026.89,-181.69 1038.08,-180.82"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="1038.62,-184.29 1048.32,-180.03 1038.08,-177.31 1038.62,-184.29"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff00" d="M835.47,-260.52C845.98,-262.03 856.92,-263.6 867.62,-265.13"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="867.4,-268.63 877.79,-266.59 868.39,-261.7 867.4,-268.63"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ffa9" d="M842.25,-200.19C853.67,-198.81 865.43,-197.4 876.7,-196.04"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="877.38,-199.48 886.89,-194.81 876.54,-192.53 877.38,-199.48"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffa9" d="M814.89,-221.1C823.95,-223.79 833.34,-226.81 842,-230 865.25,-238.56 890.63,-250.07 910.2,-259.43"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="908.78,-262.63 919.3,-263.83 911.83,-256.33 908.78,-262.63"/>
+</g>
+<!-- proc~mapl_distgridget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_distgridget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00a9ff" d="M499.39,-441.99C516.11,-437.79 534.86,-433.09 551.54,-428.91"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="552.78,-432.2 561.62,-426.38 551.07,-425.41 552.78,-432.2"/>
+</g>
+<!-- proc~mapl_distgridget&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_distgridget&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#00a9ff" d="M504.75,-455.81C514.78,-456.14 525.35,-456.5 535.65,-456.85"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="535.71,-460.36 545.83,-457.2 535.95,-453.36 535.71,-460.36"/>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;interface~mapl_assert -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#0000ff" d="M487.96,-243.89C507.62,-237.36 532.09,-229.23 553.04,-222.27"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="554.32,-225.53 562.7,-219.06 552.11,-218.89 554.32,-225.53"/>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;proc~mapl_return -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge32" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0000ff" d="M502.26,-268.05C517.29,-271.61 533.74,-275.51 548.74,-279.07"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="548.32,-282.57 558.86,-281.47 549.93,-275.76 548.32,-282.57"/>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;proc~mapl_verify -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge33" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0000ff" d="M458.09,-268.25C474.74,-298.84 518.84,-377.46 542,-396 545.29,-398.63 548.94,-400.95 552.76,-403"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="551.34,-406.2 561.88,-407.28 554.31,-399.86 551.34,-406.2"/>
+</g>
+<!-- interface~mapl_sort -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_node23" class="node">
+<title>interface~mapl_sort</title>
+<g id="a_proc~~vertinterpolation_presskappa~~CallsGraph_node23"><a xlink:href="../interface/mapl_sort.html" xlink:title="MAPL_Sort">
+<polygon fill="#a7506f" stroke="#a7506f" points="634,-261 566,-261 566,-237 634,-237 634,-261"/>
+<text text-anchor="middle" x="600" y="-246.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Sort</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;interface~mapl_sort -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;interface~mapl_sort</title>
+<path fill="none" stroke="#0000ff" d="M502.26,-253.59C519.65,-252.77 538.94,-251.85 555.68,-251.06"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="555.92,-254.55 565.74,-250.58 555.59,-247.56 555.92,-254.55"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_return -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge37" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#aa00ff" d="M466.78,-361.78C484.2,-348.27 513.91,-326.51 542,-312 545.48,-310.2 549.16,-308.48 552.9,-306.85"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="554.32,-310.05 562.24,-303.02 551.66,-303.58 554.32,-310.05"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_verify -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge38" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#aa00ff" d="M492.98,-386.09C511.41,-391.47 533.19,-397.81 552.2,-403.36"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="551.28,-406.73 561.86,-406.17 553.23,-400.01 551.28,-406.73"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge35" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#aa00ff" d="M466.09,-386.15C483.35,-400.09 513.39,-422.95 542,-438 545.32,-439.75 548.82,-441.42 552.39,-442.99"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="551.32,-446.34 561.89,-446.94 554,-439.87 551.32,-446.34"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_GridGet -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge36" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#aa00ff" d="M494.96,-361.92C511.01,-357.46 529.38,-352.35 546.18,-347.68"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="547.16,-351.04 555.85,-344.99 545.28,-344.3 547.16,-351.04"/>
+</g>
+<!-- ESMF_DELayoutGet -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_node20" class="node">
+<title>ESMF_DELayoutGet</title>
+<g id="a_proc~~vertinterpolation_presskappa~~CallsGraph_node20"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_delayoutget.html" xlink:title="ESMF_DELayoutGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="658,-387 542,-387 542,-363 658,-363 658,-387"/>
+<text text-anchor="middle" x="600" y="-372.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DELayoutGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge34" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet</title>
+<path fill="none" stroke="#aa00ff" d="M502.67,-374.35C512.06,-374.41 521.99,-374.48 531.76,-374.54"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="531.84,-378.04 541.86,-374.61 531.88,-371.04 531.84,-378.04"/>
+</g>
+<!-- proc~initialize~2 -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_node24" class="node">
+<title>proc~initialize~2</title>
+<g id="a_proc~~vertinterpolation_presskappa~~CallsGraph_node24"><a xlink:href="../proc/initialize~2.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1104,-288 1047,-288 1047,-264 1104,-264 1104,-288"/>
+<text text-anchor="middle" x="1075.5" y="-273.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~2 -->
+<g id="proc~~vertinterpolation_presskappa~~CallsGraph_edge39" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~2</title>
+<path fill="none" stroke="#ff00aa" d="M1011.13,-276C1019.88,-276 1028.59,-276 1036.63,-276"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="1036.77,-279.5 1046.77,-276 1036.77,-272.5 1036.77,-279.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocvertinterpolation_presskappaCallsGraph = svgPanZoom('#procvertinterpolation_presskappaCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~vertinterpolation_presskappa~~CalledByGraph Pages: 1 -->
+<svg id="procvertinterpolation_presskappaCalledByGraph" width="490pt" height="74pt"
+ viewBox="0.00 0.00 490.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~vertinterpolation_presskappa~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>proc~~vertinterpolation_presskappa~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 486,-70 486,4 -4,4"/>
+<!-- proc~vertinterpolation_presskappa -->
+<g id="proc~~vertinterpolation_presskappa~~CalledByGraph_node1" class="node">
+<title>proc~vertinterpolation_presskappa</title>
+<polygon fill="none" stroke="black" points="482,-45 313,-45 313,-21 482,-21 482,-45"/>
+<text text-anchor="middle" x="397.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">vertInterpolation_pressKappa</text>
+</g>
+<!-- proc~mapl_extdataverticalinterpolate -->
+<g id="proc~~vertinterpolation_presskappa~~CalledByGraph_node2" class="node">
+<title>proc~mapl_extdataverticalinterpolate</title>
+<g id="a_proc~~vertinterpolation_presskappa~~CalledByGraph_node2"><a xlink:href="../proc/mapl_extdataverticalinterpolate.html" xlink:title="MAPL_ExtDataVerticalInterpolate">
+<polygon fill="#d9534f" stroke="#d9534f" points="277,-66 90,-66 90,-42 277,-42 277,-66"/>
+<text text-anchor="middle" x="183.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataVerticalInterpolate</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_extdataverticalinterpolate&#45;&gt;proc~vertinterpolation_presskappa -->
+<g id="proc~~vertinterpolation_presskappa~~CalledByGraph_edge1" class="edge">
+<title>proc~mapl_extdataverticalinterpolate&#45;&gt;proc~vertinterpolation_presskappa</title>
+<path fill="none" stroke="#ff0000" d="M277.18,-44.82C285.57,-43.99 294.08,-43.14 302.49,-42.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="303.08,-45.77 312.68,-41.3 302.39,-38.81 303.08,-45.77"/>
+</g>
+<!-- proc~mapl_extdataverticalinterpolate~2 -->
+<g id="proc~~vertinterpolation_presskappa~~CalledByGraph_node3" class="node">
+<title>proc~mapl_extdataverticalinterpolate~2</title>
+<g id="a_proc~~vertinterpolation_presskappa~~CalledByGraph_node3"><a xlink:href="../proc/mapl_extdataverticalinterpolate~2.html" xlink:title="MAPL_ExtDataVerticalInterpolate">
+<polygon fill="#d9534f" stroke="#d9534f" points="277,-24 90,-24 90,0 277,0 277,-24"/>
+<text text-anchor="middle" x="183.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExtDataVerticalInterpolate</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_extdataverticalinterpolate~2&#45;&gt;proc~vertinterpolation_presskappa -->
+<g id="proc~~vertinterpolation_presskappa~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_extdataverticalinterpolate~2&#45;&gt;proc~vertinterpolation_presskappa</title>
+<path fill="none" stroke="#ff0000" d="M277.18,-21.18C285.57,-22.01 294.08,-22.86 302.49,-23.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="302.39,-27.19 312.68,-24.7 303.08,-20.23 302.39,-27.19"/>
+</g>
+<!-- proc~run_ -->
+<g id="proc~~vertinterpolation_presskappa~~CalledByGraph_node4" class="node">
+<title>proc~run_</title>
+<g id="a_proc~~vertinterpolation_presskappa~~CalledByGraph_node4"><a xlink:href="../proc/run_.html" xlink:title="Run_">
+<polygon fill="#d9534f" stroke="#d9534f" points="54,-66 0,-66 0,-42 54,-42 54,-66"/>
+<text text-anchor="middle" x="27" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_&#45;&gt;proc~mapl_extdataverticalinterpolate -->
+<g id="proc~~vertinterpolation_presskappa~~CalledByGraph_edge3" class="edge">
+<title>proc~run_&#45;&gt;proc~mapl_extdataverticalinterpolate</title>
+<path fill="none" stroke="#ff0000" d="M54.21,-54C61.73,-54 70.43,-54 79.67,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="79.89,-57.5 89.89,-54 79.89,-50.5 79.89,-57.5"/>
+</g>
+<!-- proc~run_~3 -->
+<g id="proc~~vertinterpolation_presskappa~~CalledByGraph_node5" class="node">
+<title>proc~run_~3</title>
+<g id="a_proc~~vertinterpolation_presskappa~~CalledByGraph_node5"><a xlink:href="../proc/run_~3.html" xlink:title="Run_">
+<polygon fill="#d9534f" stroke="#d9534f" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run_</text>
+</a>
+</g>
+</g>
+<!-- proc~run_~3&#45;&gt;proc~mapl_extdataverticalinterpolate~2 -->
+<g id="proc~~vertinterpolation_presskappa~~CalledByGraph_edge4" class="edge">
+<title>proc~run_~3&#45;&gt;proc~mapl_extdataverticalinterpolate~2</title>
+<path fill="none" stroke="#00ffff" d="M54.21,-12C61.73,-12 70.43,-12 79.67,-12"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="79.89,-15.5 89.89,-12 79.89,-8.5 79.89,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">      </span><span class="k">subroutine </span><span class="n">vertInterpolation_pressKappa</span><span class="w"> </span><span class="p">(</span><span class="n">fModel</span><span class="p">,</span><span class="w"> </span><span class="n">fPres</span><span class="p">,</span><span class="w"> </span><span class="n">ps</span><span class="p">,</span><span class="w"> </span><span class="n">plevs</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                                  </span><span class="n">undef</span><span class="p">,</span><span class="w"> </span><span class="n">phis</span><span class="p">,</span><span class="w"> </span><span class="n">phis_units</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fModel</span><span class="w">  </span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fPres</span><span class="w">  </span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ps</span><span class="w">  </span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w">                       </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">plevs</span><span class="p">(:)</span><span class="w">   </span><span class="c">!! pressure levels</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w">                       </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">undef</span><span class="w">      </span><span class="c">!! undefined value</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">PHIS</span><span class="w">       </span><span class="c">!! Surface Geopotential Heights</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">phis_units</span><span class="w"> </span><span class="c">!! units of phis</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">          </span><span class="k">intent</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="c">!</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">im</span><span class="p">,</span><span class="w"> </span><span class="n">jm</span><span class="p">,</span><span class="w"> </span><span class="n">lmMod</span><span class="p">,</span><span class="w"> </span><span class="n">lmPres</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">L</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">,</span><span class="w"> </span><span class="n">k3</span><span class="p">,</span><span class="w"> </span><span class="n">dims</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">kbeg</span><span class="p">(:,:),</span><span class="n">kend</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">vdef</span><span class="p">,</span><span class="w"> </span><span class="n">vsurf</span><span class="p">,</span><span class="w"> </span><span class="n">TH</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">pl_mod</span><span class="p">(:,:,:),</span><span class="n">ple_mod</span><span class="p">(:,:,:)</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vartype</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ak</span><span class="p">(:),</span><span class="n">bk</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="kt">real</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">gfactor</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">vMod</span><span class="p">(:,:,:),</span><span class="w"> </span><span class="n">vPres</span><span class="p">(:,:,:),</span><span class="w"> </span><span class="n">vPS</span><span class="p">(:,:),</span><span class="w"> </span><span class="n">vPHIS</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vname</span><span class="p">,</span><span class="w"> </span><span class="n">units</span>
+<span class="c">!</span>
+<span class="c">!------------------------------------------------------------------------------</span>
+<span class="w">      </span><span class="c">! get dimensions, allocate</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">fModel</span><span class="p">,</span><span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">fModel</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;UNITS&#39;</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">units</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">fModel</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;LONG_NAME&#39;</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">vname</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">      </span><span class="n">vname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_UtilStringLowerCase</span><span class="p">(</span><span class="n">vname</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_GridGet</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">localCellCountPerDim</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">      </span><span class="n">im</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dims</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="n">jm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dims</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">      </span><span class="n">lmMod</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dims</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">ak</span><span class="p">(</span><span class="n">lmMod</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">bk</span><span class="p">(</span><span class="n">lmMod</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">pl_mod</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="n">lmMod</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">ple_mod</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="n">lmMod</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">kbeg</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">kend</span><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">jm</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">fPres</span><span class="p">,</span><span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_GridGet</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">localCellCountPerDim</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">      </span><span class="n">lmPres</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dims</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! given PS, get AK, BK from the grid to get ple</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">PS</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">vPS</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">PS</span><span class="p">,</span><span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;GridAK&quot;</span><span class="p">,</span><span class="n">valuelist</span><span class="o">=</span><span class="n">ak</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;GridBK&quot;</span><span class="p">,</span><span class="n">valuelist</span><span class="o">=</span><span class="n">bk</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">lmmod</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">         </span><span class="n">ple_mod</span><span class="p">(:,:,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">ak</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">+</span><span class="n">bk</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">*</span><span class="n">vPS</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="k">enddo</span>
+<span class="k">      do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">lmmod</span>
+<span class="w">         </span><span class="n">pl_mod</span><span class="p">(:,:,</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="p">(</span><span class="n">ple_mod</span><span class="p">(:,:,</span><span class="n">i</span><span class="p">)</span><span class="o">+</span><span class="n">ple_mod</span><span class="p">(:,:,</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">/</span><span class="mf">2.0</span>
+<span class="w">      </span><span class="k">enddo</span>
+<span class="k">      </span>
+<span class="k">      call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">fModel</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">vMod</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">fPres</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">vPres</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">!---------------------------------------------------------------</span>
+<span class="w">      </span><span class="c">! For each grid point (i,j), determine the range of model levels</span>
+<span class="w">      </span><span class="c">! (kbeg to kend) that will be used for the main interpolation</span>
+<span class="w">      </span><span class="c">! formula.</span>
+<span class="w">      </span><span class="c">!---------------------------------------------------------------</span>
+<span class="w">      </span><span class="k">call </span><span class="n">searchVerticalLocations</span><span class="p">(</span><span class="n">pl_mod</span><span class="p">,</span><span class="w"> </span><span class="n">plevs</span><span class="p">,</span><span class="w"> </span><span class="n">kbeg</span><span class="p">,</span><span class="w"> </span><span class="n">kend</span><span class="p">,</span><span class="w"> </span><span class="n">im</span><span class="p">,</span><span class="w"> </span><span class="n">jm</span><span class="p">,</span><span class="w"> </span><span class="n">lmmod</span><span class="p">,</span><span class="w"> </span><span class="n">lmpres</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">!-------------------------------</span>
+<span class="w">      </span><span class="c">! Compute trapped interpolations</span>
+<span class="w">      </span><span class="c">!-------------------------------</span>
+<span class="w">    </span>
+<span class="w">      </span><span class="k">DO </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">jm</span>
+<span class="w">         </span><span class="k">DO </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">im</span>
+<span class="w">            </span><span class="k">DO </span><span class="n">L</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kbeg</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span><span class="w"> </span><span class="n">kend</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)</span>
+<span class="w">               </span><span class="n">SEARCH_LEVELS</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="k">DO </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">lmpres</span>
+<span class="w">                  </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">plevs</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="w">   </span><span class="p">.</span><span class="n">GE</span><span class="p">.</span><span class="w"> </span><span class="n">pl_mod</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">L</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                      </span><span class="n">plevs</span><span class="p">(</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">LT</span><span class="p">.</span><span class="w"> </span><span class="n">pl_mod</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">L</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">                     IF</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="n">vpres</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="n">undef</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">vpres</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="n">undef</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="w">                        </span><span class="c">! Apply the pressure to the kappa linear interpolation</span>
+<span class="w">                        </span><span class="n">vmod</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">L</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">interpVal</span><span class="p">(</span><span class="n">vpres</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">),</span><span class="w"> </span><span class="n">vpres</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">pl_mod</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">L</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                                                </span><span class="n">plevs</span><span class="p">(</span><span class="n">k</span><span class="p">),</span><span class="w"> </span><span class="n">plevs</span><span class="p">(</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">MAPL_KAPPA</span><span class="p">)</span>
+<span class="w">                     </span><span class="k">ELSEIF</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="n">vpres</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="n">undef</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">vpres</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="n">undef</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">                        </span><span class="n">vmod</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">L</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vpres</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span>
+<span class="w">                     </span><span class="k">ELSEIF</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="n">vpres</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="n">undef</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">vpres</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="n">undef</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">                        </span><span class="n">vmod</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">L</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vpres</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">                     </span><span class="k">ELSEIF</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="n">vpres</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="n">undef</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">vpres</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="n">undef</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="w">                        </span><span class="c">! Search for the first non undefined value</span>
+<span class="w">                        </span><span class="n">vdef</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">undef</span>
+<span class="w">                        </span><span class="c">! First: search by going toward the surface</span>
+<span class="w">                        </span><span class="n">SEARCH_DEF3</span><span class="p">:</span><span class="w"> </span><span class="k">DO </span><span class="n">k3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">lmpres</span>
+<span class="w">                           </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">vpres</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k3</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="n">undef</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">                              </span><span class="n">vdef</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vpres</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k3</span><span class="p">)</span>
+<span class="w">                              </span><span class="k">EXIT </span><span class="n">SEARCH_DEF3</span>
+<span class="w">                           </span><span class="k">END IF</span>
+<span class="k">                        END DO </span><span class="n">SEARCH_DEF3</span>
+
+<span class="w">                        </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">vdef</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="n">undef</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="w">                        </span><span class="c">! Second: search by going toward the top</span>
+<span class="w">                           </span><span class="n">SEARCH_DEF4</span><span class="p">:</span><span class="w"> </span><span class="k">DO </span><span class="n">k3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">k</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
+<span class="w">                              </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">vpres</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k3</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="n">undef</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">                                 </span><span class="n">vdef</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vpres</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k3</span><span class="p">)</span>
+<span class="w">                                 </span><span class="k">EXIT </span><span class="n">SEARCH_DEF4</span>
+<span class="w">                              </span><span class="k">END IF</span>
+<span class="k">                           END DO </span><span class="n">SEARCH_DEF4</span>
+<span class="w">                        </span><span class="k">END IF</span>
+<span class="k">                        if</span><span class="w"> </span><span class="p">(</span><span class="n">vdef</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">undef</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                           </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_FAILURE</span><span class="p">)</span>
+<span class="w">                        </span><span class="k">end if</span>
+<span class="k">                        </span><span class="n">vmod</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">L</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vdef</span>
+<span class="w">                     </span><span class="k">END IF</span>
+<span class="k">                     EXIT </span><span class="n">SEARCH_LEVELS</span>
+<span class="w">                  </span><span class="k">END IF</span>
+<span class="k">               ENDDO </span><span class="n">SEARCH_LEVELS</span>
+<span class="w">            </span><span class="k">ENDDO</span>
+<span class="k">         ENDDO</span>
+<span class="k">      ENDDO</span>
+
+<span class="w">      </span><span class="c">!--------------------------------------</span>
+<span class="w">      </span><span class="c">! Do extrapolation on levels below kbeg</span>
+<span class="w">      </span><span class="c">! (toward the top of the atmosphere)</span>
+<span class="w">      </span><span class="c">!--------------------------------------</span>
+<span class="w">      </span><span class="k">DO </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">jm</span>
+<span class="w">         </span><span class="k">DO </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">im</span>
+<span class="w">            </span><span class="n">vdef</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vpres</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">            </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">vdef</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="n">undef</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="w">               </span><span class="c">! Search for the first non undefined value</span>
+<span class="w">               </span><span class="n">SEARCH_DEF1</span><span class="p">:</span><span class="w"> </span><span class="k">DO </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">lmpres</span>
+<span class="w">                  </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">vpres</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="n">undef</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">                     </span><span class="n">vdef</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vpres</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span>
+<span class="w">                     </span><span class="k">EXIT </span><span class="n">SEARCH_DEF1</span>
+<span class="w">                  </span><span class="k">END IF</span>
+<span class="k">               END DO </span><span class="n">SEARCH_DEF1</span>
+<span class="w">            </span><span class="k">END IF</span>
+<span class="k">            DO </span><span class="n">L</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">kbeg</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
+<span class="w">               </span><span class="n">vmod</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">L</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vdef</span>
+<span class="w">            </span><span class="k">ENDDO</span>
+<span class="k">         ENDDO</span>
+<span class="k">      ENDDO</span>
+<span class="w">      </span>
+<span class="w">      </span><span class="c">!--------------------------------------</span>
+<span class="w">      </span><span class="c">! Do extrapolation on levels above kend</span>
+<span class="w">      </span><span class="c">! (toward the surface) get var type</span>
+<span class="w">      </span><span class="c">!--------------------------------------</span>
+<span class="w">      </span><span class="c">! = &#39;W&#39; for winds ( U &amp; V)</span>
+<span class="w">      </span><span class="c">! = &#39;T&#39; for temperature</span>
+<span class="w">      </span><span class="c">! = &#39;H&#39; for height                        </span>
+<span class="w">      </span><span class="c">! = &#39;O&#39; for any other variable</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">index</span><span class="p">(</span><span class="n">vname</span><span class="p">,</span><span class="s2">&quot;wind&quot;</span><span class="p">)</span><span class="o">/=</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">varType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;W&#39;</span>
+<span class="w">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="nb">index</span><span class="p">(</span><span class="n">vname</span><span class="p">,</span><span class="s2">&quot;temperature&quot;</span><span class="p">)</span><span class="o">/=</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">varType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;T&#39;</span>
+<span class="w">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="nb">index</span><span class="p">(</span><span class="n">vname</span><span class="p">,</span><span class="s2">&quot;height&quot;</span><span class="p">)</span><span class="o">/=</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">varType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;H&#39;</span>
+<span class="w">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">PHIS</span><span class="p">),</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">PHIS</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">vPHIS</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">phis_units</span><span class="p">),</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">units</span><span class="p">)</span><span class="o">==</span><span class="s2">&quot;m&quot;</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">phis_units</span><span class="p">)</span><span class="o">==</span><span class="s2">&quot;m+2 s-2&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">gfactor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_GRAV</span>
+<span class="w">         </span><span class="k">else</span>
+<span class="k">            </span><span class="n">gfactor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">         </span><span class="k">end if   </span>
+<span class="k">      else</span>
+<span class="k">         </span><span class="n">varType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;O&#39;</span>
+<span class="w">      </span><span class="k">end if                  </span>
+<span class="k">      DO </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">jm</span>
+<span class="w">         </span><span class="k">DO </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">im</span>
+<span class="w">            </span><span class="n">vdef</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vpres</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">lmpres</span><span class="p">)</span>
+<span class="w">            </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">vdef</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="n">undef</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="w">               </span><span class="c">! Search for the first non undefined value</span>
+<span class="w">               </span><span class="n">SEARCH_DEF2</span><span class="p">:</span><span class="w"> </span><span class="k">DO </span><span class="n">k2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lmpres</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
+<span class="w">                  </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">vpres</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="n">undef</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">                     </span><span class="n">vdef</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vpres</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k2</span><span class="p">)</span>
+<span class="w">                     </span><span class="k">EXIT </span><span class="n">SEARCH_DEF2</span>
+<span class="w">                  </span><span class="k">END IF</span>
+<span class="k">               END DO </span><span class="n">SEARCH_DEF2</span>
+<span class="w">               </span><span class="k">DO </span><span class="n">L</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kend</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">lmmod</span>
+<span class="w">                  </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">varType</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="s1">&#39;W&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">                     </span><span class="n">vsurf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">                     </span><span class="n">vmod</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">L</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">interpVal</span><span class="p">(</span><span class="n">vsurf</span><span class="p">,</span><span class="w"> </span><span class="n">vdef</span><span class="p">,</span><span class="w"> </span><span class="n">pl_mod</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">L</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                                                  </span><span class="n">plevs</span><span class="p">(</span><span class="n">lmpres</span><span class="p">),</span><span class="w"> </span><span class="n">plevs</span><span class="p">(</span><span class="n">k2</span><span class="p">),</span><span class="w"> </span><span class="n">MAPL_KAPPA</span><span class="p">)</span>
+<span class="w">                     </span><span class="c">!vmod(i,j,L) = interpVal(vdef, vsurf, pl_mod(i,j,L), &amp;</span>
+<span class="w">                     </span><span class="c">!                        plevs(k2), plevs(lmpres),  MAPL_KAPPA)</span>
+<span class="w">                  </span><span class="k">ELSE IF</span><span class="w"> </span><span class="p">(</span><span class="n">varType</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="s1">&#39;T&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="w">                     </span><span class="c">! Compute the potential temperature at pressure level k2</span>
+<span class="w">                     </span><span class="n">TH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vdef</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="n">plevs</span><span class="p">(</span><span class="n">k2</span><span class="p">)</span><span class="o">*</span><span class="mf">1.00E-05</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="n">MAPL_RGAS</span><span class="o">/</span><span class="n">MAPL_CP</span><span class="p">)</span><span class="w"> </span><span class="p">)</span>
+<span class="w">                     </span><span class="c">! Reverse back to the temperature at model level L</span>
+<span class="w">                     </span><span class="n">vmod</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">L</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TH</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="n">pl_mod</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">L</span><span class="p">)</span><span class="o">*</span><span class="mf">1.00E-05</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="n">MAPL_RGAS</span><span class="o">/</span><span class="n">MAPL_CP</span><span class="p">)</span><span class="w"> </span><span class="p">)</span>
+<span class="w">                  </span><span class="k">ELSE IF</span><span class="w"> </span><span class="p">(</span><span class="n">varType</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="s1">&#39;H&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">                     </span><span class="n">vsurf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vPHIS</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)</span><span class="o">/</span><span class="n">gfactor</span>
+<span class="w">                     </span><span class="n">vmod</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">L</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">interpVal</span><span class="p">(</span><span class="n">vsurf</span><span class="p">,</span><span class="w"> </span><span class="n">vdef</span><span class="p">,</span><span class="w"> </span><span class="n">pl_mod</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">L</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                                                  </span><span class="n">plevs</span><span class="p">(</span><span class="n">lmpres</span><span class="p">),</span><span class="w"> </span><span class="n">plevs</span><span class="p">(</span><span class="n">k2</span><span class="p">),</span><span class="w"> </span><span class="n">MAPL_KAPPA</span><span class="p">)</span>
+<span class="w">                  </span><span class="k">ELSE</span>
+<span class="k">                     </span><span class="n">vmod</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">L</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vdef</span>
+<span class="w">                  </span><span class="k">END IF</span>
+<span class="k">               ENDDO</span>
+<span class="k">            ELSE</span>
+<span class="k">               DO </span><span class="n">L</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kend</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">lmmod</span>
+<span class="w">                  </span><span class="n">vmod</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">L</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vpres</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">lmpres</span><span class="p">)</span>
+<span class="w">               </span><span class="k">ENDDO</span>
+<span class="k">            END IF</span>
+<span class="k">         ENDDO</span>
+<span class="k">      ENDDO</span>
+<span class="k">      </span>
+<span class="k">      deallocate</span><span class="p">(</span><span class="n">ak</span><span class="p">)</span>
+<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">bk</span><span class="p">)</span>
+<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">pl_mod</span><span class="p">)</span>
+<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">ple_mod</span><span class="p">)</span>
+<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">kbeg</span><span class="p">)</span>
+<span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">kend</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">vertInterpolation_pressKappa</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-18T19:02:42.777327             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
