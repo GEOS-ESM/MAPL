@@ -45,7 +45,7 @@ module mapl3g_esmf_info_keys
    character(len=*), parameter :: KEY_VLOC = KEY_VERT_DIM // '/vloc'
 
    ! UngriddedDims info keys
-   character(len=*), parameter :: KEY_NUM_UNGRIDDED_DIMS = KEY_UNGRIDDED_DIMS // '/num_ungridded_dimensions'
+   character(len=*), parameter :: KEY_NUM_UNGRIDDED_DIMS = '/num_ungridded_dimensions'
    character(len=*), parameter :: KEYSTUB_DIM = KEY_UNGRIDDED_DIMS // '/dim_'
 
    ! UngriddedDim info keys

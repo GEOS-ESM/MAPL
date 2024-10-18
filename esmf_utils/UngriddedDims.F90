@@ -200,9 +200,10 @@ contains
       _RETURN(_SUCCESS)
    end function make_info
 
-   function make_ungriddedDims(info, rc) result(ungridded_dims)
-      type(ESMF_Info), intent(in) :: info
+   function make_ungriddedDims(info, key, rc) result(ungridded_dims)
       type(UngriddedDims) :: ungridded_dims
+      type(ESMF_Info), intent(in) :: info
+      character(*), optional, intent(in) :: key
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -211,15 +212,19 @@ contains
       type(ESMF_Info) :: dim_info
       character(:), allocatable :: dim_key
       type(UngriddedDim), allocatable :: dim_specs(:)
+      character(:), allocatable :: full_key
 
       ungridded_dims = UngriddedDims()
+      full_key = KEY_NUM_UNGRIDDED_DIMS
+      if (present(key)) then
+         full_key = key // full_key
+      end if
 
-      call MAPL_InfoGet(info, key='num_ungridded_dimensions', value=num_ungridded_dims, _RC)
+      call MAPL_InfoGet(info, key=full_key, value=num_ungridded_dims, _RC)
       allocate(dim_specs(num_ungridded_dims))
 
       do i = 1, num_ungridded_dims
          dim_key = make_dim_key(i, _RC)
-         _HERE, dim_key
          dim_info = ESMF_InfoCreate(info, key=dim_key, _RC)
          dim_specs(i) = make_ungriddedDim(dim_info, _RC)
          call ESMF_InfoDestroy(dim_info, _RC)
