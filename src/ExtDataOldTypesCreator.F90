@@ -116,6 +116,7 @@ module MAPL_ExtDataOldTypesCreator
          primary_item%cycling=.true.
       else if (trim(time_sample%extrap_outside) == "persist_closest") then
          primary_item%persist_closest=.true.
+         primary_item%cycling=.false.
       else if (trim(time_sample%extrap_outside) == "none") then
          primary_item%cycling=.false.
          primary_item%persist_closest=.false.
