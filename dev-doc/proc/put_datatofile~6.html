@@ -1,0 +1,1162 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>put_DataToFile &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>put_DataToFile
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">82 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ServerThread.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/serverthread.f90.html'>ServerThread.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_serverthreadmod.html'>pFIO_ServerThreadMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">put_DataToFile</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/put_datatofile~6.html#src">put_DataToFile</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine put_DataToFile(this, message, address, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/serverthread.html'>ServerThread</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~5310"></span>
+              class(<a href='../type/serverthread.html'>ServerThread</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-message~89"></span>
+              class(<a href='../type/abstractdatamessage.html'>AbstractDataMessage</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>message</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-address~6"></span>
+              type(c_ptr),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>address</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~2156"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~put_datatofile~6~~CallsGraph Pages: 1 -->
+<svg id="procput_datatofile6CallsGraph" width="641pt" height="276pt"
+ viewBox="0.00 0.00 641.00 275.60" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~put_datatofile~6~~CallsGraph" class="graph" transform="scale(0.52 0.52) rotate(0) translate(4 530)">
+<title>proc~~put_datatofile~6~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-530 1238,-530 1238,4 -4,4"/>
+<!-- proc~put_datatofile~6 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node1" class="node">
+<title>proc~put_datatofile~6</title>
+<polygon fill="none" stroke="black" points="172,-370 0,-370 0,-346 172,-346 172,-370"/>
+<text text-anchor="middle" x="86" y="-355.6" font-family="Helvetica,sans-Serif" font-size="10.50">ServerThread%put_DataToFile</text>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node2" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node2"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="586.5,-442 507.5,-442 507.5,-418 586.5,-418 586.5,-442"/>
+<text text-anchor="middle" x="547" y="-427.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;interface~mapl_assert -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge1" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M116.29,-370.1C140.46,-379.55 175.89,-392.19 208,-399 309.36,-420.51 430.95,-427.09 497.15,-429.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="497.19,-432.61 507.29,-429.4 497.39,-425.62 497.19,-432.61"/>
+</g>
+<!-- none~at~18 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node3" class="node">
+<title>none~at~18</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node3"><a xlink:href="../type/historycollectionvector.html#boundprocedure-at~18" xlink:title="HistoryCollectionVector%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="379,-493 222,-493 222,-469 379,-469 379,-493"/>
+<text text-anchor="middle" x="300.5" y="-478.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionVector%at</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;none~at~18 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge2" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;none~at~18</title>
+<path fill="none" stroke="#ff0000" d="M103.74,-370.2C126.66,-386.62 169.36,-416.3 208,-438 225.14,-447.63 244.8,-457.06 261.49,-464.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="260.38,-467.97 270.94,-468.86 263.24,-461.58 260.38,-467.97"/>
+</g>
+<!-- none~put_var~21 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node4" class="node">
+<title>none~put_var~21</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node4"><a xlink:href="../type/netcdf4_fileformatter.html#boundprocedure-put_var~21" xlink:title="NetCDF4_FileFormatter%put_var">
+<polygon fill="#a7506f" stroke="#a7506f" points="393,-390 208,-390 208,-366 393,-366 393,-390"/>
+<text text-anchor="middle" x="300.5" y="-375.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NetCDF4_FileFormatter%put_var</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;none~put_var~21 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge3" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;none~put_var~21</title>
+<path fill="none" stroke="#ff0000" d="M172.21,-366.02C180.59,-366.81 189.15,-367.61 197.68,-368.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="197.37,-371.9 207.66,-369.36 198.03,-364.93 197.37,-371.9"/>
+</g>
+<!-- proc~find_ -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node5" class="node">
+<title>proc~find_</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node5"><a xlink:href="../proc/find_.html" xlink:title="HistoryCollection%find_">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="370,-252 231,-252 231,-228 370,-228 370,-252"/>
+<text text-anchor="middle" x="300.5" y="-237.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollection%find_</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;proc~find_ -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge4" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;proc~find_</title>
+<path fill="none" stroke="#ff0000" d="M108.94,-345.82C146.98,-324.7 225.24,-281.24 268.7,-257.1"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="270.64,-260.03 277.68,-252.12 267.24,-253.91 270.64,-260.03"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node6" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node6"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="877.5,-316 795.5,-316 795.5,-292 877.5,-292 877.5,-316"/>
+<text text-anchor="middle" x="836.5" y="-301.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;proc~mapl_return -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge5" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M172.13,-351.86C329.04,-340.54 659.29,-316.71 785.24,-307.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="785.65,-311.11 795.37,-306.9 785.14,-304.12 785.65,-311.11"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node7" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node7"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="874.5,-232 798.5,-232 798.5,-208 874.5,-208 874.5,-232"/>
+<text text-anchor="middle" x="836.5" y="-217.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~6&#45;&gt;proc~mapl_verify -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge6" class="edge">
+<title>proc~put_datatofile~6&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M94.05,-345.83C110.43,-318.7 153.78,-252.98 208,-219 294.24,-164.95 328.12,-172.45 429,-159 532.97,-145.14 569.18,-116.33 665,-159 686.85,-168.73 679.97,-187.61 701,-199 727.51,-213.36 761,-218.62 787.93,-220.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="788.12,-223.8 798.27,-220.78 788.45,-216.81 788.12,-223.8"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node12" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node12"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="903.5,-442 769.5,-442 769.5,-418 903.5,-418 903.5,-442"/>
+<text text-anchor="middle" x="836.5" y="-427.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge7" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M586.77,-430C630.78,-430 703.65,-430 759.18,-430"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="759.33,-433.5 769.33,-430 759.33,-426.5 759.33,-433.5"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node13" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node13"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="910.5,-484 762.5,-484 762.5,-460 910.5,-460 910.5,-484"/>
+<text text-anchor="middle" x="836.5" y="-469.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge8" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M586.77,-435.66C628.98,-441.83 697.73,-451.87 752.27,-459.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="751.87,-463.32 762.27,-461.3 752.88,-456.39 751.87,-463.32"/>
+</g>
+<!-- proc~v_at_32~3 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node16" class="node">
+<title>proc~v_at_32~3</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node16"><a xlink:href="../proc/v_at_32~3.html" xlink:title="HistoryCollectionVector%v_at_32">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="640.5,-505 453.5,-505 453.5,-481 640.5,-481 640.5,-505"/>
+<text text-anchor="middle" x="547" y="-490.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionVector%v_at_32</text>
+</a>
+</g>
+</g>
+<!-- none~at~18&#45;&gt;proc~v_at_32~3 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge9" class="edge">
+<title>none~at~18&#45;&gt;proc~v_at_32~3</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M379.2,-484.81C399.48,-485.81 421.65,-486.9 443.02,-487.95"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="442.94,-491.45 453.1,-488.44 443.29,-484.45 442.94,-491.45"/>
+</g>
+<!-- proc~put_var_real64_4 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node15" class="node">
+<title>proc~put_var_real64_4</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node15"><a xlink:href="../proc/put_var_real64_4.html" xlink:title="NetCDF4_FileFormatter%put_var_real64_4">
+<polygon fill="#d9534f" stroke="#d9534f" points="665,-390 429,-390 429,-366 665,-366 665,-390"/>
+<text text-anchor="middle" x="547" y="-375.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NetCDF4_FileFormatter%put_var_real64_4</text>
+</a>
+</g>
+</g>
+<!-- none~put_var~21&#45;&gt;proc~put_var_real64_4 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge10" class="edge">
+<title>none~put_var~21&#45;&gt;proc~put_var_real64_4</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M393.24,-378C401.61,-378 410.19,-378 418.81,-378"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="418.92,-381.5 428.92,-378 418.92,-374.5 418.92,-381.5"/>
+</g>
+<!-- proc~find_&#45;&gt;proc~mapl_return -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge14" class="edge">
+<title>proc~find_&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ffff" d="M331.59,-252.08C357.08,-261.73 394.82,-274.65 429,-281 555.44,-304.51 707.48,-306.22 784.87,-305.24"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="785.34,-308.73 795.28,-305.09 785.23,-301.74 785.34,-308.73"/>
+</g>
+<!-- proc~find_&#45;&gt;proc~mapl_verify -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge15" class="edge">
+<title>proc~find_&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ffff" d="M370.22,-237.43C480.32,-233.3 693.46,-225.32 788.17,-221.77"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="788.45,-225.26 798.31,-221.39 788.18,-218.27 788.45,-225.26"/>
+</g>
+<!-- none~insert~29 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node8" class="node">
+<title>none~insert~29</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node8"><a xlink:href="../type/stringnetcdf4_fileformattermap.html#boundprocedure-insert~29" xlink:title="StringNetCDF4_FileFormatterMap%insert">
+<polygon fill="#a7506f" stroke="#a7506f" points="661.5,-192 432.5,-192 432.5,-168 661.5,-168 661.5,-192"/>
+<text text-anchor="middle" x="547" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringNetCDF4_FileFormatterMap%insert</text>
+</a>
+</g>
+</g>
+<!-- proc~find_&#45;&gt;none~insert~29 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge11" class="edge">
+<title>proc~find_&#45;&gt;none~insert~29</title>
+<path fill="none" stroke="#00ffff" d="M344.76,-227.98C369.39,-221.26 400.85,-212.88 429,-206 445.32,-202.01 462.99,-197.95 479.52,-194.27"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="480.65,-197.6 489.65,-192.02 479.13,-190.77 480.65,-197.6"/>
+</g>
+<!-- proc~create -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node9" class="node">
+<title>proc~create</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node9"><a xlink:href="../proc/create.html" xlink:title="NetCDF4_FileFormatter%create">
+<polygon fill="#d9534f" stroke="#d9534f" points="636.5,-272 457.5,-272 457.5,-248 636.5,-248 636.5,-272"/>
+<text text-anchor="middle" x="547" y="-257.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NetCDF4_FileFormatter%create</text>
+</a>
+</g>
+</g>
+<!-- proc~find_&#45;&gt;proc~create -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge12" class="edge">
+<title>proc~find_&#45;&gt;proc~create</title>
+<path fill="none" stroke="#00ffff" d="M370.26,-245.62C394.07,-247.57 421.26,-249.8 447.02,-251.9"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="446.94,-255.41 457.19,-252.74 447.51,-248.43 446.94,-255.41"/>
+</g>
+<!-- proc~m_find~2 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node11" class="node">
+<title>proc~m_find~2</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node11"><a xlink:href="../proc/m_find~2.html" xlink:title="StringNetCDF4_FileFormatterMap%m_find">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="664.5,-109 429.5,-109 429.5,-85 664.5,-85 664.5,-109"/>
+<text text-anchor="middle" x="547" y="-94.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringNetCDF4_FileFormatterMap%m_find</text>
+</a>
+</g>
+</g>
+<!-- proc~find_&#45;&gt;proc~m_find~2 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge13" class="edge">
+<title>proc~find_&#45;&gt;proc~m_find~2</title>
+<path fill="none" stroke="#00ffff" d="M319.8,-227.73C344.31,-211.45 389.33,-182.07 429,-159 456.9,-142.78 489.38,-125.71 513.03,-113.59"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="514.63,-116.71 521.95,-109.05 511.45,-110.47 514.63,-116.71"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node10" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node10"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1132,-452 1017,-452 1017,-428 1132,-428 1132,-452"/>
+<text text-anchor="middle" x="1074.5" y="-437.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#0000ff" d="M877.52,-303.1C905.58,-304.12 943.1,-308.89 972,-325 993.47,-336.97 991.79,-348.52 1008,-367 1024.01,-385.25 1042.51,-405.82 1055.75,-420.46"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="1053.21,-422.87 1062.52,-427.93 1058.4,-418.17 1053.21,-422.87"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node14" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node14"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1141,-358 1008,-358 1008,-334 1141,-334 1141,-358"/>
+<text text-anchor="middle" x="1074.5" y="-343.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0000ff" d="M877.61,-309.74C904.39,-313.69 940.37,-319.26 972,-325 983.62,-327.11 995.95,-329.51 1007.87,-331.93"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="1007.26,-335.38 1017.75,-333.95 1008.66,-328.52 1007.26,-335.38"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00ff" d="M874.57,-219.53C902.74,-220.61 941.69,-225.27 972,-241 1010.31,-260.88 1042.56,-300.76 1059.86,-325.24"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="1057.19,-327.54 1065.74,-333.8 1062.96,-323.57 1057.19,-327.54"/>
+</g>
+<!-- proc~m_insert_pair~2 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node23" class="node">
+<title>proc~m_insert_pair~2</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node23"><a xlink:href="../proc/m_insert_pair~2.html" xlink:title="StringNetCDF4_FileFormatterMap%m_insert_pair">
+<polygon fill="#d9534f" stroke="#d9534f" points="972,-190 701,-190 701,-166 972,-166 972,-190"/>
+<text text-anchor="middle" x="836.5" y="-175.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringNetCDF4_FileFormatterMap%m_insert_pair</text>
+</a>
+</g>
+</g>
+<!-- none~insert~29&#45;&gt;proc~m_insert_pair~2 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge19" class="edge">
+<title>none~insert~29&#45;&gt;proc~m_insert_pair~2</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M661.63,-179.21C671.18,-179.14 680.92,-179.08 690.66,-179.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="690.84,-182.51 700.81,-178.94 690.79,-175.51 690.84,-182.51"/>
+</g>
+<!-- proc~create&#45;&gt;proc~mapl_return -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge21" class="edge">
+<title>proc~create&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ffaa00" d="M626.56,-272.02C677.2,-279.77 741.53,-289.62 785.34,-296.32"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="785.05,-299.82 795.47,-297.87 786.11,-292.9 785.05,-299.82"/>
+</g>
+<!-- proc~create&#45;&gt;proc~mapl_verify -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge22" class="edge">
+<title>proc~create&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ffaa00" d="M634.26,-248C684.73,-240.98 746.52,-232.38 788.21,-226.58"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="788.94,-230.01 798.36,-225.17 787.97,-223.08 788.94,-230.01"/>
+</g>
+<!-- nf90_create -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node19" class="node">
+<title>nf90_create</title>
+<polygon fill="#777777" stroke="#777777" points="874.5,-274 798.5,-274 798.5,-250 874.5,-250 874.5,-274"/>
+<text text-anchor="middle" x="836.5" y="-259.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_create</text>
+</g>
+<!-- proc~create&#45;&gt;nf90_create -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge20" class="edge">
+<title>proc~create&#45;&gt;nf90_create</title>
+<path fill="none" stroke="#ffaa00" d="M636.61,-260.62C686.54,-260.96 746.94,-261.38 787.98,-261.67"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="788.22,-265.17 798.24,-261.74 788.26,-258.17 788.22,-265.17"/>
+</g>
+<!-- at -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node17" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1232.5,-431 1178.5,-431 1178.5,-407 1232.5,-407 1232.5,-431"/>
+<text text-anchor="middle" x="1205.5" y="-416.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge23" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#aaff00" d="M1132.08,-430.79C1144.42,-428.78 1157.14,-426.71 1168.42,-424.87"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="1169.01,-428.32 1178.32,-423.26 1167.89,-421.41 1169.01,-428.32"/>
+</g>
+<!-- insert -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node18" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1232.5,-473 1178.5,-473 1178.5,-449 1232.5,-449 1232.5,-473"/>
+<text text-anchor="middle" x="1205.5" y="-458.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge24" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#aaff00" d="M1132.08,-449.21C1144.42,-451.22 1157.14,-453.29 1168.42,-455.13"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="1167.89,-458.59 1178.32,-456.74 1169.01,-451.68 1167.89,-458.59"/>
+</g>
+<!-- proc~s_find~2 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node24" class="node">
+<title>proc~s_find~2</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node24"><a xlink:href="../proc/s_find~2.html" xlink:title="set2%s_find">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="874.5,-108 798.5,-108 798.5,-84 874.5,-84 874.5,-108"/>
+<text text-anchor="middle" x="836.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%s_find</text>
+</a>
+</g>
+</g>
+<!-- proc~m_find~2&#45;&gt;proc~s_find~2 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge25" class="edge">
+<title>proc~m_find~2&#45;&gt;proc~s_find~2</title>
+<path fill="none" stroke="#00ff00" d="M664.52,-96.59C707.83,-96.44 754.56,-96.28 788.2,-96.16"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="788.21,-99.66 798.2,-96.13 788.19,-92.66 788.21,-99.66"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffa9" d="M903.83,-424.99C925.99,-421.92 950.51,-416.97 972,-409 1000.97,-398.26 1030.59,-378.69 1050.3,-364.2"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="1052.46,-366.95 1058.36,-358.14 1048.26,-361.35 1052.46,-366.95"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00a9ff" d="M910.56,-462.09C941.33,-457.92 976.89,-453.1 1006.93,-449.03"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="1007.45,-452.49 1016.89,-447.68 1006.51,-445.55 1007.45,-452.49"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00a9ff" d="M910.7,-469.22C931.38,-466.18 953.33,-460.69 972,-451 982.29,-445.66 1029.64,-394.4 1055.88,-365.53"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="1058.55,-367.8 1062.67,-358.04 1053.36,-363.1 1058.55,-367.8"/>
+</g>
+<!-- proc~initialize~7 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node22" class="node">
+<title>proc~initialize~7</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node22"><a xlink:href="../proc/initialize~7.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1234,-358 1177,-358 1177,-334 1234,-334 1234,-358"/>
+<text text-anchor="middle" x="1205.5" y="-343.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~7 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~7</title>
+<path fill="none" stroke="#0000ff" d="M1141.13,-346C1149.88,-346 1158.59,-346 1166.63,-346"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="1166.77,-349.5 1176.77,-346 1166.77,-342.5 1166.77,-349.5"/>
+</g>
+<!-- proc~put_var_real64_4&#45;&gt;proc~mapl_return -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge32" class="edge">
+<title>proc~put_var_real64_4&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#aa00ff" d="M624.44,-365.94C638.28,-362.38 652.33,-357.83 665,-352 683.17,-343.64 682.57,-332.77 701,-325 727.53,-313.81 759.27,-308.51 785.25,-306.04"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="785.6,-309.52 795.27,-305.19 785.01,-302.54 785.6,-309.52"/>
+</g>
+<!-- proc~put_var_real64_4&#45;&gt;proc~mapl_verify -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge33" class="edge">
+<title>proc~put_var_real64_4&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#aa00ff" d="M564.14,-365.83C587.3,-348.1 630.93,-313.71 665,-281 682.25,-264.43 679.97,-252.39 701,-241 727.51,-226.64 761,-221.38 787.93,-219.71"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="788.45,-223.19 798.27,-219.22 788.12,-216.2 788.45,-223.19"/>
+</g>
+<!-- nf90_inq_varid -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node20" class="node">
+<title>nf90_inq_varid</title>
+<polygon fill="#777777" stroke="#777777" points="882,-400 791,-400 791,-376 882,-376 882,-400"/>
+<text text-anchor="middle" x="836.5" y="-385.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_varid</text>
+</g>
+<!-- proc~put_var_real64_4&#45;&gt;nf90_inq_varid -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge30" class="edge">
+<title>proc~put_var_real64_4&#45;&gt;nf90_inq_varid</title>
+<path fill="none" stroke="#aa00ff" d="M665.35,-382.08C705.28,-383.47 748.03,-384.96 780.68,-386.09"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="780.8,-389.6 790.92,-386.45 781.04,-382.6 780.8,-389.6"/>
+</g>
+<!-- nf90_put_var -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node21" class="node">
+<title>nf90_put_var</title>
+<polygon fill="#777777" stroke="#777777" points="877.5,-358 795.5,-358 795.5,-334 877.5,-334 877.5,-358"/>
+<text text-anchor="middle" x="836.5" y="-343.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_put_var</text>
+</g>
+<!-- proc~put_var_real64_4&#45;&gt;nf90_put_var -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge31" class="edge">
+<title>proc~put_var_real64_4&#45;&gt;nf90_put_var</title>
+<path fill="none" stroke="#aa00ff" d="M655.87,-365.99C700.25,-361.05 749.5,-355.57 785.19,-351.6"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="785.79,-355.05 795.34,-350.47 785.02,-348.1 785.79,-355.05"/>
+</g>
+<!-- proc~v_at_size_kind~3 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node25" class="node">
+<title>proc~v_at_size_kind~3</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node25"><a xlink:href="../proc/v_at_size_kind~3.html" xlink:title="HistoryCollectionVector%v_at_size_kind">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="947.5,-526 725.5,-526 725.5,-502 947.5,-502 947.5,-526"/>
+<text text-anchor="middle" x="836.5" y="-511.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionVector%v_at_size_kind</text>
+</a>
+</g>
+</g>
+<!-- proc~v_at_32~3&#45;&gt;proc~v_at_size_kind~3 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge34" class="edge">
+<title>proc~v_at_32~3&#45;&gt;proc~v_at_size_kind~3</title>
+<path fill="none" stroke="#ff00aa" d="M640.55,-499.76C664.28,-501.49 690.16,-503.38 715.07,-505.2"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="715.08,-508.71 725.31,-505.95 715.59,-501.73 715.08,-508.71"/>
+</g>
+<!-- proc~s_insert~2 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node29" class="node">
+<title>proc~s_insert~2</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node29"><a xlink:href="../proc/s_insert~2.html" xlink:title="set2%s_insert">
+<polygon fill="#d9534f" stroke="#d9534f" points="1117,-192 1032,-192 1032,-168 1117,-168 1117,-192"/>
+<text text-anchor="middle" x="1074.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%s_insert</text>
+</a>
+</g>
+</g>
+<!-- proc~m_insert_pair~2&#45;&gt;proc~s_insert~2 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge35" class="edge">
+<title>proc~m_insert_pair~2&#45;&gt;proc~s_insert~2</title>
+<path fill="none" stroke="#0000ff" d="M972.05,-179.14C989.71,-179.29 1006.86,-179.44 1021.89,-179.56"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="1021.91,-183.06 1031.94,-179.65 1021.97,-176.06 1021.91,-183.06"/>
+</g>
+<!-- none~at~53 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node26" class="node">
+<title>none~at~53</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node26"><a xlink:href="../type/tvector~13.html#boundprocedure-at~53" xlink:title="tVector%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="1109.5,-24 1039.5,-24 1039.5,0 1109.5,0 1109.5,-24"/>
+<text text-anchor="middle" x="1074.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">tVector%at</text>
+</a>
+</g>
+</g>
+<!-- proc~s_find~2&#45;&gt;none~at~53 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge36" class="edge">
+<title>proc~s_find~2&#45;&gt;none~at~53</title>
+<path fill="none" stroke="#aa00ff" d="M868.78,-83.98C902.86,-70.98 959.07,-49.87 1008,-33 1014.99,-30.59 1022.42,-28.12 1029.68,-25.76"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="1030.97,-29.02 1039.41,-22.62 1028.82,-22.36 1030.97,-29.02"/>
+</g>
+<!-- proc~exists~2 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node27" class="node">
+<title>proc~exists~2</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node27"><a xlink:href="../proc/exists~2.html" xlink:title="exists">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1101.5,-150 1047.5,-150 1047.5,-126 1101.5,-126 1101.5,-150"/>
+<text text-anchor="middle" x="1074.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">exists</text>
+</a>
+</g>
+</g>
+<!-- proc~s_find~2&#45;&gt;proc~exists~2 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge37" class="edge">
+<title>proc~s_find~2&#45;&gt;proc~exists~2</title>
+<path fill="none" stroke="#aa00ff" d="M874.63,-102.61C919.1,-110.52 993.08,-123.69 1037.18,-131.54"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="1036.72,-135.01 1047.18,-133.32 1037.95,-128.12 1036.72,-135.01"/>
+</g>
+<!-- proc~find_index~2 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node28" class="node">
+<title>proc~find_index~2</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node28"><a xlink:href="../proc/find_index~2.html" xlink:title="set2%find_index">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1124,-108 1025,-108 1025,-84 1124,-84 1124,-108"/>
+<text text-anchor="middle" x="1074.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%find_index</text>
+</a>
+</g>
+</g>
+<!-- proc~s_find~2&#45;&gt;proc~find_index~2 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge38" class="edge">
+<title>proc~s_find~2&#45;&gt;proc~find_index~2</title>
+<path fill="none" stroke="#aa00ff" d="M874.63,-96C912.13,-96 970.61,-96 1014.47,-96"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="1014.71,-99.5 1024.71,-96 1014.71,-92.5 1014.71,-99.5"/>
+</g>
+<!-- proc~s_ordereq~2 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_node30" class="node">
+<title>proc~s_ordereq~2</title>
+<g id="a_proc~~put_datatofile~6~~CallsGraph_node30"><a xlink:href="../proc/s_ordereq~2.html" xlink:title="s_orderEq">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1107.5,-66 1041.5,-66 1041.5,-42 1107.5,-42 1107.5,-66"/>
+<text text-anchor="middle" x="1074.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">s_orderEq</text>
+</a>
+</g>
+</g>
+<!-- proc~s_find~2&#45;&gt;proc~s_ordereq~2 -->
+<g id="proc~~put_datatofile~6~~CallsGraph_edge39" class="edge">
+<title>proc~s_find~2&#45;&gt;proc~s_ordereq~2</title>
+<path fill="none" stroke="#aa00ff" d="M874.63,-89.39C917.14,-81.83 986.63,-69.46 1031.2,-61.53"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="1031.9,-64.96 1041.13,-59.76 1030.67,-58.07 1031.9,-64.96"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocput_datatofile6CallsGraph = svgPanZoom('#procput_datatofile6CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~put_datatofile~6~~CalledByGraph Pages: 1 -->
+<svg id="procput_datatofile6CalledByGraph" width="594pt" height="158pt"
+ viewBox="0.00 0.00 594.00 158.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~put_datatofile~6~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 154)">
+<title>proc~~put_datatofile~6~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 590,-154 590,4 -4,4"/>
+<!-- proc~put_datatofile~6 -->
+<g id="proc~~put_datatofile~6~~CalledByGraph_node1" class="node">
+<title>proc~put_datatofile~6</title>
+<polygon fill="none" stroke="black" points="586,-87 414,-87 414,-63 586,-63 586,-87"/>
+<text text-anchor="middle" x="500" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">ServerThread%put_DataToFile</text>
+</g>
+<!-- proc~clean_up -->
+<g id="proc~~put_datatofile~6~~CalledByGraph_node2" class="node">
+<title>proc~clean_up</title>
+<g id="a_proc~~put_datatofile~6~~CalledByGraph_node2"><a xlink:href="../proc/clean_up.html" xlink:title="MultiCommServer%clean_up">
+<polygon fill="#d9534f" stroke="#d9534f" points="361,-150 195,-150 195,-126 361,-126 361,-150"/>
+<text text-anchor="middle" x="278" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiCommServer%clean_up</text>
+</a>
+</g>
+</g>
+<!-- proc~clean_up&#45;&gt;proc~put_datatofile~6 -->
+<g id="proc~~put_datatofile~6~~CalledByGraph_edge1" class="edge">
+<title>proc~clean_up&#45;&gt;proc~put_datatofile~6</title>
+<path fill="none" stroke="#ff0000" d="M341.61,-125.96C353.75,-123.28 366.32,-120.25 378,-117 405.08,-109.46 434.93,-99.12 458.2,-90.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="459.59,-93.81 467.75,-87.06 457.16,-87.25 459.59,-93.81"/>
+</g>
+<!-- proc~handle_done_stage~2 -->
+<g id="proc~~put_datatofile~6~~CalledByGraph_node3" class="node">
+<title>proc~handle_done_stage~2</title>
+<g id="a_proc~~put_datatofile~6~~CalledByGraph_node3"><a xlink:href="../proc/handle_done_stage~2.html" xlink:title="ServerThread%handle_Done_stage">
+<polygon fill="#d9534f" stroke="#d9534f" points="378,-108 178,-108 178,-84 378,-84 378,-108"/>
+<text text-anchor="middle" x="278" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThread%handle_Done_stage</text>
+</a>
+</g>
+</g>
+<!-- proc~handle_done_stage~2&#45;&gt;proc~put_datatofile~6 -->
+<g id="proc~~put_datatofile~6~~CalledByGraph_edge2" class="edge">
+<title>proc~handle_done_stage~2&#45;&gt;proc~put_datatofile~6</title>
+<path fill="none" stroke="#ff0000" d="M378.06,-86.54C386.67,-85.72 395.36,-84.89 403.94,-84.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="404.31,-87.55 413.93,-83.12 403.65,-80.59 404.31,-87.55"/>
+</g>
+<!-- proc~put_datatofile~5 -->
+<g id="proc~~put_datatofile~6~~CalledByGraph_node4" class="node">
+<title>proc~put_datatofile~5</title>
+<g id="a_proc~~put_datatofile~6~~CalledByGraph_node4"><a xlink:href="../proc/put_datatofile~5.html" xlink:title="BaseServer%put_DataToFile">
+<polygon fill="#d9534f" stroke="#d9534f" points="358.5,-66 197.5,-66 197.5,-42 358.5,-42 358.5,-66"/>
+<text text-anchor="middle" x="278" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseServer%put_DataToFile</text>
+</a>
+</g>
+</g>
+<!-- proc~put_datatofile~5&#45;&gt;proc~put_datatofile~6 -->
+<g id="proc~~put_datatofile~6~~CalledByGraph_edge3" class="edge">
+<title>proc~put_datatofile~5&#45;&gt;proc~put_datatofile~6</title>
+<path fill="none" stroke="#ff0000" d="M358.74,-61.61C373.32,-63 388.68,-64.47 403.67,-65.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="403.68,-69.42 413.97,-66.88 404.35,-62.45 403.68,-69.42"/>
+</g>
+<!-- proc~start_back -->
+<g id="proc~~put_datatofile~6~~CalledByGraph_node5" class="node">
+<title>proc~start_back</title>
+<g id="a_proc~~put_datatofile~6~~CalledByGraph_node5"><a xlink:href="../proc/start_back.html" xlink:title="MultiGroupServer%start_back">
+<polygon fill="#d9534f" stroke="#d9534f" points="363,-24 193,-24 193,0 363,0 363,-24"/>
+<text text-anchor="middle" x="278" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiGroupServer%start_back</text>
+</a>
+</g>
+</g>
+<!-- proc~start_back&#45;&gt;proc~put_datatofile~6 -->
+<g id="proc~~put_datatofile~6~~CalledByGraph_edge4" class="edge">
+<title>proc~start_back&#45;&gt;proc~put_datatofile~6</title>
+<path fill="none" stroke="#ff0000" d="M341.61,-24.04C353.75,-26.72 366.32,-29.75 378,-33 405.08,-40.54 434.93,-50.88 458.2,-59.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="457.16,-62.75 467.75,-62.94 459.59,-56.19 457.16,-62.75"/>
+</g>
+<!-- proc~start -->
+<g id="proc~~put_datatofile~6~~CalledByGraph_node6" class="node">
+<title>proc~start</title>
+<g id="a_proc~~put_datatofile~6~~CalledByGraph_node6"><a xlink:href="../proc/start.html" xlink:title="MultiCommServer%start">
+<polygon fill="#d9534f" stroke="#d9534f" points="142,-150 0,-150 0,-126 142,-126 142,-150"/>
+<text text-anchor="middle" x="71" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiCommServer%start</text>
+</a>
+</g>
+</g>
+<!-- proc~start&#45;&gt;proc~clean_up -->
+<g id="proc~~put_datatofile~6~~CalledByGraph_edge5" class="edge">
+<title>proc~start&#45;&gt;proc~clean_up</title>
+<path fill="none" stroke="#ff0000" d="M142.26,-138C155.88,-138 170.34,-138 184.54,-138"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="184.82,-141.5 194.82,-138 184.82,-134.5 184.82,-141.5"/>
+</g>
+<!-- proc~start~3 -->
+<g id="proc~~put_datatofile~6~~CalledByGraph_node7" class="node">
+<title>proc~start~3</title>
+<g id="a_proc~~put_datatofile~6~~CalledByGraph_node7"><a xlink:href="../proc/start~3.html" xlink:title="MultiGroupServer%start">
+<polygon fill="#d9534f" stroke="#d9534f" points="140.5,-24 1.5,-24 1.5,0 140.5,0 140.5,-24"/>
+<text text-anchor="middle" x="71" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiGroupServer%start</text>
+</a>
+</g>
+</g>
+<!-- proc~start~3&#45;&gt;proc~start_back -->
+<g id="proc~~put_datatofile~6~~CalledByGraph_edge6" class="edge">
+<title>proc~start~3&#45;&gt;proc~start_back</title>
+<path fill="none" stroke="#7f00ff" d="M140.55,-12C154.03,-12 168.41,-12 182.57,-12"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="182.83,-15.5 192.83,-12 182.83,-8.5 182.83,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">put_DataToFile</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">message</span><span class="p">,</span><span class="w"> </span><span class="n">address</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">ServerThread</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractDataMessage</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w">  </span><span class="n">message</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="kt">c_ptr</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">address</span>
+
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">NetCDF4_FileFormatter</span><span class="p">),</span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">formatter</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">HistoryCollection</span><span class="p">),</span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hist_collection</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">INT32</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">values_int32_0d</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">INT32</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">values_int32_1d</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">INT64</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">values_int64_0d</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">INT64</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">values_int64_1d</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">values_real32_0d</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">values_real32_1d</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">values_real64_0d</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">values_real64_1d</span><span class="p">(:)</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">start</span><span class="p">(:),</span><span class="nb">count</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">hist_collections</span><span class="p">%</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">hist_collection</span><span class="o">=&gt;</span><span class="n">this</span><span class="p">%</span><span class="n">hist_collections</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">hist_collection</span><span class="o">=&gt;</span><span class="n">this</span><span class="p">%</span><span class="n">hist_collections</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">message</span><span class="p">%</span><span class="n">collection_id</span><span class="p">)</span>
+<span class="w">      </span><span class="k">endif</span>
+<span class="k">      </span><span class="n">formatter</span><span class="w"> </span><span class="o">=&gt;</span><span class="n">hist_collection</span><span class="p">%</span><span class="n">find</span><span class="p">(</span><span class="n">message</span><span class="p">%</span><span class="n">file_name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">StageDataMessage</span><span class="p">)</span>
+<span class="w">        </span><span class="n">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="p">%</span><span class="n">start</span>
+<span class="w">        </span><span class="n">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">        </span><span class="nb">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="p">%</span><span class="nb">count</span>
+<span class="nb">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">CollectiveStageDataMessage</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="p">%</span><span class="n">global_start</span>
+<span class="w">        </span><span class="nb">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">message</span><span class="p">%</span><span class="n">global_count</span>
+
+<span class="w">      </span><span class="k">class </span><span class="n">default</span>
+<span class="w">        </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="w"> </span><span class="s2">&quot;wrong StageDataMessage type&quot;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end select</span>
+<span class="c">!      if (product(count) /= product(file_data_reference%shape)) stop &quot;memory size not match&quot;</span>
+<span class="w">      </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="nb">count</span><span class="p">))</span><span class="w"> </span><span class="c">! rank</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">          </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="n">message</span><span class="p">%</span><span class="n">type_kind</span><span class="p">)</span>
+<span class="w">          </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">pFIO_INT32</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="nb">c_f_pointer</span><span class="p">(</span><span class="n">address</span><span class="p">,</span><span class="w"> </span><span class="n">values_int32_0d</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">formatter</span><span class="p">%</span><span class="n">put_var</span><span class="p">(</span><span class="n">message</span><span class="p">%</span><span class="n">var_name</span><span class="p">,</span><span class="w"> </span><span class="n">values_int32_0d</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">pFIO_INT64</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="nb">c_f_pointer</span><span class="p">(</span><span class="n">address</span><span class="p">,</span><span class="w"> </span><span class="n">values_int64_0d</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">formatter</span><span class="p">%</span><span class="n">put_var</span><span class="p">(</span><span class="n">message</span><span class="p">%</span><span class="n">var_name</span><span class="p">,</span><span class="w"> </span><span class="n">values_int64_0d</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">pFIO_REAL32</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="nb">c_f_pointer</span><span class="p">(</span><span class="n">address</span><span class="p">,</span><span class="w"> </span><span class="n">values_real32_0d</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">formatter</span><span class="p">%</span><span class="n">put_var</span><span class="p">(</span><span class="n">message</span><span class="p">%</span><span class="n">var_name</span><span class="p">,</span><span class="w"> </span><span class="n">values_real32_0d</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">pFIO_REAL64</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="nb">c_f_pointer</span><span class="p">(</span><span class="n">address</span><span class="p">,</span><span class="w"> </span><span class="n">values_real64_0d</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">formatter</span><span class="p">%</span><span class="n">put_var</span><span class="p">(</span><span class="n">message</span><span class="p">%</span><span class="n">var_name</span><span class="p">,</span><span class="w"> </span><span class="n">values_real64_0d</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">case </span><span class="n">default</span>
+<span class="w">              </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="w"> </span><span class="s2">&quot;not supported type&quot;</span><span class="p">)</span>
+<span class="w">          </span><span class="k">end select</span>
+<span class="k">      case</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">:)</span>
+<span class="w">          </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="n">message</span><span class="p">%</span><span class="n">type_kind</span><span class="p">)</span>
+<span class="w">          </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">pFIO_INT32</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="nb">c_f_pointer</span><span class="p">(</span><span class="n">address</span><span class="p">,</span><span class="w"> </span><span class="n">values_int32_1d</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nb">product</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">count</span><span class="p">,</span><span class="w"> </span><span class="n">INT64</span><span class="p">))])</span>
+<span class="w">              </span><span class="k">call </span><span class="n">formatter</span><span class="p">%</span><span class="n">put_var</span><span class="p">(</span><span class="n">message</span><span class="p">%</span><span class="n">var_name</span><span class="p">,</span><span class="w"> </span><span class="n">values_int32_1d</span><span class="p">,</span><span class="w"> </span><span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="nb">count</span><span class="o">=</span><span class="nb">count</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">pFIO_INT64</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="nb">c_f_pointer</span><span class="p">(</span><span class="n">address</span><span class="p">,</span><span class="w"> </span><span class="n">values_int64_1d</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nb">product</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">count</span><span class="p">,</span><span class="w"> </span><span class="n">INT64</span><span class="p">))])</span>
+<span class="w">              </span><span class="k">call </span><span class="n">formatter</span><span class="p">%</span><span class="n">put_var</span><span class="p">(</span><span class="n">message</span><span class="p">%</span><span class="n">var_name</span><span class="p">,</span><span class="w"> </span><span class="n">values_int64_1d</span><span class="p">,</span><span class="w"> </span><span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="nb">count</span><span class="o">=</span><span class="nb">count</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">pFIO_REAL32</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="nb">c_f_pointer</span><span class="p">(</span><span class="n">address</span><span class="p">,</span><span class="w"> </span><span class="n">values_real32_1d</span><span class="p">,[</span><span class="nb">product</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">count</span><span class="p">,</span><span class="w"> </span><span class="n">INT64</span><span class="p">))])</span>
+<span class="w">              </span><span class="k">call </span><span class="n">formatter</span><span class="p">%</span><span class="n">put_var</span><span class="p">(</span><span class="n">message</span><span class="p">%</span><span class="n">var_name</span><span class="p">,</span><span class="w"> </span><span class="n">values_real32_1d</span><span class="p">,</span><span class="w"> </span><span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="nb">count</span><span class="o">=</span><span class="nb">count</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">pFIO_REAL64</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="nb">c_f_pointer</span><span class="p">(</span><span class="n">address</span><span class="p">,</span><span class="w"> </span><span class="n">values_real64_1d</span><span class="p">,[</span><span class="nb">product</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">count</span><span class="p">,</span><span class="w"> </span><span class="n">INT64</span><span class="p">))])</span>
+<span class="w">              </span><span class="k">call </span><span class="n">formatter</span><span class="p">%</span><span class="n">put_var</span><span class="p">(</span><span class="n">message</span><span class="p">%</span><span class="n">var_name</span><span class="p">,</span><span class="w"> </span><span class="n">values_real64_1d</span><span class="p">,</span><span class="w"> </span><span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="nb">count</span><span class="o">=</span><span class="nb">count</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">case </span><span class="n">default</span>
+<span class="w">              </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="w"> </span><span class="s2">&quot;not supported type&quot;</span><span class="p">)</span>
+<span class="w">          </span><span class="k">end select</span>
+<span class="k">       end select</span>
+
+<span class="k">       </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">put_DataToFile</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-18T19:28:04.651666             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

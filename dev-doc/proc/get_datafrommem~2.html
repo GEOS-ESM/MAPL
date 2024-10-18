@@ -1,0 +1,940 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>get_DataFromMem &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>get_DataFromMem
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">15 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/BaseServer.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/baseserver.f90.html'>BaseServer.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_baseservermod.html'>pFIO_BaseServerMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">get_DataFromMem</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/get_datafrommem~2.html#src">get_DataFromMem</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine get_DataFromMem(this, multi, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/baseserver.html'>BaseServer</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~4575"></span>
+              class(<a href='../type/baseserver.html'>BaseServer</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-multi~2"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>multi</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1868"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_datafrommem~2~~CallsGraph Pages: 1 -->
+<svg id="procget_datafrommem2CallsGraph" width="641pt" height="303pt"
+ viewBox="0.00 0.00 641.00 302.80" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_datafrommem~2~~CallsGraph" class="graph" transform="scale(0.45 0.45) rotate(0) translate(4 667.73)">
+<title>proc~~get_datafrommem~2~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-667.73 1418,-667.73 1418,4 -4,4"/>
+<!-- proc~get_datafrommem~2 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node1" class="node">
+<title>proc~get_datafrommem~2</title>
+<polygon fill="none" stroke="black" points="184,-369.73 0,-369.73 0,-345.73 184,-345.73 184,-369.73"/>
+<text text-anchor="middle" x="92" y="-355.33" font-family="Helvetica,sans-Serif" font-size="10.50">BaseServer%get_DataFromMem</text>
+</g>
+<!-- none~at~131 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node2" class="node">
+<title>none~at~131</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node2"><a xlink:href="../type/serverthreadvector.html#boundprocedure-at~131" xlink:title="ServerThreadVector%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="387.5,-583.73 248.5,-583.73 248.5,-559.73 387.5,-559.73 387.5,-583.73"/>
+<text text-anchor="middle" x="318" y="-569.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThreadVector%at</text>
+</a>
+</g>
+</g>
+<!-- proc~get_datafrommem~2&#45;&gt;none~at~131 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge1" class="edge">
+<title>proc~get_datafrommem~2&#45;&gt;none~at~131</title>
+<path fill="none" stroke="#ff0000" d="M103.33,-369.92C124.31,-394.39 173.84,-450.86 220,-493.73 243.55,-515.61 272.49,-538.39 292.59,-553.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="290.53,-556.48 300.63,-559.7 294.75,-550.89 290.53,-556.48"/>
+</g>
+<!-- proc~get_datafrommem~3 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node3" class="node">
+<title>proc~get_datafrommem~3</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node3"><a xlink:href="../proc/get_datafrommem~3.html" xlink:title="ServerThread%get_DataFromMem">
+<polygon fill="#d9534f" stroke="#d9534f" points="416,-349.73 220,-349.73 220,-325.73 416,-325.73 416,-349.73"/>
+<text text-anchor="middle" x="318" y="-335.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThread%get_DataFromMem</text>
+</a>
+</g>
+</g>
+<!-- proc~get_datafrommem~2&#45;&gt;proc~get_datafrommem~3 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge2" class="edge">
+<title>proc~get_datafrommem~2&#45;&gt;proc~get_datafrommem~3</title>
+<path fill="none" stroke="#ff0000" d="M184.11,-349.6C192.55,-348.84 201.16,-348.07 209.73,-347.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="210.12,-350.79 219.77,-346.41 209.5,-343.82 210.12,-350.79"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node4" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node4"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="835,-182.73 753,-182.73 753,-158.73 835,-158.73 835,-182.73"/>
+<text text-anchor="middle" x="794" y="-168.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~get_datafrommem~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge3" class="edge">
+<title>proc~get_datafrommem~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M101.04,-345.39C135.46,-293.84 276.7,-95.21 452,-26.73 536.45,6.26 573.63,11.15 656,-26.73 678.34,-37 675.34,-50.65 692,-68.73 719.25,-98.31 752.28,-131.13 772.98,-151.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="770.66,-153.98 780.27,-158.45 775.54,-148.97 770.66,-153.98"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node5" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node5"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="592,-593.73 516,-593.73 516,-569.73 592,-569.73 592,-593.73"/>
+<text text-anchor="middle" x="554" y="-579.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~get_datafrommem~2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge4" class="edge">
+<title>proc~get_datafrommem~2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M109.98,-369.91C159.85,-405.1 311.27,-507.79 452,-560.73 469.1,-567.16 488.6,-571.8 505.88,-575.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="505.3,-578.51 515.76,-576.82 506.53,-571.62 505.3,-578.51"/>
+</g>
+<!-- proc~v_at_32~11 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node17" class="node">
+<title>proc~v_at_32~11</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node17"><a xlink:href="../proc/v_at_32~11.html" xlink:title="ServerThreadVector%v_at_32">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="638.5,-644.73 469.5,-644.73 469.5,-620.73 638.5,-620.73 638.5,-644.73"/>
+<text text-anchor="middle" x="554" y="-630.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThreadVector%v_at_32</text>
+</a>
+</g>
+</g>
+<!-- none~at~131&#45;&gt;proc~v_at_32~11 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge5" class="edge">
+<title>none~at~131&#45;&gt;proc~v_at_32~11</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M365.23,-583.78C403.05,-593.64 456.67,-607.62 496.93,-618.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="496.31,-621.57 506.87,-620.71 498.07,-614.8 496.31,-621.57"/>
+</g>
+<!-- proc~get_datafrommem~3&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge15" class="edge">
+<title>proc~get_datafrommem~3&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#7fff00" d="M321.51,-325.69C330.6,-285.62 365.87,-156.53 452,-106.73 555.67,-46.8 703.96,-118.54 765.06,-153.59"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="763.36,-156.66 773.76,-158.68 766.89,-150.61 763.36,-156.66"/>
+</g>
+<!-- proc~get_datafrommem~3&#45;&gt;proc~mapl_verify -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge16" class="edge">
+<title>proc~get_datafrommem~3&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#7fff00" d="M330.21,-349.97C349.78,-371.83 390.49,-419.62 416,-465.73 437.86,-505.24 417.66,-531.41 452,-560.73 466.71,-573.29 486.98,-578.99 505.51,-581.39"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="505.27,-584.88 515.57,-582.4 505.97,-577.91 505.27,-584.88"/>
+</g>
+<!-- at -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node6" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1412.5,-424.73 1358.5,-424.73 1358.5,-400.73 1412.5,-400.73 1412.5,-424.73"/>
+<text text-anchor="middle" x="1385.5" y="-410.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_datafrommem~3&#45;&gt;at -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge6" class="edge">
+<title>proc~get_datafrommem~3&#45;&gt;at</title>
+<path fill="none" stroke="#7fff00" d="M330.74,-350.01C349.07,-369.24 385.55,-407.66 416,-440.73 432.2,-458.33 430.15,-471 452,-480.73 504.94,-504.31 835.07,-512.91 1152,-470.73 1222.93,-461.29 1303.49,-438.36 1348.73,-424.32"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="1349.88,-427.63 1358.37,-421.3 1347.78,-420.95 1349.88,-427.63"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node7" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node7"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="833.5,-262.73 754.5,-262.73 754.5,-238.73 833.5,-238.73 833.5,-262.73"/>
+<text text-anchor="middle" x="794" y="-248.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~get_datafrommem~3&#45;&gt;interface~mapl_assert -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge7" class="edge">
+<title>proc~get_datafrommem~3&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#7fff00" d="M337.85,-349.98C362.77,-365.38 408.63,-390.98 452,-400.73 540.46,-420.62 573.04,-437.32 656,-400.73 716.47,-374.07 761.82,-306.07 781.78,-271.54"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="784.87,-273.18 786.73,-262.75 778.78,-269.74 784.87,-273.18"/>
+</g>
+<!-- none~erase~64 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node8" class="node">
+<title>none~erase~64</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node8"><a xlink:href="../type/messagevector.html#boundprocedure-erase~64" xlink:title="MessageVector%erase">
+<polygon fill="#a7506f" stroke="#a7506f" points="620.5,-551.73 487.5,-551.73 487.5,-527.73 620.5,-527.73 620.5,-551.73"/>
+<text text-anchor="middle" x="554" y="-537.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MessageVector%erase</text>
+</a>
+</g>
+</g>
+<!-- proc~get_datafrommem~3&#45;&gt;none~erase~64 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge8" class="edge">
+<title>proc~get_datafrommem~3&#45;&gt;none~erase~64</title>
+<path fill="none" stroke="#7fff00" d="M328.38,-350.07C345.72,-372.89 383.94,-423.21 416,-465.73 432.05,-487.03 429.84,-498.9 452,-513.73 459.87,-519 468.75,-523.2 477.89,-526.55"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="476.88,-529.9 487.47,-529.74 479.09,-523.26 476.88,-529.9"/>
+</g>
+<!-- proc~distribute_task -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node9" class="node">
+<title>proc~distribute_task</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node9"><a xlink:href="../proc/distribute_task.html" xlink:title="AbstractServer%distribute_task">
+<polygon fill="#d9534f" stroke="#d9534f" points="643.5,-139.73 464.5,-139.73 464.5,-115.73 643.5,-115.73 643.5,-139.73"/>
+<text text-anchor="middle" x="554" y="-125.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractServer%distribute_task</text>
+</a>
+</g>
+</g>
+<!-- proc~get_datafrommem~3&#45;&gt;proc~distribute_task -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge9" class="edge">
+<title>proc~get_datafrommem~3&#45;&gt;proc~distribute_task</title>
+<path fill="none" stroke="#7fff00" d="M323.72,-325.62C337.62,-291.61 381.92,-194.78 452,-148.73 454.61,-147.02 457.33,-145.44 460.14,-143.99"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="461.73,-147.11 469.37,-139.76 458.82,-140.74 461.73,-147.11"/>
+</g>
+<!-- proc~fetch_data -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node10" class="node">
+<title>proc~fetch_data</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node10"><a xlink:href="../proc/fetch_data.html" xlink:title="AbstractDataReference%fetch_data">
+<polygon fill="#d9534f" stroke="#d9534f" points="655,-181.73 453,-181.73 453,-157.73 655,-157.73 655,-181.73"/>
+<text text-anchor="middle" x="554" y="-167.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractDataReference%fetch_data</text>
+</a>
+</g>
+</g>
+<!-- proc~get_datafrommem~3&#45;&gt;proc~fetch_data -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge10" class="edge">
+<title>proc~get_datafrommem~3&#45;&gt;proc~fetch_data</title>
+<path fill="none" stroke="#7fff00" d="M326.2,-325.48C343.74,-296.83 391.67,-225.29 452,-190.73 455.3,-188.84 458.75,-187.12 462.3,-185.55"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="463.89,-188.68 471.9,-181.75 461.32,-182.18 463.89,-188.68"/>
+</g>
+<!-- proc~get_connection -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node11" class="node">
+<title>proc~get_connection</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node11"><a xlink:href="../proc/get_connection.html" xlink:title="BaseThread%get_connection">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="638,-265.73 470,-265.73 470,-241.73 638,-241.73 638,-265.73"/>
+<text text-anchor="middle" x="554" y="-251.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseThread%get_connection</text>
+</a>
+</g>
+</g>
+<!-- proc~get_datafrommem~3&#45;&gt;proc~get_connection -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge11" class="edge">
+<title>proc~get_datafrommem~3&#45;&gt;proc~get_connection</title>
+<path fill="none" stroke="#7fff00" d="M340.46,-325.61C366.21,-311.52 411.06,-288.47 452,-274.73 459.22,-272.31 466.83,-270.11 474.51,-268.13"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="475.36,-271.53 484.23,-265.74 473.68,-264.73 475.36,-271.53"/>
+</g>
+<!-- proc~get_datareference -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node12" class="node">
+<title>proc~get_datareference</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node12"><a xlink:href="../proc/get_datareference.html" xlink:title="AbstractServer%get_DataReference">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="656,-471.73 452,-471.73 452,-447.73 656,-447.73 656,-471.73"/>
+<text text-anchor="middle" x="554" y="-457.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractServer%get_DataReference</text>
+</a>
+</g>
+</g>
+<!-- proc~get_datafrommem~3&#45;&gt;proc~get_datareference -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge12" class="edge">
+<title>proc~get_datafrommem~3&#45;&gt;proc~get_datareference</title>
+<path fill="none" stroke="#7fff00" d="M332.27,-349.97C355.04,-370.32 403.79,-411.12 452,-433.73 461.25,-438.07 471.34,-441.76 481.44,-444.88"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="480.52,-448.26 491.1,-447.69 482.48,-441.54 480.52,-448.26"/>
+</g>
+<!-- proc~i_to_string -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node14" class="node">
+<title>proc~i_to_string</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node14"><a xlink:href="../proc/i_to_string.html" xlink:title="i_to_string">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="587.5,-223.73 520.5,-223.73 520.5,-199.73 587.5,-199.73 587.5,-223.73"/>
+<text text-anchor="middle" x="554" y="-209.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">i_to_string</text>
+</a>
+</g>
+</g>
+<!-- proc~get_datafrommem~3&#45;&gt;proc~i_to_string -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge13" class="edge">
+<title>proc~get_datafrommem~3&#45;&gt;proc~i_to_string</title>
+<path fill="none" stroke="#7fff00" d="M330.52,-325.46C352.11,-303.25 401.08,-256.49 452,-232.73 470.21,-224.23 491.87,-219.15 510.44,-216.12"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="511.03,-219.57 520.41,-214.64 510,-212.65 511.03,-219.57"/>
+</g>
+<!-- proc~insert_requesthandle -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node15" class="node">
+<title>proc~insert_requesthandle</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node15"><a xlink:href="../proc/insert_requesthandle.html" xlink:title="BaseThread%insert_RequestHandle">
+<polygon fill="#d9534f" stroke="#d9534f" points="655,-59.73 453,-59.73 453,-35.73 655,-35.73 655,-59.73"/>
+<text text-anchor="middle" x="554" y="-45.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseThread%insert_RequestHandle</text>
+</a>
+</g>
+</g>
+<!-- proc~get_datafrommem~3&#45;&gt;proc~insert_requesthandle -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge14" class="edge">
+<title>proc~get_datafrommem~3&#45;&gt;proc~insert_requesthandle</title>
+<path fill="none" stroke="#7fff00" d="M321.4,-325.5C330.34,-283.41 365.67,-143.27 452,-73.73 456.65,-69.98 461.78,-66.77 467.19,-64.02"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="468.85,-67.11 476.52,-59.8 465.97,-60.73 468.85,-67.11"/>
+</g>
+<!-- proc~v_begin~22 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node18" class="node">
+<title>proc~v_begin~22</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node18"><a xlink:href="../proc/v_begin~22.html" xlink:title="MessageVector%v_begin">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="626,-391.73 482,-391.73 482,-367.73 626,-367.73 626,-391.73"/>
+<text text-anchor="middle" x="554" y="-377.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MessageVector%v_begin</text>
+</a>
+</g>
+</g>
+<!-- proc~get_datafrommem~3&#45;&gt;proc~v_begin~22 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge17" class="edge">
+<title>proc~get_datafrommem~3&#45;&gt;proc~v_begin~22</title>
+<path fill="none" stroke="#7fff00" d="M386.06,-349.77C414.08,-354.8 446.82,-360.67 475.84,-365.88"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="475.47,-369.37 485.94,-367.69 476.71,-362.48 475.47,-369.37"/>
+</g>
+<!-- proc~v_iter_get~22 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node19" class="node">
+<title>proc~v_iter_get~22</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node19"><a xlink:href="../proc/v_iter_get~22.html" xlink:title="MessageVectorIterator%v_iter_get">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="651,-349.73 457,-349.73 457,-325.73 651,-325.73 651,-349.73"/>
+<text text-anchor="middle" x="554" y="-335.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MessageVectorIterator%v_iter_get</text>
+</a>
+</g>
+</g>
+<!-- proc~get_datafrommem~3&#45;&gt;proc~v_iter_get~22 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge18" class="edge">
+<title>proc~get_datafrommem~3&#45;&gt;proc~v_iter_get~22</title>
+<path fill="none" stroke="#7fff00" d="M416.2,-337.73C426.28,-337.73 436.56,-337.73 446.73,-337.73"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="446.85,-341.23 456.85,-337.73 446.85,-334.23 446.85,-341.23"/>
+</g>
+<!-- put -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node20" class="node">
+<title>put</title>
+<polygon fill="#777777" stroke="#777777" points="581,-307.73 527,-307.73 527,-283.73 581,-283.73 581,-307.73"/>
+<text text-anchor="middle" x="554" y="-293.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">put</text>
+</g>
+<!-- proc~get_datafrommem~3&#45;&gt;put -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge19" class="edge">
+<title>proc~get_datafrommem~3&#45;&gt;put</title>
+<path fill="none" stroke="#7fff00" d="M386.06,-325.7C428.52,-318.07 481.8,-308.51 516.59,-302.27"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="517.54,-305.65 526.76,-300.44 516.3,-298.76 517.54,-305.65"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node13" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node13"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1312,-262.73 1197,-262.73 1197,-238.73 1312,-238.73 1312,-262.73"/>
+<text text-anchor="middle" x="1254.5" y="-248.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ffff" d="M835.05,-168.1C902.12,-164.88 1040.74,-163.35 1152,-195.73 1179.7,-203.79 1208.34,-220.18 1228.11,-232.98"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="1226.26,-235.96 1236.53,-238.57 1230.13,-230.12 1226.26,-235.96"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node16" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node16"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1321,-304.73 1188,-304.73 1188,-280.73 1321,-280.73 1321,-304.73"/>
+<text text-anchor="middle" x="1254.5" y="-290.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M835.11,-178.35C862.4,-183.46 899.34,-190.23 932,-195.73 1029.56,-212.17 1065.54,-181.63 1152,-229.73 1173.48,-241.69 1167.52,-258.13 1188,-271.73 1190.55,-273.43 1193.25,-274.99 1196.05,-276.44"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="1194.66,-279.66 1205.21,-280.66 1197.59,-273.3 1194.66,-279.66"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7f00ff" d="M592.16,-588.98C655.46,-599.98 787.82,-617.19 896,-592.73 1018.93,-564.94 1059.66,-556.52 1152,-470.73 1200.86,-425.33 1232.6,-350.96 1246.08,-314.4"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="1249.46,-315.34 1249.54,-304.74 1242.87,-312.98 1249.46,-315.34"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node25" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node25"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1109,-304.73 975,-304.73 975,-280.73 1109,-280.73 1109,-304.73"/>
+<text text-anchor="middle" x="1042" y="-290.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge23" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#ff6600" stroke-dasharray="5,2" d="M833.71,-257.34C868.73,-263.32 921.32,-272.3 964.77,-279.72"/>
+<polygon fill="#ff6600" stroke="#ff6600" points="964.29,-283.19 974.74,-281.42 965.47,-276.29 964.29,-283.19"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node26" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node26"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1116,-262.73 968,-262.73 968,-238.73 1116,-238.73 1116,-262.73"/>
+<text text-anchor="middle" x="1042" y="-248.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge24" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#ff6600" stroke-dasharray="5,2" d="M833.71,-250.73C866.83,-250.73 915.67,-250.73 957.63,-250.73"/>
+<polygon fill="#ff6600" stroke="#ff6600" points="957.85,-254.23 967.85,-250.73 957.85,-247.23 957.85,-254.23"/>
+</g>
+<!-- proc~v_erase_one~22 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node28" class="node">
+<title>proc~v_erase_one~22</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node28"><a xlink:href="../proc/v_erase_one~22.html" xlink:title="MessageVector%v_erase_one">
+<polygon fill="#d9534f" stroke="#d9534f" points="878.5,-583.73 709.5,-583.73 709.5,-559.73 878.5,-559.73 878.5,-583.73"/>
+<text text-anchor="middle" x="794" y="-569.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MessageVector%v_erase_one</text>
+</a>
+</g>
+</g>
+<!-- none~erase~64&#45;&gt;proc~v_erase_one~22 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge25" class="edge">
+<title>none~erase~64&#45;&gt;proc~v_erase_one~22</title>
+<path fill="none" stroke="#ffcc00" stroke-dasharray="5,2" d="M620.66,-542.45C656.48,-546.35 700.42,-552.33 734.97,-558.04"/>
+<polygon fill="#ffcc00" stroke="#ffcc00" points="734.47,-561.5 744.91,-559.72 735.64,-554.6 734.47,-561.5"/>
+</g>
+<!-- proc~v_erase_range~22 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node29" class="node">
+<title>proc~v_erase_range~22</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node29"><a xlink:href="../proc/v_erase_range~22.html" xlink:title="MessageVector%v_erase_range">
+<polygon fill="#d9534f" stroke="#d9534f" points="884.5,-541.73 703.5,-541.73 703.5,-517.73 884.5,-517.73 884.5,-541.73"/>
+<text text-anchor="middle" x="794" y="-527.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MessageVector%v_erase_range</text>
+</a>
+</g>
+</g>
+<!-- none~erase~64&#45;&gt;proc~v_erase_range~22 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge26" class="edge">
+<title>none~erase~64&#45;&gt;proc~v_erase_range~22</title>
+<path fill="none" stroke="#ffcc00" stroke-dasharray="5,2" d="M620.66,-536.97C643.16,-536.03 668.86,-534.95 693.42,-533.92"/>
+<polygon fill="#ffcc00" stroke="#ffcc00" points="693.65,-537.41 703.5,-533.49 693.36,-530.42 693.65,-537.41"/>
+</g>
+<!-- proc~fetch_data&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge28" class="edge">
+<title>proc~fetch_data&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#65ff00" d="M655.24,-170.15C685.39,-170.28 717.18,-170.41 742.62,-170.52"/>
+<polygon fill="#65ff00" stroke="#65ff00" points="742.74,-174.02 752.75,-170.56 742.77,-167.02 742.74,-174.02"/>
+</g>
+<!-- proc~fetch_data&#45;&gt;interface~mapl_assert -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge27" class="edge">
+<title>proc~fetch_data&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#65ff00" d="M622.6,-181.76C633.86,-184.34 645.34,-187.33 656,-190.73 692.73,-202.45 732.95,-220.76 760.24,-234.08"/>
+<polygon fill="#65ff00" stroke="#65ff00" points="758.82,-237.27 769.33,-238.56 761.91,-231 758.82,-237.27"/>
+</g>
+<!-- proc~get_connection&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge30" class="edge">
+<title>proc~get_connection&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff00" d="M623.18,-241.69C634.26,-239.13 645.53,-236.14 656,-232.73 693.3,-220.58 734.02,-201.33 761.29,-187.5"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="763.05,-190.53 770.35,-182.86 759.85,-184.3 763.05,-190.53"/>
+</g>
+<!-- proc~get_connection&#45;&gt;interface~mapl_assert -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge29" class="edge">
+<title>proc~get_connection&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ff00" d="M638.24,-252.68C673.61,-252.24 713.63,-251.73 744.12,-251.35"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="744.52,-254.84 754.48,-251.22 744.43,-247.84 744.52,-254.84"/>
+</g>
+<!-- none~at~181 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node22" class="node">
+<title>none~at~181</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node22"><a xlink:href="../type/abstractdatareferencevector.html#boundprocedure-at~181" xlink:title="AbstractDataReferenceVector%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="889,-461.73 699,-461.73 699,-437.73 889,-437.73 889,-461.73"/>
+<text text-anchor="middle" x="794" y="-447.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractDataReferenceVector%at</text>
+</a>
+</g>
+</g>
+<!-- proc~get_datareference&#45;&gt;none~at~181 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge31" class="edge">
+<title>proc~get_datareference&#45;&gt;none~at~181</title>
+<path fill="none" stroke="#00ff66" d="M656.28,-455.48C667.02,-455.03 677.95,-454.57 688.72,-454.11"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="689.15,-457.6 698.99,-453.68 688.85,-450.6 689.15,-457.6"/>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge32" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#00ffcb" d="M1307.8,-262.88C1312.57,-265.31 1317.08,-268.23 1321,-271.73 1356.83,-303.72 1373.59,-359.86 1380.44,-390.78"/>
+<polygon fill="#00ffcb" stroke="#00ffcb" points="1377.01,-391.49 1382.46,-400.58 1383.87,-390.08 1377.01,-391.49"/>
+</g>
+<!-- insert -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node21" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1412.5,-262.73 1358.5,-262.73 1358.5,-238.73 1412.5,-238.73 1412.5,-262.73"/>
+<text text-anchor="middle" x="1385.5" y="-248.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge33" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#00ffcb" d="M1312.08,-250.73C1324.29,-250.73 1336.89,-250.73 1348.08,-250.73"/>
+<polygon fill="#00ffcb" stroke="#00ffcb" points="1348.32,-254.23 1358.32,-250.73 1348.32,-247.23 1348.32,-254.23"/>
+</g>
+<!-- proc~i_to_string&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge35" class="edge">
+<title>proc~i_to_string&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00cbff" d="M587.59,-206.12C627.68,-199.21 696.16,-187.41 742.94,-179.36"/>
+<polygon fill="#00cbff" stroke="#00cbff" points="743.6,-182.79 752.86,-177.65 742.42,-175.89 743.6,-182.79"/>
+</g>
+<!-- proc~i_to_string&#45;&gt;interface~mapl_assert -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge34" class="edge">
+<title>proc~i_to_string&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00cbff" d="M587.59,-217.07C628.04,-223.7 697.37,-235.06 744.18,-242.73"/>
+<polygon fill="#00cbff" stroke="#00cbff" points="743.66,-246.19 754.1,-244.36 744.79,-239.29 743.66,-246.19"/>
+</g>
+<!-- proc~insert_requesthandle&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge37" class="edge">
+<title>proc~insert_requesthandle&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0066ff" d="M616.6,-59.78C629.91,-63.42 643.68,-68.02 656,-73.73 700.85,-94.52 746.42,-130.35 772.06,-152.16"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="769.8,-154.83 779.66,-158.71 774.37,-149.53 769.8,-154.83"/>
+</g>
+<!-- none~insert~90 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node23" class="node">
+<title>none~insert~90</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node23"><a xlink:href="../type/integerrequestmap.html#boundprocedure-insert~90" xlink:title="IntegerRequestMap%insert">
+<polygon fill="#a7506f" stroke="#a7506f" points="872,-59.73 716,-59.73 716,-35.73 872,-35.73 872,-59.73"/>
+<text text-anchor="middle" x="794" y="-45.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">IntegerRequestMap%insert</text>
+</a>
+</g>
+</g>
+<!-- proc~insert_requesthandle&#45;&gt;none~insert~90 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge36" class="edge">
+<title>proc~insert_requesthandle&#45;&gt;none~insert~90</title>
+<path fill="none" stroke="#0066ff" d="M655.24,-47.73C671.97,-47.73 689.21,-47.73 705.58,-47.73"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="705.65,-51.23 715.65,-47.73 705.65,-44.23 705.65,-51.23"/>
+</g>
+<!-- proc~initialize~7 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node24" class="node">
+<title>proc~initialize~7</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node24"><a xlink:href="../proc/initialize~7.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1414,-304.73 1357,-304.73 1357,-280.73 1414,-280.73 1414,-304.73"/>
+<text text-anchor="middle" x="1385.5" y="-290.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~7 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge38" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~7</title>
+<path fill="none" stroke="#0000ff" d="M1321.13,-292.73C1329.88,-292.73 1338.59,-292.73 1346.63,-292.73"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="1346.77,-296.23 1356.77,-292.73 1346.77,-289.23 1346.77,-296.23"/>
+</g>
+<!-- proc~v_at_size_kind~11 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node27" class="node">
+<title>proc~v_at_size_kind~11</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node27"><a xlink:href="../proc/v_at_size_kind~11.html" xlink:title="ServerThreadVector%v_at_size_kind">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="896,-663.73 692,-663.73 692,-639.73 896,-639.73 896,-663.73"/>
+<text text-anchor="middle" x="794" y="-649.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThreadVector%v_at_size_kind</text>
+</a>
+</g>
+</g>
+<!-- proc~v_at_32~11&#45;&gt;proc~v_at_size_kind~11 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge39" class="edge">
+<title>proc~v_at_32~11&#45;&gt;proc~v_at_size_kind~11</title>
+<path fill="none" stroke="#6500ff" d="M638.58,-639.4C652.51,-640.52 667.15,-641.68 681.64,-642.84"/>
+<polygon fill="#6500ff" stroke="#6500ff" points="681.39,-646.33 691.64,-643.64 681.95,-639.35 681.39,-646.33"/>
+</g>
+<!-- proc~v_at_32~16 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node31" class="node">
+<title>proc~v_at_32~16</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node31"><a xlink:href="../proc/v_at_32~16.html" xlink:title="AbstractDataReferenceVector%v_at_32">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1152,-461.73 932,-461.73 932,-437.73 1152,-437.73 1152,-461.73"/>
+<text text-anchor="middle" x="1042" y="-447.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractDataReferenceVector%v_at_32</text>
+</a>
+</g>
+</g>
+<!-- none~at~181&#45;&gt;proc~v_at_32~16 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge40" class="edge">
+<title>none~at~181&#45;&gt;proc~v_at_32~16</title>
+<path fill="none" stroke="#ffaa00" stroke-dasharray="5,2" d="M889.06,-449.73C899.75,-449.73 910.76,-449.73 921.72,-449.73"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="921.77,-453.23 931.77,-449.73 921.77,-446.23 921.77,-453.23"/>
+</g>
+<!-- proc~m_insert_pair~8 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_node30" class="node">
+<title>proc~m_insert_pair~8</title>
+<g id="a_proc~~get_datafrommem~2~~CallsGraph_node30"><a xlink:href="../proc/m_insert_pair~8.html" xlink:title="IntegerRequestMap%m_insert_pair">
+<polygon fill="#d9534f" stroke="#d9534f" points="1141,-59.73 943,-59.73 943,-35.73 1141,-35.73 1141,-59.73"/>
+<text text-anchor="middle" x="1042" y="-45.33" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">IntegerRequestMap%m_insert_pair</text>
+</a>
+</g>
+</g>
+<!-- none~insert~90&#45;&gt;proc~m_insert_pair~8 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge41" class="edge">
+<title>none~insert~90&#45;&gt;proc~m_insert_pair~8</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M872.16,-47.73C891.33,-47.73 912.23,-47.73 932.58,-47.73"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="932.85,-51.23 942.85,-47.73 932.84,-44.23 932.85,-51.23"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge42" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffa9" d="M1109.03,-292.73C1130.77,-292.73 1155.13,-292.73 1177.56,-292.73"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="1177.71,-296.23 1187.71,-292.73 1177.71,-289.23 1177.71,-296.23"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge43" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00a9ff" d="M1116.03,-250.73C1139,-250.73 1164.22,-250.73 1186.73,-250.73"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="1186.86,-254.23 1196.86,-250.73 1186.86,-247.23 1186.86,-254.23"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge44" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00a9ff" d="M1106.14,-262.74C1121.18,-265.65 1137.16,-268.77 1152,-271.73 1163.05,-273.94 1174.78,-276.33 1186.18,-278.67"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="1185.59,-282.12 1196.09,-280.71 1187,-275.26 1185.59,-282.12"/>
+</g>
+<!-- proc~v_erase_one~22&#45;&gt;none~erase~64 -->
+<g id="proc~~get_datafrommem~2~~CallsGraph_edge45" class="edge">
+<title>proc~v_erase_one~22&#45;&gt;none~erase~64</title>
+<path fill="none" stroke="#aa00ff" d="M709.26,-566.95C677.47,-563.18 642,-558.22 613.1,-553.44"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="613.61,-549.97 603.16,-551.76 612.44,-556.87 613.61,-549.97"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocget_datafrommem2CallsGraph = svgPanZoom('#procget_datafrommem2CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">get_DataFromMem</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">multi</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">     </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">BaseServer</span><span class="p">),</span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">     </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">multi</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">client_num</span><span class="p">,</span><span class="w"> </span><span class="n">status</span>
+<span class="w">     </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">ServerThread</span><span class="p">),</span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">threadPtr</span>
+
+<span class="w">     </span><span class="n">client_num</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">threads</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+
+<span class="w">     </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">client_num</span>
+<span class="w">         </span><span class="n">threadPtr</span><span class="o">=&gt;</span><span class="n">this</span><span class="p">%</span><span class="n">threads</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">         </span><span class="c">! get data from Shmem_reference and send it back to app</span>
+<span class="w">         </span><span class="k">call </span><span class="n">threadPtr</span><span class="p">%</span><span class="n">get_DataFromMem</span><span class="p">(</span><span class="n">multi</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">     </span><span class="k">enddo</span>
+
+<span class="k">     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">get_DataFromMem</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-18T19:28:04.651666             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

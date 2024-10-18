@@ -1,0 +1,948 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_GetAllExchangeGrids &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_GetAllExchangeGrids
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">52 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_Generic.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_generic.f90.html'>MAPL_Generic.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_genericmod.html'>MAPL_GenericMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_GetAllExchangeGrids</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_getallexchangegrids.html#src">MAPL_GetAllExchangeGrids</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public recursive subroutine MAPL_GetAllExchangeGrids(GC, LSADDR, RC)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gc~69"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>GC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lsaddr~2"></span>
+              integer(kind=INT64),
+            </td>
+<td></td>
+              <td></td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>LSADDR</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~192"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_getallexchangegrids~~CallsGraph Pages: 1 -->
+<svg id="procmapl_getallexchangegridsCallsGraph" width="641pt" height="142pt"
+ viewBox="0.00 0.00 641.00 142.17" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph" class="graph" transform="scale(0.47 0.47) rotate(0) translate(4 298.54)">
+<title>proc~~mapl_getallexchangegrids~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-298.54 1360,-298.54 1360,4 -4,4"/>
+<!-- proc~mapl_getallexchangegrids -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_node1" class="node">
+<title>proc~mapl_getallexchangegrids</title>
+<polygon fill="none" stroke="black" points="159,-152 0,-152 0,-128 159,-128 159,-152"/>
+<text text-anchor="middle" x="79.5" y="-137.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GetAllExchangeGrids</text>
+</g>
+<!-- proc~mapl_getallexchangegrids&#45;&gt;proc~mapl_getallexchangegrids -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_getallexchangegrids&#45;&gt;proc~mapl_getallexchangegrids</title>
+<path fill="none" stroke="#ff0000" d="M41.14,-152.01C27.74,-160.97 40.53,-170 79.5,-170 104.46,-170 118.68,-166.29 122.16,-161.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="125.24,-159.61 117.86,-152.01 118.89,-162.56 125.24,-159.61"/>
+</g>
+<!-- ESMF_GridCompGet -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_node2" class="node">
+<title>ESMF_GridCompGet</title>
+<g id="a_proc~~mapl_getallexchangegrids~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_gridcompget.html" xlink:title="ESMF_GridCompGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="915.5,-276 796.5,-276 796.5,-252 915.5,-252 915.5,-276"/>
+<text text-anchor="middle" x="856" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridCompGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getallexchangegrids&#45;&gt;ESMF_GridCompGet -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_getallexchangegrids&#45;&gt;ESMF_GridCompGet</title>
+<path fill="none" stroke="#ff0000" d="M89.59,-152C107.12,-174.06 148.06,-220.5 195,-239 397.6,-318.84 662.82,-293.98 786.26,-275.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="786.96,-279.26 796.33,-274.31 785.92,-272.34 786.96,-279.26"/>
+</g>
+<!-- c_mapl_locstreamretrieveptr -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_node3" class="node">
+<title>c_mapl_locstreamretrieveptr</title>
+<polygon fill="#777777" stroke="#777777" points="395.5,-112 230.5,-112 230.5,-88 395.5,-88 395.5,-112"/>
+<text text-anchor="middle" x="313" y="-97.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">c_mapl_locstreamretrieveptr</text>
+</g>
+<!-- proc~mapl_getallexchangegrids&#45;&gt;c_mapl_locstreamretrieveptr -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_getallexchangegrids&#45;&gt;c_mapl_locstreamretrieveptr</title>
+<path fill="none" stroke="#ff0000" d="M149.96,-128C175.82,-123.53 205.38,-118.42 232.1,-113.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="232.93,-117.21 242.19,-112.06 231.74,-110.32 232.93,-117.21"/>
+</g>
+<!-- interface~mapl_getobjectfromgc -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_node4" class="node">
+<title>interface~mapl_getobjectfromgc</title>
+<g id="a_proc~~mapl_getallexchangegrids~~CallsGraph_node4"><a xlink:href="../interface/mapl_getobjectfromgc.html" xlink:title="MAPL_GetObjectFromGC">
+<polygon fill="#a7506f" stroke="#a7506f" points="384,-230 242,-230 242,-206 384,-206 384,-230"/>
+<text text-anchor="middle" x="313" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GetObjectFromGC</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getallexchangegrids&#45;&gt;interface~mapl_getobjectfromgc -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_getallexchangegrids&#45;&gt;interface~mapl_getobjectfromgc</title>
+<path fill="none" stroke="#ff0000" d="M103.18,-152C125.88,-163.6 162.08,-181 195,-192 208.26,-196.43 222.62,-200.33 236.59,-203.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="236.14,-207.15 246.67,-205.99 237.71,-200.33 236.14,-207.15"/>
+</g>
+<!-- proc~get_child_gridcomp -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_node5" class="node">
+<title>proc~get_child_gridcomp</title>
+<g id="a_proc~~mapl_getallexchangegrids~~CallsGraph_node5"><a xlink:href="../proc/get_child_gridcomp.html" xlink:title="MAPL_MetaComp%get_child_gridcomp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="422,-70 204,-70 204,-46 422,-46 422,-70"/>
+<text text-anchor="middle" x="313" y="-55.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MetaComp%get_child_gridcomp</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getallexchangegrids&#45;&gt;proc~get_child_gridcomp -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_getallexchangegrids&#45;&gt;proc~get_child_gridcomp</title>
+<path fill="none" stroke="#ff0000" d="M98.72,-127.97C120.65,-114.05 159.03,-91.46 195,-79 202.05,-76.56 209.44,-74.39 216.94,-72.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="217.94,-75.82 226.84,-70.06 216.29,-69.01 217.94,-75.82"/>
+</g>
+<!-- proc~get_num_children~3 -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_node6" class="node">
+<title>proc~get_num_children~3</title>
+<g id="a_proc~~mapl_getallexchangegrids~~CallsGraph_node6"><a xlink:href="../proc/get_num_children~3.html" xlink:title="CompositeComponent%get_num_children">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="431,-27 195,-27 195,-3 431,-3 431,-27"/>
+<text text-anchor="middle" x="313" y="-12.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CompositeComponent%get_num_children</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getallexchangegrids&#45;&gt;proc~get_num_children~3 -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_getallexchangegrids&#45;&gt;proc~get_num_children~3</title>
+<path fill="none" stroke="#ff0000" d="M90.04,-127.83C108.02,-105.83 149.22,-59.64 195,-37 200.04,-34.51 205.32,-32.3 210.75,-30.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="212.25,-33.53 220.65,-27.07 210.05,-26.88 212.25,-33.53"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_node7" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_getallexchangegrids~~CallsGraph_node7"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="897,-192 815,-192 815,-168 897,-168 897,-192"/>
+<text text-anchor="middle" x="856" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getallexchangegrids&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_getallexchangegrids&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M159.27,-149.7C171.23,-150.95 183.43,-152.11 195,-153 422.07,-170.51 694.03,-177.1 804.57,-179.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="804.7,-182.68 814.76,-179.36 804.83,-175.68 804.7,-182.68"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_node8" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_getallexchangegrids~~CallsGraph_node8"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="894,-150 818,-150 818,-126 894,-126 894,-150"/>
+<text text-anchor="middle" x="856" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getallexchangegrids&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_getallexchangegrids&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M159.03,-139.8C318.93,-139.38 678.14,-138.46 807.47,-138.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="807.83,-141.62 817.82,-138.1 807.81,-134.62 807.83,-141.62"/>
+</g>
+<!-- proc~mapl_internalstateget -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_node13" class="node">
+<title>proc~mapl_internalstateget</title>
+<g id="a_proc~~mapl_getallexchangegrids~~CallsGraph_node13"><a xlink:href="../proc/mapl_internalstateget.html" xlink:title="MAPL_InternalStateGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="647,-230 513,-230 513,-206 647,-206 647,-230"/>
+<text text-anchor="middle" x="580" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_InternalStateGet</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_getobjectfromgc&#45;&gt;proc~mapl_internalstateget -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge9" class="edge">
+<title>interface~mapl_getobjectfromgc&#45;&gt;proc~mapl_internalstateget</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M384.32,-218C420.76,-218 465.32,-218 502.6,-218"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="502.91,-221.5 512.91,-218 502.91,-214.5 502.91,-221.5"/>
+</g>
+<!-- proc~get_gridcomp -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_node10" class="node">
+<title>proc~get_gridcomp</title>
+<g id="a_proc~~mapl_getallexchangegrids~~CallsGraph_node10"><a xlink:href="../proc/get_gridcomp.html" xlink:title="MaplGenericComponent%get_gridcomp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="693,-66 467,-66 467,-42 693,-42 693,-66"/>
+<text text-anchor="middle" x="580" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGenericComponent%get_gridcomp</text>
+</a>
+</g>
+</g>
+<!-- proc~get_child_gridcomp&#45;&gt;proc~get_gridcomp -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge10" class="edge">
+<title>proc~get_child_gridcomp&#45;&gt;proc~get_gridcomp</title>
+<path fill="none" stroke="#00ff91" d="M422.17,-56.37C433.57,-56.2 445.22,-56.02 456.76,-55.85"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="456.93,-59.34 466.87,-55.69 456.82,-52.34 456.93,-59.34"/>
+</g>
+<!-- proc~get_ith_child -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_node11" class="node">
+<title>proc~get_ith_child</title>
+<g id="a_proc~~mapl_getallexchangegrids~~CallsGraph_node11"><a xlink:href="../proc/get_ith_child.html" xlink:title="MAPL_MetaComp%get_ith_child">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="670.5,-108 489.5,-108 489.5,-84 670.5,-84 670.5,-108"/>
+<text text-anchor="middle" x="580" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MetaComp%get_ith_child</text>
+</a>
+</g>
+</g>
+<!-- proc~get_child_gridcomp&#45;&gt;proc~get_ith_child -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge11" class="edge">
+<title>proc~get_child_gridcomp&#45;&gt;proc~get_ith_child</title>
+<path fill="none" stroke="#00ff91" d="M397.85,-70.02C425.65,-74.01 456.78,-78.47 485.28,-82.56"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="484.85,-86.03 495.24,-83.99 485.84,-79.11 484.85,-86.03"/>
+</g>
+<!-- proc~get_num_children -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_node12" class="node">
+<title>proc~get_num_children</title>
+<g id="a_proc~~mapl_getallexchangegrids~~CallsGraph_node12"><a xlink:href="../proc/get_num_children.html" xlink:title="ConcreteComposite%get_num_children">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="691,-24 469,-24 469,0 691,0 691,-24"/>
+<text text-anchor="middle" x="580" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ConcreteComposite%get_num_children</text>
+</a>
+</g>
+</g>
+<!-- proc~get_num_children~3&#45;&gt;proc~get_num_children -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge12" class="edge">
+<title>proc~get_num_children~3&#45;&gt;proc~get_num_children</title>
+<path fill="none" stroke="#0091ff" d="M431,-13.68C440.27,-13.57 449.64,-13.46 458.92,-13.36"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="459,-16.86 468.96,-13.25 458.92,-9.86 459,-16.86"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_node9" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_getallexchangegrids~~CallsGraph_node9"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1198.5,-192 1083.5,-192 1083.5,-168 1198.5,-168 1198.5,-192"/>
+<text text-anchor="middle" x="1141" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#4800ff" d="M897.25,-180C942.98,-180 1018.34,-180 1072.98,-180"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="1073.27,-183.5 1083.27,-180 1073.27,-176.5 1073.27,-183.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_node14" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_getallexchangegrids~~CallsGraph_node14"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1207.5,-150 1074.5,-150 1074.5,-126 1207.5,-126 1207.5,-150"/>
+<text text-anchor="middle" x="1141" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#4800ff" d="M897.25,-174.03C940.54,-167.6 1010.39,-157.23 1064.08,-149.27"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="1064.87,-152.69 1074.24,-147.76 1063.84,-145.76 1064.87,-152.69"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00da" d="M894.29,-138C937.38,-138 1009.42,-138 1064.38,-138"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="1064.43,-141.5 1074.43,-138 1064.43,-134.5 1064.43,-141.5"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_node16" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1354.5,-192 1300.5,-192 1300.5,-168 1354.5,-168 1354.5,-192"/>
+<text text-anchor="middle" x="1327.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge16" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M1198.61,-180C1228.4,-180 1264.05,-180 1290.14,-180"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1290.33,-183.5 1300.33,-180 1290.33,-176.5 1290.33,-183.5"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_node17" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1354.5,-234 1300.5,-234 1300.5,-210 1354.5,-210 1354.5,-234"/>
+<text text-anchor="middle" x="1327.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge17" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ff0000" d="M1194.87,-192.04C1225.56,-199.02 1263.4,-207.64 1290.62,-213.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1289.97,-217.27 1300.5,-216.08 1291.53,-210.45 1289.97,-217.27"/>
+</g>
+<!-- proc~get_current_thread -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_node19" class="node">
+<title>proc~get_current_thread</title>
+<g id="a_proc~~mapl_getallexchangegrids~~CallsGraph_node19"><a xlink:href="../proc/get_current_thread.html" xlink:title="get_current_thread">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="912.5,-24 799.5,-24 799.5,0 912.5,0 912.5,-24"/>
+<text text-anchor="middle" x="856" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_current_thread</text>
+</a>
+</g>
+</g>
+<!-- proc~get_gridcomp&#45;&gt;proc~get_current_thread -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge18" class="edge">
+<title>proc~get_gridcomp&#45;&gt;proc~get_current_thread</title>
+<path fill="none" stroke="#ffff00" d="M659.52,-41.96C700.45,-35.69 749.97,-28.1 788.92,-22.13"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="789.74,-25.54 799.1,-20.57 788.68,-18.62 789.74,-25.54"/>
+</g>
+<!-- proc~is_threading_active -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_node21" class="node">
+<title>proc~is_threading_active</title>
+<g id="a_proc~~mapl_getallexchangegrids~~CallsGraph_node21"><a xlink:href="../proc/is_threading_active.html" xlink:title="MaplGenericComponent%is_threading_active">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="983,-66 729,-66 729,-42 983,-42 983,-66"/>
+<text text-anchor="middle" x="856" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGenericComponent%is_threading_active</text>
+</a>
+</g>
+</g>
+<!-- proc~get_gridcomp&#45;&gt;proc~is_threading_active -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge19" class="edge">
+<title>proc~get_gridcomp&#45;&gt;proc~is_threading_active</title>
+<path fill="none" stroke="#ffff00" d="M693.24,-54C701.54,-54 709.96,-54 718.39,-54"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="718.65,-57.5 728.65,-54 718.65,-50.5 718.65,-57.5"/>
+</g>
+<!-- none~get_child~26 -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_node18" class="node">
+<title>none~get_child~26</title>
+<g id="a_proc~~mapl_getallexchangegrids~~CallsGraph_node18"><a xlink:href="../type/mapl_metacomp.html#boundprocedure-get_child~26" xlink:title="MAPL_MetaComp%get_child">
+<polygon fill="#a7506f" stroke="#a7506f" points="937,-108 775,-108 775,-84 937,-84 937,-108"/>
+<text text-anchor="middle" x="856" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MetaComp%get_child</text>
+</a>
+</g>
+</g>
+<!-- proc~get_ith_child&#45;&gt;none~get_child~26 -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge20" class="edge">
+<title>proc~get_ith_child&#45;&gt;none~get_child~26</title>
+<path fill="none" stroke="#00ff00" d="M670.72,-96C700.87,-96 734.5,-96 764.69,-96"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="764.79,-99.5 774.79,-96 764.79,-92.5 764.79,-99.5"/>
+</g>
+<!-- proc~mapl_internalstateget&#45;&gt;ESMF_GridCompGet -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_internalstateget&#45;&gt;ESMF_GridCompGet</title>
+<path fill="none" stroke="#0000ff" d="M647.3,-229.23C672.84,-233.55 702.27,-238.52 729,-243 747.63,-246.13 767.82,-249.5 786.46,-252.6"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="785.9,-256.06 796.34,-254.25 787.05,-249.15 785.9,-256.06"/>
+</g>
+<!-- proc~mapl_internalstateget&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_internalstateget&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0000ff" d="M647.33,-208.8C695.82,-202.08 760.57,-193.1 804.8,-186.96"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="805.32,-190.42 814.75,-185.58 804.36,-183.49 805.32,-190.42"/>
+</g>
+<!-- proc~mapl_internalstateget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_internalstateget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0000ff" d="M606.35,-205.95C635.38,-192.62 684.64,-171.38 729,-159 754.58,-151.86 783.81,-146.8 807.67,-143.44"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="808.44,-146.87 817.88,-142.06 807.5,-139.93 808.44,-146.87"/>
+</g>
+<!-- ESMF_UserCompGetInternalState -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_node15" class="node">
+<title>ESMF_UserCompGetInternalState</title>
+<g id="a_proc~~mapl_getallexchangegrids~~CallsGraph_node15"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_usercompgetinternalstate.html" xlink:title="ESMF_UserCompGetInternalState">
+<polygon fill="#a7506f" stroke="#a7506f" points="951,-234 761,-234 761,-210 951,-210 951,-234"/>
+<text text-anchor="middle" x="856" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_UserCompGetInternalState</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_internalstateget&#45;&gt;ESMF_UserCompGetInternalState -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_internalstateget&#45;&gt;ESMF_UserCompGetInternalState</title>
+<path fill="none" stroke="#0000ff" d="M647.33,-218.97C678.32,-219.42 715.96,-219.97 750.63,-220.48"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="750.76,-223.98 760.81,-220.62 750.86,-216.98 750.76,-223.98"/>
+</g>
+<!-- proc~initialize~7 -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_node20" class="node">
+<title>proc~initialize~7</title>
+<g id="a_proc~~mapl_getallexchangegrids~~CallsGraph_node20"><a xlink:href="../proc/initialize~7.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1356,-150 1299,-150 1299,-126 1356,-126 1356,-150"/>
+<text text-anchor="middle" x="1327.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~7 -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~7</title>
+<path fill="none" stroke="#ff00ff" d="M1207.57,-138C1234.69,-138 1265.19,-138 1288.5,-138"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="1288.68,-141.5 1298.68,-138 1288.68,-134.5 1288.68,-141.5"/>
+</g>
+<!-- proc~get_child_by_index~2 -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_node22" class="node">
+<title>proc~get_child_by_index~2</title>
+<g id="a_proc~~mapl_getallexchangegrids~~CallsGraph_node22"><a xlink:href="../proc/get_child_by_index~2.html" xlink:title="CompositeComponent%get_child_by_index">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1261.5,-108 1020.5,-108 1020.5,-84 1261.5,-84 1261.5,-108"/>
+<text text-anchor="middle" x="1141" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CompositeComponent%get_child_by_index</text>
+</a>
+</g>
+</g>
+<!-- none~get_child~26&#45;&gt;proc~get_child_by_index~2 -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge26" class="edge">
+<title>none~get_child~26&#45;&gt;proc~get_child_by_index~2</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M937.34,-96C960.03,-96 985.32,-96 1010.13,-96"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="1010.35,-99.5 1020.35,-96 1010.35,-92.5 1010.35,-99.5"/>
+</g>
+<!-- proc~get_child_by_name~2 -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_node23" class="node">
+<title>proc~get_child_by_name~2</title>
+<g id="a_proc~~mapl_getallexchangegrids~~CallsGraph_node23"><a xlink:href="../proc/get_child_by_name~2.html" xlink:title="CompositeComponent%get_child_by_name">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1263,-66 1019,-66 1019,-42 1263,-42 1263,-66"/>
+<text text-anchor="middle" x="1141" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CompositeComponent%get_child_by_name</text>
+</a>
+</g>
+</g>
+<!-- none~get_child~26&#45;&gt;proc~get_child_by_name~2 -->
+<g id="proc~~mapl_getallexchangegrids~~CallsGraph_edge27" class="edge">
+<title>none~get_child~26&#45;&gt;proc~get_child_by_name~2</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M937.34,-84.08C972.14,-78.91 1013.06,-72.84 1048.98,-67.51"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="1049.59,-70.96 1058.97,-66.03 1048.56,-64.03 1049.59,-70.96"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_getallexchangegridsCallsGraph = svgPanZoom('#procmapl_getallexchangegridsCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_getallexchangegrids~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_getallexchangegridsCalledByGraph" width="531pt" height="50pt"
+ viewBox="0.00 0.00 531.00 50.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_getallexchangegrids~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 46)">
+<title>proc~~mapl_getallexchangegrids~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-46 527,-46 527,4 -4,4"/>
+<!-- proc~mapl_getallexchangegrids -->
+<g id="proc~~mapl_getallexchangegrids~~CalledByGraph_node1" class="node">
+<title>proc~mapl_getallexchangegrids</title>
+<polygon fill="none" stroke="black" points="523,-24 364,-24 364,0 523,0 523,-24"/>
+<text text-anchor="middle" x="443.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GetAllExchangeGrids</text>
+</g>
+<!-- proc~mapl_getallexchangegrids&#45;&gt;proc~mapl_getallexchangegrids -->
+<g id="proc~~mapl_getallexchangegrids~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_getallexchangegrids&#45;&gt;proc~mapl_getallexchangegrids</title>
+<path fill="none" stroke="#ff0000" d="M406.46,-24.01C393.53,-32.97 405.88,-42 443.5,-42 467.6,-42 481.33,-38.29 484.69,-33.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="487.82,-31.71 480.54,-24.01 481.43,-34.57 487.82,-31.71"/>
+</g>
+<!-- proc~initialize_history -->
+<g id="proc~~mapl_getallexchangegrids~~CalledByGraph_node2" class="node">
+<title>proc~initialize_history</title>
+<g id="a_proc~~mapl_getallexchangegrids~~CalledByGraph_node2"><a xlink:href="../proc/initialize_history.html" xlink:title="MAPL_CapGridComp%initialize_history">
+<polygon fill="#d9534f" stroke="#d9534f" points="328,-24 111,-24 111,0 328,0 328,-24"/>
+<text text-anchor="middle" x="219.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridComp%initialize_history</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_history&#45;&gt;proc~mapl_getallexchangegrids -->
+<g id="proc~~mapl_getallexchangegrids~~CalledByGraph_edge1" class="edge">
+<title>proc~initialize_history&#45;&gt;proc~mapl_getallexchangegrids</title>
+<path fill="none" stroke="#ff0000" d="M328.25,-12C336.81,-12 345.4,-12 353.8,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="353.96,-15.5 363.96,-12 353.96,-8.5 353.96,-15.5"/>
+</g>
+<!-- proc~initialize_gc -->
+<g id="proc~~mapl_getallexchangegrids~~CalledByGraph_node3" class="node">
+<title>proc~initialize_gc</title>
+<g id="a_proc~~mapl_getallexchangegrids~~CalledByGraph_node3"><a xlink:href="../proc/initialize_gc.html" xlink:title="initialize_gc">
+<polygon fill="#d9534f" stroke="#d9534f" points="75,-24 0,-24 0,0 75,0 75,-24"/>
+<text text-anchor="middle" x="37.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_gc</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc&#45;&gt;proc~initialize_history -->
+<g id="proc~~mapl_getallexchangegrids~~CalledByGraph_edge3" class="edge">
+<title>proc~initialize_gc&#45;&gt;proc~initialize_history</title>
+<path fill="none" stroke="#ff0000" d="M75.36,-12C83.06,-12 91.56,-12 100.47,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="100.69,-15.5 110.69,-12 100.69,-8.5 100.69,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">recursive subroutine </span><span class="n">MAPL_GetAllExchangeGrids</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">LSADDR</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="w"> </span><span class="p">)</span>
+
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w">  </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GC</span><span class="w">         </span><span class="c">! Gridded component</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">INT64</span><span class="p">),</span><span class="w">            </span><span class="k">pointer</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">LSADDR</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">              </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span><span class="w">         </span><span class="c">! Return code</span>
+
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_MetaComp</span><span class="p">),</span><span class="w">              </span><span class="k">pointer</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">MAPLOBJ</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_LocStream</span><span class="p">)</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">LocStream</span>
+
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">CNAME</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">INT64</span><span class="p">)</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">ADDR</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                      </span><span class="kd">::</span><span class="w"> </span><span class="n">I</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                      </span><span class="kd">::</span><span class="w"> </span><span class="n">N</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">INT64</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">TMP</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w">                      </span><span class="kd">::</span><span class="w"> </span><span class="n">found</span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gridcomp</span>
+<span class="w">      </span><span class="c">! Retrieve the pointer to the internal state</span>
+<span class="w">      </span><span class="c">! --------------------------------------------</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_GetObjectFromGC</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">MAPLOBJ</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">LocStream</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPLOBJ</span><span class="p">%</span><span class="n">LocStream</span>
+<span class="w">      </span><span class="k">call </span><span class="n">c_MAPL_LocStreamRetrievePtr</span><span class="p">(</span><span class="n">LocStream</span><span class="p">,</span><span class="w"> </span><span class="n">ADDR</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridCompGet</span><span class="p">(</span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cname</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ADDR</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">LSADDR</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SIZE</span><span class="p">(</span><span class="n">LSADDR</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
+
+<span class="k">         </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">         </span><span class="k">do </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">N</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">addr</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">LSADDR</span><span class="p">(</span><span class="n">I</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">               </span><span class="k">exit</span>
+<span class="k">            end if</span>
+<span class="k">         end do</span>
+
+<span class="k">         if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">found</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            allocate</span><span class="p">(</span><span class="n">tmp</span><span class="p">(</span><span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               </span><span class="n">tmp</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">N</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LSADDR</span>
+<span class="w">               </span><span class="k">deallocate</span><span class="p">(</span><span class="n">LSADDR</span><span class="p">)</span>
+<span class="w">            </span><span class="k">end if</span>
+<span class="k">            </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="n">tmp</span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">addr</span>
+<span class="w">            </span><span class="n">LSADDR</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">TMP</span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">      end if</span>
+
+<span class="k">      do </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MAPLOBJ</span><span class="p">%</span><span class="n">get_num_children</span><span class="p">()</span>
+<span class="w">         </span><span class="n">gridcomp</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">MAPLOBJ</span><span class="p">%</span><span class="n">GET_CHILD_GRIDCOMP</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_GetAllExchangeGrids</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="n">LSADDR</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end do</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">MAPL_GetAllExchangeGrids</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-18T19:28:04.651666             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
