@@ -33,7 +33,6 @@ contains
    ! as needed.
    subroutine invalidate(this, importState, exportState, clock, rc)
       use ESMF
-      import ExtensionAction
       class(ExtensionAction), intent(inout) :: this
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
