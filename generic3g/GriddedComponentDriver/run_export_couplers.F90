@@ -1,10 +1,12 @@
 #include "MAPL_ErrLog.h"
 
 submodule(mapl3g_GriddedComponentDriver) run_export_couplers_smod
-   use :: mapl_ErrorHandling
-   use :: mapl3g_OuterMetaComponent
-   use :: mapl3g_MethodPhasesMapUtils
-   use mapl3g_CouplerMetaComponent, only: GENERIC_COUPLER_INVALIDATE, GENERIC_COUPLER_UPDATE
+
+   use mapl_ErrorHandling
+   use mapl3g_OuterMetaComponent
+   use mapl3g_MethodPhasesMapUtils
+   use mapl3g_CouplerPhases, only: GENERIC_COUPLER_INVALIDATE, GENERIC_COUPLER_UPDATE
+
    implicit none
 
 contains
