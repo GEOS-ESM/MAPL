@@ -16,59 +16,30 @@ parameters:
 
 # Anchors to prevent forgetting to update a version
 os_version: &os_version ubuntu20
-baselibs_version: &baselibs_version v7.13.0
-bcs_version: &bcs_version v11.1.0
+baselibs_version: &baselibs_version v7.25.0
+bcs_version: &bcs_version v11.6.0
 tag_build_arg_name: &tag_build_arg_name maplversion
 
 orbs:
-  ci: geos-esm/circleci-tools@1
+  ci: geos-esm/circleci-tools@4
 
 workflows:
-  build-and-test:
+  build-and-test-MAPL:
     jobs:
-
-      # Builds MAPL in a "default" way - Intel
+      # Builds MAPL in a "default" way
       - ci/build:
           name: build-and-test-MAPL-on-<< matrix.compiler >>-using-<< matrix.cmake_generator >>
           context:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [ifort]
-              #cmake_generator: ['Unix Makefiles', 'Ninja']
-              cmake_generator: ['Unix Makefiles']
+              compiler: [gfortran, ifort]
+              cmake_generator: ['Unix Makefiles','Ninja']
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
           run_unit_tests: true
-          ctest_options: "-LE 'PERFORMANCE|EXTDATA1G_BIG_TESTS|EXTDATA2G_BIG_TESTS' --output-on-failure"
-          persist_workspace: true # Needed for MAPL tutorials
-
-      # Builds MAPL in a "default" way - GNU
-      #
-      # NOTE: Currently Open MPI fails on the bundleio with:
-      #
-      #   The OSC pt2pt component does not support MPI_THREAD_MULTIPLE in this release.
-      #   Workarounds are to run on a single node, or to use a system with an RDMA
-      #   capable network such as Infiniband.
-      #
-      # For now, we run GNU/Open MPI without the bundleio tests. Some indications that
-      # Open MPI 5 will not have this limitation
-
-      - ci/build:
-          name: build-and-test-MAPL-on-<< matrix.compiler >>-using-<< matrix.cmake_generator >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [gfortran]
-              #cmake_generator: ['Unix Makefiles', 'Ninja']
-              cmake_generator: ['Unix Makefiles']
-          baselibs_version: *baselibs_version
-          repo: MAPL
-          mepodevelop: false
-          run_unit_tests: true
-          ctest_options: "-E bundleio -LE 'PERFORMANCE|EXTDATA1G_BIG_TESTS|EXTDATA2G_BIG_TESTS' --output-on-failure"
+          ctest_options: "-L 'ESSENTIAL' --output-on-failure"
           persist_workspace: true # Needed for MAPL tutorials
 
       # Builds MAPL like UFS does (no FLAP and pFlogger, static)
@@ -78,7 +49,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [ifort]
+              compiler: [gfortran, ifort]
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
@@ -86,67 +57,45 @@ workflows:
           remove_pflogger: true
           extra_cmake_options: "-DBUILD_WITH_FLAP=OFF -DBUILD_WITH_PFLOGGER=OFF -DBUILD_WITH_FARGPARSE=OFF -DUSE_EXTDATA2G=OFF -DBUILD_SHARED_MAPL=OFF"
           run_unit_tests: true
-          ctest_options: "-LE 'PERFORMANCE|EXTDATA1G_BIG_TESTS|EXTDATA2G_BIG_TESTS' --output-on-failure"
+          # ExtData1G tests were removed from ESSENTIAL, so we run them separately here as UFS might still use 1G?
+          ctest_options: "-L 'ESSENTIAL|EXTDATA1G_SMALL_TESTS' --output-on-failure"
 
-      # Build GEOSgcm -- ifort
+      # Run MAPL Tutorials
+      - ci/run_mapl_tutorial:
+          name: run-<< matrix.tutorial_name >>-Tutorial-with-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              compiler: [gfortran, ifort]
+              tutorial_name:
+                - hello_world
+                - parent_no_children
+                - parent_one_child_import_via_extdata
+                - parent_one_child_no_imports
+                - parent_two_siblings_connect_import_export
+          # We will only run the tutorials with GNU make. No need to double up
+          # as Ninja is a build test only
+          requires:
+            - build-and-test-MAPL-on-<< matrix.compiler >>-using-Unix Makefiles
+          baselibs_version: *baselibs_version
+
+  build-and-run-GEOSgcm:
+    jobs:
+      # Build GEOSgcm
       - ci/build:
           name: build-GEOSgcm-on-<< matrix.compiler >>
           context:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [ifort]
+              compiler: [gfortran, ifort]
           baselibs_version: *baselibs_version
           repo: GEOSgcm
           checkout_fixture: true
           mepodevelop: true
           checkout_mapl_branch: true
           persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
-
-      # Build GEOSgcm -- GCC
-      - ci/build:
-          name: build-GEOSgcm-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [gfortran]
-          baselibs_version: *baselibs_version
-          repo: GEOSgcm
-          checkout_fixture: true
-          mepodevelop: true
-          checkout_mapl_branch: true
-          persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
-
-      # Build GEOSldas on ifort
-      - ci/build:
-          name: build-GEOSldas-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [ifort]
-          baselibs_version: *baselibs_version
-          repo: GEOSldas
-          mepodevelop: false
-          checkout_fixture: true
-          fixture_branch: develop
-          checkout_mapl_branch: true
-
-      # Build GEOSldas on gfortran
-      - ci/build:
-          name: build-GEOSldas-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [gfortran]
-          baselibs_version: *baselibs_version
-          repo: GEOSldas
-          mepodevelop: false
-          checkout_fixture: true
-          fixture_branch: develop
-          checkout_mapl_branch: true
 
       # Run GCM (1 hour, no ExtData)
       - ci/run_gcm:
@@ -178,26 +127,22 @@ workflows:
           gcm_ocean_type: MOM6
           change_layout: false
 
-      # Run MAPL Tutorials
-      - ci/run_mapl_tutorial:
-          name: run-<< matrix.tutorial_name >>-Tutorial-with-<< matrix.compiler >>
+  build-GEOSldas:
+    jobs:
+      # Build GEOSldas
+      - ci/build:
+          name: build-GEOSldas-on-<< matrix.compiler >>
           context:
             - docker-hub-creds
           matrix:
             parameters:
-              #compiler: [gfortran, ifort]
-              compiler: [ifort]
-              tutorial_name:
-                - hello_world
-                - parent_no_children
-                - parent_one_child_import_via_extdata
-                - parent_one_child_no_imports
-                - parent_two_siblings_connect_import_export
-          # We will only run the tutorials with GNU make. No need to double up
-          # as Ninja is a build test only
-          requires:
-            - build-and-test-MAPL-on-<< matrix.compiler >>-using-Unix Makefiles
+              compiler: [gfortran, ifort]
           baselibs_version: *baselibs_version
+          repo: GEOSldas
+          mepodevelop: false
+          checkout_fixture: true
+          fixture_branch: develop
+          checkout_mapl_branch: true
 
   build-GEOSadas:
     jobs:
@@ -213,7 +158,7 @@ workflows:
           baselibs_version: *baselibs_version
           repo: GEOSadas
           checkout_fixture: true
-          #fixture_branch: feature/mathomp4/ignore-heldsuarez
+          fixture_branch: feature/mathomp4/mapldevelop
           checkout_mapl_branch: true
           mepodevelop: false
           rebuild_procs: 1
@@ -222,11 +167,11 @@ workflows:
     when:
       equal: [ "release", << pipeline.parameters.GHA_Event >> ]
     jobs:
-      - ci/publish-docker:
+      - ci/publish_docker:
           filters:
             tags:
               only: /^v.*$/
-          name: publish-intel-docker-image
+          name: publish-ifort-docker-image
           context:
             - docker-hub-creds
             - ghcr-creds
@@ -234,12 +179,29 @@ workflows:
           baselibs_version: *baselibs_version
           container_name: mapl
           mpi_name: intelmpi
-          mpi_version: 2021.6.0
-          compiler_name: intel
-          compiler_version: 2022.1.0
+          mpi_version: "2021.13"
+          compiler_name: ifort
+          compiler_version: "2021.13"
           image_name: geos-env
           tag_build_arg_name: *tag_build_arg_name
-      - ci/publish-docker:
+      #- ci/publish_docker:
+          #filters:
+            #tags:
+              #only: /^v.*$/
+          #name: publish-ifx-docker-image
+          #context:
+            #- docker-hub-creds
+            #- ghcr-creds
+          #os_version: *os_version
+          #baselibs_version: *baselibs_version
+          #container_name: mapl
+          #mpi_name: intelmpi
+          #mpi_version: "2021.13"
+          #compiler_name: ifx
+          #compiler_version: "2024.2"
+          #image_name: geos-env
+          #tag_build_arg_name: *tag_build_arg_name
+      - ci/publish_docker:
           filters:
             tags:
               only: /^v.*$/
@@ -251,8 +213,8 @@ workflows:
           baselibs_version: *baselibs_version
           container_name: mapl
           mpi_name: openmpi
-          mpi_version: 4.1.4
+          mpi_version: 5.0.2
           compiler_name: gcc
-          compiler_version: 12.1.0
+          compiler_version: 13.2.0
           image_name: geos-env-mkl
           tag_build_arg_name: *tag_build_arg_name

@@ -17,7 +17,6 @@ module MAPL_GridManager_private
    use MAPL_KeywordEnforcerMod
    use mapl_ErrorHandlingMod
    use ESMF
-   use MAPL_ExceptionHandling, only: MAPL_throw_exception
    implicit none
    private
 
@@ -33,6 +32,9 @@ module MAPL_GridManager_private
       type (Integer64GridFactoryMap) :: factories
    contains
       procedure :: add_prototype
+      procedure :: destroy_grid
+      generic :: destroy => destroy_grid
+
       procedure :: delete
 !!$   procedure :: make_field
 !!$   procedure :: delete_field
@@ -121,27 +123,26 @@ contains
       use MAPL_LlcGridFactoryMod, only: LlcGridFactory
       use MAPL_ExternalGridFactoryMod, only: ExternalGridFactory
       use MAPL_XYGridFactoryMod, only: XYGridFactory
+      use MAPL_SwathGridFactoryMod, only : SwathGridFactory
 
       class (GridManager), intent(inout) :: this
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: status
       type (LatLonGridFactory) :: latlon_factory
       type (CubedSphereGridFactory) :: cubed_factory
       type (TripolarGridFactory) :: tripolar_factory
       type (LlcGridFactory) :: llc_factory
       type (ExternalGridFactory) :: external_factory
       type (XYGridFactory) :: xy_factory
- 
+      type (SwathGridFactory) :: swath_factory
+      
       ! This is a local variable to prevent the subroutine from running
       ! initialiazation twice. Calling functions have their own local variables
       ! to prevent calling this subroutine twice, but the initialization status
       ! is not shared. This guarantees it. It's a trade-off between efficiency
       ! with a shared state variable with avoiding a shared state vartiable.
       logical, save :: initialized = .false.
-
-      _UNUSED_DUMMY(unusable)
 
       ! intialized check prevents adding same items twice
       if (.not. initialized) then
@@ -151,11 +152,13 @@ contains
          call this%prototypes%insert('llc',  llc_factory)
          call this%prototypes%insert('External', external_factory)
          call this%prototypes%insert('XY', xy_factory)
+         call this%prototypes%insert('Swath', swath_factory)         
          initialized = .true. 
       end if
 
       _RETURN(_SUCCESS)
 
+      _UNUSED_DUMMY(unusable)
    end subroutine initialize_prototypes
 
    function make_clone(this, grid_type, unusable, rc) result(factory)
@@ -196,7 +199,7 @@ contains
       
 
    subroutine add_factory(this, factory, id)
-      class (GridManager), intent(inout) :: this
+      class (GridManager), target, intent(inout) :: this
       class (AbstractGridFactory), intent(in) :: factory
       integer(kind=ESMF_KIND_I8), optional, intent(out)  :: id
 
@@ -240,7 +243,7 @@ contains
 
       use ESMF
       type (ESMF_Grid) :: grid
-      class (GridManager), intent(inout) :: this
+      class (GridManager), target, intent(inout) :: this
       class (AbstractGridFactory), intent(in) :: factory
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional,  intent(out) :: rc
@@ -294,7 +297,7 @@ contains
       end if
 
       call ESMF_ConfigGetAttribute(config, label=label, value=grid_type, rc=status)
-      _ASSERT(status==0,'label not found')
+      _ASSERT(status==0,'label ['//label//'] not found')
 
       allocate(factory, source=this%make_factory(trim(grid_type), config, prefix=prefix, rc=status))
       _VERIFY(status)
@@ -400,6 +403,27 @@ contains
    end function make_factory_from_distGrid
 
 
+   subroutine destroy_grid(this, grid, unusable, rc)
+      use ESMF
+      class (GridManager), target, intent(inout) :: this
+      type (ESMF_Grid), intent(inout) :: grid
+      class (KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer (kind=ESMF_KIND_I8) :: id
+      class(AbstractGridFactory), pointer :: factory
+      type(Integer64GridFactoryMapIterator) :: iter
+
+      call ESMF_AttributeGet(grid, factory_id_attribute, id, _RC)
+      factory => this%factories%at(id)
+      call factory%destroy(_RC)
+      iter = this%factories%find(id)
+      call this%factories%erase(iter)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine destroy_grid
 
    ! Clients should use this procedure to release ESMF resources when a grid
    ! is no longer being used.
@@ -416,21 +440,19 @@ contains
       integer :: status
       character(len=*), parameter :: Iam= MOD_NAME // 'destroy_grid'
 
-      _UNUSED_DUMMY(unusable)
-
       if (.not. this%keep_grids) then
-         call ESMF_GridDestroy(grid, rc=status)
+         call ESMF_GridDestroy(grid, noGarbage=.true., rc=status)
          _ASSERT(status==0,'failed to destroy grid')
       end if
 
       _RETURN(_SUCCESS)
-      
+      _UNUSED_DUMMY(unusable)
    end subroutine delete
 
 
    function get_factory(this, grid, unusable, rc) result(factory)
       class (AbstractGridFactory), pointer :: factory
-      class (GridManager), intent(in) :: this
+      class (GridManager), target, intent(in) :: this
       type (ESMF_Grid), intent(in) :: grid
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -464,7 +486,7 @@ contains
       
       type (FileMetadata) :: file_metadata
       type (NetCDF4_FileFormatter) :: file_formatter
-      integer :: im, jm, nf
+      integer :: im, jm
       
       character(len=*), parameter :: Iam= MOD_NAME // 'make_factory_from_file()'
       integer :: status
@@ -479,7 +501,7 @@ contains
       logical :: hasLongitude = .FALSE.
       logical :: hasLat       = .FALSE.
       logical :: hasLatitude  = .FALSE.
-      logical :: splitByface  = .FALSE.
+      logical :: SplitCubedSphere  = .FALSE.
  
       _UNUSED_DUMMY(unused)
 
@@ -495,7 +517,7 @@ contains
       call file_formatter%close(rc=status)
       _VERIFY(status)
 
-      splitByface = file_metadata%has_attribute("Cubed_Sphere_Face_Index")
+      SplitCubedSphere = file_metadata%has_attribute("Split_Cubed_Sphere")
 
       im = 0
       hasXdim = file_metadata%has_dimension('Xdim')
@@ -531,11 +553,10 @@ contains
          if (status == _SUCCESS) then
             jm = file_metadata%get_dimension('Ydim',rc=status)
             _VERIFY(status)
-            if (jm == 6*im .or. splitByface) then 
+            if (jm == 6*im .or. SplitCubedSphere) then 
                allocate(factory, source=this%make_clone('Cubed-Sphere'))
             else
-               nf = file_metadata%get_dimension('nf',rc=status)
-               if (status == _SUCCESS) then
+               if (file_metadata%has_dimension('nf')) then
                   allocate(factory, source=this%make_clone('Cubed-Sphere'))
                end if
             end if
@@ -554,7 +575,7 @@ contains
             end if
          end if
 
-         if (jm == 6*im .or. splitByface) then ! old-format cubed-sphere
+         if (jm == 6*im .or. SplitCubedSphere) then ! old-format cubed-sphere
             allocate(factory, source=this%make_clone('Cubed-Sphere'))
 !!$        elseif (...) then ! something that is true for tripolar?
 !!$           factory = this%make_clone('tripolar')
@@ -578,7 +599,6 @@ module MAPL_GridManagerMod
    use MAPL_GridManager_private
    use MAPL_KeywordEnforcerMod
    use mapl_ErrorHandlingMod
-   use MAPL_ExceptionHandling, only: MAPL_throw_exception
    use ESMF
    implicit none
    private

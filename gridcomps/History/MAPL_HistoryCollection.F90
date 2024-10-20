@@ -9,8 +9,10 @@ module MAPL_HistoryCollectionMod
   use MAPL_VerticalDataMod
   use MAPL_TimeDataMod
   use HistoryTrajectoryMod
+  use MaskSamplerGeosatMod
   use StationSamplerMod
   use gFTL_StringStringMap
+  use MAPL_EpochSwathMod
   implicit none
 
   private
@@ -55,6 +57,7 @@ module MAPL_HistoryCollectionMod
      integer,pointer                    :: expSTATE (:)
      integer                            :: unit
      type(ESMF_FieldBundle)             :: bundle
+     type(sampler)                      :: xsampler
      type(MAPL_CFIO)                    :: MCFIO
      type(MAPL_GriddedIO)               :: mGriddedIO
      type(VerticalData) :: vdata
@@ -80,6 +83,7 @@ module MAPL_HistoryCollectionMod
      character(len=ESMF_MAXSTR)         :: quantize_algorithm_string
      integer                            :: quantize_algorithm
      integer                            :: quantize_level
+     integer                            :: zstandard_level
      integer                            :: slices
      integer                            :: Root
      integer                            :: Psize
@@ -101,13 +105,14 @@ module MAPL_HistoryCollectionMod
      character(len=ESMF_MAXSTR)         :: output_grid_label
      type(GriddedIOItemVector)          :: items
      character(len=ESMF_MAXSTR)         :: currentFile
-     character(len=ESMF_MAXPATHLEN)     :: obsFile
      character(len=ESMF_MAXPATHLEN)     :: stationIdFile
+     integer                            :: stationSkipLine
      logical                            :: splitField
      logical                            :: regex
      logical                            :: timeseries_output = .false.
      logical                            :: recycle_track = .false.
      type(HistoryTrajectory)            :: trajectory
+     type(MaskSamplerGeosat)            :: mask_sampler
      type(StationSampler)               :: station_sampler
      character(len=ESMF_MAXSTR)         :: sampler_spec = ""
      character(len=ESMF_MAXSTR)         :: positive

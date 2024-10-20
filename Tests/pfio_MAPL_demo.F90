@@ -1,4 +1,4 @@
-
+#define I_AM_MAIN
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 !------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ program main
       ! Initialize MPI if MPI_Init has not been called
       call initialize_mpi(MPI_COMM_WORLD)
 
-      call MPI_Comm_size(MPI_COMM_WORLD, npes, ierror)
+      call MPI_Comm_size(MPI_COMM_WORLD, npes, _IERROR)
       if ( cap_options%npes_model == -1) then
           cap_options%npes_model = npes
       endif
@@ -112,10 +112,10 @@ program main
             CALL ESMF_Initialize(logKindFlag=ESMF_LOGKIND_NONE, mpiCommunicator=client_comm, rc=status)
 
             ! Get the number of PEs used for the model
-            call MPi_Comm_size(client_comm, npes, ierror)
+            call MPi_Comm_size(client_comm, npes, _IERROR)
 
             ! Get the PE id
-            call MPI_Comm_rank(client_comm, pe_id, ierror)
+            call MPI_Comm_rank(client_comm, pe_id, _IERROR)
             if (npes /= cap_options%npes_model) stop "sanity check failed"
 
             !------------------------------------------------
@@ -155,7 +155,7 @@ program main
 
       call ioserver_manager%finalize()
 
-      call MPI_finalize(ierror)
+      call MPI_finalize(_IERROR)
 
 !------------------------------------------------------------------------------
 CONTAINS
@@ -179,6 +179,8 @@ CONTAINS
       split_comm = splitter%split(rc=status)
       ! _VERIFY(status)
       subcommunicator = split_comm%get_subcommunicator()
+
+      _UNUSED_DUMMY(rc)
 
    end function create_member_subcommunicator
 !------------------------------------------------------------------------------
@@ -228,7 +230,6 @@ CONTAINS
 !
    subroutine perform_domain_deposition()
       integer, allocatable :: proc_sizes(:)
-      integer :: ierr
       !------------------------------------------------
       ! ---> Perform domain decomposition for the model
       !------------------------------------------------

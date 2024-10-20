@@ -6,9 +6,9 @@
 !------- -------- --------- --------- --------- --------- --------- --------- -------
 !
 ! This function parser module is intended for applications where a set of mathematical
-! fortran-style expressions is specified at runtime and is then evaluated for a large 
-! number of variable values. This is done by compiling the set of function strings 
-! into byte code, which is interpreted efficiently for the various variable values. 
+! fortran-style expressions is specified at runtime and is then evaluated for a large
+! number of variable values. This is done by compiling the set of function strings
+! into byte code, which is interpreted efficiently for the various variable values.
 !
 ! The source code is available from http://fparser.sourceforge.net
 !
@@ -52,7 +52,7 @@ MODULE MAPL_NewArthParserMod
 
   use ESMF
   use MAPL_BaseMod
-  use MAPL_Geom
+  use MAPL_FieldUtils
   use MAPL_CommsMod
   use MAPL_ExceptionHandling
   use gFTL_StringVector
@@ -69,11 +69,11 @@ MODULE MAPL_NewArthParserMod
 
   INTEGER,                                  PARAMETER :: cImmed   = 1,          &
                                                          cNeg     = 2,          &
-                                                         cAdd     = 3,          & 
-                                                         cSub     = 4,          & 
-                                                         cMul     = 5,          & 
-                                                         cDiv     = 6,          & 
-                                                         cPow     = 7,          & 
+                                                         cAdd     = 3,          &
+                                                         cSub     = 4,          &
+                                                         cMul     = 5,          &
+                                                         cDiv     = 6,          &
+                                                         cPow     = 7,          &
                                                          cAbs     = 8,          &
                                                          cExp     = 9,          &
                                                          cLog10   = 10,         &
@@ -123,7 +123,7 @@ MODULE MAPL_NewArthParserMod
   END TYPE tComp
 
 CONTAINS
- 
+
   subroutine bytecode_dealloc(comp,rc)
      type(tComp),       intent(inout) :: comp
      integer, optional, intent(out  ) :: rc
@@ -132,7 +132,7 @@ CONTAINS
      integer :: status
 
      do i=1,comp%StackSize
-        call ESMF_FieldDestroy(comp%stack(i),noGarbage=.true.,_RC)
+        call MAPL_FieldDestroy(comp%stack(i),_RC)
      end do
      deallocate(comp%stack)
      deallocate(comp%ByteCode)
@@ -146,7 +146,7 @@ CONTAINS
     character(len=*),        intent(in   ) :: expression
     type(ESMF_Field),        intent(inout) :: field
     integer, optional,       intent(out  ) :: rc
-    
+
     character(len=ESMF_MAXSTR), allocatable :: fieldNames(:)
     integer                              :: varCount
 
@@ -157,9 +157,9 @@ CONTAINS
     logical, allocatable                 :: needed(:)
     logical                              :: isConformal
     integer :: status
-    
+
     call ESMF_StateGet(state,ITEMCOUNT=varCount,_RC)
-    allocate(fieldnames(varCount),needed(varCount))   
+    allocate(fieldnames(varCount),needed(varCount))
     call ESMF_StateGet(state,itemnamelist=fieldNames,_RC)
 
     ! confirm that each needed field is conformal
@@ -180,7 +180,7 @@ CONTAINS
     call bytecode_dealloc(pcode,_RC)
 
     deallocate(fieldNames,needed)
-        
+
 
     end subroutine MAPL_StateEval
   !
@@ -354,7 +354,7 @@ CONTAINS
        !-- -------- --------- --------- --------- --------- --------- --------- -------
        IF (c == '-' .OR. c == '+') THEN                      ! Check for leading - or +
           j = j+1
-          IF (j > lFunc) THEN 
+          IF (j > lFunc) THEN
              _FAIL('Missing operand in '//trim(funcstr))
           END IF
           c = Func(j:j)
@@ -365,11 +365,11 @@ CONTAINS
        n = MathFunctionIndex (Func(j:))
        IF (n > 0) THEN                                       ! Check for math function
           j = j+LEN_TRIM(Funcs(n))
-          IF (j > lFunc) THEN 
+          IF (j > lFunc) THEN
              _FAIL('Missing function argument in '//trim(funcstr))
           END IF
           c = Func(j:j)
-          IF (c /= '(') THEN 
+          IF (c /= '(') THEN
              _FAIL('Missing opening parenthesis in '//trim(funcstr))
           END IF
        END IF
@@ -427,7 +427,7 @@ CONTAINS
           _FAIL('Missing operator in '//trim(funcstr))
        END IF
        !-- -------- --------- --------- --------- --------- --------- --------- -------
-       ! Now, we have an operand and an operator: the next loop will check for another 
+       ! Now, we have an operand and an operator: the next loop will check for another
        ! operand (must appear)
        !-- -------- --------- --------- --------- --------- --------- --------- -------
        j = j+1
@@ -475,7 +475,7 @@ CONTAINS
        !-- -------- --------- --------- --------- --------- --------- --------- -------
        IF (c == '-' .OR. c == '+') THEN                      ! Check for leading - or +
           j = j+1
-          IF (j > lFunc) THEN 
+          IF (j > lFunc) THEN
              _FAIL('Missing operand in '//trim(funcstr))
           END IF
           c = Func(j:j)
@@ -486,11 +486,11 @@ CONTAINS
        n = MathFunctionIndex (Func(j:))
        IF (n > 0) THEN                                       ! Check for math function
           j = j+LEN_TRIM(Funcs(n))
-          IF (j > lFunc) THEN 
+          IF (j > lFunc) THEN
              _FAIL('Missing function argument in '//trim(funcStr))
           END IF
           c = Func(j:j)
-          IF (c /= '(') THEN 
+          IF (c /= '(') THEN
              _FAIL('Missing opening parenthesis in '//trim(funcstr))
           END IF
        END IF
@@ -555,7 +555,7 @@ CONTAINS
           _FAIL('Missing operator in '//trim(funcstr))
        END IF
        !-- -------- --------- --------- --------- --------- --------- --------- -------
-       ! Now, we have an operand and an operator: the next loop will check for another 
+       ! Now, we have an operand and an operator: the next loop will check for another
        ! operand (must appear)
        !-- -------- --------- --------- --------- --------- --------- --------- -------
        j = j+1
@@ -620,7 +620,7 @@ CONTAINS
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     n = 0
     DO j=cAbs,cHeav                                          ! Check all math functions
-       k = MIN(LEN_TRIM(Funcs(j)), LEN(str))   
+       k = MIN(LEN_TRIM(Funcs(j)), LEN(str))
        CALL LowCase (str(1:k), fun)
        IF (fun == Funcs(j)) THEN                             ! Compare lower case letters
           n = j                                              ! Found a matching function
@@ -637,13 +637,13 @@ CONTAINS
     CHARACTER (LEN=*),               INTENT(in) :: str       ! String
     INTEGER,                        INTENT(out) :: ibegin, & ! Start position of variable name
                                                    inext     ! Position of character after name
-    INTEGER                                     :: j,ib,in,lstr
+    INTEGER                                     :: ib,in,lstr
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     lstr = LEN_TRIM(str)
     IF (lstr > 0) THEN
        DO ib=1,lstr                                          ! Search for first character in str
           IF (str(ib:ib) /= ' ') EXIT                        ! When lstr>0 at least 1 char in str
-       END DO                        
+       END DO
        DO in=ib,lstr                                         ! Search for name terminators
           IF (SCAN(str(in:in),'+-*/^) ') > 0) EXIT
        END DO
@@ -669,12 +669,12 @@ CONTAINS
     IF (lstr > 0) THEN
        DO ib=1,lstr                                          ! Search for first character in str
           IF (str(ib:ib) /= ' ') EXIT                        ! When lstr>0 at least 1 char in str
-       END DO                        
+       END DO
        DO in=ib,lstr                                         ! Search for name terminators
           IF (SCAN(str(in:in),'+-*/^) ') > 0) EXIT
        END DO
        DO j=1,SIZE(Var)
-          IF (str(ib:in-1) == Var(j)) THEN                     
+          IF (str(ib:in-1) == Var(j)) THEN
              n = j                                           ! Variable name found
              EXIT
           END IF
@@ -701,12 +701,12 @@ CONTAINS
     IF (lstr > 0) THEN
        DO ib=1,lstr                                          ! Search for first character in str
           IF (str(ib:ib) /= ' ') EXIT                        ! When lstr>0 at least 1 char in str
-       END DO                        
+       END DO
        DO in=ib,lstr                                         ! Search for name terminators
           IF (SCAN(str(in:in),'+-*/^) ') > 0) EXIT
        END DO
        CALL LowCase (str(ib:in-1), fun)
-       IF (trim(fun) == 'undef') THEN                     
+       IF (trim(fun) == 'undef') THEN
              isUndef = .true.                           ! Variable name found
        END IF
     END IF
@@ -726,7 +726,7 @@ CONTAINS
     lstr = LEN_TRIM(str)
     if (present(ipos)) ipos = (/ (k,k=1,lstr) /)
     k = 1
-    DO WHILE (str(k:lstr) /= ' ')                             
+    DO WHILE (str(k:lstr) /= ' ')
        IF (str(k:k) == ' ') THEN
           str(k:lstr)  = str(k+1:lstr)//' '                  ! Move 1 character to left
           if (present(ipos)) ipos(k:lstr) = (/ ipos(k+1:lstr), 0 /)  ! Move 1 element to left
@@ -760,7 +760,7 @@ CONTAINS
     TYPE (tComp) :: Comp              ! Bytecode
     CHARACTER (LEN=*),               INTENT(in   ) :: F         ! Function string
     CHARACTER (LEN=*), DIMENSION(:), INTENT(in   ) :: Var       ! Array with variable names
-    TYPE(ESMF_Field)               , INTENT(inout) :: field     ! resultant field, use to get its rank, etc . . . 
+    TYPE(ESMF_Field)               , INTENT(inout) :: field     ! resultant field, use to get its rank, etc . . .
     INTEGER                        , INTENT(out  ) :: rc
     INTEGER                                     :: istat, i
     integer                                     :: status
@@ -773,7 +773,7 @@ CONTAINS
     Comp%StackSize    = 0
     Comp%StackPtr     = 0
     CALL CompileSubstr (Comp,F,1,LEN_TRIM(F),Var)               ! Compile string to determine size
-    ALLOCATE ( Comp%ByteCode(Comp%ByteCodeSize), & 
+    ALLOCATE ( Comp%ByteCode(Comp%ByteCodeSize), &
                Comp%Immed(Comp%ImmedSize),       &
                Comp%stack(comp%stackSize),   &
                STAT = istat                      )
@@ -884,7 +884,7 @@ CONTAINS
 !      WRITE(*,*)'2. F(b:e) = "(...)"'
        CALL CompileSubstr (Comp, F, b+1, e-1, Var)
        RETURN
-    ELSEIF (SCAN(F(b:b),calpha) > 0) THEN        
+    ELSEIF (SCAN(F(b:b),calpha) > 0) THEN
        n = MathFunctionIndex (F(b:e))
        IF (n > 0) THEN
           b2 = b+INDEX(F(b:e),'(')-1
@@ -917,7 +917,7 @@ CONTAINS
     END IF
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Check for operator in substring: check only base level (k=0), exclude expr. in ()
-    !----- -------- --------- --------- --------- --------- --------- --------- -------    
+    !----- -------- --------- --------- --------- --------- --------- --------- -------
     DO io=cAdd,cPow                                          ! Increasing priority +-*/^
        k = 0
        DO j=e,b,-1
@@ -931,7 +931,7 @@ CONTAINS
 !               WRITE(*,*)'6. F(b:e) = "-...Op..." with Op > -'
                 CALL CompileSubstr (Comp, F, b+1, e, Var)
                 CALL AddCompiledByte (Comp, cNeg)
-                RETURN                 
+                RETURN
              ELSE                                                        ! Case 7: F(b:e) = '...BinOp...'
 !               WRITE(*,*)'7. Binary operator ',F(j:j)
                 CALL CompileSubstr (Comp, F, b, j-1, Var)
@@ -979,7 +979,7 @@ CONTAINS
                SCAN(F(j-1:j-1),'eEdD')       > 0) THEN
           Dflag=.false.; Pflag=.false.
           k = j-1
-          DO WHILE (k > 1)                                   !   step to the left in mantissa 
+          DO WHILE (k > 1)                                   !   step to the left in mantissa
              k = k-1
              IF     (SCAN(F(k:k),'0123456789') > 0) THEN
                 Dflag=.true.
@@ -1028,17 +1028,17 @@ CONTAINS
           ib = ib+1
           IF (InMan .OR. Eflag .OR. InExp) EXIT
        CASE ('+','-')                                        ! Permitted only
-          IF     (Bflag) THEN           
+          IF     (Bflag) THEN
              InMan=.true.; Bflag=.false.                     ! - at beginning of mantissa
-          ELSEIF (Eflag) THEN               
+          ELSEIF (Eflag) THEN
              InExp=.true.; Eflag=.false.                     ! - at beginning of exponent
           ELSE
              EXIT                                            ! - otherwise STOP
           ENDIF
        CASE ('0':'9')                                        ! Mark
-          IF     (Bflag) THEN           
+          IF     (Bflag) THEN
              InMan=.true.; Bflag=.false.                     ! - beginning of mantissa
-          ELSEIF (Eflag) THEN               
+          ELSEIF (Eflag) THEN
              InExp=.true.; Eflag=.false.                     ! - beginning of exponent
           ENDIF
           IF (InMan) DInMan=.true.                           ! Mantissa contains digit
@@ -1074,7 +1074,7 @@ CONTAINS
     IF (PRESENT(inext))  inext  = in
     IF (PRESENT(error))  error  = err
   END FUNCTION RealNum
-  !  
+  !
   SUBROUTINE LowCase (str1, str2)
     !----- -------- --------- --------- --------- --------- --------- --------- -------
     ! Transform upper case letters in str1 into lower case letters, result is str2

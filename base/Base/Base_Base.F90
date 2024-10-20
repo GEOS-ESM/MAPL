@@ -58,10 +58,10 @@ module MAPL_Base
   public MAPL_StateAdd
   public MAPL_FieldBundleAdd
   public MAPL_FieldBundleGet
-  public MAPL_FieldDestroy
   public MAPL_FieldBundleDestroy
   public MAPL_GetHorzIJIndex
   public MAPL_GetGlobalHorzIJIndex
+  public MAPL_Reverse_Schmidt
   public MAPL_GenGridName
   public MAPL_GenXYOffset
   public MAPL_GeosNameNew
@@ -76,7 +76,7 @@ module MAPL_Base
   public MAPL_GetCorrectedPhase
 
 
-  real,    public, parameter :: MAPL_UNDEF              = 1.0e15  
+  real,    public, parameter :: MAPL_UNDEF              = 1.0e15
 
 
   character(len=ESMF_MAXSTR), public, parameter :: MAPL_StateItemOrderList = 'MAPL_StateItemOrderList'
@@ -143,26 +143,26 @@ module MAPL_Base
      module subroutine MAPL_AllocateCoupling(field, rc)
        use ESMF, only: ESMF_Field
        type(ESMF_Field),  intent(INOUT) :: field
-       integer, optional, intent(  OUT) :: rc             
+       integer, optional, intent(  OUT) :: rc
      end subroutine MAPL_AllocateCoupling
 
      module subroutine MAPL_FieldAllocCommit(field, dims, location, typekind, &
           hw, ungrid, default_value, rc)
        use ESMF, only: ESMF_Field
        type(ESMF_Field),               intent(INOUT) :: field
-       integer,                        intent(IN   ) :: dims            
-       integer,                        intent(IN   ) :: location            
+       integer,                        intent(IN   ) :: dims
+       integer,                        intent(IN   ) :: location
        integer,                        intent(IN   ) :: typekind
        integer,                        intent(IN   ) :: hw !halowidth
        integer,              optional, intent(IN   ) :: ungrid(:)
        real,                 optional, intent(IN   ) :: default_value
-       integer,              optional, intent(  OUT) :: rc             
+       integer,              optional, intent(  OUT) :: rc
      end subroutine MAPL_FieldAllocCommit
 
      module subroutine MAPL_FieldF90Deallocate(field, rc)
        use ESMF, only: ESMF_Field
        type(ESMF_Field),  intent(INOUT) :: field
-       integer, optional, intent(  OUT) :: rc             
+       integer, optional, intent(  OUT) :: rc
      end subroutine MAPL_FieldF90Deallocate
 
      module subroutine MAPL_SetPointer2DR4(state, ptr, name, rc)
@@ -170,7 +170,7 @@ module MAPL_Base
        type(ESMF_State),               intent(INOUT) :: state
        real,                           pointer       :: ptr(:,:)
        character(len=*),               intent(IN   ) :: name
-       integer,              optional, intent(  OUT) :: rc             
+       integer,              optional, intent(  OUT) :: rc
      end subroutine MAPL_SetPointer2DR4
 
      module subroutine MAPL_SetPointer3DR4(state, ptr, name, rc)
@@ -178,7 +178,7 @@ module MAPL_Base
        type(ESMF_State),               intent(INOUT) :: state
        real,                           pointer       :: ptr(:,:,:)
        character(len=*),               intent(IN   ) :: name
-       integer,              optional, intent(  OUT) :: rc             
+       integer,              optional, intent(  OUT) :: rc
      end subroutine MAPL_SetPointer3DR4
 
      module subroutine MAPL_DecomposeDim ( dim_world,dim,NDEs, unusable, symmetric, min_DE_extent )
@@ -202,13 +202,13 @@ module MAPL_Base
 
      module subroutine MAPL_Interp_Fac (TIME0, TIME1, TIME2, FAC1, FAC2, RC)
        use ESMF, only: ESMF_Time
-       !------------------------------------------------------------        
+       !------------------------------------------------------------
 
        !  PURPOSE:
        !  ========
        !
-       !    Compute interpolation factors, fac, to be used 
-       !    in the calculation of the instantaneous boundary 
+       !    Compute interpolation factors, fac, to be used
+       !    in the calculation of the instantaneous boundary
        !    conditions, ie:
        !
        !     q(i,j) = fac1*q1(i,j) + (1.-fac1)*q2(i,j)
@@ -221,16 +221,16 @@ module MAPL_Base
        !  INPUT:
        !  ======
        !    time0    : Time of current timestep
-       !    time1    : Time of boundary data 1 
-       !    time2    : Time of boundary data 2 
+       !    time1    : Time of boundary data 1
+       !    time2    : Time of boundary data 2
 
        !  OUTPUT:
        !  =======
        !     fac1    : Interpolation factor for Boundary Data 1
        !
-       ! ------------------------------------------------------------        
-       !               GODDARD LABORATORY FOR ATMOSPHERES            
-       ! ------------------------------------------------------------        
+       ! ------------------------------------------------------------
+       !               GODDARD LABORATORY FOR ATMOSPHERES
+       ! ------------------------------------------------------------
 
        type(ESMF_Time),   intent(in ) :: TIME0, TIME1, TIME2
        real,              intent(out) :: FAC1
@@ -241,7 +241,7 @@ module MAPL_Base
      module subroutine MAPL_ClimInterpFac (CLOCK,I1,I2,FAC, RC)
        use ESMF, only: ESMF_Clock
 
-       !------------------------------------------------------------        
+       !------------------------------------------------------------
 
        type(ESMF_CLOCK),  intent(in ) :: CLOCK
        integer,           intent(OUT) :: I1, I2
@@ -293,13 +293,13 @@ module MAPL_Base
        integer, intent(in) :: nhms
      end function MAPL_nsecf
 
+     integer module function MAPL_nsecf2 (nhhmmss,nmmdd,nymd)
+       integer :: nhhmmss, nmmdd, nymd
+     end function MAPL_nsecf2
+
      module subroutine MAPL_tick (nymd,nhms,ndt)
        integer nymd,nhms,ndt
      end subroutine MAPL_tick
-
-     integer module function MAPL_nsecf2 (nhhmmss,nmmdd,nymd)
-       integer nhhmmss,nmmdd,nymd
-     end function MAPL_nsecf2
 
      integer module function MAPL_nhmsf (nsec)
        implicit none
@@ -307,7 +307,7 @@ module MAPL_Base
      end function MAPL_nhmsf
 
      ! A year is a leap year if
-     ! 1) it is divible by 4, and 
+     ! 1) it is divible by 4, and
      ! 2) it is not divisible by 100, unless
      ! 3) it is also divisible by 400.
      logical module function MAPL_LEAP(NY)
@@ -315,7 +315,7 @@ module MAPL_Base
      end function MAPL_LEAP
 
 
-     integer module function MAPL_incymd (NYMD,M)                                                  
+     integer module function MAPL_incymd (NYMD,M)
        integer nymd,m
      end function MAPL_incymd
 
@@ -441,10 +441,10 @@ module MAPL_Base
 ! grid with 72 layers:
 !
 !```
-!       GDEF: LatLon 
-!       IDEF: 32  
-!       JDEF: 16  
-!       LDEF:  1  
+!       GDEF: LatLon
+!       IDEF: 32
+!       JDEF: 16
+!       LDEF:  1
 !       XDEF: 288 LINEAR -180. 1.25
 !       YDEF: 181 LINEAR -90. 1.
 !       ZDEF:  72 LINEAR 1 1
@@ -452,7 +452,7 @@ module MAPL_Base
 ! More generally,
 !```
 !       GDEF: LatLon
-!       IDEF: Nx 
+!       IDEF: Nx
 !       JDEF: Ny
 !       LDEF: Nz
 !       XDEF: IM_World XCoordType BegLon, DelLon
@@ -538,8 +538,8 @@ module MAPL_Base
        !   There are 3 possibilities to provide the coordinate information:
 
        ! 1) Thru Config object:
-       type(ESMF_Config), OPTIONAL, target,     & 
-            intent(in)  :: Config 
+       type(ESMF_Config), OPTIONAL, target,     &
+            intent(in)  :: Config
 
        ! 2) Thru a resource file:
        character(len=*),  OPTIONAL, intent(in)  :: ConfigFile
@@ -547,7 +547,7 @@ module MAPL_Base
 
        ! 3) Thru argument list:
        integer,           OPTIONAL, intent(in)  :: Nx, Ny          ! Layout
-       integer,           OPTIONAL, intent(in)  :: IM_World        ! Zonal 
+       integer,           OPTIONAL, intent(in)  :: IM_World        ! Zonal
        real,              OPTIONAL, intent(in)  :: BegLon, DelLon  ! in degrees
 
        integer,           OPTIONAL, intent(in)  :: JM_World        ! Meridional
@@ -642,12 +642,6 @@ module MAPL_Base
      end subroutine MAPL_FieldAttSetI4
      ! ========================================
 
-     module subroutine MAPL_FieldDestroy(Field,RC)
-       use ESMF, only: ESMF_Field
-       type(ESMF_Field),          intent(INOUT) :: Field
-       integer, optional,         intent(OUT  ) :: RC
-     end subroutine MAPL_FieldDestroy
-
      module subroutine MAPL_FieldBundleDestroy(Bundle,RC)
        use ESMF, only: ESMF_FieldBundle
        type(ESMF_FieldBundle),    intent(INOUT) :: Bundle
@@ -719,6 +713,21 @@ module MAPL_Base
        integer,            optional, intent(out  ) :: rc  ! return code
      end subroutine MAPL_GetGlobalHorzIJIndex
 
+     module subroutine MAPL_Reverse_Schmidt(Grid, stretched, npts,lon,lat,lonR8,latR8, lonRe, latRe, rc)
+       use ESMF, only: ESMF_KIND_R8, ESMF_GRid
+       implicit none
+       !ARGUMENTS:
+       type(ESMF_Grid),              intent(inout) :: Grid        ! ESMF grid
+       logical,                      intent(out  ) :: stretched
+       integer,                      intent(in   ) :: npts        ! number of points in lat and lon arrays
+       real, optional,               intent(in   ) :: lon(npts)   ! array of longitudes in radians
+       real, optional,               intent(in   ) :: lat(npts)   ! array of latitudes in radians
+       real(ESMF_KIND_R8), optional, intent(in   ) :: lonR8(npts) ! array of longitudes in radians
+       real(ESMF_KIND_R8), optional, intent(in   ) :: latR8(npts) ! array of latitudes in radians
+       real(ESMF_KIND_R8), optional, intent(out  ) :: lonRe(npts) ! array of longitudes in radians
+       real(ESMF_KIND_R8), optional, intent(out  ) :: latRe(npts) ! array of latitudes in radians
+       integer,            optional, intent(out  ) :: rc  ! return code
+     end subroutine MAPL_Reverse_Schmidt
 
      module subroutine MAPL_GenGridName(im, jm, lon, lat, xyoffset, gridname, geos_style)
        integer :: im, jm
@@ -798,7 +807,7 @@ module MAPL_BaseMod
   use MAPL_RangeMod, only:   MAPL_Range
   use mapl_MaplGrid, only: MAPL_GridGet, MAPL_DistGridGet, MAPL_GetImsJms, MAPL_GridHasDE
   use MAPL_Constants
-   
+
 
 
 

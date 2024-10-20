@@ -19,12 +19,12 @@ module pFIO_NetCDF4_FileFormatterMod
    use pFIO_StringAttributeMapMod
    use pfio_NetCDF_Supplement
    use netcdf
+   use mpi
    implicit none
    private
 
    public :: NetCDF4_FileFormatter
 
-   include 'mpif.h'
    type :: NetCDF4_FileFormatter
 !$$      private
       character(len=:), allocatable :: origin_file
@@ -43,7 +43,6 @@ module pFIO_NetCDF4_FileFormatterMod
 
 #include "new_overload.macro"
 
-      procedure :: ___SUB(get_var,string,0)
       procedure :: ___SUB(get_var,string,1)
 
       procedure :: ___SUB(get_var,int32,0)
@@ -67,7 +66,6 @@ module pFIO_NetCDF4_FileFormatterMod
       procedure :: ___SUB(get_var,real64,3)
       procedure :: ___SUB(get_var,real64,4)
 
-      procedure :: ___SUB(put_var,string,0)
       procedure :: ___SUB(put_var,string,1)
       procedure :: ___SUB(put_var,int32,0)
       procedure :: ___SUB(put_var,int32,1)
@@ -91,7 +89,6 @@ module pFIO_NetCDF4_FileFormatterMod
       procedure :: ___SUB(put_var,real64,4)
 
 
-      generic :: get_var => ___SUB(get_var,string,0)
       generic :: get_var => ___SUB(get_var,string,1)
       generic :: get_var => ___SUB(get_var,int32,0)
       generic :: get_var => ___SUB(get_var,int32,1)
@@ -114,7 +111,6 @@ module pFIO_NetCDF4_FileFormatterMod
       generic :: get_var => ___SUB(get_var,real64,3)
       generic :: get_var => ___SUB(get_var,real64,4)
 
-      generic :: put_var => ___SUB(put_var,string,0)
       generic :: put_var => ___SUB(put_var,string,1)
       generic :: put_var => ___SUB(put_var,int32,0)
       generic :: put_var => ___SUB(put_var,int32,1)
@@ -139,6 +135,7 @@ module pFIO_NetCDF4_FileFormatterMod
 
 #include "undo_overload.macro"
 
+      procedure :: inq_var_string_length
       procedure, private :: def_dimensions
       procedure, private :: put_attributes
       procedure, private :: put_var_attributes
@@ -350,7 +347,7 @@ contains
 
    subroutine def_dimensions(this, cf, unusable, rc)
       class (NetCDF4_FileFormatter), intent(inout) :: this
-      type (FileMetadata), intent(in) :: cf
+      type (FileMetadata), target, intent(in) :: cf
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
@@ -389,7 +386,7 @@ contains
 
    subroutine put_attributes(this, cf, varid, unusable, rc)
       class (NetCDF4_FileFormatter), intent(inout) :: this
-      type (FileMetadata), intent(in) :: cf
+      type (FileMetadata), target, intent(in) :: cf
       integer, intent(in) :: varid
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -480,7 +477,7 @@ contains
 
    subroutine write_const_variables(this, cf, unusable, rc)
       class (NetCDF4_FileFormatter), intent(inout) :: this
-      type (FileMetadata), intent(in) :: cf
+      type (FileMetadata), target, intent(in) :: cf
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
@@ -534,7 +531,7 @@ contains
 
    subroutine write_coordinate_variables(this, cf, unusable, rc)
       class (NetCDF4_FileFormatter), intent(inout) :: this
-      type (FileMetadata), intent(in) :: cf
+      type (FileMetadata), target, intent(in) :: cf
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
@@ -603,7 +600,6 @@ contains
       iter = attributes%begin()
       do while (iter /= attributes%end())
          attr_name => iter%key()
-
          p_attribute => iter%value()
          shp = p_attribute%get_shape()
          if (size(shp) == 0) then ! scalar
@@ -678,12 +674,12 @@ contains
       integer:: status
 
       !$omp critical
-      status=nf90_redef(this%ncid) 
+      status=nf90_redef(this%ncid)
       !$omp end critical
       _VERIFY(status)
       call this%def_variables(cf, varname=varname, _RC)
       !$omp critical
-      status=nf90_enddef(this%ncid) 
+      status=nf90_enddef(this%ncid)
       !$omp end critical
       _VERIFY(status)
       _RETURN(_SUCCESS)
@@ -713,16 +709,13 @@ contains
       integer :: deflation
       integer :: quantize_algorithm
       integer :: quantize_level
+      integer :: zstandard_level
       character(len=:), pointer :: var_name
       character(len=:), pointer :: dim_name
       class (Variable), pointer :: var
       integer :: varid
 
-      type (StringIntegerMap), pointer :: all_dims
-
-
       vars => cf%get_variables()
-      all_dims => cf%get_dimensions()
 
       order = cf%get_order()
       var_iter = order%begin()
@@ -755,9 +748,12 @@ contains
          status = nf90_def_var(this%ncid, var_name, xtype, dimids, varid)
          !$omp end critical
          _VERIFY(status)
-         !$omp critical
-         status = nf90_def_var_fill(this%ncid, varid, NF90_NOFILL, 0)
-         !$omp end critical
+         ! There is no nf90 interface for string. skip the fill
+         if (xtype /=12) then
+           !$omp critical
+           status = nf90_def_var_fill(this%ncid, varid, NF90_NOFILL, 0)
+           !$omp end critical
+         endif
          _VERIFY(status)
          chunksizes => var%get_chunksizes()
          if (size(chunksizes) > 0) then
@@ -785,6 +781,18 @@ contains
            _VERIFY(status)
 #else
            _FAIL("netcdf was not built with quantize support")
+#endif
+         end if
+
+         zstandard_level = var%get_zstandard_level()
+         if (zstandard_level /= 0) then
+#ifdef NF_HAS_ZSTD
+           !$omp critical
+           status = nf90_def_var_zstandard(this%ncid, varid, zstandard_level)
+           !$omp end critical
+           _VERIFY(status)
+#else
+           _FAIL("netcdf was not built with zstandard support")
 #endif
          end if
 
@@ -987,10 +995,8 @@ contains
             call cf%add_attribute(trim(attr_name), str)
             deallocate(str)
          case (NF90_STRING)
-            ! W.Y. Note: pfio only supports global string attributes.
-            ! varid is not passed in. NC_GLOBAL is used inside the call
             !$omp critical
-            status = pfio_get_att_string(this%ncid, trim(attr_name), str)
+            status = pfio_get_att_string(this%ncid, varid, trim(attr_name), str)
             !$omp end critical
             _VERIFY(status)
             call cf%add_attribute(trim(attr_name), str)
@@ -1085,9 +1091,12 @@ contains
             call var%add_attribute(trim(attr_name), str)
             deallocate(str)
          case (NF90_STRING)
-            !W.Y. Note: pfio does not support variable's string attribute
-            !  It only supports global 1-d string attribute
-            cycle
+            !$omp critical
+            status = pfio_get_att_string(this%ncid, varid, trim(attr_name), str)
+            !$omp end critical
+            _VERIFY(status)
+            call var%add_attribute(trim(attr_name), str)
+            deallocate(str)
          case default
             _RETURN(_FAILURE)
          end select
@@ -1098,6 +1107,21 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine inq_var_attributes
 
+   subroutine inq_var_string_length(this, var_name, length, unusable, rc)
+      class (NetCDF4_FileFormatter), intent(inout) :: this
+      character(*),                  intent(in)    :: var_name
+      integer,                       intent(out)   :: length
+      class (KeywordEnforcer), optional, intent(in):: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: varid, status
+
+      status = nf90_inq_varid(this%ncid, name=var_name, varid=varid)
+      _VERIFY(status)
+      status = pfio_nf90_get_var_string_len(this%ncid, varid, length)
+      _VERIFY(status)
+      _RETURN(_SUCCESS)
+   end subroutine inq_var_string_length
 
    subroutine inq_variables(this, cf, unusable, rc)
       class (NetCDF4_FileFormatter), intent(inout) :: this
@@ -1321,10 +1345,6 @@ contains
 
    ! string
 #define _VARTYPE 0
-#  define _RANK 0
-#    include "NetCDF4_get_var.H"
-#    include "NetCDF4_put_var.H"
-#  undef _RANK
 #  define _RANK 1
 #    include "NetCDF4_get_var.H"
 #    include "NetCDF4_put_var.H"

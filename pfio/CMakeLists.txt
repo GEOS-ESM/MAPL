@@ -13,6 +13,7 @@ set (srcs
   pFIO_Constants.F90
   UnlimitedEntity.F90
   Attribute.F90
+  IntArray.F90
   Variable.F90
   CoordinateVariable.F90
   StringVariableMap.F90
@@ -21,7 +22,7 @@ set (srcs
   FileMetadata.F90
   FileMetadataVector.F90
   NetCDF4_FileFormatter.F90
-  pfio_get_att_string.c
+  pfio_nf90_supplement.c
   NetCDF_Supplement.F90
   pFIO_Utilities.F90
   pFIO.F90
@@ -90,6 +91,26 @@ set (srcs
   StringVectorUtil.F90
   )
 
+if (BUILD_WITH_PFLOGGER)
+  find_package (PFLOGGER REQUIRED)
+endif ()
+
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE ${MAPL_LIBRARY_TYPE})
+
+target_link_libraries (${this} PUBLIC GFTL::gftl-v2 GFTL_SHARED::gftl-shared-v2 PFLOGGER::pflogger PRIVATE MPI::MPI_Fortran OpenMP::OpenMP_Fortran)
+target_include_directories (${this} PUBLIC
+          $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+
+set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
+# Kludge for OSX security and DYLD_LIBRARY_PATH ...
+foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
+  target_link_libraries(${this} PRIVATE "-Xlinker -rpath -Xlinker ${dir}")
+endforeach()
+
+if (SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
+  target_compile_definitions(${this} PRIVATE SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
+endif ()
+
 ###############################################################
 # Check to see if quantize capability is present in netcdf-c. #
 ###############################################################
@@ -108,29 +129,41 @@ check_c_source_compiles("
   NETCDF_HAS_QUANTIZE)
 if (NETCDF_HAS_QUANTIZE)
   message(STATUS "netCDF has quantize capability")
-  add_definitions(-DNF_HAS_QUANTIZE)
+  target_compile_definitions(${this} PRIVATE NF_HAS_QUANTIZE)
 else ()
   message(STATUS "netCDF does not have quantize capability")
 endif ()
 
-if (BUILD_WITH_PFLOGGER)
-  find_package (PFLOGGER REQUIRED)
+################################################################
+# Check to see if zstandard capability is present in netcdf-c. #
+################################################################
+
+check_c_source_compiles("
+  #include <netcdf_meta.h>
+  #if !NC_HAS_ZSTD
+  choke me
+  #endif
+  int main(void) {
+    return 0;
+  }
+  "
+  NETCDF_HAS_ZSTD)
+
+# NOTE: Even if the check above succeeds, zstandard is *not*
+# possible with Baselibs (builds HDF5, netCDF as static)
+# so we want to check for Baselibs first.
+
+if (Baselibs_FOUND)
+  message(STATUS "Baselibs found, zstandard capability not possible")
+  set(NETCDF_HAS_ZSTD FALSE CACHE BOOL "netCDF has zstandard capability" FORCE)
 endif ()
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE ${MAPL_LIBRARY_TYPE})
-target_link_libraries (${this} PUBLIC GFTL::gftl-v2 GFTL_SHARED::gftl-shared-v2 PFLOGGER::pflogger PRIVATE MPI::MPI_Fortran)
-# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
-if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-   target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
+if (NETCDF_HAS_ZSTD)
+  message(STATUS "netCDF has zstandard capability")
+  target_compile_definitions(${this} PRIVATE NF_HAS_ZSTD)
+else ()
+  message(STATUS "netCDF does not have zstandard capability")
 endif ()
-target_include_directories (${this} PUBLIC
-          $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
-
-set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-# Kludge for OSX security and DYLD_LIBRARY_PATH ...
-foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
-  target_link_libraries(${this} PRIVATE "-Xlinker -rpath -Xlinker ${dir}")
-endforeach()
 
 ecbuild_add_executable (
    TARGET pfio_open_close.x
@@ -144,20 +177,14 @@ ecbuild_add_executable (
    SOURCES pfio_server_demo.F90
    LIBS ${this} MPI::MPI_Fortran)
 set_target_properties (pfio_server_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
-if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-   target_link_libraries(pfio_server_demo.x OpenMP::OpenMP_Fortran)
-endif ()
+target_link_libraries(pfio_server_demo.x OpenMP::OpenMP_Fortran)
 
 ecbuild_add_executable (
    TARGET pfio_collective_demo.x
    SOURCES pfio_collective_demo.F90
    LIBS ${this} MPI::MPI_Fortran)
 set_target_properties (pfio_collective_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
-if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-   target_link_libraries(pfio_collective_demo.x OpenMP::OpenMP_Fortran)
-endif ()
+target_link_libraries(pfio_collective_demo.x OpenMP::OpenMP_Fortran)
 
 ecbuild_add_executable (
   TARGET pfio_writer.x
@@ -178,6 +205,6 @@ endif ()
 
 
 # Unit testing
-#if (PFUNIT_FOUND)
-  #add_subdirectory(tests EXCLUDE_FROM_ALL)
-#endif ()
+if (PFUNIT_FOUND)
+  add_subdirectory(tests EXCLUDE_FROM_ALL)
+endif ()

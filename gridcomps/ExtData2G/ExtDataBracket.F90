@@ -8,6 +8,7 @@ module MAPL_ExtDataBracket
    use MAPL_ExtDataNode
    use MAPL_ExtDataConstants
    use MAPL_CommsMod
+   use MAPL_FieldUtils
    implicit none
    private
 
@@ -20,8 +21,8 @@ module MAPL_ExtDataBracket
       real             :: offset = 0.0
       logical          :: disable_interpolation = .false.
       logical          :: intermittent_disable = .false.
-      logical          :: new_file_right
-      logical          :: new_file_left
+      logical          :: new_file_right = .false.
+      logical          :: new_file_left = .false.
       logical          :: exact = .false.
       contains
          procedure :: interpolate_to_time
@@ -41,7 +42,7 @@ contains
       this%new_file_right=.false.
       this%new_file_left =.false.
    end subroutine reset
-
+!
    function time_in_bracket(this,time) result(in_bracket)
       class(ExtDataBracket), intent(in) :: this
       logical :: in_bracket
@@ -178,13 +179,9 @@ contains
 
       type(ESMF_TimeInterval)    :: tinv1, tinv2
       real                       :: alpha
-      real, pointer              :: var2d(:,:)   => null()
-      real, pointer              :: var3d(:,:,:) => null()
-      real, pointer              :: var2d_left(:,:)   => null()
-      real, pointer              :: var2d_right(:,:)   => null()
-      real, pointer              :: var3d_left(:,:,:) => null()
-      real, pointer              :: var3d_right(:,:,:) => null()
-      integer                    :: field_rank
+      real, pointer              :: var1d(:)     => null()
+      real, pointer              :: var1d_left(:)   => null()
+      real, pointer              :: var1d_right(:)   => null()
       integer :: status
       logical :: right_node_set, left_node_set
       character(len=ESMF_MAXPATHLEN) :: left_file, right_file
@@ -196,81 +193,41 @@ contains
       right_node_set = right_file /= file_not_found
       left_node_set = left_file /= file_not_found
 
-
-      call ESMF_FieldGet(field,dimCount=field_rank,_RC)
       alpha = 0.0
       if ( (.not.this%disable_interpolation) .and. (.not.this%intermittent_disable) .and. right_node_set .and. left_node_set) then
          tinv1 = time - this%left_node%time
          tinv2 = this%right_node%time - this%left_node%time
          alpha = tinv1/tinv2
       end if
-      if (field_rank==2) then
+      call assign_fptr(field,var1d,_RC)
+      if (right_node_set) then
+         call assign_fptr(this%right_node%field,var1d_right,_RC)
+      end if
+      if (left_node_set) then
+         call assign_fptr(this%left_node%field,var1d_left,_RC)
+      end if
+      if ( left_node_set .and. (time == this%left_node%time .or. this%disable_interpolation)) then
+         var1d = var1d_left
+      else if (right_node_set .and. (time == this%right_node%time)) then
+         var1d = var1d_right
+      else if ( (left_node_set .and. right_node_set) .and. (.not.this%exact) ) then
+         where( (var1d_left /= mapl_undef) .and. (var1d_right /= mapl_undef))
+            var1d = var1d_left + alpha*(var1d_right-var1d_left)
+         elsewhere
+            var1d = mapl_undef
+         endwhere
+      else
+         var1d = mapl_undef
+      end if
 
-         call esmf_fieldget(field,localde=0,farrayptr=var2d,_RC)
-         if (right_node_set) then
-            call esmf_fieldget(this%right_node%field,localde=0,farrayptr=var2d_right,_RC)
-         end if
-         if (left_node_set) then
-            call esmf_fieldget(this%left_node%field,localde=0,farrayptr=var2d_left,_RC)
-         end if
-         if ( left_node_set .and. (time == this%left_node%time .or. this%disable_interpolation)) then
-            var2d = var2d_left
-         else if (right_node_set .and. (time == this%right_node%time)) then
-            var2d = var2d_right
-         else if ( (left_node_set .and. right_node_set) .and. (.not.this%exact) ) then
-            where( (var2d_left /= mapl_undef) .and. (var2d_right /= mapl_undef))
-               var2d = var2d_left + alpha*(var2d_right-var2d_left)
-            elsewhere
-               var2d = mapl_undef
-            endwhere
-         else
-            var2d = mapl_undef
-         end if
-
-         if (this%scale_factor == 0.0 .and. this%offset /= 0.0) then
-            where(var2d /= MAPL_UNDEF) var2d=var2d+this%offset
-         end if
-         if (this%scale_factor /= 0.0 .and. this%offset == 0.0) then
-            where(var2d /= MAPL_UNDEF) var2d=var2d*this%scale_factor
-         end if
-         if (this%scale_factor /= 0.0 .and. this%offset /= 0.0) then
-            where(var2d /= MAPL_UNDEF) var2d=var2d*this%scale_factor+this%offset
-         end if
-
-      else if (field_rank==3) then
-         call esmf_fieldget(field,localde=0,farrayptr=var3d,_RC)
-         if (right_node_set) then
-            call esmf_fieldget(this%right_node%field,localde=0,farrayptr=var3d_right,_RC)
-         end if
-         if (left_node_set) then
-            call esmf_fieldget(this%left_node%field,localde=0,farrayptr=var3d_left,_RC)
-         end if
-         if ( left_node_set .and. (time == this%left_node%time .or. this%disable_interpolation) ) then
-            var3d = var3d_left
-         else if ( right_node_set .and. (time == this%right_node%time) ) then
-            var3d = var3d_right
-         else if (right_node_set .and. (time == this%right_node%time)) then
-            var3d = var3d_right
-         else if ( (left_node_set .and. right_node_set) .and. (.not.this%exact) )then
-            where( (var3d_left /= mapl_undef) .and. (var3d_right /= mapl_undef))
-               var3d = var3d_left + alpha*(var3d_right-var3d_left)
-            elsewhere
-               var3d = mapl_undef
-            endwhere
-         else
-            var3d = mapl_undef
-         end if
-
-         if (this%scale_factor == 0.0 .and. this%offset /= 0.0) then
-            where(var3d /= MAPL_UNDEF) var3d=var3d+this%offset
-         end if
-         if (this%scale_factor /= 0.0 .and. this%offset == 0.0) then
-            where(var3d /= MAPL_UNDEF) var3d=var3d*this%scale_factor
-         end if
-         if (this%scale_factor /= 0.0 .and. this%offset /= 0.0) then
-            where(var3d /= MAPL_UNDEF) var3d=var3d*this%scale_factor+this%offset
-         end if
-
+      if (this%scale_factor == 0.0 .and. this%offset /= 0.0) then
+         where(var1d /= MAPL_UNDEF) var1d=var1d+this%offset
+      end if
+      if (this%scale_factor /= 0.0 .and. this%offset == 0.0) then
+         where(var1d /= MAPL_UNDEF) var1d=var1d*this%scale_factor
+      end if
+      if (this%scale_factor /= 0.0 .and. this%offset /= 0.0) then
+         where(var1d /= MAPL_UNDEF) var1d=var1d*this%scale_factor+this%offset
       end if
       
       _RETURN(_SUCCESS)
@@ -281,24 +238,15 @@ contains
       class(ExtDataBracket), intent(inout) :: this
       integer, optional, intent(out) :: rc
       integer :: status
-      integer :: field_rank
-      real, pointer :: var3d_left(:,:,:),var3d_right(:,:,:)
-      real, pointer :: var2d_left(:,:),var2d_right(:,:)
+      real, pointer :: left_ptr(:), right_ptr(:)
       logical :: left_created, right_created
 
       left_created  = ESMF_FieldIsCreated(this%left_node%field,_RC)
       right_created = ESMF_FieldIsCreated(this%right_node%field,_RC)
       if (left_created .and. right_created) then     
-         call ESMF_FieldGet(this%left_node%field,dimCount=field_rank,_RC)
-         if (field_rank == 2) then
-            call ESMF_FieldGet(this%right_node%field,localDE=0,farrayPtr=var2d_right,_RC)
-            call ESMF_FieldGet(this%left_node%field,localDE=0,farrayPtr=var2d_left,_RC)
-            var2d_left = var2d_right
-         else if (field_rank ==3) then
-            call ESMF_FieldGet(this%right_node%field,localDE=0,farrayPtr=var3d_right,_RC)
-            call ESMF_FieldGet(this%left_node%field,localDE=0,farrayPtr=var3d_left,_RC)
-            var3d_left = var3d_right
-         end if
+         call assign_fptr(this%left_node%field,left_ptr,_RC) 
+         call assign_fptr(this%right_node%field,right_ptr,_RC) 
+         left_ptr = right_ptr
       end if
       _RETURN(_SUCCESS)
    end subroutine swap_node_fields

@@ -8,13 +8,545 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Allow update offsets of &#177;timestep in ExtData2G
 
+### Changed
+
+- Update ESMF version for Baselibs to match that of Spack for consistency
+
+### Fixed
+
+- Fixed issue of some Baselibs builds appearing to support zstandard. This is not possible due to Baselibs building HDF5 and netCDF as static libraries
+
+### Removed
+
+### Deprecated
+
+## [2.50.1] - 2024-10-18
+
+### Fixed
+
+- Fixed unitialized variable bug in ExtData exposed by gfortran
+
+## [2.50.0] - 2024-10-10
+
+### Added
+
+- Added `MAPL_Reverse_Schmidt` to reverse the stretched grid for indices computation
+
+### Changed
+
+- Propagated the error message from `MAPL_HorzIJIndex` subroutine
+- Updated minimum CMake version to 3.23
+
+### Fixed
+
+- Trapped more errors from Extdata's i-server
+
+## [2.49.1] - 2024-10-07
+
+### Fixed
+
+- Removed erroneous asserts that blocked some use cases in creating route handles
+
+## [2.49.0] - 2024-10-04
+
+### Added
+
+- Added zstandard compression support
+  - Note this requires netCDF-C to have been compiled with zstandard support. We have a CMake test to check for this
+    and enabling zstandard output in History will fail if the library does not support it
+
+### Changed
+
+- ExtDataDriver.x now uses ExtData2G by default
+- Update `components.yaml`
+  - ecbuild geos/v1.4.0
+    - Fixes bug between GCC, macOS, and the `-pipe` flag
+
+### Fixed
+
+- Workaround for NVHPC 24.9 involving `use` statement in `block` construct
+
+## [2.48.0] - 2024-09-24
+
+### Added
+
+- Added 5 new ExtData tests to test compression, bit-shaving, and quantization
+
+### Changed
+
+- Rename all single-digit ExtData tests to have a leading zero (i.e., `case1` -> `case01`)
+- Add restart benchmark code `restart_simulator.x` in benchmark directory
+- Start implementing changes for vertical regridding in ExtData
+- Made the POSITIVE field attribute defaults to "down" in case it is not found
+- VLOCATION is not querried in MAPL_VerticalMethods.F90 for rank 2 fields
+- Fixed time print in Cap GC (from slashes to colons)
+- Added ability to read the attribute with explicit type "string" of a netcdf variable.
+- Add ability to connect export of the MAPL hierachy to ExtData via CAP.rc file
+- Added new driver, CapDriver.x, to excerise the MAPL_Cap with the configuratable component also used by ExtDataDriver.x
+- Added Fortran interface to UDUNITS2
+  - NOTE: This now means MAPL depends on UDUNITS2 (and transitively, expat)
+- Improve mask sampler by adding an MPI step and a LS_chunk (intermediate step)
+- CI Updates
+  - Update Baselibs in CI to 7.25.0
+  - Update to circleci-tools orb v4
+    - This adds the ability to do an `ifx` test along with the `ifort` test (though `ifx` is not yet enabled)
+- Update `components.yaml`
+  - ESMA_env v4.30.1
+    - Update to Baselibs 7.25.0
+      - ESMF 8.6.1
+      - GFE v1.16.0
+        - gFTL v1.14.0
+        - gFTL-shared v1.9.0
+        - fArgParse v1.8.0
+        - pFUnit v4.10.0
+        - yaFyaml v1.4.0
+      - curl 8.8.0
+      - NCO 5.2.6
+      - Other various fixes from the v8 branch
+    - Move to use Intel ifort 2021.13 at NCCS SLES15, NAS, and GMAO Desktops
+    - Move to use Intel MPI at NCCS SLES15 and GMAO Desktops
+    - Move to GEOSpyD Min24.4.4 Python 3.11
+    - Fix for csh at NAS
+  - ESMA_cmake v3.51.0
+    - Update `esma_add_fortran_submodules` function
+    - Move MPI detection out of FindBaselibs
+    - Add SMOD to submodule generator
+    - NAG OpenMP Workaround
+    - Support for Jemalloc and LLVM Flang
+- Add support for preliminary CF Conventions quantization properties
+  - Add new quantization keyword `granular_bitround` to History. This will be the preferred keyword for quantization in the future
+    replacing `GranularBR`
+
+### Fixed
+
+- Fix profiler PercentageColumn test for GCC 14
+- Fix bug in ExtData Tests. CMake was overwriting the `EXTDATA2G_SMALL_TESTS` LABEL with `ESSENTIAL`
+
+### Deprecated
+
+- Deprecate `GranularBR` as a quantization method keyword in History. We will prefer `granular_bitround` in the future to match
+  draft CF conventions. This will be removed in MAPL 3.
+
+## [2.47.2] - 2024-08-16
+
+### Fixed
+
+- Fix bug in supporting externally initialized MPI
+
+## [2.47.1] - 2024-07-17
+
+### Fixed
+
+- Fixed bug in FieldSet routines when passing R8 ESMF fields
+
+## [2.47.0] - 2024-06-24
+
+### Added
+
+- Add new option to `Regrid_Util.x` to write and re-use ESMF pregenerated weights
+- If file path length exceeds `ESMF_MAXSTR`, add `_FAIL` in subroutine fglob
+- Add GNU UFS-like CI test
+- Add capability to mangle `LONG_NAME` in ACG with a different prefix
+
+### Changed
+
+- pFIO Clients don't send "Done" message when there is no request
+- Update `components.yaml`
+  - ESMA_cmake v3.46.0
+    - Fix bugs in meson detection
+    - Fix for building on older macOS
+    - Add `esma_add_fortran_submodules` function
+- Updated `checkpoint_simulator` to not create and close file if not writing
+- Update ExtData tests
+  - Add new category of `SLOW` tests that take 10-30 seconds and remove them from the `ESSENTIAL`
+    label run in CI
+  - Remove ExtData1G tests from `ESSENTIAL` label, but run them in the UFS-like CI test
+- Improved timing for station sampler with GHCNd input: used LocStream with CS background, LS with uniform distributed points, and `MPI_GatherV`
+
+### Fixed
+
+- Fixed a bug in `generate_newnxy` in `MAPL_SwathGridFactory.F90` (`NX*NY=Ncore`)
+- Fixes for NVHPC 24.5
+  - Convert `MAPL_GeosatMaskMod` to "interface-in-both-files" submodule style
+
+## [2.46.2] - 2024-05-31
+
+### Removed
+
+- Remove excessive print statements in `generic/OpenMP_Support.F90`
+
+## [2.46.1] - 2024-05-10
+
+## Fixed
+
+- Update `components.yaml` to avoid f2py error with python 3.11
+  - ESMA_cmake v3.45.1
+    - Fix bug in meson detection
+
+## [2.46.0] - 2024-05-02
+
+### Added
+
+- Update `FindESMF.cmake` to match that in ESMF 8.6.1
+- Add timer to the sampler code
+- Set required version of ESMF to 8.6.1
+- Update `components.yaml`
+  - ESMA_cmake v3.45.0
+    - `BUILT_ON_SLES15` set to `FALSE` on NCCS if not built on SLES15
+    - Update `FindESMF.cmake` to match that in ESMF 8.6.1
+    - Suppress remarks in Intel Fortran Classic 2021.12
+  - ESMA_env v4.29.0 (Baselibs 7.24.0)
+    - Update to ESMF 8.6.1b04
+    - NCO 5.2.4
+    - curl 8.7.1
+
+### Fixed
+
+- Fixed non-Baselibs build using `ESMF::ESMF` target
+
+## [2.45.0] - 2024-04-25
+
+### Added
+
+- Add glob function in sampler code, supporting wild character, e.g., filename template = `amsr2_gcom-w1.%y4%m2%d2T%h2%n2*.nc4`
+- Checked resource for o-server. It quits if the numer requested is inconsistent with being used
+- Replace local HorzIJIndex sear with the GlobalHorzIJindex search
+- Change grd_is_ok function to avoid collective call
+- Allow fields with ungridded dimension and bundles to be created in ExtDataDriver.x
+- Allow arithmetic operations to be performed on fields from bundles in History
+- Adapted subroutine RegridVector from GriddedIO.F90 to MAPL_EpochSwathMod.F90 (changing class name for this)
+- Give informative error message when swath grid Epoch does not equal swath sampler frequency
+- Add mask sampler for geostationary satellite (GEOS-R series)
+- Add geostation name into NC for station sampler
+- Add mapping between the IODA loc_index and trajectory NC output loc_index
+- Add `allocate(X, _STAT)` to sampler codes
+- Skip destroy_regen_grid when list(n)%end_alarm is active (the last time step in sampler)
+- Add extract_unquoted_item(STR1) to fix a bug in geoval_xname(mx_ngeoval) in trajectory sampler
+- Add `if (compute_transpose)` to sub. destroy_route_handle to avoid destroying a nonexisting route handle
+- Add option to MAPL regridding layer to write and retrieve ESMF weights.
+- Add options to History and ExtData to turn on the ability to write and read route handle weights
+- Add option to renable the transpose computation when calling make\_regridder
+- Added procedures to remove an attribute from a FileMetadata object and from a Variable object in PFIO
+- Add per-collection timer output for History
+- Add python utilities to split and recombine restarts
+- Add a new "SPLIT\_CHECKPOINT:" option that has replaced the write-by-face option. This will write a file per writer
+- Implemented a new algorthm to read tile files
+- Added two options, depends_on and depends_on_children, to ACG
+- Add CI job to test Ford build (does not publish)
+
+### Changed
+
+- Release the pfio memory as early as possible
+- Trajectory sampler: ls_rt -> ls_chunk (via mpi_gatherV) -> ls_distributed(bk=cs_grid; via ESMF_FieldRedistStore), aiming to save computational time. To gather 3D data via mpi,  options for level by level and single-3D are added via ifdef.
+- The MAPL\_ESMFRegridder manage now does compute the transpose by default
+- Bypassed the I-Server reading call when there is no extdata
+- Created new `ESSENTIAL` ctest label for tests that must pass for a release
+  - These are "simple" quick tests that don't require a lot of resources
+  - With ESMA_cmake v3.43.0, `make tests` will only run tests with the `ESSENTIAL` label. To run all tests, use `make tests-all`
+- Update `components.yaml`
+  - ESMA_cmake v3.43.0
+    - Updates to MPI detection
+    - Enable `-quiet` flag for NAG
+    - `make tests` now only runs tests with the `ESSENTIAL` label. To run all tests, use `make tests-all`
+    - `BUILT_ON_SLES15` set to `FALSE` on NCCS if not built on SLES15
+  - ESMA_env v4.28.0 (Baselibs 7.23.0)
+    - Updates to GFE v1.15
+    - Fixes for NAG
+    - Use GCC 11.4 as Intel backing compiler at NCCS SLES15
+- Update CI to use Baselibs 7.23.0 and GCC 13.2 for GNU tests
+
+### Fixed
+
+- Change to IntArray's pointer to store data to avoid Intel Ifort bug
+- Fix inconsistency in History output so that multi-dimensional coordinate variables are also compressed if requested in the collection
+- Minor workaround to enable NAG 7.2.01 to compile.  (Reproducer submitted to NAG.)
+- Fixed bug with split restart files
+- Removed unnecessary memory allocation for tile reads. This is critical for high res runs on SCU17
+- Fixes to allow SCM model to run
+
+### Removed
+
+- Removed CMake logic for macOS + Intel as that is an unsupported configuration
+
+## [2.44.3] - 2024-03-28
+
+### Fixed
+
+- The bundle I/O unit test was failing on NAG.  Partly due to an untrapped return code, but also some weird issue with setting values in ESMF Config. Probably not a bug in the compiler but something in  ESMF or MAPL handling line continuations.
+
+## [2.44.2] - 2024-03-26
+
+### Fixed
+
+- Fixed bug in `time_ave_util.x` when the input files have a level size of 1
+
+## [2.44.1] - 2024-03-19
+
+### Fixed
+
+- Fix bug where bit-shaved, instantaneous binary output in History was modifying the original export state passed
+
+## [2.44.0] - 2024-02-08
+
+### Added
+
+- Added nf90 interface to read and write 1d string
+- Convert from ABI Fixed Grid to lon/lat coordinates used in MAPL_XYGridFactory (supporting geostationary GOES-R series)
+- Modify trajectory sampler for a collection with multiple platforms: P3B (air craft) + FIREX
+- Modify swath sampler to handle two Epoch swath grids
+- Handle regrid accumulate for time step (1 sec) during which no obs exists
+- Use IntState%stampoffset(n) to adjust filenames for an epoch time
+- parse "GOCART::CO2" from 'geovals_fields' entry in PLATFORM
+- Add call MAPL_InitializeShmem to ExtDataDriverGridComp.F90
+- Read swath data on root, call MAPL_CommsBcast [which sends data to Shmem (when Shmem initialized) or to MAPL_comm otherwise]. This approach avoids race in reading nc files [e.g. 37 files for 3 hr swath data]
+- Added memory utility, MAPL_MemReport that can be used in any code linking MAPL
+- Added capability in XY grid factory to add a mask to the grid any points are missing needed for geostationary input data
+- Added capability in the MAPL ESMF regridding wrapper to apply a destination mask if the destination grid contains a mask
+- Added `INSTALL.md` file to provide instructions on how to install MAPL
+
+### Changed
+
+- Updated ESMF required version to 8.6.0
+- Allocate gridded fields to use the pinflag option needed for the Single System Image  (SSI) capability.
+- Made changes to allocate fields to use farray instead of farrayPtr. This allows explicit specification of indexflag required by the new MAPL field split functionality. This functionality allows a clean way to create a new field from an exiting field where the new field is a 'slice' of the existing field with the slicing index being that of the trailing ungiridded dim of the existing field.
+- Replaced RC=STATUS plus `_VERIFY(RC)` in `Base_Base_implementation.F90` with just `_RC` in line with our new convention.
+- Updated CI to use Open MPI 5.0.0 for GNU
+- Enable Ninja for CI builds of MAPL
+- Removed use of `ESMF_HAS_ACHAR_BUG` CMake option and code use in `MAPL_Config.F90`. Testing has shown that with ESMF 8.6 (which is
+  now required), NAG no longer needs this workaround.
+- Refactor the CircleCI workflows for more flexibility
+- Fix field utils issue - add npes argument to test subroutine decorators.
+- Change MAPL CMake to use `ESMF::ESMF` target instead of `esmf` or `ESMF` as the imported target name
+  - Updated `FindESMF.cmake` to match that of ESMF `develop` as of commit `da8f410`. This will be in ESMF 8.6.1+
+  - Requires ESMA_cmake 3.40.0 or later as this adds the `ESMF::ESMF` target ALIAS for Baselibs and non-Baselibs builds
+- Changed `CMakePresets.json`
+  - Updated to version 7 and required CMake 3.27.0 (the minimum version that supports CMakePresets.json v7)
+  - Changed build style on NCCS machines to by default put build and install directories in a user-specified directory so as not to
+    pollute swdev
+
+### Fixed
+
+- Restore missing submodule interfaces
+- Explictly `use` some `iso_c_binding` types previously pulled in through ESMF. This is fixed in future ESMF versions (8.7+) and so
+  we anticipate this here
+- Add explicit `Fortran_MODULE_DIRECTORY` to `CMakeLists.txt` in benchmarks to avoid race condition in Ninja builds
+- Add check to make sure ESMF was not built as `mpiuni`
+- Fixed failing tests for `field_utils`.
+- Various fixes for NVHPC work
+
+### Removed
+
+### Deprecated
+- The write-by-face option for checkpoint/restart has been depreciated. This has been replaced by a more generic file-per-writer option
+
+## [2.43.2] - 2024-02-06
+
+### Fixed
+
+- Fixed memory leak affecting regional masking. Temporary ESMF field was created but never destroyed
+
+## [2.43.1] - 2024-01-29
+
+### Fixed
+
+- Added 0-size message to o-server root processes (fixes #2557)
+
+## [2.43.0] - 2023-12-21
+
+### Added
+
+- Station sampler: add support to Global Historical Climatology Network Daily (GHCN-D)
+- Add to trajectory sampler DEFINE_OBS_PLATFORM for reading multiple IODA files. To do this, we add union_platform function for observation.
+- New directory (`docs/tutorial/grid_comps/automatic_code_generator`) containing an example showing how to automatically generate the source code using the `MAPL_GridCompSpecs_ACG.py` tool.
+- Added/modified a few _ASSERT calls in ExtData, to better explain what is wrong in .yaml file
+
+### Changed
+
+- Change the verification of the grid in MAPL_GetGlobalHorzIJIndex to avoid collective call
+- Swath grid step 1: allow for destroying and regenerating swath grid and regenerating regridder route handle, and creating
+  allocatable metadata in griddedIO. Modifications are made to GriddedIO.F90, MAPL_AbstractRegridder.F90, and MAPL_EsmfRegridder.F90.
+- Swath grid step 2: add control keywords for swath grid. Allow for filename template with DOY. Allow for missing obs files. User needs to specify index_name_lon/lat, var_name_lon/lat/time, tunit, obs_file_begin/end/interval, Epoch and Epoch_init.
+- Update CI to Baselibs 7.17.0 (for future MAPL3 work) and the BCs v11.3.0 (to fix coupled run)
+- Update `components.yaml`
+  - ESMA_env v4.24.0 (Baselibs 7.17.0)
+- Update CI to use circleci-tools v2
+- Changed the Python MAPL `__init__.py` file to restore behavior from pre-Python3 transition where we did `from foo import *`. Also fix up other Python2 code to Python3.
+
+### Fixed
+
+- Fixed bug broken multi-step file output in History under certain template conditions
+- [#2433] Implemented workarounds for gfortran-13
+- Missing TARGET in GriddedIO - exposed runtime error when using NAG + debug.
+- Allow ExtData2G to be built as SHARED or STATIC
+
+## [2.42.4] - 2023-12-10
+
+### Changed
+
+- Improved error message for missing labels in GridManager.
+
+### Fixed
+
+- Corrected some unit tests (and test utilities) to fix dangling pointers detected by NAG.  Most (possibly all) of these changes are already on release/MAPL-v3, but it was getting annoying to have NAG fail unit tests with develop branch.
+- Fix for CMake an Apple.  Needs to set `__DARWIN` as an fpp flag.  (Only used by NAG, but ...)
+
+## [2.42.3] - 2023-12-06
+
+### Fixed
+
+- `MAPL_Abort()` was passing an uninitialized integer to `MPI_Abort()` resulting in spurious false successes when running ctest.    Maybe was happening frequently, but CI would be blind to this.
+
+## [2.42.2] - 2023-12-05
+
+### Fixed
+
+- Corrected some unit tests (and test utilities) to fix dangling pointers detected by NAG.  Most (possibly all) of these changes are already on release/MAPL-v3, but it was getting annoying to have NAG fail unit tests with develop branch.
+
+## [2.42.1] - 2023-11-20
+
+### Fixed
+
+- Inserted missing USE statement for `C_PTR` in FieldPointerUtilities.F90
+
+## [2.42.0] - 2023-10-27
+
+### Added
+
+- Various workarounds for building MAPL with MPICH
+  - Non-support for `C_PTR` in `MPI_Alloc_Mem` ((MPICH Issue #6691)[https://github.com/pmodels/mpich/issues/6691])
+  - Non-support for `ierror` keyword arguments with `use mpi` ((MPICH Issue #6693)[https://github.com/pmodels/mpich/issues/6693])
+- Add new benchmark to simulation writing a cubed-sphere file using various tunable strategies
+
+### Changed
+
+- Modified fpp macro `_UNUSED_DUMMY(x)` to use ASSOCIATE instead of PRINT. With this change it can be used in PURE procedures.
+- Make error handling in Plain_netCDF_Time consistent with MAPL standard error handling
+- Extend unit tests for FileSystemUtilities.
+- Updated handling of NetCDF time values
+- Update `components.yaml`
+  - ESMA_cmake v3.36.0 (Support for SLES15 at NCCS, support for Intel 2021.10)
+  - ESMA_env v4.20.5 (Support for SLES15 at NCCS)
+
+### Fixed
+
+- Introduced workaround for Intel 2021.10 bug in generic layer.
+- Updated write_by_oserver logic so that the decision to write by the oserver is based on whether the output server client is passed in
+- Updated CI GEOSadas build to use special branch (as stock ADAS at the moment is too far behind GEOSgcm main)
+- Fix incorrect History print during runtime
+
+## [2.41.2] - 2023-10-27
+
+### Fixed
+
+- Fixed missing initialize of pFlogger in a pfio test.  Not clear why this was not failing for other compilers - detected with ifort 2021.10.0.
+
+## [2.41.1] - 2023-10-04
+
+### Fixed
+
+- Adding missing check on the return status when reading import checkpoint in MAPL\_GenericInitialize
+
+## [2.41.0] - 2023-09-22
+
+### Added
+
+- Saved weights and points for the vertical interpolation
+- Added new benchmark suite.  Initial benchmarks are:
+	1. measuring raw bandwidth of a filesystem with multiple independent streams
+	2. measuring the `MPI_Gatherv()` used in writing checkpoints.
+	3. a combo benchmark that does both operations
+- Added the ability to read string attributes of variables.   This is as opposed to "character" attributes - a distinction made by NetCDF.   Previously a small kludge had been used to allow reading string attributes, but was limited to attributes on the global var.
+- Added markdown documentation for select items such as ExtData, History and a few other sources
+- Trajectory sampler with Epoch time span
+- Added utility to convert binary files used by MAPL\_ReadForcing to NetCDF
+- Allow a negative "update\_offset" keyword in the sampling section of ExtData2G's input file by prepending the ISO time duration with a negative sign. I.E -PT12H for example
+- Added three new macros
+  - `_HERE`: Returns the current file and line number
+  - `_RETURN_IF(cond)`: Returns if the condition is true
+  - `_RETURN_UNLESS(cond)`: Returns if the condition is false
+- Created a new `docs` directory that has the following subdirectories
+  - `tutorial`: what used to be a top directory (with the same content)
+  - `user_guide`: a new directory that will serve as MAPL User's Guide.
+- OSSE project: trajectory sampler (regrid to IODA file locations), capable of ingesting multiple files and regridding via one route-handle
+
+### Changed
+
+- Converted hinterp.F to free format (hinterp.F90)
+- Modified tilegrid creation to use index flag ESMF_INDEX_DELOCAL instead of ESMF_INDEX_USER
+- Renamed "geom" subdir and library to "field_utils"
+- Updated CircleCI to use v11.2.0 bcs
+- Backported changes in `pfio` from `release/MAPL-v3` to enable `pfio` unit tests
+- Update `components.yaml`
+  - ESMA_cmake v3.34.0 (Support for Intel Fortran under Rosetta2, updated NAG flags)
+- Cleanup Fortran
+  - Converted all uses of `mpif.h` to `use mpi`
+  - Converted all uses of `character*` to `character(len=)`
+  - Removed many unused variables
+  - Added many `_UNUSED_DUMMY()` calls
+  - Converted statement functions to internal functions
+- Lowered optimization of `ExtDataGridCompMod.F90` and `ExtDataGridCompNG.F90` to -O1 on Intel to speed build
+
+### Fixed
+
+- Fixed the lines order to get the right idle_worker in MultiGroupServer.F90
+- Corrected a typo for checking if fpp macro `_FILE_` was previously defined.
+- Add call to initialize pFlogger layer for the unit tests.
+- Rename `mpi_comm` to `comm` in `MAPL_HistoryGridComp.F90` to avoid GNU
+  + MPT bug at NAS
+- Fix problem with macros in base/MAPL\_Resource.F90 uncovered while compiling with the NVIDIA Fortran compiler.
+  The macros in MAPL\_Resource.F90 had long lines which exceeded the line length limit of the NVIDIA compiler.
+  Change the macros into include files (.h) with macros and Fortran code.
+
+### Removed
+
+- Deleted MAPL_HeapMod.F90.  This file was doing crazy nonstandard things and is not used anywhere else.  A new cleaner implementation based upon containers could be readily created if the functionality is ever missed.
+
+## [2.40.4] - 2023-09-14
+
+### Fixed
+
+- Fixed handling of MAPL dependencies for when `find_package(MAPL)` is used
+
+## [2.40.3] - 2023-08-03
+
+### Changed
+
+- Update `components.yaml`
+  - ESMA_cmake v3.31.1 (Fixes for NAG)
+
+### Fixed
+
+- Undoing previous workaround for NAG + `MAPL_Config.F90` in v2.40.1 which was a workaround was not portable to Linux. Instead, this uses changes in ESMA_cmake v3.31.1 for flags with NAG.
+- Updated `FindESMF.cmake` file to match that of ESMF v8.5.0
+
+## [2.40.2] - 2023-08-01
+
+### Fixed
+
+- Fixed missing TARGET attribute on dummy argument.   NAG aggressively uses copy-in/copy-out which exposes these missing attributes.   This fix probably did not find all - just the ones exercised by one failing test.
+
+## [2.40.1] - 2023-08-01
+
+### Fixed
+
+- Workaround for NAG which prevents reading values from ESMF Config files that have been set using `SetAttribute()`.    The immediate issue appears to be due to a wrong CPP conditional on `ESMF_HAS_ACHAR_BUG', but it is not immediately clear if this is due to recent changes in ESMF or some change in NAG.  Probably ESMF though.  Once the ESMF core team analyzes we will potentially update this fix.
+
+## [2.40.0] - 2023-07-29
+
+### Added
+
+- Add ability of ExtData to fill variables on MAPL "tile" grids.
+- Added print of regrid method during History initialization
+- Added ability to use an `ESMF.rc` file to pass in pre-`ESMF_Initialize` options to ESMF (see [ESMF Docs](https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node4.html#SECTION04024000000000000000) for allowed flags.
+  - NOTE: File *must* be called `ESMF.rc`
+- Added ability to run ExtDataDriver.x on a MAPL "tile" grid
 - Add ability to introduce a time-step delay in ExtDataDriver.x to simulate the timestep latency of a real model
 - Added a MAPL\_Sleep function, equivalent to some vendor supplied but non-standard sleep function
 - sampling IODA file with trajectory sampler (step-1): make it run
 - Convert ExtData to use ESMF HConfig for YAML parsing rather than YaFYAML
   - Set required ESMF version to 8.5.0
-  - Add check in CMake to make sure ESMF version is at least 8.5.0b22 if using a beta snapshot
 - Add StationSamplerMod for station sampler
 - Added ReplaceMetadata message and method to replace oserver's metadata
 - Added field utilities to perform basic numeric operations on fields
@@ -24,23 +556,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updates to GFE library dependency
+  - Require gFTL v1.10.0
+  - Require gFTL-shared v1.6.1
+  - Require fArgParse v1.5.0
+  - Require pFlogger v1.9.5
+  - Removed yaFyaml as dependency
 - Updated programs using FLAP for command line parsing to use fArgParse instead
-- Updated `components.yaml` to match GEOSgcm v11.1.0
-  - ESMA_env v4.9.1 → v4.17.0
-    - Baselibs 7.13.0
-      - esmf v8.5.0b22
-      - GFE v1.10.0
-      - curl 8.1.1
+- Updated `components.yaml` to use Baselibs 7.14.0
+  - ESMA_env v4.9.1 → v4.19.0
+    - Baselibs 7.14.0
+      - esmf v8.5.0
+      - GFE v1.11.0
+      - curl 8.2.1
       - HDF5 1.10.10
       - netCDF-C 4.9.2
       - netCDF-Fortran 4.6.1
-      - CDO 2.2.0
-      - NCO 5.1.5
+      - CDO 2.2.1
+      - NCO 5.1.7
     - Move to MPT 2.28 at NAS, and other various changes for TOSS4 at NAS
-  - ESMA_cmake v3.28.0 → v3.29.0
+    - Remove Haswell from `build.csh`
+  - ESMA_cmake v3.28.0 → v3.31.0
     - Clean up for TOSS4 changes at NAS
+    - Add `QUIET_DEBUG` flag
+    - Suppress some common warnings with Intel Debug
 - Make the GEOSadas CI build separate as it often fails due to race conditions in GSI
-- Update CI to use BCs v11.1.0
+- Update CI to use BCs v11.1.0 and Baselibs 7.14.0
+- Update MAPL_NetCDF public subroutine returns and support for real time
+- Updates to support building MAPL with spack instead of Baselibs
+  - Add `FindESMF.cmake` file to `cmake` directory (as it can't easily be found via spack)
+  - Move `CMAKE_MODULE_PATH` append statement up to find `FindESMF.cmake` before we `find_package(ESMF)`
+  - Default `BUILD_WITH_FLAP` to `OFF` as we don't build it in spack
+  - Explicitly build GEOSadas in CI with `-DBUILD_WITH_FLAP=ON` as GEOSadas is still behind in moving to use fArgParse
 
 ### Fixed
 
@@ -49,8 +596,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixes in CMake for fArgParse transition
 - Corrected bug in HorizontalFluxRegridder.  Fluxes need to be
   multiplied by edge length for correct treatment.
-
-### Removed
 
 ### Deprecated
 

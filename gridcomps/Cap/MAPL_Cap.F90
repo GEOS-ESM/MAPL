@@ -271,15 +271,40 @@ contains
       integer, optional, intent(out) ::rc
 
       integer(kind=INT64) :: start_tick, stop_tick, tick_rate
+      integer :: rank, ierror
       integer :: status
       class(Logger), pointer :: lgr
+      logical :: file_exists
+      type (ESMF_VM) :: vm
+      character(len=:), allocatable :: esmfComm
 
       _UNUSED_DUMMY(unusable)
 
       call start_timer()
 
-      call ESMF_Initialize (logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, rc=status)
+      ! Look for a file called "ESMF.rc" but we want to do this on root and then
+      ! broadcast the result to the other ranks
+
+      call MPI_COMM_RANK(comm, rank, status)
       _VERIFY(status)
+
+      if (rank == 0) then
+         inquire(file='ESMF.rc', exist=file_exists)
+      end if
+      call MPI_BCAST(file_exists, 1, MPI_LOGICAL, 0, comm, status)
+      _VERIFY(status)
+
+      ! If the file exists, we pass it into ESMF_Initialize, else, we
+      ! use the one from the command line arguments
+      if (file_exists) then
+         call ESMF_Initialize (configFileName='ESMF.rc', mpiCommunicator=comm, vm=vm, _RC)
+      else
+         call ESMF_Initialize (logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, vm=vm, _RC)
+      end if
+
+      ! We check to see if ESMF_COMM was built as mpiuni which is not allowed for MAPL
+      call ESMF_VmGet(vm, esmfComm = esmfComm, _RC)
+      _ASSERT( esmfComm /= 'mpiuni', 'ESMF_COMM=mpiuni is not allowed for MAPL')
 
       ! Note per ESMF this is a temporary routine as eventually MOAB will
       ! be the only mesh generator. But until then, this allows us to
@@ -418,7 +443,7 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: ierror
+      integer :: ierror, status
       integer :: provided
       integer :: npes_world
 
@@ -428,15 +453,24 @@ contains
       _VERIFY(ierror)
 
       if (.not. this%mpi_already_initialized) then
-!!$         call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierror)
-!!$         _ASSERT(provided == MPI_THREAD_MULTIPLE, 'MPI_THREAD_MULTIPLE not supporte by this MPI.')
-         call MPI_Init_thread(MPI_THREAD_SINGLE, provided, ierror)
-         _VERIFY(ierror)
-         _ASSERT(provided == MPI_THREAD_SINGLE, "MPI_THREAD_SINGLE not supported by this MPI.")
-      end if
 
-      call MPI_Comm_rank(this%comm_world, this%rank, ierror); _VERIFY(ierror)
-      call MPI_Comm_size(this%comm_world, npes_world, ierror); _VERIFY(ierror)
+         call ESMF_InitializePreMPI(_RC)
+         call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierror)
+         _VERIFY(ierror)
+         _ASSERT(provided == MPI_THREAD_MULTIPLE, 'MPI_THREAD_MULTIPLE not supported by this MPI.')
+      else
+         ! If we are here, then MPI has already been initialized by the user
+         ! and we are just using it. But we need to make sure that the user
+         ! has initialized MPI with the correct threading level.
+         call MPI_Query_thread(provided, ierror)
+         _VERIFY(ierror)
+      end if
+      _ASSERT(provided == MPI_THREAD_MULTIPLE, 'MPI_THREAD_MULTIPLE not supported by this MPI.')
+
+      call MPI_Comm_rank(this%comm_world, this%rank, status)
+      _VERIFY(status)
+      call MPI_Comm_size(this%comm_world, npes_world, status)
+      _VERIFY(status)
 
       if ( this%cap_options%npes_model == -1) then
          ! just a feed back to cap_options to maintain integrity

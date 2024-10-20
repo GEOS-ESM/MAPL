@@ -26,12 +26,13 @@ module MAPL_GriddedIOMod
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL64
   use ieee_arithmetic, only: isnan => ieee_is_nan
+  use netcdf, only: nf90_inq_libvers
   implicit none
 
   private
 
   type, public :: MAPL_GriddedIO
-     type(FileMetaData) :: metadata
+     type(FileMetaData), allocatable :: metadata
      type(fileMetadataUtils), pointer :: current_file_metadata
      integer :: write_collection_id
      integer :: read_collection_id
@@ -51,14 +52,17 @@ module MAPL_GriddedIOMod
      type(VerticalData) :: vdata
      type(GriddedIOitemVector) :: items
      integer :: deflateLevel = 0
-     integer :: quantizeAlgorithm = 1
+     integer :: quantizeAlgorithm = MAPL_NOQUANTIZE
      integer :: quantizeLevel = 0
+     integer :: zstandardLevel = 0
      integer, allocatable :: chunking(:)
      logical :: itemOrderAlphabetical = .true.
      integer :: fraction
+     integer :: regrid_hints = 0
      contains
         procedure :: CreateFileMetaData
         procedure :: CreateVariable
+        procedure :: CreateQuantizationInfo
         procedure :: modifyTime
         procedure :: modifyTimeIncrement
         procedure :: bundlePost
@@ -73,6 +77,7 @@ module MAPL_GriddedIOMod
         procedure :: request_data_from_file
         procedure :: process_data_from_file
         procedure :: swap_undef_value
+        procedure :: destroy
   end type MAPL_GriddedIO
 
   interface MAPL_GriddedIO
@@ -108,13 +113,13 @@ module MAPL_GriddedIOMod
      end function new_MAPL_GriddedIO
 
      subroutine CreateFileMetaData(this,items,bundle,timeInfo,vdata,ogrid,global_attributes,rc)
-        class (MAPL_GriddedIO), intent(inout) :: this
+        class (MAPL_GriddedIO), target, intent(inout) :: this
         type(GriddedIOitemVector), target, intent(inout) :: items
         type(ESMF_FieldBundle), intent(inout) :: bundle
         type(TimeData), intent(inout) :: timeInfo
         type(VerticalData), intent(inout), optional :: vdata
         type (ESMF_Grid), intent(inout), pointer, optional :: ogrid
-        type(StringStringMap), intent(in), optional :: global_attributes
+        type(StringStringMap), target, intent(in), optional :: global_attributes
         integer, intent(out), optional :: rc
 
         type(ESMF_Grid) :: input_grid
@@ -126,7 +131,13 @@ module MAPL_GriddedIOMod
         integer :: metadataVarsSize
         type(StringStringMapIterator) :: s_iter
         character(len=:), pointer :: attr_name, attr_val
+        class(Variable), pointer :: coord_var
         integer :: status
+
+        if ( allocated (this%metadata) ) deallocate(this%metadata)
+        allocate(this%metadata)
+
+        call MAPL_FieldBundleDestroy(this%output_bundle, _RC)
 
         this%items = items
         this%input_bundle = bundle
@@ -141,8 +152,10 @@ module MAPL_GriddedIOMod
            call ESMF_FieldBundleGet(this%input_bundle,grid=this%output_grid,rc=status)
            _VERIFY(status)
         end if
-        this%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%output_grid,this%regrid_method,rc=status)
+
+        this%regrid_handle => new_regridder_manager%make_regridder(input_grid,this%output_grid,this%regrid_method,hints=this%regrid_hints,rc=status)
         _VERIFY(status)
+
 
         ! We get the regrid_method here because in the case of Identity, we set it to
         ! REGRID_METHOD_IDENTITY in the regridder constructor if identity. Now we need
@@ -155,6 +168,15 @@ module MAPL_GriddedIOMod
         factory => get_factory(this%output_grid,rc=status)
         _VERIFY(status)
         call factory%append_metadata(this%metadata)
+        coord_var => this%metadata%get_variable('lons')
+        if (associated(coord_var)) call coord_var%set_deflation(this%deflateLevel)
+        coord_var => this%metadata%get_variable('lats')
+        if (associated(coord_var)) call coord_var%set_deflation(this%deflateLevel)
+        coord_var => this%metadata%get_variable('corner_lons')
+        if (associated(coord_var)) call coord_var%set_deflation(this%deflateLevel)
+        coord_var => this%metadata%get_variable('corner_lats')
+        if (associated(coord_var)) call coord_var%set_deflation(this%deflateLevel)
+
 
         if (present(vdata)) then
            this%vdata=vdata
@@ -171,7 +193,6 @@ module MAPL_GriddedIOMod
         call this%timeInfo%add_time_to_metadata(this%metadata,rc=status)
         _VERIFY(status)
 
-        iter = this%items%begin()
         if (.not.allocated(this%chunking)) then
            call this%set_default_chunking(rc=status)
            _VERIFY(status)
@@ -183,6 +204,12 @@ module MAPL_GriddedIOMod
         _VERIFY(status)
         metadataVarsSize = order%size()
 
+        ! If quantize algorithm is set, create a quantization_info variable
+        if (this%quantizeAlgorithm /= MAPL_NOQUANTIZE) then
+           call this%CreateQuantizationInfo(_RC)
+        end if
+
+        iter = this%items%begin()
         do while (iter /= this%items%end())
            item => iter%get()
            if (item%itemType == ItemTypeScalar) then
@@ -213,18 +240,29 @@ module MAPL_GriddedIOMod
         end if
         _RETURN(_SUCCESS)
 
-     end subroutine CreateFileMetaData
+      end subroutine CreateFileMetaData
 
-     subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,nbits_to_keep,regrid_method,itemOrder,write_collection_id,rc)
+
+      subroutine destroy(this, rc)
+        class (MAPL_GriddedIO), intent(inout) :: this
+        integer, intent(out), optional :: rc
+        if(allocated(this%chunking)) deallocate(this%chunking)
+        _RETURN(_SUCCESS)
+      end subroutine destroy
+
+
+     subroutine set_param(this,deflation,quantize_algorithm,quantize_level,zstandard_level,chunking,nbits_to_keep,regrid_method,itemOrder,write_collection_id,regrid_hints,rc)
         class (MAPL_GriddedIO), intent(inout) :: this
         integer, optional, intent(in) :: deflation
         integer, optional, intent(in) :: quantize_algorithm
         integer, optional, intent(in) :: quantize_level
+        integer, optional, intent(in) :: zstandard_level
         integer, optional, intent(in) :: chunking(:)
         integer, optional, intent(in) :: nbits_to_keep
         integer, optional, intent(in) :: regrid_method
         logical, optional, intent(in) :: itemOrder
         integer, optional, intent(in) :: write_collection_id
+        integer, optional, intent(in) :: regrid_hints
         integer, optional, intent(out) :: rc
 
         integer :: status
@@ -234,12 +272,14 @@ module MAPL_GriddedIOMod
         if (present(deflation)) this%deflateLevel = deflation
         if (present(quantize_algorithm)) this%quantizeAlgorithm = quantize_algorithm
         if (present(quantize_level)) this%quantizeLevel = quantize_level
+        if (present(zstandard_level)) this%zstandardLevel = zstandard_level
         if (present(chunking)) then
            allocate(this%chunking,source=chunking,stat=status)
            _VERIFY(status)
         end if
         if (present(itemOrder)) this%itemOrderAlphabetical = itemOrder
         if (present(write_collection_id)) this%write_collection_id=write_collection_id
+        if (present(regrid_hints)) this%regrid_hints = regrid_hints
         _RETURN(ESMF_SUCCESS)
 
      end subroutine set_param
@@ -372,7 +412,7 @@ module MAPL_GriddedIOMod
               _FAIL( 'Unsupported field rank')
            end if
         end if
-        v = Variable(type=PFIO_REAL32,dimensions=vdims,chunksizes=this%chunking,deflation=this%deflateLevel,quantize_algorithm=this%quantizeAlgorithm,quantize_level=this%quantizeLevel)
+        v = Variable(type=PFIO_REAL32,dimensions=vdims,chunksizes=this%chunking,deflation=this%deflateLevel,quantize_algorithm=this%quantizeAlgorithm,quantize_level=this%quantizeLevel,zstandard_level=this%zstandardLevel)
         call v%add_attribute('units',trim(units))
         call v%add_attribute('long_name',trim(longName))
         call v%add_attribute('standard_name',trim(longName))
@@ -392,6 +432,31 @@ module MAPL_GriddedIOMod
 #else
         call v%add_attribute('regrid_method', regrid_method_int_to_string(this%regrid_method))
 #endif
+        ! The CF Convention will soon support quantization. This requires three new attributes
+        ! if enabled:
+        ! 1. quantization --> Will point to a quantization_info container with the quantization algorithm
+        !                     (NOTE: this will need to be programmatic when per-variable quantization is enabled)
+        ! 2a. quantization_nsb --> Number of significant bits (only for bitround)
+        ! 2b. quantization_nsd --> Number of significant digits (only for bitgroom and granular_bitround)
+        ! 3. quantization_maximum_relative_error --> Maximum relative error (defined as 2^(-nsb) for bitround, and UNDEFINED? for bitgroom and granular_bitround)
+
+        ! Bitround
+        if (this%quantizeAlgorithm == MAPL_QUANTIZE_BITROUND) then
+           call v%add_attribute('quantization', 'quantization_info')
+           call v%add_attribute('quantization_nsb', this%quantizeLevel)
+           call v%add_attribute('quantization_maximum_relative_error', 0.5 * 2.0**(-this%quantizeLevel))
+        end if
+        ! granular_bitround and bitgroom
+        if (this%quantizeAlgorithm == MAPL_QUANTIZE_BITGROOM .or. this%quantizeAlgorithm == MAPL_QUANTIZE_GRANULAR_BITROUND) then
+           call v%add_attribute('quantization', 'quantization_info')
+           call v%add_attribute('quantization_nsd', this%quantizeLevel)
+           ! Per czender, these have maximum_absolute_error. We use the calculate_mae function below
+           ! which replicates a table in doi 10.5194/gmd-12-4099-2019
+           ! NOTE: This might not be the right formula. As the CF Convention draft is updated,
+           ! we will update this code.
+           call v%add_attribute('quantization_maximum_absolute_error', calculate_mae(this%quantizeLevel))
+        end if
+
         call factory%append_variable_metadata(v)
         call this%metadata%add_variable(trim(varName),v,rc=status)
         _VERIFY(status)
@@ -410,6 +475,81 @@ module MAPL_GriddedIOMod
         _RETURN(_SUCCESS)
 
      end subroutine CreateVariable
+
+     function calculate_mae(nsd) result(mae)
+
+        ! This function is based on Table 3 of doi 10.5194/gmd-12-4099-2019
+        ! The algorithm is weird, but it does duplicate the table
+
+        integer, intent(in) :: nsd
+        real(kind=REAL32) :: mae
+        real(kind=REAL32) :: mae_base
+        integer :: correction
+
+        mae_base = 4.0 * (1.0/16.0)**floor(real(nsd)/2.0) * (1.0/8.0)**ceiling(real(nsd)/2.0)
+
+        correction = 1
+        if ( (nsd > 2 .and. mod(nsd, 2) == 0) .or. nsd == 7 ) then
+           correction = 2
+        end if
+
+        mae = mae_base * correction
+     end function calculate_mae
+
+     subroutine CreateQuantizationInfo(this,rc)
+        class (MAPL_GriddedIO), intent(inout) :: this
+        integer, optional, intent(out) :: rc
+
+        integer :: status
+
+        class (AbstractGridFactory), pointer :: factory
+        character(len=:), allocatable :: varName, netcdf_version
+        type(Variable) :: v
+
+        factory => get_factory(this%output_grid,_RC)
+
+        v = Variable(type=PFIO_CHAR)
+
+        ! In the future when we can do per variable quantization, we will need
+        ! to do things like quantization_info1, quantization_info2, etc.
+        ! For now, we will just use quantization_info as it is per collection
+        varName = "quantization_info"
+
+        ! We need to convert the quantization algorithm to a string
+        select case (this%quantizeAlgorithm)
+        case (MAPL_QUANTIZE_BITGROOM)
+           call v%add_attribute('algorithm', 'bitgroom')
+        case (MAPL_QUANTIZE_BITROUND)
+           call v%add_attribute('algorithm', 'bitround')
+        case (MAPL_QUANTIZE_GRANULAR_BITROUND)
+           call v%add_attribute('algorithm', 'granular_bitround')
+        case default
+           _FAIL('Unknown quantization algorithm')
+        end select
+
+        ! Next add the implementation details
+        ! 3. implementation: This property contains free-form text
+        ! that concisely conveys the algorithm provenance, including the
+        ! name of the library or client that performed the quantization,
+        ! the software version, and the name of the author(s) if deemed
+        ! relevant.
+        !
+        ! In the current case, all algorithms are from libnetcdf
+        ! we make a string using nf90_inq_libvers()
+
+        netcdf_version = 'libnetcdf ' // nf90_inq_libvers()
+        call v%add_attribute('implementation', netcdf_version)
+
+        ! NOTE: In the future if we add the MAPL bit-shaving
+        ! to use the quantization parts of the code, it will
+        ! need a different implementation string
+
+        call factory%append_variable_metadata(v)
+        call this%metadata%add_variable(trim(varName),v,_RC)
+
+        _RETURN(_SUCCESS)
+
+     end subroutine CreateQuantizationInfo
 
      subroutine modifyTime(this, oClients, rc)
         class(MAPL_GriddedIO), intent(inout) :: this
@@ -455,7 +595,7 @@ module MAPL_GriddedIOMod
       end subroutine modifyTimeIncrement
 
      subroutine bundlepost(this,filename,oClients,rc)
-        class (MAPL_GriddedIO), intent(inout) :: this
+        class (MAPL_GriddedIO), target, intent(inout) :: this
         character(len=*), intent(in) :: filename
         type (ClientManager), optional, intent(inout) :: oClients
         integer, optional, intent(out) :: rc
@@ -468,7 +608,7 @@ module MAPL_GriddedIOMod
         type(GriddedIOitemVectorIterator) :: iter
         type(GriddedIOitem), pointer :: item
         logical :: have_time
-  
+
         have_time = this%timeInfo%am_i_initialized()
 
         if (have_time) then
@@ -483,6 +623,7 @@ module MAPL_GriddedIOMod
            end if
         else
            tindex = -1
+           call this%stage2DLatLon(filename,oClients=oClients,_RC)
         end if
 
         if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
@@ -545,6 +686,8 @@ module MAPL_GriddedIOMod
         real, allocatable, target :: ptr3d_inter(:,:,:)
         type(ESMF_Grid) :: gridIn,gridOut
         logical :: hasDE_in, hasDE_out
+
+        ptr3d => null()
 
         call ESMF_FieldBundleGet(this%output_bundle,itemName,field=outField,rc=status)
         _VERIFY(status)
@@ -727,8 +870,8 @@ module MAPL_GriddedIOMod
               yptr3d => yptr3d_inter
            end if
         else
-           if (associated(xptr3d)) nullify(xptr3d)
-           if (associated(yptr3d)) nullify(yptr3d)
+           nullify(xptr3d)
+           nullify(yptr3d)
         end if
 
         call ESMF_FieldBundleGet(this%input_bundle,xname,field=xfield,rc=status)
@@ -810,14 +953,14 @@ module MAPL_GriddedIOMod
      end subroutine RegridVector
 
   subroutine stage2DLatLon(this, fileName, oClients, rc)
-     class (MAPL_GriddedIO), intent(inout) :: this
+     class (MAPL_GriddedIO), target, intent(inout) :: this
      character(len=*), intent(in) :: fileName
-     type (ClientManager), optional, intent(inout) :: oClients
+     type (ClientManager), optional, target, intent(inout) :: oClients
      integer, optional, intent(out) :: rc
 
      integer :: status
      real(REAL64), pointer :: ptr2d(:,:)
-     type(ArrayReference) :: ref
+     type(ArrayReference), target :: ref
      class (AbstractGridFactory), pointer :: factory
      integer, allocatable :: localStart(:),globalStart(:),globalCount(:)
      logical :: hasll
@@ -838,9 +981,11 @@ module MAPL_GriddedIOMod
         farrayPtr=ptr2d, rc=status)
         _VERIFY(STATUS)
         this%lons=ptr2d*MAPL_RADIANS_TO_DEGREES
+
         ref = ArrayReference(this%lons)
-         call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
-              ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
+        call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
+             ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
+
         call ESMF_GridGetCoord(this%output_grid, localDE=0, coordDim=2, &
         staggerloc=ESMF_STAGGERLOC_CENTER, &
         farrayPtr=ptr2d, rc=status)
@@ -881,6 +1026,7 @@ module MAPL_GriddedIOMod
          call oClients%collective_stage_data(this%write_collection_id,trim(filename),'corner_lats', &
               ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
      end if
+
      _RETURN(_SUCCESS)
 
   end subroutine stage2DLatLon
@@ -934,11 +1080,12 @@ module MAPL_GriddedIOMod
            allocate(ptr2d(0,0))
         end if
         ref = factory%generate_file_reference2D(Ptr2D)
-        allocate(localStart,source=[gridLocalStart,1])
         if (tindex > -1) then
+           allocate(localStart,source=[gridLocalStart,1])
            allocate(globalStart,source=[gridGlobalStart,tindex])
            allocate(globalCount,source=[gridGlobalCount,1])
         else
+           allocate(localStart,source=[gridLocalStart])
            allocate(globalStart,source=gridGlobalStart)
            allocate(globalCount,source=gridGlobalCount)
         end if
@@ -955,17 +1102,19 @@ module MAPL_GriddedIOMod
             allocate(ptr3d(0,0,0))
          end if
          ref = factory%generate_file_reference3D(Ptr3D)
-         allocate(localStart,source=[gridLocalStart,1,1])
          if (tindex > -1) then
+            allocate(localStart,source=[gridLocalStart,1,1])
             allocate(globalStart,source=[gridGlobalStart,1,tindex])
             allocate(globalCount,source=[gridGlobalCount,lm,1])
          else
+            allocate(localStart,source=[gridLocalStart,1])
             allocate(globalStart,source=[gridGlobalStart,1])
             allocate(globalCount,source=[gridGlobalCount,lm])
          end if
       else
          _FAIL( "Rank not supported")
       end if
+
       call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(fieldName), &
            ref,start=localStart, global_start=GlobalStart, global_count=GlobalCount)
       _RETURN(_SUCCESS)
@@ -1046,7 +1195,7 @@ module MAPL_GriddedIOMod
      type(ESMF_Grid) :: output_grid
      logical :: hasDE
      class(AbstractGridFactory), pointer :: factory
-     real(REAL32) :: missing_value
+     integer :: regrid_hints
 
      collection => Datacollections%at(this%metadata_collection_id)
      this%current_file_metadata => collection%find(filename, _RC)
@@ -1057,7 +1206,7 @@ module MAPL_GriddedIOMod
      call ESMF_FieldBundleGet(this%output_bundle,grid=output_grid,rc=status)
      _VERIFY(status)
      if (filegrid/=output_grid) then
-        this%regrid_handle => new_regridder_manager%make_regridder(filegrid,output_grid,this%regrid_method,rc=status)
+        this%regrid_handle => new_regridder_manager%make_regridder(filegrid,output_grid,this%regrid_method,hints=this%regrid_hints,rc=status)
         _VERIFY(status)
      end if
      call MAPL_GridGet(filegrid,globalCellCountPerdim=dims,rc=status)
@@ -1113,7 +1262,7 @@ module MAPL_GriddedIOMod
         end if
         call i_Clients%collective_prefetch_data( &
              this%read_collection_id, fileName, trim(names(i)), &
-             & ref, start=localStart, global_start=globalStart, global_count=globalCount)
+             & ref, start=localStart, global_start=globalStart, global_count=globalCount, _RC)
         deallocate(localStart,globalStart,globalCount)
      enddo
      deallocate(gridLocalStart,gridGlobalStart,gridGlobalCount)

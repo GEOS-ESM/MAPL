@@ -15,7 +15,9 @@ set (TEST_SRCS
     test_DirPath.pf
     test_TimeStringConversion.pf
     test_MAPL_NetCDF.pf
+    Test_MAPL_Resource.pf
 #    test_MAPL_ISO8601_DateTime_ESMF.pf
+#    test_MAPL_DateTime_Parsing_ESMF.pf
   )
 
 # SRCS are mostly mocks to facilitate tests
@@ -31,18 +33,19 @@ set (SRCS
 #  MAPL_Initialize.F90
 #  )
 #target_link_libraries (base_extras MAPL.shared MAPL.pfunit
-#                                   esmf NetCDF::NetCDF_Fortran)
+#                                   ESMF::ESMF NetCDF::NetCDF_Fortran)
 
 add_pfunit_ctest(MAPL.base.tests
                 TEST_SOURCES ${TEST_SRCS}
                 OTHER_SOURCES ${SRCS}
 #                LINK_LIBRARIES MAPL.base MAPL.shared MAPL.pfio base_extras MAPL.pfunit
-                LINK_LIBRARIES MAPL.base MAPL.shared MAPL.constants MAPL.pfio MAPL.pfunit
+                LINK_LIBRARIES MAPL.base MAPL.shared MAPL.constants MAPL.generic MAPL.pfio MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE MAPL_pFUnit_Initialize
                 MAX_PES 8
                 )
 set_target_properties(MAPL.base.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+set_tests_properties(MAPL.base.tests PROPERTIES LABELS "ESSENTIAL")
 
 add_dependencies(build-tests MAPL.base.tests)
 

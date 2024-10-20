@@ -149,7 +149,7 @@ class Date(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         #Last day of the month.
         if self.day == NumberDaysMonth(self.month, self.year):
             self.day = 1
@@ -230,7 +230,7 @@ class Date(object):
             #Convert back to date format.
             return DateFromJDNumber(temp)
         else:
-            raise TypeError, "%s is not an integer." % str(n)
+            raise TypeError("%s is not an integer." % str(n))
 
     def __sub__(self, date):
         """Returns the (signed) difference of days between the dates."""
@@ -253,7 +253,7 @@ class Date(object):
                         ret += NumberDaysYear(year)
                     return ret
         else:
-            raise TypeError, "%s is neither an integer nor a Date." % str(date)
+            raise TypeError("%s is neither an integer nor a Date." % str(date))
 
     #Adding an integer is "commutative".
     def __radd__(self, n):
@@ -283,7 +283,7 @@ class Date(object):
 def DateFromJDNumber(n):
     """Returns a date corresponding to the given Julian day number."""
     if not isinstance(n, int):
-        raise TypeError, "%s is not an integer." % str(n)
+        raise TypeError("%s is not an integer." % str(n))
 
     a = n + 32044
     b = (4*a + 3)//146097
@@ -320,21 +320,21 @@ if __name__ == "__main__":
     temp = Date()
     curr_month = temp.month
     while temp.month == curr_month:
-        print temp
-        temp.next()
+        print(temp)
+        next(temp)
 
-    print "\n"
+    print("\n")
 
     #How many days until the end of the year?
     temp = Date()
     temp.day, temp.month = 1, 1
     curr_year = temp.year
     while temp.year == curr_year:
-        print "%s is %d days away from the end of the year." % (str(temp),
-                                                                temp.DaysToEndYear())
+        print("%s is %d days away from the end of the year." % (str(temp),
+                                                                temp.DaysToEndYear()))
         temp += NumberDaysMonth(temp.month)
 
-    print "\n"
+    print("\n")
 
     #Playing with __sub__.
     temp = Date()
@@ -344,11 +344,11 @@ if __name__ == "__main__":
         temp_list.append(temp)
         temp += NumberDaysMonth(temp.month)
     for elem in temp_list:
-        print "%s differs %d days from current date: %s" % (str(elem),
+        print("%s differs %d days from current date: %s" % (str(elem),
                                                             elem - Date(),
-                                                            str(Date()))
+                                                            str(Date())))
 
-    print "\n"
+    print("\n")
 
     #Swapping arguments works?
-    print 23 + Date()
+    print(23 + Date())

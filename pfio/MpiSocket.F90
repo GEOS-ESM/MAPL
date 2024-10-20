@@ -3,7 +3,6 @@
 
 module pFIO_MpiSocketMod
    use iso_c_binding
-   use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: INT64
    use MAPL_ExceptionHandling
    use pFIO_AbstractSocketMod
@@ -79,9 +78,11 @@ contains
       s%world_remote_rank = remote_rank
 
       call MPI_Comm_rank(comm, local_rank, ierror)
+      _VERIFY(ierror)
       s%world_local_rank = local_rank
 
       call MPI_Comm_group(comm, world_group, ierror)
+      _VERIFY(ierror)
 
       ! Enforce consistent ordering in new communicator/group
       if (local_rank < remote_rank) then
@@ -94,7 +95,9 @@ contains
          s%pair_remote_rank = 0
       end if
       call MPI_Group_incl(world_group, 2, ranks, pair_group, ierror)
+      _VERIFY(ierror)
       call MPI_Comm_create_group(comm, pair_group, PAIR_TAG, s%pair_comm, ierror)
+      _VERIFY(ierror)
       _RETURN(_SUCCESS)
    end function new_MpiSocket
 
@@ -109,18 +112,21 @@ contains
       integer :: count
 
       call MPI_Probe(this%pair_remote_rank, MESSAGE_TAG, this%pair_comm, status, ierror)
+      _VERIFY(ierror)
       call MPI_Get_count(status, MPI_INTEGER, count, ierror)
+      _VERIFY(ierror)
 
       allocate(buffer(count))
       call MPI_Recv(buffer, count, MPI_INTEGER, this%pair_remote_rank, MESSAGE_TAG, this%pair_comm, &
            & status, ierror)
+      _VERIFY(ierror)
 
       allocate(message, source=this%parser%decode(buffer))
       _RETURN(_SUCCESS)
    end function receive
 
    subroutine send(this, message, rc)
-      class (MpiSocket), intent(inout) :: this
+      class (MpiSocket), target, intent(inout) :: this
       class (AbstractMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 
@@ -130,6 +136,7 @@ contains
       buffer = this%parser%encode(message)
       call MPI_Send(buffer, size(buffer), MPI_INTEGER, this%pair_remote_rank, MESSAGE_TAG, this%pair_comm, &
            & ierror)
+      _VERIFY(ierror)
       _RETURN(_SUCCESS)      
    end subroutine send
 
@@ -166,6 +173,7 @@ contains
       call c_f_pointer(local_reference%base_address, data, shape=[n_words])
       if (n_words ==0) allocate(data(1))
       call MPI_Isend(data, n_words, MPI_INTEGER, this%pair_remote_rank, tag, this%pair_comm, request, ierror)
+      _VERIFY(ierror)
       allocate(handle, source=MpiRequestHandle(local_reference, request))
       if (n_words ==0) deallocate(data)
       _RETURN(_SUCCESS)
@@ -173,7 +181,7 @@ contains
 
    function get(this, request_id, local_reference, rc) result(handle)
       class (AbstractRequestHandle), allocatable :: handle
-      class (MpiSocket), intent(inout) :: this
+      class (MpiSocket), target, intent(inout) :: this
       integer, intent(in) :: request_id
       class (AbstractDataReference), intent(in) :: local_reference
       integer, optional, intent(out) :: rc
@@ -191,20 +199,19 @@ contains
       call c_f_pointer(local_reference%base_address, data, shape=[n_words])
       if (n_words ==0) allocate(data(1))
       call MPI_Irecv(data, n_words, MPI_INTEGER, this%pair_remote_rank, tag, this%pair_comm, request, ierror)
+      _VERIFY(ierror)
       allocate(handle, source=MpiRequestHandle(local_reference, request))
       if (n_words ==0) deallocate(data)
       _RETURN(_SUCCESS)
    end function get
 
    subroutine wait(this, rc)
-      class (MpiRequestHandle), intent(inout) :: this
+      class (MpiRequestHandle), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: ierror
       integer :: status(MPI_STATUS_SIZE)
-      integer :: save_request
 
-      save_request = this%mpi_request
       call MPI_Wait(this%mpi_request, status, ierror)
       _VERIFY(ierror)
       _RETURN(_SUCCESS)

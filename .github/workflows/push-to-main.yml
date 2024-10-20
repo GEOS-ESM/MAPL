@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3.3.0
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Run the action
@@ -20,7 +20,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           source_branch: main
           target_branch: develop
-          label: automatic
+          label: ":wrench: Github Actions"
           template: .github/PULL_REQUEST_TEMPLATE/gitflow_main_develop.md
           get_diff: true
           assignee: ${{ github.actor }}

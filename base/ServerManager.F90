@@ -153,6 +153,7 @@ contains
      if ( index(s_name, 'model') /=0 ) then
         client_comm = this%split_comm%get_subcommunicator()
         call MPI_Comm_Rank(client_comm,rank,status)
+        _VERIFY(status)
         if (npes_in(1)  == 0 .and. nodes_in(1)  == 0) profiler_name = "i_server_client"
         if (npes_out(1) == 0 .and. nodes_out(1) == 0) profiler_name = "o_server_client"
         if (npes_out(1) == 0 .and. nodes_out(1) == 0 .and. &
@@ -194,6 +195,7 @@ contains
            call this%directory_service%publish(PortInfo(s_name,this%i_server), this%i_server)
            call this%directory_service%connect_to_client(s_name, this%i_server)
            call MPI_Comm_Rank(this%split_comm%get_subcommunicator(),rank,status)
+           _VERIFY(status)
            if (rank == 0 .and. nodes_in(1) /=0 ) then
               write(*,'(A,I0,A)')"Starting pFIO input server on ",nodes_in(i)," nodes"
            else if (rank==0 .and. npes_in(1) /=0 ) then
@@ -210,6 +212,7 @@ contains
         endif
 
         call mpi_barrier(comm, status)
+        _VERIFY(status)
 
      enddo
 
@@ -217,6 +220,7 @@ contains
      do i = 1, n_oserver_group
 
         if ( trim(s_name) =='o_server'//trim(i_to_string(i)) ) then
+
            if (oserver_type_ == 'multicomm' ) then
 
               allocate(this%o_server, source = MultiCommServer(this%split_comm%get_subcommunicator(), s_name, npes_out_backend))
@@ -227,11 +231,14 @@ contains
                        npes_out_backend, './pfio_writer.x'))
 
            else if (oserver_type_ == 'multigroup' ) then
-
+ 
               allocate(this%o_server, source = MultiGroupServer(this%split_comm%get_subcommunicator(), s_name, npes_out_backend, &
                                                                 with_profiler=with_profiler, rc=status), stat=stat_alloc)
               _VERIFY(status)
               _VERIFY(stat_alloc)
+              if (nodes_out(i) > 0 .and. this%o_server%node_num /= nodes_out(i)) then
+                 _FAIL("Inconsistent output server number. " // "The requested "//i_to_string(nodes_out(i)) //" nodes for output server is different from available "//i_to_string(this%o_server%node_num)// " nodes")
+              endif
            else
 
               allocate(this%o_server, source = MpiServer(this%split_comm%get_subcommunicator(), s_name, with_profiler=with_profiler, rc=status), stat=stat_alloc)
@@ -242,6 +249,7 @@ contains
            call this%directory_service%publish(PortInfo(s_name,this%o_server), this%o_server)
            call this%directory_service%connect_to_client(s_name, this%o_server)
            call MPI_Comm_Rank(this%split_comm%get_subcommunicator(),rank,status)
+           _VERIFY(status)
            if (rank == 0 .and. nodes_out(1) /=0 ) then
               write(*,'(A,I0,A)')"Starting pFIO output server on ",nodes_out(i)," nodes"
            else if (rank==0 .and. npes_out(1) /=0 ) then
@@ -258,6 +266,7 @@ contains
         endif
 
         call mpi_barrier(comm, status)
+        _VERIFY(status)
 
      enddo
 

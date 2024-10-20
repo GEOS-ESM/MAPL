@@ -128,6 +128,7 @@ CONTAINS
        pole=grid_name(1:2)
 
        cf = MAPL_ConfigCreate(_RC)
+       call MAPL_ConfigSetAttribute(cf,value=NX, label=trim(grid_name)//".other:",_RC)
        call MAPL_ConfigSetAttribute(cf,value=NX, label=trim(grid_name)//".NX:",_RC)
        call MAPL_ConfigSetAttribute(cf,value=lm, label=trim(grid_name)//".LM:",_RC)
        if (jm_world==6*im_world) then
@@ -150,7 +151,7 @@ CONTAINS
           call MAPL_ConfigSetAttribute(cf,value=dateline, label=trim(grid_name)//".DATELINE:",_RC)
        end if
 
-
+       _RETURN(_SUCCESS)
      end function create_cf
 
     function create_gridname(im,jm,date,pole) result(gridname)
@@ -260,7 +261,7 @@ CONTAINS
     call UnpackGridName(Gridname,im_world_new,jm_world_new,dateline_new,pole_new)
 
     lm_world=3
-    cfoutput = create_cf(gridname,im_world_new,jm_world_new,nx,ny,lm_world,cs_stretch_param,_RC)
+    cfoutput = create_cf(trim(gridname),im_world_new,jm_world_new,nx,ny,lm_world,cs_stretch_param,_RC)
     grid_new=grid_manager%make_grid(cfoutput,prefix=trim(gridname)//".",_RC)
     bundle=ESMF_FieldBundleCreate(name="cfio_bundle",_RC)
     call ESMF_FieldBundleSet(bundle,grid=grid_new,_RC)

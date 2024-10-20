@@ -1,4 +1,4 @@
-!------------------------------------------------------------------------------
+!!------------------------------------------------------------------------------
 !               Global Modeling and Assimilation Office (GMAO)                !
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
@@ -75,7 +75,7 @@
 ! MAPL_GenericSetServices and MAPL_Generic IRF methods cannot create their own ESMF grid.
 ! The grid must be inherited from the parent or created by the component
 ! either in its own SetServices or in its Initialize, if it is writing one.
-! In any case, an important assumption of MAPL is that the grid must  already be 
+! In any case, an important assumption of MAPL is that the grid must  already be
 ! *present in the component and initialized* when MAPL_GenericSetServices is invoked.
 ! The same is true of the configuration.
 !
@@ -133,6 +133,7 @@ module MAPL_GenericMod
    use MaplShared, only: get_file_extension
    use MAPL_RunEntryPoint
    use MAPL_ResourceMod
+   use MAPL_VarSpecTypeMod, only: positive_length
    use, intrinsic :: ISO_C_BINDING
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, int32, int64
    use, intrinsic :: iso_fortran_env, only: OUTPUT_UNIT
@@ -490,6 +491,7 @@ contains
 !=============================================================================
 !>
 ! `MAPL_GenericSetServices` performs the following tasks:
+!
 !- Allocate an instance of MAPL\_GenericState, wrap it, and set it as the
 !   GC's internal state.
 !- Exract the grid and configuration from the GC and save them in the
@@ -894,8 +896,6 @@ contains
       ! calls (see ESMF bug 3004440).
       ! Only coldstart is affected
       logical                          :: isPresent
-      logical                          :: isCreated
-      logical                          :: gridIsPresent
       logical :: is_associated
       character(len=ESMF_MAXSTR)       :: positive, comp_to_record
       type(ESMF_State), pointer :: child_export_state
@@ -912,6 +912,8 @@ contains
       Iam = "MAPL_GenericInitialize"
       call ESMF_GridCompGet( GC, NAME=comp_name, _RC)
       Iam = trim(comp_name) // trim(Iam)
+
+      FILENAME = ""
 
       ! Retrieve the pointer to the internal state.
       ! -------------------------------------------
@@ -1025,8 +1027,7 @@ contains
          MYGRID%NX0 = mod(MYGRID%MYID,MYGRID%NX) + 1
          MYGRID%NY0 = MYGRID%MYID/MYGRID%NX + 1
 #endif
-
-         call handle_readers_and_writers(_RC)
+         call set_checkpoint_restart_options(_RC)
 
 #ifdef DEBUG
          print *,"dbg: grid global max=",counts
@@ -1163,15 +1164,13 @@ contains
          _RETURN(ESMF_SUCCESS)
       end function grid_is_valid
 
-      subroutine handle_readers_and_writers(rc)
+      subroutine set_checkpoint_restart_options(rc)
          integer, optional, intent(out) :: rc
 
-         integer :: num_readers, ny_by_readers
-         integer :: num_writers, ny_by_writers
-         character(len=ESMF_MAXSTR)       :: write_restart_by_face
-         character(len=ESMF_MAXSTR)       :: read_restart_by_face
+         integer :: num_readers, num_writers
+         character(len=ESMF_MAXSTR)       :: split_checkpoint
+         character(len=ESMF_MAXSTR)       :: split_restart
          character(len=ESMF_MAXSTR)       :: write_restart_by_oserver
-         integer                          :: color
          integer :: j
 
          integer :: status
@@ -1180,99 +1179,38 @@ contains
               default=1, _RC)
          call MAPL_GetResource( STATE, num_writers, Label="NUM_WRITERS:", &
               default=1, _RC)
-         call MAPL_GetResource( STATE, write_restart_by_face, Label="WRITE_RESTART_BY_FACE:", &
+         call MAPL_GetResource( STATE, split_checkpoint, Label="SPLIT_CHECKPOINT:", &
               default='NO', _RC)
-         write_restart_by_face = ESMF_UtilStringUpperCase(write_restart_by_face,_RC)
+         call MAPL_GetResource( STATE, split_restart, Label="SPLIT_RESTART:", &
+              default='NO', _RC)
+         split_restart = ESMF_UtilStringUpperCase(split_restart,_RC)
+         split_checkpoint = ESMF_UtilStringUpperCase(split_checkpoint,_RC)
 
          call MAPL_GetResource( STATE, write_restart_by_oserver, Label="WRITE_RESTART_BY_OSERVER:", &
               default='NO', _RC)
          write_restart_by_oserver = ESMF_UtilStringUpperCase(write_restart_by_oserver,_RC)
 
-         call MAPL_GetResource( STATE, read_restart_by_face, Label="READ_RESTART_BY_FACE:", &
-              default='NO', _RC)
-         read_restart_by_face = ESMF_UtilStringUpperCase(read_restart_by_face,_RC)
-
          if (trim(write_restart_by_oserver) == 'YES') then
             ! reset other choices
             ! io_rank 0 becomes the root
-            num_writers = 1
-            write_restart_by_face = 'NO'
+            !num_writers = 1
+            !split_checkpoint = 'NO'
             mygrid%write_restart_by_oserver = .true.
          endif
 
          mygrid%comm = comm
          mygrid%num_readers =  num_readers
          mygrid%num_writers =  num_writers
-         if (trim(write_restart_by_face) == 'YES') then
-            mygrid%write_restart_by_face = .true.
+         mygrid%split_checkpoint = .false.
+         mygrid%split_restart = .false.
+         if (trim(split_checkpoint) == 'YES') then
+            mygrid%split_checkpoint = .true.
          endif
-         if (trim(read_restart_by_face) == 'YES') then
-            mygrid%read_restart_by_face = .true.
-         endif
-
-         ! Y-dir communicators
-         color =  MYGRID%NX0
-         call MPI_COMM_SPLIT(COMM, color, MYGRID%MYID, mygrid%Ycomm, status)
-
-         ! X-dir communicators
-         color = MYGRID%NY0
-         call MPI_COMM_SPLIT(COMM, color, MYGRID%MYID, mygrid%Xcomm, status)
-
-         ! READER-communicator
-         if( num_readers>MYGRID%ny .or. mod(MYGRID%ny,num_readers)/=0 ) then
-            if (MAPL_AM_I_Root(VM)) then
-               print *
-               print *,'***********************************************************'
-               print *,'Error!  NUM_READERS must be <= MYGRID%ny: ',MYGRID%ny
-               print *,'    and NUM_READERS must divide evenly into MYGRID%ny'
-               print *,'***********************************************************'
-               print *
-            end if
-         endif
-         _ASSERT(num_readers<=MYGRID%ny,'needs informative message')
-         _ASSERT(mod(MYGRID%ny,num_readers)==0,'needs informative message')
-         ny_by_readers = MYGRID%ny/num_readers
-         if (mod(MYGRID%MYID,MYGRID%nx*MYGRID%ny/num_readers) == 0) then
-            color = 0
-         else
-            color = MPI_UNDEFINED
-         endif
-         call MPI_COMM_SPLIT(COMM, color, MYGRID%MYID, mygrid%readers_comm, status)
-         if (num_readers==MYGRID%ny) then
-            mygrid%IOscattercomm = mygrid%Xcomm
-         else
-            j = MYGRID%NY0 - mod(MYGRID%NY0-1,ny_by_readers)
-            call MPI_COMM_SPLIT(COMM, j, MYGRID%MYID, mygrid%IOscattercomm, status)
-         endif
-
-         ! WRITER-communicator
-         if( num_writers>MYGRID%ny .or. mod(MYGRID%ny,num_writers)/=0 ) then
-            if (MAPL_AM_I_Root(VM)) then
-               print *
-               print *,'***********************************************************'
-               print *,'Error!  NUM_WRITERS must be <= MYGRID%ny: ',MYGRID%ny
-               print *,'    and NUM_WRITERS must divide evenly into MYGRID%ny'
-               print *,'***********************************************************'
-               print *
-            end if
-         endif
-         _ASSERT(num_writers<=MYGRID%ny,'needs informative message')
-         _ASSERT(mod(MYGRID%ny,num_writers)==0,'needs informative message')
-         ny_by_writers = MYGRID%ny/num_writers
-         if (mod(MYGRID%MYID,MYGRID%nx*MYGRID%ny/num_writers) == 0) then
-            color = 0
-         else
-            color = MPI_UNDEFINED
-         endif
-         call MPI_COMM_SPLIT(COMM, color, MYGRID%MYID, mygrid%writers_comm, status)
-         if (num_writers==MYGRID%ny) then
-            mygrid%IOgathercomm = mygrid%Xcomm
-         else
-            j = MYGRID%NY0 - mod(MYGRID%NY0-1,ny_by_writers)
-            call MPI_COMM_SPLIT(COMM, j, MYGRID%MYID, mygrid%IOgathercomm, status)
+         if (trim(split_restart) == 'YES') then
+            mygrid%split_restart = .true.
          endif
          _RETURN(ESMF_SUCCESS)
-      end subroutine handle_readers_and_writers
+      end subroutine set_checkpoint_restart_options
 
       recursive subroutine initialize_children_and_couplers(rc)
          integer, optional, intent(out) :: rc
@@ -1612,6 +1550,7 @@ contains
                   if (MAPL_AM_I_Root(VM)) then
                      call ESMF_StatePrint(Import)
                   end if
+                  _RETURN(ESMF_FAILURE)
                end if
             endif
          end if
@@ -1714,7 +1653,7 @@ contains
             if (restoreExport) then
                call MAPL_GetResource( STATE, FILENAME, LABEL='EXPORT_RESTART_FILE:', _RC)
                if(status==ESMF_SUCCESS) then
-                  
+
                   call MAPL_ESMFStateReadFromFile(EXPORT, CLOCK, FILENAME, &
                        STATE, .FALSE., rc=status)
                   if (status /= ESMF_SUCCESS) then
@@ -1726,7 +1665,7 @@ contains
                endif
             end if
          end if
-         
+
          call ESMF_AttributeSet(export,'POSITIVE',trim(positive),_RC)
 
          _RETURN(ESMF_SUCCESS)
@@ -1799,8 +1738,7 @@ contains
 
       character(:), allocatable :: stage_description
       class(Logger), pointer :: lgr
-      logical :: use_threads, is_test_framework, is_test_framework_driver
-      logical :: is_grid_capture, restore_export
+      logical :: use_threads
       character(len=ESMF_MAXSTR) :: comp_to_record
 
       !=============================================================================
@@ -1902,7 +1840,7 @@ contains
 
          _ASSERT(userRC==ESMF_SUCCESS .and. STATUS==ESMF_SUCCESS,'Error during '//stage_description//' for <'//trim(COMP_NAME)//'>')
       end if
-      
+
       if (comp_name == comp_to_record) then
          call record_component('after', phase, method, GC, import, export, clock, _RC)
       end if
@@ -1954,7 +1892,7 @@ contains
      type(ESMF_State),       intent(INOUT) :: EXPORT ! Export state
      type(ESMF_Clock),       intent(INOUT) :: CLOCK  ! The clock
      integer, optional,      intent(  OUT) :: RC     ! Error code:
-     
+
      type (MAPL_MetaComp), pointer :: STATE
      logical :: is_test_framework, is_test_framework_driver
      logical :: is_grid_capture, restore_export
@@ -1986,7 +1924,7 @@ contains
      type(ESMF_State),    intent(INOUT) :: EXPORT ! Export state
      type(ESMF_Clock),    intent(INOUT) :: CLOCK  ! The clock
      integer, optional,   intent(  OUT) :: RC     ! Error code:
-     
+
      type (MAPL_MetaComp), pointer :: STATE
      integer :: status
      character(len=ESMF_MAXSTR) :: filename, comp_name, time_label
@@ -1995,7 +1933,7 @@ contains
      integer :: hdr
      type(ESMF_Time) :: start_time, curr_time, target_time
      character(len=1) :: phase_
-      
+
      call ESMF_GridCompGet(GC, NAME=comp_name, _RC)
      call MAPL_InternalStateGet (GC, STATE, _RC)
 
@@ -2007,7 +1945,7 @@ contains
      else
         target_time = parse_time_string(time_label, _RC)
      end if
-     
+
      filetype = 'pnc4'
      filename = trim(comp_name)//"_"
 
@@ -2018,14 +1956,12 @@ contains
         write(phase_, '(i1)') phase
 
         call MAPL_ESMFStateWriteToFile(import, CLOCK, trim(FILENAME)//"import_"//trim(POS)//"_runPhase"//phase_, &
-             FILETYPE, STATE, .false., _RC)
-      
+             FILETYPE, STATE, .false., state%grid%write_restart_by_oserver, _RC)
         call MAPL_ESMFStateWriteToFile(export, CLOCK, trim(FILENAME)//"export_"//trim(POS)//"_runPhase"//phase_, &
-             FILETYPE, STATE, .false., oClients = o_Clients, _RC)
- 
+             FILETYPE, STATE, .false., state%grid%write_restart_by_oserver, _RC)
         call MAPL_GetResource(STATE, hdr, default=0, LABEL="INTERNAL_HEADER:", _RC)
         call MAPL_ESMFStateWriteToFile(internal, CLOCK, trim(FILENAME)//"internal_"//trim(POS)//"_runPhase"//phase_, &
-             FILETYPE, STATE, hdr/=0, oClients = o_Clients, _RC)
+             FILETYPE, STATE, hdr/=0, state%grid%write_restart_by_oserver, _RC)
      end if
      _RETURN(_SUCCESS)
    end subroutine capture
@@ -2202,7 +2138,7 @@ contains
 
                call MAPL_TimerOn (STATE,trim(CHILD_NAME))
                child_import_state => STATE%get_child_import_state(i)
-               child_export_state => STATE%get_child_export_state(i)               
+               child_export_state => STATE%get_child_export_state(i)
 
                call ESMF_GridCompRun (gridcomp, &
                     importState=child_import_state, &
@@ -2406,7 +2342,7 @@ contains
             _VERIFY(status)
             internal_state => state%get_internal_state()
             call MAPL_ESMFStateWriteToFile(internal_state,CLOCK,FILENAME, &
-                 FILETYPE, STATE, hdr/=0, oClients = o_Clients, RC=status)
+                 FILETYPE, STATE, hdr/=0, state%grid%write_restart_by_oserver, RC=status)
             _VERIFY(status)
          endif
 
@@ -2430,7 +2366,7 @@ contains
             endif
 #endif
             call MAPL_ESMFStateWriteToFile(IMPORT,CLOCK,FILENAME, &
-                 FILETYPE, STATE, .FALSE., oClients = o_Clients, RC=status)
+                 FILETYPE, STATE, .FALSE., state%grid%write_restart_by_oserver, RC=status)
             _VERIFY(status)
          endif
 
@@ -2485,7 +2421,7 @@ contains
             endif
 #endif
             call MAPL_ESMFStateWriteToFile(EXPORT,CLOCK,FILENAME, &
-                 FILETYPE, STATE, .FALSE., oClients = o_Clients, RC=status)
+                 FILETYPE, STATE, .FALSE., state%grid%write_restart_by_oserver, RC=status)
             _VERIFY(status)
          endif
          _RETURN(_SUCCESS)
@@ -2771,7 +2707,7 @@ contains
          end if
          call MAPL_ESMFStateWriteToFile(IMPORT, CLOCK, &
               STATE%RECORD%IMP_FNAME, &
-              FILETYPE, STATE, .FALSE., oClients = o_Clients, &
+              FILETYPE, STATE, .FALSE., state%grid%write_restart_by_oserver, &
               RC=status)
          _VERIFY(status)
       end if
@@ -2788,7 +2724,7 @@ contains
          internal_state => STATE%get_internal_state()
          call MAPL_ESMFStateWriteToFile(internal_state, CLOCK, &
               STATE%RECORD%INT_FNAME, &
-              FILETYPE, STATE, hdr/=0, oClients = o_Clients, &
+              FILETYPE, STATE, hdr/=0, state%grid%write_restart_by_oserver, &
               RC=status)
          _VERIFY(status)
       end if
@@ -3016,25 +2952,9 @@ contains
 
       type(ESMF_Time)                   :: currentTime
       character(len=ESMF_MAXSTR)        :: TimeString
-      character                         :: String(ESMF_MAXSTR)
 
       character(len=ESMF_MAXSTR)                  :: IAm
       integer                                     :: status
-
-      character*4 year
-      character*2 month
-      character*2 day
-      character*2 hour
-      character*2 minute
-      character*2 second
-
-      equivalence ( string(01),TimeString )
-      equivalence ( string(01),year       )
-      equivalence ( string(06),month      )
-      equivalence ( string(09),day        )
-      equivalence ( string(12),hour       )
-      equivalence ( string(15),minute     )
-      equivalence ( string(18),second     )
 
       Iam = "MAPL_DateStampGet"
 
@@ -3043,7 +2963,16 @@ contains
       call ESMF_TimeGet  (currentTime, timeString=TimeString, rc=status)
       _VERIFY(status)
 
-      DateStamp = year // month // day // '_' // hour // minute // 'z'
+      associate ( &
+         year => TimeString( 1: 4), &
+         month=> TimeString( 6: 7), &
+         day  => TimeString( 9:10), &
+         hour => TimeString(12:13), &
+         minute=>TimeString(15:16), &
+         second=>TimeString(18:19)  &
+         )
+         DateStamp = year // month // day // '_' // hour // minute // 'z'
+      end associate
 
       _RETURN(ESMF_SUCCESS)
    end subroutine MAPL_DateStampGet
@@ -3524,7 +3453,7 @@ contains
         UNGRIDDED_UNIT, UNGRIDDED_NAME,     &
         UNGRIDDED_COORDS,                     &
         FIELD_TYPE, STAGGERING, ROTATION, &
-        DEPENDS_ON, DEPENDS_ON_CHILDREN, RC )
+        DEPENDS_ON, DEPENDS_ON_CHILDREN, POSITIVE, RC )
 
       !ARGUMENTS:
       type (ESMF_GridComp)            , intent(INOUT)   :: GC
@@ -3549,6 +3478,7 @@ contains
       integer            , optional   , intent(IN)      :: ROTATION
       logical            , optional   , intent(IN)      :: DEPENDS_ON_CHILDREN
       character (len=*)  , optional   , intent(IN)      :: DEPENDS_ON(:)
+      character(len=*)   , optional,    intent(IN)      :: positive
       integer            , optional   , intent(OUT)     :: RC
       !EOPI
 
@@ -3615,6 +3545,7 @@ contains
            ROTATION = ROTATION,                                                  &
            DEPENDS_ON = DEPENDS_ON, &
            DEPENDS_ON_CHILDREN = DEPENDS_ON_CHILDREN, &
+           positive = positive, &
            RC=status  )
       _VERIFY(status)
 
@@ -4154,7 +4085,7 @@ contains
 !- **GIM** The childrens' IMPORT states.
 !- **GEX** The childrens' EXPORT states.
 !- **CCS** Array of child-to-child couplers.
-! 
+!
    subroutine MAPL_GenericStateGet (STATE, IM, JM, LM, VERTDIM,                &
         NX, NY, NX0, NY0, LAYOUT,                  &
         GCNames,                                   &
@@ -5743,14 +5674,14 @@ contains
    !=============================================================================
    !=============================================================================
 
-   subroutine MAPL_ESMFStateWriteToFile(STATE,CLOCK,FILENAME,FILETYPE,MPL,HDR, oClients,RC)
+   subroutine MAPL_ESMFStateWriteToFile(STATE,CLOCK,FILENAME,FILETYPE,MPL,HDR, write_with_oserver,RC)
       type(ESMF_State),                 intent(INOUT) :: STATE
       type(ESMF_Clock),                 intent(IN   ) :: CLOCK
       character(len=*),                 intent(IN   ) :: FILENAME
       character(LEN=*),                 intent(INout) :: FILETYPE
       type(MAPL_MetaComp),              intent(INOUT) :: MPL
       logical,                          intent(IN   ) :: HDR
-      type (ClientManager), optional,   intent(inout) :: oClients
+      logical, optional,                intent(in   ) :: write_with_oserver
       integer, optional,                intent(  OUT) :: RC
 
       character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_ESMFStateWriteToFile"
@@ -5759,11 +5690,6 @@ contains
       integer                               :: UNIT
       integer                               :: YYYY, MM, DD, H, M, S
       type(ESMF_Time)                       :: currentTime
-      !    integer                               :: IM_WORLD
-      !    integer                               :: JM_WORLD
-      !    integer                               :: MONTH, DAY, HOUR, MINUTE
-      !    integer                               :: YEAR, SECOND
-      !    type (ESMF_Time)                      :: CURRENTTIME
       integer                               :: HEADER(6), DimCount
       logical                               :: AmWriter
       type(ArrDescr)                        :: ArrDes
@@ -5772,15 +5698,14 @@ contains
 
       type(ESMF_Grid)                       :: TILEGRID
       integer                               :: COUNTS(2)
-      integer                               :: io_nodes, io_rank
+      integer                               :: io_rank
       integer                               :: attr
       character(len=MPI_MAX_INFO_VAL )      :: romio_cb_write
       logical                               :: nwrgt1
-      !real(kind=ESMF_KIND_R8) :: itime_beg, itime_end
-      !real(kind=ESMF_KIND_R8),save ::  total_time = 0.0d0
-      !logical                               :: amIRoot
-      !type (ESMF_VM)                        :: vm
-      logical :: empty
+      logical :: empty, local_write_with_oserver
+
+      local_write_with_oserver=.false.
+      if (present(write_with_oserver)) local_write_with_oserver = write_with_oserver
 
       ! Check if state is empty. If "yes", simply return
       empty = MAPL_IsStateEmpty(state, _RC)
@@ -5814,8 +5739,6 @@ contains
          call ESMF_GridGet(MPL%GRID%ESMFGRID, dimCount=dimCount, RC=status)
          _VERIFY(status)
 
-         AmWriter = mpl%grid%writers_comm/=MPI_COMM_NULL
-
          call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=status)
          _VERIFY(status)
          TILE: if(IAND(ATTR, MAPL_AttrTile) /= 0) then
@@ -5829,48 +5752,30 @@ contains
             _VERIFY(status)
 
             call ArrDescrSet(arrdes,                   &
-                 writers_comm = mpl%grid%writers_comm,&
-                 iogathercomm = mpl%grid%comm )
-
-            if(AmWriter) then
-
-               call MPI_COMM_SIZE(mpl%grid%writers_comm, io_nodes, status)
-               _VERIFY(status)
-               call MPI_COMM_RANK(mpl%grid%writers_comm, io_rank, status)
-               _VERIFY(status)
-
-            endif
-
-            call ArrDescrSet(arrdes,                   &
                  i1 = mpl%grid%i1, in = mpl%grid%in,   &
                  j1 = mpl%grid%j1, jn = mpl%grid%jn,   &
                  im_world = COUNTS(1),                 &
                  jm_world = COUNTS(2)                  )
 
+            call ArrDescrCreateWriterComm(arrdes,mpl%grid%comm,mpl%grid%num_writers,_RC)
+            call ArrDescrSet(arrdes,                   &
+                 iogathercomm = mpl%grid%comm )
+
          else
 
-            AmWriter = mpl%grid%writers_comm/=MPI_COMM_NULL
-
-            if (AmWriter) then
-               call MPI_COMM_SIZE(mpl%grid%writers_comm, io_nodes, status)
-               _VERIFY(status)
-               call MPI_COMM_RANK(mpl%grid%writers_comm, io_rank, status)
-               _VERIFY(status)
-            endif
-
             call ArrDescrSet(arrdes, offset, &
-                 writers_comm = mpl%grid%writers_comm,  &
-                 iogathercomm = mpl%grid%iogathercomm,  &
                  i1 = mpl%grid%i1, in = mpl%grid%in,    &
                  j1 = mpl%grid%j1, jn = mpl%grid%jn,    &
                  im_world = mpl%grid%im_world,          &
                  jm_world = mpl%grid%jm_world)
+            call ArrDescrCreateWriterComm(arrdes,mpl%grid%comm,mpl%grid%num_writers,_RC)
 
          end if TILE
 
 !@       call MPI_Barrier(mpl%grid%comm, status)
 !@       _VERIFY(status)
          arrdes%offset = 0
+         AmWriter = arrdes%writers_comm /= MPI_COMM_NULL
          if (AmWriter) then
 
             call MPI_Info_create(info, status)
@@ -5879,6 +5784,8 @@ contains
             call MAPL_GetResource(MPL, romio_cb_write, Label="ROMIO_CB_WRITE:", default="disable", RC=status)
             _VERIFY(status)
             call MPI_Info_set(info, "romio_cb_write", trim(romio_cb_write), status)
+            _VERIFY(status)
+            call MPI_COMM_RANK(mpl%grid%writers_comm, io_rank, status)
             _VERIFY(status)
             if (io_rank == 0) then
                print *,'Using parallel IO for writing file: ',trim(FILENAME)
@@ -5889,13 +5796,11 @@ contains
                call MPI_FILE_CLOSE(UNIT, status)
                _VERIFY(status)
             end if
-            call MPI_Barrier(mpl%grid%writers_comm, status)
+            call MPI_Barrier(arrdes%writers_comm, status)
             _VERIFY(status)
-            call MPI_FILE_OPEN(mpl%grid%writers_comm, FILENAME, MPI_MODE_WRONLY, &
+            call MPI_FILE_OPEN(arrdes%writers_comm, FILENAME, MPI_MODE_WRONLY, &
                  info, UNIT, status)
             _VERIFY(status)
-            !$$            call MPI_Barrier(mpl%grid%writers_comm, status)
-            !$$            _VERIFY(status)
          else
             UNIT=0
          endif
@@ -5907,7 +5812,6 @@ contains
             _FAIL('needs informative message')
          end if
 #endif
-         AmWriter = mpl%grid%writers_comm/=MPI_COMM_NULL
          call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=status)
          _VERIFY(status)
          PNC4_TILE: if(IAND(ATTR, MAPL_AttrTile) /= 0) then
@@ -5919,13 +5823,7 @@ contains
             _VERIFY(status)
          end if PNC4_TILE
          arrdes%filename = trim(FILENAME)
-         if (AmWriter) then
-            call MPI_COMM_RANK(mpl%grid%writers_comm, io_rank, status)
-            _VERIFY(status)
-            if (io_rank == 0) then
-               print *,'Using parallel NetCDF to write file: ',trim(FILENAME)
-            end if
-         endif
+         if (mapl_am_i_root())  print *,'Using parallel NetCDF to write file: ',trim(FILENAME)
       else
          UNIT=0
       end if
@@ -5980,37 +5878,18 @@ contains
          _VERIFY(status)
 
          if (AmWriter) then
-            !$$          call MPI_Barrier(mpl%grid%writers_comm, status)
-            !$$          _VERIFY(status)
             call MPI_FILE_CLOSE(UNIT, status)
             _VERIFY(status)
             call MPI_Info_free(info, status)
             _VERIFY(status)
          endif
-!@       call MPI_Barrier(mpl%grid%comm, status)
-!@       _VERIFY(status)
-
       elseif(filetype=='pnc4') then
 
-         !call MPI_Barrier(mpl%grid%comm, status)
-         !_VERIFY(status)
-         !itime_beg = MPI_Wtime(status)
-         !_VERIFY(status)
-
-         call MAPL_VarWriteNCPar(filename,STATE,ArrDes,CLOCK, oClients=oClients, RC=status)
-         _VERIFY(status)
-
-         !call MPI_Barrier(mpl%grid%comm, status)
-         !_VERIFY(status)
-         !itime_end = MPI_Wtime(status)
-         !total_time = total_time + itime_end - itime_beg
-         !_VERIFY(status)
-         !call MPI_COMM_RANK(mpl%grid%comm, io_rank, status)
-         !   _VERIFY(status)
-         !if (io_rank == 0) then
-         !   print *,'Time using writing filename: '//trim(filename), '  ', itime_end - itime_beg
-         !   print *,'Total time writing checkpoint: ', total_time
-         !end if
+         if (local_write_with_oserver) then
+            call MAPL_VarWriteNCPar(filename,STATE,ArrDes,CLOCK, oClients=o_clients, _RC)
+         else
+            call MAPL_VarWriteNCPar(filename,STATE,ArrDes,CLOCK, _RC)
+         end if
 
       elseif(UNIT/=0) then
 
@@ -6054,12 +5933,12 @@ contains
 
       type(ESMF_Grid) :: TILEGRID
       integer :: COUNTS(2)
-      integer :: io_nodes, io_rank
+      integer :: io_rank
       integer :: attr
       character(len=MPI_MAX_INFO_VAL )      :: romio_cb_read
       logical                               :: bootstrapable
       logical                               :: restartRequired
-      logical                               :: nwrgt1
+      logical                               :: nwrgt1, on_tiles
       character(len=ESMF_MAXSTR)            :: rstBoot
       integer                               :: rstReq
       logical                               :: amIRoot
@@ -6069,7 +5948,9 @@ contains
       integer                               :: isNC4
       logical                               :: isPresent
       character(len=ESMF_MAXSTR) :: grid_type
-      logical :: empty
+      logical :: empty, split_restart
+      integer :: num_files
+      type(ESMF_HConfig) :: hconfig
 
       _UNUSED_DUMMY(CLOCK)
 
@@ -6079,6 +5960,11 @@ contains
          call warn_empty('Restart '//trim(filename), MPL, _RC)
          _RETURN(ESMF_SUCCESS)
       end if
+
+
+      call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=status)
+      _VERIFY(status)
+      on_tiles = IAND(ATTR, MAPL_AttrTile) /= 0
 
       FNAME = adjustl(FILENAME)
       bootstrapable = .false.
@@ -6105,6 +5991,8 @@ contains
          rstReq = 0
       end if
       restartRequired = (rstReq /= 0)
+         call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=status)
+         _VERIFY(status)
 
       call ESMF_VmGetCurrent(vm, rc=status)
       _VERIFY(status)
@@ -6113,48 +6001,56 @@ contains
 
       nwrgt1 = (mpl%grid%num_readers > 1)
 
-
+      isNC4 = -100
+      if (on_tiles) mpl%grid%split_restart = .false.
       if(INDEX(FNAME,'*') == 0) then
          if (AmIRoot) then
+             !if (mpl%grid%split_restart) then
+                !hconfig = ESMF_HConfigCreate(filename = trim(filename), _RC)
+                !_ASSERT(ESMF_HConfigIsDefined(hconfig,keyString="num_files"),"if input file is split must supply num_files")
+                !num_files =  ESMF_HConfigAsI4(hconfig,keystring="num_files",_RC)
+                !split_restart = .true.
+             !end if
             block
-              character(len=:), allocatable :: fname_by_face
+              character(len=:), allocatable :: fname_by_reader
               logical :: fexist
               integer :: i
 
               FileExists = .false.
-              if (mpl%grid%read_restart_by_face) then
+              if (mpl%grid%split_restart) then
                  FileExists = .true.
-                 do i = 1,6 ! 6 faces
-                    fname_by_face = get_fname_by_face(trim(fname), i)
-                    inquire(FILE = trim(fname_by_face), EXIST=fexist)
+                 do i = 0,mpl%grid%num_readers-1
+                    fname_by_reader = get_fname_by_rank(trim(fname), i)
+                    inquire(FILE = trim(fname_by_reader), EXIST=fexist)
                     FileExists = FileExists .and. fexist
                  enddo
                  if (FileExists) then
                     ! just pick one face to deduce filetype, only in root
-                    call MAPL_NCIOGetFileType(trim(fname_by_face),isNC4,rc=status)
+                    call MAPL_NCIOGetFileType(trim(fname_by_reader),isNC4,rc=status)
                     _VERIFY(status)
                  endif
-                 deallocate(fname_by_face)
+                 deallocate(fname_by_reader)
+              else
+                 inquire(FILE = FNAME, EXIST=FileExists)
+                 if (FileExists) then
+                    call MAPL_NCIOGetFileType(FNAME,isNC4,rc=status)
+                    _VERIFY(status)
+                 endif
               endif
             end block
-            if( .not. FileExists) then
-               inquire(FILE = FNAME, EXIST=FileExists)
-               if (FileExists) then
-                  call MAPL_NCIOGetFileType(FNAME,isNC4,rc=status)
-                  _VERIFY(status)
-               endif
-            endif
          end if
+         call MAPL_CommsBcast(vm,split_restart,n=1,ROOT=MAPL_Root,_RC)
 
-         call MAPL_CommsBcast(vm, fileExists, n=1, ROOT=MAPL_Root, rc=status)
-         _VERIFY(status)
+         call MAPL_CommsBcast(vm, fileExists, n=1, ROOT=MAPL_Root, _RC)
+         call MAPL_CommsBcast(vm, isNC4, n=1, ROOT=MAPL_Root, _RC)
+         !if (split_restart) then
+            !call MAPL_CommsBcast(vm, num_files,  n=1, ROOT=MAPL_Root, _RC)
+            !call MAPL_CommsBcast(vm, split_restart, n=1, ROOT=MAPL_Root, _RC)
+            !mpl%grid%num_readers = num_files
+            !mpl%grid%split_restart = split_restart
+         !end if
+
          if (FileExists) then
-            !if (AmIRoot) then
-            !   call MAPL_NCIOGetFileType(FNAME,isNC4,rc=status)
-            !   _VERIFY(status)
-            !end if
-            call MAPL_CommsBcast(vm,isNC4,n=1,ROOT=MAPL_Root,rc=status)
-            _VERIFY(status)
             if (isNC4 == 0) then
                filetype = 'pnc4'
             else
@@ -6168,23 +6064,15 @@ contains
       else
          FileExists = MAPL_MemFileInquire(NAME=FNAME)
       end if
-
       if (.not. FileExists) then
          if (.not. bootstrapable .or. restartRequired) then
             call WRITE_PARALLEL('ERROR: Required restart '//trim(FNAME)//' does not exist!')
             _RETURN(ESMF_FAILURE)
          else
-            call WRITE_PARALLEL("Bootstrapping " // trim(FNAME))
+            if (len_trim(FNAME) > 0) call WRITE_PARALLEL("Bootstrapping " // trim(FNAME))
             _RETURN(ESMF_SUCCESS)
          end if
       end if
-
-      !    if (ignoreEOF) then
-      !       if (filetype == 'pbinary' .or. filetype == 'PBINARY') then
-      !          filetype = 'binary'
-      !       end if
-      !    end if
-
       ! Open file
       !----------
 
@@ -6206,11 +6094,7 @@ contains
          call ESMF_GridGet(MPL%GRID%ESMFGRID, dimCount=dimCount, RC=status)
          _VERIFY(status)
 
-         AmReader = mpl%grid%readers_comm/=MPI_COMM_NULL
-
-         call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=status)
-         _VERIFY(status)
-         TILE: if(IAND(ATTR, MAPL_AttrTile) /= 0) then
+         TILE: if (on_tiles) then
             _ASSERT(IAND(ATTR, MAPL_AttrGrid) == 0,'needs informative message') ! no hybrid allowed
             _ASSERT(MAPL_LocStreamIsAssociated(MPL%LOCSTREAM,RC=status),'needs informative message')
 
@@ -6220,47 +6104,29 @@ contains
             call MAPL_GridGet(TILEGRID, globalCellCountPerDim=COUNTS, RC=status)
             _VERIFY(status)
 
-            call ArrDescrSet(arrdes,                    &
-                 readers_comm  = mpl%grid%readers_comm, &
-                 ioscattercomm = mpl%grid%comm )
-
-            if(AmReader) then
-
-               call MPI_COMM_SIZE(mpl%grid%readers_comm, io_nodes, status)
-               _VERIFY(status)
-               call MPI_COMM_RANK(mpl%grid%readers_comm, io_rank, status)
-               _VERIFY(status)
-
-            endif
-
             call ArrDescrSet(arrdes,                   &
                  i1 = mpl%grid%i1, in = mpl%grid%in,   &
                  j1 = mpl%grid%j1, jn = mpl%grid%jn,   &
                  im_world = COUNTS(1),                 &
                  jm_world = COUNTS(2)                  )
+            call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_readers,_RC)
+            call ArrDescrSet(arrdes, ioscattercomm = mpl%grid%comm )
 
          else
 
-            if (AmReader) then
-               call MPI_COMM_SIZE(mpl%grid%readers_comm, io_nodes, status)
-               _VERIFY(status)
-               call MPI_COMM_RANK(mpl%grid%readers_comm, io_rank, status)
-               _VERIFY(status)
-            endif
-
             call ArrDescrSet(arrdes, offset, &
-                 readers_comm  = mpl%grid%readers_comm,  &
-                 ioscattercomm = mpl%grid%ioscattercomm, &
                  i1 = mpl%grid%i1, in = mpl%grid%in,     &
                  j1 = mpl%grid%j1, jn = mpl%grid%jn,     &
                  im_world = mpl%grid%im_world,           &
                  jm_world = mpl%grid%jm_world)
+            call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_readers,_RC)
 
          end if TILE
 
          UNIT=-999
 
          offset = 0
+         AmReader = arrdes%readers_comm/=MPI_COMM_NULL
          if (AmReader) then
             call MPI_Info_create(info, status)
             _VERIFY(status)
@@ -6268,6 +6134,8 @@ contains
             call MAPL_GetResource(MPL, romio_cb_read, Label="ROMIO_CB_READ:", default="automatic", RC=status)
             _VERIFY(status)
             call MPI_Info_set(info, "romio_cb_read", trim(romio_cb_read), status)
+            _VERIFY(status)
+            call MPI_COMM_RANK(mpl%grid%readers_comm, io_rank, status)
             _VERIFY(status)
             if (io_rank == 0) then
                print *,'Using parallel IO for reading file: ',trim(FNAME)
@@ -6290,10 +6158,7 @@ contains
             _FAIL('needs informative message')
          end if
 #endif
-         AmReader = mpl%grid%readers_comm/=MPI_COMM_NULL
-         call ESMF_AttributeGet(STATE, NAME = "MAPL_GridTypeBits", VALUE=ATTR, RC=status)
-         _VERIFY(status)
-         PNC4_TILE: if(IAND(ATTR, MAPL_AttrTile) /= 0) then
+         PNC4_TILE: if (on_tiles) then
             _ASSERT(IAND(ATTR, MAPL_AttrGrid) == 0,'needs informative message') ! no hybrid allowed
             call ArrDescrSetNCPar(arrdes,MPL,tile=.TRUE.,num_readers=mpl%grid%num_readers,RC=status)
             _VERIFY(status)
@@ -6308,17 +6173,10 @@ contains
             call ArrDescrSetNCPar(arrdes,MPL,num_readers=mpl%grid%num_readers,RC=status)
             _VERIFY(status)
          end if PNC4_TILE
-         if (mpl%grid%readers_comm/=MPI_COMM_NULL) then
-            call MPI_COMM_RANK(mpl%grid%readers_comm, io_rank, status)
-            _VERIFY(status)
-            if (io_rank == 0) then
-               print *,'Using parallel NetCDF to read file: ',trim(FNAME)
-            end if
-         endif
+         if (mapl_am_i_root())print*,'Using parallel NetCDF to read file: ',trim(FNAME)
       else
          UNIT=0
       end if
-
 
       ! Skip Header
       !------------
@@ -6369,7 +6227,7 @@ contains
       _VERIFY(status)
 
       _RETURN(ESMF_SUCCESS)
-   
+
      contains
        function grid_is_consistent(grid_type, fname) result( consistent)
          logical :: consistent
@@ -6381,13 +6239,13 @@ contains
          class (AbstractGridFactory), allocatable :: file_factory
          character(len=:), allocatable :: fname_by_face
          logical :: fexist
-    
+
          consistent = .True.
          if (trim(grid_type) == 'Cubed-Sphere') then
             app_factory => get_factory(MPL%GRID%ESMFGRID)
             ! at this point, arrdes%read_restart_by_face is not initialized
             ! pick the first face
-            fname_by_face = get_fname_by_face(trim(fname), 1)
+            fname_by_face = get_fname_by_rank(trim(fname), 1)
             inquire(FILE = trim(fname_by_face), EXIST=fexist)
             if(fexist) then
                allocate(file_factory,source=grid_manager%make_factory(fname_by_face))
@@ -6584,6 +6442,7 @@ contains
       integer                                 :: rstReq
       logical                                 :: isPresent
       logical                                 :: isCreated
+      character(len=positive_length)          :: positive
 
       integer :: range_(2)
       type(MAPL_VarSpec), pointer :: varspec
@@ -6632,6 +6491,7 @@ contains
               FIELD_TYPE=FIELD_TYPE, &
               STAGGERING=STAGGERING, &
               ROTATION=ROTATION, &
+              positive=positive, &
               RC=status )
          _VERIFY(status)
 
@@ -6916,6 +6776,8 @@ contains
          call ESMF_AttributeSet(FIELD, NAME='LONG_NAME', VALUE=LONG_NAME, RC=status)
          _VERIFY(status)
          call ESMF_AttributeSet(FIELD, NAME='UNITS', VALUE=UNITS, RC=status)
+         _VERIFY(status)
+         call ESMF_AttributeSet(FIELD, NAME='POSITIVE', VALUE=positive, RC=status)
          _VERIFY(status)
 
          call ESMF_AttributeSet(FIELD, NAME='REFRESH_INTERVAL', VALUE=REFRESH, RC=status)
@@ -8484,20 +8346,38 @@ contains
 
    ! This is a pass-through routine. It maintains the interface for
    ! MAPL_GetResource as-is instead of moving this subroutine to another module.
-   subroutine MAPL_GetResourceFromMAPL_scalar(state, val, label, default, rc)
+   subroutine MAPL_GetResourceFromMAPL_scalar(state, val, label, unusable, default, value_is_set, rc)
       type(MAPL_MetaComp), intent(inout) :: state
       character(len=*), intent(in) :: label
       class(*), intent(inout) :: val
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default
+      logical, optional, intent(out) :: value_is_set
       integer, optional, intent(out) :: rc
 
-      logical :: value_is_set
+      logical :: value_set
       integer :: status
 
-      call MAPL_GetResource_config_scalar(state%cf, val, label, value_is_set, &
-         default = default, component_name = state%compname, rc = status)
+      _UNUSED_DUMMY(unusable)
 
-      if(.not. value_is_set) then
+      call MAPL_GetResource_config_scalar(state%cf, val, label, value_set, &
+         default = default, component_name = state%compname, rc=status)
+
+      ! FIXME: assertion that value_set (TRUE) or return a non-negative rc value.
+      ! Instead, optional argument value_is_set should to the value of value_set,
+      ! an intent(out) argument to MAPL_GetResource_config_scalar.
+      ! That differentiates a failed attempt to set value when there is no default
+      ! and label is not found. However, some existing code catches the non-zero
+      ! rc value to indicate failure to set the value and handles the failure
+      ! by an alternative action. That code needs to use the value_is_set argument
+      ! to determine failure. Once that code is fixed, the assertion should be
+      ! removed.
+
+      if(present(value_is_set)) then
+         value_is_set = value_set
+      end if
+
+      if(.not. value_set) then
          if (present(rc)) rc = ESMF_FAILURE
          return
       end if
@@ -8510,19 +8390,38 @@ contains
 
    ! This is a pass-through routine. It maintains the interface for
    ! MAPL_GetResource as-is instead of moving this subroutine to another module.
-   subroutine MAPL_GetResourceFromConfig_scalar(config, val, label, default, rc)
+   subroutine MAPL_GetResourceFromConfig_scalar(config, val, label, unusable, default, value_is_set, rc)
       type(ESMF_Config), intent(inout) :: config
       character(len=*), intent(in) :: label
       class(*), intent(inout) :: val
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default
+      logical, optional, intent(out) :: value_is_set
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: value_is_set
+      logical :: value_set
 
-      call MAPL_GetResource_config_scalar(config, val, label, value_is_set, default = default, rc = status)
-      
-      if(.not. value_is_set) then
+      _UNUSED_DUMMY(unusable)
+
+      call MAPL_GetResource_config_scalar(config, val, label, value_set, &
+         default = default, rc=status)
+
+      ! FIXME: assertion that value_set (TRUE) or return a non-negative rc value.
+      ! Instead, optional argument value_is_set should to the value of value_set,
+      ! an intent(out) argument to MAPL_GetResource_config_scalar.
+      ! That differentiates a failed attempt to set value when there is no default
+      ! and label is not found. However, some existing code catches the non-zero
+      ! rc value to indicate failure to set the value and handles the failure
+      ! by an alternative action. That code needs to use the value_is_set argument
+      ! to determine failure. Once that code is fixed, the assertion should be
+      ! removed.
+
+      if(present(value_is_set)) then
+         value_is_set = value_set
+      end if
+
+      if(.not. value_set) then
          if (present(rc)) rc = ESMF_FAILURE
          return
       end if
@@ -8535,48 +8434,84 @@ contains
 
    ! This is a pass-through routine. It maintains the interface for
    ! MAPL_GetResource as-is instead of moving this subroutine to another module.
-   subroutine MAPL_GetResourceFromMAPL_array(state, vals, label, default, rc)
+   subroutine MAPL_GetResourceFromMAPL_array(state, vals, label, unusable, default, value_is_set, rc)
       type(MAPL_MetaComp), intent(inout) :: state
       character(len=*), intent(in) :: label
       class(*), intent(inout) :: vals(:)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default(:)
+      logical, optional, intent(out) :: value_is_set
       integer, optional, intent(out) :: rc
 
-      logical :: value_is_set
+      logical :: value_set
       integer :: status
-      
-      call MAPL_GetResource_config_array(state%cf, vals, label, value_is_set, &
-         default = default, component_name = state%compname, rc = status)
-      
-      if(.not. value_is_set) then
+
+      _UNUSED_DUMMY(unusable)
+
+      call MAPL_GetResource_config_array(state%cf, vals, label, value_set, &
+         default = default, component_name = state%compname, rc=status)
+
+      ! FIXME: assertion that value_set (TRUE) or return a non-negative rc value.
+      ! Instead, optional argument value_is_set should to the value of value_set,
+      ! an intent(out) argument to MAPL_GetResource_config_array.
+      ! That differentiates a failed attempt to set value when there is no default
+      ! and label is not found. However, some existing code catches the non-zero
+      ! rc value to indicate failure to set the value and handles the failure
+      ! by an alternative action. That code needs to use the value_is_set argument
+      ! to determine failure. Once that code is fixed, the assertion should be
+      ! removed.
+
+      if(present(value_is_set)) then
+         value_is_set = value_set
+      end if
+
+      if(.not. value_set) then
          if (present(rc)) rc = ESMF_FAILURE
          return
       end if
-      
+
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
 
    end subroutine MAPL_GetResourceFromMAPL_array
 
-   subroutine MAPL_GetResourceFromConfig_array(config, vals, label, default, rc)
+   subroutine MAPL_GetResourceFromConfig_array(config, vals, label, unusable, default, value_is_set, rc)
       type(ESMF_Config), intent(inout) :: config
       character(len=*), intent(in) :: label
       class(*), intent(inout) :: vals(:)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       class(*), optional, intent(in) :: default(:)
+      logical, optional, intent(out) :: value_is_set
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: value_is_set
+      logical :: value_set
 
-      call MAPL_GetResource_config_array(config, vals, label, value_is_set, &
-         default = default, rc = status)
-      
-      if(.not. value_is_set) then
+      _UNUSED_DUMMY(unusable)
+
+      call MAPL_GetResource_config_array(config, vals, label, value_set, &
+         default = default, rc=status)
+
+      ! FIXME: assertion that value_set (TRUE) or return a non-negative rc value.
+      ! Instead, optional argument value_is_set should to the value of value_set,
+      ! an intent(out) argument to MAPL_GetResource_config_array..
+      ! That differentiates a failed attempt to set value when there is no default
+      ! and label is not found. However, some existing code catches the non-zero
+      ! rc value to indicate failure to set the value and handles the failure
+      ! by an alternative action. That code needs to use the value_is_set argument
+      ! to determine failure. Once that code is fixed, the assertion should be
+      ! removed.
+
+      if(present(value_is_set)) then
+         value_is_set = value_set
+      end if
+
+      if(.not. value_set) then
          if (present(rc)) rc = ESMF_FAILURE
          return
       end if
-      
+
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
@@ -10429,7 +10364,7 @@ contains
          end if
          call MAPL_ESMFStateWriteToFile(IMPORT, CLOCK, &
               STATE%initial_state%IMP_FNAME, &
-              CFILETYPE, STATE, .FALSE., oClients = o_Clients, &
+              CFILETYPE, STATE, .FALSE.,  write_with_oserver = state%grid%write_restart_by_oserver, &
               RC=status)
          _VERIFY(status)
       end if
@@ -10445,7 +10380,7 @@ contains
          internal_state => STATE%get_internal_state()
          call MAPL_ESMFStateWriteToFile(internal_state, CLOCK, &
               STATE%initial_state%INT_FNAME, &
-              CFILETYPE, STATE, hdr/=0, oClients = o_Clients, &
+              CFILETYPE, STATE, hdr/=0, write_with_oserver = state%grid%write_restart_by_oserver, &
               RC=status)
          _VERIFY(status)
       end if
@@ -11025,41 +10960,56 @@ contains
          call MAPL_GridGet(TILEGRID,globalCellCountPerDim=COUNTS,RC=status)
          _VERIFY(status)
          call ArrDescrSet(arrdes, offset_local, &
-              readers_comm  = mpl%grid%readers_comm,  &
-              ioscattercomm = mpl%grid%comm, &
-              writers_comm = mpl%grid%writers_comm, &
-              iogathercomm = mpl%grid%comm, &
+              !readers_comm  = mpl%grid%readers_comm,  &
+              !ioscattercomm = mpl%grid%comm, &
+              !writers_comm = mpl%grid%writers_comm, &
+              !iogathercomm = mpl%grid%comm, &
               i1 = mpl%grid%i1, in = mpl%grid%in,     &
               j1 = mpl%grid%j1, jn = mpl%grid%jn,     &
               im_world = COUNTS(1),                   &
               jm_world = COUNTS(2))
-         arrdes%ycomm = mpl%grid%Ycomm
-         arrdes%xcomm = mpl%grid%Xcomm
+         !arrdes%ycomm = mpl%grid%Ycomm
+
+         !arrdes%xcomm = mpl%grid%Xcomm
          arrdes%NY0   = mpl%grid%NY0
          arrdes%NX0   = mpl%grid%NX0
          arrdes%tile=.true.
          arrdes%grid=tilegrid
+         call ArrDescrCreateWriterComm(arrdes,mpl%grid%comm,mpl%grid%num_writers,_RC)
+         call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_readers,_RC)
+         arrdes%iogathercomm = mpl%grid%comm
+         arrdes%ioscattercomm = mpl%grid%comm
+         arrdes%split_restart = .false.
+         arrdes%split_checkpoint = .false.
       else
          call MAPL_GridGet(mpl%grid%ESMFGRID,globalCellCountPerDim=CCPD,RC=status)
          _VERIFY(status)
          km_world = CCPD(3)
          call ArrDescrSet(arrdes, offset_local, &
-              readers_comm  = mpl%grid%readers_comm,  &
-              ioscattercomm = mpl%grid%ioscattercomm, &
-              writers_comm = mpl%grid%writers_comm, &
-              iogathercomm = mpl%grid%iogathercomm, &
+              !readers_comm  = mpl%grid%readers_comm,  &
+              !ioscattercomm = mpl%grid%ioscattercomm, &
+              !writers_comm = mpl%grid%writers_comm, &
+              !iogathercomm = mpl%grid%iogathercomm, &
               i1 = mpl%grid%i1, in = mpl%grid%in,     &
               j1 = mpl%grid%j1, jn = mpl%grid%jn,     &
               im_world = mpl%grid%im_world,           &
               jm_world = mpl%grid%jm_world,           &
               lm_world = km_world)
-         arrdes%ycomm = mpl%grid%Ycomm
-         arrdes%xcomm = mpl%grid%Xcomm
+         !arrdes%ycomm = mpl%grid%Ycomm
+         !call mpi_comm_rank(arrdes%ycomm,arrdes%myrow,status)
+         _VERIFY(status)
+         !arrdes%xcomm = mpl%grid%Xcomm
          arrdes%NY0   = mpl%grid%NY0
          arrdes%NX0   = mpl%grid%NX0
          arrdes%tile=.false.
          arrdes%grid=MPL%GRID%ESMFGRID
-         call set_arrdes_by_face()
+         call ArrDescrCreateWriterComm(arrdes,mpl%grid%comm,mpl%grid%num_writers,_RC)
+         call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_readers,_RC)
+         call mpi_comm_rank(arrdes%ycomm,arrdes%myrow,status)
+         _VERIFY(status)
+         arrdes%split_restart = mpl%grid%split_restart
+         arrdes%split_checkpoint = mpl%grid%split_checkpoint
+
       endif
       call MAPL_GetResource(MPL, romio_cb_read, Label="ROMIO_CB_READ:", default="automatic", RC=status)
       _VERIFY(status)
@@ -11075,35 +11025,6 @@ contains
       arrdes%write_restart_by_oserver = mpl%grid%write_restart_by_oserver
 
       _RETURN(ESMF_SUCCESS)
-
-   contains
-      subroutine set_arrdes_by_face()
-         integer :: color, key
-         character(len=ESMF_MAXSTR)    :: Iam="ArrDescrSetNCPar_face"
-         integer :: status
-
-         if (mpl%grid%im_world /= mpl%grid%jm_world/6) return ! only apply to cube
-
-         color = (arrdes%j1(mpl%grid%NY0)-1)/mpl%grid%im_world + 1
-         arrdes%face_index = color
-         key   = 1
-         if ( mpl%grid%write_restart_by_face) then
-            arrdes%write_restart_by_face = .true.
-            if (mpl%grid%writers_comm /= MPI_COMM_NULL) then
-               call MPI_COMM_SPLIT( mpl%grid%writers_comm,color,key,arrdes%face_writers_comm, status)
-               _VERIFY(status)
-            endif
-         endif
-
-         if ( mpl%grid%read_restart_by_face) then
-            arrdes%read_restart_by_face = .true.
-            if (mpl%grid%readers_comm /= MPI_COMM_NULL) then
-               call MPI_COMM_SPLIT( mpl%grid%readers_comm,color,key,arrdes%face_readers_comm, status)
-               _VERIFY(status)
-            endif
-         endif
-
-      end subroutine set_arrdes_by_face
 
    end subroutine ArrDescrSetNCPar
 

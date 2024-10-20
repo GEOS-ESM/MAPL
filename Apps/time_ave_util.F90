@@ -133,9 +133,13 @@ program  time_ave
 
 !call timebeg ('main')
 
-   call mpi_init                ( ierror ) ; comm = mpi_comm_world
+   call mpi_init                ( ierror ) 
+   _VERIFY(ierror)
+   comm = mpi_comm_world
    call mpi_comm_rank ( comm,myid,ierror )
+   _VERIFY(ierror)
    call mpi_comm_size ( comm,npes,ierror )
+   _VERIFY(ierror)
    call ESMF_Initialize(logKindFlag=ESMF_LOGKIND_NONE,mpiCommunicator=MPI_COMM_WORLD, _RC)
    call MAPL_Initialize(_RC)
    t_prof = DistributedProfiler('time_ave_util',MpiTImerGauge(),MPI_COMM_WORLD)
@@ -813,6 +817,7 @@ program  time_ave
       enddo    ! End ntime Loop within file
 
       call MPI_BARRIER(comm,status)
+      _VERIFY(status)
    enddo
 
    do k=0,ntods
@@ -1064,7 +1069,9 @@ call t_prof%start('Write_AVE')
          endif
 
          call mpi_reduce( qmin(nloc(n)+L-1),qming,1,mpi_real,mpi_min,0,comm,ierror )
+         _VERIFY(ierror)
          call mpi_reduce( qmax(nloc(n)+L-1),qmaxg,1,mpi_real,mpi_max,0,comm,ierror )
+         _VERIFY(ierror)
          if( root ) then
             if(L.eq.1) then
                write(6,3101) trim(vname2(n)),plev,qming,qmaxg
@@ -1076,6 +1083,7 @@ call t_prof%start('Write_AVE')
 3102     format(1x,'               ',a20,' Level: ',f9.3,'  Min: ',g15.8,'  Max: ',g15.8)
       enddo
       call MPI_BARRIER(comm,status)
+      _VERIFY(status)
       if( root ) print *
    enddo
    if( root ) print *
@@ -1187,7 +1195,7 @@ contains
       integer, intent(out), optional :: rc
       integer :: status, global_dims(3)
       call MAPL_GridGet(grid,globalCellCountPerDim=global_dims,_RC)
-      grid_has_level = (global_dims(3)>1)
+      grid_has_level = (global_dims(3)>0)
       if (present(rc)) then
          RC=_SUCCESS
       end if
@@ -1475,7 +1483,7 @@ contains
             if (isum == 0) then
                qz(j)=undef
             else
-               qz(j)=qsum/float(isum)
+               qz(j)=qsum/real(isum)
             end if
          enddo
 
@@ -1676,7 +1684,7 @@ contains
 
    subroutine usage(root)
       logical, intent(in) :: root
-      integer :: status,errorcode
+      integer :: status,errorcode,rc
       if(root) then
          write(6,100)
 100      format(  "usage:  ",/,/ &
@@ -1710,6 +1718,7 @@ contains
                )
       endif
       call MPI_Abort(MPI_COMM_WORLD,errorcode,status)
+      _VERIFY(status)
    end subroutine usage
 
     subroutine generate_report()
@@ -1720,14 +1729,14 @@ contains
 
          reporter = ProfileReporter(empty)
          call reporter%add_column(NameColumn(20))
-         call reporter%add_column(FormattedTextColumn('Inclusive','(f9.6)', 9, InclusiveColumn('MEAN')))
+         call reporter%add_column(FormattedTextColumn('Inclusive','(f12.2)', 12, InclusiveColumn('MEAN')))
          call reporter%add_column(FormattedTextColumn('% Incl','(f6.2)', 6, PercentageColumn(InclusiveColumn('MEAN'),'MAX')))
-         call reporter%add_column(FormattedTextColumn('Exclusive','(f9.6)', 9, ExclusiveColumn('MEAN')))
+         call reporter%add_column(FormattedTextColumn('Exclusive','(f12.2)', 12, ExclusiveColumn('MEAN')))
          call reporter%add_column(FormattedTextColumn('% Excl','(f6.2)', 6, PercentageColumn(ExclusiveColumn('MEAN'))))
-         call reporter%add_column(FormattedTextColumn(' Max Excl)','(f9.6)', 9, ExclusiveColumn('MAX')))
-         call reporter%add_column(FormattedTextColumn(' Min Excl)','(f9.6)', 9, ExclusiveColumn('MIN')))
-         call reporter%add_column(FormattedTextColumn('Max PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MAX_PE')))
-         call reporter%add_column(FormattedTextColumn('Min PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MIN_PE')))
+         call reporter%add_column(FormattedTextColumn(' Max Excl)','(f12.2)', 12, ExclusiveColumn('MAX')))
+         call reporter%add_column(FormattedTextColumn(' Min Excl)','(f12.2)', 12, ExclusiveColumn('MIN')))
+         call reporter%add_column(FormattedTextColumn('Max PE)','(1x,i5.5,1x)', 7, ExclusiveColumn('MAX_PE')))
+         call reporter%add_column(FormattedTextColumn('Min PE)','(1x,i5.5,1x)', 7, ExclusiveColumn('MIN_PE')))
         report_lines = reporter%generate_report(t_prof)
          if (mapl_am_I_root()) then
             write(*,'(a)')'Final profile'

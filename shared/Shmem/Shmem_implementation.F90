@@ -8,6 +8,13 @@ submodule (MAPL_Shmem) Shmem_implementation
   use MAPL_Constants
   implicit none
 
+  interface
+     subroutine perror(s) bind(c,name="perror")
+       use, intrinsic :: ISO_C_BINDING
+       character(c_char), intent(in) :: s(*)
+     end subroutine perror
+  end interface
+
 contains
 
   module procedure MAPL_GetNodeInfo
@@ -586,7 +593,6 @@ contains
       _VERIFY(STATUS)
 
       call c_f_pointer(Caddr, Ptr, Shp) ! C ptr to Fortran ptr
-!      _ASSERT(size(Ptr)==len,'needs informative message')   ! Thomas Clune suggested that this ASSERT is unnecessary.
 
       if(present(lbd)) Ptr(lbd(1):) => Ptr
 
@@ -709,7 +715,6 @@ contains
 
     module procedure MAPL_AllocateShared_1DL4
 
-
       integer :: status
 
       if(MAPL_ShmInitialized) then
@@ -790,6 +795,23 @@ contains
       _RETURN(STATUS)
 
     end procedure MAPL_AllocateShared_1DR8
+
+    module procedure MAPL_AllocateShared_2DI4
+      integer :: status
+      if(MAPL_ShmInitialized) then
+         call MAPL_AllocNodeArray(Ptr, Shp, lbd, _RC)
+      else
+         if (TransRoot) then
+            allocate(Ptr(Shp(1),Shp(2)),stat=status)
+         else
+            allocate(Ptr(0,0),stat=status)
+         end if
+         _VERIFY(STATUS)
+      endif
+
+      _RETURN(STATUS)
+
+    end procedure MAPL_AllocateShared_2DI4
 
     module procedure MAPL_AllocateShared_2DR4
 
@@ -882,7 +904,6 @@ contains
     end procedure ReleaseSharedMemory
 
 
-
     module procedure GetSharedMemory
 
       integer                   :: status, pos
@@ -890,8 +911,8 @@ contains
       integer(c_size_t)         :: numBytes
       integer, parameter        :: WORD_SIZE = 4
       integer(c_int), parameter :: C_ZERO = 0
-      integer(c_int), parameter :: myflg = o'666'
-      integer(c_int), parameter :: shmflg = ior(IPC_CREAT,myflg)
+      integer(c_int), parameter :: myflg = int(o'666')
+      integer(c_int), parameter :: shmflg = int(ior(IPC_CREAT,myflg))
       integer(c_key_t), parameter :: keypre = 456000000
 
 !!! Get an empty spot in the list of allocated segments

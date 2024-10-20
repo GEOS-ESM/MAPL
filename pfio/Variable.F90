@@ -12,8 +12,6 @@ module pFIO_VariableMod
    use pFIO_AttributeMod
    use pFIO_StringAttributeMapMod
    use pFIO_StringAttributeMapUtilMod
-   use, intrinsic :: iso_fortran_env, only: INT32, INT64
-   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    implicit none
    private
 
@@ -30,8 +28,9 @@ module pFIO_VariableMod
       type (StringAttributeMap) :: attributes
       type (UnlimitedEntity) :: const_value
       integer :: deflation = 0 ! default no compression
-      integer :: quantize_algorithm = 1 ! default bitgroom
+      integer :: quantize_algorithm = 0 ! default no quantization
       integer :: quantize_level = 0 ! default no quantize_level
+      integer :: zstandard_level = 0 ! default no zstandard
       integer, allocatable :: chunksizes(:)
    contains
       procedure :: get_type
@@ -45,12 +44,15 @@ module pFIO_VariableMod
       generic :: add_attribute => add_attribute_1d
       procedure :: add_attribute_0d
       procedure :: add_attribute_1d
+      procedure :: remove_attribute
       procedure :: add_const_value
 
       procedure :: get_chunksizes
       procedure :: get_deflation
+      procedure :: set_deflation
       procedure :: get_quantize_algorithm
       procedure :: get_quantize_level
+      procedure :: get_zstandard_level
       procedure :: is_attribute_present
       generic :: operator(==) => equal
       generic :: operator(/=) => not_equal
@@ -69,7 +71,7 @@ module pFIO_VariableMod
 contains
 
 
-   function new_Variable(unusable, type, dimensions, chunksizes,const_value, deflation, quantize_algorithm, quantize_level, rc) result(var)
+   function new_Variable(unusable, type, dimensions, chunksizes,const_value, deflation, quantize_algorithm, quantize_level, zstandard_level, rc) result(var)
       type (Variable) :: var
       integer, optional, intent(in) :: type
       class (KeywordEnforcer), optional, intent(in) :: unusable
@@ -79,14 +81,16 @@ contains
       integer, optional, intent(in) :: deflation
       integer, optional, intent(in) :: quantize_algorithm
       integer, optional, intent(in) :: quantize_level
+      integer, optional, intent(in) :: zstandard_level
       integer, optional, intent(out) :: rc
 
       integer:: empty(0)
 
       var%type = -1
       var%deflation = 0
-      var%quantize_algorithm = 1
+      var%quantize_algorithm = 0
       var%quantize_level = 0
+      var%zstandard_level = 0
       var%chunksizes = empty
       var%dimensions = StringVector()
       var%attributes = StringAttributeMap()
@@ -118,6 +122,10 @@ contains
 
       if (present(quantize_level)) then
          var%quantize_level = quantize_level
+      endif
+
+      if (present(zstandard_level)) then
+         var%zstandard_level = zstandard_level
       endif
 
       _RETURN(_SUCCESS)
@@ -184,6 +192,17 @@ contains
 
    end function get_attributes
 
+   subroutine remove_attribute(this,attr_name,rc)
+      class (Variable), target, intent(inout) :: this
+      character(len=*), intent(in) :: attr_name
+      integer, optional, intent(out) :: rc
+      type(StringAttributeMapIterator) :: iter
+      integer :: status
+
+      iter = this%attributes%find(attr_name)
+      call this%attributes%erase(iter)
+      _RETURN(_SUCCESS)
+   end subroutine
 
    subroutine add_attribute_0d(this, attr_name, attr_value, rc)
       class (Variable), target, intent(inout) :: this
@@ -282,6 +301,12 @@ contains
       deflateLevel=this%deflation
    end function get_deflation
 
+   subroutine set_deflation(this,deflate_level)
+      class (Variable), target, intent(inout) :: this
+      integer, intent(in) :: deflate_level
+      this%deflation = deflate_level
+   end subroutine
+
    function get_quantize_algorithm(this) result(quantizeAlgorithm)
       class (Variable), target, intent(In) :: this
       integer :: quantizeAlgorithm
@@ -295,6 +320,13 @@ contains
 
       quantizeLevel=this%quantize_level
    end function get_quantize_level
+
+   function get_zstandard_level(this) result(zstandardLevel)
+      class (Variable), target, intent(In) :: this
+      integer :: zstandardLevel
+
+      zstandardLevel=this%zstandard_level
+   end function get_zstandard_level
 
    logical function equal(a, b)
       class (Variable), target, intent(in) :: a
@@ -371,6 +403,7 @@ contains
       buffer = [buffer, serialize_intrinsic(this%deflation)]
       buffer = [buffer, serialize_intrinsic(this%quantize_algorithm)]
       buffer = [buffer, serialize_intrinsic(this%quantize_level)]
+      buffer = [buffer, serialize_intrinsic(this%zstandard_level)]
 
       if( .not. allocated(this%chunksizes)) then
         buffer =[buffer,[1]]
@@ -398,7 +431,6 @@ contains
          integer,intent(in) :: buffer(:)
          integer, optional, intent(out) :: rc
          integer :: n,length, v_type
-         type (UnlimitedEntity) :: const
          integer :: status
 
          n = 1
@@ -422,11 +454,11 @@ contains
          _VERIFY(status)
 
          n = n + length
-         !allocate(const)
+
          call deserialize_intrinsic(buffer(n:),length)
          call UnlimitedEntity_deserialize(buffer(n:(n+length-1)), this%const_value, status)
          _VERIFY(status)
-         !this%const_value = const
+
          n = n + length
          call deserialize_intrinsic(buffer(n:),this%deflation)
          length = serialize_buffer_length(this%deflation)
@@ -436,6 +468,9 @@ contains
          n = n + length
          call deserialize_intrinsic(buffer(n:),this%quantize_level)
          length = serialize_buffer_length(this%quantize_level)
+         n = n + length
+         call deserialize_intrinsic(buffer(n:),this%zstandard_level)
+         length = serialize_buffer_length(this%zstandard_level)
          n = n + length
          call deserialize_intrinsic(buffer(n:),this%chunksizes)
          _RETURN(_SUCCESS)

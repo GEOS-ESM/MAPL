@@ -1,7 +1,6 @@
 #include "MAPL_ErrLog.h"
 module MAPL_ExtDataConfig
    use ESMF
-   use yaFyaml
    use PFIO
    use gFTL_StringVector
    use MAPL_KeywordEnforcerMod
@@ -88,36 +87,38 @@ contains
 
       if (ESMF_HConfigIsDefined(input_config,keyString="Samplings")) then
          temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Samplings",_RC)
-         hconfigIter = ESMF_HConfigIterBegin(temp_configs)
          hconfigIterBegin = ESMF_HConfigIterBegin(temp_configs)
+         hconfigIter = hconfigIterBegin
          hconfigIterEnd = ESMF_HConfigIterEnd(temp_configs)
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
             hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
-            single_sample = ESMF_HConfigCreateAtMapVal(hconfigIter,_RC) 
+            single_sample = ESMF_HConfigCreateAtMapVal(hconfigIter,_RC)
             ts = ExtDataTimeSample(single_sample,_RC)
             call ext_config%sample_map%insert(trim(hconfig_key),ts)
          enddo
+         call ESMF_HConfigDestroy(temp_configs)
       end if
 
       if (ESMF_HConfigIsDefined(input_config,keyString="Collections")) then
          temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Collections",_RC)
-         hconfigIter = ESMF_HConfigIterBegin(temp_configs)
          hconfigIterBegin = ESMF_HConfigIterBegin(temp_configs)
+         hconfigIter = hconfigIterBegin
          hconfigIterEnd = ESMF_HConfigIterEnd(temp_configs)
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
             hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
             temp_ds => ext_config%file_stream_map%at(hconfig_key)
             _ASSERT(.not.associated(temp_ds),"defined duplicate named collection")
-            single_collection = ESMF_HConfigCreateAtMapVal(hconfigIter,_RC) 
+            single_collection = ESMF_HConfigCreateAtMapVal(hconfigIter,_RC)
             ds = ExtDataFileStream(single_collection,current_time,_RC)
             call ext_config%file_stream_map%insert(trim(hconfig_key),ds)
          enddo
+         call ESMF_HConfigDestroy(temp_configs)
       end if
 
       if (ESMF_HConfigIsDefined(input_config,keyString="Exports")) then
          temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Exports",_RC)
-         hconfigIter = ESMF_HConfigIterBegin(temp_configs)
          hconfigIterBegin = ESMF_HConfigIterBegin(temp_configs)
+         hconfigIter = hconfigIterBegin
          hconfigIterEnd = ESMF_HConfigIterEnd(temp_configs)
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
             hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
@@ -133,7 +134,7 @@ contains
                   new_key = hconfig_key//rule_sep//i_char
                   call ext_config%add_new_rule(new_key,rule_map,multi_rule=.true.,_RC)
                enddo
-            else 
+            else
                _FAIL("Unsupported type")
             end if
          enddo
@@ -141,8 +142,8 @@ contains
 
       if (ESMF_HConfigIsDefined(input_config,keyString="Derived")) then
          temp_configs = ESMF_HConfigCreateAt(input_config,keyString="Derived",_RC)
-         hconfigIter = ESMF_HConfigIterBegin(temp_configs)
          hconfigIterBegin = ESMF_HConfigIterBegin(temp_configs)
+         hconfigIter = hconfigIterBegin
          hconfigIterEnd = ESMF_HConfigIterEnd(temp_configs)
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
             hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
@@ -163,7 +164,7 @@ contains
 
    function count_rules_for_item(this,item_name,rc) result(number_of_rules)
       integer :: number_of_rules
-      class(ExtDataConfig), intent(in) :: this
+      class(ExtDataConfig), target, intent(in) :: this
       character(len=*), intent(in) :: item_name
       integer, optional, intent(out) :: rc
 
@@ -188,7 +189,7 @@ contains
 
    function get_time_range(this,item_name,rc) result(time_range)
       type(ESMF_Time), allocatable :: time_range(:)
-      class(ExtDataConfig), intent(in) :: this
+      class(ExtDataConfig), target, intent(in) :: this
       character(len=*), intent(in) :: item_name
       integer, optional, intent(out) :: rc
 
@@ -266,7 +267,7 @@ contains
    end function sort_rules_by_start
 
    function get_item_type(this,item_name,unusable,rc) result(item_type)
-      class(ExtDataConfig), intent(inout) :: this
+      class(ExtDataConfig), target, intent(inout) :: this
       character(len=*), intent(in) :: item_name
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
@@ -419,7 +420,7 @@ contains
             found_rule = (key(:rule_sep_loc-1) == base_name)
          else
             found_rule = (key == base_name)
-         end if 
+         end if
          if (found_rule) exit
          call iter%next()
       enddo
