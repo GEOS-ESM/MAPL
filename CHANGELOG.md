@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - Allow update offsets of &#177;timestep in ExtData2G
 
 ### Changed
@@ -17,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed issue of some Baselibs builds appearing to support zstandard. This is not possible due to Baselibs building HDF5 and netCDF as static libraries
+- Corrected bug in HorizontalFluxRegridder.  Fluxes need to be multiplied by edge length for correct treatment.
 
 ### Removed
 
@@ -594,8 +596,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Created cubed-sphere grid factory with files split by face
 - Removed unneeded and confusing default in History Grid Comp (see #2081)
 - Fixes in CMake for fArgParse transition
-- Corrected bug in HorizontalFluxRegridder.  Fluxes need to be
-  multiplied by edge length for correct treatment.
 
 ### Deprecated
 
