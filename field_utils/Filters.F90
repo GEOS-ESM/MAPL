@@ -1,3 +1,125 @@
+module mapl3g_FieldCondition
+   type, abstract :: FieldCondition
+   contains
+      generic :: eval => eval_r4, eval_r8, eval_i4, eval_i8, eval_logical, eval_character
+      procedure(CheckR4), deferred :: eval_r4
+      procedure(CheckR8), deferred :: eval_r8
+      procedure(CheckI4), deferred :: eval_i4
+      procedure(CheckI8), deferred :: eval_i8
+      procedure(CheckLogical), deferred :: eval_logical
+      procedure(CheckCharacter), deferred :: eval_character
+      procedure(CheckComposite), deferred :: eval_composite
+   end type FieldCondition
+
+   abstract interface
+      elemental logical function CheckR4(this, val, rc)
+         class(FieldCondition), intent(in) :: this
+         real(kind=ESMF_KIND_R4), intent(in) :: val
+         integer, optional, intent(out) :: rc
+      end function CheckR4
+      elemental logical function CheckR8(this, val, rc)
+         class(FieldCondition), intent(in) :: this
+         real(kind=ESMF_KIND_R8), intent(in) :: val
+         integer, optional, intent(out) :: rc
+      end function CheckR8
+      elemental logical function CheckI4(this, val, rc)
+         class(FieldCondition), intent(in) :: this
+         integer(kind=ESMF_KIND_I4), intent(in) :: val
+         integer, optional, intent(out) :: rc
+      end function CheckI4
+      elemental logical function CheckI8(this, val, rc)
+         class(FieldCondition), intent(in) :: this
+         integer(kind=ESMF_KIND_I8), intent(in) :: val
+         integer, optional, intent(out) :: rc
+      end function CheckI8
+      elemental logical function CheckLogical(this, val, rc)
+         class(FieldCondition), intent(in) :: this
+         logical, intent(in) :: val
+         integer, optional, intent(out) :: rc
+      end function CheckLogical
+      elemental logical function CheckCharacter(this, val, rc)
+         class(FieldCondition), intent(in) :: this
+         character(len=*), intent(in) :: val
+         integer, optional, intent(out) :: rc
+      end function CheckCharacter
+      elemental logical function CheckComposite(this, val, rc)
+         class(FieldCondition), intent(in) :: this
+         class(FieldCondition), intent(in) :: val(:)
+         integer, optional, intent(out) :: rc
+      end function CheckComposite
+   end abstract interface
+
+   type, abstract extends(FieldCondition) :: FieldConditionBase
+      procedure :: eval_r4
+      procedure :: eval_r8
+      procedure :: eval_i4
+      procedure :: eval_i8
+      procedure :: eval_logical
+      procedure :: eval_character
+   end type FieldConditionBase
+
+contains
+      elemental logical function eval_r4(this, val, rc) result(lval)
+         class(FieldConditionBase), intent(in) :: this
+         real(kind=ESMF_KIND_R4), intent(in) :: val
+         integer, optional, intent(out) :: rc
+         integer :: status
+         lval = .FALSE.
+         _FAIL("Incorrect type")
+      end function eval_r4
+      elemental logical function eval_ r8(this, val, rc) result(lval)
+         class(FieldConditionBase), intent(in) :: this
+         real(kind=ESMF_KIND_R8), intent(in) :: val
+         integer, optional, intent(out) :: rc
+         integer :: status
+         lval = .FALSE.
+         _FAIL("Incorrect type")
+      end function eval_ r8
+      elemental logical function eval_i4(this, val, rc) result(lval)
+         class(FieldConditionBase), intent(in) :: this
+         integer(kind=ESMF_KIND_I4), intent(in) :: val
+         integer, optional, intent(out) :: rc
+         integer :: status
+         lval = .FALSE.
+         _FAIL("Incorrect type")
+      end function eval_i4
+      elemental logical function eval_i8(this, val, rc) result(lval)
+         class(FieldConditionBase), intent(in) :: this
+         integer(kind=ESMF_KIND_I8), intent(in) :: val
+         integer, optional, intent(out) :: rc
+         integer :: status
+         lval = .FALSE.
+         _FAIL("Incorrect type")
+      end function eval_i8
+      elemental logical function eval_logical(this, val, rc) result(lval)
+         class(FieldConditionBase), intent(in) :: this
+         logical, intent(in) :: val
+         integer, optional, intent(out) :: rc
+         integer :: status
+         lval = .FALSE.
+         _FAIL("Incorrect type")
+      end function eval_logical
+      elemental logical function eval_character(this, val, rc) result(lval)
+         class(FieldConditionBase), intent(in) :: this
+         character(len=*), intent(in) :: val
+         integer, optional, intent(out) :: rc
+         integer :: status
+         lval = .FALSE.
+         _FAIL("Incorrect type")
+      end function eval_character
+      elemental logical function eval_composite(this, val, rc) result(lval)
+         class(FieldConditionBase), intent(in) :: this
+         class(FieldCondition), intent(in) :: this(:)
+         integer, optional, intent(out) :: rc
+         integer :: status
+         lval = .FALSE.
+         _FAIL("Incorrect type")
+      end function eval_composite
+
+end module mapl3g_FieldCondition
+
+
+
 logical, parameter :: AND = .TRUE.
 logical, parameter :: OR = .FALSE.
 

@@ -1,4 +1,5 @@
 module mapl3g_AccumulatorAction
+   use mapl3g_AccumulatorConstants
    use mapl3g_ExtensionAction
    use ESMF
    implicit none
@@ -7,16 +8,19 @@ module mapl3g_AccumulatorAction
 
    type, extends(ExtensionAction) :: AccumulatorAction
       procedure(UpdateField), pointer :: accumulate => null()
+      procedure(UpdateField), pointer :: increment => null()
       procedure(UpdateField), pointer :: couple => null()
       procedure(ModifyField), pointer :: clear => null()
-      logical :: is_active = .FALSE.
+      integer(kind=c_int) :: accumulator_type
       type(ESMF_Field), allocatable :: accumulation_field
       type(ESMF_Field), allocatable :: counter_field
-      logical, private :: run_couple_ = .FALSE.
    contains
       procedure :: initialize => initialize_action
       procedure :: update => update_action
       procedure :: invalidate => invalidate_action
+      procedure, private :: has_coupler
+      procedure, private :: has_counter
+      procedure, private :: is_active
    end type AccumulatorAction
 
    abstract interface
@@ -35,20 +39,48 @@ module mapl3g_AccumulatorAction
       module procedure :: construct_accumulator_action
    end interface AccumulatorAction
 
+   enum, bind(c)
+      enumerator :: SIMPLE_ACCUMULATOR
+      enumerator :: MEAN_ACCUMULATOR
+      enumerator :: MAX_ACCUMULATOR
+      enumerator :: MIN_ACCUMULATOR
+   end enum
+
 contains
 
-   function construct_accumulator_action(accumulate, clear, increment, couple) result(acc)
+   function construct_accumulator_action(accumulator_type)
       type(AccumulatorAction) :: acc
-      procedure(UpdateField), pointer, intent(in) :: accumulate
-      procedure(ModifyField), pointer, intent(in) :: clear
-      procedure(UpdateField), optional, pointer, intent(in) :: couple
+      integer(kind=SIMPLE_ACCUMULATOR), intent(in) :: accumulator_type
 
-      acc%accumulate => accumulate
-      acc%clear => clear
-      acc%run_couple_ = present(couple)
-      if(acc%run_couple()) acc%couple => couple
+      acc%accumulator_type = accumulator_type
 
    end function construct_accumulator_action
+
+   subroutine set_accumulator_action(acc) result(acc)
+      class(AccumulatorAction), intent(inout) :: acc
+      procedure(UpdateField), pointer :: accumulate => null()
+      procedure(UpdateField), pointer :: increment => null()
+      procedure(ModifyField), pointer :: clear => null()
+      procedure(UpdateField), pointer :: couple => null()
+
+      clear => clear_to_zero
+      select case(acc%accumulator_type)
+         case MEAN_ACCUMULATOR
+            accumulate => accumulate_add
+            couple => couple_mean
+            increment => increment_counter
+         case MIN_ACCUMULATOR
+            accumulate => accumulate_min
+            clear => clear_to_undef
+         case MAX_ACCUMULATOR
+            accumulate => accumulate_max
+            clear => clear_to_undef
+         case default
+            _FAIL("Unsupported AccumulatorAction")
+      end select
+      acc = AccumulatorAction(accumulate, increment, couple, clear)
+
+   end subroutine set_accumulator_action
 
    subroutine initialize_action(this, importState, exportState, clock, rc)
       class(AccumulatorAction), intent(inout) :: this
@@ -56,6 +88,24 @@ contains
       type(ESMF_State) :: exportState
       type(ESMF_Clock) :: clock
       integer, optional, intent(out) :: rc
+      type(ESMF_Field) :: import_field, export_field, field
+
+      call this%set_accumulator_action(_RC)
+      _ASSERT(assigned(this%couple) .eqv. assigned(this%increment), 'couple requires increment')
+      call get_field(importState, import_field, _RC)
+      call get_field(exportState, export_field, _RC)
+      call FieldCopy(import_field, field, _RC)
+      call acc%clear(field, _RC)
+      acc%accumulation_field = field
+      if(acc%has_coupler()) then
+         call FieldCopy(import_field, field, _RC)
+         call FieldReallocate(field, typekind=COUNTER_TYPEKIND, _RC)
+         call this%clear(field, _RC)
+         acc%counter_field = field
+      end if
+       
+      _ASSERT(this%has_coupler() .eqv.this%has_counter())
+      
    end subroutine initialize_action
 
    subroutine update_action(this, importState, exportState, clock, rc)
@@ -69,6 +119,16 @@ contains
       
       call get_field(importState, import_field, _RC)
       call get_field(exportState, export_field, _RC)
+      if(this%has_coupler()) then
+         call this%couple(this%accumulation_field, this%counter_field, _RC)
+      end if
+      export_field = this%accumulation_field
+      call this%clear(this%accumulation_field, _RC)
+      if(this%has_counter()) then
+         call this%clear(this%accumulation_field, _RC)
+      end if
+      _RETURN(_SUCCESS)
+
    end subroutine update_action
 
    subroutine invalidate_action(this, importState, exportState, clock, rc)
@@ -82,6 +142,12 @@ contains
       
       call get_field(importState, import_field, _RC)
       call get_field(exportState, export_field, _RC)
+      call this%accumulate(this%accumulation_field, field_update, _RC)
+      if(this%has_counter()) then
+         call this%increment(this%counter_field, this%accumulation_field, _RC)
+      end if
+      _RETURN(_SUCCESS)
+
    end subroutine invalidate_action
 
    subroutine get_field(state, field, rc)
@@ -99,61 +165,151 @@ contains
       _RETURN(_SUCCESS
 
    end subroutine get_field
-   subroutine accumulate(acc, field_update, rc)
-      class(AccumulatorAction), intent(inout) :: acc
-      type(ESMF_Field), intent(inout) :: field_update
-      integer, optional, intent(out) :: rc
-      integer :: status
-   
-      call acc%accumulate(acc%accumulation_field, field_update, _RC)
-      _RETURN(_SUCCESS)
 
-   end subroutine accumulate
+! These are procedures used to construct the AccumulatorAction.
 
-   subroutine clear(acc, rc)
-      class(AccumulatorAction), intent(inout) :: acc
-      integer, optional, intent(out) :: rc
-      integer :: status
-
-      call acc%clear(acc%accumulation_field, _RC)
-      if(acc%run_couple()) call reset_counter(acc%counter_field)
-      _RETURN(_SUCCESS)
-
-   end subroutine clear
-
-   subroutine couple(acc, rc)
-      class(AccumulatorAction), intent(inout) :: acc
-      integer, optional, intent(out) :: rc
-      integer :: status
-
-      if(acc%run_couple()) then
-         call acc%couple(acc%accumulation_field, acc%counter_field, _RC)
-      end if
-      _RETURN(_SUCCESS)
-
-   end subroutine couple
-
-   subroutine increment(counter, field, rc)
+   subroutine increment_counter(counter, field, rc)
       type(ESMF_Field), intent(inout) :: counter
       type(ESMF_Field), intent(inout) :: field
       integer, optional, intent(out) :: rc
       integer :: status
+      type(ESMF_TypeKind_Flag) :: tk_counter
+      type(ESMF_TypeKind_Flag) :: tk_field
+      logical :: conformable
+      real(kind=COUNTER_KIND), pointer :: ptrCounter(:) => null()
 
-      ! increment counter based on accumulation field
+      conformable = FieldsAreConformable(counter, field,_RC)
+      _ASSERT(conformable,"counter is not conformable with field.")
+
+      call ESMF_FieldGet(field,typekind=tk_field,_RC)
+      call ESMF_FieldGet(counter,typekind=tk_counter,_RC)
+      _ASSERT(tk_counter == COUNTER_TYPEKIND, "counter must be " // COUNTER_TYPEKIND_NAME)
+
+      call assign_fptr(counter, ptrCounter, _RC)
+      if(tk_field == ESMF_TypeKindFlag_R8) then
+         call incrementR8(counter, field, _RC)
+      else
+         call incrementR4(counter, field, _RC)
+      end if
       _RETURN(_SUCCESS)
 
-   end subroutine increment
+   contains
+
+      subroutine incrementR8(counter, field, rc)
+         type(ESMF_Field), intent(inout) :: counter
+         type(ESMF_Field), intent(inout) :: field
+         integer, optional, intent(out) :: rc
+         integer :: status
+         real(kind=ESMF_KIND_R8), pointer :: ptrFieldR8(:) => null()
+         real(kind=ESMF_KIND_R8) :: undefR8(1)
+
+         call assign_fptr(field, ptrFieldR8, _RC)
+         call GetFieldsUndef([field], undefR8, _RC)
+         where(ptrFieldR8 /= undefR8(1)) 
+            ptrCounter = ptrCount + 1
+         end where
+         _RETURN(_SUCCESS)
+
+      end subroutine incrementR8
+
+      subroutine incrementR4(counter, field, rc)
+         type(ESMF_Field), intent(inout) :: counter
+         type(ESMF_Field), intent(inout) :: field
+         integer, optional, intent(out) :: rc
+         integer :: status
+         real(kind=ESMF_KIND_R4), pointer :: ptrFieldR4(:) => null()
+         real(kind=ESMF_KIND_R4) :: undefR4(1)
+
+         call assign_fptr(field, ptrFieldR4, _RC)
+         call GetFieldsUndef([field], undefR4, _RC)
+         where(ptrFieldR4 /= undefR4(1)) 
+            ptrCounter = ptrCount + 1
+         end where
+         _RETURN(_SUCCESS)
+
+      end subroutine incrementR4
+
+   end subroutine increment_counter
 
    subroutine accumulate_add(accumulated, update, rc)
       type(ESMF_Field), intent(inout) :: accumulated
       type(ESMF_Field), intent(inout) :: update
       integer, optional, intent(out) :: rc
+
+      call fieldAdd(accumulated, update, _RC)
+
    end subroutine accumulate_add
 
-   subroutine accumulate_apply_function(acc, update, rc)
+   subroutine accumulate_max(acc, update, rc)
       type(ESMF_Field), intent(inout) :: accumulated
       type(ESMF_Field), intent(inout) :: update
       integer, optional, intent(out) :: rc
-   end subroutine accumulate_apply_function
+
+      call fieldMax(accumulated, update, _RC)
+
+   end subroutine accumulate_max
+
+   subroutine accumulate_min(acc, update, rc)
+      type(ESMF_Field), intent(inout) :: acc
+      type(ESMF_Field), intent(inout) :: update
+      integer, optional, intent(out) :: rc
+
+      call fieldmin(accumulated, update, _RC)
+
+   end subroutine accumulate_min
+
+   subroutine couple_mean(acc, count, rc)
+      type(ESMF_Field), intent(inout) :: acc
+      type(ESMF_Field), intent(inout) :: count
+      
+      call fieldDivide(acc, count, _RC)
+
+   end couple_mean
+
+   subroutine clear_to_undef(field, rc)
+      type(ESMF_Field), intent(inout) :: field
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      call ESMF_Field_Get(field, typekind=tk, _RC)
+      if(tk == ESMF_TypeKind_R8) then
+         call FieldSet(field, MAPL_UNDEFINED_REAL64, _RC)
+      else
+         call FieldSet(field, MAPL_UNDEFINED_REAL, _RC)
+      end if
+      _RETURN(_SUCCESS)
+
+   end subroutine clear_to_undef
+
+   subroutine clear_to_zero(field, rc)
+      type(ESMF_Field), intent(inout) :: field
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      call Field_Set(field, 0.0_ESMF_KIND_R4, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine clear_to_zero
+
+   logical function has_coupler(this) result(lval)
+      class(AccumulatorAction), intent(in) :: this
+
+      lval = associated(this%couple)
+
+   end function has_coupler
+
+   logical function has_counter(this) result(lval)
+      class(AccumulatorAction), intent(in) :: this
+
+      lval = allocated(this%counter_field)
+
+   end function has_counter
+
+   logical function is_active(this) result(lval)
+      class(AccumulatorAction), intent(in) :: this
+
+      lval = allocated(this%accumulation_field)
+
+   end function is_active
 
 end module mapl3g_AccumulatorAction

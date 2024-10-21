@@ -8,31 +8,23 @@
       integer, optional, intent(out) :: rc
 
       integer :: status
-      integer, parameter :: LEFT = 1
-      integer, parameter :: RIGHT = 2
-      integer, parameter :: OUT_ = 3
-      type(ESMF_Field) :: fields(3)
       type(ESMF_TypeKind_Flag) :: tk_in
       type(ESMF_TypeKind_Flag) :: tk_out
-      logical :: has_undef, conformable
+      logical :: conformable
 
       conformable = FieldsAreConformable(left_field,field_out,_RC)
       _ASSERT(conformable,"Left field passed to binary function is not conformable with result field.")
       conformable = FieldsAreConformable(right_field,field_out,_RC)
       _ASSERT(conformable,"Right field passed to binary function is not conformable with result field.")
 
-      fields(LEFT) = left_field
-      fields(RIGHT) = right_field
-      fields(OUT_) = field_out
-      has_undef = FieldsHaveUndef(fields,_RC)
       call ESMF_FieldGet(field_out,typekind=tk_out,_RC)
       call ESMF_FieldGet(left_field,typekind=tk_in,_RC)
       _ASSERT(tk_in == tk_out, "Left field type does not match result field type.")
       call ESMF_FieldGet(right_field,typekind=tk_in,_RC)
       _ASSERT(tk_in == tk_out, "Right field type does not match result field type.")
-      if (tk_out ==ESMF_TypeKind_R4) then
+      if (tk_out == ESMF_TypeKind_R4) then
          call set_r4(_RC)
-      else if (tk_out ==ESMF_TypeKind_R8) then
+      else if (tk_out == ESMF_TypeKind_R8) then
          call set_r8(_RC)
       else
           _FAIL("unsupported type")
@@ -41,55 +33,24 @@
 
    contains
 
-      subroutine set_r4(rc)
-         integer, optional, intent(out) :: rc
-         integer :: status
+#if defined(KIND_)
+#   undef KIND_
+#endif
 
-         real(ESMF_KIND_R4), allocatable :: undef
-         real(kind=ESMF_KIND_R4), pointer :: ptr_left(:) => null()
-         real(kind=ESMF_KIND_R4), pointer :: ptr_right(:) => null()
-         real(kind=ESMF_KIND_R4), pointer :: ptr_out(:) => null()
-         
-         call assign_fptr(left_field,ptr_left,_RC)
-         call assign_fptr(right_field,ptr_right,_RC)
-         call assign_fptr(field_out,ptr_out,_RC)
-         if(has_undef) then
-            call GetFieldsUndef(fields,undef,_RC)
-            where(ptr_left /= undef(LEFT) .and. ptr_right /= undef(RIGHT))
-               ptr_out = _FUNC(ptr_left, ptr_right)
-            elsewhere
-               if(_SETUNDEF) ptr_out = undef(OUT_)
-           end where
-         else
-            ptr_out = _FUNC(ptr_left, ptr_right)
-         end if
-      end subroutine set_r4
+#define KIND_ ESMF_KIND_R4
+   subroutine set_r4(rc)
+#include "SetFieldTemplate.H"
+   end subroutine set_r4
+#   undef KIND_
 
-      subroutine set_r8(rc)
-         integer, optional, intent(out) :: rc
-         integer :: status
-
-         real(ESMF_KIND_R8), allocatable :: undef
-         real(kind=ESMF_KIND_R8), pointer :: ptr_left(:) => null()
-         real(kind=ESMF_KIND_R8), pointer :: ptr_right(:) => null()
-         real(kind=ESMF_KIND_R8), pointer :: ptr_out(:) => null()
-         
-         call assign_fptr(left_field,ptr_left,_RC)
-         call assign_fptr(right_field,ptr_right,_RC)
-         call assign_fptr(field_out,ptr_out,_RC)
-         if(has_undef) then
-            call GetFieldsUndef(fields,undef,_RC)
-            where(ptr_left /= undef(LEFT) .and. ptr_right /= undef(RIGHT))
-               ptr_out = _FUNC(ptr_left, ptr_right)
-            elsewhere
-               if(_SETUNDEF) ptr_out = undef(OUT_)
-           end where
-         else
-            ptr_out = _FUNC(ptr_left, ptr_right)
-         end if
-      end subroutine set_r8
+#define KIND_ ESMF_KIND_R8
+   subroutine set_r8(rc)
+#include "SetFieldTemplate.H"
+   end subroutine set_r8
+#   undef KIND_
 
    end subroutine _SUB
 
 #include "undo_function_overload.macro"
 #undef _NAME
+!vim: ft=fortran

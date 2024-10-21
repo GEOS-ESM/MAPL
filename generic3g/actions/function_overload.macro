@@ -1,7 +1,11 @@
 #define _IDENTITY(x)x
-#define _SUB __SUB(_NAME,_FUNC)
-#define __SUB(A,B) ___SUB(A,B)
-#define ___SUB(A,B) _IDENTITY(A)_IDENTITY(B)
+#define _SUB _CAT(_NAME,_FUNC)
+#define _SUBKIND(_NAME, _FUNC, _KIND) _CAT4(_NAME, _FUNC, _, _KIND)
+#define _CAT(A,B) __CAT(A,B)
+#define __CAT(A,B) _IDENTITY(A)_IDENTITY(B)
+#define _CAT3(A, B, C) _CAT(_CAT(A, B), C)
+#define _CAT4(A, B, C, D) _CAT(_CAT3(A, B, C), D)
+
 #if defined(_KEEP_LEFT)
 #   define _SETUNDEF .FALSE.
 #else
