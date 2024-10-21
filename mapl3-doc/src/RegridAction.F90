@@ -20,7 +20,7 @@ module mapl3g_RegridAction
       class(Regridder), pointer :: regrdr
    contains
       procedure :: initialize
-      procedure :: run
+      procedure :: update
    end type ScalarRegridAction
 
    interface RegridAction
@@ -67,7 +67,7 @@ contains
    end subroutine initialize
 
 
-   subroutine run(this, importState, exportState, clock, rc)
+   subroutine update(this, importState, exportState, clock, rc)
       class(ScalarRegridAction), intent(inout) :: this
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
@@ -84,6 +84,6 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(clock)
-   end subroutine run
+   end subroutine update
 
 end module mapl3g_RegridAction

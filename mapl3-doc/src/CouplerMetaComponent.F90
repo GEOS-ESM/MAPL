@@ -115,7 +115,7 @@ contains
 !#      call this%propagate_attributes(_RC)
       call this%update_sources(_RC)
       
-      call this%action%run(importState, exportState, clock, _RC)
+      call this%action%update(importState, exportState, clock, _RC)
       call this%set_up_to_date()
 
       _RETURN(_SUCCESS)
