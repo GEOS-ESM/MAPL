@@ -15,7 +15,7 @@ module mapl3g_NullAction
    type, extends(ExtensionAction) :: NullAction
    contains
       procedure :: initialize
-      procedure :: run
+      procedure :: update
    end type NullAction
 
    interface NullAction
@@ -42,7 +42,7 @@ contains
       _UNUSED_DUMMY(clock)
    end subroutine initialize
 
-   subroutine run(this, importState, exportState, clock, rc)
+   subroutine update(this, importState, exportState, clock, rc)
       use esmf
       class(NullAction), intent(inout) :: this
       type(ESMF_State)      :: importState
@@ -54,6 +54,6 @@ contains
       _UNUSED_DUMMY(importState)
       _UNUSED_DUMMY(exportState)
       _UNUSED_DUMMY(clock)
-  end subroutine run
+  end subroutine update
 
 end module mapl3g_NullAction
