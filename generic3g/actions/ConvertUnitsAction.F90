@@ -19,7 +19,7 @@ module mapl3g_ConvertUnitsAction
       character(:), allocatable :: src_units, dst_units
    contains
       procedure :: initialize
-      procedure :: run
+      procedure :: update
    end type ConvertUnitsAction
 
 
@@ -59,7 +59,7 @@ contains
    end subroutine initialize
 
       
-   subroutine run(this, importState, exportState, clock, rc)
+   subroutine update(this, importState, exportState, clock, rc)
       use esmf
       class(ConvertUnitsAction), intent(inout) :: this
       type(ESMF_State)      :: importState
@@ -95,6 +95,6 @@ contains
 
       _FAIL('unsupported typekind')
       _UNUSED_DUMMY(clock)
-   end subroutine run
+   end subroutine update
    
 end module mapl3g_ConvertUnitsAction

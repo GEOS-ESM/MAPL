@@ -12,7 +12,7 @@ module mapl3g_FieldDimensionInfo
    use esmf, only: ESMF_InfoPrint
    use Mapl_ErrorHandling
 
-   implicit none
+   implicit none (type, external)
 
    private
 
@@ -183,8 +183,8 @@ contains
       type(UngriddedDims) :: dims
 
       do i=1, size(info)
-         dims = make_ungridded_dims(info(i), _RC)
-         call push_ungridded_dims(vec, dims, rc)
+         dims = make_ungriddedDims(info(i), key=KEY_UNGRIDDED_DIMS, _RC)
+         call merge_ungridded_dims(vec, dims, rc)
       end do
       _RETURN(_SUCCESS)
 
@@ -198,60 +198,14 @@ contains
       type(ESMF_Info) :: info
 
       info = MAPL_InfoCreateFromInternal(field, _RC)
-      ungridded = make_ungridded_dims(info, _RC)
+      ungridded = make_UngriddedDims(info, key=KEY_UNGRIDDED_DIMS, _RC)
       call ESMF_InfoDestroy(info, _RC)
 
       _RETURN(_SUCCESS)
    end function get_ungridded_dims_field
 
-   function make_ungridded_dims(info, rc) result(dims)
-      type(UngriddedDims) :: dims
-      type(ESMF_Info), intent(in) :: info
-      integer, optional, intent(out) :: rc
-      integer :: status
-      integer :: num_dims, i
-      type(UngriddedDim) :: ungridded
 
-      call MAPL_InfoGet(info, key=KEY_NUM_UNGRIDDED_DIMS, value=num_dims, _RC)
-      do i=1, num_dims
-         ungridded = make_ungridded_dim(info, i, _RC)
-         call dims%add_dim(ungridded, _RC)
-      end do
-      _RETURN(_SUCCESS)
-
-   end function make_ungridded_dims
-
-   function make_ungridded_dim(info, n, rc) result(ungridded_dim)
-      type(UngriddedDim) :: ungridded_dim
-      integer, intent(in) :: n
-      type(ESMF_Info), intent(in) :: info
-      integer, optional, intent(out) :: rc
-      integer :: status
-      type(ESMF_Info) :: dim_info
-      character(len=:), allocatable :: key
-      character(len=:), allocatable :: name
-      character(len=:), allocatable :: units
-      real, allocatable :: coordinates(:)
-      logical :: is_present
-      character(len=1024) :: json_repr
-
-      key = make_dim_key(n, _RC)
-      call ESMF_InfoGet(info, key=key, isPresent=is_present, _RC)
-      if(.not. is_present) then
-         call ESMF_InfoPrint(info, unit=json_repr, _RC)
-         _FAIL('Key ' // trim(key) // ' not found in ' // trim(json_repr))
-      end if
-      dim_info = ESMF_InfoCreate(info, key=key, _RC)
-      call MAPL_InfoGet(dim_info, key=KEY_UNGRIDDED_NAME, value=name, _RC)
-      call MAPL_InfoGet(dim_info, key=KEY_UNGRIDDED_UNITS, value=units, _RC)
-      call MAPL_InfoGet(dim_info, key=KEY_UNGRIDDED_COORD, values=coordinates, _RC)
-      call ESMF_InfoDestroy(dim_info, _RC)
-      ungridded_dim = UngriddedDim(coordinates, name=name, units=units)
-      _RETURN(_SUCCESS)
-
-   end function make_ungridded_dim
-
-   subroutine push_ungridded_dims(vec, dims, rc)
+   subroutine merge_ungridded_dims(vec, dims, rc)
       class(UngriddedDimVector), intent(inout) :: vec
       class(UngriddedDims), intent(in) :: dims
       integer, optional, intent(out) :: rc
@@ -264,7 +218,7 @@ contains
       end do
       _RETURN(_SUCCESS)
 
-   end subroutine push_ungridded_dims
+   end subroutine merge_ungridded_dims
 
    integer function find_index(v, name) result(i)
       class(StringVector), intent(in) :: v

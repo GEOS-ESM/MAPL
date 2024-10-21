@@ -41,7 +41,7 @@ module MockItemSpecMod
       character(:), allocatable :: details
    contains
       procedure :: initialize
-      procedure :: run
+      procedure :: update
    end type MockAction
 
    interface MockItemSpec
@@ -215,7 +215,7 @@ contains
       _FAIL('This procedure should not be called.')
    end subroutine initialize
 
-   subroutine run(this, importState, exportState, clock, rc)
+   subroutine update(this, importState, exportState, clock, rc)
       use esmf
       class(MockAction), intent(inout) :: this
       type(ESMF_State)      :: importState
@@ -223,7 +223,7 @@ contains
       type(ESMF_Clock)      :: clock      
       integer, optional, intent(out) :: rc
       _FAIL('This procedure should not be called.')
-   end subroutine run
+   end subroutine update
    
    function make_adapters(this, goal_spec, rc) result(adapters)
       type(StateItemAdapterWrapper), allocatable :: adapters(:)
