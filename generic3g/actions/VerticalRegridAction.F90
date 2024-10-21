@@ -5,7 +5,7 @@ module mapl3g_VerticalRegridAction
    use mapl_ErrorHandling
    use mapl3g_ExtensionAction
    use mapl3g_GriddedComponentDriver
-   use mapl3g_CouplerMetaComponent
+   use mapl3g_CouplerPhases
    use mapl3g_VerticalRegridMethod
    use esmf
 
@@ -26,6 +26,8 @@ module mapl3g_VerticalRegridAction
    contains
       procedure :: initialize
       procedure :: run
+      procedure :: write_formatted
+      generic :: write(formatted) => write_formatted
    end type VerticalRegridAction
 
    interface VerticalRegridAction
@@ -50,7 +52,6 @@ contains
       action%v_out_coupler => v_out_coupler
 
       action%method = method
-      print *, "Regrid method: ", method
    end function new_VerticalRegridAction
 
    subroutine initialize(this, importState, exportState, clock, rc)
@@ -95,7 +96,6 @@ contains
       integer :: i, j, k
       integer, parameter :: IM = 2, JM = 2, LM = 2
 
-      _HERE
       if (associated(this%v_in_coupler)) then
          call this%v_in_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
       end if
@@ -110,13 +110,6 @@ contains
       call ESMF_FieldGet(f_in, fArrayPtr=x_in, _RC)
       call ESMF_FieldGet(f_out, fArrayPtr=x_out, _RC)
 
-      call ESMF_FieldGet(this%v_in_coord, fArrayPtr=v_in, _RC)
-      print *, "v_in: ", shape(v_in)
-      print *, v_in
-      call ESMF_FieldGet(this%v_out_coord, fArrayPtr=v_out, _RC)
-      print *, "v_out: ", shape(v_out)
-      print *, v_out
-
       ! do concurrent (i=1:IM, j=1:JM)
       !    do k = 1, LM
       !       x_out(i,j,k) = x_in(i,j,k)*(v_out(i,j,k)-v_in(i,j,k))
@@ -125,5 +118,35 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine run
+
+   subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
+      class(VerticalRegridAction), intent(in) :: this
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      real(ESMF_KIND_R4), pointer :: v_in(:), v_out(:)
+      integer :: rc, status
+
+      call ESMF_FieldGet(this%v_in_coord, fArrayPtr=v_in, _RC)
+      call ESMF_FieldGet(this%v_out_coord, fArrayPtr=v_out, _RC)
+
+      write(unit, "(a, a, 4x, a, l1, a, 4x, a, l1, a, 4x, a, *(g0, 1x), a, 1x, a)", iostat=iostat, iomsg=iomsg) &
+           "VerticalRegridAction(", new_line("a"), &
+           "v_in_coupler: ", associated(this%v_in_coupler), new_line("a"), &
+           "v_out_coupler: ", associated(this%v_out_coupler), new_line("a"), &
+           "v_in_coord: ", v_in, new_line("a") !, &
+      if (iostat /= 0) return
+      ! We need a separate call to write since unlimited format iterm can be specified only once
+      write(unit, "(3x, a, *(g0, 1x), a, 1x, a)", iostat=iostat, iomsg=iomsg) &
+           "v_out_coord: ", v_out, new_line("a"), &
+           ")"
+      if (iostat /= 0) return
+
+      _UNUSED_DUMMY(iotype)
+      _UNUSED_DUMMY(v_list)
+   end subroutine write_formatted
 
 end module mapl3g_VerticalRegridAction
