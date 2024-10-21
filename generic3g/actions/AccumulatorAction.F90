@@ -10,15 +10,13 @@ module mapl3g_AccumulatorAction
       procedure(UpdateField), pointer :: couple => null()
       procedure(ModifyField), pointer :: clear => null()
       logical :: is_active = .FALSE.
-      type(ESMF_Alarm), pointer :: time_to_clear => null()
-      type(ESMF_Alarm), pointer :: time_to_couple => null()
       type(ESMF_Field), allocatable :: accumulation_field
       type(ESMF_Field), allocatable :: counter_field
       logical, private :: run_couple_ = .FALSE.
    contains
       procedure :: initialize => initialize_action
-      procedure :: run => run_action
-      procedure :: run_couple
+      procedure :: update => update_action
+      procedure :: invalidate => invalidate_action
    end type AccumulatorAction
 
    abstract interface
@@ -60,7 +58,7 @@ contains
       integer, optional, intent(out) :: rc
    end subroutine initialize_action
 
-   subroutine run_action(this, importState, exportState, clock, rc)
+   subroutine update_action(this, importState, exportState, clock, rc)
       class(AccumulatorAction), intent(inout) :: this
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
@@ -71,7 +69,20 @@ contains
       
       call get_field(importState, import_field, _RC)
       call get_field(exportState, export_field, _RC)
-   end subroutine run_action
+   end subroutine update_action
+
+   subroutine invalidate_action(this, importState, exportState, clock, rc)
+      class(AccumulatorAction), intent(inout) :: this
+      type(ESMF_State) :: importState
+      type(ESMF_State) :: exportState
+      type(ESMF_Clock) :: clock
+      integer, optional, intent(out) :: rc
+      type(ESMF_Field) :: import_field
+      type(ESMF_Field) :: export_field
+      
+      call get_field(importState, import_field, _RC)
+      call get_field(exportState, export_field, _RC)
+   end subroutine invalidate_action
 
    subroutine get_field(state, field, rc)
       type(ESMF_State), intent(inout) :: state
