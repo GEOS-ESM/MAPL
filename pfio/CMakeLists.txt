@@ -22,7 +22,7 @@ set (srcs
   FileMetadata.F90
   FileMetadataVector.F90
   NetCDF4_FileFormatter.F90
-  pfio_nf90_supplement.c 
+  pfio_nf90_supplement.c
   NetCDF_Supplement.F90
   pFIO_Utilities.F90
   pFIO.F90
@@ -114,17 +114,34 @@ else ()
   message(STATUS "netCDF does not have quantize capability")
 endif ()
 
+################################################################
+# Check to see if zstandard capability is present in netcdf-c. #
+################################################################
+
+check_c_source_compiles("
+  #include <netcdf_meta.h>
+  #if !NC_HAS_ZSTD
+  choke me
+  #endif
+  int main(void) {
+    return 0;
+  }
+  "
+  NETCDF_HAS_ZSTD)
+if (NETCDF_HAS_ZSTD)
+  message(STATUS "netCDF has zstandard capability")
+  add_definitions(-DNF_HAS_ZSTD)
+else ()
+  message(STATUS "netCDF does not have zstandard capability")
+endif ()
+
 if (BUILD_WITH_PFLOGGER)
   find_package (PFLOGGER REQUIRED)
 endif ()
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE ${MAPL_LIBRARY_TYPE})
 
-target_link_libraries (${this} PUBLIC GFTL::gftl-v2 GFTL_SHARED::gftl-shared-v2 PFLOGGER::pflogger PRIVATE MPI::MPI_Fortran)
-# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
-if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-   target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
-endif ()
+target_link_libraries (${this} PUBLIC GFTL::gftl-v2 GFTL_SHARED::gftl-shared-v2 PFLOGGER::pflogger PRIVATE MPI::MPI_Fortran OpenMP::OpenMP_Fortran)
 target_include_directories (${this} PUBLIC
           $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
@@ -150,20 +167,14 @@ ecbuild_add_executable (
    SOURCES pfio_server_demo.F90
    LIBS ${this} MPI::MPI_Fortran)
 set_target_properties (pfio_server_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
-if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-   target_link_libraries(pfio_server_demo.x OpenMP::OpenMP_Fortran)
-endif ()
+target_link_libraries(pfio_server_demo.x OpenMP::OpenMP_Fortran)
 
 ecbuild_add_executable (
    TARGET pfio_collective_demo.x
    SOURCES pfio_collective_demo.F90
    LIBS ${this} MPI::MPI_Fortran)
 set_target_properties (pfio_collective_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
-if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-   target_link_libraries(pfio_collective_demo.x OpenMP::OpenMP_Fortran)
-endif ()
+target_link_libraries(pfio_collective_demo.x OpenMP::OpenMP_Fortran)
 
 ecbuild_add_executable (
   TARGET pfio_writer.x

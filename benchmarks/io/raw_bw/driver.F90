@@ -11,13 +11,15 @@ program main
    type(BW_BenchmarkSpec) :: spec
    integer :: status
       
-   call mpi_init(_IERROR)
+   call mpi_init(status)
+   _VERIFY(status)
    spec = make_BW_BenchmarkSpec() ! CLI
 
    call run(spec, _RC)
 
-   call MPI_Barrier(MPI_COMM_WORLD, _IERROR)
-   call mpi_finalize(_IERROR)
+   call MPI_Barrier(MPI_COMM_WORLD, status)
+   _VERIFY(status)
+   call mpi_finalize(status)
    stop
 
 
@@ -43,14 +45,19 @@ contains
       real :: t
 
       integer :: color, rank, npes
-      call MPI_Comm_rank(MPI_COMM_WORLD, rank, _IERROR)
-      call MPI_Comm_size(MPI_COMM_WORLD, npes, _IERROR)
+      call MPI_Comm_rank(MPI_COMM_WORLD, rank, status)
+      _VERIFY(status)
+      call MPI_Comm_size(MPI_COMM_WORLD, npes, status)
+      _VERIFY(status)
 
       color = (rank*spec%n_writers) / npes
-      call MPI_Comm_split(MPI_COMM_WORLD, color, 0, gather_comm, _IERROR)
+      call MPI_Comm_split(MPI_COMM_WORLD, color, 0, gather_comm, status)
+      _VERIFY(status)
       
-      call MPI_Comm_rank(gather_comm, rank, _IERROR)
-      call MPI_Comm_split(MPI_COMM_WORLD, rank, 0, writer_comm, _IERROR)
+      call MPI_Comm_rank(gather_comm, rank, status)
+      _VERIFY(status)
+      call MPI_Comm_split(MPI_COMM_WORLD, rank, 0, writer_comm, status)
+      _VERIFY(status)
       if (rank /= 0) writer_comm = MPI_COMM_NULL
       _RETURN_IF(writer_comm == MPI_COMM_NULL)
 
@@ -89,11 +96,13 @@ contains
       integer :: rank
       integer(kind=INT64) :: c0, c1, count_rate
 
-      call MPI_Barrier(comm, _IERROR)
+      call MPI_Barrier(comm, status)
+      _VERIFY(status)
 
       call system_clock(c0)
       call benchmark%run(_RC)
-      call MPI_Barrier(comm, _IERROR)
+      call MPI_Barrier(comm, status)
+      _VERIFY(status)
       call system_clock(c1, count_rate=count_rate)
 
       time = real(c1-c0)/count_rate
@@ -109,7 +118,8 @@ contains
       integer :: status
       integer :: rank
 
-      call MPI_Comm_rank(comm, rank, _IERROR)
+      call MPI_Comm_rank(comm, rank, status)
+      _VERIFY(status)
       _RETURN_UNLESS(rank == 0)
 
       write(*,'(3(a10,","),6(a15,:,","))',iostat=status) &
@@ -136,8 +146,10 @@ contains
       integer, parameter :: WORD_SIZE = 4
       integer(kind=INT64) :: packet_size
 
-      call MPI_Comm_size(comm, npes, _IERROR)
-      call MPI_Comm_rank(comm, rank, _IERROR)
+      call MPI_Comm_size(comm, npes, status)
+      _VERIFY(status)
+      call MPI_Comm_rank(comm, rank, status)
+      _VERIFY(status)
       _RETURN_UNLESS(rank == 0)
 
       packet_size = int(spec%nx,kind=INT64)**2 * 6 * spec%n_levs / spec%n_writers
@@ -145,7 +157,8 @@ contains
       total_gb = packet_gb * npes
       bw = total_gb / avg_time
 
-      call MPI_Comm_size(comm, npes, _IERROR)
+      call MPI_Comm_size(comm, npes, status)
+      _VERIFY(status)
 
       write(*,'(3(1x,i9.0,","),6(f15.4,:,","))') &
            spec%nx, spec%n_levs, spec%n_writers, &
