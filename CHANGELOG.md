@@ -17,6 +17,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [v2.35.3+R21C_v1.3.1] - 2024-10-22
+
+### Fixed
+
+- Updates quadratics list to avoid zonal mean trigger for cubed-sphere fields in `time_ave_util.x`
+
+## [v2.35.3+R21C_v1.3.0] - 2024-09-18
+
+### Changed
+
+- Add prints when calling `ESMF_FieldBundleRead` and `ESMF_FieldBundleWrite`
+
 ## [v2.35.3+R21C_v1.2.0] - 2024-06-21
 
 ### Changed
