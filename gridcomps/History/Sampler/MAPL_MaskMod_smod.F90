@@ -137,11 +137,11 @@ module subroutine initialize_(this,items,bundle,timeInfo,vdata,reinitialize,rc)
 !   this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
 !   if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
 
-   this%ofile = ''
+
    this%obs_written = 0
 
    call this%create_grid(_RC)
-   call this%add_metadata(_RC)
+   call this%create_metadata(_RC)
 
    _RETURN(_SUCCESS)
 
@@ -181,7 +181,7 @@ module subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chu
 end subroutine set_param
       
 
-module subroutine  add_metadata(this,rc)
+module subroutine  create_metadata(this,rc)
     class(MaskSampler), intent(inout) :: this
     integer, optional, intent(out)          :: rc
 
@@ -205,11 +205,16 @@ module subroutine  add_metadata(this,rc)
     !__ 1. metadata add_dimension,
     !     add_variable for time, mask_points, latlon, 
     !
+
+    if ( allocated (this%metadata) ) deallocate(this%metadata)
+    allocate(this%metadata)
+    
     call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC) ! specify lev in fmd
 
     call this%timeinfo%add_time_to_metadata(this%metadata,_RC)
-    v = this%timeinfo%define_time_variable(_RC)
-    call this%metadata%add_variable('time',v,_RC)
+   !! dupulicate
+   !! v = this%timeinfo%define_time_variable(_RC)
+   !! call this%metadata%add_variable('time',v,_RC)
     
     call this%metadata%add_dimension('mask_index', this%npt_mask_tot)
 
@@ -263,8 +268,7 @@ module subroutine  add_metadata(this,rc)
           vdims = "mask_index,time"
           v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
        else if (field_rank==3) then
-          vdims = "lev,mask_index,time"
-          call ESMF_FieldGet(field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+          vdims = "mask_index,lev,time"
           v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
        end if
        call v%add_attribute('units',         trim(units))
@@ -277,7 +281,7 @@ module subroutine  add_metadata(this,rc)
     deallocate (fieldNameList, _STAT)
 
     _RETURN(_SUCCESS)
-  end subroutine add_metadata
+  end subroutine create_metadata
 
 
      module subroutine create_Geosat_grid_find_mask(this, rc)
@@ -411,7 +415,7 @@ module subroutine  add_metadata(this,rc)
        ydim_red  = n2 / this%thin_factor
        _ASSERT ( xdim_red * ydim_red > M, 'mask reduced points after thin_factor is less than Nproc!')
 
-       ! get nx2
+       ! get nx2: local on each ip
        nx2=0
        k=0
        do i=1, xdim_red
@@ -578,14 +582,14 @@ module subroutine  add_metadata(this,rc)
        call ESMF_FieldHaloStore (fieldI4, routehandle=RH_halo, _RC)
        call ESMF_FieldHalo (fieldI4, routehandle=RH_halo, _RC)
 
-       !
-       !--?? print out eLB, eUB do they match 1:IM, JM?
-       !
-       write(6,*) 'IM,JM', IM,JM
-       write(6,*) 'eLB(1), eUB(1)', eLB(1), eUB(1) 
-       write(6,*) 'eLB(2), eUB(2)', eLB(2), eUB(2)      
-       
-       
+!       !
+!       !--?? print out eLB, eUB do they match 1:IM, JM?
+!       !
+!       write(6,*) 'IM,JM', IM,JM
+!       write(6,*) 'eLB(1), eUB(1)', eLB(1), eUB(1) 
+!       write(6,*) 'eLB(2), eUB(2)', eLB(2), eUB(2)      
+
+
        k=0
        do i=eLB(1), eUB(1)
           do j=eLB(2), eUB(2)
@@ -707,10 +711,10 @@ module subroutine  add_metadata(this,rc)
     integer :: fieldCount
     integer :: ub(1), lb(1)
     type(ESMF_Field) :: src_field,dst_field
-    real(kind=REAL32), pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
-    real(kind=REAL32), allocatable :: p_dst_3d(:),p_dst_2d(:)
-    real(kind=REAL32), allocatable :: p_dst_3d_full(:),p_dst_2d_full(:)
-    real(kind=REAL32), allocatable :: arr(:,:)
+    real, pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
+    real, allocatable :: p_dst_3d(:),p_dst_2d(:)
+    real, allocatable :: p_dst_3d_full(:),p_dst_2d_full(:)
+    real, allocatable :: arr(:,:)
     character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
     character(len=ESMF_MAXSTR) :: xname
     real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
@@ -754,31 +758,30 @@ module subroutine  add_metadata(this,rc)
     allocate( recvcounts_3d(petcount), displs_3d(petcount), _STAT )
     recvcounts_3d(:) = nz * this%recvcounts(:)
     displs_3d(:)     = nz * this%displs(:)
+
     
     !   use griddedio logic
     !__ 1. stage data :  time variable, lat/lon
     !   
     Have_time = this%timeInfo%am_i_initialized()
-    allocate(local_start,source=[1,1])
-    allocate(global_start,source=[1,this%obs_written])
-    allocate(global_count,source=[nx,1])
 
     if (have_time) then
+       write(6,*) 'have_time'
+
        times = this%timeInfo%compute_time_vector(this%metadata,_RC)
        ref = ArrayReference(times)
        call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
+       
        tindex = size(times)
        if (tindex==1) then
           call this%stage2DLatLon(filename,oClients=oClients,_RC)
        end if
     else
+       write(6,*) 'not have_time'       
        tindex = -1
        call this%stage2DLatLon(filename,oClients=oClients,_RC)
     end if
 
-    deallocate (local_start)
-    deallocate (global_start)
-    deallocate (global_count)
     
     !__ 2. put_var: ungridded_dim from src to dst [use index_mask]
     !
@@ -804,12 +807,32 @@ module subroutine  add_metadata(this,rc)
                 p_dst_2d(j) = p_src_2d(ix, iy)
              end do
              ref = ArrayReference(p_dst_2d)
-             allocate(local_start,source=[1,1])
-             allocate(global_start,source=[1,this%obs_written])
-             allocate(global_count,source=[nx,1])
-             call oClients%collective_stage_data(this%write_collection_id,trim(this%ofile),trim(item%xname), &
-                  ref,start=local_start, global_start=global_start, global_count=global_count)
-             deallocate (local_start, global_start, global_count)
+             write(6,*) 'test p_dst_2d(j)'
+             write(6,*) 'nx=', nx
+             write(6,*) 'this%npt_mask_tot=', this%npt_mask_tot             
+!!             write(6,*)  p_dst_2d(1:nx)
+
+             write(6,*) ref             
+
+
+             
+!             if ( nx > 0 ) then
+                !if (tindex > -1) then
+                   allocate(local_start,source=[1,1])
+                   allocate(global_start,source=[1,this%obs_written])
+                   allocate(global_count,source=[this%npt_mask_tot,1])
+                !else
+!                   allocate(local_start,source=[1])
+!                   allocate(global_start,source=[1])
+!                   allocate(global_count,source=[this%npt_mask_tot])
+                !end if
+!             else
+!                   allocate(local_start,source=[0,0])
+!                   allocate(global_start,source=[0,0])
+!                   allocate(global_count,source=[0,0])
+!             end if
+
+             write(6,*) 'end collective_stage_data p_dst_2d'
              
           else if (rank==3) then
              call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
@@ -817,9 +840,15 @@ module subroutine  add_metadata(this,rc)
              _ASSERT (this%vdata%lm == (ub(1)-lb(1)+1), 'vertical level is different from CS grid')
 
              allocate(arr(nx, lb(1):ub(1)))
-             allocate(local_start,source=[1,1,1])
-             allocate(global_start,source=[1,1,this%obs_written])
-             allocate(global_count,source=[nx,nz,1])
+             if (tindex > -1) then
+                allocate(local_start,source=[1,1,1])
+                allocate(global_start,source=[1,1,this%obs_written])
+                allocate(global_count,source=[this%npt_mask_tot,nz,1])
+             else
+                allocate(local_start,source=[1,1])
+                allocate(global_start,source=[1,1])
+                allocate(global_count,source=[this%npt_mask_tot,nz])
+             end if
 
              do k= lb(1), ub(1)
                 do j=1, nx
@@ -831,15 +860,22 @@ module subroutine  add_metadata(this,rc)
              !! write(6,'(2x,a,2x,i5,3x,10f8.1)') 'pet, p_dst_3d(j)', mypet, p_dst_3d(::10)
 
              ref = ArrayReference(arr)
-             call oClients%collective_stage_data(this%write_collection_id,trim(this%ofile),trim(item%xname), &
-                  ref,start=local_start, global_start=global_start, global_count=global_count)
-             deallocate (arr, local_start, global_start, global_count)
-
+             write(6,*) 'end collective_stage_data p_dst_3d'
+             
           else
              _FAIL('grid2LS regridder: rank > 3 not implemented')
           end if
+
+          
+          call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(item%xname), &
+               ref,start=local_start, global_start=global_start, global_count=global_count)
+          !          if (nx>0) deallocate (local_start, global_start, global_count)
+          deallocate (local_start, global_start, global_count)          
+
+
        end if
 
+       
        call iter%next()
     end do
 
@@ -881,7 +917,51 @@ module subroutine  add_metadata(this,rc)
     _RETURN(_SUCCESS)
   end function compute_time_for_current
 
-  
+  module subroutine stage2dlatlon(this,filename,oClients,rc)
+    implicit none
+
+    class(MaskSampler), intent(inout) :: this
+    character(len=*), intent(in) :: fileName
+    type (ClientManager), optional, target, intent(inout) :: oClients
+    integer, optional, intent(out) :: rc
+
+    integer, allocatable :: local_start(:)
+    integer, allocatable :: global_start(:)
+    integer, allocatable :: global_count(:)
+    integer :: nx
+    real, allocatable :: lons(:), lats(:)
+    type(ArrayReference), target :: ref
+    integer :: status
+    
+    ! Note: we have already gatherV to root the lon/lat
+    !       in sub. create_Geosat_grid_find_mask
+    !
+    if (mapl_am_i_root()) then
+       nx = this%npt_mask_tot
+       allocate (lons(nx), lats(nx))
+       lons = this%lons * MAPL_RADIANS_TO_DEGREES
+       lats = this%lats * MAPL_RADIANS_TO_DEGREES       
+       allocate(local_start,source=[1])
+       allocate(global_start,source=[1])
+       allocate(global_count,source=[this%npt_mask_tot])
+    else
+       allocate (lons(0), lats(0))
+       allocate(local_start,source=[0])
+       allocate(global_start,source=[0])
+       allocate(global_count,source=[0])     
+    end if
+
+    ref = ArrayReference(lons)
+    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'longitude', &
+         ref,start=local_start, global_start=global_start, global_count=global_count)
+
+    ref = ArrayReference(lats)
+    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'latitude', &
+         ref,start=local_start, global_start=global_start, global_count=global_count)
+    
+    _RETURN(_SUCCESS)
+ end subroutine stage2dlatlon
+
 
 
 end submodule MaskSampler_implement

@@ -2440,7 +2440,7 @@ ENDDO PARSER
           elseif (list(n)%sampler_spec == 'mask') then
              call MAPL_TimerOn(GENSTATE,"mask_init")
              list(n)%mask_sampler = MaskSampler(cfg,string,clock,genstate=GENSTATE,_RC)
-             ! initialize set metadata
+             ! initialize + create metadata
              call list(n)%mask_sampler%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
              collection_id = o_Clients%add_hist_collection(list(n)%mask_sampler%metadata, mode = create_mode)
              call list(n)%mask_sampler%set_param(write_collection_id=collection_id)
@@ -3480,7 +3480,7 @@ ENDDO PARSER
             if (intState%allow_overwrite) create_mode = PFIO_CLOBBER
             ! add time to items
             ! true metadata comes here from mGriddedIO%metadata
-            ! the mGriddedIO below only touches metadata, collection_id etc., it is safe.
+            ! list(n)%mgriddedio for swath changed due to grid change
             !
             if (.NOT. list(n)%xsampler%have_initalized) then
                list(n)%xsampler%have_initalized = .true.
@@ -3493,6 +3493,9 @@ ENDDO PARSER
             call list(n)%mGriddedIO%destroy(_RC)
             call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%xsampler%acc_bundle,timeinfo_uninit,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
             call list(n)%items%pop_back()
+            !
+            ! we may have a memory leakage here:  o_Clients should first delete the old metada
+            !
             collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
             call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
             call MAPL_TimerOff(GENSTATE,"RegenGriddedio")
@@ -3572,12 +3575,17 @@ ENDDO PARSER
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if
-         elseif (list(n)%sampler_spec == 'mask') then
+         elseif (list(n)%sampler_spec == 'mask') then            
             if (list(n)%unit.eq.0) then
+
                call lgr%debug('%a %a',&
                     "Mask_data output to new file:",trim(filename(n)))
+
+!               call list(n)%mask_sampler%close_file_handle(_RC)
+!               call list(n)%mask_sampler%create_file_handle(filename(n),_RC)
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
+
             end if
          else
             if( list(n)%unit.eq.0 ) then
@@ -3722,12 +3730,15 @@ ENDDO PARSER
          elseif (list(n)%sampler_spec == 'mask') then
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
             call MAPL_TimerOn(GENSTATE,"Mask_append")
+!!            write(6,*) 'bf list(n)%mask_sampler%append_file'
             call list(n)%mask_sampler%append_file(current_time,&
                  list(n)%currentFile,oClients=o_Clients,_RC)
+            write(6,*) 'af list(n)%mask_sampler%append_file'            
             call MAPL_TimerOff(GENSTATE,"Mask_append")
          endif
 
-
+         write(6,*) 'nail 1'
+         
       endif OUTTIME
 
       if( NewSeg(n) .and. list(n)%unit /= 0 .and. list(n)%duration /= 0 ) then

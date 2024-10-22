@@ -48,7 +48,7 @@ module MaskSamplerMod
      type(ESMF_Clock)         :: clock
      type(ESMF_Time)          :: RingTime
      type(ESMF_TimeInterval)  :: epoch_frequency
-     type(FileMetadata),public:: metadata
+     type(FileMetadata), allocatable, public:: metadata
      type(NetCDF4_FileFormatter) :: formatter
      character(len=ESMF_MAXSTR)  :: ofile
      integer :: write_collection_id
@@ -97,12 +97,13 @@ module MaskSamplerMod
      logical                        :: is_valid
    contains
      procedure :: initialize => initialize_
-     procedure :: add_metadata
+     procedure :: create_metadata
 !!     procedure :: create_file_handle
      procedure :: append_file => output_to_server
      procedure :: create_grid => create_Geosat_grid_find_mask
      procedure :: compute_time_for_current
      procedure :: set_param
+     procedure :: stage2dlatlon
   end type MaskSampler
 
   interface MaskSampler
@@ -152,12 +153,11 @@ module MaskSamplerMod
 !!        integer, optional, intent(in) :: regrid_hints
 !!        integer, optional, intent(out) :: rc
 !!     end subroutine set_param
-     
-     !!     module subroutine  add_metadata(this,currTime,rc)
-     module subroutine  add_metadata(this,rc)
+
+     module subroutine  create_metadata(this,rc)
        class(MaskSampler), intent(inout) :: this
        integer, optional, intent(out)          :: rc
-     end subroutine add_metadata
+     end subroutine create_metadata
 
      module subroutine create_file_handle(this,filename,rc)
        class(MaskSampler), intent(inout) :: this
@@ -198,7 +198,14 @@ module MaskSamplerMod
        integer, optional, intent(in) :: regrid_hints
        integer, optional, intent(out) :: rc
      end subroutine set_param
-     
+
+     module subroutine stage2dlatlon(this,filename,oClients,rc)
+       class(MaskSampler), intent(inout) :: this
+       character(len=*), intent(in) :: fileName
+       type (ClientManager), optional, target, intent(inout) :: oClients
+       integer, optional, intent(out) :: rc
+     end subroutine stage2dlatlon
+
      module function compute_time_for_current(this,current_time,rc) result(rtime)
        use  MAPL_NetCDF, only : convert_NetCDF_DateTime_to_ESMF
        class(MaskSampler), intent(inout) :: this
@@ -207,5 +214,6 @@ module MaskSamplerMod
        real(kind=ESMF_KIND_R8) :: rtime
      end function compute_time_for_current
 
+     
   end interface
 end module MaskSamplerMod

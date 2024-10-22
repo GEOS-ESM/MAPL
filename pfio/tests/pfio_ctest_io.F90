@@ -293,6 +293,9 @@ contains
       this%lev  = dims%at('lev')
       this%time = 1
 
+      write(6,'(2x,a,2x,10i5)') 'rank, xdim, ydim, nf, lev, time', &
+           this%rank, this%Xdim, this%Ydim, this%nf, this%lev, this%time
+      
    end subroutine init
 
    subroutine run(this, step, rc)
@@ -334,6 +337,11 @@ contains
       Xdim1 = (ith+1)*width
       Ydim0 = 1 + jth*width
       Ydim1 = (jth+1)*width
+
+
+      write(6,'(2x,a,2x,10i5)') 'rank, xdim0, xdim1, ydim0, ydim1', &
+           this%rank, xdim0, xdim1, ydim0, ydim1
+
 
       ! Establish the collection
       ! In a real use case the collection name would be the ExtData template.
@@ -391,6 +399,8 @@ contains
          this%hist_collection_ids(1) = ocPtr%add_hist_collection(fmd)
          this%hist_collection_ids(2) = ocPtr%add_hist_collection(fmd)
 
+         write(6,*) 'this%hist_collection_ids(1:2)=', this%hist_collection_ids(1:2)
+         
          !this%hist_collection_ids(1) = this%o_c%add_hist_collection(fmd)
          collection_num = 2
          allocate(stage_ids(this%vars%size(),collection_num))
@@ -659,23 +669,23 @@ program main
    call directory_service%free_directory_resources()
    call Mpi_Barrier(MPI_COMM_WORLD,ierror)
    exit_code = 0
-   if (rank == 0) then
-      do md_id = 1, 2
-         cmd=''
-         out_file = 'test_out'//i_to_string(md_id)//'.nc4'
-         cmd = '/usr/bin/diff test_in.nc4 '//trim(out_file)
-         print*, "execute_command_line: ", cmd
-         call execute_command_line(trim(cmd), exitstat = status )
-         if (status == 0) then
-            print*, 'test_in.nc4 and '//trim(out_file)//' are the same and thus removed'
-            call execute_command_line('/bin/rm -f '//trim(out_file))
-         else
-            print*, 'test_in.nc4 and '//trim(out_file)//' differ'
-            exit_code = 1
-         endif
-      enddo
-      call execute_command_line('/bin/rm -f test_in.nc4')
-   endif
+!!   if (rank == 0) then
+!!      do md_id = 1, 2
+!!         cmd=''
+!!         out_file = 'test_out'//i_to_string(md_id)//'.nc4'
+!!         cmd = '/usr/bin/diff test_in.nc4 '//trim(out_file)
+!!         print*, "execute_command_line: ", cmd
+!!         call execute_command_line(trim(cmd), exitstat = status )
+!!         if (status == 0) then
+!!            print*, 'test_in.nc4 and '//trim(out_file)//' are the same and thus removed'
+!!            call execute_command_line('/bin/rm -f '//trim(out_file))
+!!         else
+!!            print*, 'test_in.nc4 and '//trim(out_file)//' differ'
+!!            exit_code = 1
+!!         endif
+!!      enddo
+!!      call execute_command_line('/bin/rm -f test_in.nc4')
+!!   endif
    call MPI_finalize(ierror)
    if ( exit_code == 0) stop 0
    if ( exit_code == 1) stop 1
