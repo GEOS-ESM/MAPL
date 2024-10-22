@@ -133,9 +133,13 @@ program  time_ave
 
 !call timebeg ('main')
 
-   call mpi_init                ( ierror ) ; comm = mpi_comm_world
+   call mpi_init                ( ierror ) 
+   _VERIFY(ierror)
+   comm = mpi_comm_world
    call mpi_comm_rank ( comm,myid,ierror )
+   _VERIFY(ierror)
    call mpi_comm_size ( comm,npes,ierror )
+   _VERIFY(ierror)
    call ESMF_Initialize(logKindFlag=ESMF_LOGKIND_NONE,mpiCommunicator=MPI_COMM_WORLD, _RC)
    call MAPL_Initialize(_RC)
    t_prof = DistributedProfiler('time_ave_util',MpiTImerGauge(),MPI_COMM_WORLD)
@@ -566,10 +570,11 @@ program  time_ave
          endif
 
          if( trim(quadratics(3,nv)).ne.'XXX' ) vname2(mv) = trim(quadratics(3,nv))
-
-         nstar = index( trim(quadratics(1,nv)),'star',back=.true. )
+ 
+         nstar = 0
+         if (allow_zonal_means) nstar = index( trim(quadratics(1,nv)),'star',back=.true. )
          if( nstar.ne.0 ) then
-            _ASSERT(allow_zonal_means,"grid is not lat-lon so cannot compute zonal means")
+!            _ASSERT(allow_zonal_means,"grid is not lat-lon so cannot compute zonal means")
             lzstar(nv) = .TRUE.
             vtitle2(mv) = "Product_of_Zonal_Mean_Deviations_of_" // trim(vname(qloc(1,nv))) // "_and_" // trim(vname(qloc(2,nv)))
          endif
@@ -813,6 +818,7 @@ program  time_ave
       enddo    ! End ntime Loop within file
 
       call MPI_BARRIER(comm,status)
+      _VERIFY(status)
    enddo
 
    do k=0,ntods
@@ -1064,7 +1070,9 @@ call t_prof%start('Write_AVE')
          endif
 
          call mpi_reduce( qmin(nloc(n)+L-1),qming,1,mpi_real,mpi_min,0,comm,ierror )
+         _VERIFY(ierror)
          call mpi_reduce( qmax(nloc(n)+L-1),qmaxg,1,mpi_real,mpi_max,0,comm,ierror )
+         _VERIFY(ierror)
          if( root ) then
             if(L.eq.1) then
                write(6,3101) trim(vname2(n)),plev,qming,qmaxg
@@ -1076,6 +1084,7 @@ call t_prof%start('Write_AVE')
 3102     format(1x,'               ',a20,' Level: ',f9.3,'  Min: ',g15.8,'  Max: ',g15.8)
       enddo
       call MPI_BARRIER(comm,status)
+      _VERIFY(status)
       if( root ) print *
    enddo
    if( root ) print *
@@ -1166,12 +1175,14 @@ contains
       basic_metadata=formatter%read(_RC)
       call metadata%create(basic_metadata,trim(filename))
       lev_name = metadata%get_level_name(_RC)
-      call metadata%get_coordinate_info(lev_name,coords=levs,coordUnits=lev_units,long_name=long_name,&
-            standard_name=standard_name,coordinate_attr=vcoord,_RC)
-      plevs => levs
-      vertical_data = VerticalData(levels=plevs,vunit=lev_units,vcoord=vcoord,standard_name=standard_name,long_name=long_name, &
-            force_no_regrid=.true.,_RC)
-      nullify(plevs)
+      if (lev_name /= '') then
+         call metadata%get_coordinate_info(lev_name,coords=levs,coordUnits=lev_units,long_name=long_name,&
+               standard_name=standard_name,coordinate_attr=vcoord,_RC)
+         plevs => levs
+         vertical_data = VerticalData(levels=plevs,vunit=lev_units,vcoord=vcoord,standard_name=standard_name,long_name=long_name, &
+               force_no_regrid=.true.,_RC)
+         nullify(plevs)
+      end if
 
       if (present(rc)) then
          rc=_SUCCESS
@@ -1185,7 +1196,7 @@ contains
       integer, intent(out), optional :: rc
       integer :: status, global_dims(3)
       call MAPL_GridGet(grid,globalCellCountPerDim=global_dims,_RC)
-      grid_has_level = (global_dims(3)/=1)
+      grid_has_level = (global_dims(3)>0)
       if (present(rc)) then
          RC=_SUCCESS
       end if
@@ -1473,7 +1484,7 @@ contains
             if (isum == 0) then
                qz(j)=undef
             else
-               qz(j)=qsum/float(isum)
+               qz(j)=qsum/real(isum)
             end if
          enddo
 
@@ -1528,8 +1539,9 @@ contains
    end subroutine get_esmf_grid_layout
 
    subroutine check_quad ( quad,vname,nvars,aliases,nalias,qloc )
+      integer :: nvars, nalias
       character(len=ESMF_MAXSTR)  quad(2), aliases(2,nalias), vname(nvars)
-      integer  nvars, nalias, qloc(2)
+      integer  qloc(2)
       integer  m,n
 
 ! Initialize Location of Quadratics
@@ -1632,9 +1644,7 @@ contains
 
       integer ndpm(12)
       data    ndpm /31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31/
-      logical leap
       integer :: ny,nm,nd
-      leap(ny) = mod(ny,4).eq.0 .and. (mod(ny,100).ne.0 .or. mod(ny,400).eq.0)
 !***********************************************************************
 !
       ny = nymd / 10000
@@ -1648,10 +1658,10 @@ contains
             ny = ny - 1
          endif
          nd = ndpm(nm)
-         if (nm.eq.2 .and. leap(ny))  nd = 29
+         if (nm.eq.2 .and. is_leap_year(ny))  nd = 29
       endif
 
-      if (nd.eq.29 .and. nm.eq.2 .and. leap(ny))  go to 20
+      if (nd.eq.29 .and. nm.eq.2 .and. is_leap_year(ny))  go to 20
 
       if (nd.gt.ndpm(nm)) then
          nd = 1
@@ -1668,9 +1678,14 @@ contains
 
    end function compute_incymd
 
+   logical function is_leap_year(year)
+      integer, intent(in) :: year
+      is_leap_year = (mod(year,4) == 0) .and. (mod(year,100) == 0 .or. mod(year,400) == 0)
+   end function is_leap_year
+
    subroutine usage(root)
       logical, intent(in) :: root
-      integer :: status,errorcode
+      integer :: status,errorcode,rc
       if(root) then
          write(6,100)
 100      format(  "usage:  ",/,/ &
@@ -1704,6 +1719,7 @@ contains
                )
       endif
       call MPI_Abort(MPI_COMM_WORLD,errorcode,status)
+      _VERIFY(status)
    end subroutine usage
 
     subroutine generate_report()
@@ -1714,14 +1730,14 @@ contains
 
          reporter = ProfileReporter(empty)
          call reporter%add_column(NameColumn(20))
-         call reporter%add_column(FormattedTextColumn('Inclusive','(f9.6)', 9, InclusiveColumn('MEAN')))
+         call reporter%add_column(FormattedTextColumn('Inclusive','(f12.2)', 12, InclusiveColumn('MEAN')))
          call reporter%add_column(FormattedTextColumn('% Incl','(f6.2)', 6, PercentageColumn(InclusiveColumn('MEAN'),'MAX')))
-         call reporter%add_column(FormattedTextColumn('Exclusive','(f9.6)', 9, ExclusiveColumn('MEAN')))
+         call reporter%add_column(FormattedTextColumn('Exclusive','(f12.2)', 12, ExclusiveColumn('MEAN')))
          call reporter%add_column(FormattedTextColumn('% Excl','(f6.2)', 6, PercentageColumn(ExclusiveColumn('MEAN'))))
-         call reporter%add_column(FormattedTextColumn(' Max Excl)','(f9.6)', 9, ExclusiveColumn('MAX')))
-         call reporter%add_column(FormattedTextColumn(' Min Excl)','(f9.6)', 9, ExclusiveColumn('MIN')))
-         call reporter%add_column(FormattedTextColumn('Max PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MAX_PE')))
-         call reporter%add_column(FormattedTextColumn('Min PE)','(1x,i4.4,1x)', 6, ExclusiveColumn('MIN_PE')))
+         call reporter%add_column(FormattedTextColumn(' Max Excl)','(f12.2)', 12, ExclusiveColumn('MAX')))
+         call reporter%add_column(FormattedTextColumn(' Min Excl)','(f12.2)', 12, ExclusiveColumn('MIN')))
+         call reporter%add_column(FormattedTextColumn('Max PE)','(1x,i5.5,1x)', 7, ExclusiveColumn('MAX_PE')))
+         call reporter%add_column(FormattedTextColumn('Min PE)','(1x,i5.5,1x)', 7, ExclusiveColumn('MIN_PE')))
         report_lines = reporter%generate_report(t_prof)
          if (mapl_am_I_root()) then
             write(*,'(a)')'Final profile'
