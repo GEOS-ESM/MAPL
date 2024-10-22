@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 
-module MAPL_FieldBinaryFunctions
+module mapl3g_AccumulatorFunctions.F90
    use ESMF
    use MAPL_ExceptionHandling
    use MAPL_FieldPointerUtilities
@@ -28,13 +28,14 @@ contains
 
 #define _FUNC add
 #define _OP +
-#include "OperatorTemplate.H"
+#include "OperatorFunctionTemplate.H"
 #undef _OP
 #undef _FUNC
+
 #define _FUNC divide
 #define _OP /
 #define CHECK_ZEROES
-#include "OperatorTemplate.H"
+#include "OperatorFunctionTemplate.H"
 #undef CHECK_ZEROES
 #undef _OP
 #undef _FUNC
@@ -42,18 +43,17 @@ contains
 #define _KEEP_LEFT
 
 #define _FUNC Min
-#include "FieldBinaryFunctionTemplate.H"
+#include "AccumulatorFunctionTemplate.H"
 #undef _FUNC
 
 #define _FUNC Min
-#define _KEEP_LEFT
-#include "FieldBinaryFunctionTemplate.H"
+#include "AccumulatorFunctionTemplate.H"
 #undef _FUNC
 
 #undef _KEEP_LEFT
 
 #define _FUNC add
-#include "FieldBinaryFunctionTemplate.H"
+#include "AccumulatorFunctionTemplate.H"
 #undef _FUNC
 
-end module MAPL_FieldBinaryFunctions
+end module mapl3g_AccumulatorFunctions.F90
