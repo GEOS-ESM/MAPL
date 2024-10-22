@@ -566,10 +566,11 @@ program  time_ave
          endif
 
          if( trim(quadratics(3,nv)).ne.'XXX' ) vname2(mv) = trim(quadratics(3,nv))
-
-         nstar = index( trim(quadratics(1,nv)),'star',back=.true. )
+ 
+         nstar = 0
+         if (allow_zonal_means) nstar = index( trim(quadratics(1,nv)),'star',back=.true. )
          if( nstar.ne.0 ) then
-            _ASSERT(allow_zonal_means,"grid is not lat-lon so cannot compute zonal means")
+!            _ASSERT(allow_zonal_means,"grid is not lat-lon so cannot compute zonal means")
             lzstar(nv) = .TRUE.
             vtitle2(mv) = "Product_of_Zonal_Mean_Deviations_of_" // trim(vname(qloc(1,nv))) // "_and_" // trim(vname(qloc(2,nv)))
          endif
