@@ -42,6 +42,11 @@ module mapl3g_AccumulatorFunctions.F90
       end function FunctionR8
    end interface
 
+   interface undef
+      module procedure :: get_undefined_real
+      module procedure :: get_undefined_real64
+   end interface undef
+
 contains
 
    elemental function AddAccumulateR4R4(left, right) result(val)
@@ -95,41 +100,92 @@ contains
    elemental function ClearZeroR4(point) result(val)
       real(kind=ESMF_KIND_R4) :: val
       real(kind=ESMF_KIND_R4), intent(in) :: point
+
+      val = 0.0_ESMF_KIND_R4
+
    end function ClearZeroR4
 
    elemental function ClearZeroR8(point) result(val)
       real(kind=ESMF_KIND_R8) :: val
       real(kind=ESMF_KIND_R8), intent(in) :: point
+
+      val = 0.0_ESMF_KIND_R8
+
    end function ClearZeroR8
 
    elemental function ClearUndefR4(point) result(val)
       real(kind=ESMF_KIND_R4) :: val
       real(kind=ESMF_KIND_R4), intent(in) :: point
-   end function ClearZeroR4
+
+      val = undef(val)
+
+   end function ClearUndefR4
 
    elemental function ClearUndefR8(point) result(val)
       real(kind=ESMF_KIND_R8) :: val
       real(kind=ESMF_KIND_R8), intent(in) :: point
-   end function ClearZeroR8
 
-end module AccumulatorFunctions
+      val = undef(val)
 
-   public :: fieldMin
-   public :: fieldMax
-   public :: fieldAdd
-   public :: fieldDivide
+   end function ClearUndefR8
 
-   interface fieldAdd
-      module procedure :: add_r4
-      module procedure :: add_r8
-   end interface fieldAdd
+   subroutine accumulate(this, field, update, rc)
+      class(AccumulatorFunctions), intent(inout) :: this
+      type(ESMF_Field), intent(inout) :: field, update
+      integer, optional, intent(out) :: rc
+      integer :: status
 
-   interface fieldDivide
-      module procedure :: divide_r4
-      module procedure :: divide_r8
-   end interface fieldDivide
+      !call 
+      
+   end subroutine accumulate
 
-contains
+   subroutine increment(this, field, rc)
+      class(AccumulatorFunctions), intent(inout) :: this
+      type(ESMF_Field), intent(inout) :: field
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      !call 
+      
+   end subroutine increment
+
+   subroutine couple(this, field, counter, rc)
+      class(AccumulatorFunctions), intent(inout) :: this
+      type(ESMF_Field), intent(inout) :: field, counter
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      !call 
+      
+   end subroutine couple
+
+   subroutine clear(this, rc)
+      class(AccumulatorFunctions), intent(inout) :: this
+      type(ESMF_Field), intent(inout) :: field
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      !call 
+      
+   end subroutine clear
+
+   function get_undefined_real(t) result(u)
+      real(kind=ESMF_KIND_R4) :: t
+      real(kind=ESMF_KIND_R4), intent(in) :: t
+      
+      u = MAPL_UNDEFINED_REAL
+
+   end function get_undefined_real
+
+   function get_undefined_real64(t) result(u)
+      real(kind=ESMF_KIND_R8) :: t
+      real(kind=ESMF_KIND_R8), intent(in) :: t
+      
+      u = MAPL_UNDEFINED_REAL64
+
+   end function get_undefined_real64
+   
+end module mapl3g_AccumulatorFunctions
 
 #define _FUNC add
 #define _OP +
@@ -160,5 +216,3 @@ contains
 #define _FUNC add
 #include "AccumulatorFunctionTemplate.H"
 #undef _FUNC
-
-end module mapl3g_AccumulatorFunctions.F90
