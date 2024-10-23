@@ -241,10 +241,10 @@ contains
       this%scatter_3d = get_logical_key(config,"SCATTER_3D:",.false.)
       this%split_file = get_logical_key(config,"SPLIT_FILE:",.false.)
       this%extra_info = get_logical_key(config,"EXTRA_INFO:",.false.)
-      this%read_barrier = get_logical_key(config,"read_BARRIER:",.false.)
+      this%read_barrier = get_logical_key(config,"READ_BARRIER:",.false.)
       this%do_reads = get_logical_key(config,"DO_READS:",.true.)
-      this%netcdf_reads = get_logical_key(config,"netcdf_reads:",.true.)
-      this%n_trials = get_integer_key(config,"NTRIALS:",1)
+      this%netcdf_reads = get_logical_key(config,"NETCDF_READS:",.true.)
+      this%n_trials = get_integer_key(config,"NTRIALS:",3)
       this%random = get_logical_key(config,"RANDOM_DATA:",.true.)
 
       this%read_counter = 0

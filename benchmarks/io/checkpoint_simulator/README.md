@@ -34,7 +34,7 @@ NOTE 1: If you specify a `config_file` it must be an ESMF Config file with the f
 - "SPLIT\_FILE:" default `.false.`, if `.true.`, each writer writes to and independent file
 - "WRITE\_BARRIER:" default `.false.`, add a barrier before each write to for synchronization
 - "DO\_WRITES:" default `.true.`, if `.false.` skips writing (so just an mpi test at that point)
-- "NTRIALS:" default 1, the number of trials to make writing
+- "NTRIALS:" default 3, the number of trials to make writing
 - "RANDOM\_DATA:" default `.true.`, if `.true.` will arrays with random data, if `.false.` sets the array to the rank of the process
 
 NOTE 2: that whatever you set NX and NY to the program must be run on `6*NX*NY` processors and the number of writers must evenly divide `6*NY`

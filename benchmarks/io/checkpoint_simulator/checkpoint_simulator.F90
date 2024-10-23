@@ -257,7 +257,7 @@ contains
       this%write_barrier = get_logical_key(config,"WRITE_BARRIER:",.false.)
       this%do_writes = get_logical_key(config,"DO_WRITES:",.true.)
       this%netcdf_writes = get_logical_key(config,"NETCDF_WRITES:",.true.)
-      this%n_trials = get_integer_key(config,"NTRIALS:",1)
+      this%n_trials = get_integer_key(config,"NTRIALS:",3)
       this%random = get_logical_key(config,"RANDOM_DATA:",.true.)
 
       this%write_counter = 0
