@@ -24,24 +24,19 @@ module mapl3g_AccumulatorFunctions.F90
    end type AccumulatorFunctions
 
    abstract interface
-      function FunctionR4R4(left, right) result(val)
+      elemental function FunctionR4R4(left, right) result(val)
          real(kind=ESMF_KIND_R4) :: val
          real(kind=ESMF_KIND_R4), intent(in) :: left, right
       end function FunctionR4R4
-      function FunctionR4R8(left, right) result(val)
-         real(kind=ESMF_KIND_R4) :: val
-         real(kind=ESMF_KIND_R4), intent(in) :: left
-         real(kind=ESMF_KIND_R8), intent(in) :: right
-      end function FunctionR4R8
-      function FunctionR8R8(left, right) result(val)
+      elemental function FunctionR8R8(left, right) result(val)
          real(kind=ESMF_KIND_R8) :: val
          real(kind=ESMF_KIND_R8), intent(in) :: left, right
       end function FunctionR8R8
-      function FunctionR4(point) result(val)
+      elemental function FunctionR4(point) result(val)
          real(kind=ESMF_KIND_R4) :: val
          real(kind=ESMF_KIND_R4), intent(in) :: point
       end function FunctionR4
-      function FunctionR8(point) result(val)
+      elemental function FunctionR8(point) result(val)
          real(kind=ESMF_KIND_R8) :: val
          real(kind=ESMF_KIND_R8), intent(in) :: point
       end function FunctionR8
@@ -49,7 +44,7 @@ module mapl3g_AccumulatorFunctions.F90
 
 contains
 
-   function AddAccumulateR4(left, right) result(val)
+   elemental function AddAccumulateR4R4(left, right) result(val)
       real(kind=ESMF_KIND_R4) :: val
       real(kind=ESMF_KIND_R4), intent(in) :: left, right
 
@@ -57,7 +52,7 @@ contains
 
    end function AddAccumulateR4
 
-   function AddAccumulateR8(left, right) result(val)
+   elemental function AddAccumulateR8R8(left, right) result(val)
       real(kind=ESMF_KIND_R8) :: val
       real(kind=ESMF_KIND_R8), intent(in) :: left, right
 
@@ -65,12 +60,57 @@ contains
 
    end function AddAccumulateR8
 
-   function AddMinR4((left, right) result(val)
+   elemental function MinAccumulateR4R4((left, right) result(val)
       real(kind=ESMF_KIND_R4) :: val
       real(kind=ESMF_KIND_R4), intent(in) :: left, right
 
-      val = min(left + right)
+      val = min(left, right)
 
+   end function MinAccumulateR4R4
+
+   elemental function MinAccumulateR8R8((left, right) result(val)
+      real(kind=ESMF_KIND_R8) :: val
+      real(kind=ESMF_KIND_R8), intent(in) :: left, right
+
+      val = min(left, right)
+
+   end function MinAccumulateR8R8
+
+   elemental function MaxAccumulateR4R4((left, right) result(val)
+      real(kind=ESMF_KIND_R4) :: val
+      real(kind=ESMF_KIND_R4), intent(in) :: left, right
+
+      val = max(left, right)
+
+   end function MaxAccumulateR4R4
+
+   elemental function MaxAccumulateR8R8((left, right) result(val)
+      real(kind=ESMF_KIND_R8) :: val
+      real(kind=ESMF_KIND_R8), intent(in) :: left, right
+
+      val = max(left, right)
+
+   end function MaxAccumulateR8R8
+
+   elemental function ClearZeroR4(point) result(val)
+      real(kind=ESMF_KIND_R4) :: val
+      real(kind=ESMF_KIND_R4), intent(in) :: point
+   end function ClearZeroR4
+
+   elemental function ClearZeroR8(point) result(val)
+      real(kind=ESMF_KIND_R8) :: val
+      real(kind=ESMF_KIND_R8), intent(in) :: point
+   end function ClearZeroR8
+
+   elemental function ClearUndefR4(point) result(val)
+      real(kind=ESMF_KIND_R4) :: val
+      real(kind=ESMF_KIND_R4), intent(in) :: point
+   end function ClearZeroR4
+
+   elemental function ClearUndefR8(point) result(val)
+      real(kind=ESMF_KIND_R8) :: val
+      real(kind=ESMF_KIND_R8), intent(in) :: point
+   end function ClearZeroR8
 
 end module AccumulatorFunctions
 
