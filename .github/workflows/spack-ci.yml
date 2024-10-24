@@ -22,20 +22,20 @@ jobs:
 
     - name: Login
       run: |
-        spack -e ./share/spack-env mirror set --oci-username ${{ github.actor }} --oci-password "${{ secrets.GITHUB_TOKEN }}" mapl-buildcache
+        spack -e . mirror set --oci-username ${{ github.actor }} --oci-password "${{ secrets.GITHUB_TOKEN }}" mapl-buildcache
 
     - name: Concretize
       run: |
-        spack -e ./share/spack-env concretize
+        spack -e . concretize
 
     - name: Install
       run: |
-        spack -e ./share/spack-env install --no-check-signature
+        spack -e . install --no-check-signature
 
     - name: Build with Cmake
       shell: spack-bash {0}
       run: |
-        spack env activate ./share/spack-env/
+        spack env activate .
         FC=gfortran CC=gcc CXX=g++
         cmake -B build -S . -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF
         cmake --build build -j 4
