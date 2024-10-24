@@ -283,9 +283,10 @@ contains
       _RETURN(_SUCCESS)
    end subroutine adapt_subtype
 
-   logical function match_subtype(this, spec) result(match)
+   logical function match_subtype(this, spec, rc) result(match)
       class(SubtypeAdapter), intent(in) :: this
       class(StateItemSpec), intent(in) :: spec
+      integer, optional, intent(out) :: rc
 
       match = .false.
       select type (spec)
@@ -300,7 +301,8 @@ contains
             match = .true.
          end if
       end select
-      
+
+      _RETURN(_SUCCESS)
    end function match_subtype
 
    subroutine adapt_name(this, spec, action, rc)
@@ -318,9 +320,10 @@ contains
       _RETURN(_SUCCESS)
    end subroutine adapt_name
 
-   logical function match_name(this, spec) result(match)
+   logical function match_name(this, spec, rc) result(match)
       class(NameAdapter), intent(in) :: this
       class(StateItemSpec), intent(in) :: spec
+      integer, optional, intent(out) :: rc
 
 
       match = .false.
@@ -337,6 +340,7 @@ contains
          end if
       end select
       
+      _RETURN(_SUCCESS)
    end function match_name
 
    function new_SubtypeAdapter(subtype) result(adapter)

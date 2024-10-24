@@ -71,6 +71,7 @@ contains
       has_vertical = spec_name /= VERTICAL_DIM_NONE_NAME
       fptr_shape = get_fptr_shape_private(gridToFieldMap, localElementCount, has_vertical, _RC)
 
+      _RETURN(_SUCCESS)
    end function get_fptr_shape
 
 end module mapl3g_FieldCondensedArray
