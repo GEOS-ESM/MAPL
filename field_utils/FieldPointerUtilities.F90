@@ -8,7 +8,9 @@ module MAPL_FieldPointerUtilities
    private
 
    public :: FieldsHaveUndef
+   public :: FieldHasUndef
    public :: GetFieldsUndef
+   public :: GetFieldUndef
    public :: assign_fptr
    public :: FieldGetLocalElementCount
    public :: FieldGetLocalSize
@@ -24,6 +26,11 @@ module MAPL_FieldPointerUtilities
    interface GetFieldsUndef
       module procedure GetFieldsUndef_r4
       module procedure GetFieldsUndef_r8
+   end interface
+
+   interface GetFieldUndef
+      module procedure GetFieldUndef_r4
+      module procedure GetFieldUndef_r8
    end interface
 
    interface assign_fptr
@@ -892,17 +899,33 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status, i
-      logical :: isPresent
-      type(ESMF_Info) :: infoh
+      logical :: has_undef
 
       all_have_undef = .true.
       do i =1,size(fields)
-         call ESMF_InfoGetFromHost(fields(i),infoh,_RC)
-         isPresent = ESMF_InfoIsPresent(infoh,"missing_value",_RC)
-         all_have_undef = (all_have_undef .and. isPresent)
+         has_undef = FieldHasUndef(fields(i), _RC)
+         all_have_undef = (all_have_undef .and. has_undef)
       enddo
       _RETURN(_SUCCESS)
-   end function
+
+   end function FieldsHaveUndef
+
+   function FieldHasUndef(field,rc) result(has_undef)
+      logical :: has_undef
+      type(ESMF_Field), intent(inout) :: field
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: isPresent
+      type(ESMF_Info) :: infoh
+
+      has_undef = .true.
+      call ESMF_InfoGetFromHost(field,infoh,_RC)
+      isPresent = ESMF_InfoIsPresent(infoh,"missing_value",_RC)
+      has_undef = (has_undef .and. isPresent)
+      _RETURN(_SUCCESS)
+
+   end function FieldHasUndef
 
    subroutine GetFieldsUndef_r4(fields,undef_values,rc)
       type(ESMF_Field), intent(inout) :: fields(:)
@@ -910,17 +933,13 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status, i
-      logical :: isPresent
-      type(ESMF_Info) :: infoh
 
       allocate(undef_values(size(fields)))
       do i =1,size(fields)
-         call ESMF_InfoGetFromHost(fields(i),infoh,_RC)
-         isPresent = ESMF_InfoIsPresent(infoh,"missing_value",_RC)
-         _ASSERT(isPresent,"missing undef value")
-         call ESMF_InfoGet(infoh,value=undef_values(i),key="missing_value",_RC)
+         call GetFieldUndef(fields(i), undef_values(i), _RC)
       enddo
       _RETURN(_SUCCESS)
+
    end subroutine GetFieldsUndef_r4
 
    subroutine GetFieldsUndef_r8(fields,undef_values,rc)
@@ -929,18 +948,48 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status, i
-      logical :: isPresent
-      type(ESMF_Info) :: infoh
 
       allocate(undef_values(size(fields)))
       do i =1,size(fields)
-         call ESMF_InfoGetFromHost(fields(i),infoh,_RC)
-         isPresent = ESMF_InfoIsPresent(infoh,"missing_value",_RC)
-         _ASSERT(isPresent,"missing undef value")
-         call ESMF_InfoGet(infoh,value=undef_values(i),key="missing_value",_RC)
+         call GetFieldUndef(fields(i), undef_values(i), _RC)
       enddo
       _RETURN(_SUCCESS)
+
    end subroutine GetFieldsUndef_r8
+
+   subroutine GetFieldUndef_r4(field,undef_value,rc)
+      type(ESMF_Field), intent(inout) :: field
+      real(kind=ESMF_KIND_R4), intent(inout) :: undef_value
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: isPresent
+      type(ESMF_Info) :: infoh
+
+      call ESMF_InfoGetFromHost(field,infoh,_RC)
+      isPresent = ESMF_InfoIsPresent(infoh,"missing_value",_RC)
+      _ASSERT(isPresent,"missing undef value")
+      call ESMF_InfoGet(infoh,value=undef_values,key="missing_value",_RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine GetFieldUndef_r4
+
+   subroutine GetFieldUndef_r8(field,undef_value,rc)
+      type(ESMF_Field), intent(inout) :: field
+      real(kind=ESMF_KIND_R8), intent(inout) :: undef_value
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: isPresent
+      type(ESMF_Info) :: infoh
+
+      call ESMF_InfoGetFromHost(field,infoh,_RC)
+      isPresent = ESMF_InfoIsPresent(infoh,"missing_value",_RC)
+      _ASSERT(isPresent,"missing undef value")
+      call ESMF_InfoGet(infoh,value=undef_values,key="missing_value",_RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine GetFieldUndef_r8
 
    subroutine Destroy(Field,RC)
       type(ESMF_Field),          intent(INOUT) :: Field

@@ -1,72 +1,15 @@
+#define _COMMA_ ,
+#define _PAROPEN (
+#define _PARCLOSE )
+
 #define _IDENTITY(x)x
 #define _CAT(A,B) __CAT(A,B)
 #define __CAT(A,B) _IDENTITY(A)_IDENTITY(B)
 #define _CAT3(A, B, C) _CAT(_CAT(A, B), C)
 #define _CAT4(A, B, C, D) _CAT(_CAT3(A, B, C), D)
-#define _CATCOM(A, B) _CAT_COMMA_(A, B)
-#define _CAT_COMMA_(A, B) _IDENTITY(A)##,##_IDENTITY(B)
-#define _PAROPEN (
-#define _PARCLOSE )
+#define _CATCOMMA(A, B) _CAT3(A, _COMMA_, B)
+#define _PAR(A) _PAROPEN A _PARCLOSE
 
 #define _KIND(SUFFIX) _CAT(ESMF_KIND_, SUFFIX)
-
-#if !defined(_LEFT_ARG)
-#   if defined(_ARG)
-#       define _LEFT_ARG _ARG
-#   else
-#       define _LEFT_ARG left
-#   endif
-#endif
-
-#if defined(_LEFTK)
-#   define _LEFT_KIND _KIND(_LEFTK)
-#else if defined(_ARGK)
-#   define _LEFT_KIND _KIND(_ARGK)
-#endif
-
-#if defined(_RIGHT_ARG)
-#   if defined(_RIGHTK)
-#       define _RIGHT_KIND _KIND(_RIGHTK)
-#   else
-#       define _RIGHT_KIND _LEFT_KIND
-#   endif
-#   define _FUNCTION_ARGS _CATCOM(_LEFT_ARG, _RIGHT_ARG)
-#else
-#   define _FUNCTION_ARGS _LEFT_ARG
-#endif
-
-#if defined(_VALK)
-#   define _VAL_KIND _KIND(_VALK)
-#else
-#   define _VAL_KIND _LEFT_KIND
-#endif
-
-#if !defined(_NAME)
-#   if defined(_GENERIC_FUNCTION)
-#       define _NAME _GENERIC_FUNCTION
-#   else
-#       define _NAME F
-#   endif
-#endif 
-
-#define _FUNC_ _CAT(_NAME, _LEFTK)
-#if defined(_RIGHT_KIND)
-#   define _FUNC _CAT(_FUNC_, _RIGHTK)
-#else
-#   define _FUNC _FUNC_
-#endif
-
-#if !defined(_EXPRESSION)
-#   if defined(_GENERIC_FUNCTION)
-#       define _EXPRESSION _GENERIC_FUNCTION _PAROPEN _FUNCTION_ARGS _PARCLOSE
-#   else
-#       define _EXPRESSION _LEFT_ARG
-#   endif
-#endif
-
-#if defined(_KEEP_LEFT)
-#   define _SETUNDEF .FALSE.
-#else
-#   define _SETUNDEF .TRUE.
-#   define _KEEP_LEFT .FALSE.
-#endif
+#define _FUNCTION_ARGS_(A, B) _CATCOMMA(A, B)
+#define _FUNC_(N, S) _CAT(N, S)
