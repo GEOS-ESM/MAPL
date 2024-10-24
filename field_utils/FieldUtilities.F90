@@ -6,31 +6,21 @@ module MAPL_FieldUtilities
    use MAPL_FieldPointerUtilities
    use mapl3g_esmf_info_keys
    use mapl3g_InfoUtilities
+   use mapl3g_UngriddedDims
+   use mapl3g_LU_Bound
    use mapl_KeywordEnforcer
    use esmf
 
    implicit none (type, external)
    private
 
-   public :: FieldUpdate
-   public :: FieldReallocate
    public :: FieldIsConstant
    public :: FieldSet
    public :: FieldNegate
    public :: FieldPow
-   ! TODO delete these operators once ESMF supports == for geom
-   ! objects.
-   public :: operator(==)
-   public :: operator(/=)
 
-   interface FieldUpdate
-      procedure FieldUpdate_from_attributes
-      procedure FieldUpdate_from_field
-   end interface FieldUpdate
-
-   interface FieldReallocate
-      procedure field_reallocate
-   end interface FieldReallocate
+   public :: MAPL_FieldBundleGet
+   public :: MAPL_FieldBundleSet
 
    interface FieldIsConstant
       procedure FieldIsConstantR4
@@ -41,96 +31,7 @@ module MAPL_FieldUtilities
       procedure FieldSet_R8
    end interface FieldSet
 
-   ! Should be in ESMF someday ...
-   interface operator(==)
-      procedure :: ESMF_GeomEqual
-   end interface operator(==)
-
-   interface operator(/=)
-      procedure :: ESMF_GeomNotEqual
-   end interface operator(/=)
-
 contains
-
-
-   subroutine field_reallocate(field, unusable, geom, typekind, num_levels, rc)
-      type(ESMF_Field), intent(inout) :: field
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_Geom), optional, intent(in) :: geom
-      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
-      integer, optional, intent(in) :: num_levels
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ESMF_Geom) :: old_geom, geom_
-      type(ESMF_TypeKind_Flag) :: old_typekind, typekind_
-      integer :: old_num_levels, num_levels_
-
-      logical :: skip_reallocate
-      integer :: ungriddedDimCount, rank
-      integer, allocatable :: localElementCount(:)
-      integer, allocatable :: old_ungriddedUBound(:)
-      integer, allocatable :: ungriddedUBound_(:), ungriddedLBound_(:)
-      integer :: i
-
-      skip_reallocate = .true.
-
-      call ESMF_FieldGet(field, typekind=old_typekind, geom=old_geom, ungriddedDimCount=ungriddedDimCount, rank=rank, _RC)
-      localElementCount = FieldGetLocalElementCount(field, _RC)
-
-      typekind_ = old_typekind
-      if (present(typekind)) typekind_ = typekind
-
-      geom_ = old_geom
-      if (present(geom)) geom_ = geom
-
-      old_ungriddedUBound = localElementCount(rank-ungriddedDimCount+1:)
-      ungriddedUBound_ = old_ungriddedUBound
-
-      old_num_levels = get_num_levels(field, _RC)
-      num_levels_ = old_num_levels
-      if (present(num_levels)) then
-         _ASSERT(num_levels_ > 0, 'Cannot add vertical dimension to field after initialization.')
-         _ASSERT(num_levels > 0, 'Cannot remove vertical dimension to field after initialization.')
-         num_levels_ = num_levels
-         
-         ungriddedUBound_ = old_ungriddedUBound
-         ungriddedUBound_(1) = num_levels_ ! Vertical dimension is always 1st ungridded dimension
-      end if
-
-      if (typekind_ /= old_typekind) skip_reallocate = .false.
-      if (geom_ /= old_geom) skip_reallocate = .false.
-      if (num_levels_ /= old_num_levels) skip_reallocate = .false.
-      _RETURN_IF(skip_reallocate)
-
-      call MAPL_EmptyField(field, _RC)
-
-      call ESMF_FieldEmptySet(field, geom=geom_, _RC)
-      ungriddedLBound_ = [(1, i=1, size(ungriddedUBound_))]
-      call ESMF_FieldEmptyComplete(field, typekind=typekind_, ungriddedLBound=ungriddedLBound_, ungriddedUbound=ungriddedUBound_, _RC)
-
-      ! Update info
-      if (num_levels_ /= old_num_levels) then
-         call MAPL_InfoSetInternal(field, key=KEY_NUM_LEVELS, value=num_levels_, _RC)
-      end if
-
-      _RETURN(_SUCCESS)
-   end subroutine field_reallocate
-
-   subroutine MAPL_EmptyField(field, rc)
-      type(ESMF_Field), intent(inout) :: field
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      field%ftypep%status = ESMF_FIELDSTATUS_GRIDSET
-      call ESMF_ArrayDestroy(field%ftypep%array, _RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine MAPL_EmptyField
-
-
-
 
    function FieldIsConstantR4(field,constant_val,rc) result(field_is_constant)
       logical :: field_is_constant
@@ -303,116 +204,127 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine FieldPow
 
-   impure elemental logical function ESMF_GeomEqual(geom1, geom2)
-      type(ESMF_Geom), intent(in) :: geom1, geom2
 
-      type(ESMF_GeomType_Flag) :: geomtype1, geomtype2
-      type(ESMF_Grid) :: grid1, grid2
-      type(ESMF_LocStream) :: locstream1, locstream2
-      type(ESMF_Mesh) :: mesh1, mesh2
-      type(ESMF_XGrid) :: xgrid1, xgrid2
-      
-      ESMF_GeomEqual = .false.
-
-      call ESMF_GeomGet(geom1, geomtype=geomtype1)
-      call ESMF_GeomGet(geom2, geomtype=geomtype2)
-
-      if (geomtype1 /= geomtype2) return
-      
-      if (geomtype1 == ESMF_GEOMTYPE_GRID) then
-         call ESMF_GeomGet(geom1, grid=grid1)
-         call ESMF_GeomGet(geom2, grid=grid2)
-         ESMF_GeomEqual = (grid1 == grid2)
-         return
-      end if
-
-      if (geomtype1 == ESMF_GEOMTYPE_LOCSTREAM) then
-         call ESMF_GeomGet(geom1, locstream=locstream1)
-         call ESMF_GeomGet(geom2, locstream=locstream2)
-         ESMF_GeomEqual = (locstream1 == locstream2)
-         return
-      end if
-
-      if (geomtype1 == ESMF_GEOMTYPE_MESH) then
-         call ESMF_GeomGet(geom1, mesh=mesh1)
-         call ESMF_GeomGet(geom2, mesh=mesh2)
-         ESMF_GeomEqual = (mesh1 == mesh2)
-         return
-      end if
-
-      if (geomtype1 == ESMF_GEOMTYPE_XGRID) then
-         call ESMF_GeomGet(geom1, xgrid=xgrid1)
-         call ESMF_GeomGet(geom2, xgrid=xgrid2)
-         ESMF_GeomEqual = (xgrid1 == xgrid2)
-         return
-      end if
-      
-   end function ESMF_GeomEqual
-
-
-   impure elemental logical function ESMF_GeomNotEqual(geom1, geom2)
-      type(ESMF_Geom), intent(in) :: geom1, geom2
-      ESMF_GeomNotEqual = .not. (geom1 == geom2)
-   end function ESMF_GeomNotEqual
-
-
-   subroutine FieldUpdate_from_attributes(field, unusable, geom, num_levels, typekind, units, rc)
-      type(ESMF_Field), intent(inout) :: field
+   ! Supplement ESMF
+   subroutine MAPL_FieldBundleGet(fieldBundle, unusable, fieldList, geom, typekind, ungriddedUbound, rc)
+      type(ESMF_FieldBundle), intent(in) :: fieldBundle
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_Geom), optional, intent(in) :: geom
-      integer, optional, intent(in) :: num_levels
-      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
-      character(len=*), optional, intent(in) :: units
+      type(ESMF_Field), optional, allocatable, intent(out) :: fieldList(:)
+      type(ESMF_Geom), optional, intent(out) :: geom
+      type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
+      integer, allocatable, optional, intent(out) :: ungriddedUbound(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
+      integer :: fieldCount
+      type(ESMF_GeomType_Flag) :: geomtype
+      character(:), allocatable :: typekind_str
+      type(ESMF_Info) :: ungridded_info
+      type(UngriddedDims) :: ungridded_dims
+      type(LU_Bound), allocatable :: bounds(:)
+      integer :: num_levels
+      character(:), allocatable :: vloc
 
-      call FieldReallocate(field, geom=geom, typekind=typekind, num_levels=num_levels, rc=rc)
+      if (present(fieldList)) then
+         call ESMF_FieldBundleGet(fieldBundle, fieldCount=fieldCount, _RC)
+         allocate(fieldList(fieldCount))
+         call ESMF_FieldBundleGet(fieldBundle, fieldList=fieldList, itemOrderflag=ESMF_ITEMORDER_ADDORDER, _RC)
+      end if
 
-      if (present(units)) then
-         call MAPL_InfoSetInternal(field, key=KEY_UNITS, value=units, _RC)
+      if (present(geom)) then
+         call get_geom(fieldBundle, geom, rc)
+      end if
+
+      if (present(typekind)) then
+         call MAPL_InfoGetInternal(fieldBundle, key=KEY_TYPEKIND, value=typekind_str, _RC)
+         select case (typekind_str)
+         case ('R4')
+            typekind = ESMF_TYPEKIND_R4
+         case ('R8')
+            typekind = ESMF_TYPEKIND_R8
+         case ('I4')
+            typekind = ESMF_TYPEKIND_I4
+         case ('I8')
+            typekind = ESMF_TYPEKIND_I8
+         case ('LOGICAL')
+            typekind = ESMF_TYPEKIND_LOGICAL
+         case default
+            _FAIL('unsupported typekind')
+         end select
+      end if
+
+       if (present(ungriddedUbound)) then
+         ungridded_info = MAPL_InfoCreateFromInternal(fieldBundle, _RC)
+         ungridded_dims =  make_ungriddedDims(ungridded_info, KEY_UNGRIDDED_DIMS, _RC)
+         bounds = ungridded_dims%get_bounds()
+
+         call MAPL_InfoGetInternal(fieldBundle, key=KEY_VLOC, value=vloc, _RC)
+         if (vloc /= 'VERTICAL_DIM_NONE') then
+            call MAPL_InfoGetInternal(fieldBundle, key=KEY_NUM_LEVELS, value=num_levels, _RC)
+            select case (vloc)
+            case ('VERTICAL_DIM_CENTER')
+               bounds = [LU_Bound(1, num_levels), bounds]
+            case ('VERTICAL_DIM_EDGE')
+               bounds = [LU_Bound(1, num_levels+1), bounds]
+            case default
+               _FAIL('unsupported vertical location')
+            end select
+         end if
+
+         ungriddedUbound = bounds%upper
       end if
 
       _RETURN(_SUCCESS)
-         
-   end subroutine FieldUpdate_from_attributes
 
+   contains
 
-   subroutine FieldUpdate_from_field(field, reference_field, ignore, rc)
-      type(ESMF_Field), intent(inout) :: field
-      type(ESMF_Field), intent(in) :: reference_field
-      character(*), optional, intent(in) :: ignore
-      integer, intent(out), optional :: rc
+      subroutine get_geom(fieldBundle, geom, rc)
+         type(ESMF_FieldBundle), intent(in) :: fieldBundle
+         type(ESMF_Geom), intent(inout) :: geom
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         type(ESMF_GeomType_Flag) :: geomtype
+         type(ESMF_Grid) :: grid
+
+         call ESMF_FieldBundleGet(fieldBundle, geomtype=geomtype, _RC)
+         if (geomtype == ESMF_GEOMTYPE_GRID) then
+            call ESMF_FieldBundleGet(fieldBundle, grid=grid, _RC)
+            ! memory leak
+            geom = ESMF_GeomCreate(grid=grid, _RC)
+            _RETURN(_SUCCESS)
+         end if
+
+         _FAIL('unsupported geomtype; needs simple extension')
+
+         _RETURN(_SUCCESS)
+      end subroutine get_geom
+
+   end subroutine MAPL_FieldBundleGet
+
+   subroutine MAPL_FieldBundleSet(fieldBundle, unusable, geom, rc)
+      type(ESMF_FieldBundle), intent(inout) :: fieldBundle
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      type(ESMF_Geom), optional, intent(in) :: geom
+      integer, optional, intent(out) :: rc
 
       integer :: status
-      integer, allocatable :: num_levels
-      type(ESMF_Geom), allocatable :: geom
-      type(ESMF_TypeKind_Flag), allocatable :: typekind
-      character(:), allocatable :: units
+      type(ESMF_GeomType_Flag) :: geomtype
+      type(ESMF_Grid) :: grid
 
-      if (ignore /= 'geom') then
-         allocate(geom)
-         call ESMF_FieldGet(reference_field, geom=geom,_RC)
+      if (present(geom)) then
+         call ESMF_GeomGet(geom, geomtype=geomtype, _RC)
+         if (geomtype == ESMF_GEOMTYPE_GRID) then
+            call ESMF_GeomGet(geom, grid=grid, _RC)
+            call ESMF_FieldBundleSet(fieldBundle, grid=grid, _RC)
+            _RETURN(_SUCCESS)
+         end if
+         _FAIL('unsupported geomtype')
       end if
-
-      if (ignore /= 'typekind') then
-         allocate(typekind)
-         call ESMF_FieldGet(reference_field, typekind=typekind, _RC)
-      end if
-
-      if (ignore /= 'units') then
-         call MAPL_InfoGetInternal(reference_field, key=KEY_UNITS, value=units, _RC)
-      end if
-
-      if (ignore /= 'num_levels') then
-         num_levels = get_num_levels(reference_field, _RC)
-      end if
-
-      call FieldUpdate(field, geom=geom, typekind=typekind, num_levels=num_levels, units=units, _RC)
 
       _RETURN(_SUCCESS)
-         
-   end subroutine FieldUpdate_from_field
+   end subroutine MAPL_FieldBundleSet
+
 
 end module MAPL_FieldUtilities
 

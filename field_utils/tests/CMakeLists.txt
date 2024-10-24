@@ -5,7 +5,8 @@ set (test_srcs
   Test_FieldBLAS.pf
   Test_FieldArithmetic.pf
   Test_FieldCondensedArray_private.pf
-  Test_FieldUtilities.pf
+  Test_FieldDelta.pf
+  Test_FieldBundleDelta.pf
   )
 
 
