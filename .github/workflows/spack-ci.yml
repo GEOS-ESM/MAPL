@@ -20,22 +20,26 @@ jobs:
         color: true       # Force color output (SPACK_COLOR=always)
         path: spack       # Where to clone Spack
 
+    - name: Create Spack environment
+      run: |
+        spack env create spack-env
+        spack env activate spack-env
+
     - name: Login
       run: |
-        spack -e . mirror set --oci-username ${{ github.actor }} --oci-password "${{ secrets.GITHUB_TOKEN }}" mapl-buildcache
+        spack -e spack-env mirror set --oci-username ${{ github.actor }} --oci-password "${{ secrets.GITHUB_TOKEN }}" mapl-buildcache
 
     - name: Concretize
       run: |
-        spack -e . concretize
+        spack -e spack-env concretize
 
     - name: Install
       run: |
-        spack -e . install --no-check-signature
+        spack -e spack-env install --no-check-signature
 
     - name: Build with Cmake
       shell: spack-bash {0}
       run: |
-        spack env activate .
         FC=gfortran CC=gcc CXX=g++
         cmake -B build -S . -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF
         cmake --build build -j 4
