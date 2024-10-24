@@ -168,7 +168,7 @@ contains
       subroutine update_units(units, field, ignore, rc)
          character(*), optional, intent(in) :: units
          type(ESMF_Field), intent(inout) :: field
-         character(*), intent(in), optional :: ignore
+         character(*), intent(in) :: ignore
          integer, optional, intent(out) :: rc
 
          integer :: status
