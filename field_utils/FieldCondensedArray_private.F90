@@ -26,7 +26,7 @@ contains
       
       vert_dim = 0
       vert_size = 1
-      
+
       rank = size(localElementCount)
       grid_dims = pack(gridToFieldMap, gridToFieldMap /= 0)
       _ASSERT(all(grid_dims <= size(grid_dims)), 'MAPL expects geom dims before ungridded.')
