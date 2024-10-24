@@ -49,6 +49,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update `Findudunits.cmake` to link with libdl and look for the `udunits2.xml` file (as some MAPL tests require it)
 - Modified `ESMF_GridComp` creation in `GenericGridComp` to use `ESMF_CONTEXT_PARENT_VM` by default.
 - Changed `get_fptr_shape` in `FieldCondensedArray*.F90`
+- Change name of ExtensionAction%run to ExtensionAction%update in the abstract type and derived types.
+- Add invalid method to ExtensionAction with a no-op implementation in the abstract type
 
 ### Fixed
 
@@ -63,11 +65,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - Allow update offsets of &#177;timestep in ExtData2G
 
 ### Changed
 
 - Update ESMF version for Baselibs to match that of Spack for consistency
+- Update `components.yaml`
+  - ESMA_env v4.32.0
+    - Baselibs 7.27.0
+      - ESMF 8.7.0
+      - curl 8.10.1
+      - NCO 5.2.8
+      - CDO 2.4.4
+      - GSL 2.8
+      - jpeg 9f
+      - Various build fixes
+  - ESMA_cmake v3.52.0
+    - Fixes for using MAPL as a library in spack builds of GEOSgcm
+    - Various backports from v4
 
 ### Fixed
 
@@ -76,6 +92,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.50.1] - 2024-10-18
+
+### Fixed
+
+- Fixed unitialized variable bug in ExtData exposed by gfortran
 
 ## [2.50.0] - 2024-10-10
 
