@@ -1,0 +1,43 @@
+name: spack-ci-gcc
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Spack
+      uses: spack/setup-spack@v2
+      with:
+        ref: develop      # Spack version (examples: develop, releases/v0.21)
+        color: true       # Force color output (SPACK_COLOR=always)
+        path: spack       # Where to clone Spack
+
+    - name: Login
+      run: |
+        spack -e ./share/spack-env mirror set --oci-username ${{ github.actor }} --oci-password "${{ secrets.GITHUB_TOKEN }}" mapl-buildcache
+
+    - name: Concretize
+      run: |
+        spack -e ./share/spack-env concretize
+
+    - name: Install
+      run: |
+        spack -e ./share/spack-env install --no-check-signature
+
+    - name: Build with Cmake
+      shell: spack-bash {0}
+      run: |
+        spack env activate ./share/spack-env/
+        FC=gfortran CC=gcc CXX=g++
+        cmake -B build -S . -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF
+        cmake --build build -j 4
+        cmake --install build
+
