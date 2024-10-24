@@ -214,6 +214,8 @@ contains
       ! Easy case 1: field count unchanged
       call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
       _RETURN_UNLESS(allocated(this%interpolation_weights))
+      ! The number of weights is always one larger than the number of fields to support a constant
+      ! offset.  ("Weights" is a funny term in that case.)
       new_field_count = size(this%interpolation_weights) - 1
       old_field_count = size(fieldList)
       _RETURN_IF(new_field_count == old_field_count)
