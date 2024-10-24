@@ -389,7 +389,6 @@ contains
         call MPI_AllGATHERV(locals, local_size,            MPI_INTEGER, &
                             i_ptr,  int(offsets),  int(g_offsets),  MPI_INTEGER, &
                             this%containing_server%NodeRoot_Comm,status)
-        _VERIFY(status)
         deallocate(locals)
 
       endif
@@ -1030,7 +1029,7 @@ contains
          iter = this%request_backlog%begin()
      enddo
 
-     call this%clear_RequestHandle(_RC)
+     call this%clear_RequestHandle()
      call this%clear_hist_collections()
 
      _RETURN(_SUCCESS)
@@ -1069,7 +1068,7 @@ contains
          iter = this%request_backlog%begin()
        enddo
 
-       call this%clear_RequestHandle(_RC)
+       call this%clear_RequestHandle()
 
        _RETURN(_SUCCESS)
        _UNUSED_DUMMY(message)

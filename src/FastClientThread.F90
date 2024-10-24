@@ -182,10 +182,9 @@ contains
    end function stage_nondistributed_data
 
    ! The data has been copied out and post no wait after isend
-   subroutine post_wait_all(this, rc)
+   subroutine post_wait_all(this)
       use pFIO_AbstractRequestHandleMod
       class (FastClientThread), target, intent(inout) :: this
-      integer, optional, intent(out) :: rc
       ! do nothing on purpose
       _UNUSED_DUMMY(this)
    end subroutine post_wait_all

@@ -109,7 +109,6 @@ contains
 
       c_manager%client_comm = client_comm
       call MPI_Comm_rank(client_comm, c_manager%rank, rc)
-      _VERIFY(rc)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function new_ClientManager
@@ -342,11 +341,11 @@ contains
       class (ClientManager), intent(inout) :: this
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
-      integer :: status
+
       class (ClientThread), pointer :: clientPtr
 
       clientPtr =>this%current()
-      call clientPtr%shake_hand(_RC)
+      call clientPtr%shake_hand()
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -356,12 +355,11 @@ contains
       class (ClientManager), intent(inout) :: this
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
-      integer :: status
 
       class (ClientThread), pointer :: clientPtr
 
       clientPtr =>this%current()
-      call clientPtr%done_prefetch(_RC)
+      call clientPtr%done_prefetch()
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -371,11 +369,11 @@ contains
       class (ClientManager), intent(inout) :: this
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
-      integer :: status
+
       class (ClientThread), pointer :: clientPtr
 
       clientPtr =>this%current()
-      call clientPtr%done_collective_prefetch(_RC)
+      call clientPtr%done_collective_prefetch()
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -385,11 +383,11 @@ contains
       class (ClientManager), intent(inout) :: this
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
-      integer :: status
+
       class (ClientThread), pointer :: clientPtr
 
       clientPtr =>this%current()
-      call clientPtr%done_stage(_RC)
+      call clientPtr%done_stage()
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -414,11 +412,11 @@ contains
       class (ClientManager), target, intent(inout) :: this
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
-      integer :: status
+
       class (ClientThread), pointer :: clientPtr
 
       clientPtr =>this%current()
-      call clientPtr%wait_all(_RC)
+      call clientPtr%wait_all()
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -429,11 +427,10 @@ contains
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: status
       class (ClientThread), pointer :: clientPtr
 
       clientPtr =>this%current()
-      call clientPtr%post_wait_all(_RC)
+      call clientPtr%post_wait_all()
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -444,13 +441,12 @@ contains
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: status
       class (ClientThread), pointer :: clientPtr
       integer :: i
 
       do i = 1, this%size()
          clientPtr =>this%clients%at(i)
-         call clientPtr%wait_all(_RC)
+         call clientPtr%wait_all()
          call clientPtr%terminate()
       enddo
 
@@ -494,7 +490,6 @@ contains
       integer :: Cuttoff, ssize, lsize, tsize, ith
       integer, allocatable :: nwritings_order(:)
       real :: l_ratio, s_ratio
-      integer :: status
 
       ! if there is no "small" pool, then there is no "large" pool either, just get next
       ssize = this%small_server_pool%size()
@@ -503,7 +498,7 @@ contains
 
       if (ssize == 0) then
          call this%next()
-         call this%wait(_RC)
+         call this%wait()
          _RETURN(_SUCCESS)
       endif
 
@@ -556,7 +551,7 @@ contains
          nwritings_small(1:ssize-1) = nwritings_small(2:ssize)
          nwritings_small(ssize) = nwriting
       end if
-      call this%wait(_RC)
+      call this%wait()
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

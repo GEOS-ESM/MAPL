@@ -97,7 +97,6 @@ contains
         STAGGERING, &
         ROTATION,   & 
         GRID, &
-        positive, &
         RC  )
 
       type (MAPL_VarSpec ),             pointer         :: SPEC(:)
@@ -131,7 +130,6 @@ contains
       integer            , optional   , intent(IN)      :: STAGGERING
       integer            , optional   , intent(IN)      :: ROTATION
       type(ESMF_Grid)    , optional   , intent(IN)      :: GRID
-      character(len=positive_length), optional, intent(in) :: positive
       integer            , optional   , intent(OUT)     :: RC
 
 
@@ -153,7 +151,6 @@ contains
       integer                    :: usableSTAGGERING
       integer                    :: usableROTATION
       integer                    :: usableRESTART
-      character(len=positive_length) :: usablePositive
       character(len=ESMF_MAXSTR) :: usableLONG
       character(len=ESMF_MAXSTR) :: usableUNIT
       character(len=ESMF_MAXSTR) :: usableFRIENDLYTO
@@ -413,12 +410,6 @@ contains
          usableUNGRIDDED_COORDS = UNGRIDDED_COORDS
       end if
 
-      if (present(positive)) then
-         usablePositive = positive
-      else
-         usablePositive = 'down'
-      end if
-
       I = size(SPEC)
 
       allocate(TMP(I+1),stat=STATUS)
@@ -456,7 +447,6 @@ contains
       TMP(I+1)%SPECPtr%UNGRIDDED_NAME =  useableUngrd_Name
       TMP(I+1)%SPECPtr%STAGGERING =  usableSTAGGERING
       TMP(I+1)%SPECPtr%ROTATION =  usableROTATION
-      TMP(I+1)%SPECPtr%positive=  usablePositive
       TMP(I+1)%SPECPtr%doNotAllocate    =  .false.
       TMP(I+1)%SPECPtr%alwaysAllocate   =  .false.
       if(associated(usableATTR_IVALUES)) then
@@ -813,7 +803,6 @@ contains
         alwaysAllocate,                           &
         depends_on_children,                      &
         depends_on,                               &
-        positive,                                 &
         RC )
 
       type (MAPL_VarSpec ),             intent(IN )     :: SPEC
@@ -853,7 +842,6 @@ contains
       logical            , optional   , intent(OUT)     :: alwaysAllocate
       logical            , optional   , intent(OUT)     :: depends_on_children
       character(len=:), allocatable, optional, intent(OUT) :: depends_on(:)
-      character(len=*), optional, intent(out) :: positive
       integer            , optional   , intent(OUT)     :: RC
 
 
@@ -1007,10 +995,6 @@ contains
          if(allocated(SPEC%SPECPtr%depends_on)) then
          depends_on =  SPEC%SPECPtr%depends_on
          end if
-      end if
-
-      if(present(positive)) then
-         positive = SPEC%SPECPtr%positive
       end if
 
       _RETURN(ESMF_SUCCESS)

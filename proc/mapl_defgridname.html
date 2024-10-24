@@ -79,7 +79,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.1% of total for procedures.">33 statements</a>
+                 title=" 0.0% of total for procedures.">16 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -162,7 +162,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-im~105"></span>
+              <span class="anchor" id="variable-im~98"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -177,7 +177,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-jm~94"></span>
+              <span class="anchor" id="variable-jm~89"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -192,7 +192,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-gridname~19"></span>
+              <span class="anchor" id="variable-gridname~18"></span>
               character(len=*),
             </td>
 <td>intent(out)</td>
@@ -244,40 +244,18 @@
 <span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="kd">::</span><span class="n">gridname</span>
 <span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="n">poletype</span>
 <span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="n">llcb</span>
-<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="w"> </span><span class="n">myfmt</span>
+<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="w"> </span><span class="n">imstr</span><span class="p">,</span><span class="n">jmstr</span>
 <span class="n">poletype</span><span class="o">=</span><span class="s1">&#39;PC&#39;</span>
 <span class="k">if</span><span class="p">(</span><span class="nb">mod</span><span class="p">(</span><span class="n">jm</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">poletype</span><span class="o">=</span><span class="s1">&#39;PE&#39;</span>
 
 <span class="n">llcb</span><span class="o">=</span><span class="s1">&#39;-DC&#39;</span><span class="w"> </span><span class="c">! lat-lon</span>
 <span class="k">if</span><span class="p">(</span><span class="mi">6</span><span class="o">*</span><span class="n">im</span><span class="o">==</span><span class="n">jm</span><span class="p">)</span><span class="w"> </span><span class="n">llcb</span><span class="o">=</span><span class="s1">&#39;-CF&#39;</span><span class="w"> </span><span class="c">! cubed</span>
 
-<span class="c">! there has to be a smarter way to do this format </span>
-<span class="k">if</span><span class="p">(</span><span class="n">im</span><span class="o">&gt;</span><span class="mi">1</span><span class="mf">0.</span><span class="nb">and</span><span class="p">.</span><span class="n">im</span><span class="o">&lt;</span><span class="mi">10</span><span class="mf">0.</span><span class="nb">and</span><span class="p">.&amp;</span>
-<span class="w">   </span><span class="n">jm</span><span class="o">&gt;</span><span class="mi">1</span><span class="mf">0.</span><span class="nb">and</span><span class="p">.</span><span class="n">jm</span><span class="o">&lt;</span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">   </span><span class="n">myfmt</span><span class="o">=</span><span class="s1">&#39;(a,i2,a,i2,a)&#39;</span>
-<span class="k">endif</span>
-<span class="k">if</span><span class="p">(</span><span class="n">im</span><span class="o">&gt;</span><span class="mi">10</span><span class="mf">0.</span><span class="nb">and</span><span class="p">.</span><span class="n">im</span><span class="o">&lt;</span><span class="mi">100</span><span class="mf">0.</span><span class="nb">and</span><span class="p">.&amp;</span>
-<span class="w">   </span><span class="n">jm</span><span class="o">&gt;</span><span class="mi">1</span><span class="mf">0.</span><span class="nb">and</span><span class="p">.</span><span class="n">jm</span><span class="o">&lt;</span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">   </span><span class="n">myfmt</span><span class="o">=</span><span class="s1">&#39;(a,i3,a,i2,a)&#39;</span>
-<span class="k">endif</span>
-<span class="k">if</span><span class="p">(</span><span class="n">im</span><span class="o">&gt;</span><span class="mi">10</span><span class="mf">0.</span><span class="nb">and</span><span class="p">.</span><span class="n">im</span><span class="o">&lt;</span><span class="mi">100</span><span class="mf">0.</span><span class="nb">and</span><span class="p">.&amp;</span>
-<span class="w">   </span><span class="n">jm</span><span class="o">&gt;</span><span class="mi">10</span><span class="mf">0.</span><span class="nb">and</span><span class="p">.</span><span class="n">jm</span><span class="o">&lt;</span><span class="mi">1000</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">   </span><span class="n">myfmt</span><span class="o">=</span><span class="s1">&#39;(a,i3,a,i3,a)&#39;</span>
-<span class="k">endif</span>
-<span class="k">if</span><span class="p">(</span><span class="n">im</span><span class="o">&gt;</span><span class="mi">100</span><span class="mf">0.</span><span class="nb">and</span><span class="p">.</span><span class="n">im</span><span class="o">&lt;</span><span class="mi">1000</span><span class="mf">0.</span><span class="nb">and</span><span class="p">.&amp;</span>
-<span class="w">   </span><span class="n">jm</span><span class="o">&gt;</span><span class="mi">100</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="n">jm</span><span class="o">&lt;</span><span class="mi">1000</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">   </span><span class="n">myfmt</span><span class="o">=</span><span class="s1">&#39;(a,i4,a,i3,a)&#39;</span>
-<span class="k">endif</span>
-<span class="k">if</span><span class="p">(</span><span class="n">im</span><span class="o">&gt;</span><span class="mi">100</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="n">im</span><span class="o">&lt;</span><span class="mi">100</span><span class="mf">0.</span><span class="nb">and</span><span class="p">.&amp;</span>
-<span class="w">   </span><span class="n">jm</span><span class="o">&gt;</span><span class="mi">100</span><span class="mf">0.</span><span class="nb">and</span><span class="p">.</span><span class="n">jm</span><span class="o">&lt;</span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">   </span><span class="n">myfmt</span><span class="o">=</span><span class="s1">&#39;(a,i3,a,i4,a)&#39;</span>
-<span class="k">endif</span>
-<span class="k">if</span><span class="p">(</span><span class="n">im</span><span class="o">&gt;</span><span class="mi">100</span><span class="mf">0.</span><span class="nb">and</span><span class="p">.</span><span class="n">im</span><span class="o">&lt;</span><span class="mi">1000</span><span class="mf">0.</span><span class="nb">and</span><span class="p">.&amp;</span>
-<span class="w">   </span><span class="n">jm</span><span class="o">&gt;</span><span class="mi">100</span><span class="mf">0.</span><span class="nb">and</span><span class="p">.</span><span class="n">jm</span><span class="o">&lt;</span><span class="mi">10000</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">   </span><span class="n">myfmt</span><span class="o">=</span><span class="s1">&#39;(a,i4,a,i4,a)&#39;</span>
-<span class="k">endif</span>
-<span class="k">write</span><span class="p">(</span><span class="n">gridname</span><span class="p">,</span><span class="n">fmt</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">myfmt</span><span class="p">))</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">poletype</span><span class="p">),</span><span class="n">im</span><span class="p">,</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="n">jm</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">llcb</span><span class="p">)</span>
-<span class="k">if</span><span class="p">(</span><span class="n">iamroot</span><span class="p">)</span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;MAPL_DefGridName: &#39;</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">gridname</span><span class="p">)</span>
+<span class="k">write</span><span class="p">(</span><span class="n">imstr</span><span class="p">,</span><span class="s1">&#39;(I0)&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">im</span>
+<span class="k">write</span><span class="p">(</span><span class="n">jmstr</span><span class="p">,</span><span class="s1">&#39;(I0)&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">jm</span>
+
+<span class="n">gridname</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">poletype</span><span class="p">)</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">imstr</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;x&#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">jmstr</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">llcb</span><span class="p">)</span>
+
 <span class="k">end subroutine </span><span class="n">MAPL_DefGridName</span>
 </pre></div>
 
@@ -302,7 +280,7 @@
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-10-18T19:27:59.070618             </p>
+ on 2024-10-24T19:05:04.586716             </p>
           </div>
         </div>
         <br>
