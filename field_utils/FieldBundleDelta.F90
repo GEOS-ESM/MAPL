@@ -165,26 +165,6 @@ contains
       _RETURN(_SUCCESS)
    contains
 
-      subroutine update_units(units, field, ignore, rc)
-         character(*), optional, intent(in) :: units
-         type(ESMF_Field), intent(inout) :: field
-         character(*), intent(in) :: ignore
-         integer, optional, intent(out) :: rc
-
-         integer :: status
-         integer :: i
-         type(ESMF_Field), allocatable :: fieldList(:)
-
-         _RETURN_UNLESS(present(units))
-         _RETURN_IF(ignore == 'units')
-
-         call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
-         do i = 1, size(fieldList)
-            call MAPL_InfoSetInternal(fieldList(i), key=KEY_UNITS, value=units, _RC)
-         end do
-
-         _RETURN(_SUCCESS)
-      end subroutine update_units
 
       subroutine update_interpolation_weights(interpolation_weights, bundle, ignore, rc)
          real(ESMF_KIND_R4), optional, intent(in) :: interpolation_weights(:)
