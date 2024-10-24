@@ -5,13 +5,14 @@ on:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-24.04
     steps:
-
-    - name: Cancel Previous Runs
-      uses: styfle/cancel-workflow-action
 
     - name: Checkout repository
       uses: actions/checkout@v4
