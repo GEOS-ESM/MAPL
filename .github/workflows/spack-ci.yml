@@ -25,32 +25,39 @@ jobs:
         path: spack       # Where to clone Spack
         buildcache: false # Do not use the spack buildcache
 
-    - name: Create Spack environment
-      run: |
-        spack env create spack-env
-        spack env activate spack-env
-
     - name: Find compilers
+      shell: spack-bash {0}
       run: |
         spack compiler find
 
     - name: Set default compiler and target
+      shell: spack-bash {0}
       run: |
         spack config add 'packages:all:compiler:[gcc@13.2.0]'
         spack config add 'packages:all:require:target=x86_64_v3'
 
+    - name: Create Spack environment
+      shell: spack-bash {0}
+      run: |
+        spack env create spack-env
+        spack env activate spack-env
+
     - name: Login
+      shell: spack-bash {0}
       run: |
         spack -e spack-env mirror add mapl-buildcache oci://ghcr.io/mathomp4/mapl-buildcache
         spack -e spack-env mirror set --oci-username ${{ github.actor }} --oci-password "${{ secrets.GITHUB_TOKEN }}" mapl-buildcache
         spack -e spack-env mirror list
-        spack -e spack-env buildcache list
+        spack -e spack-env buildcache update-index mapl-buildcache
+        spack -e spack-env buildcache list --all-arch
 
     #- name: Concretize
+      #shell: spack-bash {0}
       #run: |
         #spack -e spack-env concretize
 
     #- name: Install
+      #shell: spack-bash {0}
       #run: |
         #spack -e spack-env install --add --no-check-signature \
            #esmf gftl gftl-shared fargparse pflogger pfunit yafyaml ecbuild udunits
