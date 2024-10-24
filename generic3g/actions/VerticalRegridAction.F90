@@ -9,6 +9,8 @@ module mapl3g_VerticalRegridAction
    use mapl3g_VerticalRegridMethod
    use mapl3g_VerticalLinearMap, only: compute_linear_map
    use mapl3g_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp, matmul
+   use MAPL_FieldPointerUtilities, only: assign_fptr
+   use mapl3g_FieldCondensedArray, only: get_fptr_shape
    use esmf
 
    implicit none
@@ -96,15 +98,10 @@ contains
 
       integer :: status
       type(ESMF_Field) :: f_in, f_out
-
-
-      real(ESMF_KIND_R4), pointer :: x_in(:,:,:)
-      real(ESMF_KIND_R4), pointer :: x_out(:,:,:)
-
-      real(ESMF_KIND_R4), pointer :: v_in(:)
-      real(ESMF_KIND_R4), pointer :: v_out(:)
-
-      integer :: istart, iend, jstart, jend, i, j
+      real(ESMF_KIND_R4), pointer :: x_in(:,:,:), x_out(:,:,:)
+      integer(ESMF_KIND_I8) :: x_shape(3)
+      real(ESMF_KIND_R4), pointer :: v_in(:), v_out(:)
+      integer :: horz, ungridded
 
       ! if (associated(this%v_in_coupler)) then
       !    call this%v_in_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
@@ -116,15 +113,16 @@ contains
 
       call ESMF_StateGet(importState, itemName='import[1]', field=f_in, _RC)
       call ESMF_FieldGet(f_in, fArrayPtr=x_in, _RC)
+      x_shape = get_fptr_shape(f_in, _RC)
+      call assign_fptr(f_in, x_shape, x_in, _RC)
 
       call ESMF_StateGet(exportState, itemName='export[1]', field=f_out, _RC)
       call ESMF_FieldGet(f_out, fArrayPtr=x_out, _RC)
+      x_shape = get_fptr_shape(f_out, _RC)
+      call assign_fptr(f_in, x_shape, x_out, _RC)
 
-      istart = lbound(x_out, 1); iend = ubound(x_out, 1)
-      jstart = lbound(x_out, 2); jend = ubound(x_out, 2)
-
-      do concurrent (i=istart:iend, j=jstart:jend)
-         x_out(i, j, :) = matmul(this%matrix, x_in(i, j, :))
+      do concurrent (horz=1:x_shape(1), ungridded=1:x_shape(3))
+         x_out(horz, :, ungridded) = matmul(this%matrix, x_in(horz, :, ungridded))
       end do
 
       _RETURN(_SUCCESS)
