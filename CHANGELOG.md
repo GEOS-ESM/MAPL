@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.47.1.1] - 2024-10-24
+
+### Changed
+
+- Minor revision (and generalization) of grid-def for GSI purposes
+
 ## [2.47.1] - 2024-07-17
 
 ### Fixed
