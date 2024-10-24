@@ -1,0 +1,958 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>get_v2d_netcdf_R4 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>get_v2d_netcdf_R4
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">26 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Plain_netCDF_Time.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/plain_netcdf_time.f90.html'>Plain_netCDF_Time.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/plain_netcdf_time.html'>Plain_netCDF_Time</a></li>
+            <li class="breadcrumb-item active" aria-current="page">get_v2d_netcdf_R4</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/get_v2d_netcdf_r4.html#src">get_v2d_netcdf_R4</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine get_v2d_netcdf_R4(filename, name, array, Xdim, Ydim, rc)  
+</h2>
+        <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item">netcdf</li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_v2d_netcdf_r4~~UsesGraph Pages: 1 -->
+<svg id="procget_v2d_netcdf_r4UsesGraph" width="211pt" height="32pt"
+ viewBox="0.00 0.00 211.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_v2d_netcdf_r4~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~get_v2d_netcdf_r4~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 207,-28 207,4 -4,4"/>
+<!-- proc~get_v2d_netcdf_r4 -->
+<g id="proc~~get_v2d_netcdf_r4~~UsesGraph_node1" class="node">
+<title>proc~get_v2d_netcdf_r4</title>
+<polygon fill="none" stroke="black" points="203,-24 90,-24 90,0 203,0 203,-24"/>
+<text text-anchor="middle" x="146.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_v2d_netcdf_R4</text>
+</g>
+<!-- netcdf -->
+<g id="proc~~get_v2d_netcdf_r4~~UsesGraph_node2" class="node">
+<title>netcdf</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">netcdf</text>
+</g>
+<!-- proc~get_v2d_netcdf_r4&#45;&gt;netcdf -->
+<g id="proc~~get_v2d_netcdf_r4~~UsesGraph_edge1" class="edge">
+<title>proc~get_v2d_netcdf_r4&#45;&gt;netcdf</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M89.85,-12C81.19,-12 72.43,-12 64.35,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="64.17,-8.5 54.17,-12 64.17,-15.5 64.17,-8.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-filename~18"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>filename</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-name~42"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>name</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-array~12"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(Xdim,Ydim)
+            </td>
+            <td>::</td>
+            <td><strong>array</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-xdim"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Xdim</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ydim~2"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Ydim</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~432"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_v2d_netcdf_r4~~CallsGraph Pages: 1 -->
+<svg id="procget_v2d_netcdf_r4CallsGraph" width="641pt" height="283pt"
+ viewBox="0.00 0.00 641.00 282.98" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph" class="graph" transform="scale(0.78 0.78) rotate(0) translate(4 358)">
+<title>proc~~get_v2d_netcdf_r4~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-358 816,-358 816,4 -4,4"/>
+<!-- proc~get_v2d_netcdf_r4 -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_node1" class="node">
+<title>proc~get_v2d_netcdf_r4</title>
+<polygon fill="none" stroke="black" points="113,-207 0,-207 0,-183 113,-183 113,-207"/>
+<text text-anchor="middle" x="56.5" y="-192.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_v2d_netcdf_R4</text>
+</g>
+<!-- nf90_close -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_node2" class="node">
+<title>nf90_close</title>
+<polygon fill="#777777" stroke="#777777" points="233.5,-354 163.5,-354 163.5,-330 233.5,-330 233.5,-354"/>
+<text text-anchor="middle" x="198.5" y="-339.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_close</text>
+</g>
+<!-- proc~get_v2d_netcdf_r4&#45;&gt;nf90_close -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_edge1" class="edge">
+<title>proc~get_v2d_netcdf_r4&#45;&gt;nf90_close</title>
+<path fill="none" stroke="#ff0000" d="M63.41,-207.06C75.98,-231.61 107.65,-287.86 149,-321 150.75,-322.4 152.6,-323.72 154.52,-324.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="152.88,-328.06 163.3,-329.97 156.34,-321.98 152.88,-328.06"/>
+</g>
+<!-- nf90_get_att -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_node3" class="node">
+<title>nf90_get_att</title>
+<polygon fill="#777777" stroke="#777777" points="238,-312 159,-312 159,-288 238,-288 238,-312"/>
+<text text-anchor="middle" x="198.5" y="-297.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_get_att</text>
+</g>
+<!-- proc~get_v2d_netcdf_r4&#45;&gt;nf90_get_att -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_edge2" class="edge">
+<title>proc~get_v2d_netcdf_r4&#45;&gt;nf90_get_att</title>
+<path fill="none" stroke="#ff0000" d="M68.3,-207.23C84.43,-224.93 116.44,-257.87 149,-279 151.3,-280.49 153.73,-281.93 156.22,-283.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="154.9,-286.54 165.4,-287.92 158.05,-280.29 154.9,-286.54"/>
+</g>
+<!-- nf90_get_var -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_node4" class="node">
+<title>nf90_get_var</title>
+<polygon fill="#777777" stroke="#777777" points="239.5,-270 157.5,-270 157.5,-246 239.5,-246 239.5,-270"/>
+<text text-anchor="middle" x="198.5" y="-255.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_get_var</text>
+</g>
+<!-- proc~get_v2d_netcdf_r4&#45;&gt;nf90_get_var -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_edge3" class="edge">
+<title>proc~get_v2d_netcdf_r4&#45;&gt;nf90_get_var</title>
+<path fill="none" stroke="#ff0000" d="M83.46,-207.1C101.74,-215.57 126.81,-227.1 149,-237 152.62,-238.61 156.4,-240.28 160.18,-241.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="158.93,-245.21 169.5,-246 161.73,-238.8 158.93,-245.21"/>
+</g>
+<!-- nf90_inq_varid -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_node5" class="node">
+<title>nf90_inq_varid</title>
+<polygon fill="#777777" stroke="#777777" points="244,-228 153,-228 153,-204 244,-204 244,-228"/>
+<text text-anchor="middle" x="198.5" y="-213.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_inq_varid</text>
+</g>
+<!-- proc~get_v2d_netcdf_r4&#45;&gt;nf90_inq_varid -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_edge4" class="edge">
+<title>proc~get_v2d_netcdf_r4&#45;&gt;nf90_inq_varid</title>
+<path fill="none" stroke="#ff0000" d="M113.23,-203.36C122.97,-204.82 133.09,-206.34 142.79,-207.79"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="142.32,-211.26 152.72,-209.28 143.35,-204.34 142.32,-211.26"/>
+</g>
+<!-- nf90_open -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_node6" class="node">
+<title>nf90_open</title>
+<polygon fill="#777777" stroke="#777777" points="233,-186 164,-186 164,-162 233,-162 233,-186"/>
+<text text-anchor="middle" x="198.5" y="-171.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_open</text>
+</g>
+<!-- proc~get_v2d_netcdf_r4&#45;&gt;nf90_open -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_edge5" class="edge">
+<title>proc~get_v2d_netcdf_r4&#45;&gt;nf90_open</title>
+<path fill="none" stroke="#ff0000" d="M113.23,-186.64C126.71,-184.62 140.93,-182.49 153.76,-180.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="154.35,-184.01 163.72,-179.07 153.31,-177.09 154.35,-184.01"/>
+</g>
+<!-- proc~check_nc_status -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_node7" class="node">
+<title>proc~check_nc_status</title>
+<g id="a_proc~~get_v2d_netcdf_r4~~CallsGraph_node7"><a xlink:href="../proc/check_nc_status.html" xlink:title="check_nc_status">
+<polygon fill="#d9534f" stroke="#d9534f" points="248,-106 149,-106 149,-82 248,-82 248,-106"/>
+<text text-anchor="middle" x="198.5" y="-91.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">check_nc_status</text>
+</a>
+</g>
+</g>
+<!-- proc~get_v2d_netcdf_r4&#45;&gt;proc~check_nc_status -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_edge6" class="edge">
+<title>proc~get_v2d_netcdf_r4&#45;&gt;proc~check_nc_status</title>
+<path fill="none" stroke="#ff0000" d="M70.5,-182.96C87.7,-167.37 119.29,-139.86 149,-120 153.67,-116.88 158.74,-113.82 163.8,-110.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="165.68,-113.92 172.78,-106.06 162.33,-107.78 165.68,-113.92"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_node8" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~get_v2d_netcdf_r4~~CallsGraph_node8"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="366,-148 284,-148 284,-124 366,-124 366,-148"/>
+<text text-anchor="middle" x="325" y="-133.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~get_v2d_netcdf_r4&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_edge7" class="edge">
+<title>proc~get_v2d_netcdf_r4&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M78.55,-182.87C96.62,-173.08 123.69,-159.83 149,-153 190.04,-141.93 238.21,-137.87 273.61,-136.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="273.83,-139.97 283.71,-136.13 273.59,-132.97 273.83,-139.97"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_node9" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~get_v2d_netcdf_r4~~CallsGraph_node9"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="514,-24 438,-24 438,0 514,0 514,-24"/>
+<text text-anchor="middle" x="476" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~get_v2d_netcdf_r4&#45;&gt;proc~mapl_verify -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_edge8" class="edge">
+<title>proc~get_v2d_netcdf_r4&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M63.24,-182.97C75.49,-158.54 106.6,-102.92 149,-73 233.4,-13.45 359.61,-7.4 427.58,-9.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="427.86,-12.63 437.97,-9.46 428.09,-5.64 427.86,-12.63"/>
+</g>
+<!-- proc~check_nc_status&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_edge11" class="edge">
+<title>proc~check_nc_status&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#003fff" d="M235.18,-106.04C248.72,-110.6 264.33,-115.87 278.65,-120.7"/>
+<polygon fill="#003fff" stroke="#003fff" points="277.72,-124.08 288.32,-123.96 279.96,-117.45 277.72,-124.08"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_node10" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~get_v2d_netcdf_r4~~CallsGraph_node10"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="364.5,-106 285.5,-106 285.5,-82 364.5,-82 364.5,-106"/>
+<text text-anchor="middle" x="325" y="-91.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~check_nc_status&#45;&gt;interface~mapl_assert -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_edge9" class="edge">
+<title>proc~check_nc_status&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#003fff" d="M248.35,-94C257.16,-94 266.35,-94 275.16,-94"/>
+<polygon fill="#003fff" stroke="#003fff" points="275.29,-97.5 285.29,-94 275.29,-90.5 275.29,-97.5"/>
+</g>
+<!-- nf90_strerror -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_node11" class="node">
+<title>nf90_strerror</title>
+<polygon fill="#777777" stroke="#777777" points="365.5,-64 284.5,-64 284.5,-40 365.5,-40 365.5,-64"/>
+<text text-anchor="middle" x="325" y="-49.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nf90_strerror</text>
+</g>
+<!-- proc~check_nc_status&#45;&gt;nf90_strerror -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_edge10" class="edge">
+<title>proc~check_nc_status&#45;&gt;nf90_strerror</title>
+<path fill="none" stroke="#003fff" d="M235.18,-81.96C248.72,-77.4 264.33,-72.13 278.65,-67.3"/>
+<polygon fill="#003fff" stroke="#003fff" points="279.96,-70.55 288.32,-64.04 277.72,-63.92 279.96,-70.55"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_node12" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~get_v2d_netcdf_r4~~CallsGraph_node12"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="710,-176 595,-176 595,-152 710,-152 710,-176"/>
+<text text-anchor="middle" x="652.5" y="-161.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#7f00ff" d="M366.09,-144.36C377.63,-146.5 390.28,-148.6 402,-150 463.66,-157.38 534.37,-160.88 584.73,-162.54"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="584.74,-166.04 594.84,-162.86 584.95,-159.04 584.74,-166.04"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_node13" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~get_v2d_netcdf_r4~~CallsGraph_node13"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="719,-76 586,-76 586,-52 719,-52 719,-76"/>
+<text text-anchor="middle" x="652.5" y="-61.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7f00ff" d="M366.11,-137.31C411.62,-137.72 487.6,-135.14 550,-117 577.15,-109.11 605.46,-93.63 625.26,-81.43"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="627.13,-84.38 633.73,-76.09 623.4,-78.46 627.13,-84.38"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00bf" d="M514.17,-22.57C525.67,-25.87 538.37,-29.55 550,-33 567.28,-38.12 586.17,-43.86 602.92,-48.99"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="601.92,-52.34 612.5,-51.93 603.97,-45.65 601.92,-52.34"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_node17" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~get_v2d_netcdf_r4~~CallsGraph_node17"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="543,-66 409,-66 409,-42 543,-42 543,-66"/>
+<text text-anchor="middle" x="476" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_edge15" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M364.76,-83.59C381.72,-79.04 401.91,-73.62 420.35,-68.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="421.35,-72.03 430.1,-66.05 419.53,-65.27 421.35,-72.03"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_node18" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~get_v2d_netcdf_r4~~CallsGraph_node18"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="550,-108 402,-108 402,-84 550,-84 550,-108"/>
+<text text-anchor="middle" x="476" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_edge16" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M364.76,-94.52C373.12,-94.63 382.26,-94.76 391.6,-94.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="391.73,-98.38 401.77,-95.02 391.82,-91.38 391.73,-98.38"/>
+</g>
+<!-- at -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_node14" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="810.5,-157 756.5,-157 756.5,-133 810.5,-133 810.5,-157"/>
+<text text-anchor="middle" x="783.5" y="-142.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_edge17" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#00ffff" d="M710.08,-155.67C722.42,-153.85 735.14,-151.97 746.42,-150.31"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="746.94,-153.78 756.32,-148.86 745.92,-146.85 746.94,-153.78"/>
+</g>
+<!-- insert -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_node15" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="810.5,-199 756.5,-199 756.5,-175 810.5,-175 810.5,-199"/>
+<text text-anchor="middle" x="783.5" y="-184.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_edge18" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#00ffff" d="M710.08,-174.09C722.42,-176.29 735.14,-178.56 746.42,-180.57"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="745.86,-184.02 756.32,-182.33 747.09,-177.13 745.86,-184.02"/>
+</g>
+<!-- proc~initialize~3 -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_node16" class="node">
+<title>proc~initialize~3</title>
+<g id="a_proc~~get_v2d_netcdf_r4~~CallsGraph_node16"><a xlink:href="../proc/initialize~3.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="812,-76 755,-76 755,-52 812,-52 812,-76"/>
+<text text-anchor="middle" x="783.5" y="-61.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~3 -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~3</title>
+<path fill="none" stroke="#7f00ff" d="M719.13,-64C727.88,-64 736.59,-64 744.63,-64"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="744.77,-67.5 754.77,-64 744.77,-60.5 744.77,-67.5"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0066ff" d="M543.47,-57.81C553.98,-58.41 564.92,-59.04 575.62,-59.65"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="575.61,-63.16 585.79,-60.23 576.01,-56.17 575.61,-63.16"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#cc00ff" d="M507.8,-108C536.52,-119.2 579.56,-135.97 611.05,-148.24"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="609.84,-151.52 620.43,-151.89 612.38,-145 609.84,-151.52"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_v2d_netcdf_r4~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#cc00ff" d="M542.47,-83.99C553.36,-82 564.73,-79.91 575.84,-77.88"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="576.74,-81.27 585.95,-76.02 575.48,-74.38 576.74,-81.27"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocget_v2d_netcdf_r4CallsGraph = svgPanZoom('#procget_v2d_netcdf_r4CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~get_v2d_netcdf_r4~~CalledByGraph Pages: 1 -->
+<svg id="procget_v2d_netcdf_r4CalledByGraph" width="251pt" height="32pt"
+ viewBox="0.00 0.00 251.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_v2d_netcdf_r4~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~get_v2d_netcdf_r4~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 247,-28 247,4 -4,4"/>
+<!-- proc~get_v2d_netcdf_r4 -->
+<g id="proc~~get_v2d_netcdf_r4~~CalledByGraph_node1" class="node">
+<title>proc~get_v2d_netcdf_r4</title>
+<polygon fill="none" stroke="black" points="243,-24 130,-24 130,0 243,0 243,-24"/>
+<text text-anchor="middle" x="186.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_v2d_netcdf_R4</text>
+</g>
+<!-- interface~get_v2d_netcdf -->
+<g id="proc~~get_v2d_netcdf_r4~~CalledByGraph_node2" class="node">
+<title>interface~get_v2d_netcdf</title>
+<g id="a_proc~~get_v2d_netcdf_r4~~CalledByGraph_node2"><a xlink:href="../interface/get_v2d_netcdf.html" xlink:title="get_v2d_netcdf">
+<polygon fill="#a7506f" stroke="#a7506f" points="94,-24 0,-24 0,0 94,0 94,-24"/>
+<text text-anchor="middle" x="47" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_v2d_netcdf</text>
+</a>
+</g>
+</g>
+<!-- interface~get_v2d_netcdf&#45;&gt;proc~get_v2d_netcdf_r4 -->
+<g id="proc~~get_v2d_netcdf_r4~~CalledByGraph_edge1" class="edge">
+<title>interface~get_v2d_netcdf&#45;&gt;proc~get_v2d_netcdf_r4</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M94.17,-12C102.36,-12 111.02,-12 119.63,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="119.67,-15.5 129.67,-12 119.67,-8.5 119.67,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">get_v2d_netcdf_R4</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="k">array</span><span class="p">,</span><span class="w"> </span><span class="n">Xdim</span><span class="p">,</span><span class="w"> </span><span class="n">Ydim</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">    </span><span class="k">use </span><span class="n">netcdf</span>
+<span class="w">    </span><span class="k">implicit none</span>
+<span class="k">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Xdim</span><span class="p">,</span><span class="w"> </span><span class="n">Ydim</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(</span><span class="n">Xdim</span><span class="p">,</span><span class="n">Ydim</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">array</span>
+<span class="k">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ncid</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span>
+<span class="w">    </span><span class="kt">real</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">scale_factor</span><span class="p">,</span><span class="w"> </span><span class="n">add_offset</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iret</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">check_nc_status</span><span class="p">(</span><span class="n">nf90_open</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">fileName</span><span class="p">),</span><span class="w"> </span><span class="n">NF90_NOWRITE</span><span class="p">,</span><span class="w"> </span><span class="n">ncid</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">check_nc_status</span><span class="p">(</span><span class="n">nf90_inq_varid</span><span class="p">(</span><span class="n">ncid</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">check_nc_status</span><span class="p">(</span><span class="n">nf90_get_var</span><span class="p">(</span><span class="n">ncid</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="p">,</span><span class="w"> </span><span class="k">array</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">iret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nf90_get_att</span><span class="p">(</span><span class="n">ncid</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;scale_factor&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">scale_factor</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">iret</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">array</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">scale_factor</span>
+<span class="w">    </span><span class="c">!</span>
+<span class="w">    </span><span class="n">iret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nf90_get_att</span><span class="p">(</span><span class="n">ncid</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;add_offset&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">add_offset</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">iret</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">array</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">add_offset</span>
+<span class="w">    </span><span class="c">!</span>
+<span class="w">    </span><span class="k">call </span><span class="n">check_nc_status</span><span class="p">(</span><span class="n">nf90_close</span><span class="p">(</span><span class="n">ncid</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">get_v2d_netcdf_R4</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-24T19:05:02.375352             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,883 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MaskSamplerGeosat_from_config &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MaskSamplerGeosat_from_config
+      <small>Interface</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">52 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_GeosatMaskMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_geosatmaskmod.f90.html'>MAPL_GeosatMaskMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/masksamplergeosatmod.html'>MaskSamplerGeosatMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MaskSamplerGeosat_from_config</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+    <em>None</em>
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+      <h2>interface</h2>
+      <p>module function create_new_bundle(this,rc) result(new_bundle)
+  class(MaskSamplerGeosat), intent(inout) :: this
+  type(ESMF_FieldBundle)                  :: new_bundle
+  integer, optional, intent(out)          :: rc
+end function create_new_bundle</p>
+<p>module subroutine  add_metadata(this,currTime,rc)</p>
+      <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: interface~~masksamplergeosat_from_config~~CallsGraph Pages: 1 -->
+<svg id="interfacemasksamplergeosat_from_configCallsGraph" width="641pt" height="233pt"
+ viewBox="0.00 0.00 641.00 233.14" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph" class="graph" transform="scale(0.58 0.58) rotate(0) translate(4 395)">
+<title>interface~~masksamplergeosat_from_config~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-395 1093,-395 1093,4 -4,4"/>
+<!-- interface~masksamplergeosat_from_config -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_node1" class="node">
+<title>interface~masksamplergeosat_from_config</title>
+<polygon fill="none" stroke="black" points="190,-206 0,-206 0,-182 190,-182 190,-206"/>
+<text text-anchor="middle" x="95" y="-191.6" font-family="Helvetica,sans-Serif" font-size="10.50">MaskSamplerGeosat_from_config</text>
+</g>
+<!-- proc~masksamplergeosat_from_config -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_node2" class="node">
+<title>proc~masksamplergeosat_from_config</title>
+<g id="a_interface~~masksamplergeosat_from_config~~CallsGraph_node2"><a xlink:href="../proc/masksamplergeosat_from_config.html" xlink:title="MaskSamplerGeosat_from_config">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="416,-206 226,-206 226,-182 416,-182 416,-206"/>
+<text text-anchor="middle" x="321" y="-191.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaskSamplerGeosat_from_config</text>
+</a>
+</g>
+</g>
+<!-- interface~masksamplergeosat_from_config&#45;&gt;proc~masksamplergeosat_from_config -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge1" class="edge">
+<title>interface~masksamplergeosat_from_config&#45;&gt;proc~masksamplergeosat_from_config</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M190.02,-194C198.54,-194 207.2,-194 215.8,-194"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="215.86,-197.5 225.86,-194 215.86,-190.5 215.86,-197.5"/>
+</g>
+<!-- ESMF_ClockGet -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_node3" class="node">
+<title>ESMF_ClockGet</title>
+<g id="a_interface~~masksamplergeosat_from_config~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_clockget.html" xlink:title="ESMF_ClockGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="594.5,-391 500.5,-391 500.5,-367 594.5,-367 594.5,-391"/>
+<text text-anchor="middle" x="547.5" y="-376.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ClockGet</text>
+</a>
+</g>
+</g>
+<!-- proc~masksamplergeosat_from_config&#45;&gt;ESMF_ClockGet -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge2" class="edge">
+<title>proc~masksamplergeosat_from_config&#45;&gt;ESMF_ClockGet</title>
+<path fill="none" stroke="#ff0000" d="M327.91,-206.23C343.49,-237.08 388.88,-318.46 452,-358 463.46,-365.18 477.06,-369.92 490.31,-373.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="489.84,-376.52 500.34,-375.14 491.27,-369.67 489.84,-376.52"/>
+</g>
+<!-- ESMF_ConfigGetAttribute -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_node4" class="node">
+<title>ESMF_ConfigGetAttribute</title>
+<g id="a_interface~~masksamplergeosat_from_config~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_configgetattribute.html" xlink:title="ESMF_ConfigGetAttribute">
+<polygon fill="#a7506f" stroke="#a7506f" points="620,-349 475,-349 475,-325 620,-325 620,-349"/>
+<text text-anchor="middle" x="547.5" y="-334.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ConfigGetAttribute</text>
+</a>
+</g>
+</g>
+<!-- proc~masksamplergeosat_from_config&#45;&gt;ESMF_ConfigGetAttribute -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge3" class="edge">
+<title>proc~masksamplergeosat_from_config&#45;&gt;ESMF_ConfigGetAttribute</title>
+<path fill="none" stroke="#ff0000" d="M331.24,-206.29C350.65,-231.2 398.36,-287.65 452,-316 456.23,-318.24 460.7,-320.24 465.29,-322.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="464.25,-325.37 474.85,-325.4 466.58,-318.77 464.25,-325.37"/>
+</g>
+<!-- ESMF_TimeGet -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_node5" class="node">
+<title>ESMF_TimeGet</title>
+<g id="a_interface~~masksamplergeosat_from_config~~CallsGraph_node5"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_timeget.html" xlink:title="ESMF_TimeGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="593,-307 502,-307 502,-283 593,-283 593,-307"/>
+<text text-anchor="middle" x="547.5" y="-292.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeGet</text>
+</a>
+</g>
+</g>
+<!-- proc~masksamplergeosat_from_config&#45;&gt;ESMF_TimeGet -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge4" class="edge">
+<title>proc~masksamplergeosat_from_config&#45;&gt;ESMF_TimeGet</title>
+<path fill="none" stroke="#ff0000" d="M337.88,-206.23C361.48,-223.81 407.79,-256.08 452,-274 464.54,-279.08 478.53,-283.04 491.83,-286.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="491.31,-289.56 501.82,-288.24 492.78,-282.71 491.31,-289.56"/>
+</g>
+<!-- ESMF_TimeIntervalSet -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_node6" class="node">
+<title>ESMF_TimeIntervalSet</title>
+<g id="a_interface~~masksamplergeosat_from_config~~CallsGraph_node6"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeintervalset.html" xlink:title="ESMF_TimeIntervalSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="818,-165 688,-165 688,-141 818,-141 818,-165"/>
+<text text-anchor="middle" x="753" y="-150.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeIntervalSet</text>
+</a>
+</g>
+</g>
+<!-- proc~masksamplergeosat_from_config&#45;&gt;ESMF_TimeIntervalSet -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge5" class="edge">
+<title>proc~masksamplergeosat_from_config&#45;&gt;ESMF_TimeIntervalSet</title>
+<path fill="none" stroke="#ff0000" d="M416.1,-185.03C494.71,-177.53 605.27,-166.99 677.75,-160.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="678.1,-163.56 687.72,-159.13 677.43,-156.59 678.1,-163.56"/>
+</g>
+<!-- ESMF_TimeSet -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_node7" class="node">
+<title>ESMF_TimeSet</title>
+<g id="a_interface~~masksamplergeosat_from_config~~CallsGraph_node7"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeset.html" xlink:title="ESMF_TimeSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="592.5,-67 502.5,-67 502.5,-43 592.5,-43 592.5,-67"/>
+<text text-anchor="middle" x="547.5" y="-52.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeSet</text>
+</a>
+</g>
+</g>
+<!-- proc~masksamplergeosat_from_config&#45;&gt;ESMF_TimeSet -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge6" class="edge">
+<title>proc~masksamplergeosat_from_config&#45;&gt;ESMF_TimeSet</title>
+<path fill="none" stroke="#ff0000" d="M332.5,-181.79C353.07,-158.65 401.13,-108.26 452,-81 464.43,-74.34 478.72,-69.26 492.36,-65.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="493.35,-68.81 502.14,-62.89 491.58,-62.03 493.35,-68.81"/>
+</g>
+<!-- interface~mapl_am_i_root -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_node8" class="node">
+<title>interface~mapl_am_i_root</title>
+<g id="a_interface~~masksamplergeosat_from_config~~CallsGraph_node8"><a xlink:href="../interface/mapl_am_i_root.html" xlink:title="MAPL_Am_I_Root">
+<polygon fill="#a7506f" stroke="#a7506f" points="598.5,-25 496.5,-25 496.5,-1 598.5,-1 598.5,-25"/>
+<text text-anchor="middle" x="547.5" y="-10.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root</text>
+</a>
+</g>
+</g>
+<!-- proc~masksamplergeosat_from_config&#45;&gt;interface~mapl_am_i_root -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge7" class="edge">
+<title>proc~masksamplergeosat_from_config&#45;&gt;interface~mapl_am_i_root</title>
+<path fill="none" stroke="#ff0000" d="M328.22,-181.63C344.22,-151.2 389.89,-72.39 452,-34 462.28,-27.65 474.23,-23.21 486.11,-20.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="487.09,-23.47 496.04,-17.8 485.5,-16.66 487.09,-23.47"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_node9" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_interface~~masksamplergeosat_from_config~~CallsGraph_node9"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="587,-265 508,-265 508,-241 587,-241 587,-265"/>
+<text text-anchor="middle" x="547.5" y="-250.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~masksamplergeosat_from_config&#45;&gt;interface~mapl_assert -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge8" class="edge">
+<title>proc~masksamplergeosat_from_config&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M367.7,-206.01C405.6,-215.97 459.33,-230.09 497.98,-240.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="497.4,-243.72 507.96,-242.87 499.18,-236.95 497.4,-243.72"/>
+</g>
+<!-- proc~convert_twostring_2_esmfinterval -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_node10" class="node">
+<title>proc~convert_twostring_2_esmfinterval</title>
+<g id="a_interface~~masksamplergeosat_from_config~~CallsGraph_node10"><a xlink:href="../proc/convert_twostring_2_esmfinterval.html" xlink:title="convert_twostring_2_esmfinterval">
+<polygon fill="#d9534f" stroke="#d9534f" points="643,-147 452,-147 452,-123 643,-123 643,-147"/>
+<text text-anchor="middle" x="547.5" y="-132.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">convert_twostring_2_esmfinterval</text>
+</a>
+</g>
+</g>
+<!-- proc~masksamplergeosat_from_config&#45;&gt;proc~convert_twostring_2_esmfinterval -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge9" class="edge">
+<title>proc~masksamplergeosat_from_config&#45;&gt;proc~convert_twostring_2_esmfinterval</title>
+<path fill="none" stroke="#ff0000" d="M367.7,-181.99C403.24,-172.65 452.72,-159.65 490.61,-149.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="491.7,-153.02 500.48,-147.09 489.92,-146.25 491.7,-153.02"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_node11" class="node">
+<title>proc~mapl_return</title>
+<g id="a_interface~~masksamplergeosat_from_config~~CallsGraph_node11"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="794,-207 712,-207 712,-183 794,-183 794,-207"/>
+<text text-anchor="middle" x="753" y="-192.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~masksamplergeosat_from_config&#45;&gt;proc~mapl_return -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge10" class="edge">
+<title>proc~masksamplergeosat_from_config&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M416.1,-194.22C503.91,-194.42 631.58,-194.72 701.52,-194.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="701.82,-198.38 711.83,-194.91 701.83,-191.38 701.82,-198.38"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_node12" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_interface~~masksamplergeosat_from_config~~CallsGraph_node12"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="791,-123 715,-123 715,-99 791,-99 791,-123"/>
+<text text-anchor="middle" x="753" y="-108.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~masksamplergeosat_from_config&#45;&gt;proc~mapl_verify -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge11" class="edge">
+<title>proc~masksamplergeosat_from_config&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M335.95,-181.78C358.49,-162.93 405.15,-127.51 452,-114 538.34,-89.1 644.55,-96.4 704.64,-103.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="704.23,-107.28 714.6,-105.08 705.13,-100.34 704.23,-107.28"/>
+</g>
+<!-- proc~mapl_am_i_root_layout -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_node14" class="node">
+<title>proc~mapl_am_i_root_layout</title>
+<g id="a_interface~~masksamplergeosat_from_config~~CallsGraph_node14"><a xlink:href="../proc/mapl_am_i_root_layout.html" xlink:title="MAPL_Am_I_Root_Layout">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="824.5,-66 681.5,-66 681.5,-42 824.5,-42 824.5,-66"/>
+<text text-anchor="middle" x="753" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root_Layout</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_layout -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge12" class="edge">
+<title>interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_layout</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M598.54,-23.08C623.8,-28.17 654.85,-34.43 682.4,-39.98"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="681.88,-43.44 692.37,-41.99 683.26,-36.58 681.88,-43.44"/>
+</g>
+<!-- proc~mapl_am_i_root_vm -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_node15" class="node">
+<title>proc~mapl_am_i_root_vm</title>
+<g id="a_interface~~masksamplergeosat_from_config~~CallsGraph_node15"><a xlink:href="../proc/mapl_am_i_root_vm.html" xlink:title="MAPL_Am_I_Root_Vm">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="815.5,-24 690.5,-24 690.5,0 815.5,0 815.5,-24"/>
+<text text-anchor="middle" x="753" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root_Vm</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_vm -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge13" class="edge">
+<title>interface~mapl_am_i_root&#45;&gt;proc~mapl_am_i_root_vm</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M598.54,-12.75C623.07,-12.63 653.05,-12.49 679.98,-12.35"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="680.15,-15.85 690.14,-12.3 680.12,-8.85 680.15,-15.85"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_node16" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_interface~~masksamplergeosat_from_config~~CallsGraph_node16"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="820,-249 686,-249 686,-225 820,-225 820,-249"/>
+<text text-anchor="middle" x="753" y="-234.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge14" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M587.26,-249.95C612.23,-247.99 645.54,-245.37 675.67,-243"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="676.06,-246.48 685.75,-242.21 675.51,-239.5 676.06,-246.48"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_node17" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_interface~~masksamplergeosat_from_config~~CallsGraph_node17"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="827,-291 679,-291 679,-267 827,-267 827,-291"/>
+<text text-anchor="middle" x="753" y="-276.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge15" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M587.26,-257.95C610.26,-260.89 640.35,-264.74 668.51,-268.33"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="668.42,-271.85 678.78,-269.65 669.31,-264.91 668.42,-271.85"/>
+</g>
+<!-- proc~convert_twostring_2_esmfinterval&#45;&gt;ESMF_TimeIntervalSet -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge16" class="edge">
+<title>proc~convert_twostring_2_esmfinterval&#45;&gt;ESMF_TimeIntervalSet</title>
+<path fill="none" stroke="#3200ff" d="M643.1,-143.37C654.7,-144.39 666.43,-145.43 677.67,-146.43"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="677.58,-149.93 687.85,-147.33 678.19,-142.96 677.58,-149.93"/>
+</g>
+<!-- proc~convert_twostring_2_esmfinterval&#45;&gt;proc~mapl_return -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge17" class="edge">
+<title>proc~convert_twostring_2_esmfinterval&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#3200ff" d="M588.45,-147.05C614.26,-154.82 648.59,-165.08 679,-174 686.47,-176.19 694.39,-178.49 702.13,-180.73"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="701.24,-184.11 711.82,-183.52 703.18,-177.39 701.24,-184.11"/>
+</g>
+<!-- proc~convert_twostring_2_esmfinterval&#45;&gt;proc~mapl_verify -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge18" class="edge">
+<title>proc~convert_twostring_2_esmfinterval&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#3200ff" d="M643.1,-123.84C664.37,-121.33 686.06,-118.78 704.42,-116.61"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="705.02,-120.06 714.54,-115.42 704.2,-113.11 705.02,-120.06"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_node13" class="node">
+<title>proc~get_error_message</title>
+<g id="a_interface~~masksamplergeosat_from_config~~CallsGraph_node13"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="987,-281 872,-281 872,-257 987,-257 987,-281"/>
+<text text-anchor="middle" x="929.5" y="-266.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#cc00ff" d="M794.02,-204.58C804.91,-207.71 816.57,-211.54 827,-216 844.03,-223.28 846.67,-228.26 863,-237 872.81,-242.25 883.61,-247.67 893.55,-252.52"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="892.25,-255.77 902.77,-256.97 895.29,-249.47 892.25,-255.77"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_node18" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_interface~~masksamplergeosat_from_config~~CallsGraph_node18"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="996,-228 863,-228 863,-204 996,-204 996,-228"/>
+<text text-anchor="middle" x="929.5" y="-213.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#cc00ff" d="M794.03,-199.82C811.42,-201.91 832.39,-204.43 852.54,-206.86"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="852.32,-210.36 862.66,-208.08 853.15,-203.41 852.32,-210.36"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff0098" d="M791.16,-118.53C803.01,-121.75 815.92,-126.15 827,-132 859.36,-149.08 890.91,-177.61 910.02,-196.62"/>
+<polygon fill="#ff0098" stroke="#ff0098" points="907.67,-199.22 917.19,-203.87 912.65,-194.3 907.67,-199.22"/>
+</g>
+<!-- at -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_node19" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1087.5,-317 1033.5,-317 1033.5,-293 1087.5,-293 1087.5,-317"/>
+<text text-anchor="middle" x="1060.5" y="-302.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge22" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M973.81,-281.09C990.03,-285.61 1008.25,-290.7 1023.7,-295.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1022.84,-298.4 1033.41,-297.72 1024.72,-291.66 1022.84,-298.4"/>
+</g>
+<!-- insert -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_node20" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1087.5,-275 1033.5,-275 1033.5,-251 1087.5,-251 1087.5,-275"/>
+<text text-anchor="middle" x="1060.5" y="-260.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge23" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ff0000" d="M987.08,-266.37C999.29,-265.8 1011.89,-265.21 1023.08,-264.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1023.49,-268.18 1033.32,-264.22 1023.17,-261.19 1023.49,-268.18"/>
+</g>
+<!-- interface~mapl_am_i_rank -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_node21" class="node">
+<title>interface~mapl_am_i_rank</title>
+<g id="a_interface~~masksamplergeosat_from_config~~CallsGraph_node21"><a xlink:href="../interface/mapl_am_i_rank.html" xlink:title="MAPL_Am_I_Rank">
+<polygon fill="#a7506f" stroke="#a7506f" points="981.5,-45 877.5,-45 877.5,-21 981.5,-21 981.5,-45"/>
+<text text-anchor="middle" x="929.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Rank</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_am_i_root_layout&#45;&gt;interface~mapl_am_i_rank -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_am_i_root_layout&#45;&gt;interface~mapl_am_i_rank</title>
+<path fill="none" stroke="#ffff00" d="M824.72,-45.49C838.8,-43.79 853.48,-42.03 867.21,-40.38"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="867.99,-43.81 877.5,-39.14 867.15,-36.86 867.99,-43.81"/>
+</g>
+<!-- proc~mapl_am_i_root_vm&#45;&gt;interface~mapl_am_i_rank -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_am_i_root_vm&#45;&gt;interface~mapl_am_i_rank</title>
+<path fill="none" stroke="#00ff00" d="M815.52,-19.4C832.26,-21.42 850.39,-23.6 867.12,-25.61"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="866.99,-29.12 877.33,-26.84 867.82,-22.17 866.99,-29.12"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M820.47,-229C830.98,-227.74 841.92,-226.42 852.62,-225.13"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="853.28,-228.58 862.79,-223.91 852.45,-221.63 853.28,-228.58"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#0000ff" d="M827.25,-274.8C838.67,-274.15 850.43,-273.47 861.7,-272.83"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="862.11,-276.31 871.89,-272.24 861.71,-269.32 862.11,-276.31"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0000ff" d="M799.03,-266.9C808.34,-264.16 818.04,-261.13 827,-258 849.02,-250.3 873.18,-240.37 892.39,-232.1"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="893.9,-235.26 901.68,-228.07 891.11,-228.84 893.9,-235.26"/>
+</g>
+<!-- proc~initialize~3 -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_node22" class="node">
+<title>proc~initialize~3</title>
+<g id="a_interface~~masksamplergeosat_from_config~~CallsGraph_node22"><a xlink:href="../proc/initialize~3.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1089,-228 1032,-228 1032,-204 1089,-204 1089,-228"/>
+<text text-anchor="middle" x="1060.5" y="-213.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~3 -->
+<g id="interface~~masksamplergeosat_from_config~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~3</title>
+<path fill="none" stroke="#ff00ff" d="M996.13,-216C1004.88,-216 1013.59,-216 1021.63,-216"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="1021.77,-219.5 1031.77,-216 1021.77,-212.5 1021.77,-219.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var paninterfacemasksamplergeosat_from_configCallsGraph = svgPanZoom('#interfacemasksamplergeosat_from_configCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: interface~~masksamplergeosat_from_config~~CalledByGraph Pages: 1 -->
+<svg id="interfacemasksamplergeosat_from_configCalledByGraph" width="356pt" height="32pt"
+ viewBox="0.00 0.00 356.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="interface~~masksamplergeosat_from_config~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>interface~~masksamplergeosat_from_config~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 352,-28 352,4 -4,4"/>
+<!-- interface~masksamplergeosat_from_config -->
+<g id="interface~~masksamplergeosat_from_config~~CalledByGraph_node1" class="node">
+<title>interface~masksamplergeosat_from_config</title>
+<polygon fill="none" stroke="black" points="348,-24 158,-24 158,0 348,0 348,-24"/>
+<text text-anchor="middle" x="253" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MaskSamplerGeosat_from_config</text>
+</g>
+<!-- interface~masksamplergeosat -->
+<g id="interface~~masksamplergeosat_from_config~~CalledByGraph_node2" class="node">
+<title>interface~masksamplergeosat</title>
+<g id="a_interface~~masksamplergeosat_from_config~~CalledByGraph_node2"><a xlink:href="../interface/masksamplergeosat.html" xlink:title="MaskSamplerGeosat">
+<polygon fill="#a7506f" stroke="#a7506f" points="122,-24 0,-24 0,0 122,0 122,-24"/>
+<text text-anchor="middle" x="61" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaskSamplerGeosat</text>
+</a>
+</g>
+</g>
+<!-- interface~masksamplergeosat&#45;&gt;interface~masksamplergeosat_from_config -->
+<g id="interface~~masksamplergeosat_from_config~~CalledByGraph_edge1" class="edge">
+<title>interface~masksamplergeosat&#45;&gt;interface~masksamplergeosat_from_config</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M122.12,-12C130.32,-12 138.93,-12 147.64,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="147.9,-15.5 157.9,-12 147.9,-8.5 147.9,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+      <h2>private module function MaskSamplerGeosat_from_config(config, string, clock, GENSTATE, rc) result(mask)  
+    <a href="../proc/masksamplergeosat_from_config.html"><button type="button" class="btn btn-info depwarn">Implementation &rarr;</button></a>
+</h2>
+
+    
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-config~58"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_config.html'>ESMF_Config</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>config</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-string~51"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>string</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clock~57"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>clock</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-genstate~10"></span>
+              type(<a href='../type/mapl_metacomp.html'>MAPL_MetaComp</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional,</td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>GENSTATE</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1995"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value <span class="anchor" id="variable-mask~44"></span><small>type(<a href='/home/runner/work/MAPL/MAPL/docs/Ford/dev-doc/type/masksamplergeosat.html'>MaskSamplerGeosat</a>)</small></h3>
+    
+    <br>
+
+ </div>
+</div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-24T19:05:02.375352             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
