@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Allow update offsets of &#177;timestep in ExtData2G
 - Added CI build using spack
+- Minor revision (and generalization) of grid-def for GSI purposes
 
 ### Changed
 
