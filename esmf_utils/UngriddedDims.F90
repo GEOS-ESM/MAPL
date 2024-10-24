@@ -11,7 +11,6 @@ module mapl3g_UngriddedDims
    use esmf, only: ESMF_InfoCreate
    use esmf, only: ESMF_InfoSet
    use esmf, only: ESMF_InfoDestroy
-   use esmf, only: ESMF_InfoPrint
    implicit none
 
    private
