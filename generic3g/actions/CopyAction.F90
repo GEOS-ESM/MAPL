@@ -16,7 +16,7 @@ module mapl3g_CopyAction
       type(ESMF_Field) :: f_in, f_out
    contains
       procedure :: initialize
-      procedure :: run
+      procedure :: update
    end type CopyAction
 
    interface CopyAction
@@ -65,7 +65,7 @@ contains
       _UNUSED_DUMMY(clock)
    end subroutine initialize
 
-   subroutine run(this, importState, exportState, clock, rc)
+   subroutine update(this, importState, exportState, clock, rc)
       use esmf
       class(CopyAction), intent(inout) :: this
       type(ESMF_State)      :: importState
@@ -82,7 +82,7 @@ contains
       call FieldCopy(f_in, f_out, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine run
+   end subroutine update
 
 
 end module mapl3g_CopyAction
