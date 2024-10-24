@@ -46,7 +46,7 @@ jobs:
       shell: spack-bash {0}
       run: |
         spack -e spack-env mirror add mapl-buildcache oci://ghcr.io/mathomp4/mapl-buildcache
-        spack -e spack-env mirror set --oci-username ${{ github.actor }} --oci-password "${{ secrets.GITHUB_TOKEN }}" mapl-buildcache
+        spack -e spack-env mirror set --oci-username ${{ github.actor }} --oci-password "${{ secrets.BUILDCACHE_TOKEN }}" mapl-buildcache
         spack -e spack-env mirror list
         spack -e spack-env buildcache update-index mapl-buildcache
         spack -e spack-env buildcache list --all-arch
