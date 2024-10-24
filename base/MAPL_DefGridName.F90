@@ -12,10 +12,9 @@ if(mod(jm,2)==0) poletype='PE'
 llcb='-DC' ! lat-lon
 if(6*im==jm) llcb='-CF' ! cubed
 
-write(imstr,*) im
-write(jmstr,*) jm
+write(imstr,'(I0)' im
+write(jmstr,'(I0)') jm
 
-gridname=trim(poletype)//trim(adjustl(imstr))//'x'//&
-                         trim(adjustl(jmstr))//trim(llcb)
+gridname=trim(poletype)//trim(imstr) / / 'x' // & trim(jmstr) // trim(llcb)
 
 end subroutine MAPL_DefGridName
