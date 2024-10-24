@@ -27,6 +27,7 @@ jobs:
 
     - name: Login
       run: |
+        spack -e spack-env mirror add mapl-buildcache oci://ghcr.io/mathomp4/mapl-buildcache
         spack -e spack-env mirror set --oci-username ${{ github.actor }} --oci-password "${{ secrets.GITHUB_TOKEN }}" mapl-buildcache
 
     - name: Concretize
