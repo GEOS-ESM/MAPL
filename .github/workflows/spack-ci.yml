@@ -25,6 +25,15 @@ jobs:
         spack env create spack-env
         spack env activate spack-env
 
+    - name: Find compilers
+      run: |
+        spack compiler find
+
+    - name: Set default compiler and target
+      run: |
+        spack config add 'packages:all:compiler:[gcc@13.2.0]'
+        spack config add 'packages:all:require:target=x86_64_v3'
+
     - name: Login
       run: |
         spack -e spack-env mirror add mapl-buildcache oci://ghcr.io/mathomp4/mapl-buildcache
@@ -42,7 +51,9 @@ jobs:
     - name: Build with Cmake
       shell: spack-bash {0}
       run: |
-        FC=gfortran CC=gcc CXX=g++
+        FC=gfortran-13 CC=gcc-13 CXX=g++-13
+        spack -e spack-env load \
+           esmf gftl gftl-shared fargparse pflogger pfunit yafyaml ecbuild udunits
         cmake -B build -S . -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF
         cmake --build build -j 4
         cmake --install build
