@@ -11,7 +11,6 @@ module mapl3g_FieldCondensedArray
    implicit none
    private
    public :: assign_fptr_condensed_array
-   public :: get_fptr_shape
 
    interface assign_fptr_condensed_array
       module procedure :: assign_fptr_condensed_array_r4
@@ -72,6 +71,7 @@ contains
       has_vertical = spec_name /= VERTICAL_DIM_NONE_NAME
       fptr_shape = get_fptr_shape_private(gridToFieldMap, localElementCount, has_vertical, _RC)
 
+      _RETURN(_SUCCESS)
    end function get_fptr_shape
 
 end module mapl3g_FieldCondensedArray
