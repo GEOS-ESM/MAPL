@@ -8,36 +8,45 @@ module mapl3g_AccumulatorFunctions.F90
    implicit none
    private
 
-   type, abstract :: FunctionObject
-   contains
-   end type FunctionObject
-
-   type, extends(FunctionObject) :: UnaryFunctionObject
-      private
-      procedure(SubroutineR4), pointer :: ptrR4 => null()
-      procedure(SubroutineR8), pointer :: ptrR8 => null()
+   type, abstract :: UnaryFunctionObject
    contains
       generic :: eval => evalr4, evalr8
       procedure :: evalr4
       procedure :: evalr8
    end type UnaryFunctionObject
 
-   type, extends(FunctionObject) :: BinaryFunctionObject
-      private
-      procedure(FunctionR4R4), pointer :: ptrR4R4 => null()
-      procedure(FunctionR8R8), pointer :: ptrR8R8 => null()
-      procedure(FunctionR4R8), pointer :: ptrR4R8 => null()
-      logical :: check_zero = .FALSE.
+   type, abstract :: BinaryFunctionObject
    contains
       generic :: eval => evalr4r4, evalr8r8, evalr4r8
-      procedure :: evalr4r4
-      procedure :: evalr8r8
-      procedure :: evalr4r8
+      procedure(FunctionR4R4), deferred :: evalr4r4
+      procedure(FunctionR8R8), deferred :: evalr8r8
+      procedure(FunctionR4R8), deferred :: evalr4r8
    end type BinaryFunctionObject
+
+   type, abstract :: AccumulateFunctionObject
+   contains
+      generic :: eval => evalr4r4, evalr8r8
+      procedure(FunctionR4R4), deferred :: evalr4r4
+      procedure(FunctionR8R8), deferred :: evalr8r8
+   end type AccumulateFunctionObject
+
+   type, abstract :: CoupleFunctionObject
+   contains
+      generic :: eval => evalr8r8, evalr4r8
+      procedure(FunctionR8R8), deferred :: evalr8r8
+      procedure(FunctionR4R8), deferred :: evalr4r8
+   end type CoupleFunctionObject
+
+   type, abstract :: ClearFunctionObject
+   contains
+      generic :: eval => evalr4, evalr8
+      procedure :: evalr4
+      procedure :: evalr8
+   end type ClearFunctionObject
 
    abstract interface
       elemental function FunctionR4R4(lt, rt) result(ft)
-         real(kind=ESMF_KIND_R4) :: ft
+         real(=ESMF_KIND_R4) :: ft
          real(kind=ESMF_KIND_R4), intent(in) :: lt, rt
       end function FunctionR4R4
       elemental function FunctionR8R8(lt, rt) result(ft)
@@ -58,11 +67,9 @@ module mapl3g_AccumulatorFunctions.F90
    end interface
 
    type :: AccumulatorFunctions
-      class(BinaryFunctionObject), pointer :: accumulate_point_function => null()
-      class(BinaryFunctionObject), pointer :: couple_point_function => null()
-      class(UnaryFunctionObject), pointer :: increment_point_function => null()
-      class(UnaryFunctionObject), pointer :: clear_point_function => null()
-      logical :: update_on_undef = .TRUE.
+      class(AccumulateFunctionObject), pointer :: accumulate_point_function => null()
+      class(CoupleFunctionObject), pointer :: couple_point_function => null()
+      class(ClearFunctionObject), pointer :: clear_point_function => null()
    contains
       procedure :: accumulate
       procedure :: increment
@@ -84,9 +91,6 @@ contains
 
    function MeanAccumulatorFunctions() result(accfunks)
       type(AccumulatorFunctions) :: accfunks
-      type(BinaryFunctionObject), pointer :: ptrAccumulate => null()
-      type(BinaryFunctionObject), pointer :: ptrCouple => null()
-      type(UnaryFunctionObject
 
       accfunks%accumulate_point_function => AddFunctionObject()
       accfunks%couple_point_function => CoupleFunctionObject()
@@ -97,25 +101,17 @@ contains
 
    function MaxAccumulatorFunctions() result(accfunks)
       type(AccumulatorFunctions) :: accfunks
-      type(BinaryFunctionObject), pointer :: ptrAccumulate => null()
-      type(BinaryFunctionObject), pointer :: ptrCouple => null()
-      type(UnaryFunctionObject
 
       accfunks%accumulate_point_function => MaxFunctionObject()
       accfunks%clear_point_function => ClearUndefFunctionObject()
-      accfunks%update_on_undef = .FALSE.
 
    end function MaxAccumulatorFunctions
 
    function MinAccumulatorFunctions() result(accfunks)
       type(AccumulatorFunctions) :: accfunks
-      type(BinaryFunctionObject), pointer :: ptrAccumulate => null()
-      type(BinaryFunctionObject), pointer :: ptrCouple => null()
-      type(UnaryFunctionObject
 
       accfunks%accumulate_point_function => MinFunctionObject()
       accfunks%clear_point_function => ClearUndefFunctionObject()
-      accfunks%update_on_undef = .FALSE.
 
    end function MinAccumulatorFunctions
 
@@ -152,11 +148,13 @@ contains
       
       fob%ptrR4R4 => AddR4R4
       fob%ptrR8R8 => AddR8R8
+      fob%keep_on_undef = .FALSE.
 
    end function AddFunctionObject
 
    function MaxFunctionObject() result(fob)
       type(BinaryFunctionObject) :: fob
+      logical, optional, intent(in) :: keep_on_undef
       
       fob%ptrR4R4 => MaxR4R4
       fob%ptrR8R8 => MaxR8R8
@@ -176,6 +174,8 @@ contains
       
       fob%ptrR4R4 => DivideR4R8
       fob%ptrR8R8 => DivideR8R8
+      fob%keep_on_undef = .FALSE.
+      fob%check_zero = .TRUE.
 
    end function CoupleFunctionObject
 
@@ -249,84 +249,68 @@ contains
 
    end evalr8r8
 
-   function MaxR4R4(lt, rt, rc) result(ft)
+   elemental function MaxR4R4(lt, rt) result(ft)
       real(kind=ESMF_KIND_R4) :: ft
       real(kind=ESMF_KIND_R4), intent(in) :: lt, rt
-      integer, optional, intent(out) :: rc
 
       ft = max(lt, rt)
-      _RETURN(_SUCCESS)
 
    end function MaxR4R4
 
-   function MaxR8R8(lt, rt, rc) result(ft)
+   elemental function MaxR8R8(lt, rt) result(ft)
       real(kind=ESMF_KIND_R8) :: ft
       real(kind=ESMF_KIND_R8), intent(in) :: lt, rt
-      integer, optional, intent(out) :: rc
 
       ft = max(lt, rt)
-      _RETURN(_SUCCESS)
 
    end function MaxR8R8
 
-   function MinR4R4(lt, rt, rc) result(ft)
+   elemental function MinR4R4(lt, rt) result(ft)
       real(kind=ESMF_KIND_R4) :: ft
       real(kind=ESMF_KIND_R4), intent(in) :: lt, rt
-      integer, optional, intent(out) :: rc
 
       ft = min(lt, rt)
-      _RETURN(_SUCCESS)
 
    end function MinR4R4
 
-   function MinR8R8(lt, rt, rc) result(ft)
+   elemental function MinR8R8(lt, rt) result(ft)
       real(kind=ESMF_KIND_R8) :: ft
       real(kind=ESMF_KIND_R8), intent(in) :: lt, rt
-      integer, optional, intent(out) :: rc
 
       ft = min(lt, rt)
-      _RETURN(_SUCCESS)
 
    end function MinR8R8
 
-   function AddR4R4(lt, rt, rc) result(ft)
+   elemental function AddR4R4(lt, rt) result(ft)
       real(kind=ESMF_KIND_R4) :: ft
       real(kind=ESMF_KIND_R4), intent(in) :: lt, rt
-      integer, optional, intent(out) :: rc
 
       ft = lt + rt
-      _RETURN(_SUCCESS)
 
    end function AddR4R4
 
-   function AddR8R8(lt, rt, rc) result(ft)
+   elemental function AddR8R8(lt, rt) result(ft)
       real(kind=ESMF_KIND_R8) :: ft
       real(kind=ESMF_KIND_R8), intent(in) :: lt, rt
-      integer, optional, intent(out) :: rc
 
       ft = lt + rt
-      _RETURN(_SUCCESS)
 
    end function AddR8R8
 
-   function DivideR4R8(lt, rt, rc) result(ft)
+   elemental function DivideR4R8(lt, rt) result(ft)
       real(kind=ESMF_KIND_R4) :: ft
       real(kind=ESMF_KIND_R4), intent(in) :: lt
       real(kind=ESMF_KIND_R8), intent(in) :: rt
-      integer, optional, intent(out) :: rc
 
       ft = real(lt / rt, kind=ESMF_KIND_R4)
-      _RETURN(_SUCCESS)
 
    end function DivideR4R8
 
-   function DivideR8R8(lt, rt, rc) result(ft)
+   elemental function DivideR8R8(lt, rt) result(ft)
       real(kind=ESMF_KIND_R8) :: ft
       real(kind=ESMF_KIND_R8), intent(in) :: lt, rt
-      integer, optional, intent(out) :: rc
 
       ft = lt / rt
-      _RETURN(_SUCCESS)
 
    end function DivideR8R8
 
@@ -382,75 +366,73 @@ contains
       type(BinaryFunctionObject) :: fob => null()
       type(ESMF_TypeKind_Flag) :: tk_left
       type(ESMF_TypeKind_Flag) :: tk_right
-      logical :: conformable
 
-      fob => this%accumulate_point_function
       
-      conformable = FieldsAreConformable(field, update,_RC)
-      _ASSERT(conformable,"Result field is not conformable with update field.")
       call ESMF_FieldGet(field,typekind=tk_left,_RC)
       call ESMF_FieldGet(update,typekind=tk_right,_RC)
       _ASSERT(tk_left == tk_right, "Field typekind does not match update typekind.")
-
-      if(tk_left == ESMF_TypeKind_R4 .and. tk_right == ESMF_TypeKind_R4) then
-         call set_r4r4(_RC)
-      else if(tk_left == ESMF_TypeKind_R8 .and. tk_right == ESMF_TypeKind_R8) then
-         call set_r8r8(_RC)
-      else
-          _FAIL("unsupported type")
-      end if
+      fob => this%accumulate_point_function
+      call set_field_binary(fob, left, right, tk_left, _RC)
       _RETURN(_SUCCESS)
       
    end subroutine accumulate
 
-   subroutine set_field_binary_same(fob, left, right, rc)
+   subroutine set_field_binary(fob, left, right, tk_left, tk_right, rc)
       type(BinaryFunctionObject), intent(in) :: fob
       type(ESMF_Field), intent(inout) :: left, right
+      type(ESMF_TypeKind_Flag), intent(in) :: tk_left
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: tk_right
       integer, optional, intent(out) :: rc
       integer :: status
-
-      type(ESMF_TypeKind_Flag) :: tk_left
-      type(ESMF_TypeKind_Flag) :: tk_right
       logical :: conformable
-
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: tk_right_
+      
       conformable = FieldsAreConformable(left, right,_RC)
       _ASSERT(conformable,"Left field is not conformable with right field.")
-      call ESMF_FieldGet(left,typekind=tk_left,_RC)
-      call ESMF_FieldGet(right,typekind=tk_right,_RC)
-      _ASSERT(tk_left == tk_right, "Left typekind does not match right typekind.")
+      
+      tk_right_ = tk_left
+      if(present(tk_right)) tk_right_ = tk_right
 
-      if(tk_left == ESMF_TypeKind_R4 .and. tk_right == ESMF_TypeKind_R4) then
+      if(tk == ESMF_TypeKind_R4 .and. tk_right == ESMF_TypeKind_R4) then
          call set_r4r4(_RC)
-      else if(tk_left == ESMF_TypeKind_R8 .and. tk_right == ESMF_TypeKind_R8) then
-         call set_r8r8(_RC)
-      else
-          _FAIL("unsupported type")
+         _RETURN(_SUCCESS)
       end if
-      _RETURN(_SUCCESS)
 
-   contains
+      if(tk_left == ESMF_TypeKind_R8 .and. tk_right == ESMF_TypeKind_R8) then
+         call set_r8r8(_RC)
+         _RETURN(_SUCCESS)
+      end if
 
-      subroutine set_r4r4(rc)
-         integer, optional, intent(out) :: rc
-         integer :: status
-         integer :: kind
+      if(tk_left == ESMF_TypeKind_R4 .and. tk_right == ESMF_TypeKind_R8) then
+         call set_r4r8(_RC)
+         _RETURN(_SUCCESS)
+      end if
 
-         kind = ESMF_KIND_R4
-         real(kind=kind), pointer :: ptr_left(:) => null()
-         real(kind=kind), pointer :: ptr_right(:) => null()
-         real(kind=kind) :: undef(2)
+      _FAIL("unsupported type")
 
-         call GetFieldsUndef([left, right], undef, _RC)
-         call assign_fptr(left,ptr_left,_RC)
-         call assign_fptr(right,ptr_right,_RC)
-         where(
-            ptr_out = _OUT_VAL
-         elsewhere
-            ptr_out = _OUT_VAL_UNDEF
-         end where
    end subroutine set_field_binary_same
 
-   subroutine set_r4_r4(
+   subroutine set_r4r4(left, right, fob, rc)
+      type(ESMF_Field), intent(in) :: left, right
+      type(BinaryFunctionObject), intent(in) :: fob
+      integer, optional, intent(out) :: rc
+      integer :: status
+      integer, parameter :: KIND_ = ESMF_KIND_R4
+      logical :: ignore_zero, set_on_undef
+      real(kind=KIND_), pointer :: ptr_left(:) => null()
+      real(kind=KIND_), pointer :: ptr_right(:) => null()
+      real(kind=KIND_) :: undef(2)
+
+      ignore_zero = .not. fob%check_zero
+      set_on_undef = .not. fob%keep_on_undef
+      call GetFieldsUndef([left, right], undef, _RC)
+      call assign_fptr(left,ptr_left,_RC)
+      call assign_fptr(right,ptr_right,_RC)
+      where(ptr_left /= undef(1) .and. ptr_right /= undef(2) .and. (ignore_zero .or. ptr_right /= 0.0_ESMF_KIND_R4))
+         ptr_left = fob%eval(ptr_left, ptr_right)
+      elsewhere
+         if(set_on_undef) ptr_left = _OUT_VAL_UNDEF
+      end where
       
    subroutine increment(this, field, rc)
       class(AccumulatorFunctions), intent(inout) :: this
