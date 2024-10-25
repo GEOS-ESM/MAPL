@@ -66,6 +66,9 @@ jobs:
       shell: spack-bash {0}
       run: |
         FC=gfortran-13 CC=gcc-13 CXX=g++-13
+        ${FC} --version
+        ${CC} --version
+        ${CXX} --version
         spack -e spack-env load \
            esmf gftl gftl-shared fargparse pflogger pfunit yafyaml ecbuild udunits
         cmake -B build -S . -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF
