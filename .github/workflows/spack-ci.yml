@@ -69,6 +69,7 @@ jobs:
         spack load \
            esmf gftl gftl-shared fargparse pflogger pfunit yafyaml ecbuild udunits
         spack find --loaded
+        FC=gfortran-13 CC=gcc-13 CXX=g++-13
         cmake -B build -S . -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF -DCMAKE_Fortran_COMPILER=${FC} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX}
         cmake --build build -j 4
         cmake --install build
