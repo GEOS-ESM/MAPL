@@ -98,7 +98,6 @@ contains
       integer :: status
       type(ESMF_Field) :: f_in, f_out
       real(ESMF_KIND_R4), pointer :: x_in(:,:,:), x_out(:,:,:)
-      real(ESMF_KIND_R4), pointer :: v_in(:), v_out(:)
       integer :: x_shape(3), horz, ungridded
 
       ! if (associated(this%v_in_coupler)) then
