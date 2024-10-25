@@ -1,3 +1,4 @@
+! THIS WILL PROBABLY GO AWAY
 #define _NAME field
 #if defined(_KIND)
 #   undef _KIND

@@ -1,3 +1,5 @@
+! THIS WILL PROBABLY GO AWAY
+
 #define _LEFT_KIND _KIND(_LEFTK)
 #define _VAL_KIND _LEFT_KIND
 #if defined(_RIGHTK)
