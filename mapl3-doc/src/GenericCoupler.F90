@@ -1,11 +1,15 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_GenericCoupler
+
+   use mapl3g_CouplerPhases
    use mapl3g_CouplerMetaComponent
    use mapl3g_ExtensionAction
+   use mapl3g_VerticalRegridAction
    use mapl3g_GriddedComponentDriver
    use mapl_ErrorHandlingMod
    use esmf
+
    implicit none
    private
 

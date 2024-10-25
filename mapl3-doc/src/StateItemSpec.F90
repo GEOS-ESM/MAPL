@@ -82,11 +82,12 @@ module mapl3g_StateItemSpec
       end subroutine I_adapt_one
 
       ! Detect if "this" matches attribute in spec.
-      logical function I_match_one(this, spec) result(match)
+      logical function I_match_one(this, spec, rc) result(match)
          import StateItemAdapter
          import StateItemSpec
          class(StateItemAdapter), intent(in) :: this
          class(StateItemSpec), intent(in) :: spec
+         integer, optional, intent(out) :: rc
       end function I_match_one
 
       subroutine I_connect(this, src_spec, actual_pt, rc)

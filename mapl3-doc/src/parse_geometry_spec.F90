@@ -93,12 +93,11 @@ contains
 
       if (has_vertical_grid) then
          vertical_grid_class = ESMF_HConfigAsString(vertical_grid_cfg, keyString='class', _RC)
-         _ASSERT(vertical_grid_class == 'basic', 'unsupported class of vertical grid')
          select case(vertical_grid_class)
          case('basic')
             num_levels = ESMF_HConfigAsI4(vertical_grid_cfg, keyString='num_levels', _RC)
             vertical_grid = BasicVerticalGrid(num_levels)
-         case('fixedlevels')
+         case('fixed_levels')
             standard_name = ESMF_HConfigAsString(vertical_grid_cfg, keyString='standard_name', _RC)
             units = ESMF_HConfigAsString(vertical_grid_cfg, keyString='units', _RC)
             levels = ESMF_HConfigAsR4Seq(vertical_grid_cfg, keyString='levels' ,_RC)
