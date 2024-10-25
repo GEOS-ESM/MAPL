@@ -65,13 +65,11 @@ jobs:
     - name: Build with Cmake
       shell: spack-bash {0}
       run: |
-        FC=gfortran-13 CC=gcc-13 CXX=g++-13
-        ${FC} --version
-        ${CC} --version
-        ${CXX} --version
-        spack -e spack-env load \
+        spack env status
+        spack load \
            esmf gftl gftl-shared fargparse pflogger pfunit yafyaml ecbuild udunits
-        cmake -B build -S . -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF
+        spack find --loaded
+        cmake -B build -S . -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF -DCMAKE_Fortran_COMPILER=${FC} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX}
         cmake --build build -j 4
         cmake --install build
 
