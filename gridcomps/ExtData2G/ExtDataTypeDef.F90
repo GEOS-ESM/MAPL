@@ -77,6 +77,24 @@ module MAPL_ExtDataTypeDef
      type(ESMF_Time), allocatable :: start_end_time(:)
      logical :: initialized = .false.
      logical :: fail_on_missing_file = .true.
+
+     ! vertical description, abstract type and extensions or just 2 types?
+     ! type(model_sigma)
+     !   integer :: item_with_ps
+     !   integer :: num_levels
+     !   real, allocatable :: ak(:),bk(:)
+     !   character(len=:), allocatable :: positive
+     !   character(len=:), allocatable :: level_center_name
+     !   character(len=:), allocatable :: level_edge_name
+     ! type(basic_level)
+     !   integer :: num_levels
+     !   character(len=:), allocatable :: positive
+     !   character(len=:), allocatable :: level_center_name
+     ! type(fixed_level)
+     !   integer :: num_levels
+     !   character(len=:), allocatable :: positive
+     !   character(len=:), allocatable :: level_center_name
+     !   real, allocatable :: levels(:)
   end type PrimaryExport
   
   type DerivedExport

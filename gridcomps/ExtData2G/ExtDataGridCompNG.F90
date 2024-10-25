@@ -453,7 +453,7 @@ CONTAINS
          call self%primary%item_vec%push_back(new_item)
          ! make a new name ps_importname, if that's not already in import names
          call create_ps_field(new_item, self%ExtDataState, item, time, _RC)
-         item%havePressure=.false. 
+         item%havePressure=.false. !bmaa remove this
       enddo
 
       num_rules = self%primary%number_of_rules%of(i)
