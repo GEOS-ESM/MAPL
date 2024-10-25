@@ -9,15 +9,79 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Allow update offsets of &#177;timestep in ExtData2G
+- Minor revision (and generalization) of grid-def for GSI purposes
+
 ### Changed
 
-- ExtDataDriver.x now uses ExtData2G by default
+- Update ESMF version for Baselibs to match that of Spack for consistency
+- Update `components.yaml`
+  - ESMA_env v4.32.0
+    - Baselibs 7.27.0
+      - ESMF 8.7.0
+      - curl 8.10.1
+      - NCO 5.2.8
+      - CDO 2.4.4
+      - GSL 2.8
+      - jpeg 9f
+      - Various build fixes
+  - ESMA_cmake v3.52.0
+    - Fixes for using MAPL as a library in spack builds of GEOSgcm
+    - Various backports from v4
 
 ### Fixed
+
+- Fixed issue of some Baselibs builds appearing to support zstandard. This is not possible due to Baselibs building HDF5 and netCDF as static libraries
 
 ### Removed
 
 ### Deprecated
+
+## [2.50.1] - 2024-10-18
+
+### Fixed
+
+- Fixed unitialized variable bug in ExtData exposed by gfortran
+
+## [2.50.0] - 2024-10-10
+
+### Added
+
+- Added `MAPL_Reverse_Schmidt` to reverse the stretched grid for indices computation
+
+### Changed
+
+- Propagated the error message from `MAPL_HorzIJIndex` subroutine
+- Updated minimum CMake version to 3.23
+
+### Fixed
+
+- Trapped more errors from Extdata's i-server
+
+## [2.49.1] - 2024-10-07
+
+### Fixed
+
+- Removed erroneous asserts that blocked some use cases in creating route handles
+
+## [2.49.0] - 2024-10-04
+
+### Added
+
+- Added zstandard compression support
+  - Note this requires netCDF-C to have been compiled with zstandard support. We have a CMake test to check for this
+    and enabling zstandard output in History will fail if the library does not support it
+
+### Changed
+
+- ExtDataDriver.x now uses ExtData2G by default
+- Update `components.yaml`
+  - ecbuild geos/v1.4.0
+    - Fixes bug between GCC, macOS, and the `-pipe` flag
+
+### Fixed
+
+- Workaround for NVHPC 24.9 involving `use` statement in `block` construct
 
 ## [2.48.0] - 2024-09-24
 

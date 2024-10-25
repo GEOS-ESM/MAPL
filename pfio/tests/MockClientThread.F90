@@ -53,17 +53,18 @@ contains
       if(present(sckt)) call c%set_connection(sckt)
    end function new_MockClientThread
 
-   subroutine wait(this, request_id)
+   subroutine wait(this, request_id, rc)
       use pFIO_AbstractRequestHandleMod
       class (MockClientThread), target, intent(inout) :: this
       integer, intent(in) :: request_id
+      integer, optional, intent(out) :: rc
       class(AbstractRequestHandle), pointer :: handle
 
       this%counter = this%counter + 1
       handle => this%get_RequestHandle(request_id)
       call handle%wait()
       call this%erase_RequestHandle(request_id)
- 
+      _RETURN(_SUCCESS)
    end subroutine wait
 
 end module pFIO_MockClientThreadMod
