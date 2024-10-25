@@ -1,0 +1,822 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Test_ServerThread &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Test_ServerThread
+      <small>Module</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for modules and submodules.">156 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_ServerThread.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_serverthread.pf.html'>Test_ServerThread.pf</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Test_ServerThread</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/test_serverthread.html#variable-nx">NX</a>
+            <a class="list-group-item" href="../module/test_serverthread.html#variable-ny">NY</a>
+            <a class="list-group-item" href="../module/test_serverthread.html#variable-a_expected">A_EXPECTED</a>
+            <a class="list-group-item" href="../module/test_serverthread.html#variable-u_expected">U_EXPECTED</a>
+            <a class="list-group-item" href="../module/test_serverthread.html#variable-v_expected">V_EXPECTED</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#subs-0"
+         aria-expanded="false" aria-controls="subs-0">
+         <h4 class="card-header bg-primary text-white">Subroutines</h4>
+      </a>
+      <div id="subs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/test_serverthread.html#proc-setup">setUp</a>
+            <a class="list-group-item" href="../module/test_serverthread.html#proc-teardown">tearDown</a>
+            <a class="list-group-item" href="../module/test_serverthread.html#proc-test_handle_addreaddatacollection">test_handle_AddReadDataCollection</a>
+            <a class="list-group-item" href="../module/test_serverthread.html#proc-test_handle_prefetchdata">test_handle_PrefetchData</a>
+            <a class="list-group-item" href="../module/test_serverthread.html#proc-test_return_on_terminate">test_return_on_terminate</a>
+            <a class="list-group-item" href="../module/test_serverthread.html#proc-test_return_on_terminate_b">test_return_on_terminate_b</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      
+<br>          <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='mocksocketmod.html'>MockSocketMod</a></li>
+                  <li class="list-inline-item"><a href='pfio_terminatemessagemod.html'>pFIO_TerminateMessageMod</a></li>
+                  <li class="list-inline-item"><a href='pfio_donemessagemod.html'>pFIO_DoneMessageMod</a></li>
+                  <li class="list-inline-item"><a href='pfio_arrayreferencemod.html'>pFIO_ArrayReferenceMod</a></li>
+                  <li class="list-inline-item"><a href='pfio_netcdf4_fileformattermod.html'>pFIO_NetCDF4_FileFormatterMod</a></li>
+                  <li class="list-inline-item"><a href='pfio_constantsmod.html'>pFIO_ConstantsMod</a></li>
+                  <li class="list-inline-item"><a href='pfio_prefetchdatamessagemod.html'>pFIO_PrefetchDataMessageMod</a></li>
+                  <li class="list-inline-item"><a href='pfio_idmessagemod.html'>pFIO_IDMessageMod</a></li>
+                  <li class="list-inline-item"><a href='pfio_prefetchdonemessagemod.html'>pFIO_PrefetchDoneMessageMod</a></li>
+                  <li class="list-inline-item"><a href='pfio_variablemod.html'>pFIO_VariableMod</a></li>
+                  <li class="list-inline-item"><a href='pfio_abstractsocketmod.html'>pFIO_AbstractSocketMod</a></li>
+                  <li class="list-inline-item">pfunit</li>
+                  <li class="list-inline-item"><a href='http://fortranwiki.org/fortran/show/iso_fortran_env'>iso_fortran_env</a></li>
+                  <li class="list-inline-item"><a href='pfio_integersocketmapmod.html'>pFIO_IntegerSocketMapMod</a></li>
+                  <li class="list-inline-item"><a href='pfio_serverthreadmod.html'>pFIO_ServerThreadMod</a></li>
+                  <li class="list-inline-item"><a href='pfio_abstractmessagemod.html'>pFIO_AbstractMessageMod</a></li>
+                  <li class="list-inline-item"><a href='pfio.html'>pFIO</a></li>
+                  <li class="list-inline-item"><a href='mockservermod.html'>MockServerMod</a></li>
+                  <li class="list-inline-item"><a href='pfio_addreaddatacollectionmessagemod.html'>pFIO_AddReadDataCollectionMessageMod</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~test_serverthread~~UsesGraph Pages: 1 -->
+<svg id="moduletest_serverthreadUsesGraph" width="392pt" height="788pt"
+ viewBox="0.00 0.00 392.00 788.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~test_serverthread~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 784)">
+<title>module~~test_serverthread~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-784 388,-784 388,4 -4,4"/>
+<!-- module~test_serverthread -->
+<g id="module~~test_serverthread~~UsesGraph_node1" class="node">
+<title>module~test_serverthread</title>
+<polygon fill="none" stroke="black" points="384,-402 273,-402 273,-378 384,-378 384,-402"/>
+<text text-anchor="middle" x="328.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50">Test_ServerThread</text>
+</g>
+<!-- iso_fortran_env -->
+<g id="module~~test_serverthread~~UsesGraph_node2" class="node">
+<title>iso_fortran_env</title>
+<g id="a_module~~test_serverthread~~UsesGraph_node2"><a xlink:href="http://fortranwiki.org/fortran/show/iso_fortran_env" xlink:title="iso_fortran_env">
+<polygon fill="#337ab7" stroke="#337ab7" points="165.5,-780 71.5,-780 71.5,-756 165.5,-756 165.5,-780"/>
+<text text-anchor="middle" x="118.5" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_fortran_env</text>
+</a>
+</g>
+</g>
+<!-- module~test_serverthread&#45;&gt;iso_fortran_env -->
+<g id="module~~test_serverthread~~UsesGraph_edge1" class="edge">
+<title>module~test_serverthread&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M326.16,-402.28C319.66,-459.36 289.65,-697.98 237,-747 220.7,-762.18 197.37,-768.31 175.8,-770.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="175.46,-766.84 165.71,-770.99 175.92,-773.82 175.46,-766.84"/>
+</g>
+<!-- module~mockservermod -->
+<g id="module~~test_serverthread~~UsesGraph_node3" class="node">
+<title>module~mockservermod</title>
+<g id="a_module~~test_serverthread~~UsesGraph_node3"><a xlink:href="../module/mockservermod.html" xlink:title="MockServerMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="167.5,-738 69.5,-738 69.5,-714 167.5,-714 167.5,-738"/>
+<text text-anchor="middle" x="118.5" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockServerMod</text>
+</a>
+</g>
+</g>
+<!-- module~test_serverthread&#45;&gt;module~mockservermod -->
+<g id="module~~test_serverthread~~UsesGraph_edge2" class="edge">
+<title>module~test_serverthread&#45;&gt;module~mockservermod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M325.72,-402.24C317.82,-455.02 284.11,-662.51 237,-705 221,-719.43 198.61,-725.61 177.66,-727.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="177.22,-724.37 167.53,-728.65 177.78,-731.35 177.22,-724.37"/>
+</g>
+<!-- module~mocksocketmod -->
+<g id="module~~test_serverthread~~UsesGraph_node4" class="node">
+<title>module~mocksocketmod</title>
+<g id="a_module~~test_serverthread~~UsesGraph_node4"><a xlink:href="../module/mocksocketmod.html" xlink:title="MockSocketMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="168,-696 69,-696 69,-672 168,-672 168,-696"/>
+<text text-anchor="middle" x="118.5" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MockSocketMod</text>
+</a>
+</g>
+</g>
+<!-- module~test_serverthread&#45;&gt;module~mocksocketmod -->
+<g id="module~~test_serverthread~~UsesGraph_edge3" class="edge">
+<title>module~test_serverthread&#45;&gt;module~mocksocketmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M327.54,-402.14C326.98,-445.23 318.9,-592.06 237,-663 220.91,-676.93 198.82,-683.07 178.14,-685.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="177.79,-681.93 168.13,-686.28 178.39,-688.91 177.79,-681.93"/>
+</g>
+<!-- module~pfio -->
+<g id="module~~test_serverthread~~UsesGraph_node5" class="node">
+<title>module~pfio</title>
+<g id="a_module~~test_serverthread~~UsesGraph_node5"><a xlink:href="../module/pfio.html" xlink:title="pFIO">
+<polygon fill="#337ab7" stroke="#337ab7" points="145.5,-654 91.5,-654 91.5,-630 145.5,-630 145.5,-654"/>
+<text text-anchor="middle" x="118.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO</text>
+</a>
+</g>
+</g>
+<!-- module~test_serverthread&#45;&gt;module~pfio -->
+<g id="module~~test_serverthread~~UsesGraph_edge4" class="edge">
+<title>module~test_serverthread&#45;&gt;module~pfio</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M326.72,-402.16C323.55,-440.96 308.09,-562.67 237,-621 214.57,-639.4 181.53,-643.96 156.2,-644.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="155.89,-640.81 145.86,-644.23 155.84,-647.81 155.89,-640.81"/>
+</g>
+<!-- module~pfio_abstractmessagemod -->
+<g id="module~~test_serverthread~~UsesGraph_node6" class="node">
+<title>module~pfio_abstractmessagemod</title>
+<g id="a_module~~test_serverthread~~UsesGraph_node6"><a xlink:href="../module/pfio_abstractmessagemod.html" xlink:title="pFIO_AbstractMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="196,-612 41,-612 41,-588 196,-588 196,-612"/>
+<text text-anchor="middle" x="118.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_AbstractMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~test_serverthread&#45;&gt;module~pfio_abstractmessagemod -->
+<g id="module~~test_serverthread~~UsesGraph_edge5" class="edge">
+<title>module~test_serverthread&#45;&gt;module~pfio_abstractmessagemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M325.59,-402.12C319.54,-436.12 297.51,-532.95 237,-579 227.88,-585.94 217.22,-590.86 206.11,-594.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="204.99,-590.99 196.25,-596.98 206.82,-597.75 204.99,-590.99"/>
+</g>
+<!-- module~pfio_abstractsocketmod -->
+<g id="module~~test_serverthread~~UsesGraph_node7" class="node">
+<title>module~pfio_abstractsocketmod</title>
+<g id="a_module~~test_serverthread~~UsesGraph_node7"><a xlink:href="../module/pfio_abstractsocketmod.html" xlink:title="pFIO_AbstractSocketMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="191,-570 46,-570 46,-546 191,-546 191,-570"/>
+<text text-anchor="middle" x="118.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_AbstractSocketMod</text>
+</a>
+</g>
+</g>
+<!-- module~test_serverthread&#45;&gt;module~pfio_abstractsocketmod -->
+<g id="module~~test_serverthread~~UsesGraph_edge6" class="edge">
+<title>module~test_serverthread&#45;&gt;module~pfio_abstractsocketmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M323.8,-402.31C314.46,-431.1 287.04,-502.92 237,-537 226.29,-544.3 213.79,-549.28 201.03,-552.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="200.19,-549.25 191.24,-554.92 201.77,-556.07 200.19,-549.25"/>
+</g>
+<!-- module~pfio_addreaddatacollectionmessagemod -->
+<g id="module~~test_serverthread~~UsesGraph_node8" class="node">
+<title>module~pfio_addreaddatacollectionmessagemod</title>
+<g id="a_module~~test_serverthread~~UsesGraph_node8"><a xlink:href="../module/pfio_addreaddatacollectionmessagemod.html" xlink:title="pFIO_AddReadDataCollectionMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="237,-528 0,-528 0,-504 237,-504 237,-528"/>
+<text text-anchor="middle" x="118.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_AddReadDataCollectionMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~test_serverthread&#45;&gt;module~pfio_addreaddatacollectionmessagemod -->
+<g id="module~~test_serverthread~~UsesGraph_edge7" class="edge">
+<title>module~test_serverthread&#45;&gt;module~pfio_addreaddatacollectionmessagemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M320.89,-402.12C307.98,-424.5 277.14,-472.12 237,-495 233.7,-496.88 230.27,-498.6 226.75,-500.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="225.2,-497.02 217.22,-503.99 227.81,-503.52 225.2,-497.02"/>
+</g>
+<!-- module~pfio_arrayreferencemod -->
+<g id="module~~test_serverthread~~UsesGraph_node9" class="node">
+<title>module~pfio_arrayreferencemod</title>
+<g id="a_module~~test_serverthread~~UsesGraph_node9"><a xlink:href="../module/pfio_arrayreferencemod.html" xlink:title="pFIO_ArrayReferenceMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="192.5,-486 44.5,-486 44.5,-462 192.5,-462 192.5,-486"/>
+<text text-anchor="middle" x="118.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ArrayReferenceMod</text>
+</a>
+</g>
+</g>
+<!-- module~test_serverthread&#45;&gt;module~pfio_arrayreferencemod -->
+<g id="module~~test_serverthread~~UsesGraph_edge8" class="edge">
+<title>module~test_serverthread&#45;&gt;module~pfio_arrayreferencemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M314.2,-402.08C297.47,-416.58 267.25,-440.48 237,-453 226.16,-457.49 214.36,-461.02 202.56,-463.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="201.69,-460.4 192.67,-465.96 203.19,-467.24 201.69,-460.4"/>
+</g>
+<!-- module~pfio_constantsmod -->
+<g id="module~~test_serverthread~~UsesGraph_node10" class="node">
+<title>module~pfio_constantsmod</title>
+<g id="a_module~~test_serverthread~~UsesGraph_node10"><a xlink:href="../module/pfio_constantsmod.html" xlink:title="pFIO_ConstantsMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="177,-444 60,-444 60,-420 177,-420 177,-444"/>
+<text text-anchor="middle" x="118.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ConstantsMod</text>
+</a>
+</g>
+</g>
+<!-- module~test_serverthread&#45;&gt;module~pfio_constantsmod -->
+<g id="module~~test_serverthread~~UsesGraph_edge9" class="edge">
+<title>module~test_serverthread&#45;&gt;module~pfio_constantsmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M277.81,-402.01C264.58,-405.08 250.27,-408.28 237,-411 220.95,-414.29 203.6,-417.56 187.29,-420.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="186.51,-417.08 177.28,-422.28 187.74,-423.97 186.51,-417.08"/>
+</g>
+<!-- module~pfio_donemessagemod -->
+<g id="module~~test_serverthread~~UsesGraph_node11" class="node">
+<title>module~pfio_donemessagemod</title>
+<g id="a_module~~test_serverthread~~UsesGraph_node11"><a xlink:href="../module/pfio_donemessagemod.html" xlink:title="pFIO_DoneMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="188,-402 49,-402 49,-378 188,-378 188,-402"/>
+<text text-anchor="middle" x="118.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_DoneMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~test_serverthread&#45;&gt;module~pfio_donemessagemod -->
+<g id="module~~test_serverthread~~UsesGraph_edge10" class="edge">
+<title>module~test_serverthread&#45;&gt;module~pfio_donemessagemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M272.85,-390C250.11,-390 223.26,-390 198.44,-390"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="198.31,-386.5 188.31,-390 198.31,-393.5 198.31,-386.5"/>
+</g>
+<!-- module~pfio_idmessagemod -->
+<g id="module~~test_serverthread~~UsesGraph_node12" class="node">
+<title>module~pfio_idmessagemod</title>
+<g id="a_module~~test_serverthread~~UsesGraph_node12"><a xlink:href="../module/pfio_idmessagemod.html" xlink:title="pFIO_IDMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="179.5,-360 57.5,-360 57.5,-336 179.5,-336 179.5,-360"/>
+<text text-anchor="middle" x="118.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_IDMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~test_serverthread&#45;&gt;module~pfio_idmessagemod -->
+<g id="module~~test_serverthread~~UsesGraph_edge11" class="edge">
+<title>module~test_serverthread&#45;&gt;module~pfio_idmessagemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M277.81,-377.99C264.58,-374.92 250.27,-371.72 237,-369 221.76,-365.87 205.36,-362.77 189.79,-359.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="190.15,-356.47 179.69,-358.15 188.92,-363.36 190.15,-356.47"/>
+</g>
+<!-- module~pfio_integersocketmapmod -->
+<g id="module~~test_serverthread~~UsesGraph_node13" class="node">
+<title>module~pfio_integersocketmapmod</title>
+<g id="a_module~~test_serverthread~~UsesGraph_node13"><a xlink:href="../module/pfio_integersocketmapmod.html" xlink:title="pFIO_IntegerSocketMapMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="199,-318 38,-318 38,-294 199,-294 199,-318"/>
+<text text-anchor="middle" x="118.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_IntegerSocketMapMod</text>
+</a>
+</g>
+</g>
+<!-- module~test_serverthread&#45;&gt;module~pfio_integersocketmapmod -->
+<g id="module~~test_serverthread~~UsesGraph_edge12" class="edge">
+<title>module~test_serverthread&#45;&gt;module~pfio_integersocketmapmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M314.2,-377.92C297.47,-363.42 267.25,-339.52 237,-327 228.19,-323.35 218.75,-320.34 209.19,-317.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="209.75,-314.38 199.21,-315.43 208.11,-321.19 209.75,-314.38"/>
+</g>
+<!-- module~pfio_netcdf4_fileformattermod -->
+<g id="module~~test_serverthread~~UsesGraph_node14" class="node">
+<title>module~pfio_netcdf4_fileformattermod</title>
+<g id="a_module~~test_serverthread~~UsesGraph_node14"><a xlink:href="../module/pfio_netcdf4_fileformattermod.html" xlink:title="pFIO_NetCDF4_FileFormatterMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="212,-276 25,-276 25,-252 212,-252 212,-276"/>
+<text text-anchor="middle" x="118.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_NetCDF4_FileFormatterMod</text>
+</a>
+</g>
+</g>
+<!-- module~test_serverthread&#45;&gt;module~pfio_netcdf4_fileformattermod -->
+<g id="module~~test_serverthread~~UsesGraph_edge13" class="edge">
+<title>module~test_serverthread&#45;&gt;module~pfio_netcdf4_fileformattermod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M320.89,-377.88C307.98,-355.5 277.14,-307.88 237,-285 232.16,-282.24 227.04,-279.83 221.76,-277.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="222.69,-274.34 212.09,-274.26 220.32,-280.93 222.69,-274.34"/>
+</g>
+<!-- module~pfio_prefetchdatamessagemod -->
+<g id="module~~test_serverthread~~UsesGraph_node15" class="node">
+<title>module~pfio_prefetchdatamessagemod</title>
+<g id="a_module~~test_serverthread~~UsesGraph_node15"><a xlink:href="../module/pfio_prefetchdatamessagemod.html" xlink:title="pFIO_PrefetchDataMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="208.5,-234 28.5,-234 28.5,-210 208.5,-210 208.5,-234"/>
+<text text-anchor="middle" x="118.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_PrefetchDataMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~test_serverthread&#45;&gt;module~pfio_prefetchdatamessagemod -->
+<g id="module~~test_serverthread~~UsesGraph_edge14" class="edge">
+<title>module~test_serverthread&#45;&gt;module~pfio_prefetchdatamessagemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M323.8,-377.69C314.46,-348.9 287.04,-277.08 237,-243 231.25,-239.08 224.98,-235.83 218.43,-233.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="219.26,-229.71 208.67,-229.58 216.87,-236.29 219.26,-229.71"/>
+</g>
+<!-- module~pfio_prefetchdonemessagemod -->
+<g id="module~~test_serverthread~~UsesGraph_node16" class="node">
+<title>module~pfio_prefetchdonemessagemod</title>
+<g id="a_module~~test_serverthread~~UsesGraph_node16"><a xlink:href="../module/pfio_prefetchdonemessagemod.html" xlink:title="pFIO_PrefetchDoneMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="210,-192 27,-192 27,-168 210,-168 210,-192"/>
+<text text-anchor="middle" x="118.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_PrefetchDoneMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~test_serverthread&#45;&gt;module~pfio_prefetchdonemessagemod -->
+<g id="module~~test_serverthread~~UsesGraph_edge15" class="edge">
+<title>module~test_serverthread&#45;&gt;module~pfio_prefetchdonemessagemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M325.59,-377.88C319.54,-343.88 297.51,-247.05 237,-201 231.63,-196.91 225.72,-193.52 219.5,-190.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="220.77,-187.46 210.18,-187.03 218.19,-193.97 220.77,-187.46"/>
+</g>
+<!-- module~pfio_serverthreadmod -->
+<g id="module~~test_serverthread~~UsesGraph_node17" class="node">
+<title>module~pfio_serverthreadmod</title>
+<g id="a_module~~test_serverthread~~UsesGraph_node17"><a xlink:href="../module/pfio_serverthreadmod.html" xlink:title="pFIO_ServerThreadMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="187,-150 50,-150 50,-126 187,-126 187,-150"/>
+<text text-anchor="middle" x="118.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_ServerThreadMod</text>
+</a>
+</g>
+</g>
+<!-- module~test_serverthread&#45;&gt;module~pfio_serverthreadmod -->
+<g id="module~~test_serverthread~~UsesGraph_edge16" class="edge">
+<title>module~test_serverthread&#45;&gt;module~pfio_serverthreadmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M326.72,-377.84C323.55,-339.04 308.09,-217.33 237,-159 225.68,-149.71 211.65,-143.95 197.27,-140.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="197.79,-137.01 187.29,-138.42 196.38,-143.86 197.79,-137.01"/>
+</g>
+<!-- module~pfio_terminatemessagemod -->
+<g id="module~~test_serverthread~~UsesGraph_node18" class="node">
+<title>module~pfio_terminatemessagemod</title>
+<g id="a_module~~test_serverthread~~UsesGraph_node18"><a xlink:href="../module/pfio_terminatemessagemod.html" xlink:title="pFIO_TerminateMessageMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="200.5,-108 36.5,-108 36.5,-84 200.5,-84 200.5,-108"/>
+<text text-anchor="middle" x="118.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_TerminateMessageMod</text>
+</a>
+</g>
+</g>
+<!-- module~test_serverthread&#45;&gt;module~pfio_terminatemessagemod -->
+<g id="module~~test_serverthread~~UsesGraph_edge17" class="edge">
+<title>module~test_serverthread&#45;&gt;module~pfio_terminatemessagemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M327.54,-377.86C326.98,-334.77 318.9,-187.94 237,-117 229.17,-110.21 219.91,-105.28 210.08,-101.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="211.1,-98.38 200.51,-98.74 209.01,-105.06 211.1,-98.38"/>
+</g>
+<!-- module~pfio_variablemod -->
+<g id="module~~test_serverthread~~UsesGraph_node19" class="node">
+<title>module~pfio_variablemod</title>
+<g id="a_module~~test_serverthread~~UsesGraph_node19"><a xlink:href="../module/pfio_variablemod.html" xlink:title="pFIO_VariableMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="172.5,-66 64.5,-66 64.5,-42 172.5,-42 172.5,-66"/>
+<text text-anchor="middle" x="118.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO_VariableMod</text>
+</a>
+</g>
+</g>
+<!-- module~test_serverthread&#45;&gt;module~pfio_variablemod -->
+<g id="module~~test_serverthread~~UsesGraph_edge18" class="edge">
+<title>module~test_serverthread&#45;&gt;module~pfio_variablemod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M325.72,-377.76C317.82,-324.98 284.11,-117.49 237,-75 222.26,-61.7 202.1,-55.42 182.63,-52.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="182.87,-49.26 172.55,-51.68 182.12,-56.22 182.87,-49.26"/>
+</g>
+<!-- pfunit -->
+<g id="module~~test_serverthread~~UsesGraph_node20" class="node">
+<title>pfunit</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="145.5,-24 91.5,-24 91.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="118.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pfunit</text>
+</g>
+<!-- module~test_serverthread&#45;&gt;pfunit -->
+<g id="module~~test_serverthread~~UsesGraph_edge19" class="edge">
+<title>module~test_serverthread&#45;&gt;pfunit</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M326.16,-377.72C319.66,-320.64 289.65,-82.02 237,-33 215.54,-13.02 181.9,-8.71 156.11,-8.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="155.84,-5.36 145.95,-9.14 156.04,-12.36 155.84,-5.36"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+      
+      <br>
+
+
+        <section>
+          <h2>Variables</h2>
+            <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nx"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>NX</strong></td>
+<td> =</td>
+                <td>3</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ny"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>NY</strong></td>
+<td> =</td>
+                <td>4</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a_expected"></span>
+              real(kind=REAL32),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>A_EXPECTED</strong></td>
+<td> =</td>
+                <td>5</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-u_expected"></span>
+              real(kind=REAL32),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>U_EXPECTED</strong>(NX,NY)</td>
+<td> =</td>
+                <td>reshape([1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3], [NX, NY])</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-v_expected"></span>
+              real(kind=REAL32),
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>V_EXPECTED</strong>(NX,NY)</td>
+<td> =</td>
+                <td>reshape([1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4], [NX, NY])</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+        </section>
+        <br>
+
+
+
+
+
+
+        <section>
+          <h2>Subroutines</h2>
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-setup"></span> <h3>public  subroutine <a href='../proc/setup.html'>setUp</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-teardown"></span> <h3>public  subroutine <a href='../proc/teardown.html'>tearDown</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-test_handle_addreaddatacollection"></span> <h3>public  subroutine <a href='../proc/test_handle_addreaddatacollection.html'>test_handle_AddReadDataCollection</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-test_handle_prefetchdata"></span> <h3>public  subroutine <a href='../proc/test_handle_prefetchdata.html'>test_handle_PrefetchData</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-test_return_on_terminate"></span> <h3>public  subroutine <a href='../proc/test_return_on_terminate.html'>test_return_on_terminate</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-test_return_on_terminate_b"></span> <h3>public  subroutine <a href='../proc/test_return_on_terminate_b.html'>test_return_on_terminate_b</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+
+
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-25T15:41:34.704989             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
