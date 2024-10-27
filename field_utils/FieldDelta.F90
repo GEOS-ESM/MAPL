@@ -216,10 +216,14 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      character(:), allocatable :: ignore_
 
-      call this%reallocate_field(field, ignore=ignore, _RC)
+      ignore_ = ''
+      if (present(ignore)) ignore_ = ignore
 
-      call update_num_levels(this%num_levels, field, ignore=ignore, _RC)
+      call this%reallocate_field(field, ignore=ignore_, _RC)
+
+      call update_num_levels(this%num_levels, field, ignore=ignore_, _RC)
       call update_units(this%units, field, ignore=ignore, _RC)
 
       _RETURN(_SUCCESS)
@@ -228,7 +232,7 @@ contains
       subroutine update_num_levels(num_levels, field, ignore, rc)
          integer, optional, intent(in) :: num_levels
          type(ESMF_Field), intent(inout) :: field
-         character(*), intent(in), optional :: ignore
+         character(*), intent(in) :: ignore
          integer, optional, intent(out) :: rc
 
          integer :: status
@@ -244,7 +248,7 @@ contains
       subroutine update_units(units, field, ignore, rc)
          character(*), optional, intent(in) :: units
          type(ESMF_Field), intent(inout) :: field
-         character(*), intent(in), optional :: ignore
+         character(*), intent(in) :: ignore
          integer, optional, intent(out) :: rc
 
          integer :: status
