@@ -4,12 +4,15 @@ set(srcs
   FieldUtils.F90
   FieldBLAS.F90
   FieldPointerUtilities.F90
+  FieldDelta.F90
   FieldUtilities.F90
   FieldUnaryFunctions.F90
   FieldBinaryOperations.F90
   FieldUnits.F90
   FieldCondensedArray.F90
   FieldCondensedArray_private.F90
+  FieldDelta.F90
+  FieldBundleDelta.F90
   )
 
 # To use extended udunits2 procedures, udunits2.c must be built and linked.

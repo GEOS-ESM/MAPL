@@ -91,6 +91,27 @@ contains
       _RETURN(_SUCCESS)
    end subroutine initialize
 
+   ! Check if export item has been updated and update import item
+   ! accordingly.
+   recursive subroutine update_time_varying(this, importState, exportState, clock, rc)
+      class(CouplerMetaComponent), intent(inout) :: this
+      type(ESMF_State), intent(inout) :: importState
+      type(ESMF_State), intent(inout) :: exportState
+      type(ESMF_Clock), intent(inout) :: clock
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Field) :: f_in, f_out
+
+!#      _RETURN_UNLESS(this%export_is_time_varying())
+      call ESMF_StateGet(importState, itemName='import[1]', field=f_in, _RC)
+      call ESMF_StateGet(exportState, itemName='export[1]', field=f_out, _RC)
+
+!#      call FieldUpdate(f_in, from=f_out, ignore=this%action%get_ignore(), _RC)
+      
+      _RETURN(_SUCCESS)
+   end subroutine update_time_varying
+
    recursive subroutine update(this, importState, exportState, clock, rc)
       class(CouplerMetaComponent), intent(inout) :: this
       type(ESMF_State), intent(inout) :: importState
@@ -125,6 +146,27 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine update_sources
+
+   ! Check if export item has been updated and update import item
+   ! accordingly.
+   recursive subroutine invalidate_time_varying(this, importState, exportState, clock, rc)
+      class(CouplerMetaComponent), intent(inout) :: this
+      type(ESMF_State), intent(inout) :: importState
+      type(ESMF_State), intent(inout) :: exportState
+      type(ESMF_Clock), intent(inout) :: clock
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Field) :: f_in, f_out
+
+!#      _RETURN_UNLESS(this%import_is_time_varying())
+      call ESMF_StateGet(importState, itemName='import[1]', field=f_in, _RC)
+      call ESMF_StateGet(exportState, itemName='export[1]', field=f_out, _RC)
+
+!#      call FieldUpdate(f_out, from=f_in, ignore=this%action%get_ignore(), _RC)
+      
+      _RETURN(_SUCCESS)
+   end subroutine invalidate_time_varying
 
    recursive subroutine invalidate(this, importState, exportState, clock, rc)
       class(CouplerMetaComponent) :: this
