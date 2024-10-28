@@ -17,6 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.47.1.2] - 2024-10-28
+
+### Changed
+
+- Fixed timer bug in History with GEOS pert application 
+
+
 ## [2.47.1.1] - 2024-10-24
 
 ### Changed
