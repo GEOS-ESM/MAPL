@@ -1,0 +1,908 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>create_from_parameters &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>create_from_parameters
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">44 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataUpdatePointer.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/extdataupdatepointer.f90.html'>ExtDataUpdatePointer.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_extdatapointerupdate.html'>MAPL_ExtDataPointerUpdate</a></li>
+            <li class="breadcrumb-item active" aria-current="page">create_from_parameters</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/create_from_parameters.html#src">create_from_parameters</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine create_from_parameters(this, update_time, update_freq, update_offset, time, clock, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/extdatapointerupdate.html'>ExtDataPointerUpdate</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~5564"></span>
+              class(<a href='../type/extdatapointerupdate.html'>ExtDataPointerUpdate</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-update_time"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>update_time</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-update_freq~4"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>update_freq</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-update_offset~2"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>update_offset</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-time~75"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>time</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clock~69"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>clock</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~2183"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~create_from_parameters~~CallsGraph Pages: 1 -->
+<svg id="proccreate_from_parametersCallsGraph" width="641pt" height="142pt"
+ viewBox="0.00 0.00 641.00 141.53" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~create_from_parameters~~CallsGraph" class="graph" transform="scale(0.59 0.59) rotate(0) translate(4 236)">
+<title>proc~~create_from_parameters~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-236 1083,-236 1083,4 -4,4"/>
+<!-- proc~create_from_parameters -->
+<g id="proc~~create_from_parameters~~CallsGraph_node1" class="node">
+<title>proc~create_from_parameters</title>
+<polygon fill="none" stroke="black" points="271,-130 0,-130 0,-106 271,-106 271,-130"/>
+<text text-anchor="middle" x="135.5" y="-115.6" font-family="Helvetica,sans-Serif" font-size="10.50">ExtDataPointerUpdate%create_from_parameters</text>
+</g>
+<!-- ESMF_TimeGet -->
+<g id="proc~~create_from_parameters~~CallsGraph_node2" class="node">
+<title>ESMF_TimeGet</title>
+<g id="a_proc~~create_from_parameters~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_timeget.html" xlink:title="ESMF_TimeGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="432.5,-232 341.5,-232 341.5,-208 432.5,-208 432.5,-232"/>
+<text text-anchor="middle" x="387" y="-217.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeGet</text>
+</a>
+</g>
+</g>
+<!-- proc~create_from_parameters&#45;&gt;ESMF_TimeGet -->
+<g id="proc~~create_from_parameters~~CallsGraph_edge1" class="edge">
+<title>proc~create_from_parameters&#45;&gt;ESMF_TimeGet</title>
+<path fill="none" stroke="#ff0000" d="M158.55,-130.09C190.51,-147.24 251.93,-178.79 307,-199 314.85,-201.88 323.28,-204.55 331.59,-206.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="330.69,-210.33 341.26,-209.64 332.57,-203.59 330.69,-210.33"/>
+</g>
+<!-- ESMF_TimeSet -->
+<g id="proc~~create_from_parameters~~CallsGraph_node3" class="node">
+<title>ESMF_TimeSet</title>
+<g id="a_proc~~create_from_parameters~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeset.html" xlink:title="ESMF_TimeSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="432,-190 342,-190 342,-166 432,-166 432,-190"/>
+<text text-anchor="middle" x="387" y="-175.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeSet</text>
+</a>
+</g>
+</g>
+<!-- proc~create_from_parameters&#45;&gt;ESMF_TimeSet -->
+<g id="proc~~create_from_parameters~~CallsGraph_edge2" class="edge">
+<title>proc~create_from_parameters&#45;&gt;ESMF_TimeSet</title>
+<path fill="none" stroke="#ff0000" d="M186.69,-130.07C228.8,-140.2 288.82,-154.63 331.98,-165.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="331.2,-168.42 341.74,-167.36 332.84,-161.62 331.2,-168.42"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~create_from_parameters~~CallsGraph_node4" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~create_from_parameters~~CallsGraph_node4"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="609,-150 527,-150 527,-126 609,-126 609,-150"/>
+<text text-anchor="middle" x="568" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~create_from_parameters&#45;&gt;proc~mapl_return -->
+<g id="proc~~create_from_parameters~~CallsGraph_edge3" class="edge">
+<title>proc~create_from_parameters&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M271.24,-124.26C354.53,-128.13 456.63,-132.87 516.48,-135.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="516.64,-139.16 526.79,-136.13 516.96,-132.17 516.64,-139.16"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~create_from_parameters~~CallsGraph_node5" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~create_from_parameters~~CallsGraph_node5"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="606,-24 530,-24 530,0 606,0 606,-24"/>
+<text text-anchor="middle" x="568" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~create_from_parameters&#45;&gt;proc~mapl_verify -->
+<g id="proc~~create_from_parameters~~CallsGraph_edge4" class="edge">
+<title>proc~create_from_parameters&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M155.52,-105.84C186.09,-86.99 248.63,-51.19 307,-35 379.25,-14.95 466.73,-11.21 519.56,-11.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="519.64,-14.57 529.65,-11.09 519.65,-7.57 519.64,-14.57"/>
+</g>
+<!-- proc~string_to_esmf_timeinterval -->
+<g id="proc~~create_from_parameters~~CallsGraph_node6" class="node">
+<title>proc~string_to_esmf_timeinterval</title>
+<g id="a_proc~~create_from_parameters~~CallsGraph_node6"><a xlink:href="../proc/string_to_esmf_timeinterval.html" xlink:title="string_to_esmf_timeinterval">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="467,-68 307,-68 307,-44 467,-44 467,-68"/>
+<text text-anchor="middle" x="387" y="-53.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">string_to_esmf_timeinterval</text>
+</a>
+</g>
+</g>
+<!-- proc~create_from_parameters&#45;&gt;proc~string_to_esmf_timeinterval -->
+<g id="proc~~create_from_parameters~~CallsGraph_edge5" class="edge">
+<title>proc~create_from_parameters&#45;&gt;proc~string_to_esmf_timeinterval</title>
+<path fill="none" stroke="#ff0000" d="M184.9,-105.97C225.66,-95.84 284.08,-81.33 327.46,-70.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="328.45,-73.91 337.31,-68.1 326.76,-67.11 328.45,-73.91"/>
+</g>
+<!-- proc~string_to_integer_time -->
+<g id="proc~~create_from_parameters~~CallsGraph_node7" class="node">
+<title>proc~string_to_integer_time</title>
+<g id="a_proc~~create_from_parameters~~CallsGraph_node7"><a xlink:href="../proc/string_to_integer_time.html" xlink:title="string_to_integer_time">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="452.5,-110 321.5,-110 321.5,-86 452.5,-86 452.5,-110"/>
+<text text-anchor="middle" x="387" y="-95.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">string_to_integer_time</text>
+</a>
+</g>
+</g>
+<!-- proc~create_from_parameters&#45;&gt;proc~string_to_integer_time -->
+<g id="proc~~create_from_parameters~~CallsGraph_edge6" class="edge">
+<title>proc~create_from_parameters&#45;&gt;proc~string_to_integer_time</title>
+<path fill="none" stroke="#ff0000" d="M271.11,-107.21C284.91,-106.1 298.55,-105.01 311.35,-103.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="311.73,-107.46 321.42,-103.18 311.17,-100.49 311.73,-107.46"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~create_from_parameters~~CallsGraph_node10" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~create_from_parameters~~CallsGraph_node10"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="977,-176 862,-176 862,-152 977,-152 977,-176"/>
+<text text-anchor="middle" x="919.5" y="-161.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~create_from_parameters~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ff00" d="M609.32,-143.43C627.53,-145.73 649.32,-148.27 669,-150 730.86,-155.44 801.55,-159.17 851.85,-161.41"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="851.8,-164.91 861.94,-161.85 852.11,-157.92 851.8,-164.91"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~create_from_parameters~~CallsGraph_node11" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~create_from_parameters~~CallsGraph_node11"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="986,-76 853,-76 853,-52 986,-52 986,-76"/>
+<text text-anchor="middle" x="919.5" y="-61.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~create_from_parameters~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff00" d="M609.4,-139.41C659.23,-140.06 746.05,-137.62 817,-117 844.15,-109.11 872.46,-93.63 892.26,-81.43"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="894.13,-84.38 900.73,-76.09 890.4,-78.46 894.13,-84.38"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~create_from_parameters~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M606.31,-12.7C655.14,-14.18 743.17,-18.77 817,-33 836.54,-36.77 857.66,-42.87 875.54,-48.67"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="874.52,-52.02 885.12,-51.85 876.73,-45.38 874.52,-52.02"/>
+</g>
+<!-- proc~string_to_esmf_timeinterval&#45;&gt;proc~mapl_return -->
+<g id="proc~~create_from_parameters~~CallsGraph_edge12" class="edge">
+<title>proc~string_to_esmf_timeinterval&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0000ff" d="M448.2,-68.02C454.78,-70.49 461.19,-73.45 467,-77 487.4,-89.48 482.96,-103.94 503,-117 507.42,-119.88 512.27,-122.4 517.25,-124.59"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="516.36,-128 526.94,-128.41 518.93,-121.49 516.36,-128"/>
+</g>
+<!-- proc~string_to_esmf_timeinterval&#45;&gt;proc~mapl_verify -->
+<g id="proc~~create_from_parameters~~CallsGraph_edge13" class="edge">
+<title>proc~string_to_esmf_timeinterval&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0000ff" d="M436.91,-43.98C462.77,-37.62 494.37,-29.85 519.95,-23.57"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="520.91,-26.93 529.79,-21.15 519.24,-20.14 520.91,-26.93"/>
+</g>
+<!-- ESMF_TimeIntervalSet -->
+<g id="proc~~create_from_parameters~~CallsGraph_node8" class="node">
+<title>ESMF_TimeIntervalSet</title>
+<g id="a_proc~~create_from_parameters~~CallsGraph_node8"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeintervalset.html" xlink:title="ESMF_TimeIntervalSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="633,-66 503,-66 503,-42 633,-42 633,-66"/>
+<text text-anchor="middle" x="568" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeIntervalSet</text>
+</a>
+</g>
+</g>
+<!-- proc~string_to_esmf_timeinterval&#45;&gt;ESMF_TimeIntervalSet -->
+<g id="proc~~create_from_parameters~~CallsGraph_edge10" class="edge">
+<title>proc~string_to_esmf_timeinterval&#45;&gt;ESMF_TimeIntervalSet</title>
+<path fill="none" stroke="#0000ff" d="M467.03,-55.12C475.56,-55.02 484.21,-54.93 492.67,-54.83"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="492.92,-58.33 502.88,-54.72 492.84,-51.33 492.92,-58.33"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~create_from_parameters~~CallsGraph_node9" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~create_from_parameters~~CallsGraph_node9"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="607.5,-108 528.5,-108 528.5,-84 607.5,-84 607.5,-108"/>
+<text text-anchor="middle" x="568" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~string_to_esmf_timeinterval&#45;&gt;interface~mapl_assert -->
+<g id="proc~~create_from_parameters~~CallsGraph_edge11" class="edge">
+<title>proc~string_to_esmf_timeinterval&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#0000ff" d="M441.71,-68C466.12,-73.46 494.8,-79.87 518.55,-85.17"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="517.88,-88.61 528.4,-87.37 519.41,-81.78 517.88,-88.61"/>
+</g>
+<!-- proc~string_to_integer_time&#45;&gt;proc~mapl_return -->
+<g id="proc~~create_from_parameters~~CallsGraph_edge14" class="edge">
+<title>proc~string_to_integer_time&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff00ff" d="M441.71,-110C465.67,-115.36 493.74,-121.63 517.23,-126.88"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="516.47,-130.29 526.99,-129.06 518,-123.46 516.47,-130.29"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~create_from_parameters~~CallsGraph_node15" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~create_from_parameters~~CallsGraph_node15"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="810,-66 676,-66 676,-42 810,-42 810,-66"/>
+<text text-anchor="middle" x="743" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~create_from_parameters~~CallsGraph_edge15" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M607.82,-86.57C629.8,-81.24 657.75,-74.45 682.44,-68.46"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="683.55,-71.79 692.44,-66.03 681.9,-64.99 683.55,-71.79"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~create_from_parameters~~CallsGraph_node16" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~create_from_parameters~~CallsGraph_node16"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="817,-108 669,-108 669,-84 817,-84 817,-108"/>
+<text text-anchor="middle" x="743" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~create_from_parameters~~CallsGraph_edge16" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M607.82,-96C622.9,-96 640.78,-96 658.49,-96"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="658.88,-99.5 668.88,-96 658.88,-92.5 658.88,-99.5"/>
+</g>
+<!-- at -->
+<g id="proc~~create_from_parameters~~CallsGraph_node12" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1077.5,-157 1023.5,-157 1023.5,-133 1077.5,-133 1077.5,-157"/>
+<text text-anchor="middle" x="1050.5" y="-142.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~create_from_parameters~~CallsGraph_edge17" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#00ffff" d="M977.08,-155.67C989.42,-153.85 1002.14,-151.97 1013.42,-150.31"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="1013.94,-153.78 1023.32,-148.86 1012.92,-146.85 1013.94,-153.78"/>
+</g>
+<!-- insert -->
+<g id="proc~~create_from_parameters~~CallsGraph_node13" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1077.5,-199 1023.5,-199 1023.5,-175 1077.5,-175 1077.5,-199"/>
+<text text-anchor="middle" x="1050.5" y="-184.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~create_from_parameters~~CallsGraph_edge18" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#00ffff" d="M977.08,-174.09C989.42,-176.29 1002.14,-178.56 1013.42,-180.57"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="1012.86,-184.02 1023.32,-182.33 1014.09,-177.13 1012.86,-184.02"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~create_from_parameters~~CallsGraph_node14" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~create_from_parameters~~CallsGraph_node14"><a xlink:href="../proc/initialize.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1079,-76 1022,-76 1022,-52 1079,-52 1079,-76"/>
+<text text-anchor="middle" x="1050.5" y="-61.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize -->
+<g id="proc~~create_from_parameters~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize</title>
+<path fill="none" stroke="#7f00ff" d="M986.13,-64C994.88,-64 1003.59,-64 1011.63,-64"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="1011.77,-67.5 1021.77,-64 1011.77,-60.5 1011.77,-67.5"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~create_from_parameters~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0066ff" d="M810.47,-57.81C820.98,-58.41 831.92,-59.04 842.62,-59.65"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="842.61,-63.16 852.79,-60.23 843.01,-56.17 842.61,-63.16"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~create_from_parameters~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#cc00ff" d="M774.8,-108C803.52,-119.2 846.56,-135.97 878.05,-148.24"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="876.84,-151.52 887.43,-151.89 879.38,-145 876.84,-151.52"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~create_from_parameters~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#cc00ff" d="M809.47,-83.99C820.36,-82 831.73,-79.91 842.84,-77.88"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="843.74,-81.27 852.95,-76.02 842.48,-74.38 843.74,-81.27"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproccreate_from_parametersCallsGraph = svgPanZoom('#proccreate_from_parametersCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~create_from_parameters~~CalledByGraph Pages: 1 -->
+<svg id="proccreate_from_parametersCalledByGraph" width="634pt" height="74pt"
+ viewBox="0.00 0.00 634.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~create_from_parameters~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>proc~~create_from_parameters~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 630,-70 630,4 -4,4"/>
+<!-- proc~create_from_parameters -->
+<g id="proc~~create_from_parameters~~CalledByGraph_node1" class="node">
+<title>proc~create_from_parameters</title>
+<polygon fill="none" stroke="black" points="626,-45 355,-45 355,-21 626,-21 626,-45"/>
+<text text-anchor="middle" x="490.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">ExtDataPointerUpdate%create_from_parameters</text>
+</g>
+<!-- proc~fillin_derived -->
+<g id="proc~~create_from_parameters~~CalledByGraph_node2" class="node">
+<title>proc~fillin_derived</title>
+<g id="a_proc~~create_from_parameters~~CalledByGraph_node2"><a xlink:href="../proc/fillin_derived.html" xlink:title="ExtDataOldTypesCreator%fillin_derived">
+<polygon fill="#d9534f" stroke="#d9534f" points="318.5,-66 98.5,-66 98.5,-42 318.5,-42 318.5,-66"/>
+<text text-anchor="middle" x="208.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataOldTypesCreator%fillin_derived</text>
+</a>
+</g>
+</g>
+<!-- proc~fillin_derived&#45;&gt;proc~create_from_parameters -->
+<g id="proc~~create_from_parameters~~CalledByGraph_edge1" class="edge">
+<title>proc~fillin_derived&#45;&gt;proc~create_from_parameters</title>
+<path fill="none" stroke="#ff0000" d="M318.56,-45.82C327.06,-45.18 335.71,-44.53 344.4,-43.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="344.89,-47.36 354.6,-43.12 344.36,-40.38 344.89,-47.36"/>
+</g>
+<!-- proc~fillin_primary -->
+<g id="proc~~create_from_parameters~~CalledByGraph_node3" class="node">
+<title>proc~fillin_primary</title>
+<g id="a_proc~~create_from_parameters~~CalledByGraph_node3"><a xlink:href="../proc/fillin_primary.html" xlink:title="ExtDataOldTypesCreator%fillin_primary">
+<polygon fill="#d9534f" stroke="#d9534f" points="319,-24 98,-24 98,0 319,0 319,-24"/>
+<text text-anchor="middle" x="208.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataOldTypesCreator%fillin_primary</text>
+</a>
+</g>
+</g>
+<!-- proc~fillin_primary&#45;&gt;proc~create_from_parameters -->
+<g id="proc~~create_from_parameters~~CalledByGraph_edge2" class="edge">
+<title>proc~fillin_primary&#45;&gt;proc~create_from_parameters</title>
+<path fill="none" stroke="#ff0000" d="M319.36,-20.24C327.73,-20.87 336.25,-21.51 344.79,-22.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="344.59,-25.64 354.82,-22.9 345.11,-18.66 344.59,-25.64"/>
+</g>
+<!-- proc~initialize_~5 -->
+<g id="proc~~create_from_parameters~~CalledByGraph_node4" class="node">
+<title>proc~initialize_~5</title>
+<g id="a_proc~~create_from_parameters~~CalledByGraph_node4"><a xlink:href="../proc/initialize_~5.html" xlink:title="Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="62,-45 0,-45 0,-21 62,-21 62,-45"/>
+<text text-anchor="middle" x="31" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_~5&#45;&gt;proc~fillin_derived -->
+<g id="proc~~create_from_parameters~~CalledByGraph_edge3" class="edge">
+<title>proc~initialize_~5&#45;&gt;proc~fillin_derived</title>
+<path fill="none" stroke="#ff0000" d="M62.17,-36.61C72.3,-37.82 84.26,-39.25 96.91,-40.77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="96.83,-44.28 107.17,-41.99 97.66,-37.33 96.83,-44.28"/>
+</g>
+<!-- proc~initialize_~5&#45;&gt;proc~fillin_primary -->
+<g id="proc~~create_from_parameters~~CalledByGraph_edge4" class="edge">
+<title>proc~initialize_~5&#45;&gt;proc~fillin_primary</title>
+<path fill="none" stroke="#00ffff" d="M62.17,-29.39C72.3,-28.18 84.26,-26.75 96.91,-25.23"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="97.66,-28.67 107.17,-24.01 96.83,-21.72 97.66,-28.67"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">create_from_parameters</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="n">update_time</span><span class="p">,</span><span class="n">update_freq</span><span class="p">,</span><span class="n">update_offset</span><span class="p">,</span><span class="nb">time</span><span class="p">,</span><span class="n">clock</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ExtDataPointerUpdate</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">update_time</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">update_freq</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">update_offset</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">time</span>
+<span class="nb">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="n">int_time</span><span class="p">,</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="n">hour</span><span class="p">,</span><span class="n">minute</span><span class="p">,</span><span class="nb">second</span><span class="p">,</span><span class="n">neg_index</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">negative_offset</span>
+
+<span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">last_checked</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">time</span>
+<span class="nb">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">update_freq</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;-&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">this</span><span class="p">%</span><span class="n">single_shot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">update_freq</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="s2">&quot;PT0S&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">this</span><span class="p">%</span><span class="n">simple_alarm_created</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">         </span><span class="n">int_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">string_to_integer_time</span><span class="p">(</span><span class="n">update_time</span><span class="p">)</span>
+<span class="w">         </span><span class="n">hour</span><span class="o">=</span><span class="n">int_time</span><span class="o">/</span><span class="mi">10000</span>
+<span class="w">         </span><span class="n">minute</span><span class="o">=</span><span class="nb">mod</span><span class="p">(</span><span class="n">int_time</span><span class="o">/</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+<span class="w">         </span><span class="nb">second</span><span class="o">=</span><span class="nb">mod</span><span class="p">(</span><span class="n">int_time</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="nb">time</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">year</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">month</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">day</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">reference_time</span><span class="p">,</span><span class="n">yy</span><span class="o">=</span><span class="n">year</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">month</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">day</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">hour</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">minute</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="nb">second</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="n">this</span><span class="p">%</span><span class="n">last_ring</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">reference_time</span>
+<span class="w">         </span><span class="n">this</span><span class="p">%</span><span class="n">update_freq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">string_to_esmf_timeinterval</span><span class="p">(</span><span class="n">update_freq</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+<span class="k">      </span><span class="n">negative_offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">index</span><span class="p">(</span><span class="n">update_offset</span><span class="p">,</span><span class="s2">&quot;-&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">negative_offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">         </span><span class="n">neg_index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">update_offset</span><span class="p">,</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">negative_offset</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">this</span><span class="p">%</span><span class="n">offset</span><span class="o">=</span><span class="n">string_to_esmf_timeinterval</span><span class="p">(</span><span class="n">update_offset</span><span class="p">(</span><span class="n">neg_index</span><span class="o">+</span><span class="mi">1</span><span class="p">:),</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="n">this</span><span class="p">%</span><span class="n">offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">this</span><span class="p">%</span><span class="n">offset</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">this</span><span class="p">%</span><span class="n">offset</span><span class="o">=</span><span class="n">string_to_esmf_timeinterval</span><span class="p">(</span><span class="n">update_offset</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">clock</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">create_from_parameters</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-28T20:47:10.260020             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

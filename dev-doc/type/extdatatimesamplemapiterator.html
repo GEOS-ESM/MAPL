@@ -1,0 +1,986 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>ExtDataTimeSampleMapIterator &ndash; MAPL </title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>ExtDataTimeSampleMapIterator
+      <small>Derived Type</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title="<p> 0.1% of total for derived types.</p>Including implementation: 50 statements,  0.0% of total for derived types.">14 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataSample.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/extdatasample.f90.html'>ExtDataSample.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_extdatatimesamplemap.html'>MAPL_ExtDataTimeSampleMap</a></li>
+            <li class="breadcrumb-item active" aria-current="page">ExtDataTimeSampleMapIterator</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../type/extdatatimesamplemapiterator.html#variable-reference~2">reference</a>
+            <a class="list-group-item" href="../type/extdatatimesamplemapiterator.html#variable-setiter">setIter</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#boundprocs-0"
+         aria-expanded="false" aria-controls="boundprocs-0">
+         <h4 class="card-header bg-primary text-white">Type-Bound Procedures</h4>
+      </a>
+      <div id="boundprocs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../type/extdatatimesamplemapiterator.html#boundprocedure-equal">equal</a>
+            <a class="list-group-item" href="../type/extdatatimesamplemapiterator.html#boundprocedure-key~2">key</a>
+            <a class="list-group-item" href="../type/extdatatimesamplemapiterator.html#boundprocedure-next~4">next</a>
+            <a class="list-group-item" href="../type/extdatatimesamplemapiterator.html#boundprocedure-notequal">notEqual</a>
+            <a class="list-group-item" href="../type/extdatatimesamplemapiterator.html#boundprocedure-operator%28SLASH%3D%29~5">operator(/=)</a>
+            <a class="list-group-item" href="../type/extdatatimesamplemapiterator.html#boundprocedure-operator%28%3D%3D%29~6">operator(==)</a>
+            <a class="list-group-item" href="../type/extdatatimesamplemapiterator.html#boundprocedure-previous~3">previous</a>
+            <a class="list-group-item" href="../type/extdatatimesamplemapiterator.html#boundprocedure-value~10">value</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+      <h2 id="type-def-statement">
+        type, public :: ExtDataTimeSampleMapIterator</h2>
+    
+<br>      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Inherits</h3>
+        </div>
+        <div class="card-body">
+          <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: type~~extdatatimesamplemapiterator~~InheritsGraph Pages: 1 -->
+<svg id="typeextdatatimesamplemapiteratorInheritsGraph" width="641pt" height="52pt"
+ viewBox="0.00 0.00 641.00 52.26" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="type~~extdatatimesamplemapiterator~~InheritsGraph" class="graph" transform="scale(0.7 0.7) rotate(0) translate(4 71)">
+<title>type~~extdatatimesamplemapiterator~~InheritsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-71 916,-71 916,4 -4,4"/>
+<!-- type~extdatatimesamplemapiterator -->
+<g id="type~~extdatatimesamplemapiterator~~InheritsGraph_node1" class="node">
+<title>type~extdatatimesamplemapiterator</title>
+<polygon fill="none" stroke="black" points="912,-45 728,-45 728,-21 912,-21 912,-45"/>
+<text text-anchor="middle" x="820" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">ExtDataTimeSampleMapIterator</text>
+</g>
+<!-- type~extdatatimesamplemap -->
+<g id="type~~extdatatimesamplemapiterator~~InheritsGraph_node2" class="node">
+<title>type~extdatatimesamplemap</title>
+<g id="a_type~~extdatatimesamplemapiterator~~InheritsGraph_node2"><a xlink:href="../type/extdatatimesamplemap.html" xlink:title="ExtDataTimeSampleMap">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="646,-67 502,-67 502,-43 646,-43 646,-67"/>
+<text text-anchor="middle" x="574" y="-52.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataTimeSampleMap</text>
+</a>
+</g>
+</g>
+<!-- type~extdatatimesamplemapiterator&#45;&gt;type~extdatatimesamplemap -->
+<g id="type~~extdatatimesamplemapiterator~~InheritsGraph_edge2" class="edge">
+<title>type~extdatatimesamplemapiterator&#45;&gt;type~extdatatimesamplemap</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M727.8,-41.22C704.33,-43.34 679.24,-45.6 656.32,-47.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="655.94,-44.19 646.29,-48.57 656.57,-51.16 655.94,-44.19"/>
+<text text-anchor="middle" x="687" y="-48.4" font-family="Helvetica,sans-Serif" font-size="9.50">reference</text>
+</g>
+<!-- type~s_iterator~6 -->
+<g id="type~~extdatatimesamplemapiterator~~InheritsGraph_node3" class="node">
+<title>type~s_iterator~6</title>
+<g id="a_type~~extdatatimesamplemapiterator~~InheritsGraph_node3"><a xlink:href="../type/s_iterator~6.html" xlink:title="s_iterator">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="605.5,-25 542.5,-25 542.5,-1 605.5,-1 605.5,-25"/>
+<text text-anchor="middle" x="574" y="-10.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">s_iterator</text>
+</a>
+</g>
+</g>
+<!-- type~extdatatimesamplemapiterator&#45;&gt;type~s_iterator~6 -->
+<g id="type~~extdatatimesamplemapiterator~~InheritsGraph_edge1" class="edge">
+<title>type~extdatatimesamplemapiterator&#45;&gt;type~s_iterator~6</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M727.75,-21.66C721.75,-21.06 715.79,-20.49 710,-20 678.42,-17.3 642.58,-15.5 615.77,-14.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="615.73,-10.9 605.6,-14 615.46,-17.89 615.73,-10.9"/>
+<text text-anchor="middle" x="687" y="-22.4" font-family="Helvetica,sans-Serif" font-size="9.50">setIter</text>
+</g>
+<!-- type~set2~6 -->
+<g id="type~~extdatatimesamplemapiterator~~InheritsGraph_node4" class="node">
+<title>type~set2~6</title>
+<g id="a_type~~extdatatimesamplemapiterator~~InheritsGraph_node4"><a xlink:href="../type/set2~6.html" xlink:title="set2">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="420,-45 366,-45 366,-21 420,-21 420,-45"/>
+<text text-anchor="middle" x="393" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2</text>
+</a>
+</g>
+</g>
+<!-- type~extdatatimesamplemap&#45;&gt;type~set2~6 -->
+<g id="type~~extdatatimesamplemapiterator~~InheritsGraph_edge3" class="edge">
+<title>type~extdatatimesamplemap&#45;&gt;type~set2~6</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M502,-46.27C477.39,-43.25 450.84,-39.99 430.22,-37.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="430.37,-33.94 420.02,-36.2 429.52,-40.89 430.37,-33.94"/>
+<text text-anchor="middle" x="461" y="-46.4" font-family="Helvetica,sans-Serif" font-size="9.50">tree</text>
+</g>
+<!-- type~s_iterator~6&#45;&gt;type~set2~6 -->
+<g id="type~~extdatatimesamplemapiterator~~InheritsGraph_edge4" class="edge">
+<title>type~s_iterator~6&#45;&gt;type~set2~6</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M542.48,-12.54C514.97,-12.62 473.51,-13.92 438,-20 435.37,-20.45 432.67,-21.01 429.97,-21.63"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="429.09,-18.24 420.29,-24.14 430.84,-25.02 429.09,-18.24"/>
+<text text-anchor="middle" x="461" y="-22.4" font-family="Helvetica,sans-Serif" font-size="9.50">reference</text>
+</g>
+<!-- type~ivector~5 -->
+<g id="type~~extdatatimesamplemapiterator~~InheritsGraph_node5" class="node">
+<title>type~ivector~5</title>
+<g id="a_type~~extdatatimesamplemapiterator~~InheritsGraph_node5"><a xlink:href="../type/ivector~5.html" xlink:title="iVector">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="190,-66 136,-66 136,-42 190,-42 190,-66"/>
+<text text-anchor="middle" x="163" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iVector</text>
+</a>
+</g>
+</g>
+<!-- type~set2~6&#45;&gt;type~ivector~5 -->
+<g id="type~~extdatatimesamplemapiterator~~InheritsGraph_edge6" class="edge">
+<title>type~set2~6&#45;&gt;type~ivector~5</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M365.85,-35.41C325.15,-39.16 246.57,-46.4 200.37,-50.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="199.84,-47.18 190.2,-51.59 200.48,-54.15 199.84,-47.18"/>
+<text text-anchor="middle" x="278" y="-51.4" font-family="Helvetica,sans-Serif" font-size="9.50">parents, lefts, rights, heights</text>
+</g>
+<!-- type~tvector~5 -->
+<g id="type~~extdatatimesamplemapiterator~~InheritsGraph_node6" class="node">
+<title>type~tvector~5</title>
+<g id="a_type~~extdatatimesamplemapiterator~~InheritsGraph_node6"><a xlink:href="../type/tvector~5.html" xlink:title="tVector">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="190,-24 136,-24 136,0 190,0 190,-24"/>
+<text text-anchor="middle" x="163" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">tVector</text>
+</a>
+</g>
+</g>
+<!-- type~set2~6&#45;&gt;type~tvector~5 -->
+<g id="type~~extdatatimesamplemapiterator~~InheritsGraph_edge5" class="edge">
+<title>type~set2~6&#45;&gt;type~tvector~5</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M365.64,-25.54C359.87,-24.15 353.76,-22.87 348,-22 297.18,-14.34 237.69,-12.35 200.42,-11.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="200.09,-8.44 190.06,-11.86 200.03,-15.44 200.09,-8.44"/>
+<text text-anchor="middle" x="278" y="-24.4" font-family="Helvetica,sans-Serif" font-size="9.50">items</text>
+</g>
+<!-- type~pair~5 -->
+<g id="type~~extdatatimesamplemapiterator~~InheritsGraph_node7" class="node">
+<title>type~pair~5</title>
+<g id="a_type~~extdatatimesamplemapiterator~~InheritsGraph_node7"><a xlink:href="../type/pair~5.html" xlink:title="pair">
+<polygon fill="#5cb85c" stroke="#5cb85c" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pair</text>
+</a>
+</g>
+</g>
+<!-- type~tvector~5&#45;&gt;type~pair~5 -->
+<g id="type~~extdatatimesamplemapiterator~~InheritsGraph_edge7" class="edge">
+<title>type~tvector~5&#45;&gt;type~pair~5</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M135.85,-12C115.46,-12 86.92,-12 64.32,-12"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="64.09,-8.5 54.09,-12 64.09,-15.5 64.09,-8.5"/>
+<text text-anchor="middle" x="95" y="-14.4" font-family="Helvetica,sans-Serif" font-size="9.50">elements</text>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pantypeextdatatimesamplemapiteratorInheritsGraph = svgPanZoom('#typeextdatatimesamplemapiteratorInheritsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#InheritsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="InheritsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="186pt" height="32pt"
+ viewBox="0.00 0.00 185.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 181.5,-28 181.5,4 -4,4"/>
+<!-- Type -->
+<g id="node1" class="node">
+<title>Type</title>
+<polygon fill="#5cb85c" stroke="#5cb85c" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="177.5,-24 72.5,-24 72.5,0 177.5,0 177.5,-24"/>
+<text text-anchor="middle" x="125" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a derived type to the parent type which it
+extends. Dashed arrows point from a derived type to the other
+types it contains as a components, with a label listing the name(s) of
+said component(s).
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    <br>
+
+    <section>
+    <h2>Components</h2>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-reference~2"></span>
+              class(<a href='extdatatimesamplemap.html'>ExtDataTimeSampleMap</a>),
+            </td>
+              <td>private,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>reference</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-setiter"></span>
+              type(<a href='s_iterator~6.html'>s_iterator</a>),
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>setIter</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </section>
+    <br>
+    
+
+
+      <section>
+        <h2>Type-Bound Procedures</h2>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-equal"></span>
+      <h3>
+          procedure, public ::
+  <strong>equal</strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/dev-doc/proc/m_iter_equal.html'>m_iter_equal</a>
+        
+      </h3>
+    </div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  function <a href='../proc/m_iter_equal.html'>m_iter_equal</a>(this, other) result(equal)  
+</h3>
+    
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='extdatatimesamplemapiterator.html'>ExtDataTimeSampleMapIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='extdatatimesamplemapiterator.html'>ExtDataTimeSampleMapIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>other</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-key~2"></span>
+      <h3>
+          procedure, public ::
+  <strong>key</strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/dev-doc/proc/m_key.html'>m_key</a>
+        
+      </h3>
+    </div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  function <a href='../proc/m_key.html'>m_key</a>(this) result(res)  
+</h3>
+    
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='extdatatimesamplemapiterator.html'>ExtDataTimeSampleMapIterator</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>character(len=:), pointer</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-next~4"></span>
+      <h3>
+          procedure, public ::
+  <strong>next</strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/dev-doc/proc/m_next.html'>m_next</a>
+        
+      </h3>
+    </div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/m_next.html'>m_next</a>(this)  
+</h3>
+    
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='extdatatimesamplemapiterator.html'>ExtDataTimeSampleMapIterator</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-notequal"></span>
+      <h3>
+          procedure, public ::
+  <strong>notEqual</strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/dev-doc/proc/m_iter_not_equal.html'>m_iter_not_equal</a>
+        
+      </h3>
+    </div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  function <a href='../proc/m_iter_not_equal.html'>m_iter_not_equal</a>(this, other) result(not_equal)  
+</h3>
+    
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='extdatatimesamplemapiterator.html'>ExtDataTimeSampleMapIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='extdatatimesamplemapiterator.html'>ExtDataTimeSampleMapIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>other</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-operator%28SLASH%3D%29~5"></span>
+      <h3>
+          generic, public ::
+  <strong>operator(/=)</strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/dev-doc/type/extdatatimesamplemapiterator.html#boundprocedure-notequal'>notEqual</a>
+        
+      </h3>
+    </div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  function <a href='../proc/m_iter_not_equal.html'>m_iter_not_equal</a>(this, other) result(not_equal)  
+</h3>
+    
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='extdatatimesamplemapiterator.html'>ExtDataTimeSampleMapIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='extdatatimesamplemapiterator.html'>ExtDataTimeSampleMapIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>other</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-operator%28%3D%3D%29~6"></span>
+      <h3>
+          generic, public ::
+  <strong>operator(==)</strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/dev-doc/type/extdatatimesamplemapiterator.html#boundprocedure-equal'>equal</a>
+        
+      </h3>
+    </div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  function <a href='../proc/m_iter_equal.html'>m_iter_equal</a>(this, other) result(equal)  
+</h3>
+    
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='extdatatimesamplemapiterator.html'>ExtDataTimeSampleMapIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              type(<a href='extdatatimesamplemapiterator.html'>ExtDataTimeSampleMapIterator</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>other</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>logical</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-previous~3"></span>
+      <h3>
+          procedure, public ::
+  <strong>previous</strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/dev-doc/proc/m_previous.html'>m_previous</a>
+        
+      </h3>
+    </div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  subroutine <a href='../proc/m_previous.html'>m_previous</a>(this)  
+</h3>
+    
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='extdatatimesamplemapiterator.html'>ExtDataTimeSampleMapIterator</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+        </li>
+    </ul>
+  </div>
+
+          </div>
+          <div class="row">
+              <div class="card mt-3">
+    <div class="card-header codesum">
+      <span class="anchor" id="boundprocedure-value~10"></span>
+      <h3>
+          procedure, public ::
+  <strong>value</strong> => <a href='/home/runner/work/MAPL/MAPL/docs/Ford/dev-doc/proc/m_value.html'>m_value</a>
+        
+      </h3>
+    </div>
+    <ul class="list-group">
+        <li class="list-group-item">
+                  <h3>
+    private  function <a href='../proc/m_value.html'>m_value</a>(this) result(res)  
+</h3>
+    
+
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" ></span>
+              class(<a href='extdatatimesamplemapiterator.html'>ExtDataTimeSampleMapIterator</a>),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>type(<a href='extdatatimesample.html'>ExtDataTimeSample</a>), pointer</small>
+    </h4>
+    
+
+        </li>
+    </ul>
+  </div>
+
+          </div>
+      </section>
+
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-28T20:47:10.260020             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

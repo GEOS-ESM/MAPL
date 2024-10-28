@@ -1,0 +1,1433 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_ReadForcingX &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_ReadForcingX
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.2% of total for procedures.">409 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_Generic.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_generic.f90.html'>MAPL_Generic.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_genericmod.html'>MAPL_GenericMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_ReadForcingX</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_readforcingx.html#src">MAPL_ReadForcingX</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine MAPL_ReadForcingX(MPL, NAME, DATAFILE, CURRTIME, FORCING1, FORCING2, INIT_ONLY, ON_TILES, RC)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mpl~3"></span>
+              type(<a href='../type/mapl_metacomp.html'>MAPL_MetaComp</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>MPL</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-name~62"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>NAME</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-datafile~3"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>DATAFILE</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-currtime"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CURRTIME</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-forcing1"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>FORCING1</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-forcing2"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>FORCING2</strong>(:,:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-init_only~3"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>INIT_ONLY</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-on_tiles~2"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ON_TILES</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~442"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <table class="graph">
+<tr><td class="root" rowspan="75">MAPL_ReadForcingX</td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/arrdescrset.html">ArrDescrSet</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">esmf_stateget</td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="https://mathomp4.github.io/esmf/proc/esmf_timeget.html">ESMF_TimeGet</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="https://mathomp4.github.io/esmf/interface/esmf_timeset.html">ESMF_TimeSet</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/esmfl_stategetpointertodata.html">ESMFL_StateGetPointerToData</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/free_file.html">FREE_FILE</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d94e8f"><a href="../proc/getfile.html">GETFILE</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_am_i_root.html">MAPL_Am_I_Root</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_assert.html">MAPL_Assert</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/mapl_backspace.html">MAPL_Backspace</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_commsbcast.html">MAPL_CommsBcast</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/mapl_genericstateget.html">MAPL_GenericStateGet</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d94e8f"><a href="../proc/mapl_getnumsubtiles.html">MAPL_GetNumSubtiles</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_getresource.html">MAPL_GetResource</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/mapl_gridget.html">MAPL_GridGet</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_interp_fac.html">MAPL_Interp_Fac</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/mapl_locstreamget.html">MAPL_LocStreamGet</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_locstreamtransform.html">MAPL_LocStreamTransform</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_packdatetime.html">MAPL_PackDateTime</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/mapl_return.html">MAPL_Return</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/mapl_skip.html">MAPL_Skip</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/mapl_statecreatefromvarspecnew.html">MAPL_StateCreateFromVarSpecNew</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/mapl_stategetspecattrib.html">MAPL_StateGetSpecAttrib</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/mapl_stategettimestamp.html">MAPL_StateGetTimeStamp</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/mapl_statesettimestamp.html">MAPL_StateSetTimeStamp</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_unpackdatetime.html">MAPL_UnpackDateTime</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_varread~2.html">MAPL_VarRead</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/mapl_varspeccreateinlistnew.html">MAPL_VarSpecCreateInListNew</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_varspecgetindex.html">MAPL_VarSpecGetIndex</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d94e8f"><a href="../proc/mapl_verify.html">MAPL_Verify</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">mpi_barrier</td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">mpi_bcast</td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">mpi_comm_rank</td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">mpi_file_close</td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">mpi_file_open</td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/read_parallel.html">READ_PARALLEL</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/write_parallel.html">WRITE_PARALLEL</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+</table>
+          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_readforcingx~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_readforcingxCalledByGraph" width="431pt" height="74pt"
+ viewBox="0.00 0.00 431.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_readforcingx~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>proc~~mapl_readforcingx~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 427,-70 427,4 -4,4"/>
+<!-- proc~mapl_readforcingx -->
+<g id="proc~~mapl_readforcingx~~CalledByGraph_node1" class="node">
+<title>proc~mapl_readforcingx</title>
+<polygon fill="none" stroke="black" points="423,-45 303,-45 303,-21 423,-21 423,-45"/>
+<text text-anchor="middle" x="363" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_ReadForcingX</text>
+</g>
+<!-- proc~mapl_readforcing1 -->
+<g id="proc~~mapl_readforcingx~~CalledByGraph_node2" class="node">
+<title>proc~mapl_readforcing1</title>
+<g id="a_proc~~mapl_readforcingx~~CalledByGraph_node2"><a xlink:href="../proc/mapl_readforcing1.html" xlink:title="MAPL_ReadForcing1">
+<polygon fill="#d9534f" stroke="#d9534f" points="267,-66 148,-66 148,-42 267,-42 267,-66"/>
+<text text-anchor="middle" x="207.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ReadForcing1</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_readforcing1&#45;&gt;proc~mapl_readforcingx -->
+<g id="proc~~mapl_readforcingx~~CalledByGraph_edge1" class="edge">
+<title>proc~mapl_readforcing1&#45;&gt;proc~mapl_readforcingx</title>
+<path fill="none" stroke="#ff0000" d="M267.41,-45.94C275.79,-44.79 284.48,-43.61 293.04,-42.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="293.56,-45.9 303,-41.07 292.61,-38.96 293.56,-45.9"/>
+</g>
+<!-- proc~mapl_readforcing2 -->
+<g id="proc~~mapl_readforcingx~~CalledByGraph_node3" class="node">
+<title>proc~mapl_readforcing2</title>
+<g id="a_proc~~mapl_readforcingx~~CalledByGraph_node3"><a xlink:href="../proc/mapl_readforcing2.html" xlink:title="MAPL_ReadForcing2">
+<polygon fill="#d9534f" stroke="#d9534f" points="267,-24 148,-24 148,0 267,0 267,-24"/>
+<text text-anchor="middle" x="207.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ReadForcing2</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_readforcing2&#45;&gt;proc~mapl_readforcingx -->
+<g id="proc~~mapl_readforcingx~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_readforcing2&#45;&gt;proc~mapl_readforcingx</title>
+<path fill="none" stroke="#ff0000" d="M267.41,-20.06C275.79,-21.21 284.48,-22.39 293.04,-23.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="292.61,-27.04 303,-24.93 293.56,-20.1 292.61,-27.04"/>
+</g>
+<!-- interface~mapl_readforcing -->
+<g id="proc~~mapl_readforcingx~~CalledByGraph_node4" class="node">
+<title>interface~mapl_readforcing</title>
+<g id="a_proc~~mapl_readforcingx~~CalledByGraph_node4"><a xlink:href="../interface/mapl_readforcing.html" xlink:title="MAPL_ReadForcing">
+<polygon fill="#a7506f" stroke="#a7506f" points="112,-45 0,-45 0,-21 112,-21 112,-45"/>
+<text text-anchor="middle" x="56" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ReadForcing</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_readforcing&#45;&gt;proc~mapl_readforcing1 -->
+<g id="proc~~mapl_readforcingx~~CalledByGraph_edge3" class="edge">
+<title>interface~mapl_readforcing&#45;&gt;proc~mapl_readforcing1</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M112.24,-40.76C120.61,-41.94 129.33,-43.16 137.94,-44.37"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="137.58,-47.85 147.97,-45.78 138.56,-40.92 137.58,-47.85"/>
+</g>
+<!-- interface~mapl_readforcing&#45;&gt;proc~mapl_readforcing2 -->
+<g id="proc~~mapl_readforcingx~~CalledByGraph_edge4" class="edge">
+<title>interface~mapl_readforcing&#45;&gt;proc~mapl_readforcing2</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M112.24,-25.24C120.61,-24.06 129.33,-22.84 137.94,-21.63"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="138.56,-25.08 147.97,-20.22 137.58,-18.15 138.56,-25.08"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">MAPL_ReadForcingX</span><span class="p">(</span><span class="n">MPL</span><span class="p">,</span><span class="n">NAME</span><span class="p">,</span><span class="n">DATAFILE</span><span class="p">,</span><span class="n">CURRTIME</span><span class="p">,</span><span class="w">  </span><span class="p">&amp;</span>
+<span class="w">        </span><span class="n">FORCING1</span><span class="p">,</span><span class="n">FORCING2</span><span class="p">,</span><span class="n">INIT_ONLY</span><span class="p">,</span><span class="n">ON_TILES</span><span class="p">,</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_MetaComp</span><span class="p">),</span><span class="w">     </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">MPL</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w">         </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">NAME</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w">         </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">DATAFILE</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w">         </span><span class="k">intent</span><span class="p">(</span><span class="n">INout</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">CURRTIME</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">FORCING1</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">FORCING2</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">        </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">INIT_ONLY</span>
+<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">        </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">ON_TILES</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">        </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
+
+<span class="w">      </span><span class="c">! ErrLog Variables</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="c">! Locals</span>
+
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_LocStream</span><span class="p">)</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">LOCSTREAM</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w">                  </span><span class="kd">::</span><span class="w"> </span><span class="n">DATE1</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w">                  </span><span class="kd">::</span><span class="w"> </span><span class="n">DATEN</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Calendar</span><span class="p">)</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">CAL</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_DELayout</span><span class="p">)</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">LAYOUT</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w">                  </span><span class="kd">::</span><span class="w"> </span><span class="n">MIDT1</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w">                  </span><span class="kd">::</span><span class="w"> </span><span class="n">MIDT2</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w">                  </span><span class="kd">::</span><span class="w"> </span><span class="n">CURRENTTIME</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w">                  </span><span class="kd">::</span><span class="w"> </span><span class="n">GRID</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w">                 </span><span class="kd">::</span><span class="w"> </span><span class="n">FIELD</span>
+<span class="w">      </span><span class="kt">real</span><span class="w">                              </span><span class="kd">::</span><span class="w"> </span><span class="n">FAC</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">                     </span><span class="kd">::</span><span class="w"> </span><span class="n">PRE1</span><span class="p">(:</span><span class="w">  </span><span class="p">),</span><span class="w"> </span><span class="n">NEX1</span><span class="p">(:</span><span class="w">  </span><span class="p">)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">                     </span><span class="kd">::</span><span class="w"> </span><span class="n">PRE2</span><span class="p">(:,:),</span><span class="w"> </span><span class="n">NEX2</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">                     </span><span class="kd">::</span><span class="w"> </span><span class="n">LONS</span><span class="p">(:,:),</span><span class="w"> </span><span class="n">VAR2</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">TIMEDIFF</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w">                </span><span class="kd">::</span><span class="w"> </span><span class="n">FILE_HEADER_SIZE</span><span class="o">=</span><span class="mi">14</span>
+<span class="w">      </span><span class="kt">real</span><span class="w">                              </span><span class="kd">::</span><span class="w"> </span><span class="n">REAL_HEADER</span><span class="p">(</span><span class="n">FILE_HEADER_SIZE</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">HEADER</span><span class="p">(</span><span class="n">FILE_HEADER_SIZE</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">UNIT</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">DATE_PREV</span><span class="p">,</span><span class="w"> </span><span class="n">YEAR</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">USE_INIT_ONLY</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">USE_ON_TILES</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">TRANSFORM</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">ONED</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">CLIMATOLOGY</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">YY</span><span class="p">,</span><span class="w"> </span><span class="n">MM</span><span class="p">,</span><span class="w"> </span><span class="n">DD</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">H</span><span class="p">,</span><span class="w"> </span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="n">S</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">NSUBTILES</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">L1</span><span class="p">,</span><span class="w"> </span><span class="n">L2</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">TILEGRID</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">datetime</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">FileExists</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w">                           </span><span class="kd">::</span><span class="w"> </span><span class="n">AM_I_Root_</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">FNAME</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_StateItem_Flag</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">itemType</span>
+
+<span class="w">      </span><span class="c">! Process arguments</span>
+<span class="w">      </span><span class="c">!------------------</span>
+
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">INIT_ONLY</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">USE_INIT_ONLY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">INIT_ONLY</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">USE_INIT_ONLY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">ON_TILES</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">USE_ON_TILES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ON_TILES</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">USE_ON_TILES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      if</span><span class="w">    </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">FORCING1</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">ONED</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.</span>
+<span class="w">      </span><span class="k">elseif</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">FORCING2</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">ONED</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="w">      </span><span class="c">! Get parameters from generic state.</span>
+<span class="w">      </span><span class="c">!-----------------------------------</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_GenericStateGet</span><span class="p">(</span><span class="n">MPL</span><span class="p">,</span><span class="w">             </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">LOCSTREAM</span><span class="o">=</span><span class="n">LOCSTREAM</span><span class="p">,</span><span class="w">                    </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">LONS</span><span class="o">=</span><span class="n">LONS</span><span class="p">,</span><span class="w">                              </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">LAYOUT</span><span class="o">=</span><span class="n">LAYOUT</span><span class="p">,</span><span class="w">                          </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! Get the calendar from the current time</span>
+<span class="w">      </span><span class="c">!---------------------------------------</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">CurrTime</span><span class="p">,</span><span class="w"> </span><span class="n">calendar</span><span class="o">=</span><span class="n">cal</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! Scratch space for reading data files</span>
+<span class="w">      </span><span class="c">!-------------------------------------</span>
+
+<span class="w">      </span><span class="n">TRANSFORM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ONED</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="n">USE_ON_TILES</span>
+
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">TRANSFORM</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         allocate</span><span class="p">(</span><span class="n">VAR2</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">LONS</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="n">size</span><span class="p">(</span><span class="n">LONS</span><span class="p">,</span><span class="mi">2</span><span class="p">)),</span><span class="nb">STAT</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="w">      </span><span class="c">! Get the grid form generic state</span>
+<span class="w">      </span><span class="c">!-------------------------------------------------------</span>
+
+<span class="w">      </span><span class="n">GRID</span><span class="o">=</span><span class="n">MPL</span><span class="p">%</span><span class="n">GRID</span><span class="p">%</span><span class="n">ESMFGRID</span>
+
+<span class="w">      </span><span class="c">! Check if FRCSTATE already has previous and next vars. If not, create them</span>
+<span class="w">      </span><span class="c">!---------------------------------------------------------------------------</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">MPL</span><span class="p">%</span><span class="n">FORCING</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;_PREV&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">itemType</span><span class="o">=</span><span class="n">itemType</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">itemType</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_STATEITEM_FIELD</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">MPL</span><span class="p">%</span><span class="n">FORCING</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;_PREV&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">FIELD</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         if</span><span class="p">(</span><span class="n">ONED</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">NSUBTILES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_GetNumSubtiles</span><span class="p">(</span><span class="n">MPL</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">MAPL_LocStreamGet</span><span class="p">(</span><span class="n">MPL</span><span class="p">%</span><span class="n">LocStream</span><span class="p">,</span><span class="w"> </span><span class="n">TILEGRID</span><span class="o">=</span><span class="n">TILEGRID</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">            </span><span class="c">! create a spec</span>
+<span class="w">            </span><span class="k">call </span><span class="n">MAPL_VarSpecCreateInListNew</span><span class="p">(</span><span class="n">MPL</span><span class="p">%</span><span class="n">COMPONENT_SPEC</span><span class="p">%</span><span class="n">FORCING</span><span class="p">,</span><span class="w">                   </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">SHORT_NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;_PREV&#39;</span><span class="p">,</span><span class="w">                       </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">LONG_NAME</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;previous value of &#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">),</span><span class="w">          </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">NUM_SUBTILES</span><span class="o">=</span><span class="n">NSUBTILES</span><span class="p">,</span><span class="w">                                   </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">DIMS</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_DimsTileOnly</span><span class="p">,</span><span class="w">                           </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">VLOCATION</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_VLocationNone</span><span class="p">,</span><span class="w">                          </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">COUPLE_INTERVAL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w">                                     </span><span class="p">&amp;</span><span class="w"> </span><span class="c">! time not set</span>
+<span class="w">                 </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w">  </span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">call </span><span class="n">MAPL_VarSpecCreateInListNew</span><span class="p">(</span><span class="n">MPL</span><span class="p">%</span><span class="n">COMPONENT_SPEC</span><span class="p">%</span><span class="n">FORCING</span><span class="p">,</span><span class="w">                   </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">SHORT_NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;_NEXT&#39;</span><span class="p">,</span><span class="w">                       </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">LONG_NAME</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;next value of &#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">),</span><span class="w">              </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">NUM_SUBTILES</span><span class="o">=</span><span class="n">NSUBTILES</span><span class="p">,</span><span class="w">                                   </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">DIMS</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_DimsTileOnly</span><span class="p">,</span><span class="w">                           </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">VLOCATION</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_VLocationNone</span><span class="p">,</span><span class="w">                          </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">COUPLE_INTERVAL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w">                                     </span><span class="p">&amp;</span><span class="w"> </span><span class="c">! time not set</span>
+<span class="w">                 </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w">  </span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">            </span><span class="n">L1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_VarSpecGetIndex</span><span class="p">(</span><span class="n">MPL</span><span class="p">%</span><span class="n">COMPONENT_SPEC</span><span class="p">%</span><span class="n">FORCING</span><span class="p">%</span><span class="n">OLD_VAR_SPECS</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;_PREV&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="n">L2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_VarSpecGetIndex</span><span class="p">(</span><span class="n">MPL</span><span class="p">%</span><span class="n">COMPONENT_SPEC</span><span class="p">%</span><span class="n">FORCING</span><span class="p">%</span><span class="n">OLD_VAR_SPECS</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;_NEXT&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">L2</span><span class="o">==</span><span class="n">L1</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+
+<span class="w">            </span><span class="c">! create field and put it in FRCSTATE</span>
+<span class="w">            </span><span class="k">call </span><span class="n">MAPL_StateCreateFromVarSpecNew</span><span class="p">(</span><span class="n">MPL</span><span class="p">%</span><span class="n">FORCING</span><span class="p">,</span><span class="n">MPL</span><span class="p">%</span><span class="n">COMPONENT_SPEC</span><span class="p">%</span><span class="n">FORCING</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">GRID</span><span class="p">,</span><span class="n">TILEGRID</span><span class="o">=</span><span class="n">TILEGRID</span><span class="p">,</span><span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="n">L1</span><span class="p">,</span><span class="n">L2</span><span class="p">],</span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">else</span>
+<span class="k">            call </span><span class="n">MAPL_VarSpecCreateInListNew</span><span class="p">(</span><span class="n">MPL</span><span class="p">%</span><span class="n">COMPONENT_SPEC</span><span class="p">%</span><span class="n">FORCING</span><span class="p">,</span><span class="w">                   </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">SHORT_NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;_PREV&#39;</span><span class="p">,</span><span class="w">                       </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">LONG_NAME</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;previous value of &#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">),</span><span class="w">          </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">DIMS</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_DimsHorzOnly</span><span class="p">,</span><span class="w">                           </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">VLOCATION</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_VLocationNone</span><span class="p">,</span><span class="w">                          </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">COUPLE_INTERVAL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w">                                     </span><span class="p">&amp;</span><span class="w"> </span><span class="c">! time not set</span>
+<span class="w">                 </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w">  </span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">call </span><span class="n">MAPL_VarSpecCreateInListNew</span><span class="p">(</span><span class="n">MPL</span><span class="p">%</span><span class="n">COMPONENT_SPEC</span><span class="p">%</span><span class="n">FORCING</span><span class="p">,</span><span class="w">                   </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">SHORT_NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;_NEXT&#39;</span><span class="p">,</span><span class="w">                       </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">LONG_NAME</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;next value of &#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">),</span><span class="w">              </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">DIMS</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_DimsHorzOnly</span><span class="p">,</span><span class="w">                           </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">VLOCATION</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_VLocationNone</span><span class="p">,</span><span class="w">                          </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">COUPLE_INTERVAL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w">                                     </span><span class="p">&amp;</span><span class="w"> </span><span class="c">! time not set</span>
+<span class="w">                 </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w">  </span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">            </span><span class="n">L1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_VarSpecGetIndex</span><span class="p">(</span><span class="n">MPL</span><span class="p">%</span><span class="n">COMPONENT_SPEC</span><span class="p">%</span><span class="n">FORCING</span><span class="p">%</span><span class="n">OLD_VAR_SPECS</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;_PREV&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="n">L2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_VarSpecGetIndex</span><span class="p">(</span><span class="n">MPL</span><span class="p">%</span><span class="n">COMPONENT_SPEC</span><span class="p">%</span><span class="n">FORCING</span><span class="p">%</span><span class="n">OLD_VAR_SPECS</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;_NEXT&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">L2</span><span class="o">==</span><span class="n">L1</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+
+<span class="w">            </span><span class="c">! create field and put it in FRCSTATE</span>
+<span class="w">            </span><span class="k">call </span><span class="n">MAPL_StateCreateFromVarSpecNew</span><span class="p">(</span><span class="n">MPL</span><span class="p">%</span><span class="n">FORCING</span><span class="p">,</span><span class="n">MPL</span><span class="p">%</span><span class="n">COMPONENT_SPEC</span><span class="p">%</span><span class="n">FORCING</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">GRID</span><span class="p">,</span><span class="w"> </span><span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="n">L1</span><span class="p">,</span><span class="n">L2</span><span class="p">],</span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">      end if</span>
+
+<span class="w">      </span><span class="c">! Get pointers to the endpoints in the forcing state</span>
+<span class="w">      </span><span class="c">!----------------------------------------------------</span>
+
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">ONED</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">GET_POINTER</span><span class="p">(</span><span class="n">MPL</span><span class="p">%</span><span class="n">FORCING</span><span class="p">,</span><span class="w"> </span><span class="n">PRE1</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;_PREV&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">GET_POINTER</span><span class="p">(</span><span class="n">MPL</span><span class="p">%</span><span class="n">FORCING</span><span class="p">,</span><span class="w"> </span><span class="n">NEX1</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;_NEXT&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         call </span><span class="n">GET_POINTER</span><span class="p">(</span><span class="n">MPL</span><span class="p">%</span><span class="n">FORCING</span><span class="p">,</span><span class="w"> </span><span class="n">PRE2</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;_PREV&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">GET_POINTER</span><span class="p">(</span><span class="n">MPL</span><span class="p">%</span><span class="n">FORCING</span><span class="p">,</span><span class="w"> </span><span class="n">NEX2</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;_NEXT&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="w">      </span><span class="c">! Set time endpoints. These are 0000-01-01:000000 if uninitialized</span>
+<span class="w">      </span><span class="c">!----------------------------------------------------</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_StateGetTimeStamp</span><span class="p">(</span><span class="n">MPL</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;_NEXT&#39;</span><span class="p">,</span><span class="n">MIDT2</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_StateGetTimeStamp</span><span class="p">(</span><span class="n">MPL</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;_PREV&#39;</span><span class="p">,</span><span class="n">MIDT1</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! Check if the input file is a climatology</span>
+<span class="w">      </span><span class="c">!-----------------------------------------</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_StateGetSpecAttrib</span><span class="p">(</span><span class="n">MPL</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;_PREV&#39;</span><span class="p">,</span><span class="n">forcing</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">REFRESH_INTERVAL</span><span class="o">=</span><span class="n">DATE_PREV</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">DATE_PREV</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">UNIT</span><span class="o">=</span><span class="n">GETFILE</span><span class="p">(</span><span class="n">DATAFILE</span><span class="p">,</span><span class="n">form</span><span class="o">=</span><span class="s1">&#39;unformatted&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">READ_PARALLEL</span><span class="p">(</span><span class="n">LAYOUT</span><span class="p">,</span><span class="w"> </span><span class="n">REAL_HEADER</span><span class="p">,</span><span class="w"> </span><span class="n">unit</span><span class="o">=</span><span class="n">UNIT</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="n">HEADER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">nint</span><span class="p">(</span><span class="n">REAL_HEADER</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_BACKSPACE</span><span class="p">(</span><span class="n">UNIT</span><span class="p">,</span><span class="n">LAYOUT</span><span class="p">,</span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="n">CLIMATOLOGY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HEADER</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">3</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">MIDT1</span><span class="p">,</span><span class="w"> </span><span class="n">YY</span><span class="o">=</span><span class="n">YEAR</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="n">CLIMATOLOGY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">YEAR</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">3</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="w">      </span><span class="c">! Make a local copy of the current time</span>
+<span class="w">      </span><span class="c">!--------------------------------------</span>
+
+<span class="w">      </span><span class="c">!ALT clock are shallow objects!    CurrentTime = CurrTime</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">CurrTime</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">YY</span><span class="o">=</span><span class="n">YY</span><span class="p">,</span><span class="w"> </span><span class="n">MM</span><span class="o">=</span><span class="n">MM</span><span class="p">,</span><span class="w"> </span><span class="n">DD</span><span class="o">=</span><span class="n">DD</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">H</span><span class="o">=</span><span class="n">H</span><span class="p">,</span><span class="w"> </span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="n">S</span><span class="o">=</span><span class="n">S</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">CLIMATOLOGY</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">         </span><span class="n">YY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+
+<span class="w">         </span><span class="c">!ALT: In Climatology mode we should not have leap year</span>
+<span class="w">         </span><span class="c">!     so if the date is Feb.29, move it to Feb.28</span>
+
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MM</span><span class="o">==</span><span class="mi">2</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">DD</span><span class="o">==</span><span class="mi">29</span><span class="p">)</span><span class="w"> </span><span class="n">DD</span><span class="o">=</span><span class="mi">28</span>
+
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">CurrentTime</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">YY</span><span class="o">=</span><span class="n">YY</span><span class="p">,</span><span class="w"> </span><span class="n">MM</span><span class="o">=</span><span class="n">MM</span><span class="p">,</span><span class="w"> </span><span class="n">DD</span><span class="o">=</span><span class="n">DD</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">H</span><span class="o">=</span><span class="n">H</span><span class="p">,</span><span class="w"> </span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="n">S</span><span class="o">=</span><span class="n">S</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">AM_I_Root_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_AM_I_Root</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! Make sure current time is between the current endpoints;</span>
+<span class="w">      </span><span class="c">!  if not, refresh endpoints. This also works initially.</span>
+<span class="w">      </span><span class="c">!-------------------------------------------------------</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">CurrentTime</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">MIDT1</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">CurrentTime</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">MIDT2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">UPDATE_ENDPOINTS</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="w">      </span><span class="c">! Interpolate ocean and ice temp and ice fraction</span>
+<span class="w">      </span><span class="c">!   and update the forcing state on the tile grid.</span>
+<span class="w">      </span><span class="c">!--------------------------------------------------</span>
+
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">USE_INIT_ONLY</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">FAC</span><span class="o">=</span><span class="mf">1.0</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         call </span><span class="n">MAPL_Interp_Fac</span><span class="w"> </span><span class="p">(</span><span class="n">CurrentTime</span><span class="p">,</span><span class="n">MIDT1</span><span class="p">,</span><span class="n">MIDT2</span><span class="p">,</span><span class="n">FAC</span><span class="p">,</span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">FAC</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">FAC</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">!  Update the friendly skin values</span>
+<span class="w">      </span><span class="c">!---------------------------------</span>
+
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">ONED</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">FORCING1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_UNDEF</span>
+<span class="w">         </span><span class="k">where</span><span class="p">(</span><span class="n">PRE1</span><span class="o">/=</span><span class="n">MAPL_UNDEF</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">NEX1</span><span class="o">/=</span><span class="n">MAPL_UNDEF</span><span class="p">)</span>
+<span class="w">            </span><span class="n">FORCING1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FAC</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">PRE1</span><span class="w">  </span><span class="o">+</span><span class="w">  </span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">FAC</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">NEX1</span>
+<span class="w">         </span><span class="k">end where</span>
+<span class="k">         where</span><span class="p">(</span><span class="n">PRE1</span><span class="o">==</span><span class="n">MAPL_UNDEF</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">NEX1</span><span class="o">/=</span><span class="n">MAPL_UNDEF</span><span class="p">)</span>
+<span class="w">            </span><span class="n">FORCING1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NEX1</span>
+<span class="w">         </span><span class="k">end where</span>
+<span class="k">         where</span><span class="p">(</span><span class="n">PRE1</span><span class="o">/=</span><span class="n">MAPL_UNDEF</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">NEX1</span><span class="o">==</span><span class="n">MAPL_UNDEF</span><span class="p">)</span>
+<span class="w">            </span><span class="n">FORCING1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PRE1</span>
+<span class="w">         </span><span class="k">end where</span>
+<span class="k">      else</span>
+<span class="k">         </span><span class="n">FORCING2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_UNDEF</span>
+<span class="w">         </span><span class="k">where</span><span class="p">(</span><span class="n">PRE2</span><span class="o">/=</span><span class="n">MAPL_UNDEF</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">NEX2</span><span class="o">/=</span><span class="n">MAPL_UNDEF</span><span class="p">)</span>
+<span class="w">            </span><span class="n">FORCING2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FAC</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">PRE2</span><span class="w">  </span><span class="o">+</span><span class="w">  </span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">FAC</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">NEX2</span>
+<span class="w">         </span><span class="k">end where</span>
+<span class="k">         where</span><span class="p">(</span><span class="n">PRE2</span><span class="o">==</span><span class="n">MAPL_UNDEF</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">NEX2</span><span class="o">/=</span><span class="n">MAPL_UNDEF</span><span class="p">)</span>
+<span class="w">            </span><span class="n">FORCING2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NEX2</span>
+<span class="w">         </span><span class="k">end where</span>
+<span class="k">         where</span><span class="p">(</span><span class="n">PRE2</span><span class="o">/=</span><span class="n">MAPL_UNDEF</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">NEX2</span><span class="o">==</span><span class="n">MAPL_UNDEF</span><span class="p">)</span>
+<span class="w">            </span><span class="n">FORCING2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PRE2</span>
+<span class="w">         </span><span class="k">end where</span>
+<span class="k">      end if</span>
+
+<span class="k">      if</span><span class="p">(</span><span class="n">TRANSFORM</span><span class="p">)</span><span class="w"> </span><span class="k">deallocate</span><span class="p">(</span><span class="n">VAR2</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">!  All done</span>
+<span class="w">      </span><span class="c">!-----------</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">contains</span>
+
+<span class="k">      subroutine </span><span class="n">UPDATE_ENDPOINTS</span>
+
+<span class="w">         </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">DataAlreadyRead</span>
+
+<span class="w">         </span><span class="c">! Get the previous date</span>
+<span class="w">         </span><span class="c">!----------------------</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_StateGetSpecAttrib</span><span class="p">(</span><span class="n">MPL</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;_PREV&#39;</span><span class="p">,</span><span class="n">forcing</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="n">REFRESH_INTERVAL</span><span class="o">=</span><span class="n">DATE_PREV</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">         </span><span class="n">DataAlreadyRead</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">DATE_PREV</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+
+<span class="w">         </span><span class="c">! In forecast mode (init_only=.true.) we ready only once!</span>
+<span class="w">         </span><span class="c">!-------------------------------------------------------</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">use_init_only</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            if</span><span class="w"> </span><span class="p">(</span><span class="n">DataAlreadyRead</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+
+<span class="w">            </span><span class="c">! check if a bcs_restart file exists</span>
+<span class="w">            </span><span class="c">! if YES, use its content to overwrite current clock</span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">AM_I_Root_</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               call </span><span class="n">MAPL_GetResource</span><span class="p">(</span><span class="w"> </span><span class="n">MPL</span><span class="p">,</span><span class="w"> </span><span class="n">FNAME</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;BCS_RESTART:&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">default</span><span class="o">=</span><span class="s1">&#39;bcs_restart&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="k">inquire</span><span class="p">(</span><span class="k">FILE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FNAME</span><span class="p">,</span><span class="w"> </span><span class="n">EXIST</span><span class="o">=</span><span class="n">FileExists</span><span class="p">)</span>
+<span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">FileExists</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                  </span><span class="n">UNIT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GETFILE</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">FNAME</span><span class="p">,</span><span class="w"> </span><span class="n">form</span><span class="o">=</span><span class="s2">&quot;formatted&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">                  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                  </span><span class="k">read</span><span class="p">(</span><span class="n">UNIT</span><span class="p">,</span><span class="s1">&#39;(i8.8,1x,i6.6)&#39;</span><span class="p">,</span><span class="n">iostat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="n">datetime</span>
+<span class="w">                  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                  </span><span class="k">call </span><span class="n">FREE_FILE</span><span class="p">(</span><span class="n">UNIT</span><span class="p">)</span>
+<span class="w">               </span><span class="k">else</span>
+<span class="k">                  call </span><span class="n">MAPL_PackDateTime</span><span class="p">(</span><span class="n">DATETIME</span><span class="p">,</span><span class="w"> </span><span class="n">YY</span><span class="p">,</span><span class="w"> </span><span class="n">MM</span><span class="p">,</span><span class="w"> </span><span class="n">DD</span><span class="p">,</span><span class="w"> </span><span class="n">H</span><span class="p">,</span><span class="w"> </span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="n">S</span><span class="p">)</span>
+<span class="w">                  </span><span class="c">!write bcs checkpoint</span>
+<span class="w">                  </span><span class="n">UNIT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GETFILE</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">FNAME</span><span class="p">,</span><span class="w"> </span><span class="n">form</span><span class="o">=</span><span class="s2">&quot;formatted&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">                  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                  </span><span class="k">write</span><span class="p">(</span><span class="n">UNIT</span><span class="p">,</span><span class="s1">&#39;(i8.8,1x,i6.6)&#39;</span><span class="p">,</span><span class="n">iostat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="n">datetime</span>
+<span class="w">                  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                  </span><span class="k">call </span><span class="n">FREE_FILE</span><span class="p">(</span><span class="n">UNIT</span><span class="p">)</span>
+<span class="w">               </span><span class="k">end if</span>
+<span class="k">            end if</span>
+
+<span class="k">            call </span><span class="n">MAPL_CommsBcast</span><span class="p">(</span><span class="n">layout</span><span class="p">,</span><span class="w"> </span><span class="n">datetime</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">ROOT</span><span class="o">=</span><span class="n">MAPL_Root</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">CALL </span><span class="n">MAPL_UnpackDateTime</span><span class="p">(</span><span class="n">DATETIME</span><span class="p">,</span><span class="w"> </span><span class="n">YY</span><span class="p">,</span><span class="w"> </span><span class="n">MM</span><span class="p">,</span><span class="w"> </span><span class="n">DD</span><span class="p">,</span><span class="w"> </span><span class="n">H</span><span class="p">,</span><span class="w"> </span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="n">S</span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">CurrentTime</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">YY</span><span class="o">=</span><span class="n">YY</span><span class="p">,</span><span class="w"> </span><span class="n">MM</span><span class="o">=</span><span class="n">MM</span><span class="p">,</span><span class="w"> </span><span class="n">DD</span><span class="o">=</span><span class="n">DD</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">H</span><span class="o">=</span><span class="n">H</span><span class="p">,</span><span class="w"> </span><span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="n">S</span><span class="o">=</span><span class="n">S</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
+
+<span class="w">         </span><span class="c">! Get forcing fortran unit</span>
+<span class="w">         </span><span class="c">!-------------------------</span>
+
+<span class="w">         </span><span class="n">UNIT</span><span class="o">=</span><span class="n">GETFILE</span><span class="p">(</span><span class="n">DATAFILE</span><span class="p">,</span><span class="n">form</span><span class="o">=</span><span class="s1">&#39;unformatted&#39;</span><span class="p">,</span><span class="n">all_pes</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.)</span>
+
+<span class="w">         </span><span class="c">! Check to see if forcing state buffers have been initialized</span>
+<span class="w">         </span><span class="c">!-------------------------------------------------------------</span>
+
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">DATE_PREV</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">CLIMATOLOGY</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">CurrentTime</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">MIDT1</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">CurrentTime</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">MIDT2</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="w">            </span><span class="c">! If not, initialize them, by looping until correct times are found</span>
+<span class="w">            </span><span class="c">!-----------------------------------------------------------------</span>
+
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="n">AM_I_ROOT_</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               rewind</span><span class="p">(</span><span class="n">UNIT</span><span class="p">,</span><span class="w"> </span><span class="n">iostat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="k">do</span>
+<span class="k">                  read</span><span class="p">(</span><span class="n">UNIT</span><span class="p">,</span><span class="w"> </span><span class="n">iostat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="n">REAL_HEADER</span>
+<span class="w">                  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                  </span><span class="n">HEADER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">nint</span><span class="p">(</span><span class="n">REAL_HEADER</span><span class="p">)</span>
+<span class="w">                  </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">DATEN</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                       </span><span class="n">YY</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span><span class="w"> </span><span class="n">MM</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="w"> </span><span class="n">DD</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">9</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                       </span><span class="n">H</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span><span class="w"> </span><span class="n">M</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">11</span><span class="p">),</span><span class="w"> </span><span class="n">S</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                       </span><span class="n">calendar</span><span class="o">=</span><span class="n">cal</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                  </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">                  </span><span class="c">! If the current time is beyond the item&#39;s final time, skip it.</span>
+<span class="w">                  </span><span class="c">!--------------------------------------------------------------</span>
+
+<span class="w">                  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">DATEN</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">CurrentTime</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                     read</span><span class="p">(</span><span class="n">UNIT</span><span class="p">,</span><span class="w"> </span><span class="n">iostat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="k">cycle</span>
+<span class="k">                  else</span>
+<span class="k">                     backspace</span><span class="w"> </span><span class="p">(</span><span class="n">UNIT</span><span class="p">,</span><span class="w"> </span><span class="n">iostat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                     </span><span class="k">exit</span>
+<span class="k">                  end if</span>
+<span class="k">               end do</span>
+<span class="k">            end if</span>
+
+<span class="w">            </span><span class="c">! We have found an interval that contains Current. Now get its initial time</span>
+<span class="w">            </span><span class="c">!--------------------------------------------------------------------------</span>
+
+<span class="w">            </span><span class="k">call </span><span class="n">READ_PARALLEL</span><span class="p">(</span><span class="n">Layout</span><span class="p">,</span><span class="w"> </span><span class="n">REAL_HEADER</span><span class="p">,</span><span class="w"> </span><span class="n">unit</span><span class="o">=</span><span class="n">UNIT</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="n">HEADER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">nint</span><span class="p">(</span><span class="n">REAL_HEADER</span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">DATEN</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">YY</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span><span class="w"> </span><span class="n">MM</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="w"> </span><span class="n">DD</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">9</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">H</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span><span class="w"> </span><span class="n">M</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">11</span><span class="p">),</span><span class="w"> </span><span class="n">S</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">calendar</span><span class="o">=</span><span class="n">cal</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">DATE1</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">YY</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">MM</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">DD</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">H</span><span class="w"> </span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">6</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">calendar</span><span class="o">=</span><span class="n">cal</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">            </span><span class="c">! compute its central time</span>
+<span class="w">            </span><span class="c">!-------------------------</span>
+
+<span class="w">            </span><span class="n">TimeDiff</span><span class="o">=</span><span class="n">DATEN</span><span class="o">-</span><span class="n">DATE1</span>
+<span class="w">            </span><span class="n">MIDT2</span><span class="o">=</span><span class="n">DATE1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">TimeDiff</span><span class="o">/</span><span class="mf">2.0D0</span>
+
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="n">MIDT2</span><span class="o">&lt;=</span><span class="n">CurrentTime</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">use_init_only</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! The item we found is PREV</span>
+<span class="w">               </span><span class="n">MIDT1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MIDT2</span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">WRITE_PARALLEL</span><span class="p">(</span><span class="s2">&quot;Previous time for&quot;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;s is:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="k">call </span><span class="n">WRITE_PARALLEL</span><span class="p">(</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">12</span><span class="p">),</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">               </span><span class="c">! Read PREV</span>
+<span class="w">               </span><span class="c">!----------</span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">READIT</span><span class="p">(</span><span class="s1">&#39;_PREV&#39;</span><span class="p">)</span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">MAPL_StateSetTimeStamp</span><span class="p">(</span><span class="n">MPL</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;_PREV&#39;</span><span class="p">,</span><span class="n">MIDT1</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">use_init_only</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                  if</span><span class="p">(</span><span class="n">ONED</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                     </span><span class="n">NEX1</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">PRE1</span>
+<span class="w">                  </span><span class="k">else</span>
+<span class="k">                     </span><span class="n">NEX2</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">PRE2</span>
+<span class="w">                  </span><span class="k">end if</span>
+<span class="k">                  return</span>
+<span class="k">               end if</span>
+
+<span class="w">               </span><span class="c">! Read the header for NEXT</span>
+<span class="w">               </span><span class="c">!-------------------------</span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">READ_PARALLEL</span><span class="p">(</span><span class="n">Layout</span><span class="p">,</span><span class="w"> </span><span class="n">REAL_HEADER</span><span class="p">,</span><span class="w"> </span><span class="n">unit</span><span class="o">=</span><span class="n">UNIT</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="n">HEADER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">nint</span><span class="p">(</span><span class="n">REAL_HEADER</span><span class="p">)</span>
+
+<span class="w">               </span><span class="c">! Get NEXT&#39;s initial and final times</span>
+<span class="w">               </span><span class="c">!-----------------------------------</span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">DATEN</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">YY</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span><span class="w"> </span><span class="n">MM</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="w"> </span><span class="n">DD</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">9</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">H</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span><span class="w"> </span><span class="n">M</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">11</span><span class="p">),</span><span class="w"> </span><span class="n">S</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">calendar</span><span class="o">=</span><span class="n">cal</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">DATE1</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">YY</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">MM</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">DD</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">H</span><span class="w"> </span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">6</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">calendar</span><span class="o">=</span><span class="n">cal</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">               </span><span class="c">! compute its central time</span>
+<span class="w">               </span><span class="c">!-------------------------</span>
+
+<span class="w">               </span><span class="n">TimeDiff</span><span class="o">=</span><span class="n">DATEN</span><span class="o">-</span><span class="n">DATE1</span>
+<span class="w">               </span><span class="n">MIDT2</span><span class="o">=</span><span class="n">DATE1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">TimeDiff</span><span class="o">/</span><span class="mf">2.0D0</span>
+
+<span class="w">               </span><span class="c">! and read NEXT</span>
+<span class="w">               </span><span class="c">!--------------</span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">READIT</span><span class="p">(</span><span class="s1">&#39;_NEXT&#39;</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">MAPL_StateSetTimeStamp</span><span class="p">(</span><span class="n">MPL</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;_NEXT&#39;</span><span class="p">,</span><span class="n">MIDT2</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">else</span>
+
+<span class="w">               </span><span class="c">! Read NEXT</span>
+<span class="w">               </span><span class="c">!----------</span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">READIT</span><span class="p">(</span><span class="s1">&#39;_NEXT&#39;</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">MAPL_StateSetTimeStamp</span><span class="p">(</span><span class="n">MPL</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;_NEXT&#39;</span><span class="p">,</span><span class="n">MIDT2</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">               </span><span class="c">! Back up to get PREV</span>
+<span class="w">               </span><span class="c">!--------------------</span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">MAPL_Backspace</span><span class="p">(</span><span class="n">UNIT</span><span class="p">,</span><span class="w"> </span><span class="n">LAYOUT</span><span class="p">,</span><span class="w"> </span><span class="nb">COUNT</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">);</span><span class="w"> </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">               </span><span class="c">! Read the header of PREV item</span>
+<span class="w">               </span><span class="c">!-----------------------------</span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">READ_PARALLEL</span><span class="p">(</span><span class="n">Layout</span><span class="p">,</span><span class="w"> </span><span class="n">REAL_HEADER</span><span class="p">,</span><span class="w"> </span><span class="n">unit</span><span class="o">=</span><span class="n">UNIT</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="n">HEADER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">nint</span><span class="p">(</span><span class="n">REAL_HEADER</span><span class="p">)</span>
+
+<span class="w">               </span><span class="c">! Get the item&#39;s initial and final times</span>
+<span class="w">               </span><span class="c">!---------------------------------------</span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">DATEN</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">YY</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span><span class="w"> </span><span class="n">MM</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="w"> </span><span class="n">DD</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">9</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">H</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span><span class="w"> </span><span class="n">M</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">11</span><span class="p">),</span><span class="w"> </span><span class="n">S</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">calendar</span><span class="o">=</span><span class="n">cal</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">DATE1</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">YY</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">MM</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">DD</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">H</span><span class="w"> </span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">6</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">calendar</span><span class="o">=</span><span class="n">cal</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">               </span><span class="c">! compute its central time</span>
+<span class="w">               </span><span class="c">!-------------------------</span>
+
+<span class="w">               </span><span class="n">TimeDiff</span><span class="o">=</span><span class="n">DATEN</span><span class="o">-</span><span class="n">DATE1</span>
+<span class="w">               </span><span class="n">MIDT1</span><span class="o">=</span><span class="n">DATE1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">TimeDiff</span><span class="o">/</span><span class="mf">2.0D0</span>
+
+<span class="w">               </span><span class="c">! Read PREV</span>
+<span class="w">               </span><span class="c">!----------</span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">READIT</span><span class="p">(</span><span class="s1">&#39;_PREV&#39;</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">MAPL_StateSetTimeStamp</span><span class="p">(</span><span class="n">MPL</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;_PREV&#39;</span><span class="p">,</span><span class="n">MIDT1</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">               </span><span class="c">! Skip over NEXT to be positioned for subsequent reads</span>
+<span class="w">               </span><span class="c">!-----------------------------------------------------</span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">MAPL_Skip</span><span class="p">(</span><span class="n">UNIT</span><span class="p">,</span><span class="w"> </span><span class="n">LAYOUT</span><span class="p">,</span><span class="w"> </span><span class="nb">COUNT</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">);</span><span class="w"> </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">end if</span>
+
+<span class="k">         elseif</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">use_init_only</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="c">! Just need to update NEXT,  PREV is old NEXT</span>
+
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="n">ONED</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               </span><span class="n">PRE1</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">NEX1</span>
+<span class="w">            </span><span class="k">else</span>
+<span class="k">               </span><span class="n">PRE2</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">NEX2</span>
+<span class="w">            </span><span class="k">end if</span>
+
+<span class="k">            </span><span class="n">MIDT1</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">MIDT2</span>
+
+<span class="w">            </span><span class="c">! Move time stamp from NEXT to PREV</span>
+<span class="w">            </span><span class="c">!------------------------------------------</span>
+
+<span class="w">            </span><span class="k">call </span><span class="n">MAPL_StateGetTimeStamp</span><span class="p">(</span><span class="n">MPL</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;_NEXT&#39;</span><span class="p">,</span><span class="n">MIDT2</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">MAPL_StateSetTimeStamp</span><span class="p">(</span><span class="n">MPL</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;_PREV&#39;</span><span class="p">,</span><span class="n">MIDT2</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">            </span><span class="c">! Read the header of next item</span>
+<span class="w">            </span><span class="c">!-----------------------------</span>
+
+<span class="w">            </span><span class="k">call </span><span class="n">READ_PARALLEL</span><span class="p">(</span><span class="n">Layout</span><span class="p">,</span><span class="w"> </span><span class="n">REAL_HEADER</span><span class="p">,</span><span class="w"> </span><span class="n">unit</span><span class="o">=</span><span class="n">UNIT</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="n">HEADER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">nint</span><span class="p">(</span><span class="n">REAL_HEADER</span><span class="p">)</span>
+
+<span class="w">            </span><span class="c">! Get the item&#39;s initial and final time</span>
+<span class="w">            </span><span class="c">!--------------------------------------</span>
+
+<span class="w">            </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">DATE1</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">YY</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">MM</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">DD</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">H</span><span class="w"> </span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">6</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">calendar</span><span class="o">=</span><span class="n">cal</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">DATEN</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">YY</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span><span class="w"> </span><span class="n">MM</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="w"> </span><span class="n">DD</span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">9</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">H</span><span class="w"> </span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">11</span><span class="p">),</span><span class="n">S</span><span class="w"> </span><span class="o">=</span><span class="n">HEADER</span><span class="p">(</span><span class="mi">12</span><span class="p">),&amp;</span>
+<span class="w">                 </span><span class="n">calendar</span><span class="o">=</span><span class="n">cal</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">            </span><span class="n">TimeDiff</span><span class="o">=</span><span class="n">DATEN</span><span class="o">-</span><span class="n">DATE1</span>
+<span class="w">            </span><span class="n">MIDT2</span><span class="o">=</span><span class="n">DATE1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">TimeDiff</span><span class="o">/</span><span class="mf">2.0D0</span>
+
+<span class="w">            </span><span class="c">! Verify that it is the next item</span>
+<span class="w">            </span><span class="c">!--------------------------------</span>
+
+<span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">MIDT2</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">CurrentTime</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+
+<span class="w">            </span><span class="c">! Read NEXT</span>
+<span class="w">            </span><span class="c">!----------</span>
+
+<span class="w">            </span><span class="k">call </span><span class="n">READIT</span><span class="p">(</span><span class="s1">&#39;_NEXT&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">call </span><span class="n">MAPL_StateSetTimeStamp</span><span class="p">(</span><span class="n">MPL</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;_NEXT&#39;</span><span class="p">,</span><span class="n">MIDT2</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">endif</span>
+
+<span class="k">      end subroutine </span><span class="n">UPDATE_ENDPOINTS</span>
+
+<span class="w">      </span><span class="k">subroutine </span><span class="n">READIT</span><span class="p">(</span><span class="n">WHICH</span><span class="p">)</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">WHICH</span>
+<span class="w">         </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">VAR1</span><span class="p">(:)</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">PRF</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">MUNIT</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">io_rank</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">MPI_OFFSET_KIND</span><span class="p">)</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">offset</span>
+<span class="w">         </span><span class="kt">logical</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">AmReader</span>
+<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ArrDescr</span><span class="p">)</span><span class="kd">::</span><span class="w"> </span><span class="n">ArrDes</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">MPI_OFFSET_KIND</span><span class="p">)</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="err">_</span><span class="n">FTELL</span>
+<span class="cp">#ifndef __GFORTRAN__</span>
+<span class="w">         </span><span class="k">external</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="err">_</span><span class="n">FTELL</span>
+<span class="cp">#endif</span>
+<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">TILEGRID</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">COUNTS</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_GetResource</span><span class="p">(</span><span class="w"> </span><span class="n">MPL</span><span class="p">,</span><span class="w"> </span><span class="n">PRF</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;PARALLEL_READFORCING:&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="n">MUNIT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="c">! to avoid un-init problems</span>
+
+<span class="w">         </span><span class="n">AmReader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">PRF</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">AmReader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">readers_comm</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MPI_COMM_NULL</span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">use_ON_TILES</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               call </span><span class="n">MAPL_LocStreamGet</span><span class="p">(</span><span class="n">LocStream</span><span class="p">,</span><span class="w"> </span><span class="n">TILEGRID</span><span class="o">=</span><span class="n">TILEGRID</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">MAPL_GridGet</span><span class="p">(</span><span class="n">TILEGRID</span><span class="p">,</span><span class="w"> </span><span class="n">globalCellCountPerDim</span><span class="o">=</span><span class="n">COUNTS</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="k">call </span><span class="n">ArrDescrSet</span><span class="p">(</span><span class="n">arrdes</span><span class="p">,</span><span class="w">                     </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">readers_comm</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">readers_comm</span><span class="p">,</span><span class="w">  </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">ioscattercomm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">comm</span><span class="p">,</span><span class="w">          </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">i1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">i1</span><span class="p">,</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">in</span><span class="p">,</span><span class="w">     </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">j1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">j1</span><span class="p">,</span><span class="w"> </span><span class="n">jn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">jn</span><span class="p">,</span><span class="w">     </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">im_world</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">COUNTS</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w">                   </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">jm_world</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">COUNTS</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w">                  </span><span class="p">)</span>
+<span class="w">            </span><span class="k">else</span>
+<span class="k">               call </span><span class="n">ArrDescrSet</span><span class="p">(</span><span class="n">arrdes</span><span class="p">,</span><span class="w">                     </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">readers_comm</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">readers_comm</span><span class="p">,</span><span class="w">  </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">ioscattercomm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">ioscattercomm</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">i1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">i1</span><span class="p">,</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">in</span><span class="p">,</span><span class="w">     </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">j1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">j1</span><span class="p">,</span><span class="w"> </span><span class="n">jn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">jn</span><span class="p">,</span><span class="w">     </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">im_world</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">im_world</span><span class="p">,</span><span class="w">           </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">jm_world</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">jm_world</span><span class="p">)</span>
+<span class="w">            </span><span class="k">endif</span>
+<span class="k">            </span><span class="n">arrdes</span><span class="p">%</span><span class="n">Ycomm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">Ycomm</span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">AmReader</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               call </span><span class="n">MPI_COMM_RANK</span><span class="p">(</span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">readers_comm</span><span class="p">,</span><span class="w"> </span><span class="n">io_rank</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">io_rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                  print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;Using parallel IO for reading file: &#39;</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">DATAFILE</span><span class="p">)</span>
+
+<span class="cp">#ifdef __NAG_COMPILER_RELEASE</span>
+<span class="w">                  </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;NAG does not provide ftell. Convert to stream I/O&#39;</span><span class="p">)</span>
+<span class="cp">#else</span>
+<span class="w">                  </span><span class="n">offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">_</span><span class="n">FTELL</span><span class="p">(</span><span class="n">UNIT</span><span class="p">)</span><span class="o">+</span><span class="mi">4</span>
+<span class="cp">#endif</span>
+
+<span class="w">                  </span><span class="c">! MAT: Here we help protect against use of the 32-bit</span>
+<span class="w">                  </span><span class="c">!      ftell from the macro at top. If we read a file</span>
+<span class="w">                  </span><span class="c">!      &gt; 2 gb, ftell returns a negative number, so</span>
+<span class="w">                  </span><span class="c">!      offset will be less than 4.</span>
+
+<span class="w">                  </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">offset</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+<span class="w">               </span><span class="k">end if</span>
+<span class="w">               </span><span class="c">!ALT: disclaimer</span>
+<span class="w">               </span><span class="c">! This code assumes the reader with i0_rank == 0 is also Root in the Components VM</span>
+<span class="w">               </span><span class="c">! This is the only processor that actually could check the offset in the file</span>
+<span class="w">               </span><span class="k">call </span><span class="n">MPI_Bcast</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER8</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">readers_comm</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="k">call </span><span class="n">ArrDescrSet</span><span class="p">(</span><span class="n">arrdes</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">)</span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">MPI_Barrier</span><span class="p">(</span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">readers_comm</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="k">call </span><span class="n">MPI_FILE_OPEN</span><span class="p">(</span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">readers_comm</span><span class="p">,</span><span class="w"> </span><span class="n">DATAFILE</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_MODE_RDONLY</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">MPI_INFO_NULL</span><span class="p">,</span><span class="w"> </span><span class="n">MUNIT</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="k">call </span><span class="n">MPI_Barrier</span><span class="p">(</span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">readers_comm</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">end if</span>
+<span class="k">         end if</span>
+
+<span class="k">         if</span><span class="p">(</span><span class="n">TRANSFORM</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            if</span><span class="w"> </span><span class="p">(</span><span class="n">PRF</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span><span class="w"> </span><span class="c">! for now</span>
+<span class="w">            </span><span class="k">else</span>
+<span class="w">               </span><span class="c">! ALT this LOOKS WRONG. MAPL_VarRead needs a mask for tiles!</span>
+<span class="w">               </span><span class="k">call </span><span class="n">MAPL_VarRead</span><span class="p">(</span><span class="n">UNIT</span><span class="p">,</span><span class="w"> </span><span class="n">GRID</span><span class="p">,</span><span class="w"> </span><span class="n">VAR2</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">end if</span>
+<span class="k">            call </span><span class="n">GET_POINTER</span><span class="p">(</span><span class="n">MPL</span><span class="p">%</span><span class="n">FORCING</span><span class="p">,</span><span class="w"> </span><span class="n">VAR1</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="n">WHICH</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">MAPL_LocStreamTransform</span><span class="p">(</span><span class="n">LOCSTREAM</span><span class="p">,</span><span class="w"> </span><span class="n">VAR1</span><span class="p">,</span><span class="w"> </span><span class="n">VAR2</span><span class="p">,</span><span class="w"> </span><span class="n">interp</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="k">else</span>
+<span class="k">            if</span><span class="w"> </span><span class="p">(</span><span class="n">PRF</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               call </span><span class="n">MAPL_VarRead</span><span class="p">(</span><span class="n">UNIT</span><span class="o">=</span><span class="n">MUNIT</span><span class="p">,</span><span class="w"> </span><span class="n">STATE</span><span class="o">=</span><span class="n">MPL</span><span class="p">%</span><span class="n">FORCING</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="n">WHICH</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">arrdes</span><span class="o">=</span><span class="n">arrdes</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">else</span>
+<span class="k">               call </span><span class="n">MAPL_VarRead</span><span class="p">(</span><span class="n">UNIT</span><span class="p">,</span><span class="w"> </span><span class="n">MPL</span><span class="p">%</span><span class="n">FORCING</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">)</span><span class="o">//</span><span class="n">WHICH</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">end if</span>
+<span class="k">         end if</span>
+
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">AmReader</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">            </span><span class="c">! we need to advance the file pointer properly (to the end of the current record) on root</span>
+<span class="w">            </span><span class="c">! by using a blank Fortran read</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">io_rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               read</span><span class="p">(</span><span class="n">UNIT</span><span class="p">,</span><span class="w"> </span><span class="n">iostat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">end if</span>
+
+<span class="k">            call </span><span class="n">MPI_Barrier</span><span class="p">(</span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">readers_comm</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">MPI_FILE_CLOSE</span><span class="p">(</span><span class="n">MUNIT</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">MPI_Barrier</span><span class="p">(</span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">readers_comm</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">endif</span>
+
+<span class="k">      end subroutine </span><span class="n">READIT</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">MAPL_READFORCINGX</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-28T20:47:10.260020             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
