@@ -36,9 +36,11 @@ module mapl3g_InfoUtilities
    public :: MAPL_InfoSet
 
    public :: MAPL_InfoCreateFromInternal
+   public :: MAPL_InfoCreateFromShared
    
    public :: MAPL_InfoGetShared
    public :: MAPL_InfoSetShared
+   public :: MAPL_InfoCopyShared
    public :: MAPL_InfoGetPrivate
    public :: MAPL_InfoSetPrivate
    public :: MAPL_InfoGetInternal
@@ -48,6 +50,10 @@ module mapl3g_InfoUtilities
    interface MAPL_InfoCreateFromInternal
       procedure :: info_field_create_from_internal
    end interface MAPL_InfoCreateFromInternal
+
+   interface MAPL_InfoCreateFromShared
+      procedure :: info_field_create_from_shared
+   end interface MAPL_InfoCreateFromShared
 
    ! Direct access through ESMF_Info object
    interface MAPL_InfoGet
@@ -61,7 +67,8 @@ module mapl3g_InfoUtilities
 
    ! Access info object from esmf stateitem
    interface MAPL_InfoGetShared
-      procedure :: info_get_state_shared_string
+      procedure :: info_state_get_shared_string
+      procedure :: info_field_get_shared_i4
       procedure :: info_stateitem_get_shared_string
       procedure :: info_stateitem_get_shared_logical
       procedure :: info_stateitem_get_shared_i4
@@ -71,7 +78,8 @@ module mapl3g_InfoUtilities
    end interface MAPL_InfoGetShared
 
    interface MAPL_InfoSetShared
-      procedure :: info_set_state_shared_string
+      procedure :: info_state_set_shared_string
+      procedure :: info_field_set_shared_i4
       procedure :: info_stateitem_set_shared_string
       procedure :: info_stateitem_set_shared_logical
       procedure :: info_stateitem_set_shared_i4
@@ -79,6 +87,10 @@ module mapl3g_InfoUtilities
       procedure :: info_stateitem_set_shared_r8
       procedure :: info_stateitem_set_shared_r4_1d
    end interface MAPL_InfoSetShared
+
+   interface MAPL_InfoCopyShared
+      procedure :: info_field_copy_shared
+   end interface MAPL_InfoCopyShared
 
    interface MAPL_InfoGetPrivate
       procedure :: info_stateitem_get_private_string
@@ -256,9 +268,23 @@ contains
       _RETURN(_SUCCESS)
    end function info_field_create_from_internal
 
-   ! MAPL_InfoGetShared
+   function info_field_create_from_shared(field, rc) result(info)
+      type(ESMF_Info) :: info
+      type(ESMF_Field), intent(in) :: field
+      integer, optional, intent(out) :: rc
 
-   subroutine info_get_state_shared_string(state, key, value, unusable, rc)
+      type(ESMF_Info) :: host_info
+      integer :: status
+
+      call ESMF_InfoGetFromHost(field, host_info, _RC)
+      info = ESMF_InfoCreate(host_info, key=INFO_SHARED_NAMESPACE, _RC)
+
+      _RETURN(_SUCCESS)
+   end function info_field_create_from_shared
+
+
+   ! MAPL_InfoGetShared
+   subroutine info_state_get_shared_string(state, key, value, unusable, rc)
       type(ESMF_State), intent(in) :: state
       character(*), intent(in) :: key
       character(:), allocatable, intent(out) :: value
@@ -272,7 +298,23 @@ contains
       call MAPL_InfoGet(state_info, key=concat(INFO_SHARED_NAMESPACE,key), value=value, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine info_get_state_shared_string
+   end subroutine info_state_get_shared_string
+
+   subroutine info_field_get_shared_i4(field, key, value, unusable, rc)
+      type(ESMF_Field), intent(in) :: field
+      character(*), intent(in) :: key
+      integer(kind=ESMF_KIND_I4), intent(out) :: value
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: field_info
+
+      call ESMF_InfoGetFromHost(field, field_info, _RC)
+      call MAPL_InfoGet(field_info, key=concat(INFO_SHARED_NAMESPACE,key), value=value, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine info_field_get_shared_i4
 
    subroutine info_stateitem_get_shared_string(state, short_name, key, value, rc)
       type(ESMF_State), intent(in) :: state
@@ -373,7 +415,7 @@ contains
 
    ! MAPL_InfoSetShared
 
-   subroutine info_set_state_shared_string(state, key, value, unusable, rc)
+   subroutine info_state_set_shared_string(state, key, value, unusable, rc)
       type(ESMF_State), intent(in) :: state
       character(*), intent(in) :: key
       character(*), intent(in) :: value
@@ -387,7 +429,22 @@ contains
       call MAPL_InfoSet(state_info, key=concat(INFO_SHARED_NAMESPACE,key), value=value, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine info_set_state_shared_string
+   end subroutine info_state_set_shared_string
+
+   subroutine info_field_set_shared_i4(field, key, value, rc)
+      type(ESMF_Field), intent(in) :: field
+      character(*), intent(in) :: key
+      integer(kind=ESMF_KIND_I4), intent(in) :: value
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: field_info
+
+      call ESMF_InfoGetFromHost(field, field_info, _RC)
+      call MAPL_InfoSet(field_info, key=concat(INFO_SHARED_NAMESPACE,key), value=value, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine info_field_set_shared_i4
 
    subroutine info_stateitem_set_shared_string(state, short_name, key, value, rc)
       type(ESMF_State), intent(in) :: state
@@ -1078,6 +1135,23 @@ contains
       full_key = namespace // '/' //key
 
    end function concat
+
+   subroutine info_field_copy_shared(field_in, field_out, rc)
+      type(ESMF_Field), intent(in) :: field_in
+      type(ESMF_Field), intent(inout) :: field_out
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: shared_info, info_out
+
+      shared_info = MAPL_InfoCreateFromShared(field_in, _RC)
+      call ESMF_InfoGetFromHost(field_out, info_out, _RC)
+      ! 'force' may be needed in next, but ideally the import field will not yet have an shared space
+      call MAPL_InfoSet(info_out, INFO_SHARED_NAMESPACE, shared_info, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine info_field_copy_shared
+      
    
 end module mapl3g_InfoUtilities
 
