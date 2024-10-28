@@ -5,7 +5,9 @@ module mapl3g_FixedLevelsVerticalGrid
    use mapl_ErrorHandling
    use mapl3g_VerticalGrid
    use mapl3g_GriddedComponentDriver
+   use mapl3g_VerticalDimSpec
    use esmf
+
    use, intrinsic :: iso_fortran_env, only: REAL32
 
    implicit none
@@ -25,7 +27,6 @@ module mapl3g_FixedLevelsVerticalGrid
       procedure :: get_coordinate_field
       procedure :: can_connect_to
       procedure :: write_formatted
-      generic :: write(formatted) => write_formatted
    end type FixedLevelsVerticalGrid
 
    interface FixedLevelsVerticalGrid
@@ -59,7 +60,7 @@ contains
       num_levels = size(this%levels)
    end function get_num_levels
 
-   subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, rc)
+   subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, vertical_dim_spec, rc)
       class(FixedLevelsVerticalGrid), intent(in) :: this
       type(ESMF_Field), intent(out) :: field
       type(GriddedComponentDriver), pointer, intent(out) :: coupler
@@ -67,6 +68,7 @@ contains
       type(ESMF_Geom), intent(in) :: geom
       type(ESMF_TypeKind_Flag), intent(in) :: typekind
       character(*), intent(in) :: units
+      type(VerticalDimSpec), intent(in) :: vertical_dim_spec
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -89,6 +91,7 @@ contains
       _UNUSED_DUMMY(standard_name)
       _UNUSED_DUMMY(typekind)
       _UNUSED_DUMMY(units)
+      _UNUSED_DUMMY(vertical_dim_spec)
    end subroutine get_coordinate_field
 
    logical function can_connect_to(this, src, rc)
@@ -110,7 +113,7 @@ contains
       integer, intent(out) :: iostat
       character(*), intent(inout) :: iomsg
 
-      write(unit, "(1x, a, a, 4x, a, a, a, 4x, a, a, a, 4x, a, *(g0, 1x), a, 1x, a)", iostat=iostat, iomsg=iomsg) &
+      write(unit, "(a, a, 3x, a, a, a, 3x, a, a, a, 3x, a, *(g0, 1x), a, a)", iostat=iostat, iomsg=iomsg) &
            "FixedLevelsVerticalGrid(", new_line("a"), &
            "standard name: ", this%standard_name, new_line("a"), &
            "units: ", this%units, new_line("a"), &
