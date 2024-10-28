@@ -113,6 +113,9 @@ module mapl3g_FieldSpec
 
       procedure :: set_info
       procedure :: set_geometry
+
+      procedure :: write_formatted
+      generic :: write(formatted) => write_formatted
    end type FieldSpec
 
    interface FieldSpec
@@ -328,6 +331,31 @@ contains
 
       _RETURN(ESMF_SUCCESS)
    end subroutine allocate
+
+   subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
+      class(FieldSpec), intent(in) :: this
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      write(unit, "(a, a)", iostat=iostat, iomsg=iomsg) "FieldSpec(", new_line("a")
+      if (allocated(this%standard_name)) then
+         write(unit, "(3x, a, a, a)", iostat=iostat, iomsg=iomsg) "standard name:", this%standard_name, new_line("a")
+      end if
+      if (allocated(this%long_name)) then
+         write(unit, "(3x, a, a, a)", iostat=iostat, iomsg=iomsg) "long name:", this%long_name, new_line("a")
+      end if
+      if (allocated(this%units)) then
+         write(unit, "(3x, a, a, a)", iostat=iostat, iomsg=iomsg) "unit:", this%units, new_line("a")
+      end if
+      write(unit, "(3x, dt'g0', a)", iostat=iostat, iomsg=iomsg) this%vertical_dim_spec, new_line("a")
+      if (allocated(this%vertical_grid)) then
+         write(unit, "(3x, dt'g0', a)", iostat=iostat, iomsg=iomsg) this%vertical_grid, new_line("a")
+      end if
+      write(unit, "(a)") ")"
+   end subroutine write_formatted
 
    function get_ungridded_bounds(this, rc) result(bounds)
       type(LU_Bound), allocatable :: bounds(:)
