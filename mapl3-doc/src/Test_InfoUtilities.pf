@@ -28,7 +28,6 @@ contains
 
    @test
    subroutine test_info_get_internal_info()
-      type(ESMF_Info) :: info
       type(ESMF_Info) :: subinfo
       integer :: status
       type(ESMF_Field) :: field
@@ -350,6 +349,10 @@ contains
       call MAPL_InfoSetNameSpace(state_b, namespace='/compB', _RC)
 
 
+      ! Same field goes in multiple states.  Accesses to private
+      ! attributes first retrieves the namespace from state.
+      ! Note that this means "raw" access to private attributes is
+      ! not supported as the context in not available.
       field = ESMF_FieldEmptyCreate(name='f', _RC)
       call ESMF_StateAdd(state_a, [field], _RC)
       call ESMF_StateAdd(state_b, [field], _RC)
@@ -549,6 +552,28 @@ contains
       call ESMF_StateDestroy(state, _RC)
 
    end subroutine test_setInternal_bundle
+
+   @test
+   subroutine test_copy_shared_field()
+      type(ESMF_Field) :: f_in, f_out
+      integer :: status
+      integer :: ia, ib
+
+      f_in = ESMF_FieldEmptyCreate(name='f_in', _RC)
+      f_out= ESMF_FieldEmptyCreate(name='f_out', _RC)
+
+      call MAPL_InfoSetShared(f_in, key='a', value=1, _RC)
+      call MAPL_InfoSetShared(f_in, key='b', value=2, _RC)
+
+      call MAPL_InfoCopyShared(f_in, f_out, _RC)
+
+      call MAPL_InfoGetShared(f_out, key='a', value=ia, _RC)
+      call MAPL_InfoGetShared(f_out, key='b', value=ib, _RC)
+
+      @assert_that(ia, is(1))
+      @assert_that(ib, is(2))
+
+   end subroutine test_copy_shared_field
 
 end module Test_InfoUtilities
 
