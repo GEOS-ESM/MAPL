@@ -21,8 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Fixed timer bug in History with GEOS pert application 
-
+- Fixed timer bug in History with GEOS pert application
 
 ## [2.47.1.1] - 2024-10-24
 
