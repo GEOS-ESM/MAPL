@@ -1,10 +1,12 @@
 #include "MAPL_ErrLog.h"
 
-submodule (mapl3g_LonAxis) supports_hconfig_smod
+submodule (mapl3g_LatAxis) supports_hconfig_smod
    use mapl_RangeMod
-   use mapl_ErrorHandling
+!   use hconfig3g
    use esmf
+   use mapl_ErrorHandling
    implicit none (type, external)
+
    integer, parameter :: R8 = ESMF_KIND_R8
 
 contains
@@ -14,18 +16,17 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: has_im_world
-      logical :: has_lon_range
-      logical :: has_dateline
-
+      logical :: has_jm_world
+      logical :: has_lat_range
+      logical :: has_pole
       supports = .true.
 
-      has_im_world = ESMF_HConfigIsDefined(hconfig, keystring='lon_range', _RC)
-      _RETURN_UNLESS(has_im_world)
+      has_jm_world = ESMF_HConfigIsDefined(hconfig, keystring='jm_world', _RC)
+      _RETURN_UNLESS(has_jm_world)
 
-      has_lon_range = ESMF_HConfigIsDefined(hconfig, keystring='lon_range', _RC)
-      has_dateline = ESMF_HConfigIsDefined(hconfig, keystring='dateline', _RC)
-      _RETURN_UNLESS(has_lon_range .neqv. has_dateline)
+      has_lat_range = ESMF_HConfigIsDefined(hconfig, keystring='lat_range', _RC)
+      has_pole = ESMF_HConfigIsDefined(hconfig, keystring='pole', _RC)
+      _RETURN_UNLESS(has_lat_range .neqv. has_pole)
       supports = .true.
 
       _RETURN(_SUCCESS)

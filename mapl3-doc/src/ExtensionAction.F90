@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 module mapl3g_ExtensionAction
    use mapl_ErrorHandling
+   use ESMF
    implicit none
    private
 

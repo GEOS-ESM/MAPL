@@ -11,9 +11,11 @@ module mapl3g_esmf_info_keys
    public :: KEY_UNGRIDDED_DIMS
    public :: KEY_VERT_DIM
    public :: KEY_VERT_GRID
+   public :: KEY_INTERPOLATION_WEIGHTS
    public :: KEY_UNITS
    public :: KEY_LONG_NAME
    public :: KEY_STANDARD_NAME
+   public :: KEY_TYPEKIND
    public :: KEY_NUM_LEVELS
    public :: KEY_VLOC
    public :: KEY_NUM_UNGRIDDED_DIMS
@@ -35,8 +37,10 @@ module mapl3g_esmf_info_keys
    character(len=*), parameter :: KEY_VERT_DIM = '/vertical_dim'
    character(len=*), parameter :: KEY_VERT_GRID = '/vertical_grid'
    character(len=*), parameter :: KEY_UNITS = '/units'
+   character(len=*), parameter :: KEY_TYPEKIND = '/typekind'
    character(len=*), parameter :: KEY_LONG_NAME = '/long_name'
    character(len=*), parameter :: KEY_STANDARD_NAME = '/standard_name'
+   character(len=*), parameter :: KEY_INTERPOLATION_WEIGHTS = '/interpolation_weights'
 
    ! VerticalGeom info keys
    character(len=*), parameter :: KEY_NUM_LEVELS = KEY_VERT_GRID // '/num_levels'
