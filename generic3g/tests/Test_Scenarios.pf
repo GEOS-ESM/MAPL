@@ -1,6 +1,7 @@
 #include "MAPL_TestErr.h"
 
 module Test_Scenarios
+
    use mapl3g_Generic
    use mapl3g_GenericPhases
    use mapl3g_MultiState
@@ -15,8 +16,8 @@ module Test_Scenarios
    use ESMF_TestCase_mod
    use ESMF_TestParameter_mod
    use funit
-   implicit none
 
+   implicit none
 
    abstract interface
       subroutine I_check_stateitem(expectations, state, short_name, description, rc)
@@ -39,7 +40,6 @@ module Test_Scenarios
       procedure :: tostring => tostring_description
    end type ScenarioDescription
 
-
    @testCase(constructor=Scenario, testParameters={get_parameters()})
    type, extends(ESMF_TestCase) :: Scenario
       character(:), allocatable :: scenario_name
@@ -56,11 +56,9 @@ module Test_Scenarios
       procedure :: tearDown
    end type Scenario
 
-
    interface Scenario
       procedure :: new_Scenario
    end interface
-
 
    interface ScenarioDescription
       procedure :: new_ScenarioDescription
@@ -92,27 +90,28 @@ contains
    end function new_ScenarioDescription
 
    function get_parameters() result(params)
+
       type(ScenarioDescription), allocatable :: params(:)
 
       params = [ScenarioDescription:: ]
-      
+
       ! Field oriented tests
       params = [params, add_params('item exist', check_item_type)]
       params = [params, add_params('field status', check_field_status)]
       params = [params, add_params('field typekind', check_field_typekind)]
       params = [params, add_params('field value', check_field_value)]
       params = [params, add_params('field exists', check_field_rank)]
-      
+
       ! Service oriented tests
       params = [params, ScenarioDescription('service_service', 'parent.yaml', 'field count', check_fieldcount)]
-      
+
    contains
 
       function add_params(check_name, check_stateitem) result(params)
          type(ScenarioDescription), allocatable :: params(:)
          character(*), intent(in) :: check_name
          procedure(I_check_stateitem) :: check_stateitem
-      
+
          params = [ &
               ScenarioDescription('scenario_1',              'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('scenario_2',              'parent.yaml',      check_name, check_stateitem), &
@@ -122,16 +121,17 @@ contains
               ScenarioDescription('extdata_1',               'cap.yaml',         check_name, check_stateitem), &
               ScenarioDescription('precision_extension',     'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('precision_extension_3d',  'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('3d_specs',                'parent.yaml',      check_name, check_stateitem), & 
+              ScenarioDescription('3d_specs',                'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('ungridded_dims',          'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('service_service',         'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('export_dependency',       'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('regrid',                  'cap.yaml',         check_name, check_stateitem), &
-              ScenarioDescription('propagate_geom',          'parent.yaml',      check_name, check_stateitem) &
+              ScenarioDescription('propagate_geom',          'parent.yaml',      check_name, check_stateitem), &
+              ScenarioDescription('vertical_regridding',     'parent.yaml',      check_name, check_stateitem) &
       ]
       end function add_params
-   end function get_parameters
 
+   end function get_parameters
 
    subroutine setup(this)
       class(Scenario), intent(inout) :: this
@@ -175,7 +175,7 @@ contains
            end associate
         end do
 
-           call ESMF_GridCompRun(outer_gc, & 
+           call ESMF_GridCompRun(outer_gc, &
                   importState=importState, exportState=exportState, clock=clock, &
                   userRC=user_status, phase=GENERIC_RUN_USER, _RC)
            _VERIFY(user_status)
@@ -184,7 +184,6 @@ contains
 
       file_name = './scenarios/' // this%scenario_name // '/expectations.yaml'
       this%expectations = ESMF_HConfigCreate(filename=file_name, _RC)
-
    end subroutine setup
 
    ! In theory we want to call finalize here and then destroy ESMF objects in this
@@ -193,15 +192,15 @@ contains
 
       integer :: status
 
-!#      call ESMF_GridCompDestroy(this%outer_gc, _RC)
+      !# call ESMF_GridCompDestroy(this%outer_gc, _RC)
 
-!#      call ESMF_StateDestroy(this%outer_states%importState,_RC)
-!#      call ESMF_StateDestroy(this%outer_states%exportState, _RC)
-      
+      !# call ESMF_StateDestroy(this%outer_states%importState,_RC)
+      !# call ESMF_StateDestroy(this%outer_states%exportState, _RC)
    end subroutine teardown
 
    @test
    subroutine test_anything(this)
+
       class(Scenario), intent(inout) :: this
 
       integer :: status
@@ -224,7 +223,7 @@ contains
          call check_items_in_state('import', _RC)
          call check_items_in_state('export', _RC)
          call check_items_in_state('internal', _RC)
-            
+
       end do components
 
    contains
@@ -248,7 +247,7 @@ contains
 
          call comp_states%get_state(state, state_intent, _RC)
 
-         
+
          msg = comp_path // '::' // state_intent
 
          state_items = ESMF_HConfigCreateAt(comp_expectations,keyString=state_intent,_RC)
@@ -267,15 +266,13 @@ contains
              associate (test_description => msg // '::' // this%check_name)
                call this%check_stateitem(expected_properties, state, item_name, test_description, _RC)
              end associate
-              
+
            end do
 
          rc = 0
-
       end subroutine check_items_in_state
-      
-   end subroutine test_anything
 
+   end subroutine test_anything
 
    function get_itemtype(state, short_name, rc) result(itemtype)
       type(ESMF_StateItem_Flag) :: itemtype
@@ -289,7 +286,7 @@ contains
       character(:), allocatable :: name
 
       integer :: itemcount
-      
+
       rc = 0
       name = short_name
       substate = state
@@ -310,6 +307,7 @@ contains
    end function get_itemtype
 
    subroutine check_item_type(expectations, state, short_name, description, rc)
+
       type(ESMF_HConfig), intent(in) :: expectations
       type(ESMF_State), intent(inout) :: state
       character(*), intent(in) :: short_name
@@ -346,7 +344,7 @@ contains
          end if
 
          itemtype_str= ESMF_HConfigAsString(expectations,keyString='class',_RC)
-         
+
          select case (itemtype_str)
          case ('field')
             expected_itemtype = ESMF_STATEITEM_FIELD
@@ -357,11 +355,10 @@ contains
          end select
 
          rc = 0
-         
       end function get_expected_itemtype
-         
+
    end subroutine check_item_type
-      
+
    subroutine check_field_status(expectations, state, short_name, description, rc)
       type(ESMF_HConfig), intent(in) :: expectations
       type(ESMF_State), intent(inout) :: state
@@ -405,7 +402,7 @@ contains
 
       rc = 0
    end subroutine check_field_status
-      
+
    subroutine check_field_typekind(expectations, state, short_name, description, rc)
       type(ESMF_HConfig), intent(in) :: expectations
       type(ESMF_State), intent(inout) :: state
@@ -444,14 +441,14 @@ contains
       case default
          _VERIFY(-1)
       end select
-      
+
       call ESMF_StateGet(state, short_name, field, _RC)
       call ESMF_FieldGet(field, typekind=found_field_typekind, _RC)
       @assert_that(msg // ' field typekind: ',expected_field_typekind == found_field_typekind, is(true()))
 
       rc = 0
    end subroutine check_field_typekind
-      
+
    subroutine check_field_value(expectations, state, short_name, description, rc)
       type(ESMF_HConfig), intent(in) :: expectations
       type(ESMF_State), intent(inout) :: state
@@ -476,7 +473,7 @@ contains
          return
       end if
 
-     if (.not. ESMF_HConfigIsDefined(expectations,keyString='value')) then 
+     if (.not. ESMF_HConfigIsDefined(expectations,keyString='value')) then
          rc = 0
          return
       end if
@@ -587,9 +584,7 @@ contains
       call ESMF_FieldBundleGet(bundle, fieldCount=found_fieldCount, _RC)
 
       @assert_that(found_fieldCount, is(expected_fieldCount))
-      
    end subroutine check_fieldCount
-
 
    recursive subroutine get_substates(gc, states, component_path, substates, rc)
       use mapl3g_GriddedComponentDriver
@@ -620,7 +615,7 @@ contains
       idx = index(component_path, '/')
       if (idx == 0) idx = len(component_path) + 1
       child_name = component_path(:idx-1)
-      
+
       if (child_name == '<user>') then
          user_component => outer_meta%get_user_gc_driver()
          substates = user_component%get_states()
@@ -646,7 +641,6 @@ contains
       s = this%name
    end function tostring_description
 
-
    recursive function num_fields(state, rc) result(n)
       integer :: n
       type(ESMF_State), intent(inout) :: state
@@ -663,7 +657,7 @@ contains
       call ESMF_StateGet(state, itemCount=itemCount, _RC)
       allocate(itemNameList(itemCount))
       call ESMF_StateGet(state, itemNameList=itemNameList, _RC)
-      
+
       do i = 1, itemCount
          call ESMF_StateGet(state, itemName=trim(itemNameList(i)), itemType=itemType, _RC)
 
@@ -678,6 +672,5 @@ contains
 
       return
    end function num_fields
-   
 
 end module Test_Scenarios

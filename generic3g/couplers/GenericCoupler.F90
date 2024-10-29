@@ -1,11 +1,15 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_GenericCoupler
+
+   use mapl3g_CouplerPhases
    use mapl3g_CouplerMetaComponent
    use mapl3g_ExtensionAction
+   use mapl3g_VerticalRegridAction
    use mapl3g_GriddedComponentDriver
    use mapl_ErrorHandlingMod
    use esmf
+
    implicit none
    private
 
@@ -94,6 +98,7 @@ contains
       type(CouplerMetaComponent), pointer :: meta
 
       meta => get_coupler_meta(gridcomp, _RC)
+!#      call meta%update_time_varying(importState, exportState, _RC)
       call meta%update(importState, exportState, clock, _RC)
 
       _RETURN(_SUCCESS)
@@ -111,6 +116,7 @@ contains
       type(CouplerMetaComponent), pointer :: meta
 
       meta => get_coupler_meta(gridcomp, _RC)
+!#      call meta%invalidate_time_varying(importState, exportState, _RC)
       call meta%invalidate(importstate, exportState, clock, _RC)
 
       _RETURN(_SUCCESS)

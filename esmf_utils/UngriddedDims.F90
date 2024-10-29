@@ -225,6 +225,9 @@ contains
 
       do i = 1, num_ungridded_dims
          dim_key = make_dim_key(i, _RC)
+         if (present(key)) then
+            dim_key = key // dim_key
+         end if
          dim_info = ESMF_InfoCreate(info, key=dim_key, _RC)
          dim_specs(i) = make_ungriddedDim(dim_info, _RC)
          call ESMF_InfoDestroy(dim_info, _RC)

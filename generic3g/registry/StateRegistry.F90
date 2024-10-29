@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_StateRegistry
+
    use mapl3g_AbstractRegistry
    use mapl3g_RegistryPtr
    use mapl3g_RegistryPtrMap
@@ -21,6 +22,7 @@ module mapl3g_StateRegistry
    use mapl3g_VerticalGrid
    use mapl_ErrorHandling
    use esmf, only: ESMF_Geom
+
    implicit none
    private
 
@@ -34,8 +36,8 @@ module mapl3g_StateRegistry
 
       type(VirtualPtFamilyMap) :: family_map
 
-!#      type(GriddedComponentDriverPtrVector) :: export_couplers
-!#      type(GriddedComponentDriverPtrVector) :: import_couplers
+      !# type(GriddedComponentDriverPtrVector) :: export_couplers
+      !# type(GriddedComponentDriverPtrVector) :: import_couplers
 
    contains
 
@@ -841,7 +843,6 @@ contains
          call closest_extension%add_consumer(producer)
 
          closest_extension => new_extension
-
       end do
 
       extension => closest_extension
