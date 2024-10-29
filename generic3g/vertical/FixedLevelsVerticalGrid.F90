@@ -71,19 +71,28 @@ contains
       type(VerticalDimSpec), intent(in) :: vertical_dim_spec
       integer, optional, intent(out) :: rc
 
+      real(kind=REAL32), allocatable :: adjusted_levels(:)
       integer :: status
+
+      if (vertical_dim_spec == VERTICAL_DIM_CENTER) then
+         adjusted_levels = this%levels
+      else if (vertical_dim_spec == VERTICAL_DIM_EDGE) then
+         adjusted_levels = [this%levels, this%levels(size(this%levels))]
+      else
+         _FAIL("unsupported vertical_dim_spec")
+      end if
 
       ! Add the 1D array, levels(:), to an ESMF Field
       field = ESMF_FieldEmptyCreate(name="FixedLevelsVerticalGrid", _RC)
       call ESMF_FieldEmptySet(field, geom=geom, _RC)
       call ESMF_FieldEmptyComplete( &
            field, &
-           farray=this%levels, &
+           farray=adjusted_levels, &
            indexflag=ESMF_INDEX_DELOCAL, &
            datacopyFlag=ESMF_DATACOPY_VALUE, &
            gridToFieldMap=[0, 0], &
            ungriddedLBound=[1], &
-           ungriddedUBound=[size(this%levels)], &
+           ungriddedUBound=[size(adjusted_levels)], &
            _RC)
 
       _RETURN(_SUCCESS)
@@ -91,7 +100,6 @@ contains
       _UNUSED_DUMMY(standard_name)
       _UNUSED_DUMMY(typekind)
       _UNUSED_DUMMY(units)
-      _UNUSED_DUMMY(vertical_dim_spec)
    end subroutine get_coordinate_field
 
    logical function can_connect_to(this, src, rc)
