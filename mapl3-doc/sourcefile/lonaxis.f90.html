@@ -1,0 +1,749 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>LonAxis.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>LonAxis.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">78 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/LonAxis.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">LonAxis.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_lonaxis.html">mapl3g_LonAxis</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/lonaxis.f90.html#src">LonAxis.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~lonaxis.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilelonaxisf90EfferentGraph" width="236pt" height="74pt"
+ viewBox="0.00 0.00 236.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~lonaxis.f90~~EfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>sourcefile~~lonaxis.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 232,-70 232,4 -4,4"/>
+<!-- sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~lonaxis.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~lonaxis.f90</title>
+<polygon fill="none" stroke="black" points="228,-45 152,-45 152,-21 228,-21 228,-45"/>
+<text text-anchor="middle" x="190" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">LonAxis.F90</text>
+</g>
+<!-- sourcefile~coordinateaxis.f90 -->
+<g id="sourcefile~~lonaxis.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~coordinateaxis.f90</title>
+<g id="a_sourcefile~~lonaxis.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/coordinateaxis.f90.html" xlink:title="CoordinateAxis.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="116,-66 0,-66 0,-42 116,-42 116,-66"/>
+<text text-anchor="middle" x="58" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CoordinateAxis.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~lonaxis.f90&#45;&gt;sourcefile~coordinateaxis.f90 -->
+<g id="sourcefile~~lonaxis.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~lonaxis.f90&#45;&gt;sourcefile~coordinateaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M151.75,-39.02C143.68,-40.32 134.91,-41.74 126.09,-43.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="125.45,-39.72 116.14,-44.77 126.57,-46.63 125.45,-39.72"/>
+</g>
+<!-- sourcefile~pfio.f90 -->
+<g id="sourcefile~~lonaxis.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~pfio.f90</title>
+<g id="a_sourcefile~~lonaxis.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/pfio.f90.html" xlink:title="pFIO.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="87,-24 29,-24 29,0 87,0 87,-24"/>
+<text text-anchor="middle" x="58" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pFIO.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~lonaxis.f90&#45;&gt;sourcefile~pfio.f90 -->
+<g id="sourcefile~~lonaxis.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~lonaxis.f90&#45;&gt;sourcefile~pfio.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M151.75,-26.98C134.72,-24.23 114.57,-20.98 97.41,-18.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="97.59,-14.69 87.16,-16.55 96.48,-21.6 97.59,-14.69"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~lonaxis.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilelonaxisf90AfferentGraph" width="333pt" height="704pt"
+ viewBox="0.00 0.00 333.00 704.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 700)">
+<title>sourcefile~~lonaxis.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-700 329,-700 329,4 -4,4"/>
+<!-- sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~lonaxis.f90</title>
+<polygon fill="none" stroke="black" points="76,-360 0,-360 0,-336 76,-336 76,-360"/>
+<text text-anchor="middle" x="38" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50">LonAxis.F90</text>
+</g>
+<!-- sourcefile~create_basic_grid.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~create_basic_grid.f90</title>
+<g id="a_sourcefile~~lonaxis.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/create_basic_grid.f90.html" xlink:title="create_basic_grid.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="282.5,-696 154.5,-696 154.5,-672 282.5,-672 282.5,-696"/>
+<text text-anchor="middle" x="218.5" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">create_basic_grid.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~create_basic_grid.f90&#45;&gt;sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~create_basic_grid.f90&#45;&gt;sourcefile~lonaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M154.43,-683.2C138.86,-680.07 123.4,-674.05 112,-663 69.51,-621.82 47.5,-434.86 41.05,-370.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="44.53,-369.8 40.09,-360.18 37.57,-370.47 44.53,-369.8"/>
+</g>
+<!-- sourcefile~cubedspheregeomfactory_smod.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~cubedspheregeomfactory_smod.f90</title>
+<g id="a_sourcefile~~lonaxis.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/cubedspheregeomfactory_smod.f90.html" xlink:title="CubedSphereGeomFactory_smod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="325,-654 112,-654 112,-630 325,-630 325,-654"/>
+<text text-anchor="middle" x="218.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CubedSphereGeomFactory_smod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cubedspheregeomfactory_smod.f90&#45;&gt;sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~cubedspheregeomfactory_smod.f90&#45;&gt;sourcefile~lonaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M124.1,-629.93C119.76,-627.4 115.68,-624.45 112,-621 74.92,-586.25 50.05,-428.99 41.91,-370.23"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="45.36,-369.6 40.55,-360.16 38.42,-370.54 45.36,-369.6"/>
+</g>
+<!-- sourcefile~fill_coordinates.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~fill_coordinates.f90</title>
+<g id="a_sourcefile~~lonaxis.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/fill_coordinates.f90.html" xlink:title="fill_coordinates.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="276.5,-612 160.5,-612 160.5,-588 276.5,-588 276.5,-612"/>
+<text text-anchor="middle" x="218.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">fill_coordinates.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fill_coordinates.f90&#45;&gt;sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~fill_coordinates.f90&#45;&gt;sourcefile~lonaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M160.48,-599.58C143.15,-596.78 125.21,-590.84 112,-579 50.22,-523.64 40.3,-416.46 39.01,-370.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="42.5,-369.97 38.84,-360.03 35.51,-370.09 42.5,-369.97"/>
+</g>
+<!-- sourcefile~get_lon_corners.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~get_lon_corners.f90</title>
+<g id="a_sourcefile~~lonaxis.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/get_lon_corners.f90.html" xlink:title="get_lon_corners.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="278.5,-570 158.5,-570 158.5,-546 278.5,-546 278.5,-570"/>
+<text text-anchor="middle" x="218.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_lon_corners.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~get_lon_corners.f90&#45;&gt;sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~get_lon_corners.f90&#45;&gt;sourcefile~lonaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M158.45,-556.66C141.91,-553.69 124.93,-547.88 112,-537 60.82,-493.95 45.4,-410.6 40.85,-370.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="44.32,-370.07 39.83,-360.47 37.35,-370.78 44.32,-370.07"/>
+</g>
+<!-- sourcefile~get_lon_range.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~get_lon_range.f90</title>
+<g id="a_sourcefile~~lonaxis.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/get_lon_range.f90.html" xlink:title="get_lon_range.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="274,-528 163,-528 163,-504 274,-504 274,-528"/>
+<text text-anchor="middle" x="218.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_lon_range.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~get_lon_range.f90&#45;&gt;sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~get_lon_range.f90&#45;&gt;sourcefile~lonaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M162.88,-514.54C145.21,-511.75 126.46,-506.07 112,-495 70.93,-463.57 51.4,-402.83 43.52,-370.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="46.89,-369.18 41.27,-360.19 40.06,-370.72 46.89,-369.18"/>
+</g>
+<!-- sourcefile~latlondecomposition.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~latlondecomposition.f90</title>
+<g id="a_sourcefile~~lonaxis.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/latlondecomposition.f90.html" xlink:title="LatLonDecomposition.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="294,-486 143,-486 143,-462 294,-462 294,-486"/>
+<text text-anchor="middle" x="218.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LatLonDecomposition.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~latlondecomposition.f90&#45;&gt;sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~latlondecomposition.f90&#45;&gt;sourcefile~lonaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M142.88,-466.64C131.97,-463.48 121.3,-459.09 112,-453 80.8,-432.56 59.11,-393.73 47.89,-369.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="50.97,-367.76 43.72,-360.03 44.56,-370.59 50.97,-367.76"/>
+</g>
+<!-- sourcefile~latlongeomspec.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~latlongeomspec.f90</title>
+<g id="a_sourcefile~~lonaxis.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/latlongeomspec.f90.html" xlink:title="LatLonGeomSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="283.5,-444 153.5,-444 153.5,-420 283.5,-420 283.5,-444"/>
+<text text-anchor="middle" x="218.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LatLonGeomSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~latlongeomspec.f90&#45;&gt;sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~latlongeomspec.f90&#45;&gt;sourcefile~lonaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M153.29,-424.69C139.23,-421.61 124.75,-417.23 112,-411 90.3,-400.4 69.87,-381.74 56.17,-367.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="58.67,-365.01 49.29,-360.07 53.54,-369.78 58.67,-365.01"/>
+</g>
+<!-- sourcefile~make_file_metadata.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~make_file_metadata.f90</title>
+<g id="a_sourcefile~~lonaxis.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/make_file_metadata.f90.html" xlink:title="make_file_metadata.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="290.5,-402 146.5,-402 146.5,-378 290.5,-378 290.5,-402"/>
+<text text-anchor="middle" x="218.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_file_metadata.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~make_file_metadata.f90&#45;&gt;sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~make_file_metadata.f90&#45;&gt;sourcefile~lonaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M152.59,-377.97C139.13,-375.22 125.07,-372.17 112,-369 103.62,-366.96 94.75,-364.6 86.2,-362.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="86.93,-358.77 76.35,-359.4 85.01,-365.5 86.93,-358.77"/>
+</g>
+<!-- sourcefile~make_geom.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~make_geom.f90</title>
+<g id="a_sourcefile~~lonaxis.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/make_geom.f90.html" xlink:title="make_geom.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="269,-360 168,-360 168,-336 269,-336 269,-360"/>
+<text text-anchor="middle" x="218.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_geom.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~make_geom.f90&#45;&gt;sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~make_geom.f90&#45;&gt;sourcefile~lonaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M167.78,-348C142.21,-348 111.22,-348 86.05,-348"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="86,-344.5 76,-348 86,-351.5 86,-344.5"/>
+</g>
+<!-- sourcefile~make_gridded_dims.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~make_gridded_dims.f90</title>
+<g id="a_sourcefile~~lonaxis.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/make_gridded_dims.f90.html" xlink:title="make_gridded_dims.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="289.5,-318 147.5,-318 147.5,-294 289.5,-294 289.5,-318"/>
+<text text-anchor="middle" x="218.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_gridded_dims.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~make_gridded_dims.f90&#45;&gt;sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~make_gridded_dims.f90&#45;&gt;sourcefile~lonaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M152.59,-318.03C139.13,-320.78 125.07,-323.83 112,-327 103.62,-329.04 94.75,-331.4 86.2,-333.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="85.01,-330.5 76.35,-336.6 86.93,-337.23 85.01,-330.5"/>
+</g>
+<!-- sourcefile~make_lonaxis_from_hconfig.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~make_lonaxis_from_hconfig.f90</title>
+<g id="a_sourcefile~~lonaxis.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/make_lonaxis_from_hconfig.f90.html" xlink:title="make_LonAxis_from_hconfig.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="312,-276 125,-276 125,-252 312,-252 312,-276"/>
+<text text-anchor="middle" x="218.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_LonAxis_from_hconfig.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~make_lonaxis_from_hconfig.f90&#45;&gt;sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~make_lonaxis_from_hconfig.f90&#45;&gt;sourcefile~lonaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M135.19,-276.02C127.17,-278.48 119.3,-281.44 112,-285 90.3,-295.6 69.87,-314.26 56.17,-328.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="53.54,-326.22 49.29,-335.93 58.67,-330.99 53.54,-326.22"/>
+</g>
+<!-- sourcefile~make_lonaxis_from_metadata.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~make_lonaxis_from_metadata.f90</title>
+<g id="a_sourcefile~~lonaxis.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/make_lonaxis_from_metadata.f90.html" xlink:title="make_LonAxis_from_metadata.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="318,-234 119,-234 119,-210 318,-210 318,-234"/>
+<text text-anchor="middle" x="218.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_LonAxis_from_metadata.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~make_lonaxis_from_metadata.f90&#45;&gt;sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~make_lonaxis_from_metadata.f90&#45;&gt;sourcefile~lonaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M129.34,-234.03C123.24,-236.51 117.39,-239.47 112,-243 80.8,-263.44 59.11,-302.27 47.89,-326.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="44.56,-325.41 43.72,-335.97 50.97,-328.24 44.56,-325.41"/>
+</g>
+<!-- sourcefile~supports_hconfig.f90~2 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~supports_hconfig.f90~2</title>
+<g id="a_sourcefile~~lonaxis.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/supports_hconfig.f90~2.html" xlink:title="supports_hconfig.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="281.5,-192 155.5,-192 155.5,-168 281.5,-168 281.5,-192"/>
+<text text-anchor="middle" x="218.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">supports_hconfig.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~supports_hconfig.f90~2&#45;&gt;sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~supports_hconfig.f90~2&#45;&gt;sourcefile~lonaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M155.49,-182.79C140.1,-185.93 124.46,-191.47 112,-201 70.93,-232.43 51.4,-293.17 43.52,-325.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="40.06,-325.28 41.27,-335.81 46.89,-326.82 40.06,-325.28"/>
+</g>
+<!-- sourcefile~supports_metadata.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~supports_metadata.f90</title>
+<g id="a_sourcefile~~lonaxis.f90~~AfferentGraph_node15"><a xlink:href="../sourcefile/supports_metadata.f90.html" xlink:title="supports_metadata.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="287.5,-150 149.5,-150 149.5,-126 287.5,-126 287.5,-150"/>
+<text text-anchor="middle" x="218.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">supports_metadata.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~supports_metadata.f90&#45;&gt;sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~supports_metadata.f90&#45;&gt;sourcefile~lonaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M149.39,-141.26C135.85,-144.6 122.58,-150.1 112,-159 60.82,-202.05 45.4,-285.4 40.85,-325.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="37.35,-325.22 39.83,-335.53 44.32,-325.93 37.35,-325.22"/>
+</g>
+<!-- sourcefile~test_lonaxis.pf -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~test_lonaxis.pf</title>
+<g id="a_sourcefile~~lonaxis.f90~~AfferentGraph_node16"><a xlink:href="../sourcefile/test_lonaxis.pf.html" xlink:title="Test_LonAxis.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="265,-108 172,-108 172,-84 265,-84 265,-108"/>
+<text text-anchor="middle" x="218.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_LonAxis.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_lonaxis.pf&#45;&gt;sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~test_lonaxis.pf&#45;&gt;sourcefile~lonaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M171.83,-95C151.31,-96.88 128.13,-102.54 112,-117 50.22,-172.36 40.3,-279.54 39.01,-325.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="35.51,-325.91 38.84,-335.97 42.5,-326.03 35.51,-325.91"/>
+</g>
+<!-- sourcefile~typesafe_make_file_metadata.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~typesafe_make_file_metadata.f90</title>
+<g id="a_sourcefile~~lonaxis.f90~~AfferentGraph_node17"><a xlink:href="../sourcefile/typesafe_make_file_metadata.f90.html" xlink:title="typesafe_make_file_metadata.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="316,-66 121,-66 121,-42 316,-42 316,-66"/>
+<text text-anchor="middle" x="218.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">typesafe_make_file_metadata.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~typesafe_make_file_metadata.f90&#45;&gt;sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~typesafe_make_file_metadata.f90&#45;&gt;sourcefile~lonaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M124.1,-66.07C119.76,-68.6 115.68,-71.55 112,-75 74.92,-109.75 50.05,-267.01 41.91,-325.77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="38.42,-325.46 40.55,-335.84 45.36,-326.4 38.42,-325.46"/>
+</g>
+<!-- sourcefile~typesafe_make_geom.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~typesafe_make_geom.f90</title>
+<g id="a_sourcefile~~lonaxis.f90~~AfferentGraph_node18"><a xlink:href="../sourcefile/typesafe_make_geom.f90.html" xlink:title="typesafe_make_geom.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="294.5,-24 142.5,-24 142.5,0 294.5,0 294.5,-24"/>
+<text text-anchor="middle" x="218.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">typesafe_make_geom.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~typesafe_make_geom.f90&#45;&gt;sourcefile~lonaxis.f90 -->
+<g id="sourcefile~~lonaxis.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~typesafe_make_geom.f90&#45;&gt;sourcefile~lonaxis.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M142.43,-15.85C131.13,-19.38 120.45,-24.81 112,-33 69.51,-74.18 47.5,-261.14 41.05,-325.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="37.57,-325.53 40.09,-335.82 44.53,-326.2 37.57,-325.53"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="k">module </span><span class="n">mapl3g_LonAxis</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_CoordinateAxis</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="w">   </span><span class="k">use </span><span class="n">pfio</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">esmf</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="k">   private</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="c">! Constructor</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">LonAxis</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">operator</span><span class="p">(</span><span class="o">==</span><span class="p">)</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">make_LonAxis</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="c">! Helper procedure</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_lon_range</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a>
+<a id="ln-16" name="ln-16" href="#ln-16"></a>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">extends</span><span class="p">(</span><span class="n">CoordinateAxis</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">LonAxis</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">      </span><span class="k">private</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="k">   contains</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="k">      procedure</span><span class="p">,</span><span class="w"> </span><span class="k">nopass</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">supports_hconfig</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">      </span><span class="k">procedure</span><span class="p">,</span><span class="w"> </span><span class="k">nopass</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">supports_metadata</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">      </span><span class="k">generic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">supports</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">supports_hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">supports_metadata</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">   </span><span class="k">end type </span><span class="n">LonAxis</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">   </span><span class="k">interface </span><span class="n">LonAxis</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">      </span><span class="k">procedure </span><span class="n">new_LonAxis</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">   </span><span class="k">end interface </span><span class="n">LonAxis</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">   </span><span class="k">interface </span><span class="n">make_LonAxis</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="k">procedure </span><span class="n">make_LonAxis_from_hconfig</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="k">procedure </span><span class="n">make_LonAxis_from_metadata</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">   </span><span class="k">end interface </span><span class="n">make_LonAxis</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">   </span><span class="k">interface </span><span class="n">operator</span><span class="p">(</span><span class="o">==</span><span class="p">)</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="k">module procedure </span><span class="n">equal_to</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">   </span><span class="k">end interface </span><span class="n">operator</span><span class="p">(</span><span class="o">==</span><span class="p">)</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">   </span><span class="k">interface </span><span class="n">operator</span><span class="p">(</span><span class="o">/=</span><span class="p">)</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">      </span><span class="k">module procedure </span><span class="n">not_equal_to</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">   </span><span class="k">end interface </span><span class="n">operator</span><span class="p">(</span><span class="o">/=</span><span class="p">)</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">R8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_KIND_R8</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">   </span><span class="k">interface</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="k">      module </span><span class="kt">logical </span><span class="k">function </span><span class="n">supports_hconfig</span><span class="p">(</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">supports</span><span class="p">)</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="k">end function </span><span class="n">supports_hconfig</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="k">module </span><span class="kt">logical </span><span class="k">function </span><span class="n">supports_metadata</span><span class="p">(</span><span class="n">file_metadata</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">supports</span><span class="p">)</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">FileMetadata</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">file_metadata</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">      </span><span class="k">end function </span><span class="n">supports_metadata</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">      </span><span class="c">! static factory methods</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">      </span><span class="k">module function </span><span class="n">make_LonAxis_from_hconfig</span><span class="p">(</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">LonAxis</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">axis</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span><span class="k">end function </span><span class="n">make_LonAxis_from_hconfig</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="k">module function </span><span class="n">make_LonAxis_from_metadata</span><span class="p">(</span><span class="n">file_metadata</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">LonAxis</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">axis</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">FileMetadata</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">file_metadata</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">      </span><span class="k">end function </span><span class="n">make_LonAxis_from_metadata</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a>
+<a id="ln-69" name="ln-69" href="#ln-69"></a>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">      </span><span class="k">module function </span><span class="n">get_lon_corners</span><span class="p">(</span><span class="n">centers</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">corners</span><span class="p">)</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">         </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">R8</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">centers</span><span class="p">(:)</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">         </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">R8</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">corners</span><span class="p">(:)</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">      </span><span class="k">end function </span><span class="n">get_lon_corners</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a>
+<a id="ln-75" name="ln-75" href="#ln-75"></a>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">      </span><span class="c">! helper functions</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">      </span><span class="k">module function </span><span class="n">get_lon_range</span><span class="p">(</span><span class="n">hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">im_world</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">ranges</span><span class="p">)</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">         </span><span class="k">use </span><span class="n">esmf</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">ESMF_HConfig</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">AxisRanges</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ranges</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">im_world</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">      </span><span class="k">end function </span><span class="n">get_lon_range</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">   </span><span class="k">end interface</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="k">   CONTAINS</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">   </span><span class="c">! Constructor</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">   </span><span class="k">pure function </span><span class="n">new_LonAxis</span><span class="p">(</span><span class="n">centers</span><span class="p">,</span><span class="w"> </span><span class="n">corners</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">LonAxis</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">axis</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">R8</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">centers</span><span class="p">(:)</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">R8</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">corners</span><span class="p">(:)</span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">      </span><span class="n">axis</span><span class="p">%</span><span class="n">CoordinateAxis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CoordinateAxis</span><span class="p">(</span><span class="n">centers</span><span class="p">,</span><span class="w"> </span><span class="n">corners</span><span class="p">)</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">   </span><span class="k">end function </span><span class="n">new_LonAxis</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">   </span><span class="k">elemental </span><span class="kt">logical </span><span class="k">function </span><span class="n">equal_to</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">LonAxis</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">      </span><span class="n">equal_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="p">%</span><span class="n">CoordinateAxis</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">b</span><span class="p">%</span><span class="n">CoordinateAxis</span><span class="p">)</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">   </span><span class="k">end function </span><span class="n">equal_to</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="w">   </span><span class="k">elemental </span><span class="kt">logical </span><span class="k">function </span><span class="n">not_equal_to</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">LonAxis</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">      </span><span class="n">not_equal_to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">   </span><span class="k">end function </span><span class="n">not_equal_to</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="k">end module </span><span class="n">mapl3g_LonAxis</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-29T18:09:24.478960             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

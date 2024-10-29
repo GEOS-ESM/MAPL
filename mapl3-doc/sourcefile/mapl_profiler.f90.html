@@ -1,0 +1,1000 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_Profiler.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_Profiler.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for source files.">149 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_Profiler.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">MAPL_Profiler.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_profiler.html">mapl_Profiler</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/mapl_profiler.f90.html#src">MAPL_Profiler.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <table class="graph">
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/abstractcolumn.f90.html">AbstractColumn.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td><td class="root" rowspan="77">MAPL_Profiler.F90</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/abstractmeter.f90.html">AbstractMeter.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/abstractmeterfactory.f90.html">AbstractMeterFactory.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/abstractmeternode.f90.html">AbstractMeterNode.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/advancedmeter.f90.html">AdvancedMeter.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/baseprofiler.f90.html">BaseProfiler.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/distributedmeter.f90.html">DistributedMeter.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/distributedprofiler.f90.html">DistributedProfiler.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/errorhandling.f90.html">ErrorHandling.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/exclusivecolumn.f90.html">ExclusiveColumn.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/formattedtextcolumn.f90.html">FormattedTextColumn.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/fortrantimergauge.f90.html">FortranTimerGauge.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/globalprofilers.f90.html">GlobalProfilers.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/inclusivecolumn.f90.html">InclusiveColumn.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/keywordenforcer.f90.html">KeywordEnforcer.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/maxcyclecolumn.f90.html">MaxCycleColumn.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/meancyclecolumn.f90.html">MeanCycleColumn.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/memoryprofiler.f90.html">MemoryProfiler.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/memorytextcolumn.f90.html">MemoryTextColumn.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/meternode.f90.html">MeterNode.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/meternodevector.f90.html">MeterNodeVector.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/mincyclecolumn.f90.html">MinCycleColumn.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/mpitimergauge.f90.html">MpiTimerGauge.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/multicolumn.f90.html">MultiColumn.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/namecolumn.f90.html">NameColumn.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/numcyclescolumn.f90.html">NumCyclesColumn.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/percentagecolumn.f90.html">PercentageColumn.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/pflogger_stub.f90.html">pflogger_stub.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/profilereporter.f90.html">ProfileReporter.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/rssmemorygauge.f90.html">RssMemoryGauge.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/separatorcolumn.f90.html">SeparatorColumn.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/simplecolumn.f90.html">SimpleColumn.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/simpletextcolumn.f90.html">SimpleTextColumn.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/stddevcolumn.f90.html">StdDevColumn.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/textcolumn.f90.html">TextColumn.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/textcolumnvector.f90.html">TextColumnVector.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/timeprofiler.f90.html">TimeProfiler.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+<tr><td rowspan="2" class="node" bgcolor="#f0ad4e"><a href="../sourcefile/vmstatmemorygauge.f90.html">VmstatMemoryGauge.F90</a></td><td rowspan="2" class="triangle-left"></td><td class="dashedBottom">w</td></tr>
+<tr><td class="dashedTop">w</td></tr>
+</table>
+          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~mapl_profiler.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilemapl_profilerf90AfferentGraph" width="332pt" height="1124pt"
+ viewBox="0.00 0.00 332.00 1124.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 1120)">
+<title>sourcefile~~mapl_profiler.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-1120 328,-1120 328,4 -4,4"/>
+<!-- sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~mapl_profiler.f90</title>
+<polygon fill="none" stroke="black" points="105,-570 0,-570 0,-546 105,-546 105,-570"/>
+<text text-anchor="middle" x="52.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_Profiler.F90</text>
+</g>
+<!-- sourcefile~abstractserver.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~abstractserver.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/abstractserver.f90.html" xlink:title="AbstractServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="289,-1116 176,-1116 176,-1092 289,-1092 289,-1116"/>
+<text text-anchor="middle" x="232.5" y="-1101.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~abstractserver.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~abstractserver.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M175.93,-1101.56C162.9,-1098.4 150.16,-1092.76 141,-1083 71.09,-1008.55 56.67,-671.25 54.04,-580.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="57.53,-580.18 53.76,-570.28 50.53,-580.37 57.53,-580.18"/>
+</g>
+<!-- sourcefile~applicationsupport.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~applicationsupport.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/applicationsupport.f90.html" xlink:title="ApplicationSupport.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="301,-1074 164,-1074 164,-1050 301,-1050 301,-1074"/>
+<text text-anchor="middle" x="232.5" y="-1059.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ApplicationSupport.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~applicationsupport.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~applicationsupport.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M163.96,-1055.73C155.34,-1052.39 147.34,-1047.66 141,-1041 76.46,-973.23 58.26,-666.21 54.39,-580.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="57.88,-580.02 53.95,-570.18 50.88,-580.32 57.88,-580.02"/>
+</g>
+<!-- sourcefile~base_base_implementation.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~base_base_implementation.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/base_base_implementation.f90.html" xlink:title="Base_Base_implementation.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="324,-1032 141,-1032 141,-1008 324,-1008 324,-1032"/>
+<text text-anchor="middle" x="232.5" y="-1017.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base_Base_implementation.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~base_base_implementation.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~base_base_implementation.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M152.31,-1007.92C148.19,-1005.43 144.37,-1002.48 141,-999 81.88,-937.95 60.03,-661.67 54.82,-580.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="58.3,-580.14 54.19,-570.38 51.31,-580.58 58.3,-580.14"/>
+</g>
+<!-- sourcefile~demo.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~demo.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/demo.f90.html" xlink:title="demo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="265,-990 200,-990 200,-966 265,-966 265,-990"/>
+<text text-anchor="middle" x="232.5" y="-975.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">demo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~demo.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~demo.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M199.78,-978.71C180.27,-977.41 156.19,-972.38 141,-957 87.31,-902.66 62.02,-657.2 55.35,-580.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="58.8,-580.07 54.47,-570.4 51.83,-580.66 58.8,-580.07"/>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~extdatadrivergridcomp.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/extdatadrivergridcomp.f90.html" xlink:title="ExtDataDriverGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="314.5,-948 150.5,-948 150.5,-924 314.5,-924 314.5,-948"/>
+<text text-anchor="middle" x="232.5" y="-933.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriverGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M152.9,-923.99C148.58,-921.48 144.56,-918.51 141,-915 92.52,-867.11 64.03,-650.65 55.92,-580.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="59.39,-579.76 54.79,-570.22 52.43,-580.55 59.39,-579.76"/>
+</g>
+<!-- sourcefile~mapl.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~mapl.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/mapl.f90.html" xlink:title="MAPL.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="264.5,-906 200.5,-906 200.5,-882 264.5,-882 264.5,-906"/>
+<text text-anchor="middle" x="232.5" y="-891.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~mapl.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M200.5,-894.46C181.03,-893.08 156.72,-888.06 141,-873 97.8,-831.62 66.41,-644.79 56.68,-580.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="60.13,-579.55 55.21,-570.17 53.21,-580.58 60.13,-579.55"/>
+</g>
+<!-- sourcefile~mapl_bundleio_test.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~mapl_bundleio_test.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/mapl_bundleio_test.f90.html" xlink:title="mapl_bundleio_test.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="302,-864 163,-864 163,-840 302,-840 302,-864"/>
+<text text-anchor="middle" x="232.5" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_bundleio_test.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_bundleio_test.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~mapl_bundleio_test.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M162.89,-844.25C154.85,-841.08 147.29,-836.79 141,-831 67.16,-762.99 55.36,-632.68 53.67,-580.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="57.17,-580.2 53.45,-570.28 50.17,-580.35 57.17,-580.2"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~mapl_capgridcomp.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/mapl_capgridcomp.f90.html" xlink:title="MAPL_CapGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="304.5,-822 160.5,-822 160.5,-798 304.5,-798 304.5,-822"/>
+<text text-anchor="middle" x="232.5" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M160.44,-800.84C153.37,-797.85 146.71,-793.99 141,-789 77.32,-733.33 59.82,-626.32 55.15,-580.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="58.62,-579.65 54.23,-570 51.65,-580.28 58.62,-579.65"/>
+</g>
+<!-- sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~mapl_generic.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/mapl_generic.f90.html" xlink:title="MAPL_Generic.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="288,-780 177,-780 177,-756 288,-756 288,-780"/>
+<text text-anchor="middle" x="232.5" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Generic.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M176.66,-763.53C163.92,-760.37 151.14,-755.24 141,-747 87.66,-703.63 65.29,-620.44 57.3,-580.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="60.7,-579.62 55.42,-570.44 53.82,-580.91 60.7,-579.62"/>
+</g>
+<!-- sourcefile~mapl_nuopcwrappermod.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~mapl_nuopcwrappermod.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/mapl_nuopcwrappermod.f90.html" xlink:title="MAPL_NUOPCWrapperMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="319.5,-738 145.5,-738 145.5,-714 319.5,-714 319.5,-738"/>
+<text text-anchor="middle" x="232.5" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_NUOPCWrapperMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_nuopcwrappermod.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~mapl_nuopcwrappermod.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M156.7,-713.92C151.14,-711.46 145.82,-708.52 141,-705 97.48,-673.2 71.69,-612.61 60.36,-580.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="63.55,-578.52 57.07,-570.14 56.91,-580.73 63.55,-578.52"/>
+</g>
+<!-- sourcefile~mapl_verticalmethods.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~mapl_verticalmethods.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/mapl_verticalmethods.f90.html" xlink:title="MAPL_VerticalMethods.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="309.5,-696 155.5,-696 155.5,-672 309.5,-672 309.5,-696"/>
+<text text-anchor="middle" x="232.5" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VerticalMethods.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_verticalmethods.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~mapl_verticalmethods.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M159.6,-671.96C153.08,-669.5 146.77,-666.55 141,-663 106.93,-642.02 79.78,-603.12 65.22,-579.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="68.17,-577.13 60.09,-570.27 62.13,-580.67 68.17,-577.13"/>
+</g>
+<!-- sourcefile~maplframework.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~maplframework.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/maplframework.f90.html" xlink:title="MaplFramework.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="292.5,-654 172.5,-654 172.5,-630 292.5,-630 292.5,-654"/>
+<text text-anchor="middle" x="232.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplFramework.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplframework.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~maplframework.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M172.44,-631.86C161.73,-629.03 150.84,-625.47 141,-621 116.1,-609.7 91.12,-590.78 74.27,-576.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="76.55,-573.96 66.68,-570.1 71.98,-579.27 76.55,-573.96"/>
+</g>
+<!-- sourcefile~mpi_demo.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~mpi_demo.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/mpi_demo.f90.html" xlink:title="mpi_demo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="278,-612 187,-612 187,-588 278,-588 278,-612"/>
+<text text-anchor="middle" x="232.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_demo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mpi_demo.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~mpi_demo.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M186.83,-589.71C172.22,-586.32 155.91,-582.52 141,-579 132.07,-576.89 122.63,-574.65 113.38,-572.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="114,-568.98 103.46,-570.06 112.37,-575.79 114,-568.98"/>
+</g>
+<!-- sourcefile~mpiserver.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~mpiserver.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node15"><a xlink:href="../sourcefile/mpiserver.f90.html" xlink:title="MpiServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="276.5,-570 188.5,-570 188.5,-546 276.5,-546 276.5,-570"/>
+<text text-anchor="middle" x="232.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MpiServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mpiserver.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~mpiserver.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M188.41,-558C166.44,-558 139.34,-558 115.2,-558"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="115.06,-554.5 105.06,-558 115.06,-561.5 115.06,-554.5"/>
+</g>
+<!-- sourcefile~multigroupserver.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~multigroupserver.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node16"><a xlink:href="../sourcefile/multigroupserver.f90.html" xlink:title="MultiGroupServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="296,-528 169,-528 169,-504 296,-504 296,-528"/>
+<text text-anchor="middle" x="232.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiGroupServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~multigroupserver.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~multigroupserver.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M179.32,-528.04C166.77,-530.95 153.4,-534.07 141,-537 132.07,-539.11 122.63,-541.35 113.38,-543.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="112.37,-540.21 103.46,-545.94 114,-547.02 112.37,-540.21"/>
+</g>
+<!-- sourcefile~regrid_util.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~regrid_util.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node17"><a xlink:href="../sourcefile/regrid_util.f90.html" xlink:title="Regrid_Util.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="278.5,-486 186.5,-486 186.5,-462 278.5,-462 278.5,-486"/>
+<text text-anchor="middle" x="232.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~regrid_util.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~regrid_util.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M186.16,-480.86C171.35,-484.05 155.1,-488.6 141,-495 116.1,-506.3 91.12,-525.22 74.27,-539.38"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="71.98,-536.73 66.68,-545.9 76.55,-542.04 71.98,-536.73"/>
+</g>
+<!-- sourcefile~serverthread.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~serverthread.f90</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node18"><a xlink:href="../sourcefile/serverthread.f90.html" xlink:title="ServerThread.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="286.5,-444 178.5,-444 178.5,-420 286.5,-420 286.5,-444"/>
+<text text-anchor="middle" x="232.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThread.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~serverthread.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~serverthread.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M178.04,-438.42C165.27,-441.53 152.12,-446.15 141,-453 106.93,-473.98 79.78,-512.88 65.22,-536.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="62.13,-535.33 60.09,-545.73 68.17,-538.87 62.13,-535.33"/>
+</g>
+<!-- sourcefile~test_advancedmeter.pf -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node19" class="node">
+<title>sourcefile~test_advancedmeter.pf</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node19"><a xlink:href="../sourcefile/test_advancedmeter.pf.html" xlink:title="test_AdvancedMeter.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="299,-402 166,-402 166,-378 299,-378 299,-402"/>
+<text text-anchor="middle" x="232.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_AdvancedMeter.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_advancedmeter.pf&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~test_advancedmeter.pf&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M165.92,-398.51C157.03,-401.53 148.42,-405.58 141,-411 97.48,-442.8 71.69,-503.39 60.36,-535.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="56.91,-535.27 57.07,-545.86 63.55,-537.48 56.91,-535.27"/>
+</g>
+<!-- sourcefile~test_column.pf -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node20" class="node">
+<title>sourcefile~test_column.pf</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node20"><a xlink:href="../sourcefile/test_column.pf.html" xlink:title="test_Column.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="278.5,-360 186.5,-360 186.5,-336 278.5,-336 278.5,-360"/>
+<text text-anchor="middle" x="232.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_Column.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_column.pf&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~test_column.pf&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M186.05,-350.47C170.39,-353.29 153.64,-358.72 141,-369 87.66,-412.37 65.29,-495.56 57.3,-535.51"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="53.82,-535.09 55.42,-545.56 60.7,-536.38 53.82,-535.09"/>
+</g>
+<!-- sourcefile~test_distributedmeter.pf -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node21" class="node">
+<title>sourcefile~test_distributedmeter.pf</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node21"><a xlink:href="../sourcefile/test_distributedmeter.pf.html" xlink:title="test_DistributedMeter.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="302,-318 163,-318 163,-294 302,-294 302,-318"/>
+<text text-anchor="middle" x="232.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_DistributedMeter.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_distributedmeter.pf&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~test_distributedmeter.pf&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M162.71,-314.24C154.8,-317.34 147.31,-321.48 141,-327 77.32,-382.67 59.82,-489.68 55.15,-535.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="51.65,-535.72 54.23,-546 58.62,-536.35 51.65,-535.72"/>
+</g>
+<!-- sourcefile~test_exclusivecolumn.pf -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node22" class="node">
+<title>sourcefile~test_exclusivecolumn.pf</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node22"><a xlink:href="../sourcefile/test_exclusivecolumn.pf.html" xlink:title="test_ExclusiveColumn.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="303.5,-276 161.5,-276 161.5,-252 303.5,-252 303.5,-276"/>
+<text text-anchor="middle" x="232.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_ExclusiveColumn.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_exclusivecolumn.pf&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~test_exclusivecolumn.pf&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M161.08,-272.48C153.72,-275.57 146.81,-279.65 141,-285 67.16,-353.01 55.36,-483.32 53.67,-535.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="50.17,-535.65 53.45,-545.72 57.17,-535.8 50.17,-535.65"/>
+</g>
+<!-- sourcefile~test_meternode.pf -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node23" class="node">
+<title>sourcefile~test_meternode.pf</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node23"><a xlink:href="../sourcefile/test_meternode.pf.html" xlink:title="test_MeterNode.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="287,-234 178,-234 178,-210 287,-210 287,-234"/>
+<text text-anchor="middle" x="232.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_MeterNode.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_meternode.pf&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~test_meternode.pf&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M177.56,-224.9C164.2,-228.01 150.9,-233.52 141,-243 97.8,-284.38 66.41,-471.21 56.68,-535.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="53.21,-535.42 55.21,-545.83 60.13,-536.45 53.21,-535.42"/>
+</g>
+<!-- sourcefile~test_meternodeiterator.pf -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node24" class="node">
+<title>sourcefile~test_meternodeiterator.pf</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node24"><a xlink:href="../sourcefile/test_meternodeiterator.pf.html" xlink:title="test_MeterNodeIterator.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="306.5,-192 158.5,-192 158.5,-168 306.5,-168 306.5,-192"/>
+<text text-anchor="middle" x="232.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_MeterNodeIterator.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_meternodeiterator.pf&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~test_meternodeiterator.pf&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M158.49,-189.09C152.04,-192.12 146.05,-196.01 141,-201 92.52,-248.89 64.03,-465.35 55.92,-535.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="52.43,-535.45 54.79,-545.78 59.39,-536.24 52.43,-535.45"/>
+</g>
+<!-- sourcefile~test_namecolumn.pf -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node25" class="node">
+<title>sourcefile~test_namecolumn.pf</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node25"><a xlink:href="../sourcefile/test_namecolumn.pf.html" xlink:title="test_NameColumn.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="294.5,-150 170.5,-150 170.5,-126 294.5,-126 294.5,-150"/>
+<text text-anchor="middle" x="232.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_NameColumn.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_namecolumn.pf&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge24" class="edge">
+<title>sourcefile~test_namecolumn.pf&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M170.17,-142.43C159.3,-145.76 148.94,-150.97 141,-159 87.31,-213.34 62.02,-458.8 55.35,-535.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="51.83,-535.34 54.47,-545.6 58.8,-535.93 51.83,-535.34"/>
+</g>
+<!-- sourcefile~test_percentagecolumn.pf -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node26" class="node">
+<title>sourcefile~test_percentagecolumn.pf</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node26"><a xlink:href="../sourcefile/test_percentagecolumn.pf.html" xlink:title="test_PercentageColumn.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="308.5,-108 156.5,-108 156.5,-84 308.5,-84 308.5,-108"/>
+<text text-anchor="middle" x="232.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_PercentageColumn.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_percentagecolumn.pf&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge25" class="edge">
+<title>sourcefile~test_percentagecolumn.pf&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M156.09,-105.95C150.52,-108.85 145.38,-112.48 141,-117 81.88,-178.05 60.03,-454.33 54.82,-535.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="51.31,-535.42 54.19,-545.62 58.3,-535.86 51.31,-535.42"/>
+</g>
+<!-- sourcefile~test_profilereporter.pf -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node27" class="node">
+<title>sourcefile~test_profilereporter.pf</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node27"><a xlink:href="../sourcefile/test_profilereporter.pf.html" xlink:title="test_ProfileReporter.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="297,-66 168,-66 168,-42 297,-42 297,-66"/>
+<text text-anchor="middle" x="232.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_ProfileReporter.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_profilereporter.pf&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge26" class="edge">
+<title>sourcefile~test_profilereporter.pf&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M167.61,-58.95C157.62,-62.32 148.23,-67.41 141,-75 76.46,-142.77 58.26,-449.79 54.39,-535.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="50.88,-535.68 53.95,-545.82 57.88,-535.98 50.88,-535.68"/>
+</g>
+<!-- sourcefile~test_timeprofiler.pf -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_node28" class="node">
+<title>sourcefile~test_timeprofiler.pf</title>
+<g id="a_sourcefile~~mapl_profiler.f90~~AfferentGraph_node28"><a xlink:href="../sourcefile/test_timeprofiler.pf.html" xlink:title="test_TimeProfiler.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="289,-24 176,-24 176,0 289,0 289,-24"/>
+<text text-anchor="middle" x="232.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_TimeProfiler.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_timeprofiler.pf&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mapl_profiler.f90~~AfferentGraph_edge27" class="edge">
+<title>sourcefile~test_timeprofiler.pf&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M175.93,-14.44C162.9,-17.6 150.16,-23.24 141,-33 71.09,-107.45 56.67,-444.75 54.04,-535.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="50.53,-535.63 53.76,-545.72 57.53,-535.82 50.53,-535.63"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_ErrLog.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="c">! Package exporter</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="k">module </span><span class="n">mapl_Profiler</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_AbstractMeter</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_AbstractMeterNode</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_AbstractMeterFactory</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_MeterNodeVector</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_MeterNode</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_BaseProfiler</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_AdvancedMeter</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_MpiTimerGauge</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_FortranTimerGauge</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_RssMemoryGauge</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_VmstatMemoryGauge</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_DistributedMeter</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_DistributedProfiler</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_TimeProfiler</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_MemoryProfiler</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_ProfileReporter</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_AbstractColumn</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_SimpleColumn</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_TextColumn</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_SimpleTextColumn</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_FormattedTextColumn</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_MemoryTextColumn</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_NameColumn</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_NumCyclesColumn</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_InclusiveColumn</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_ExclusiveColumn</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_StdDevColumn</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_MinCycleColumn</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_MaxCycleColumn</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_MeanCycleColumn</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_PercentageColumn</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_TextColumnVector</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_MultiColumn</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_SeparatorColumn</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_GlobalProfilers</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="k">contains</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="k">   subroutine </span><span class="n">initialize</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">enable_global_timeprof</span><span class="p">,</span><span class="w"> </span><span class="n">enable_global_memprof</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="k">use </span><span class="n">mapl_ErrorHandlingMod</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="k">use </span><span class="n">mapl_KeywordEnforcerMod</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w">  </span><span class="n">enable_global_timeprof</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w">  </span><span class="n">enable_global_memprof</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">      </span><span class="k">call </span><span class="n">initialize_global_time_profiler</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;All&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="o">=</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">enabled</span><span class="o">=</span><span class="n">enable_global_timeprof</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">      </span><span class="k">call </span><span class="n">initialize_global_memory_profiler</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;All&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="o">=</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">enabled</span><span class="o">=</span><span class="n">enable_global_memprof</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">initialize</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">finalize</span><span class="p">(</span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">      </span><span class="k">use </span><span class="n">mapl_KeywordEnforcerMod</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">      </span><span class="k">use </span><span class="n">mapl_ErrorHandlingMod</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">DistributedProfiler</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">t_p</span><span class="p">,</span><span class="w"> </span><span class="n">m_p</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">      </span><span class="n">t_p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_global_time_profiler</span><span class="p">()</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">      </span><span class="k">call </span><span class="n">t_p</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">      </span><span class="n">m_p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_global_memory_profiler</span><span class="p">()</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">      </span><span class="k">call </span><span class="n">m_p</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">      </span><span class="k">call </span><span class="n">report_global_profiler</span><span class="p">()</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">finalize</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">report_global_profiler</span><span class="p">(</span><span class="n">unusable</span><span class="p">,</span><span class="n">comm</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">      </span><span class="k">use </span><span class="n">mapl_KeywordEnforcerMod</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">      </span><span class="k">use </span><span class="n">mapl_ErrorHandlingMod</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">      </span><span class="k">use </span><span class="n">mpi</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">      </span><span class="k">use </span><span class="n">pflogger</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">logging</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">      </span><span class="k">use </span><span class="n">pflogger</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">Logger</span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ProfileReporter</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">reporter</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">world_comm</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">report_lines</span><span class="p">(:)</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MultiColumn</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">inclusive</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MultiColumn</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">exclusive</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">npes</span><span class="p">,</span><span class="w"> </span><span class="n">my_rank</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">BaseProfiler</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">t_p</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">BaseProfiler</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">m_p</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">Logger</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lgr</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">comm</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="k">         </span><span class="n">world_comm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">comm</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">      </span><span class="k">else</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="k">         </span><span class="n">world_comm</span><span class="o">=</span><span class="n">MPI_COMM_WORLD</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">      </span><span class="k">end if</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="k">      call </span><span class="n">MPI_Comm_size</span><span class="p">(</span><span class="n">world_comm</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">      </span><span class="k">call </span><span class="n">MPI_Comm_Rank</span><span class="p">(</span><span class="n">world_comm</span><span class="p">,</span><span class="w"> </span><span class="n">my_rank</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a>
+<a id="ln-120" name="ln-120" href="#ln-120"></a>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">      </span><span class="n">t_p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_global_time_profiler</span><span class="p">()</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">t_p</span><span class="p">%</span><span class="n">get_num_meters</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="k">         </span><span class="n">reporter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ProfileReporter</span><span class="p">(</span><span class="n">empty</span><span class="p">)</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">NameColumn</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="n">separator</span><span class="o">=</span><span class="w"> </span><span class="s2">&quot; &quot;</span><span class="p">))</span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;#-cycles&#39;</span><span class="p">,</span><span class="s1">&#39;(i8.0)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="n">NumCyclesColumn</span><span class="p">(),</span><span class="n">separator</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="w">         </span><span class="n">inclusive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MultiColumn</span><span class="p">([</span><span class="s1">&#39;Inclusive&#39;</span><span class="p">],</span><span class="w"> </span><span class="n">separator</span><span class="o">=</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">         </span><span class="k">call </span><span class="n">inclusive</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39; T (sec) &#39;</span><span class="p">,</span><span class="s1">&#39;(f9.3)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">InclusiveColumn</span><span class="p">(),</span><span class="w"> </span><span class="n">separator</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">         </span><span class="k">call </span><span class="n">inclusive</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;   %  &#39;</span><span class="p">,</span><span class="s1">&#39;(f6.2)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">PercentageColumn</span><span class="p">(</span><span class="n">InclusiveColumn</span><span class="p">(),</span><span class="s1">&#39;MAX&#39;</span><span class="p">),</span><span class="n">separator</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">inclusive</span><span class="p">)</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="w">         </span><span class="n">exclusive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MultiColumn</span><span class="p">([</span><span class="s1">&#39;Exclusive&#39;</span><span class="p">],</span><span class="w"> </span><span class="n">separator</span><span class="o">=</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="w">         </span><span class="k">call </span><span class="n">exclusive</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39; T (sec) &#39;</span><span class="p">,</span><span class="s1">&#39;(f9.3)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">ExclusiveColumn</span><span class="p">(),</span><span class="w"> </span><span class="n">separator</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="w">         </span><span class="k">call </span><span class="n">exclusive</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;   %  &#39;</span><span class="p">,</span><span class="s1">&#39;(f6.2)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">PercentageColumn</span><span class="p">(</span><span class="n">ExclusiveColumn</span><span class="p">()),</span><span class="w"> </span><span class="n">separator</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">exclusive</span><span class="p">)</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">my_rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="k">            </span><span class="n">report_lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reporter</span><span class="p">%</span><span class="n">generate_report</span><span class="p">(</span><span class="n">t_p</span><span class="p">)</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="w">            </span><span class="n">lgr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">logging</span><span class="p">%</span><span class="n">get_logger</span><span class="p">(</span><span class="s1">&#39;MAPL.profiler&#39;</span><span class="p">)</span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">            </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Report on process: %i0&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">my_rank</span><span class="p">)</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="w">            </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">report_lines</span><span class="p">)</span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="w">               </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;%a&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">report_lines</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="w">            </span><span class="k">end do</span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="k">         end if</span>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="k">      end if</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="k">      </span><span class="n">m_p</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">get_global_memory_profiler</span><span class="p">()</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m_p</span><span class="p">%</span><span class="n">get_num_meters</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="k">         </span><span class="n">reporter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ProfileReporter</span><span class="p">(</span><span class="n">empty</span><span class="p">)</span>
+<a id="ln-150" name="ln-150" href="#ln-150"></a><span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">NameColumn</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="n">separator</span><span class="o">=</span><span class="w"> </span><span class="s2">&quot; &quot;</span><span class="p">))</span>
+<a id="ln-151" name="ln-151" href="#ln-151"></a>
+<a id="ln-152" name="ln-152" href="#ln-152"></a><span class="w">         </span><span class="n">inclusive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MultiColumn</span><span class="p">([</span><span class="s1">&#39;Inclusive&#39;</span><span class="p">],</span><span class="w"> </span><span class="n">separator</span><span class="o">=</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>
+<a id="ln-153" name="ln-153" href="#ln-153"></a><span class="w">         </span><span class="k">call </span><span class="n">inclusive</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">MemoryTextColumn</span><span class="p">([</span><span class="s1">&#39;  MEM  &#39;</span><span class="p">],</span><span class="s1">&#39;(i4,1x,a2)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">InclusiveColumn</span><span class="p">(),</span><span class="w"> </span><span class="n">separator</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+<a id="ln-154" name="ln-154" href="#ln-154"></a><span class="c">!!$      call inclusive%add_column(FormattedTextColumn(&#39;   %  &#39;,&#39;(f6.2)&#39;, 6, PercentageColumn(InclusiveColumn()), separator=&#39;-&#39;))</span>
+<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">inclusive</span><span class="p">)</span>
+<a id="ln-156" name="ln-156" href="#ln-156"></a>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="w">         </span><span class="n">exclusive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MultiColumn</span><span class="p">([</span><span class="s1">&#39;Exclusive&#39;</span><span class="p">],</span><span class="w"> </span><span class="n">separator</span><span class="o">=</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="w">         </span><span class="k">call </span><span class="n">exclusive</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">MemoryTextColumn</span><span class="p">([</span><span class="s1">&#39;  MEM  &#39;</span><span class="p">],</span><span class="s1">&#39;(i4,1x,a2)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">ExclusiveColumn</span><span class="p">(),</span><span class="w"> </span><span class="n">separator</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a><span class="w">         </span><span class="k">call </span><span class="n">exclusive</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39; MEM (KB)&#39;</span><span class="p">,</span><span class="s1">&#39;(-3p,f15.3, 0p)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="n">ExclusiveColumn</span><span class="p">(),</span><span class="w"> </span><span class="n">separator</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+<a id="ln-160" name="ln-160" href="#ln-160"></a><span class="c">!!$      call exclusive%add_column(FormattedTextColumn(&#39;   %  &#39;,&#39;(f6.2)&#39;, 6, PercentageColumn(ExclusiveColumn()), separator=&#39;-&#39;))</span>
+<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="w">         </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">exclusive</span><span class="p">)</span>
+<a id="ln-162" name="ln-162" href="#ln-162"></a>
+<a id="ln-163" name="ln-163" href="#ln-163"></a><span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">my_rank</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-164" name="ln-164" href="#ln-164"></a><span class="k">            </span><span class="n">report_lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reporter</span><span class="p">%</span><span class="n">generate_report</span><span class="p">(</span><span class="n">m_p</span><span class="p">)</span>
+<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="w">            </span><span class="n">lgr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">logging</span><span class="p">%</span><span class="n">get_logger</span><span class="p">(</span><span class="s1">&#39;MAPL.profiler&#39;</span><span class="p">)</span>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="w">            </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">report_lines</span><span class="p">)</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a><span class="w">               </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;%a&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">report_lines</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="w">            </span><span class="k">end do</span>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="k">         end if</span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a><span class="k">      end if</span>
+<a id="ln-171" name="ln-171" href="#ln-171"></a>
+<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="k">      call </span><span class="n">MPI_Barrier</span><span class="p">(</span><span class="n">world_comm</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a>
+<a id="ln-175" name="ln-175" href="#ln-175"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-176" name="ln-176" href="#ln-176"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">report_global_profiler</span>
+<a id="ln-178" name="ln-178" href="#ln-178"></a>
+<a id="ln-179" name="ln-179" href="#ln-179"></a><span class="k">end module </span><span class="n">mapl_Profiler</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-29T18:09:24.478960             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

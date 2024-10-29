@@ -1,0 +1,1194 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>VarSpecType.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>VarSpecType.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for source files.">189 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/VarSpecType.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">VarSpecType.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_varspectypemod.html">MAPL_VarSpecTypeMod</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/varspectype.f90.html#src">VarSpecType.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~varspectype.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilevarspectypef90EfferentGraph" width="641pt" height="192pt"
+ viewBox="0.00 0.00 641.00 191.56" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~varspectype.f90~~EfferentGraph" class="graph" transform="scale(0.81 0.81) rotate(0) translate(4 233.29)">
+<title>sourcefile~~varspectype.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-233.29 790,-233.29 790,4 -4,4"/>
+<!-- sourcefile~varspectype.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~varspectype.f90</title>
+<polygon fill="none" stroke="black" points="786,-150.29 683,-150.29 683,-126.29 786,-126.29 786,-150.29"/>
+<text text-anchor="middle" x="734.5" y="-135.89" font-family="Helvetica,sans-Serif" font-size="10.50">VarSpecType.F90</text>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="647,-200.29 538,-200.29 538,-176.29 647,-176.29 647,-200.29"/>
+<text text-anchor="middle" x="592.5" y="-185.89" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~varspectype.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~varspectype.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M699.61,-150.39C680.83,-157.1 657.28,-165.51 637.14,-172.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="635.8,-169.46 627.56,-176.12 638.16,-176.05 635.8,-169.46"/>
+</g>
+<!-- sourcefile~oomph.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~oomph.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/oomph.f90.html" xlink:title="oomph.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="629,-129.29 556,-129.29 556,-105.29 629,-105.29 629,-129.29"/>
+<text text-anchor="middle" x="592.5" y="-114.89" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">oomph.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~varspectype.f90&#45;&gt;sourcefile~oomph.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~varspectype.f90&#45;&gt;sourcefile~oomph.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M682.96,-130.71C668.59,-128.55 653.03,-126.22 638.98,-124.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="639.46,-120.64 629.05,-122.62 638.42,-127.56 639.46,-120.64"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="491,-229.29 391,-229.29 391,-205.29 491,-205.29 491,-229.29"/>
+<text text-anchor="middle" x="441" y="-214.89" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M537.95,-198.67C526.04,-200.99 513.34,-203.45 501.21,-205.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="500.34,-202.4 491.19,-207.74 501.68,-209.28 500.34,-202.4"/>
+</g>
+<!-- sourcefile~abstractstateitemspec.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~abstractstateitemspec.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/abstractstateitemspec.f90.html" xlink:title="AbstractStateItemSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="344,-63.29 187,-63.29 187,-39.29 344,-39.29 344,-63.29"/>
+<text text-anchor="middle" x="265.5" y="-48.89" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractStateItemSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~oomph.f90&#45;&gt;sourcefile~abstractstateitemspec.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~oomph.f90&#45;&gt;sourcefile~abstractstateitemspec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M440,-11.29C416.03,-5.2 354.22,-22.36 311.26,-36.07"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="310.02,-32.79 301.59,-39.2 312.18,-39.45 310.02,-32.79"/>
+</g>
+<!-- sourcefile~connectionpoint.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~connectionpoint.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/connectionpoint.f90.html" xlink:title="ConnectionPoint.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="502,-149.29 380,-149.29 380,-125.29 502,-125.29 502,-149.29"/>
+<text text-anchor="middle" x="441" y="-134.89" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ConnectionPoint.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~oomph.f90&#45;&gt;sourcefile~connectionpoint.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~oomph.f90&#45;&gt;sourcefile~connectionpoint.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M555.69,-122.08C542.64,-123.82 527.38,-125.86 512.37,-127.87"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="511.49,-124.46 502.04,-129.25 512.41,-131.4 511.49,-124.46"/>
+</g>
+<!-- sourcefile~dimspec.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~dimspec.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/dimspec.f90.html" xlink:title="DimSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="307,-147.29 224,-147.29 224,-123.29 307,-123.29 307,-147.29"/>
+<text text-anchor="middle" x="265.5" y="-132.89" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DimSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~oomph.f90&#45;&gt;sourcefile~dimspec.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~oomph.f90&#45;&gt;sourcefile~dimspec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M555.79,-116.8C539.4,-116.59 519.71,-116.39 502,-116.29 447.78,-115.98 434.04,-111.8 380,-116.29 359.23,-118.01 336.54,-121.49 316.95,-125"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="316.21,-121.58 307.01,-126.83 317.48,-128.46 316.21,-121.58"/>
+</g>
+<!-- sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~fieldspec.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/fieldspec.f90.html" xlink:title="FieldSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="484,-69.29 398,-69.29 398,-45.29 484,-45.29 484,-69.29"/>
+<text text-anchor="middle" x="441" y="-54.89" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~oomph.f90&#45;&gt;sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~oomph.f90&#45;&gt;sourcefile~fieldspec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M561.25,-105.14C538.27,-95.92 506.48,-83.17 481.5,-73.14"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="482.54,-69.78 471.95,-69.31 479.93,-76.28 482.54,-69.78"/>
+</g>
+<!-- sourcefile~horizontalstaggerloc.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~horizontalstaggerloc.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/horizontalstaggerloc.f90.html" xlink:title="HorizontalStaggerLoc.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="151,-64.29 0,-64.29 0,-40.29 151,-40.29 151,-64.29"/>
+<text text-anchor="middle" x="75.5" y="-49.89" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HorizontalStaggerLoc.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~oomph.f90&#45;&gt;sourcefile~horizontalstaggerloc.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~oomph.f90&#45;&gt;sourcefile~horizontalstaggerloc.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M580.68,-105.16C564.81,-87.97 533.68,-56.38 502,-36.29 477.6,-20.81 470,-18.39 442,-11.29"/>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M440,-11.29C327.35,17.3 190.01,-15.93 120.84,-37.21"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="119.63,-33.92 111.14,-40.26 121.73,-40.6 119.63,-33.92"/>
+</g>
+<!-- sourcefile~ungriddeddimspec.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~ungriddeddimspec.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~EfferentGraph_node10"><a xlink:href="../sourcefile/ungriddeddimspec.f90.html" xlink:title="UngriddedDimSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="145,-189.29 6,-189.29 6,-165.29 145,-165.29 145,-189.29"/>
+<text text-anchor="middle" x="75.5" y="-174.89" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDimSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~oomph.f90&#45;&gt;sourcefile~ungriddeddimspec.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~oomph.f90&#45;&gt;sourcefile~ungriddeddimspec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M264.5,-177.29C228.72,-176.23 189.1,-176.08 155.5,-176.25"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="155.25,-172.76 145.27,-176.32 155.29,-179.76 155.25,-172.76"/>
+</g>
+<!-- sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_node11" class="node">
+<title>sourcefile~verticalstaggerloc.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~EfferentGraph_node11"><a xlink:href="../sourcefile/verticalstaggerloc.f90.html" xlink:title="VerticalStaggerLoc.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="143.5,-147.29 7.5,-147.29 7.5,-123.29 143.5,-123.29 143.5,-147.29"/>
+<text text-anchor="middle" x="75.5" y="-132.89" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalStaggerLoc.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~oomph.f90&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~oomph.f90&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M570.58,-129.42C552.92,-139.03 526.64,-151.86 502,-158.29 400.39,-184.78 371.35,-183.06 266.5,-177.29"/>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M264.5,-177.29C238.96,-176.54 176.94,-161.72 131.08,-149.9"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="131.83,-146.47 121.27,-147.35 130.07,-153.25 131.83,-146.47"/>
+</g>
+<!-- sourcefile~dimspec.f90&#45;&gt;sourcefile~horizontalstaggerloc.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~dimspec.f90&#45;&gt;sourcefile~horizontalstaggerloc.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M223.65,-126.24C211.64,-123.04 198.61,-119.03 187,-114.29 157.25,-102.13 125.46,-83.65 103.65,-70.03"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="105.27,-66.91 94.95,-64.52 101.53,-72.82 105.27,-66.91"/>
+</g>
+<!-- sourcefile~dimspec.f90&#45;&gt;sourcefile~ungriddeddimspec.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~dimspec.f90&#45;&gt;sourcefile~ungriddeddimspec.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M223.71,-144.4C199.37,-149.84 167.95,-156.86 140.38,-163.02"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="139.42,-159.64 130.42,-165.24 140.94,-166.48 139.42,-159.64"/>
+</g>
+<!-- sourcefile~dimspec.f90&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~dimspec.f90&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M223.71,-135.29C203.3,-135.29 177.9,-135.29 153.97,-135.29"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="153.82,-131.79 143.82,-135.29 153.82,-138.79 153.82,-131.79"/>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~abstractstateitemspec.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~abstractstateitemspec.f90</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M397.56,-55.82C384.43,-55.37 369.46,-54.85 354.44,-54.33"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="354.17,-50.82 344.06,-53.97 353.93,-57.81 354.17,-50.82"/>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~dimspec.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~dimspec.f90</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M407.33,-69.33C398.2,-73.25 388.46,-77.98 380,-83.29 362.11,-94.5 362.65,-104.39 344,-114.29 335.68,-118.7 326.35,-122.25 317.13,-125.08"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="315.89,-121.79 307.22,-127.87 317.79,-128.53 315.89,-121.79"/>
+</g>
+<!-- sourcefile~couplingspec.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_node12" class="node">
+<title>sourcefile~couplingspec.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~EfferentGraph_node12"><a xlink:href="../sourcefile/couplingspec.f90.html" xlink:title="CouplingSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="320,-105.29 211,-105.29 211,-81.29 320,-81.29 320,-105.29"/>
+<text text-anchor="middle" x="265.5" y="-90.89" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CouplingSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~couplingspec.f90 -->
+<g id="sourcefile~~varspectype.f90~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~couplingspec.f90</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M397.56,-66.09C377.2,-70.32 352.38,-75.47 329.85,-80.14"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="329.09,-76.72 320.01,-82.18 330.52,-83.58 329.09,-76.72"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilevarspectypef90EfferentGraph = svgPanZoom('#sourcefilevarspectypef90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~varspectype.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilevarspectypef90AfferentGraph" width="641pt" height="473pt"
+ viewBox="0.00 0.00 641.00 473.12" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~varspectype.f90~~AfferentGraph" class="graph" transform="scale(0.8 0.8) rotate(0) translate(4 585)">
+<title>sourcefile~~varspectype.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-585 794,-585 794,4 -4,4"/>
+<!-- sourcefile~varspectype.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~varspectype.f90</title>
+<polygon fill="none" stroke="black" points="103,-330 0,-330 0,-306 103,-306 103,-330"/>
+<text text-anchor="middle" x="51.5" y="-315.6" font-family="Helvetica,sans-Serif" font-size="10.50">VarSpecType.F90</text>
+</g>
+<!-- sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~mapl_generic.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/mapl_generic.f90.html" xlink:title="MAPL_Generic.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="371.5,-268 260.5,-268 260.5,-244 371.5,-244 371.5,-268"/>
+<text text-anchor="middle" x="316" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Generic.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~varspectype.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~varspectype.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M310.91,-268.16C294.24,-316.72 229.8,-493.71 179.5,-485"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M177.5,-485C107.92,-472.96 71.82,-382.39 58.56,-339.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="61.88,-338.79 55.68,-330.2 55.18,-340.78 61.88,-338.79"/>
+</g>
+<!-- sourcefile~varspec.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~varspec.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/varspec.f90.html" xlink:title="VarSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="218,-184 139,-184 139,-160 218,-160 218,-184"/>
+<text text-anchor="middle" x="178.5" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~varspec.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~varspec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M273.08,-243.88C266.51,-241.33 259.94,-238.38 254,-235 233.12,-223.14 212.53,-205.1 198.3,-191.36"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="200.66,-188.77 191.09,-184.23 195.74,-193.75 200.66,-188.77"/>
+</g>
+<!-- sourcefile~statespecification.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~statespecification.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/statespecification.f90.html" xlink:title="StateSpecification.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="567,-579 435,-579 435,-555 567,-555 567,-579"/>
+<text text-anchor="middle" x="501" y="-564.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateSpecification.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~statespecification.f90&#45;&gt;sourcefile~varspectype.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~statespecification.f90&#45;&gt;sourcefile~varspectype.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M460.96,-554.87C401.04,-536.75 282.5,-502.83 179.5,-485"/>
+</g>
+<!-- sourcefile~varspecmiscmod.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~varspecmiscmod.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/varspecmiscmod.f90.html" xlink:title="VarSpecMiscMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="378,-457 254,-457 254,-433 378,-433 378,-457"/>
+<text text-anchor="middle" x="316" y="-442.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarSpecMiscMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~statespecification.f90&#45;&gt;sourcefile~varspecmiscmod.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge30" class="edge">
+<title>sourcefile~statespecification.f90&#45;&gt;sourcefile~varspecmiscmod.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M438.16,-554.97C429.45,-551.45 421.07,-546.89 414,-541 387.12,-518.6 403.61,-494.83 378,-471 374.25,-467.51 369.96,-464.45 365.44,-461.77"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="367,-458.64 356.52,-457.09 363.74,-464.84 367,-458.64"/>
+</g>
+<!-- sourcefile~varspec.f90&#45;&gt;sourcefile~varspectype.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~varspec.f90&#45;&gt;sourcefile~varspectype.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M167.06,-184.2C145.5,-209.38 95.88,-267.33 69.58,-298.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="66.67,-296.07 62.82,-305.94 71.99,-300.62 66.67,-296.07"/>
+</g>
+<!-- sourcefile~varspecmiscmod.f90&#45;&gt;sourcefile~varspectype.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~varspecmiscmod.f90&#45;&gt;sourcefile~varspectype.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M285.47,-457.06C252.12,-470.08 199.86,-488.52 179.5,-485"/>
+</g>
+<!-- sourcefile~varspecmiscmod.f90&#45;&gt;sourcefile~varspec.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~varspecmiscmod.f90&#45;&gt;sourcefile~varspec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M309,-432.92C287.93,-390.47 217.11,-247.78 190.09,-193.35"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="193.16,-191.65 185.58,-184.25 186.89,-194.77 193.16,-191.65"/>
+</g>
+<!-- sourcefile~comp_testing_driver.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~comp_testing_driver.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/comp_testing_driver.f90.html" xlink:title="Comp_Testing_Driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="573.5,-373 428.5,-373 428.5,-349 573.5,-349 573.5,-373"/>
+<text text-anchor="middle" x="501" y="-358.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Comp_Testing_Driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M435.82,-348.94C428.27,-346.47 420.83,-343.53 414,-340 382.3,-323.64 352.31,-294.88 334.29,-275.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="336.66,-273.04 327.33,-268.03 331.5,-277.77 336.66,-273.04"/>
+</g>
+<!-- sourcefile~componentspecification.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~componentspecification.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/componentspecification.f90.html" xlink:title="ComponentSpecification.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="790,-581 624,-581 624,-557 790,-557 790,-581"/>
+<text text-anchor="middle" x="707" y="-566.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpecification.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecification.f90&#45;&gt;sourcefile~statespecification.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~componentspecification.f90&#45;&gt;sourcefile~statespecification.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M623.91,-568.2C608.52,-568.04 592.51,-567.89 577.35,-567.74"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="577.04,-564.24 567,-567.64 576.97,-571.24 577.04,-564.24"/>
+</g>
+<!-- sourcefile~extdatagridcompmod.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~extdatagridcompmod.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/extdatagridcompmod.f90.html" xlink:title="ExtDataGridCompMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="578,-79 424,-79 424,-55 578,-55 578,-79"/>
+<text text-anchor="middle" x="501" y="-64.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataGridCompMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatagridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~extdatagridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M425.69,-79.11C421.43,-81.59 417.48,-84.52 414,-88 366.42,-135.55 423.34,-185.31 378,-235 377.09,-236 376.12,-236.95 375.12,-237.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="372.73,-235.27 366.67,-243.97 376.83,-240.94 372.73,-235.27"/>
+</g>
+<!-- sourcefile~extdatagridcompmod.f90&#45;&gt;sourcefile~varspec.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~extdatagridcompmod.f90&#45;&gt;sourcefile~varspec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M438.46,-79.09C430.07,-81.58 421.71,-84.53 414,-88 396.24,-96 395.56,-104.56 378,-113 371.06,-116.33 284.61,-141.6 228.11,-157.97"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="226.91,-154.67 218.28,-160.82 228.86,-161.4 226.91,-154.67"/>
+</g>
+<!-- sourcefile~extdatagridcompng.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~extdatagridcompng.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/extdatagridcompng.f90.html" xlink:title="ExtDataGridCompNG.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="574.5,-37 427.5,-37 427.5,-13 574.5,-13 574.5,-37"/>
+<text text-anchor="middle" x="501" y="-22.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataGridCompNG.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M427.47,-35.76C422.5,-38.51 417.92,-41.88 414,-46 355.11,-108 433.98,-170.36 378,-235 377.13,-236 376.22,-236.95 375.26,-237.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="373.04,-235.15 367.16,-243.96 377.25,-240.74 373.04,-235.15"/>
+</g>
+<!-- sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~varspec.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~extdatagridcompng.f90&#45;&gt;sourcefile~varspec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M427.46,-32.62C365.61,-40.19 282.34,-53.23 254,-71 223.31,-90.24 201.06,-127.09 189.23,-150.56"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="186.01,-149.18 184.81,-159.71 192.31,-152.23 186.01,-149.18"/>
+</g>
+<!-- sourcefile~genericcplcomp.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~genericcplcomp.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/genericcplcomp.f90.html" xlink:title="GenericCplComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="564,-499 438,-499 438,-475 564,-475 564,-499"/>
+<text text-anchor="middle" x="501" y="-484.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GenericCplComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~genericcplcomp.f90&#45;&gt;sourcefile~varspecmiscmod.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge26" class="edge">
+<title>sourcefile~genericcplcomp.f90&#45;&gt;sourcefile~varspecmiscmod.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M447.56,-474.96C426.31,-470.09 401.6,-464.42 379.43,-459.33"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="379.98,-455.86 369.45,-457.04 378.41,-462.69 379.98,-455.86"/>
+</g>
+<!-- sourcefile~mapl.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~mapl.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/mapl.f90.html" xlink:title="MAPL.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="533,-457 469,-457 469,-433 533,-433 533,-457"/>
+<text text-anchor="middle" x="501" y="-442.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~mapl.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M468.81,-443.35C451.24,-441.05 429.74,-435.8 414,-424 363.72,-386.3 335.21,-314.31 323.44,-278.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="326.75,-276.92 320.44,-268.41 320.07,-279 326.75,-276.92"/>
+</g>
+<!-- sourcefile~mapl.f90&#45;&gt;sourcefile~varspecmiscmod.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge27" class="edge">
+<title>sourcefile~mapl.f90&#45;&gt;sourcefile~varspecmiscmod.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M468.96,-445C446.89,-445 416.32,-445 388.39,-445"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="388.24,-441.5 378.24,-445 388.24,-448.5 388.24,-441.5"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~mapl_capgridcomp.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/mapl_capgridcomp.f90.html" xlink:title="MAPL_CapGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="573,-331 429,-331 429,-307 573,-307 573,-331"/>
+<text text-anchor="middle" x="501" y="-316.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M444.55,-306.92C434.3,-304.28 423.76,-301.28 414,-298 392.52,-290.78 369.19,-280.76 350.8,-272.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="352.21,-269.11 341.67,-268.06 349.26,-275.45 352.21,-269.11"/>
+</g>
+<!-- sourcefile~mapl_geosatmaskmod.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~mapl_geosatmaskmod.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/mapl_geosatmaskmod.f90.html" xlink:title="MAPL_GeosatMaskMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="579,-289 423,-289 423,-265 579,-265 579,-289"/>
+<text text-anchor="middle" x="501" y="-274.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GeosatMaskMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_geosatmaskmod.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~mapl_geosatmaskmod.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M422.92,-268.15C409.22,-266.58 395.08,-264.96 381.77,-263.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="382.1,-259.95 371.77,-262.28 381.3,-266.9 382.1,-259.95"/>
+</g>
+<!-- sourcefile~mapl_historycollection.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~mapl_historycollection.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/mapl_historycollection.f90.html" xlink:title="MAPL_HistoryCollection.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="581,-247 421,-247 421,-223 581,-223 581,-247"/>
+<text text-anchor="middle" x="501" y="-232.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryCollection.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~mapl_historycollection.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M420.8,-244.09C407.69,-245.59 394.23,-247.14 381.54,-248.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="381.08,-245.12 371.55,-249.74 381.88,-252.08 381.08,-245.12"/>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~mapl_historygridcomp.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~AfferentGraph_node15"><a xlink:href="../sourcefile/mapl_historygridcomp.f90.html" xlink:title="MAPL_HistoryGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="581,-415 421,-415 421,-391 581,-391 581,-415"/>
+<text text-anchor="middle" x="501" y="-400.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_HistoryGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M431.53,-390.89C425.36,-388.45 419.41,-385.52 414,-382 373.23,-355.46 342.63,-305.75 327.51,-277.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="330.52,-275.54 322.82,-268.26 324.3,-278.76 330.52,-275.54"/>
+</g>
+<!-- sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~varspecmiscmod.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge28" class="edge">
+<title>sourcefile~mapl_historygridcomp.f90&#45;&gt;sourcefile~varspecmiscmod.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M447.56,-415.04C426.31,-419.91 401.6,-425.58 379.43,-430.67"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="378.41,-427.31 369.45,-432.96 379.98,-434.14 378.41,-427.31"/>
+</g>
+<!-- sourcefile~mapl_orbgridcompmod.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~mapl_orbgridcompmod.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~AfferentGraph_node16"><a xlink:href="../sourcefile/mapl_orbgridcompmod.f90.html" xlink:title="MAPL_OrbGridCompMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="583.5,-205 418.5,-205 418.5,-181 583.5,-181 583.5,-205"/>
+<text text-anchor="middle" x="501" y="-190.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_OrbGridCompMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_orbgridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~mapl_orbgridcompmod.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M440.99,-205.01C431.82,-207.56 422.55,-210.55 414,-214 396.82,-220.94 394.84,-227.28 378,-235 373.94,-236.86 369.66,-238.65 365.34,-240.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="363.98,-237.12 355.85,-243.91 366.44,-243.67 363.98,-237.12"/>
+</g>
+<!-- sourcefile~mapl_stationsamplermod.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~mapl_stationsamplermod.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~AfferentGraph_node17"><a xlink:href="../sourcefile/mapl_stationsamplermod.f90.html" xlink:title="MAPL_StationSamplerMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="588,-163 414,-163 414,-139 588,-139 588,-163"/>
+<text text-anchor="middle" x="501" y="-148.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StationSamplerMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_stationsamplermod.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~mapl_stationsamplermod.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M429.27,-163.1C423.84,-165.55 418.66,-168.49 414,-172 388.24,-191.4 402.84,-214.43 378,-235 376.41,-236.31 374.74,-237.54 373,-238.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="370.84,-235.91 363.86,-243.88 374.29,-242 370.84,-235.91"/>
+</g>
+<!-- sourcefile~mapl_trajectorymod.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~mapl_trajectorymod.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~AfferentGraph_node18"><a xlink:href="../sourcefile/mapl_trajectorymod.f90.html" xlink:title="MAPL_TrajectoryMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="573,-121 429,-121 429,-97 573,-97 573,-121"/>
+<text text-anchor="middle" x="501" y="-106.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TrajectoryMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_trajectorymod.f90&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~mapl_trajectorymod.f90&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M428.92,-119.97C423.5,-122.66 418.43,-125.96 414,-130 377.57,-163.26 412.86,-200.09 378,-235 376.78,-236.23 375.48,-237.38 374.12,-238.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="372.17,-235.56 365.75,-243.99 376.02,-241.4 372.17,-235.56"/>
+</g>
+<!-- sourcefile~maplgeneric.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_node19" class="node">
+<title>sourcefile~maplgeneric.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~AfferentGraph_node19"><a xlink:href="../sourcefile/maplgeneric.f90.html" xlink:title="MaplGeneric.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="758.5,-539 655.5,-539 655.5,-515 758.5,-515 758.5,-539"/>
+<text text-anchor="middle" x="707" y="-524.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGeneric.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplgeneric.f90&#45;&gt;sourcefile~statespecification.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~maplgeneric.f90&#45;&gt;sourcefile~statespecification.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M655.31,-536.94C630.51,-541.8 600.23,-547.74 573.16,-553.05"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="572.48,-549.61 563.34,-554.97 573.83,-556.48 572.48,-549.61"/>
+</g>
+<!-- sourcefile~maplgeneric.f90&#45;&gt;sourcefile~varspecmiscmod.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge29" class="edge">
+<title>sourcefile~maplgeneric.f90&#45;&gt;sourcefile~varspecmiscmod.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M655.3,-534.31C594.85,-540.7 492.2,-544.06 414,-508 393.16,-498.39 396.92,-483.97 378,-471 372.77,-467.41 366.96,-464.16 361.06,-461.27"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="362.36,-458.02 351.81,-457.03 359.44,-464.38 362.36,-458.02"/>
+</g>
+<!-- sourcefile~test_varspec.pf -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_node20" class="node">
+<title>sourcefile~test_varspec.pf</title>
+<g id="a_sourcefile~~varspectype.f90~~AfferentGraph_node20"><a xlink:href="../sourcefile/test_varspec.pf.html" xlink:title="Test_VarSpec.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="363.5,-24 268.5,-24 268.5,0 363.5,0 363.5,-24"/>
+<text text-anchor="middle" x="316" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_VarSpec.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_varspec.pf&#45;&gt;sourcefile~varspec.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~test_varspec.pf&#45;&gt;sourcefile~varspec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M275.94,-24.09C268.1,-27.72 260.33,-32.3 254,-38 219.12,-69.41 196.94,-121.13 186.52,-150.28"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="183.15,-149.32 183.21,-159.91 189.77,-151.59 183.15,-149.32"/>
+</g>
+<!-- sourcefile~varconn.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_node21" class="node">
+<title>sourcefile~varconn.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~AfferentGraph_node21"><a xlink:href="../sourcefile/varconn.f90.html" xlink:title="VarConn.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="356,-226 276,-226 276,-202 356,-202 356,-226"/>
+<text text-anchor="middle" x="316" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarConn.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~varconn.f90&#45;&gt;sourcefile~varspec.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~varconn.f90&#45;&gt;sourcefile~varspec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M276.17,-201.96C261.15,-197.31 243.79,-191.93 227.96,-187.02"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="228.92,-183.65 218.33,-184.04 226.85,-190.34 228.92,-183.65"/>
+</g>
+<!-- sourcefile~varspecptr.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_node22" class="node">
+<title>sourcefile~varspecptr.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~AfferentGraph_node22"><a xlink:href="../sourcefile/varspecptr.f90.html" xlink:title="VarSpecPtr.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="361.5,-184 270.5,-184 270.5,-160 361.5,-160 361.5,-184"/>
+<text text-anchor="middle" x="316" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarSpecPtr.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~varspecptr.f90&#45;&gt;sourcefile~varspec.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge24" class="edge">
+<title>sourcefile~varspecptr.f90&#45;&gt;sourcefile~varspec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M270.26,-172C256.87,-172 242.11,-172 228.47,-172"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="228.28,-168.5 218.28,-172 228.28,-175.5 228.28,-168.5"/>
+</g>
+<!-- sourcefile~varspecvector.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_node23" class="node">
+<title>sourcefile~varspecvector.f90</title>
+<g id="a_sourcefile~~varspectype.f90~~AfferentGraph_node23"><a xlink:href="../sourcefile/varspecvector.f90.html" xlink:title="VarSpecVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="371.5,-104 260.5,-104 260.5,-80 371.5,-80 371.5,-104"/>
+<text text-anchor="middle" x="316" y="-89.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarSpecVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~varspecvector.f90&#45;&gt;sourcefile~varspec.f90 -->
+<g id="sourcefile~~varspectype.f90~~AfferentGraph_edge25" class="edge">
+<title>sourcefile~varspecvector.f90&#45;&gt;sourcefile~varspec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M283.01,-104.05C273.46,-108.06 263.12,-112.84 254,-118 235.81,-128.3 216.75,-142.17 202.47,-153.28"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="199.91,-150.84 194.24,-159.78 204.25,-156.33 199.91,-150.84"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilevarspectypef90AfferentGraph = svgPanZoom('#sourcefilevarspectypef90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="c">! This type should be private to generic layer.</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="cp">#include &quot;MAPL_ErrLog.h&quot;</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="k">module </span><span class="n">MAPL_VarSpecTypeMod</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">ESMF</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">ESMF_MAXSTR</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_SUCCESS</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">ESMF</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">ESMF_Grid</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">ESMF</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">ESMF_Field</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_FieldBundle</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_State</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_ErrorHandlingMod</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">use </span><span class="n">oomph</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">HorizontalStaggerLoc</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">use </span><span class="n">oomph</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">VerticalStaggerLoc</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">use </span><span class="n">oomph</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">UngriddedDimSpec</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">use </span><span class="n">oomph</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">DimsSpec</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="k">use </span><span class="n">oomph</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">FieldSpec</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="k">   private</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MAPL_VarSpecType</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MAPL_VarSpecSet</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">positive_length</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">positive_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">   </span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MAPL_VarSpecType</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">      </span><span class="c">! new</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field_spec</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">      </span><span class="c">! legacy</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">SHORT_NAME</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">LONG_NAME</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">UNITS</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">FRIENDLYTO</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">VECTOR_PAIR</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">ATTR_INAMES</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">ATTR_RNAMES</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">                    </span><span class="k">pointer</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">ATTR_IVALUES</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w">                       </span><span class="k">pointer</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">ATTR_RVALUES</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w">                    </span><span class="k">pointer</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">UNGRIDDED_DIMS</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">UNGRIDDED_UNIT</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">UNGRIDDED_NAME</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">positive_length</span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">positive</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w">                       </span><span class="k">pointer</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">UNGRIDDED_COORDS</span><span class="p">(:)</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                                  </span><span class="kd">::</span><span class="w"> </span><span class="n">DIMS</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                                  </span><span class="kd">::</span><span class="w"> </span><span class="n">LOCATION</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                                  </span><span class="kd">::</span><span class="w"> </span><span class="n">NUM_SUBTILES</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                                  </span><span class="kd">::</span><span class="w"> </span><span class="nb">STAT</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="nb">      </span><span class="kt">integer</span><span class="w">                                  </span><span class="kd">::</span><span class="w"> </span><span class="n">ACCMLT_INTERVAL</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                                  </span><span class="kd">::</span><span class="w"> </span><span class="n">COUPLE_INTERVAL</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                                  </span><span class="kd">::</span><span class="w"> </span><span class="n">OFFSET</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                                  </span><span class="kd">::</span><span class="w"> </span><span class="n">LABEL</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                                  </span><span class="kd">::</span><span class="w"> </span><span class="n">HALOWIDTH</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                                  </span><span class="kd">::</span><span class="w"> </span><span class="nb">PRECISION</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="nb">      </span><span class="kt">integer</span><span class="w">                                  </span><span class="kd">::</span><span class="w"> </span><span class="n">FIELD_TYPE</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                                  </span><span class="kd">::</span><span class="w"> </span><span class="n">VECTOR_ORDER</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                                  </span><span class="kd">::</span><span class="w"> </span><span class="n">STAGGERING</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                                  </span><span class="kd">::</span><span class="w"> </span><span class="n">ROTATION</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">      </span><span class="kt">integer</span><span class="w">                                  </span><span class="kd">::</span><span class="w"> </span><span class="n">RESTART</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">      </span><span class="kt">logical</span><span class="w">                                  </span><span class="kd">::</span><span class="w"> </span><span class="n">defaultProvided</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">      </span><span class="kt">logical</span><span class="w">                                  </span><span class="kd">::</span><span class="w"> </span><span class="n">doNotAllocate</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span><span class="kt">logical</span><span class="w">                                  </span><span class="kd">::</span><span class="w"> </span><span class="n">alwaysAllocate</span><span class="w"> </span><span class="c">! meant for export specs</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">      </span><span class="kt">logical</span><span class="w">                                  </span><span class="kd">::</span><span class="w"> </span><span class="n">depends_on_children</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">depends_on</span><span class="p">(:)</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span><span class="kt">real</span><span class="w">                                     </span><span class="kd">::</span><span class="w"> </span><span class="n">DEFAULT</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">                </span><span class="kd">::</span><span class="w"> </span><span class="n">FIELD</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">BUNDLE</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">                </span><span class="kd">::</span><span class="w"> </span><span class="n">STATE</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w">                          </span><span class="kd">::</span><span class="w"> </span><span class="n">GRID</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MAPL_VarSpecSetNew</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">      </span><span class="k">generic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MAPL_VarSpecSet</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">MAPL_VarSpecSetNew</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">   </span><span class="k">end type </span><span class="n">MAPL_VarSpecType</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">   </span><span class="k">interface </span><span class="n">MAPL_VarSpecSet</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">      </span><span class="k">module procedure </span><span class="n">MAPL_VarSpecSetNew</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">   </span><span class="k">end interface </span><span class="n">MAPL_VarSpecSet</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="k">contains</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="k">   </span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="k">  subroutine </span><span class="n">MAPL_VarSpecSetNew</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="n">short_name</span><span class="p">,</span><span class="w"> </span><span class="n">long_name</span><span class="p">,</span><span class="w"> </span><span class="n">units</span><span class="p">,</span><span class="w">       </span><span class="p">&amp;</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">                             </span><span class="n">dims</span><span class="p">,</span><span class="w"> </span><span class="n">vlocation</span><span class="p">,</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">                             </span><span class="nb">stat</span><span class="p">,</span><span class="w"> </span><span class="n">accmlt_interval</span><span class="p">,</span><span class="w"> </span><span class="n">couple_interval</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">                             </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="p">,</span><span class="w">                            </span><span class="p">&amp;</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">                             </span><span class="n">friendlyto</span><span class="p">,</span><span class="w">                               </span><span class="p">&amp;</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">                             </span><span class="n">field_type</span><span class="p">,</span><span class="w">                               </span><span class="p">&amp;</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">                             </span><span class="n">staggering</span><span class="p">,</span><span class="w">                               </span><span class="p">&amp;</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="w">                             </span><span class="n">rotation</span><span class="p">,</span><span class="w">                                 </span><span class="p">&amp;</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">                             </span><span class="n">grid</span><span class="p">,</span><span class="w">                                     </span><span class="p">&amp;</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">                             </span><span class="n">donotallocate</span><span class="p">,</span><span class="w">                            </span><span class="p">&amp;</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">                             </span><span class="n">alwaysallocate</span><span class="p">,</span><span class="w">                            </span><span class="p">&amp;</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">                             </span><span class="n">positive</span><span class="p">,</span><span class="w">                                 </span><span class="p">&amp;</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">                                                                    </span><span class="n">rc</span><span class="w"> </span><span class="p">)</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">    </span><span class="k">class</span><span class="p">(</span><span class="n">mapl_varspectype</span><span class="p">),</span><span class="w">             </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">short_name</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">long_name</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">units</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">    </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">dims</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">    </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">vlocation</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">    </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">accmlt_interval</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">    </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">couple_interval</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="w">    </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">offset</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">    </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="nb">stat</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="nb">    </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">label</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_field</span><span class="p">)</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">field</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_fieldbundle</span><span class="p">)</span><span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_state</span><span class="p">)</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">state</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">friendlyto</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">    </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">field_type</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">    </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">staggering</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">    </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">rotation</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_grid</span><span class="p">)</span><span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">grid</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">    </span><span class="kt">logical</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">donotallocate</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">    </span><span class="kt">logical</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">alwaysallocate</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">positive_length</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">positive</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">    </span><span class="kt">integer</span><span class="w">            </span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="w">   </span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a>
+<a id="ln-118" name="ln-118" href="#ln-118"></a>
+<a id="ln-119" name="ln-119" href="#ln-119"></a>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">short_name</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="k">        </span><span class="n">spec</span><span class="p">%</span><span class="n">short_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">short_name</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="w">      </span><span class="k">endif</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">long_name</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="k">        </span><span class="n">spec</span><span class="p">%</span><span class="n">long_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">long_name</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="w">      </span><span class="k">endif</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">units</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="k">        </span><span class="n">spec</span><span class="p">%</span><span class="n">units</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">units</span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="w">      </span><span class="k">endif</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">friendlyto</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="k">        </span><span class="n">spec</span><span class="p">%</span><span class="n">friendlyto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">friendlyto</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="w">      </span><span class="k">endif</span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="nb">stat</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="k">       </span><span class="n">spec</span><span class="p">%</span><span class="nb">stat</span><span class="o">=</span><span class="nb">stat</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="nb">      </span><span class="k">endif</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">dims</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="k">       </span><span class="n">spec</span><span class="p">%</span><span class="n">dims</span><span class="o">=</span><span class="n">dims</span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="w">      </span><span class="k">endif</span>
+<a id="ln-143" name="ln-143" href="#ln-143"></a>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">vlocation</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="k">       </span><span class="n">spec</span><span class="p">%</span><span class="n">location</span><span class="o">=</span><span class="n">vlocation</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a><span class="w">      </span><span class="k">endif</span>
+<a id="ln-147" name="ln-147" href="#ln-147"></a>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">accmlt_interval</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="k">       </span><span class="n">spec</span><span class="p">%</span><span class="n">accmlt_interval</span><span class="o">=</span><span class="n">accmlt_interval</span>
+<a id="ln-150" name="ln-150" href="#ln-150"></a><span class="w">      </span><span class="k">endif</span>
+<a id="ln-151" name="ln-151" href="#ln-151"></a>
+<a id="ln-152" name="ln-152" href="#ln-152"></a><span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">couple_interval</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-153" name="ln-153" href="#ln-153"></a><span class="k">       </span><span class="n">spec</span><span class="p">%</span><span class="n">couple_interval</span><span class="o">=</span><span class="n">couple_interval</span>
+<a id="ln-154" name="ln-154" href="#ln-154"></a><span class="w">      </span><span class="k">endif</span>
+<a id="ln-155" name="ln-155" href="#ln-155"></a>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">offset</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="k">       </span><span class="n">spec</span><span class="p">%</span><span class="n">offset</span><span class="o">=</span><span class="n">offset</span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="w">      </span><span class="k">endif</span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a>
+<a id="ln-160" name="ln-160" href="#ln-160"></a><span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">label</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="k">       </span><span class="n">spec</span><span class="p">%</span><span class="n">label</span><span class="o">=</span><span class="n">label</span>
+<a id="ln-162" name="ln-162" href="#ln-162"></a><span class="w">      </span><span class="k">endif</span>
+<a id="ln-163" name="ln-163" href="#ln-163"></a>
+<a id="ln-164" name="ln-164" href="#ln-164"></a><span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">field</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="k">       </span><span class="n">spec</span><span class="p">%</span><span class="n">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">field</span>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="w">      </span><span class="k">endif</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">bundle</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="k">       </span><span class="n">spec</span><span class="p">%</span><span class="n">bundle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bundle</span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a><span class="w">      </span><span class="k">endif</span>
+<a id="ln-171" name="ln-171" href="#ln-171"></a>
+<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">state</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="k">       </span><span class="n">spec</span><span class="p">%</span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state</span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a><span class="w">      </span><span class="k">endif</span>
+<a id="ln-175" name="ln-175" href="#ln-175"></a>
+<a id="ln-176" name="ln-176" href="#ln-176"></a><span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">grid</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="k">         </span><span class="n">spec</span><span class="p">%</span><span class="n">grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">grid</span>
+<a id="ln-178" name="ln-178" href="#ln-178"></a><span class="w">      </span><span class="k">endif</span>
+<a id="ln-179" name="ln-179" href="#ln-179"></a>
+<a id="ln-180" name="ln-180" href="#ln-180"></a><span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">field_type</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-181" name="ln-181" href="#ln-181"></a><span class="k">         </span><span class="n">spec</span><span class="p">%</span><span class="n">field_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">field_type</span>
+<a id="ln-182" name="ln-182" href="#ln-182"></a><span class="w">      </span><span class="k">endif</span>
+<a id="ln-183" name="ln-183" href="#ln-183"></a>
+<a id="ln-184" name="ln-184" href="#ln-184"></a><span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">staggering</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-185" name="ln-185" href="#ln-185"></a><span class="k">         </span><span class="n">spec</span><span class="p">%</span><span class="n">staggering</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">staggering</span>
+<a id="ln-186" name="ln-186" href="#ln-186"></a><span class="w">      </span><span class="k">endif</span>
+<a id="ln-187" name="ln-187" href="#ln-187"></a>
+<a id="ln-188" name="ln-188" href="#ln-188"></a><span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">rotation</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-189" name="ln-189" href="#ln-189"></a><span class="k">         </span><span class="n">spec</span><span class="p">%</span><span class="n">rotation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rotation</span>
+<a id="ln-190" name="ln-190" href="#ln-190"></a><span class="w">      </span><span class="k">endif</span>
+<a id="ln-191" name="ln-191" href="#ln-191"></a>
+<a id="ln-192" name="ln-192" href="#ln-192"></a><span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">donotallocate</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-193" name="ln-193" href="#ln-193"></a><span class="k">         </span><span class="n">spec</span><span class="p">%</span><span class="n">donotallocate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">donotallocate</span>
+<a id="ln-194" name="ln-194" href="#ln-194"></a><span class="w">      </span><span class="k">endif</span>
+<a id="ln-195" name="ln-195" href="#ln-195"></a>
+<a id="ln-196" name="ln-196" href="#ln-196"></a><span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">alwaysallocate</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-197" name="ln-197" href="#ln-197"></a><span class="k">         </span><span class="n">spec</span><span class="p">%</span><span class="n">alwaysallocate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">alwaysallocate</span>
+<a id="ln-198" name="ln-198" href="#ln-198"></a><span class="w">      </span><span class="k">endif</span>
+<a id="ln-199" name="ln-199" href="#ln-199"></a>
+<a id="ln-200" name="ln-200" href="#ln-200"></a><span class="k">      if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">positive</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-201" name="ln-201" href="#ln-201"></a><span class="k">         </span><span class="n">spec</span><span class="p">%</span><span class="n">positive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">positive</span>
+<a id="ln-202" name="ln-202" href="#ln-202"></a><span class="w">      </span><span class="k">endif</span>
+<a id="ln-203" name="ln-203" href="#ln-203"></a>
+<a id="ln-204" name="ln-204" href="#ln-204"></a><span class="k">      associate</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-205" name="ln-205" href="#ln-205"></a><span class="w">           </span><span class="n">horz_spec</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">create_horz_stagger_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-206" name="ln-206" href="#ln-206"></a><span class="w">           </span><span class="n">vert_spec</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">create_vert_stagger_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-207" name="ln-207" href="#ln-207"></a><span class="w">           </span><span class="n">ungr_spec</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">create_ungridded_dim_specs</span><span class="p">(</span><span class="n">spec</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-208" name="ln-208" href="#ln-208"></a><span class="w">           </span><span class="n">tk_spec</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">create_tk_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">))</span>
+<a id="ln-209" name="ln-209" href="#ln-209"></a><span class="w">        </span><span class="k">associate</span><span class="p">(</span><span class="w"> </span><span class="n">dims_spec</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">DimsSpec</span><span class="p">(</span><span class="n">horz_spec</span><span class="p">,</span><span class="w"> </span><span class="n">vert_spec</span><span class="p">,</span><span class="w"> </span><span class="n">ungr_spec</span><span class="p">,</span><span class="w"> </span><span class="n">spec</span><span class="p">%</span><span class="n">halowidth</span><span class="p">))</span>
+<a id="ln-210" name="ln-210" href="#ln-210"></a><span class="w">          </span>
+<a id="ln-211" name="ln-211" href="#ln-211"></a><span class="w">          </span><span class="n">spec</span><span class="p">%</span><span class="n">field_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldSpec</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">long_name</span><span class="p">,</span><span class="w"> </span><span class="n">dims_spec</span><span class="p">,</span><span class="w"> </span><span class="n">tk_spec</span><span class="p">)</span>
+<a id="ln-212" name="ln-212" href="#ln-212"></a>
+<a id="ln-213" name="ln-213" href="#ln-213"></a><span class="w">        </span><span class="k">end associate</span>
+<a id="ln-214" name="ln-214" href="#ln-214"></a><span class="k">      end associate</span>
+<a id="ln-215" name="ln-215" href="#ln-215"></a>
+<a id="ln-216" name="ln-216" href="#ln-216"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<a id="ln-217" name="ln-217" href="#ln-217"></a>
+<a id="ln-218" name="ln-218" href="#ln-218"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-219" name="ln-219" href="#ln-219"></a>
+<a id="ln-220" name="ln-220" href="#ln-220"></a><span class="k">      function </span><span class="n">create_horz_stagger_spec</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">horz_spec</span><span class="p">)</span>
+<a id="ln-221" name="ln-221" href="#ln-221"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">HorizontalStaggerLoc</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">horz_spec</span>
+<a id="ln-222" name="ln-222" href="#ln-222"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_VarSpecType</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-223" name="ln-223" href="#ln-223"></a><span class="w">      </span><span class="k">end function </span><span class="n">create_horz_stagger_spec</span>
+<a id="ln-224" name="ln-224" href="#ln-224"></a>
+<a id="ln-225" name="ln-225" href="#ln-225"></a><span class="w">      </span><span class="k">function </span><span class="n">create_vert_stagger_spec</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">vert_spec</span><span class="p">)</span>
+<a id="ln-226" name="ln-226" href="#ln-226"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">VerticalStaggerLoc</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vert_spec</span>
+<a id="ln-227" name="ln-227" href="#ln-227"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_VarSpecType</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-228" name="ln-228" href="#ln-228"></a><span class="w">      </span><span class="k">end function </span><span class="n">create_vert_stagger_spec</span>
+<a id="ln-229" name="ln-229" href="#ln-229"></a>
+<a id="ln-230" name="ln-230" href="#ln-230"></a><span class="w">      </span><span class="k">function </span><span class="n">create_ungridded_dim_specs</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">ungr_spec</span><span class="p">)</span>
+<a id="ln-231" name="ln-231" href="#ln-231"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">UngriddedDimSpec</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ungr_spec</span><span class="p">(:)</span>
+<a id="ln-232" name="ln-232" href="#ln-232"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_VarSpecType</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-233" name="ln-233" href="#ln-233"></a><span class="w">      </span><span class="k">end function </span><span class="n">create_ungridded_dim_specs</span>
+<a id="ln-234" name="ln-234" href="#ln-234"></a>
+<a id="ln-235" name="ln-235" href="#ln-235"></a><span class="w">      </span><span class="k">function </span><span class="n">create_tk_spec</span><span class="p">(</span><span class="n">this</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">tk_spec</span><span class="p">)</span>
+<a id="ln-236" name="ln-236" href="#ln-236"></a><span class="w">         </span><span class="k">use </span><span class="n">esmf</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">ESMF_KIND_R4</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_KIND_R8</span>
+<a id="ln-237" name="ln-237" href="#ln-237"></a><span class="w">         </span><span class="k">use </span><span class="n">esmf</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R8</span>
+<a id="ln-238" name="ln-238" href="#ln-238"></a><span class="w">         </span><span class="k">use </span><span class="n">esmf</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_FLAG</span>
+<a id="ln-239" name="ln-239" href="#ln-239"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TypeKind_Flag</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tk_spec</span>
+<a id="ln-240" name="ln-240" href="#ln-240"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">MAPL_VarSpecType</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-241" name="ln-241" href="#ln-241"></a>
+<a id="ln-242" name="ln-242" href="#ln-242"></a><span class="w">         </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="nb">precision</span><span class="p">)</span>
+<a id="ln-243" name="ln-243" href="#ln-243"></a><span class="w">         </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_KIND_R4</span><span class="p">)</span>
+<a id="ln-244" name="ln-244" href="#ln-244"></a><span class="w">            </span><span class="n">tk_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span>
+<a id="ln-245" name="ln-245" href="#ln-245"></a><span class="w">         </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">)</span>
+<a id="ln-246" name="ln-246" href="#ln-246"></a><span class="w">            </span><span class="n">tk_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R8</span>
+<a id="ln-247" name="ln-247" href="#ln-247"></a><span class="w">         </span><span class="k">case </span><span class="n">default</span>
+<a id="ln-248" name="ln-248" href="#ln-248"></a><span class="w">            </span><span class="k">error stop</span>
+<a id="ln-249" name="ln-249" href="#ln-249"></a><span class="k">         end select</span>
+<a id="ln-250" name="ln-250" href="#ln-250"></a>
+<a id="ln-251" name="ln-251" href="#ln-251"></a><span class="k">      end function </span><span class="n">create_tk_spec</span>
+<a id="ln-252" name="ln-252" href="#ln-252"></a>
+<a id="ln-253" name="ln-253" href="#ln-253"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">MAPL_VarSpecSetNew</span>
+<a id="ln-254" name="ln-254" href="#ln-254"></a>
+<a id="ln-255" name="ln-255" href="#ln-255"></a><span class="k">end module </span><span class="n">MAPL_VarSpecTypeMod</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-29T18:09:24.478960             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

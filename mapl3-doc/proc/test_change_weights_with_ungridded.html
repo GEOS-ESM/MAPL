@@ -1,0 +1,603 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>test_change_weights_with_ungridded &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>test_change_weights_with_ungridded
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">90 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_FieldBundleDelta.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_fieldbundledelta.pf.html'>Test_FieldBundleDelta.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_fieldbundledelta.html'>Test_FieldBundleDelta</a></li>
+            <li class="breadcrumb-item active" aria-current="page">test_change_weights_with_ungridded</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/test_change_weights_with_ungridded.html#src">test_change_weights_with_ungridded</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine test_change_weights_with_ungridded(this)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~5757"></span>
+              class(<a href='../type/esmf_testmethod.html'>ESMF_TestMethod</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~test_change_weights_with_ungridded~~CallsGraph Pages: 1 -->
+<svg id="proctest_change_weights_with_ungriddedCallsGraph" width="447pt" height="578pt"
+ viewBox="0.00 0.00 447.00 578.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 574)">
+<title>proc~~test_change_weights_with_ungridded~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-574 443,-574 443,4 -4,4"/>
+<!-- proc~test_change_weights_with_ungridded -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_node1" class="node">
+<title>proc~test_change_weights_with_ungridded</title>
+<polygon fill="none" stroke="black" points="210,-297 0,-297 0,-273 210,-273 210,-297"/>
+<text text-anchor="middle" x="105" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_change_weights_with_ungridded</text>
+</g>
+<!-- anyexceptions -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_node2" class="node">
+<title>anyexceptions</title>
+<polygon fill="#777777" stroke="#777777" points="387,-570 298,-570 298,-546 387,-546 387,-570"/>
+<text text-anchor="middle" x="342.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">anyexceptions</text>
+</g>
+<!-- proc~test_change_weights_with_ungridded&#45;&gt;anyexceptions -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_edge1" class="edge">
+<title>proc~test_change_weights_with_ungridded&#45;&gt;anyexceptions</title>
+<path fill="none" stroke="#ff0000" d="M108.91,-297.09C119.42,-338.05 159.5,-472.58 246,-537 258.06,-545.98 273.2,-551.26 287.86,-554.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="287.42,-557.8 297.88,-556.11 288.65,-550.91 287.42,-557.8"/>
+</g>
+<!-- assert_that -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_node3" class="node">
+<title>assert_that</title>
+<polygon fill="#777777" stroke="#777777" points="378,-528 307,-528 307,-504 378,-504 378,-528"/>
+<text text-anchor="middle" x="342.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assert_that</text>
+</g>
+<!-- proc~test_change_weights_with_ungridded&#45;&gt;assert_that -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_edge2" class="edge">
+<title>proc~test_change_weights_with_ungridded&#45;&gt;assert_that</title>
+<path fill="none" stroke="#ff0000" d="M110.28,-297.09C123.84,-333.48 169.49,-442.7 246,-495 260.74,-505.08 279.49,-510.42 296.46,-513.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="296.36,-516.73 306.75,-514.65 297.33,-509.8 296.36,-516.73"/>
+</g>
+<!-- assertequal -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_node4" class="node">
+<title>assertequal</title>
+<polygon fill="#777777" stroke="#777777" points="380,-486 305,-486 305,-462 380,-462 380,-486"/>
+<text text-anchor="middle" x="342.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assertequal</text>
+</g>
+<!-- proc~test_change_weights_with_ungridded&#45;&gt;assertequal -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_edge3" class="edge">
+<title>proc~test_change_weights_with_ungridded&#45;&gt;assertequal</title>
+<path fill="none" stroke="#ff0000" d="M112.29,-297.07C129.24,-328.35 179.17,-412.37 246,-453 260.66,-461.91 278.62,-467.06 294.99,-470.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="294.52,-473.49 304.94,-471.61 295.61,-466.58 294.52,-473.49"/>
+</g>
+<!-- equal_to -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_node5" class="node">
+<title>equal_to</title>
+<polygon fill="#777777" stroke="#777777" points="371.5,-444 313.5,-444 313.5,-420 371.5,-420 371.5,-444"/>
+<text text-anchor="middle" x="342.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">equal_to</text>
+</g>
+<!-- proc~test_change_weights_with_ungridded&#45;&gt;equal_to -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_edge4" class="edge">
+<title>proc~test_change_weights_with_ungridded&#45;&gt;equal_to</title>
+<path fill="none" stroke="#ff0000" d="M115.75,-297.3C136.68,-322.82 188.7,-381.56 246,-411 263.75,-420.12 285.34,-425.29 303.5,-428.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="303.07,-431.69 313.47,-429.66 304.07,-424.77 303.07,-431.69"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_node6" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="385,-402 300,-402 300,-378 385,-378 385,-402"/>
+<text text-anchor="middle" x="342.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~test_change_weights_with_ungridded&#45;&gt;esmf_fieldget -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_edge5" class="edge">
+<title>proc~test_change_weights_with_ungridded&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ff0000" d="M122.31,-297.22C147.53,-315.52 198.06,-349.94 246,-369 259.84,-374.5 275.42,-378.7 289.91,-381.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="289.23,-385.28 299.73,-383.85 290.64,-378.42 289.23,-385.28"/>
+</g>
+<!-- interface~mapl_infogetinternal -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_node7" class="node">
+<title>interface~mapl_infogetinternal</title>
+<g id="a_proc~~test_change_weights_with_ungridded~~CallsGraph_node7"><a xlink:href="../interface/mapl_infogetinternal.html" xlink:title="MAPL_InfoGetInternal">
+<polygon fill="#a7506f" stroke="#a7506f" points="406,-360 279,-360 279,-336 406,-336 406,-360"/>
+<text text-anchor="middle" x="342.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_InfoGetInternal</text>
+</a>
+</g>
+</g>
+<!-- proc~test_change_weights_with_ungridded&#45;&gt;interface~mapl_infogetinternal -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_edge6" class="edge">
+<title>proc~test_change_weights_with_ungridded&#45;&gt;interface~mapl_infogetinternal</title>
+<path fill="none" stroke="#ff0000" d="M143.52,-297.09C171.59,-305.93 211,-317.92 246,-327 254.87,-329.3 264.24,-331.57 273.52,-333.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="272.98,-337.18 283.51,-335.98 274.53,-330.35 272.98,-337.18"/>
+</g>
+<!-- none~update_bundle -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_node8" class="node">
+<title>none~update_bundle</title>
+<g id="a_proc~~test_change_weights_with_ungridded~~CallsGraph_node8"><a xlink:href="../type/fieldbundledelta.html#boundprocedure-update_bundle" xlink:title="FieldBundleDelta%update_bundle">
+<polygon fill="#a7506f" stroke="#a7506f" points="439,-318 246,-318 246,-294 439,-294 439,-318"/>
+<text text-anchor="middle" x="342.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleDelta%update_bundle</text>
+</a>
+</g>
+</g>
+<!-- proc~test_change_weights_with_ungridded&#45;&gt;none~update_bundle -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_edge7" class="edge">
+<title>proc~test_change_weights_with_ungridded&#45;&gt;none~update_bundle</title>
+<path fill="none" stroke="#ff0000" d="M210.32,-294.3C218.72,-295.05 227.21,-295.81 235.62,-296.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="235.55,-300.07 245.82,-297.47 236.17,-293.09 235.55,-300.07"/>
+</g>
+<!-- proc~mapl_fieldbundleget -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_node9" class="node">
+<title>proc~mapl_fieldbundleget</title>
+<g id="a_proc~~test_change_weights_with_ungridded~~CallsGraph_node9"><a xlink:href="../proc/mapl_fieldbundleget.html" xlink:title="MAPL_FieldBundleGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="406,-276 279,-276 279,-252 406,-252 406,-276"/>
+<text text-anchor="middle" x="342.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_FieldBundleGet</text>
+</a>
+</g>
+</g>
+<!-- proc~test_change_weights_with_ungridded&#45;&gt;proc~mapl_fieldbundleget -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_edge8" class="edge">
+<title>proc~test_change_weights_with_ungridded&#45;&gt;proc~mapl_fieldbundleget</title>
+<path fill="none" stroke="#ff0000" d="M210.32,-275.7C230.05,-273.94 250.28,-272.13 268.77,-270.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="269.2,-273.96 278.85,-269.59 268.57,-266.99 269.2,-273.96"/>
+</g>
+<!-- proc~setup_bundle -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_node10" class="node">
+<title>proc~setup_bundle</title>
+<g id="a_proc~~test_change_weights_with_ungridded~~CallsGraph_node10"><a xlink:href="../proc/setup_bundle.html" xlink:title="setup_bundle">
+<polygon fill="#d9534f" stroke="#d9534f" points="384.5,-234 300.5,-234 300.5,-210 384.5,-210 384.5,-234"/>
+<text text-anchor="middle" x="342.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">setup_bundle</text>
+</a>
+</g>
+</g>
+<!-- proc~test_change_weights_with_ungridded&#45;&gt;proc~setup_bundle -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_edge9" class="edge">
+<title>proc~test_change_weights_with_ungridded&#45;&gt;proc~setup_bundle</title>
+<path fill="none" stroke="#ff0000" d="M143.52,-272.91C171.59,-264.07 211,-252.08 246,-243 260.42,-239.26 276.17,-235.61 290.65,-232.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="291.41,-235.86 300.44,-230.32 289.93,-229.02 291.41,-235.86"/>
+</g>
+<!-- proc~setup_geom -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_node11" class="node">
+<title>proc~setup_geom</title>
+<g id="a_proc~~test_change_weights_with_ungridded~~CallsGraph_node11"><a xlink:href="../proc/setup_geom.html" xlink:title="setup_geom">
+<polygon fill="#d9534f" stroke="#d9534f" points="381.5,-192 303.5,-192 303.5,-168 381.5,-168 381.5,-192"/>
+<text text-anchor="middle" x="342.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">setup_geom</text>
+</a>
+</g>
+</g>
+<!-- proc~test_change_weights_with_ungridded&#45;&gt;proc~setup_geom -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_edge10" class="edge">
+<title>proc~test_change_weights_with_ungridded&#45;&gt;proc~setup_geom</title>
+<path fill="none" stroke="#ff0000" d="M122.31,-272.78C147.53,-254.48 198.06,-220.06 246,-201 261.01,-195.03 278.06,-190.6 293.55,-187.38"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="294.33,-190.8 303.47,-185.44 292.99,-183.93 294.33,-190.8"/>
+</g>
+<!-- proc~teardown_bundle -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_node12" class="node">
+<title>proc~teardown_bundle</title>
+<g id="a_proc~~test_change_weights_with_ungridded~~CallsGraph_node12"><a xlink:href="../proc/teardown_bundle.html" xlink:title="teardown_bundle">
+<polygon fill="#d9534f" stroke="#d9534f" points="395,-150 290,-150 290,-126 395,-126 395,-150"/>
+<text text-anchor="middle" x="342.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">teardown_bundle</text>
+</a>
+</g>
+</g>
+<!-- proc~test_change_weights_with_ungridded&#45;&gt;proc~teardown_bundle -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_edge11" class="edge">
+<title>proc~test_change_weights_with_ungridded&#45;&gt;proc~teardown_bundle</title>
+<path fill="none" stroke="#ff0000" d="M115.75,-272.7C136.68,-247.18 188.7,-188.44 246,-159 256.5,-153.61 268.34,-149.59 280.02,-146.61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="280.82,-150.02 289.76,-144.34 279.22,-143.2 280.82,-150.02"/>
+</g>
+<!-- proc~teardown_geom -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_node13" class="node">
+<title>proc~teardown_geom</title>
+<g id="a_proc~~test_change_weights_with_ungridded~~CallsGraph_node13"><a xlink:href="../proc/teardown_geom.html" xlink:title="teardown_geom">
+<polygon fill="#d9534f" stroke="#d9534f" points="392,-108 293,-108 293,-84 392,-84 392,-108"/>
+<text text-anchor="middle" x="342.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">teardown_geom</text>
+</a>
+</g>
+</g>
+<!-- proc~test_change_weights_with_ungridded&#45;&gt;proc~teardown_geom -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_edge12" class="edge">
+<title>proc~test_change_weights_with_ungridded&#45;&gt;proc~teardown_geom</title>
+<path fill="none" stroke="#ff0000" d="M112.29,-272.93C129.24,-241.65 179.17,-157.63 246,-117 256.99,-110.32 269.83,-105.75 282.48,-102.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="283.52,-105.99 292.54,-100.43 282.02,-99.15 283.52,-105.99"/>
+</g>
+<!-- sourcelocation -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_node14" class="node">
+<title>sourcelocation</title>
+<polygon fill="#777777" stroke="#777777" points="388,-66 297,-66 297,-42 388,-42 388,-66"/>
+<text text-anchor="middle" x="342.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sourcelocation</text>
+</g>
+<!-- proc~test_change_weights_with_ungridded&#45;&gt;sourcelocation -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_edge13" class="edge">
+<title>proc~test_change_weights_with_ungridded&#45;&gt;sourcelocation</title>
+<path fill="none" stroke="#ff0000" d="M110.28,-272.91C123.84,-236.52 169.49,-127.3 246,-75 257.95,-66.83 272.54,-61.77 286.69,-58.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="287.69,-62.03 296.86,-56.72 286.38,-55.15 287.69,-62.03"/>
+</g>
+<!-- true -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_node15" class="node">
+<title>true</title>
+<polygon fill="#777777" stroke="#777777" points="369.5,-24 315.5,-24 315.5,0 369.5,0 369.5,-24"/>
+<text text-anchor="middle" x="342.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">true</text>
+</g>
+<!-- proc~test_change_weights_with_ungridded&#45;&gt;true -->
+<g id="proc~~test_change_weights_with_ungridded~~CallsGraph_edge14" class="edge">
+<title>proc~test_change_weights_with_ungridded&#45;&gt;true</title>
+<path fill="none" stroke="#ff0000" d="M108.91,-272.91C119.42,-231.95 159.5,-97.42 246,-33 262.89,-20.42 285.83,-15.11 304.99,-12.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="305.53,-16.43 315.19,-12.07 304.92,-9.46 305.53,-16.43"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_change_weights_with_ungridded</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">Fieldbundledelta</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">delta</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">tmp_geom</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fieldList</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x_r4</span><span class="p">(:,:,:,:)</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_units</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">weights</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_weights</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.25</span><span class="p">,</span><span class="mf">0.75</span><span class="p">]</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ndims</span><span class="p">,</span><span class="w"> </span><span class="n">nlevels</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">setup_geom</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">setup_bundle</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">weights</span><span class="o">=</span><span class="n">DEFAULT_WEIGHTS</span><span class="p">,</span><span class="w"> </span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;km&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">with_ungridded</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.)</span>
+
+
+<span class="w">      </span><span class="n">delta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldBundleDelta</span><span class="p">(</span><span class="n">interpolation_weights</span><span class="o">=</span><span class="n">new_weights</span><span class="p">)</span><span class="w"> </span>
+<span class="w">      </span><span class="k">call </span><span class="n">delta</span><span class="p">%</span><span class="n">update_bundle</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"> </span><span class="c">! should not reallocate fields</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_FieldBundleGet</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">fieldList</span><span class="o">=</span><span class="n">fieldList</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">fieldList</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">FIELD_COUNT</span><span class="p">))</span>
+
+<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">FIELD_COUNT</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">fieldList</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">rank</span><span class="o">=</span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">fieldList</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">fArrayPtr</span><span class="o">=</span><span class="n">x_r4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="nb">shape</span><span class="p">(</span><span class="n">x_r4</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">equal_to</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="n">NUM_LEVELS</span><span class="p">,</span><span class="n">NUM_RADII</span><span class="p">])))</span>
+<span class="w">         </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="k">all</span><span class="p">(</span><span class="n">x_r4</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FILL_VALUE</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_InfoGetInternal</span><span class="p">(</span><span class="n">fieldList</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">KEY_UNITS</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">new_units</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;km&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">new_units</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">fieldList</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">geom</span><span class="o">=</span><span class="n">tmp_geom</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">tmp_geom</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_InfoGetInternal</span><span class="p">(</span><span class="n">fieldList</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">KEY_UNGRIDDED_DIMS</span><span class="o">//</span><span class="n">KEY_NUM_UNGRIDDED_DIMS</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">ndims</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">ndims</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_InfoGetInternal</span><span class="p">(</span><span class="n">fieldList</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">KEY_NUM_LEVELS</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">nlevels</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">nlevels</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">NUM_LEVELS</span><span class="p">))</span>
+
+<span class="w">      </span><span class="k">end do</span>
+
+<span class="k">      call </span><span class="n">MAPL_InfoGetInternal</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">KEY_INTERPOLATION_WEIGHTS</span><span class="p">,</span><span class="w"> </span><span class="n">values</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">equal_to</span><span class="p">(</span><span class="n">new_weights</span><span class="p">)))</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_InfoGetInternal</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">KEY_UNGRIDDED_DIMS</span><span class="o">//</span><span class="n">KEY_NUM_UNGRIDDED_DIMS</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">ndims</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">ndims</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_InfoGetInternal</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">KEY_NUM_LEVELS</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">nlevels</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">nlevels</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">NUM_LEVELS</span><span class="p">))</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">teardown_bundle</span><span class="p">(</span><span class="n">bundle</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">teardown_geom</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_change_weights_with_ungridded</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-29T18:09:24.478960             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
