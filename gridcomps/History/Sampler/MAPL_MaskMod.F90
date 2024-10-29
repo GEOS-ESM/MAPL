@@ -39,6 +39,7 @@ module MaskSamplerMod
      !
      integer :: npt_mask
      integer :: npt_mask_tot
+     integer :: i1, in
      integer, allocatable :: index_mask(:,:)
      type(ESMF_FieldBundle) :: bundle
      type(GriddedIOitemVector) :: items

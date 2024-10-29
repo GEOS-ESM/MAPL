@@ -3737,7 +3737,7 @@ ENDDO PARSER
             call MAPL_TimerOff(GENSTATE,"Mask_append")
          endif
 
-         write(6,*) 'nail 1'
+         write(6,*) 'nail 2'
          
       endif OUTTIME
 

@@ -356,7 +356,7 @@ module subroutine  create_metadata(this,rc)
 
        real(ESMF_kind_R8), pointer :: lons_ptr(:,:), lats_ptr(:,:)
        integer :: nsend
-       integer, allocatable :: recvcounts_loc(:)
+       integer, allocatable :: recvcounts_loc(:), sendcounts_loc(:)
        integer, allocatable :: displs_loc(:)
 
        integer, allocatable :: sendcount(:), displs(:)
@@ -475,6 +475,16 @@ module subroutine  create_metadata(this,rc)
             this%recvcounts, recvcounts_loc, displs_loc, MPI_INTEGER,&
             iroot, mpic, ierr )
        _VERIFY(ierr)
+
+       write(6,*) 'ip, nx2, this%recvcounts, recvcounts_loc, displs_loc'
+       write(6,'(200i5)')  ip, nx2
+       write(6,'(200i5)')  this%recvcounts
+       write(6,'(200i5)')  recvcounts_loc
+       write(6,'(200i5)')  displs_loc       
+       call MPI_Barrier(mpic,ierr)
+       _VERIFY(ierr)
+
+       
        if (.not. mapl_am_i_root()) then
           this%recvcounts(:) = 0
        end if
@@ -543,8 +553,7 @@ module subroutine  create_metadata(this,rc)
        call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
 
        call MAPL_TimerOff(this%GENSTATE,"2_ABIgrid_LS")
-
-
+       
        ! __ s3. find n.n. CS pts for LS_ds (halo)
        !
        call MAPL_TimerOn(this%GENSTATE,"3_CS_halo")
@@ -583,7 +592,7 @@ module subroutine  create_metadata(this,rc)
        call ESMF_FieldHalo (fieldI4, routehandle=RH_halo, _RC)
 
 !       !
-!       !--?? print out eLB, eUB do they match 1:IM, JM?
+!       !-- print out eLB, eUB do they match 1:IM, JM?
 !       !
 !       write(6,*) 'IM,JM', IM,JM
 !       write(6,*) 'eLB(1), eUB(1)', eLB(1), eUB(1) 
@@ -606,7 +615,7 @@ module subroutine  create_metadata(this,rc)
        allocate( mask(IM, JM), _STAT)
        mask(1:IM, 1:JM) = abs(farrayPtr(1:IM, 1:JM))
 
-       this%npt_mask = k    ! # of pts on CS grid
+       this%npt_mask = k    ! # of masked pts on CS grid
        allocate( this%index_mask(2,k), _STAT )
        arr(1)=k
        call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=this%npt_mask_tot, &
@@ -648,7 +657,6 @@ module subroutine  create_metadata(this,rc)
           lats(i) = lats_ptr (ix, jx)
        end do
 
-
        iroot=0
        if (mapl_am_i_root()) then
           allocate (this%lons(this%npt_mask_tot), this%lats(this%npt_mask_tot), _STAT)
@@ -670,6 +678,8 @@ module subroutine  create_metadata(this,rc)
             this%recvcounts, recvcounts_loc, displs_loc, MPI_INTEGER,&
             iroot, mpic, ierr )
        _VERIFY(ierr) 
+       !
+       ! set nonroot to zero for s4.3
        if (.not. mapl_am_i_root()) then
           this%recvcounts(:) = 0
        end if
@@ -678,7 +688,7 @@ module subroutine  create_metadata(this,rc)
           this%displs(i) = this%displs(i-1) + this%recvcounts(i-1)
        end do
 
-
+       
        ! __ s4.3  gatherv lons/lats
        !
        nsend=this%npt_mask
@@ -692,6 +702,35 @@ module subroutine  create_metadata(this,rc)
        _VERIFY(ierr) 
 
        call MAPL_TimerOff(this%GENSTATE,"4_gatherV")
+
+
+       ! __ s4.4  find (i1,in) for masked array
+       write(6,*) 'ip, this%npt_mask, this%recvcounts, this%displs'
+       write(6,'(200i10)')  ip, this%npt_mask
+       write(6,'(200i10)')  this%recvcounts
+       write(6,'(200i10)')  this%displs       
+       call MPI_Barrier(mpic,ierr)
+       _VERIFY(ierr)
+
+!!       call MAPL_CommsBcast(vm, DATA=, N=1, ROOT=MAPL_Root, _RC)
+       allocate (sendcounts_loc(petcount))
+       do i=1, petcount
+          displs_loc(i)=i-1
+          sendcounts_loc(i)=1
+       enddo
+
+       call  MPI_Scatterv( this%displs, sendcounts_loc, displs_loc, MPI_INTEGER, &
+            this%i1, 1, MPI_INTEGER, iroot, mpic, ierr)
+       this%i1 = this%i1 + 1
+       if (this%npt_mask > 0) then
+          this%in =  this%i1 + this%npt_mask - 1
+       else
+          this%in =  this%i1
+       end if
+          
+       write(6,*) 'ip, this%npt_mask, this%i1, in'
+       write(6,'(200i10)')  ip, this%npt_mask, this%i1, this%in
+       call MPI_Barrier(mpic,ierr)
 
        _RETURN(_SUCCESS)
      end subroutine create_Geosat_grid_find_mask
@@ -733,6 +772,10 @@ module subroutine  create_metadata(this,rc)
     integer, allocatable :: local_start(:)
     integer, allocatable :: global_start(:)
     integer, allocatable :: global_count(:)
+    integer, allocatable :: gridLocalStart(:)
+    integer, allocatable :: gridGlobalStart(:)
+    integer, allocatable :: gridGlobalCount(:)    
+    
     real, allocatable :: times(:)
     logical :: have_time
     integer :: tindex
@@ -746,6 +789,7 @@ module subroutine  create_metadata(this,rc)
     iroot=0
     nx = this%npt_mask
     nz = this%vdata%lm
+
     allocate(p_dst_2d (nx), _STAT)
     allocate(p_dst_3d (nx * nz), _STAT)
     if (mapl_am_i_root()) then
@@ -782,6 +826,7 @@ module subroutine  create_metadata(this,rc)
        call this%stage2DLatLon(filename,oClients=oClients,_RC)
     end if
 
+    write(6,*) 'tindex=', tindex
     
     !__ 2. put_var: ungridded_dim from src to dst [use index_mask]
     !
@@ -793,6 +838,17 @@ module subroutine  create_metadata(this,rc)
     !endif
     !
     !
+    if ( nx>0 ) then
+       allocate ( gridLocalStart,  source=[this%i1] )
+       allocate ( gridGlobalStart, source=[1] )
+       allocate ( gridGlobalCount, source=[this%npt_mask_tot] )
+    else
+       allocate ( gridLocalStart,  source=[0] )
+       allocate ( gridGlobalStart, source=[0] )
+       allocate ( gridGlobalCount, source=[0] )
+       !!allocate ( gridGlobalCount, source=[this%npt_mask_tot] )
+    end if
+
     iter = this%items%begin()
     do while (iter /= this%items%end())
        item => iter%get()
@@ -806,31 +862,29 @@ module subroutine  create_metadata(this,rc)
                 iy = this%index_mask(2,j)
                 p_dst_2d(j) = p_src_2d(ix, iy)
              end do
+
              ref = ArrayReference(p_dst_2d)
+
              write(6,*) 'test p_dst_2d(j)'
              write(6,*) 'nx=', nx
              write(6,*) 'this%npt_mask_tot=', this%npt_mask_tot             
-!!             write(6,*)  p_dst_2d(1:nx)
+             write(6,*)  p_dst_2d(1:nx)
 
-             write(6,*) ref             
+!!             write(6,*) ref             
 
 
-             
-!             if ( nx > 0 ) then
-                !if (tindex > -1) then
-                   allocate(local_start,source=[1,1])
-                   allocate(global_start,source=[1,this%obs_written])
-                   allocate(global_count,source=[this%npt_mask_tot,1])
-                !else
-!                   allocate(local_start,source=[1])
-!                   allocate(global_start,source=[1])
-!                   allocate(global_count,source=[this%npt_mask_tot])
-                !end if
-!             else
-!                   allocate(local_start,source=[0,0])
-!                   allocate(global_start,source=[0,0])
-!                   allocate(global_count,source=[0,0])
-!             end if
+             if (tindex > -1) then
+!                   allocate(local_start,source=[gridLocalStart,1])
+!                   allocate(global_start,source=[gridGlobalStart,tindex])
+!                   allocate(global_count,source=[gridGlobalCount,1])
+                allocate(local_start,source=gridLocalStart)
+                allocate(global_start,source=gridGlobalStart)
+                allocate(global_count,source=gridGlobalCount)
+             else
+                allocate(local_start,source=gridLocalStart)
+                allocate(global_start,source=gridGlobalStart)
+                allocate(global_count,source=gridGlobalCount)
+             end if
 
              write(6,*) 'end collective_stage_data p_dst_2d'
              
@@ -842,7 +896,7 @@ module subroutine  create_metadata(this,rc)
              allocate(arr(nx, lb(1):ub(1)))
              if (tindex > -1) then
                 allocate(local_start,source=[1,1,1])
-                allocate(global_start,source=[1,1,this%obs_written])
+                allocate(global_start,source=[1,1,tindex])
                 allocate(global_count,source=[this%npt_mask_tot,nz,1])
              else
                 allocate(local_start,source=[1,1])
@@ -866,12 +920,12 @@ module subroutine  create_metadata(this,rc)
              _FAIL('grid2LS regridder: rank > 3 not implemented')
           end if
 
+
           
           call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(item%xname), &
                ref,start=local_start, global_start=global_start, global_count=global_count)
-          !          if (nx>0) deallocate (local_start, global_start, global_count)
-          deallocate (local_start, global_start, global_count)          
 
+          deallocate (local_start, global_start, global_count)
 
        end if
 
