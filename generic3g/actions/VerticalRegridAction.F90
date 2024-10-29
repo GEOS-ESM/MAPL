@@ -8,7 +8,7 @@ module mapl3g_VerticalRegridAction
    use mapl3g_CouplerPhases, only: GENERIC_COUPLER_UPDATE
    use mapl3g_VerticalRegridMethod
    use mapl3g_VerticalLinearMap, only: compute_linear_map
-   use mapl3g_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp, matmul
+   use mapl3g_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp, matmul, shape
    use mapl3g_FieldCondensedArray, only: assign_fptr_condensed_array
    use esmf
 
@@ -23,7 +23,7 @@ module mapl3g_VerticalRegridAction
 
    type, extends(ExtensionAction) :: VerticalRegridAction
       type(ESMF_Field) :: v_in_coord, v_out_coord
-      type(SparseMatrix_sp) :: matrix
+      type(SparseMatrix_sp), allocatable :: matrix(:)
       type(GriddedComponentDriver), pointer :: v_in_coupler => null()
       type(GriddedComponentDriver), pointer :: v_out_coupler => null()
       type(VerticalRegridMethod) :: method = VERTICAL_REGRID_UNKNOWN
@@ -65,9 +65,9 @@ contains
       type(ESMF_Clock) :: clock
       integer, optional, intent(out) :: rc
 
-      real(ESMF_KIND_R4), pointer :: vcoord_in(:)
+      real(ESMF_KIND_R4), pointer :: vcoord_in(:, :, :)
       real(ESMF_KIND_R4), pointer :: vcoord_out(:)
-      integer :: status
+      integer :: vshape(3), i, j, IM, JM, status
 
       _ASSERT(this%method == VERTICAL_REGRID_LINEAR, "regrid method can only be linear")
 
@@ -79,10 +79,20 @@ contains
       !    call this%v_out_coupler%initialize(_RC)
       ! end if
 
-      call ESMF_FieldGet(this%v_in_coord, fArrayPtr=vcoord_in, _RC)
-      call ESMF_FieldGet(this%v_out_coord, fArrayPtr=vcoord_out, _RC)
+      ! call assign_fptr_condensed_array(this%v_in_coord, vcoord_in, _RC)
+      ! call assign_fptr_condensed_array(this%v_out_coord, vcoord_out, _RC)
 
-      call compute_linear_map(vcoord_in, vcoord_out, this%matrix, RC)
+      call ESMF_FieldGet(this%v_in_coord, fArrayPtr=vcoord_in, _RC)
+      vshape = shape(vcoord_in)
+      IM = vshape(1); JM = vshape(2)
+      call ESMF_FieldGet(this%v_out_coord, fArrayPtr=vcoord_out, _RC)
+      allocate(this%matrix(IM*JM))
+
+      do i=1,IM
+         do j=1,JM
+            call compute_linear_map(vcoord_in(i, j, :), vcoord_out(:), this%matrix(i + (j-1) * IM), _RC)
+         end do
+      end do
 
       _RETURN(_SUCCESS)
    end subroutine initialize
@@ -116,7 +126,7 @@ contains
 
       x_shape = shape(x_out)
       do concurrent (horz=1:x_shape(1), ungridded=1:x_shape(3))
-         x_out(horz, :, ungridded) = matmul(this%matrix, x_in(horz, :, ungridded))
+         x_out(horz, :, ungridded) = matmul(this%matrix(horz), x_in(horz, :, ungridded))
       end do
 
       _RETURN(_SUCCESS)
