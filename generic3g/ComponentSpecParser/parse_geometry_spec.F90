@@ -1,18 +1,22 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_ComponentSpecParser) parse_geometry_spec_smod
+
    use mapl3g_VerticalGrid
    use mapl3g_BasicVerticalGrid
    use mapl3g_FixedLevelsVerticalGrid
+   use mapl3g_ModelVerticalGrid
+
    implicit none(external,type)
 
 contains
 
    ! Geom subcfg is passed raw to the GeomManager layer.  So little
    ! processing is needed here.
-   module function parse_geometry_spec(mapl_cfg, rc) result(geometry_spec)
+   module function parse_geometry_spec(mapl_cfg, registry, rc) result(geometry_spec)
       type(GeometrySpec) :: geometry_spec
       type(ESMF_HConfig), intent(in) :: mapl_cfg
+      type(StateRegistry), optional, intent(in) :: registry
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -29,7 +33,7 @@ contains
       type(GeomManager), pointer :: geom_mgr
       class(GeomSpec), allocatable :: geom_spec
       integer :: num_levels
-      character(:), allocatable :: vertical_grid_class, standard_name, units
+      character(:), allocatable :: vertical_grid_class, standard_name, units, short_name
       class(VerticalGrid), allocatable :: vertical_grid
       real, allocatable :: levels(:)
 
@@ -102,6 +106,15 @@ contains
             units = ESMF_HConfigAsString(vertical_grid_cfg, keyString='units', _RC)
             levels = ESMF_HConfigAsR4Seq(vertical_grid_cfg, keyString='levels' ,_RC)
             vertical_grid = FixedLevelsVerticalGrid(standard_name, levels, units)
+         case('model')
+            num_levels = ESMF_HConfigAsI4(vertical_grid_cfg, keyString='num_levels', _RC)
+            vertical_grid = ModelVerticalGrid(num_levels=num_levels)
+            short_name = ESMF_HConfigAsString(vertical_grid_cfg, keyString='short_name', _RC)
+            select type(vertical_grid)
+            type is(ModelVerticalGrid)
+               call vertical_grid%add_variant(short_name=short_name)
+               call vertical_grid%set_registry(registry)
+            end select
          case default
             _FAIL('vertical grid class '//vertical_grid_class//' not supported')
          end select
@@ -112,4 +125,3 @@ contains
    end function parse_geometry_spec
 
 end submodule parse_geometry_spec_smod
-
