@@ -18,6 +18,7 @@ module mapl3g_CSR_SparseMatrix
    public :: T(dp)
    public :: matmul
    public :: add_row
+   public :: shape
 
    integer, parameter :: sp = REAL32
    integer, parameter :: dp = REAL64
@@ -43,6 +44,9 @@ module mapl3g_CSR_SparseMatrix
    interface add_row                                           ;\
       procedure CONCAT(add_row_,kz)                            ;\
    end interface add_row                                       ;\
+   interface shape                                             ;\
+      procedure CONCAT(shape_, kz)                             ;\
+   end interface shape                                         ;\
    interface T(kz)                                             ;\
       procedure CONCAT(new_csr_matrix_,kz)                     ;\
    end interface T(kz)
@@ -88,6 +92,13 @@ contains
                                                                      \
    end subroutine
 
+#define SHAPE(kz)                                                    \
+   pure function CONCAT(shape_, kz)(A) result(s)                    ;\
+      type(T(kz)), intent(in) :: A                                  ;\
+      integer :: s(2)                                               ;\
+                                                                     \
+      s = [A%n_rows, A%n_columns]                                   ;\
+   end function
 
 #define MATMUL_VEC(kz,kx)                                            \
    pure function CONCAT3(matmul_vec_,kz,kx)(A, x) result(y)          ;\
@@ -133,6 +144,7 @@ contains
 
    NEW_CSR_MATRIX(sp)
    ADD_ROW(sp)
+   SHAPE(sp)
    MATMUL_VEC(sp,sp)
    MATMUL_VEC(sp,dp)
    MATMUL_MULTI_VEC(sp,sp)
@@ -140,6 +152,7 @@ contains
 
    NEW_CSR_MATRIX(dp)
    ADD_ROW(dp)
+   SHAPE(dp)
    MATMUL_VEC(dp,sp)
    MATMUL_VEC(dp,dp)
    MATMUL_MULTI_VEC(dp,sp)
