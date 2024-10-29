@@ -43,11 +43,11 @@ contains
       
       integer :: status
       type(ESMF_TypeKind_Flag) :: tk
-      real(kind=ESMF_KIND_R4) :: clear_value_R4
+      real(kind=ESMF_KIND_R4) :: clear_value_R4 !wdb fixme deleteme
 
       call ESMF_FieldGet(this%accumulation_field, typekind=tk, _RC)
       if(tk == ESMF_TYPEKIND_R4) then
-         call FieldSet(this%accumulation_field, this%get_clear_value_R4(), _RC)
+         call FieldSet(this%accumulation_field, this%clear_value_R4, _RC)
       else
          _FAIL('Unsupported typekind')
       end if
@@ -132,39 +132,16 @@ contains
       integer :: itemCount
       integer, parameter :: N = 1
       character(len=ESMF_MAXSTR) :: itemNameList(N)
-      type(ESMF_StateItem_Flag), intent(out), optional :: itemTypeList(N)
+      type(ESMF_StateItem_Flag) :: itemTypeList(N)
 
       call ESMF_StateGet(state, itemCount=itemCount, _RC)
       _ASSERT(itemCount == N, 'itemCount does not equal the expected value.')
       call ESMF_StateGet(state, itemNameList=itemNameList, itemTypeList=itemTypeList, _RC)
       _ASSERT(itemTypeList(N) == ESMF_STATEITEM_FIELD, 'State item is the wrong type.')
       call ESMF_StateGet(state, itemName=itemNameList(N), field=field, _RC)
-      _RETURN(_SUCCESS
-
-   end subroutine get_field
-
-   subroutine calculate_mean_R4(this, rc)
-      class(MeanAccumulator), intent(in) :: this
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      real(kind=ESMF_KIND_R4) pointer :: current_ptr(:)
-      real(kind=ESMF_KIND_R4) pointer :: calculated_ptr(:)
-
-      associate(current => this%accumulation_field, calculated => this%result_field,&
-         & undef => this%get_undef_R4(), count => this%counter_scalar)
-         assign_fptr(current, current_ptr, _RC)
-         assign_fptr(calculated, calculated_ptr, _RC)
-         where(current_ptr /= undef)
-            calculated_ptr => current_ptr / count
-         elsewhere
-            calculated_ptr => undef
-         end where
-      end associate
-
       _RETURN(_SUCCESS)
 
-   end subroutine calculate_mean_R4
+   end subroutine get_field
 
    subroutine accumulate(this, update_field, rc)
       class(AccumulatorAction), intent(inout) :: this
@@ -193,11 +170,11 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      real(kind=ESMF_KIND_R4), pointer, intent(inout) :: current(:)
-      real(kind=ESMF_KIND_R4), pointer, intent(in) :: latest(:)
+      real(kind=ESMF_KIND_R4), pointer :: current(:)
+      real(kind=ESMF_KIND_R4), pointer :: latest(:)
       real(kind=ESMF_KIND_R4) :: undef
 
-      undef = this%get_undef_R4()
+      undef = this%undef_value_R4
       call assign_fptr(this%accumulation_field, current, _RC)
       call assign_fptr(update_field, latest, _RC)
       where(current /= undef .and. latest /= undef)
