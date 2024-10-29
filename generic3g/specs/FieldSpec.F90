@@ -909,8 +909,9 @@ contains
          class(VerticalGrid), allocatable, intent(in) :: dst_grid
          integer, optional, intent(out) :: rc
 
-         same_vertical_grid = .true.
+         same_vertical_grid = .false.
          if (.not. allocated(dst_grid)) then
+            same_vertical_grid = .true.
             _RETURN(_SUCCESS) ! mirror grid
          end if
 
@@ -932,10 +933,11 @@ contains
             type is(FixedLevelsVerticalGrid)
                same_vertical_grid = (src_grid == dst_grid)
             class default
-               _FAIL("not implemented yet")
+               same_vertical_grid = .false.
             end select
          class default
-            _FAIL("not implemented yet")
+            same_vertical_grid = .false.
+            ! _FAIL("not implemented yet")
          end select
 
          _RETURN(_SUCCESS)
