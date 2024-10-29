@@ -21,8 +21,8 @@ module MAPL_ExtDataBracket
       real             :: offset = 0.0
       logical          :: disable_interpolation = .false.
       logical          :: intermittent_disable = .false.
-      logical          :: new_file_right
-      logical          :: new_file_left
+      logical          :: new_file_right = .false.
+      logical          :: new_file_left = .false.
       logical          :: exact = .false.
       contains
          procedure :: interpolate_to_time

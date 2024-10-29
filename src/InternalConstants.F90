@@ -166,13 +166,17 @@ module MAPL_InternalConstantsMod
 
    integer, parameter :: MAPL_NBITS_NOT_SET = 1000
    integer, parameter :: MAPL_NBITS_UPPER_LIMIT = 24
-   ! Constants for netCDF quantize
+   ! Constants for netCDF quantize (these echo the values in the netcdf-fortran library)
    enum, bind(c)
-      enumerator MAPL_Quantize_Disabled
-      enumerator MAPL_Quantize_BitGroom
-      enumerator MAPL_Quantize_GranularBR
-      enumerator MAPL_Quantize_BitRound
+      enumerator MAPL_NOQUANTIZE
+      enumerator MAPL_QUANTIZE_BITGROOM
+      enumerator MAPL_QUANTIZE_GRANULAR_BITROUND
+      enumerator MAPL_QUANTIZE_BITROUND
    endenum
+   ! Maximum number of significant digits for quantization (bitgroom, granular_bitround)
+   integer, parameter :: MAPL_QUANTIZE_MAX_NSD = 7
+   ! Maximum number of significant bits for quantization (bitround)
+   integer, parameter :: MAPL_QUANTIZE_MAX_NSB = 23
    ! Constant masking
    enum, bind(c)
       enumerator MAPL_MASK_OUT

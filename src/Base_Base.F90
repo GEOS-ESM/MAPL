@@ -61,6 +61,7 @@ module MAPL_Base
   public MAPL_FieldBundleDestroy
   public MAPL_GetHorzIJIndex
   public MAPL_GetGlobalHorzIJIndex
+  public MAPL_Reverse_Schmidt
   public MAPL_GenGridName
   public MAPL_GenXYOffset
   public MAPL_GeosNameNew
@@ -712,6 +713,21 @@ module MAPL_Base
        integer,            optional, intent(out  ) :: rc  ! return code
      end subroutine MAPL_GetGlobalHorzIJIndex
 
+     module subroutine MAPL_Reverse_Schmidt(Grid, stretched, npts,lon,lat,lonR8,latR8, lonRe, latRe, rc)
+       use ESMF, only: ESMF_KIND_R8, ESMF_GRid
+       implicit none
+       !ARGUMENTS:
+       type(ESMF_Grid),              intent(inout) :: Grid        ! ESMF grid
+       logical,                      intent(out  ) :: stretched
+       integer,                      intent(in   ) :: npts        ! number of points in lat and lon arrays
+       real, optional,               intent(in   ) :: lon(npts)   ! array of longitudes in radians
+       real, optional,               intent(in   ) :: lat(npts)   ! array of latitudes in radians
+       real(ESMF_KIND_R8), optional, intent(in   ) :: lonR8(npts) ! array of longitudes in radians
+       real(ESMF_KIND_R8), optional, intent(in   ) :: latR8(npts) ! array of latitudes in radians
+       real(ESMF_KIND_R8), optional, intent(out  ) :: lonRe(npts) ! array of longitudes in radians
+       real(ESMF_KIND_R8), optional, intent(out  ) :: latRe(npts) ! array of latitudes in radians
+       integer,            optional, intent(out  ) :: rc  ! return code
+     end subroutine MAPL_Reverse_Schmidt
 
      module subroutine MAPL_GenGridName(im, jm, lon, lat, xyoffset, gridname, geos_style)
        integer :: im, jm

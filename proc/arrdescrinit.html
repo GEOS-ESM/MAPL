@@ -163,7 +163,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-arrdes~5"></span>
+              <span class="anchor" id="variable-arrdes"></span>
               type(<a href='../type/arrdescr.html'>ArrDescr</a>),
             </td>
 <td>intent(inout)</td>
@@ -178,7 +178,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~129"></span>
+              <span class="anchor" id="variable-comm~41"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -193,7 +193,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-im_world~3"></span>
+              <span class="anchor" id="variable-im_world"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -208,7 +208,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-jm_world~3"></span>
+              <span class="anchor" id="variable-jm_world"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -223,7 +223,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-lm_world~4"></span>
+              <span class="anchor" id="variable-lm_world~3"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -238,7 +238,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-nx~25"></span>
+              <span class="anchor" id="variable-nx~16"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -253,7 +253,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ny~25"></span>
+              <span class="anchor" id="variable-ny~10"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -268,7 +268,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-num_readers~4"></span>
+              <span class="anchor" id="variable-num_readers~2"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -283,7 +283,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-num_writers~4"></span>
+              <span class="anchor" id="variable-num_writers~3"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -298,7 +298,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-is~7"></span>
+              <span class="anchor" id="variable-is~11"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -313,7 +313,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ie~5"></span>
+              <span class="anchor" id="variable-ie~7"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -328,7 +328,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-js~4"></span>
+              <span class="anchor" id="variable-js~3"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -343,7 +343,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-je~5"></span>
+              <span class="anchor" id="variable-je"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -358,7 +358,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1231"></span>
+              <span class="anchor" id="variable-rc~837"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -656,8 +656,10 @@ large graphs.</div>
 
 <span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
 
-<span class="w">         </span><span class="k">call </span><span class="n">MPI_Comm_Rank</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="n">myid</span><span class="p">,</span><span class="err">_</span><span class="n">IERROR</span><span class="p">)</span>
-<span class="w">         </span><span class="k">call </span><span class="n">MPI_COMM_Size</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="n">npes</span><span class="p">,</span><span class="err">_</span><span class="n">IERROR</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MPI_Comm_Rank</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="n">myid</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MPI_COMM_Size</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="n">npes</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
 
 <span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">iminw</span><span class="p">(</span><span class="n">npes</span><span class="p">),</span><span class="n">imaxw</span><span class="p">(</span><span class="n">npes</span><span class="p">),</span><span class="n">jminw</span><span class="p">(</span><span class="n">npes</span><span class="p">),</span><span class="n">jmaxw</span><span class="p">(</span><span class="n">npes</span><span class="p">),</span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
 <span class="w">         </span><span class="n">iminw</span><span class="o">=-</span><span class="mi">1</span>
@@ -714,9 +716,11 @@ large graphs.</div>
 <span class="w">         </span><span class="n">NX0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">myid</span><span class="p">,</span><span class="n">nx</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
 <span class="w">         </span><span class="n">NY0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">myid</span><span class="o">/</span><span class="n">nx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
 <span class="w">         </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nx0</span>
-<span class="w">         </span><span class="k">call </span><span class="n">MPI_Comm_Split</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="n">color</span><span class="p">,</span><span class="n">myid</span><span class="p">,</span><span class="n">ycomm</span><span class="p">,</span><span class="err">_</span><span class="n">IERROR</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MPI_Comm_Split</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="n">color</span><span class="p">,</span><span class="n">myid</span><span class="p">,</span><span class="n">ycomm</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
 <span class="w">         </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ny0</span>
-<span class="w">         </span><span class="k">call </span><span class="n">MPI_Comm_Split</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="n">color</span><span class="p">,</span><span class="n">myid</span><span class="p">,</span><span class="n">xcomm</span><span class="p">,</span><span class="err">_</span><span class="n">IERROR</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MPI_Comm_Split</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="n">color</span><span class="p">,</span><span class="n">myid</span><span class="p">,</span><span class="n">xcomm</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
 <span class="w">         </span><span class="c">! reader communicators</span>
 <span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">num_readers</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">ny</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span><span class="n">num_readers</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="k">            </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_FAILURE</span><span class="p">)</span>
@@ -727,12 +731,14 @@ large graphs.</div>
 <span class="w">         </span><span class="k">else</span>
 <span class="k">            </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MPI_UNDEFINED</span>
 <span class="w">         </span><span class="k">end if</span>
-<span class="k">         call </span><span class="n">MPI_COMM_SPLIT</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="n">color</span><span class="p">,</span><span class="n">myid</span><span class="p">,</span><span class="n">readers_comm</span><span class="p">,</span><span class="err">_</span><span class="n">IERROR</span><span class="p">)</span>
+<span class="k">         call </span><span class="n">MPI_COMM_SPLIT</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="n">color</span><span class="p">,</span><span class="n">myid</span><span class="p">,</span><span class="n">readers_comm</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
 <span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">num_readers</span><span class="o">==</span><span class="n">ny</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="k">            </span><span class="n">IOscattercomm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">xcomm</span>
 <span class="w">         </span><span class="k">else</span>
 <span class="k">            </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ny0</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">ny0</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">ny_by_readers</span><span class="p">)</span>
-<span class="w">            </span><span class="k">call </span><span class="n">MPI_Comm_Split</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">myid</span><span class="p">,</span><span class="n">IOScattercomm</span><span class="p">,</span><span class="err">_</span><span class="n">IERROR</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">MPI_Comm_Split</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">myid</span><span class="p">,</span><span class="n">IOScattercomm</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
 <span class="w">         </span><span class="k">endif</span>
 <span class="w">         </span><span class="c">! writer communicators</span>
 <span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">num_writers</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">ny</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span><span class="n">num_writers</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
@@ -744,12 +750,14 @@ large graphs.</div>
 <span class="w">         </span><span class="k">else</span>
 <span class="k">            </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MPI_UNDEFINED</span>
 <span class="w">         </span><span class="k">end if</span>
-<span class="k">         call </span><span class="n">MPI_COMM_SPLIT</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="n">color</span><span class="p">,</span><span class="n">myid</span><span class="p">,</span><span class="n">writers_comm</span><span class="p">,</span><span class="err">_</span><span class="n">IERROR</span><span class="p">)</span>
+<span class="k">         call </span><span class="n">MPI_COMM_SPLIT</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="n">color</span><span class="p">,</span><span class="n">myid</span><span class="p">,</span><span class="n">writers_comm</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
 <span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">num_writers</span><span class="o">==</span><span class="n">ny</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="k">            </span><span class="n">IOgathercomm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">xcomm</span>
 <span class="w">         </span><span class="k">else</span>
 <span class="k">            </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ny0</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">mod</span><span class="p">(</span><span class="n">ny0</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">ny_by_writers</span><span class="p">)</span>
-<span class="w">            </span><span class="k">call </span><span class="n">MPI_Comm_Split</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">myid</span><span class="p">,</span><span class="n">IOgathercomm</span><span class="p">,</span><span class="err">_</span><span class="n">IERROR</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">MPI_Comm_Split</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">myid</span><span class="p">,</span><span class="n">IOgathercomm</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
 <span class="w">         </span><span class="k">endif</span>
 
 <span class="k">         </span><span class="n">ArrDes</span><span class="p">%</span><span class="n">im_world</span><span class="o">=</span><span class="n">im_world</span>
@@ -762,7 +770,8 @@ large graphs.</div>
 <span class="w">         </span><span class="n">ArrDes</span><span class="p">%</span><span class="n">iogathercomm</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">iogathercomm</span>
 <span class="w">         </span><span class="n">ArrDes</span><span class="p">%</span><span class="n">xcomm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">xcomm</span>
 <span class="w">         </span><span class="n">ArrDes</span><span class="p">%</span><span class="n">ycomm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ycomm</span>
-<span class="w">         </span><span class="k">call </span><span class="n">mpi_comm_rank</span><span class="p">(</span><span class="n">arrdes</span><span class="p">%</span><span class="n">ycomm</span><span class="p">,</span><span class="n">arrdes</span><span class="p">%</span><span class="n">myrow</span><span class="p">,</span><span class="err">_</span><span class="n">IERROR</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">mpi_comm_rank</span><span class="p">(</span><span class="n">arrdes</span><span class="p">%</span><span class="n">ycomm</span><span class="p">,</span><span class="n">arrdes</span><span class="p">%</span><span class="n">myrow</span><span class="p">,</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
 
 <span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">arrdes</span><span class="p">%</span><span class="n">i1</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">i1</span><span class="p">)),</span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
 <span class="w">         </span><span class="n">arrdes</span><span class="p">%</span><span class="n">i1</span><span class="o">=</span><span class="n">i1</span>
@@ -812,7 +821,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-10-28T20:47:07.046478             </p>
+ on 2024-10-29T20:00:34.862748             </p>
           </div>
         </div>
         <br>

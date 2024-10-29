@@ -26,6 +26,7 @@ module MAPL_GriddedIOMod
   use, intrinsic :: ISO_C_BINDING
   use, intrinsic :: iso_fortran_env, only: REAL64
   use ieee_arithmetic, only: isnan => ieee_is_nan
+  use netcdf, only: nf90_inq_libvers
   implicit none
 
   private
@@ -51,8 +52,9 @@ module MAPL_GriddedIOMod
      type(VerticalData) :: vdata
      type(GriddedIOitemVector) :: items
      integer :: deflateLevel = 0
-     integer :: quantizeAlgorithm = 1
+     integer :: quantizeAlgorithm = MAPL_NOQUANTIZE
      integer :: quantizeLevel = 0
+     integer :: zstandardLevel = 0
      integer, allocatable :: chunking(:)
      logical :: itemOrderAlphabetical = .true.
      integer :: fraction
@@ -60,6 +62,7 @@ module MAPL_GriddedIOMod
      contains
         procedure :: CreateFileMetaData
         procedure :: CreateVariable
+        procedure :: CreateQuantizationInfo
         procedure :: modifyTime
         procedure :: modifyTimeIncrement
         procedure :: bundlePost
@@ -190,7 +193,6 @@ module MAPL_GriddedIOMod
         call this%timeInfo%add_time_to_metadata(this%metadata,rc=status)
         _VERIFY(status)
 
-        iter = this%items%begin()
         if (.not.allocated(this%chunking)) then
            call this%set_default_chunking(rc=status)
            _VERIFY(status)
@@ -198,11 +200,16 @@ module MAPL_GriddedIOMod
            call this%check_chunking(this%vdata%lm,_RC)
         end if
 
-
         order = this%metadata%get_order(rc=status)
         _VERIFY(status)
         metadataVarsSize = order%size()
 
+        ! If quantize algorithm is set, create a quantization_info variable
+        if (this%quantizeAlgorithm /= MAPL_NOQUANTIZE) then
+           call this%CreateQuantizationInfo(_RC)
+        end if
+
+        iter = this%items%begin()
         do while (iter /= this%items%end())
            item => iter%get()
            if (item%itemType == ItemTypeScalar) then
@@ -244,11 +251,12 @@ module MAPL_GriddedIOMod
       end subroutine destroy
 
 
-     subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,nbits_to_keep,regrid_method,itemOrder,write_collection_id,regrid_hints,rc)
+     subroutine set_param(this,deflation,quantize_algorithm,quantize_level,zstandard_level,chunking,nbits_to_keep,regrid_method,itemOrder,write_collection_id,regrid_hints,rc)
         class (MAPL_GriddedIO), intent(inout) :: this
         integer, optional, intent(in) :: deflation
         integer, optional, intent(in) :: quantize_algorithm
         integer, optional, intent(in) :: quantize_level
+        integer, optional, intent(in) :: zstandard_level
         integer, optional, intent(in) :: chunking(:)
         integer, optional, intent(in) :: nbits_to_keep
         integer, optional, intent(in) :: regrid_method
@@ -264,6 +272,7 @@ module MAPL_GriddedIOMod
         if (present(deflation)) this%deflateLevel = deflation
         if (present(quantize_algorithm)) this%quantizeAlgorithm = quantize_algorithm
         if (present(quantize_level)) this%quantizeLevel = quantize_level
+        if (present(zstandard_level)) this%zstandardLevel = zstandard_level
         if (present(chunking)) then
            allocate(this%chunking,source=chunking,stat=status)
            _VERIFY(status)
@@ -403,7 +412,7 @@ module MAPL_GriddedIOMod
               _FAIL( 'Unsupported field rank')
            end if
         end if
-        v = Variable(type=PFIO_REAL32,dimensions=vdims,chunksizes=this%chunking,deflation=this%deflateLevel,quantize_algorithm=this%quantizeAlgorithm,quantize_level=this%quantizeLevel)
+        v = Variable(type=PFIO_REAL32,dimensions=vdims,chunksizes=this%chunking,deflation=this%deflateLevel,quantize_algorithm=this%quantizeAlgorithm,quantize_level=this%quantizeLevel,zstandard_level=this%zstandardLevel)
         call v%add_attribute('units',trim(units))
         call v%add_attribute('long_name',trim(longName))
         call v%add_attribute('standard_name',trim(longName))
@@ -423,6 +432,31 @@ module MAPL_GriddedIOMod
 #else
         call v%add_attribute('regrid_method', regrid_method_int_to_string(this%regrid_method))
 #endif
+        ! The CF Convention will soon support quantization. This requires three new attributes
+        ! if enabled:
+        ! 1. quantization --> Will point to a quantization_info container with the quantization algorithm
+        !                     (NOTE: this will need to be programmatic when per-variable quantization is enabled)
+        ! 2a. quantization_nsb --> Number of significant bits (only for bitround)
+        ! 2b. quantization_nsd --> Number of significant digits (only for bitgroom and granular_bitround)
+        ! 3. quantization_maximum_relative_error --> Maximum relative error (defined as 2^(-nsb) for bitround, and UNDEFINED? for bitgroom and granular_bitround)
+
+        ! Bitround
+        if (this%quantizeAlgorithm == MAPL_QUANTIZE_BITROUND) then
+           call v%add_attribute('quantization', 'quantization_info')
+           call v%add_attribute('quantization_nsb', this%quantizeLevel)
+           call v%add_attribute('quantization_maximum_relative_error', 0.5 * 2.0**(-this%quantizeLevel))
+        end if
+        ! granular_bitround and bitgroom
+        if (this%quantizeAlgorithm == MAPL_QUANTIZE_BITGROOM .or. this%quantizeAlgorithm == MAPL_QUANTIZE_GRANULAR_BITROUND) then
+           call v%add_attribute('quantization', 'quantization_info')
+           call v%add_attribute('quantization_nsd', this%quantizeLevel)
+           ! Per czender, these have maximum_absolute_error. We use the calculate_mae function below
+           ! which replicates a table in doi 10.5194/gmd-12-4099-2019
+           ! NOTE: This might not be the right formula. As the CF Convention draft is updated,
+           ! we will update this code.
+           call v%add_attribute('quantization_maximum_absolute_error', calculate_mae(this%quantizeLevel))
+        end if
+
         call factory%append_variable_metadata(v)
         call this%metadata%add_variable(trim(varName),v,rc=status)
         _VERIFY(status)
@@ -441,6 +475,81 @@ module MAPL_GriddedIOMod
         _RETURN(_SUCCESS)
 
      end subroutine CreateVariable
+
+     function calculate_mae(nsd) result(mae)
+
+        ! This function is based on Table 3 of doi 10.5194/gmd-12-4099-2019
+        ! The algorithm is weird, but it does duplicate the table
+
+        integer, intent(in) :: nsd
+        real(kind=REAL32) :: mae
+        real(kind=REAL32) :: mae_base
+        integer :: correction
+
+        mae_base = 4.0 * (1.0/16.0)**floor(real(nsd)/2.0) * (1.0/8.0)**ceiling(real(nsd)/2.0)
+
+        correction = 1
+        if ( (nsd > 2 .and. mod(nsd, 2) == 0) .or. nsd == 7 ) then
+           correction = 2
+        end if
+
+        mae = mae_base * correction
+     end function calculate_mae
+
+     subroutine CreateQuantizationInfo(this,rc)
+        class (MAPL_GriddedIO), intent(inout) :: this
+        integer, optional, intent(out) :: rc
+
+        integer :: status
+
+        class (AbstractGridFactory), pointer :: factory
+        character(len=:), allocatable :: varName, netcdf_version
+        type(Variable) :: v
+
+        factory => get_factory(this%output_grid,_RC)
+
+        v = Variable(type=PFIO_CHAR)
+
+        ! In the future when we can do per variable quantization, we will need
+        ! to do things like quantization_info1, quantization_info2, etc.
+        ! For now, we will just use quantization_info as it is per collection
+        varName = "quantization_info"
+
+        ! We need to convert the quantization algorithm to a string
+        select case (this%quantizeAlgorithm)
+        case (MAPL_QUANTIZE_BITGROOM)
+           call v%add_attribute('algorithm', 'bitgroom')
+        case (MAPL_QUANTIZE_BITROUND)
+           call v%add_attribute('algorithm', 'bitround')
+        case (MAPL_QUANTIZE_GRANULAR_BITROUND)
+           call v%add_attribute('algorithm', 'granular_bitround')
+        case default
+           _FAIL('Unknown quantization algorithm')
+        end select
+
+        ! Next add the implementation details
+        ! 3. implementation: This property contains free-form text
+        ! that concisely conveys the algorithm provenance, including the
+        ! name of the library or client that performed the quantization,
+        ! the software version, and the name of the author(s) if deemed
+        ! relevant.
+        !
+        ! In the current case, all algorithms are from libnetcdf
+        ! we make a string using nf90_inq_libvers()
+
+        netcdf_version = 'libnetcdf ' // nf90_inq_libvers()
+        call v%add_attribute('implementation', netcdf_version)
+
+        ! NOTE: In the future if we add the MAPL bit-shaving
+        ! to use the quantization parts of the code, it will
+        ! need a different implementation string
+
+        call factory%append_variable_metadata(v)
+        call this%metadata%add_variable(trim(varName),v,_RC)
+
+        _RETURN(_SUCCESS)
+
+     end subroutine CreateQuantizationInfo
 
      subroutine modifyTime(this, oClients, rc)
         class(MAPL_GriddedIO), intent(inout) :: this
@@ -1153,7 +1262,7 @@ module MAPL_GriddedIOMod
         end if
         call i_Clients%collective_prefetch_data( &
              this%read_collection_id, fileName, trim(names(i)), &
-             & ref, start=localStart, global_start=globalStart, global_count=globalCount)
+             & ref, start=localStart, global_start=globalStart, global_count=globalCount, _RC)
         deallocate(localStart,globalStart,globalCount)
      enddo
      deallocate(gridLocalStart,gridGlobalStart,gridGlobalCount)

@@ -224,19 +224,19 @@ contains
       _RETURN(_SUCCESS)
    end function
 
-   subroutine clear_RequestHandle(this)
+   subroutine clear_RequestHandle(this, rc)
       class (BaseServer), target, intent(inout) :: this
+      integer, optional, intent(out):: rc
       class(ServerThread), pointer :: thread_ptr
-      integer :: i,n
-
+      integer :: i,n, status
 
       n = this%threads%size()
 
       do i = 1, n
          thread_ptr => this%threads%at(i)
-         call thread_ptr%clear_RequestHandle()
+         call thread_ptr%clear_RequestHandle(_RC)
       enddo
-
+      _RETURN(_SUCCESS)
 
    end subroutine clear_RequestHandle
 

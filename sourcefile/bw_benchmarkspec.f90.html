@@ -315,18 +315,18 @@ large graphs.</div>
 <polygon fill="none" stroke="black" points="145,-24 0,-24 0,0 145,0 145,-24"/>
 <text text-anchor="middle" x="72.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">BW_BenchmarkSpec.F90</text>
 </g>
-<!-- sourcefile~driver.f90 -->
+<!-- sourcefile~driver.f90~4 -->
 <g id="sourcefile~~bw_benchmarkspec.f90~~AfferentGraph_node2" class="node">
-<title>sourcefile~driver.f90</title>
-<g id="a_sourcefile~~bw_benchmarkspec.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/driver.f90.html" xlink:title="driver.F90">
+<title>sourcefile~driver.f90~4</title>
+<g id="a_sourcefile~~bw_benchmarkspec.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/driver.f90~4.html" xlink:title="driver.F90">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="246,-24 181,-24 181,0 246,0 246,-24"/>
 <text text-anchor="middle" x="213.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">driver.F90</text>
 </a>
 </g>
 </g>
-<!-- sourcefile~driver.f90&#45;&gt;sourcefile~bw_benchmarkspec.f90 -->
+<!-- sourcefile~driver.f90~4&#45;&gt;sourcefile~bw_benchmarkspec.f90 -->
 <g id="sourcefile~~bw_benchmarkspec.f90~~AfferentGraph_edge1" class="edge">
-<title>sourcefile~driver.f90&#45;&gt;sourcefile~bw_benchmarkspec.f90</title>
+<title>sourcefile~driver.f90~4&#45;&gt;sourcefile~bw_benchmarkspec.f90</title>
 <path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M180.96,-12C173.16,-12 164.44,-12 155.44,-12"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="155.18,-8.5 145.18,-12 155.18,-15.5 155.18,-8.5"/>
 </g>
@@ -486,35 +486,36 @@ large graphs.</div>
 <a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">        </span><span class="k">call </span><span class="nb">random_number</span><span class="p">(</span><span class="n">benchmark</span><span class="p">%</span><span class="n">buffer</span><span class="p">)</span>
 <a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">      </span><span class="k">end associate</span>
 <a id="ln-101" name="ln-101" href="#ln-101"></a>
-<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="k">      call </span><span class="n">MPI_Comm_rank</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">IERROR</span><span class="p">)</span>
-<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">      </span><span class="n">benchmark</span><span class="p">%</span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_filename</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="s1">&#39;scratch.&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="o">=</span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">width</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-104" name="ln-104" href="#ln-104"></a>
-<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
-<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">   </span><span class="k">end function </span><span class="n">make_BW_Benchmark</span>
-<a id="ln-107" name="ln-107" href="#ln-107"></a>
-<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">   </span><span class="c">! helper function</span>
-<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">   </span><span class="k">function </span><span class="n">make_filename</span><span class="p">(</span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">filename</span>
-<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">base</span>
-<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rank</span>
-<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">width</span>
-<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
-<a id="ln-115" name="ln-115" href="#ln-115"></a>
-<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
-<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">width</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">suffix</span>
-<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fmt</span>
-<a id="ln-119" name="ln-119" href="#ln-119"></a>
-<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span><span class="s1">&#39;(&quot;(i&quot;,i0,&quot;.&quot;,i0,&quot;)&quot;)&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">iostat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="n">width</span>
-<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
-<a id="ln-122" name="ln-122" href="#ln-122"></a>
-<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">suffix</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">fmt</span><span class="p">),</span><span class="w"> </span><span class="n">iostat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="n">rank</span>
-<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
-<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">      </span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">suffix</span>
-<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="w">      </span>
-<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
-<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">   </span><span class="k">end function </span><span class="n">make_filename</span>
-<a id="ln-129" name="ln-129" href="#ln-129"></a>
-<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="k">end module </span><span class="n">mapl_BW_BenchmarkSpec</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="k">      call </span><span class="n">MPI_Comm_rank</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">      </span><span class="n">benchmark</span><span class="p">%</span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_filename</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="s1">&#39;scratch.&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="o">=</span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">width</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">   </span><span class="k">end function </span><span class="n">make_BW_Benchmark</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">   </span><span class="c">! helper function</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">   </span><span class="k">function </span><span class="n">make_filename</span><span class="p">(</span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">filename</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">base</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rank</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">width</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">width</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">suffix</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fmt</span>
+<a id="ln-120" name="ln-120" href="#ln-120"></a>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span><span class="s1">&#39;(&quot;(i&quot;,i0,&quot;.&quot;,i0,&quot;)&quot;)&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">iostat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="n">width</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="n">suffix</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">fmt</span><span class="p">),</span><span class="w"> </span><span class="n">iostat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="n">rank</span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="w">      </span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">suffix</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="w">      </span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">   </span><span class="k">end function </span><span class="n">make_filename</span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="k">end module </span><span class="n">mapl_BW_BenchmarkSpec</span>
 </pre></div>
 
       </section>
@@ -536,7 +537,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-10-28T20:47:07.046478             </p>
+ on 2024-10-29T20:00:34.862748             </p>
           </div>
         </div>
         <br>

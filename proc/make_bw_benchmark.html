@@ -163,7 +163,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-spec~45"></span>
+              <span class="anchor" id="variable-spec~18"></span>
               type(<a href='../type/bw_benchmarkspec.html'>BW_BenchmarkSpec</a>),
             </td>
 <td>intent(in)</td>
@@ -178,7 +178,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-comm~168"></span>
+              <span class="anchor" id="variable-comm~40"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -193,7 +193,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~2046"></span>
+              <span class="anchor" id="variable-rc~781"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -211,7 +211,7 @@
 
       <h3>Return Value
         <small>
-          <span class="anchor" id="variable-benchmark~4"></span>
+          <span class="anchor" id="variable-benchmark~2"></span>
           type(<a href='../type/bw_benchmark.html'>BW_Benchmark</a>)
         </small>
       </h3>
@@ -431,33 +431,33 @@ large graphs.</div>
 <polygon fill="none" stroke="black" points="312,-24 180,-24 180,0 312,0 312,-24"/>
 <text text-anchor="middle" x="246" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">make_BW_Benchmark</text>
 </g>
-<!-- proc~run~9 -->
+<!-- proc~run~18 -->
 <g id="proc~~make_bw_benchmark~~CalledByGraph_node2" class="node">
-<title>proc~run~9</title>
-<g id="a_proc~~make_bw_benchmark~~CalledByGraph_node2"><a xlink:href="../proc/run~9.html" xlink:title="run">
+<title>proc~run~18</title>
+<g id="a_proc~~make_bw_benchmark~~CalledByGraph_node2"><a xlink:href="../proc/run~18.html" xlink:title="run">
 <polygon fill="#d9534f" stroke="#d9534f" points="144,-24 90,-24 90,0 144,0 144,-24"/>
 <text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">run</text>
 </a>
 </g>
 </g>
-<!-- proc~run~9&#45;&gt;proc~make_bw_benchmark -->
+<!-- proc~run~18&#45;&gt;proc~make_bw_benchmark -->
 <g id="proc~~make_bw_benchmark~~CalledByGraph_edge1" class="edge">
-<title>proc~run~9&#45;&gt;proc~make_bw_benchmark</title>
+<title>proc~run~18&#45;&gt;proc~make_bw_benchmark</title>
 <path fill="none" stroke="#ff0000" d="M144.01,-12C151.73,-12 160.62,-12 169.84,-12"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="169.94,-15.5 179.94,-12 169.94,-8.5 169.94,-15.5"/>
 </g>
-<!-- program~main~7 -->
+<!-- program~main~19 -->
 <g id="proc~~make_bw_benchmark~~CalledByGraph_node3" class="node">
-<title>program~main~7</title>
-<g id="a_proc~~make_bw_benchmark~~CalledByGraph_node3"><a xlink:href="../program/main~7.html" xlink:title="main">
+<title>program~main~19</title>
+<g id="a_proc~~make_bw_benchmark~~CalledByGraph_node3"><a xlink:href="../program/main~19.html" xlink:title="main">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-24 0,-24 0,0 54,0 54,-24"/>
 <text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
 </a>
 </g>
 </g>
-<!-- program~main~7&#45;&gt;proc~run~9 -->
+<!-- program~main~19&#45;&gt;proc~run~18 -->
 <g id="proc~~make_bw_benchmark~~CalledByGraph_edge2" class="edge">
-<title>program~main~7&#45;&gt;proc~run~9</title>
+<title>program~main~19&#45;&gt;proc~run~18</title>
 <path fill="none" stroke="#ff0000" d="M54.4,-12C62.39,-12 71.31,-12 79.82,-12"/>
 <polygon fill="#ff0000" stroke="#ff0000" points="79.92,-15.5 89.92,-12 79.92,-8.5 79.92,-15.5"/>
 </g>
@@ -572,7 +572,8 @@ large graphs.</div>
 <span class="w">        </span><span class="k">call </span><span class="nb">random_number</span><span class="p">(</span><span class="n">benchmark</span><span class="p">%</span><span class="n">buffer</span><span class="p">)</span>
 <span class="w">      </span><span class="k">end associate</span>
 
-<span class="k">      call </span><span class="n">MPI_Comm_rank</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">IERROR</span><span class="p">)</span>
+<span class="k">      call </span><span class="n">MPI_Comm_rank</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
 <span class="w">      </span><span class="n">benchmark</span><span class="p">%</span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_filename</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="s1">&#39;scratch.&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="o">=</span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">width</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 
 <span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
@@ -600,7 +601,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-10-28T20:47:07.046478             </p>
+ on 2024-10-29T20:00:34.862748             </p>
           </div>
         </div>
         <br>
