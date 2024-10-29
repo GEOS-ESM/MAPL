@@ -1,0 +1,977 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>initialize_extdata &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>initialize_extdata
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">89 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_CapGridComp.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_capgridcomp.f90.html'>MAPL_CapGridComp.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_capgridcompmod.html'>MAPL_CapGridCompMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">initialize_extdata</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/initialize_extdata.html#src">initialize_extdata</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine initialize_extdata(cap, root_gc, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/mapl_capgridcomp.html'>MAPL_CapGridComp</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cap~18"></span>
+              class(<a href='../type/mapl_capgridcomp.html'>MAPL_CapGridComp</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>cap</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-root_gc~2"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>root_gc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1332"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~initialize_extdata~~CallsGraph Pages: 1 -->
+<svg id="procinitialize_extdataCallsGraph" width="641pt" height="533pt"
+ viewBox="0.00 0.00 641.00 532.55" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~initialize_extdata~~CallsGraph" class="graph" transform="scale(0.81 0.81) rotate(0) translate(4 654)">
+<title>proc~~initialize_extdata~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-654 788,-654 788,4 -4,4"/>
+<!-- proc~initialize_extdata -->
+<g id="proc~~initialize_extdata~~CallsGraph_node1" class="node">
+<title>proc~initialize_extdata</title>
+<polygon fill="none" stroke="black" points="220,-412 0,-412 0,-388 220,-388 220,-412"/>
+<text text-anchor="middle" x="110" y="-397.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_CapGridComp%initialize_extdata</text>
+</g>
+<!-- ESMF_GridCompInitialize -->
+<g id="proc~~initialize_extdata~~CallsGraph_node2" class="node">
+<title>ESMF_GridCompInitialize</title>
+<g id="a_proc~~initialize_extdata~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_gridcompinitialize.html" xlink:title="ESMF_GridCompInitialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="405.5,-650 260.5,-650 260.5,-626 405.5,-626 405.5,-650"/>
+<text text-anchor="middle" x="333" y="-635.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridCompInitialize</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_extdata&#45;&gt;ESMF_GridCompInitialize -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge1" class="edge">
+<title>proc~initialize_extdata&#45;&gt;ESMF_GridCompInitialize</title>
+<path fill="none" stroke="#ff0000" d="M115.92,-412.07C131.17,-447.96 181.11,-555.04 256,-612 261.03,-615.82 266.65,-619.11 272.51,-621.92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="271.28,-625.21 281.85,-625.97 274.06,-618.78 271.28,-625.21"/>
+</g>
+<!-- begin -->
+<g id="proc~~initialize_extdata~~CallsGraph_node3" class="node">
+<title>begin</title>
+<polygon fill="#777777" stroke="#777777" points="557.5,-606 503.5,-606 503.5,-582 557.5,-582 557.5,-606"/>
+<text text-anchor="middle" x="530.5" y="-591.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">begin</text>
+</g>
+<!-- proc~initialize_extdata&#45;&gt;begin -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge2" class="edge">
+<title>proc~initialize_extdata&#45;&gt;begin</title>
+<path fill="none" stroke="#ff0000" d="M117.45,-412.29C134.86,-444.05 186.24,-528.88 256,-565 332.92,-604.82 438.16,-602.77 492.96,-598.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="493.59,-601.65 503.23,-597.25 492.95,-594.68 493.59,-601.65"/>
+</g>
+<!-- esmf_statecreate -->
+<g id="proc~~initialize_extdata~~CallsGraph_node4" class="node">
+<title>esmf_statecreate</title>
+<polygon fill="#777777" stroke="#777777" points="385,-452 281,-452 281,-428 385,-428 385,-452"/>
+<text text-anchor="middle" x="333" y="-437.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_statecreate</text>
+</g>
+<!-- proc~initialize_extdata&#45;&gt;esmf_statecreate -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge3" class="edge">
+<title>proc~initialize_extdata&#45;&gt;esmf_statecreate</title>
+<path fill="none" stroke="#ff0000" d="M177.31,-412C206.99,-417.37 241.77,-423.67 270.82,-428.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="270.38,-432.4 280.84,-430.74 271.63,-425.52 270.38,-432.4"/>
+</g>
+<!-- esmf_stateget -->
+<g id="proc~~initialize_extdata~~CallsGraph_node5" class="node">
+<title>esmf_stateget</title>
+<polygon fill="#777777" stroke="#777777" points="574.5,-407 486.5,-407 486.5,-383 574.5,-383 574.5,-407"/>
+<text text-anchor="middle" x="530.5" y="-392.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_stateget</text>
+</g>
+<!-- proc~initialize_extdata&#45;&gt;esmf_stateget -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge4" class="edge">
+<title>proc~initialize_extdata&#45;&gt;esmf_stateget</title>
+<path fill="none" stroke="#ff0000" d="M220.14,-398.7C302.5,-397.71 411.93,-396.4 476.14,-395.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="476.47,-399.13 486.43,-395.51 476.38,-392.13 476.47,-399.13"/>
+</g>
+<!-- get -->
+<g id="proc~~initialize_extdata~~CallsGraph_node6" class="node">
+<title>get</title>
+<polygon fill="#777777" stroke="#777777" points="557.5,-556 503.5,-556 503.5,-532 557.5,-532 557.5,-556"/>
+<text text-anchor="middle" x="530.5" y="-541.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get</text>
+</g>
+<!-- proc~initialize_extdata&#45;&gt;get -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge5" class="edge">
+<title>proc~initialize_extdata&#45;&gt;get</title>
+<path fill="none" stroke="#ff0000" d="M118.6,-412.13C137.54,-441.09 190.1,-513.82 256,-541 335.43,-573.76 439.21,-561.71 493.23,-551.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="494.19,-555.21 503.35,-549.89 492.88,-548.33 494.19,-555.21"/>
+</g>
+<!-- interface~mapl_addattributetofields -->
+<g id="proc~~initialize_extdata~~CallsGraph_node7" class="node">
+<title>interface~mapl_addattributetofields</title>
+<g id="a_proc~~initialize_extdata~~CallsGraph_node7"><a xlink:href="../interface/mapl_addattributetofields.html" xlink:title="MAPL_AddAttributeToFields">
+<polygon fill="#a7506f" stroke="#a7506f" points="410,-152 256,-152 256,-128 410,-128 410,-152"/>
+<text text-anchor="middle" x="333" y="-137.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AddAttributeToFields</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_extdata&#45;&gt;interface~mapl_addattributetofields -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge6" class="edge">
+<title>proc~initialize_extdata&#45;&gt;interface~mapl_addattributetofields</title>
+<path fill="none" stroke="#ff0000" d="M118.56,-387.67C138.65,-355.41 195.95,-266.62 256,-203 271.58,-186.49 291.39,-170.2 306.88,-158.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="309.11,-161.02 314.98,-152.2 304.89,-155.43 309.11,-161.02"/>
+</g>
+<!-- interface~mapl_stateadd -->
+<g id="proc~~initialize_extdata~~CallsGraph_node8" class="node">
+<title>interface~mapl_stateadd</title>
+<g id="a_proc~~initialize_extdata~~CallsGraph_node8"><a xlink:href="../interface/mapl_stateadd.html" xlink:title="MAPL_StateAdd">
+<polygon fill="#a7506f" stroke="#a7506f" points="380,-66 286,-66 286,-42 380,-42 380,-66"/>
+<text text-anchor="middle" x="333" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StateAdd</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_extdata&#45;&gt;interface~mapl_stateadd -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge7" class="edge">
+<title>proc~initialize_extdata&#45;&gt;interface~mapl_stateadd</title>
+<path fill="none" stroke="#ff0000" d="M115.33,-387.81C130.25,-346.84 182.72,-211.53 256,-119 270.28,-100.97 290.13,-84.2 305.96,-72.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="308.32,-74.81 314.29,-66.06 304.16,-69.18 308.32,-74.81"/>
+</g>
+<!-- next -->
+<g id="proc~~initialize_extdata~~CallsGraph_node9" class="node">
+<title>next</title>
+<polygon fill="#777777" stroke="#777777" points="557.5,-497 503.5,-497 503.5,-473 557.5,-473 557.5,-497"/>
+<text text-anchor="middle" x="530.5" y="-482.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">next</text>
+</g>
+<!-- proc~initialize_extdata&#45;&gt;next -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge8" class="edge">
+<title>proc~initialize_extdata&#45;&gt;next</title>
+<path fill="none" stroke="#ff0000" d="M133.84,-412.25C161.78,-426.6 210.93,-449.83 256,-461 339.11,-481.59 440.24,-485.1 493.19,-485.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="493.42,-488.86 503.42,-485.38 493.43,-481.86 493.42,-488.86"/>
+</g>
+<!-- proc~get_vec_from_config -->
+<g id="proc~~initialize_extdata~~CallsGraph_node10" class="node">
+<title>proc~get_vec_from_config</title>
+<g id="a_proc~~initialize_extdata~~CallsGraph_node10"><a xlink:href="../proc/get_vec_from_config.html" xlink:title="get_vec_from_config">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="394,-236 272,-236 272,-212 394,-212 394,-236"/>
+<text text-anchor="middle" x="333" y="-221.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_vec_from_config</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_extdata&#45;&gt;proc~get_vec_from_config -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge9" class="edge">
+<title>proc~initialize_extdata&#45;&gt;proc~get_vec_from_config</title>
+<path fill="none" stroke="#ff0000" d="M119.69,-387.61C140.21,-359.25 194.55,-289.04 256,-250 262.15,-246.09 268.96,-242.7 275.89,-239.77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="277.35,-242.96 285.39,-236.06 274.8,-236.44 277.35,-242.96"/>
+</g>
+<!-- proc~mapl_exportstateget -->
+<g id="proc~~initialize_extdata~~CallsGraph_node11" class="node">
+<title>proc~mapl_exportstateget</title>
+<g id="a_proc~~initialize_extdata~~CallsGraph_node11"><a xlink:href="../proc/mapl_exportstateget.html" xlink:title="MAPL_ExportStateGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="396.5,-316 269.5,-316 269.5,-292 396.5,-292 396.5,-316"/>
+<text text-anchor="middle" x="333" y="-301.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExportStateGet</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_extdata&#45;&gt;proc~mapl_exportstateget -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge10" class="edge">
+<title>proc~initialize_extdata&#45;&gt;proc~mapl_exportstateget</title>
+<path fill="none" stroke="#ff0000" d="M138.99,-387.84C178.59,-370.64 251.05,-339.16 295.04,-320.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="296.46,-323.25 304.24,-316.06 293.67,-316.83 296.46,-323.25"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~initialize_extdata~~CallsGraph_node12" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~initialize_extdata~~CallsGraph_node12"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="571.5,-360 489.5,-360 489.5,-336 571.5,-336 571.5,-360"/>
+<text text-anchor="middle" x="530.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_extdata&#45;&gt;proc~mapl_return -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge11" class="edge">
+<title>proc~initialize_extdata&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M207.8,-387.97C292.48,-377.45 412.11,-362.59 479.06,-354.27"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="479.85,-357.7 489.34,-352.99 478.99,-350.75 479.85,-357.7"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~initialize_extdata~~CallsGraph_node13" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~initialize_extdata~~CallsGraph_node13"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="568.5,-318 492.5,-318 492.5,-294 568.5,-294 568.5,-318"/>
+<text text-anchor="middle" x="530.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_extdata&#45;&gt;proc~mapl_verify -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge12" class="edge">
+<title>proc~initialize_extdata&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M120.66,-387.99C141.9,-362.65 195.61,-304.33 256,-283 320.54,-260.21 341.86,-276.5 410,-283 434.06,-285.29 460.47,-290.13 482.34,-294.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="481.84,-298.25 492.36,-296.96 483.33,-291.41 481.84,-298.25"/>
+</g>
+<!-- proc~vector_contains_str~2 -->
+<g id="proc~~initialize_extdata~~CallsGraph_node14" class="node">
+<title>proc~vector_contains_str~2</title>
+<g id="a_proc~~initialize_extdata~~CallsGraph_node14"><a xlink:href="../proc/vector_contains_str~2.html" xlink:title="vector_contains_str">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="390.5,-532 275.5,-532 275.5,-508 390.5,-508 390.5,-532"/>
+<text text-anchor="middle" x="333" y="-517.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vector_contains_str</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_extdata&#45;&gt;proc~vector_contains_str~2 -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge13" class="edge">
+<title>proc~initialize_extdata&#45;&gt;proc~vector_contains_str~2</title>
+<path fill="none" stroke="#ff0000" d="M126.75,-412.08C152.59,-431.45 206.08,-469.74 256,-494 263.93,-497.85 272.57,-501.39 281.1,-504.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="280.04,-507.86 290.63,-507.9 282.37,-501.27 280.04,-507.86"/>
+</g>
+<!-- proc~mapl_addattributetofields_i4 -->
+<g id="proc~~initialize_extdata~~CallsGraph_node21" class="node">
+<title>proc~mapl_addattributetofields_i4</title>
+<g id="a_proc~~initialize_extdata~~CallsGraph_node21"><a xlink:href="../proc/mapl_addattributetofields_i4.html" xlink:title="MAPL_AddAttributeToFields_I4">
+<polygon fill="#d9534f" stroke="#d9534f" points="615,-108 446,-108 446,-84 615,-84 615,-108"/>
+<text text-anchor="middle" x="530.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AddAttributeToFields_I4</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_addattributetofields&#45;&gt;proc~mapl_addattributetofields_i4 -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge14" class="edge">
+<title>interface~mapl_addattributetofields&#45;&gt;proc~mapl_addattributetofields_i4</title>
+<path fill="none" stroke="#00ff4e" stroke-dasharray="5,2" d="M387.42,-127.98C411.77,-122.5 440.78,-115.97 466.22,-110.24"/>
+<polygon fill="#00ff4e" stroke="#00ff4e" points="467.16,-113.62 476.14,-108.01 465.62,-106.79 467.16,-113.62"/>
+</g>
+<!-- interface~mapl_stateaddbundle -->
+<g id="proc~~initialize_extdata~~CallsGraph_node18" class="node">
+<title>interface~mapl_stateaddbundle</title>
+<g id="a_proc~~initialize_extdata~~CallsGraph_node18"><a xlink:href="../interface/mapl_stateaddbundle.html" xlink:title="MAPL_StateAddBundle">
+<polygon fill="#a7506f" stroke="#a7506f" points="596.5,-24 464.5,-24 464.5,0 596.5,0 596.5,-24"/>
+<text text-anchor="middle" x="530.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StateAddBundle</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_stateadd&#45;&gt;interface~mapl_stateaddbundle -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge15" class="edge">
+<title>interface~mapl_stateadd&#45;&gt;interface~mapl_stateaddbundle</title>
+<path fill="none" stroke="#00ffc4" stroke-dasharray="5,2" d="M380.33,-44.05C405.17,-38.71 436.2,-32.04 463.52,-26.17"/>
+<polygon fill="#00ffc4" stroke="#00ffc4" points="464.36,-29.58 473.4,-24.05 462.89,-22.73 464.36,-29.58"/>
+</g>
+<!-- interface~mapl_stateaddfield -->
+<g id="proc~~initialize_extdata~~CallsGraph_node19" class="node">
+<title>interface~mapl_stateaddfield</title>
+<g id="a_proc~~initialize_extdata~~CallsGraph_node19"><a xlink:href="../interface/mapl_stateaddfield.html" xlink:title="MAPL_StateAddField">
+<polygon fill="#a7506f" stroke="#a7506f" points="590,-66 471,-66 471,-42 590,-42 590,-66"/>
+<text text-anchor="middle" x="530.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StateAddField</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_stateadd&#45;&gt;interface~mapl_stateaddfield -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge16" class="edge">
+<title>interface~mapl_stateadd&#45;&gt;interface~mapl_stateaddfield</title>
+<path fill="none" stroke="#00ffc4" stroke-dasharray="5,2" d="M380.33,-54C404.36,-54 434.19,-54 460.84,-54"/>
+<polygon fill="#00ffc4" stroke="#00ffc4" points="460.88,-57.5 470.88,-54 460.88,-50.5 460.88,-57.5"/>
+</g>
+<!-- proc~get_vec_from_config&#45;&gt;proc~mapl_return -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge20" class="edge">
+<title>proc~get_vec_from_config&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#004eff" d="M351.81,-236.08C367.82,-247.34 391.58,-265.04 410,-283 428.09,-300.64 424.67,-313.46 446,-327 455.96,-333.32 467.7,-337.74 479.2,-340.83"/>
+<polygon fill="#004eff" stroke="#004eff" points="478.64,-344.3 489.18,-343.22 480.27,-337.49 478.64,-344.3"/>
+</g>
+<!-- proc~get_vec_from_config&#45;&gt;proc~mapl_verify -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge21" class="edge">
+<title>proc~get_vec_from_config&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#004eff" d="M380.09,-236.12C390.33,-239.79 400.85,-244.38 410,-250 429.02,-261.67 426.51,-274.13 446,-285 457.01,-291.14 469.84,-295.52 482.08,-298.62"/>
+<polygon fill="#004eff" stroke="#004eff" points="481.65,-302.12 492.18,-300.95 483.22,-295.29 481.65,-302.12"/>
+</g>
+<!-- ESMF_ConfigFindLabel -->
+<g id="proc~~initialize_extdata~~CallsGraph_node15" class="node">
+<title>ESMF_ConfigFindLabel</title>
+<g id="a_proc~~initialize_extdata~~CallsGraph_node15"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_configfindlabel.html" xlink:title="ESMF_ConfigFindLabel">
+<polygon fill="#d9534f" stroke="#d9534f" points="596.5,-150 464.5,-150 464.5,-126 596.5,-126 596.5,-150"/>
+<text text-anchor="middle" x="530.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ConfigFindLabel</text>
+</a>
+</g>
+</g>
+<!-- proc~get_vec_from_config&#45;&gt;ESMF_ConfigFindLabel -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge17" class="edge">
+<title>proc~get_vec_from_config&#45;&gt;ESMF_ConfigFindLabel</title>
+<path fill="none" stroke="#004eff" d="M351.44,-211.79C372.82,-197.33 410.59,-173.39 446,-159 451.41,-156.8 457.12,-154.78 462.9,-152.94"/>
+<polygon fill="#004eff" stroke="#004eff" points="464.09,-156.24 472.67,-150.01 462.08,-149.53 464.09,-156.24"/>
+</g>
+<!-- ESMF_ConfigGetAttribute -->
+<g id="proc~~initialize_extdata~~CallsGraph_node16" class="node">
+<title>ESMF_ConfigGetAttribute</title>
+<g id="a_proc~~initialize_extdata~~CallsGraph_node16"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_configgetattribute.html" xlink:title="ESMF_ConfigGetAttribute">
+<polygon fill="#a7506f" stroke="#a7506f" points="603,-276 458,-276 458,-252 603,-252 603,-276"/>
+<text text-anchor="middle" x="530.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ConfigGetAttribute</text>
+</a>
+</g>
+</g>
+<!-- proc~get_vec_from_config&#45;&gt;ESMF_ConfigGetAttribute -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge18" class="edge">
+<title>proc~get_vec_from_config&#45;&gt;ESMF_ConfigGetAttribute</title>
+<path fill="none" stroke="#004eff" d="M392.66,-236C414.02,-240.37 438.36,-245.35 460.53,-249.89"/>
+<polygon fill="#004eff" stroke="#004eff" points="460.05,-253.36 470.55,-251.94 461.45,-246.5 460.05,-253.36"/>
+</g>
+<!-- ESMF_ConfigNextLine -->
+<g id="proc~~initialize_extdata~~CallsGraph_node17" class="node">
+<title>ESMF_ConfigNextLine</title>
+<g id="a_proc~~initialize_extdata~~CallsGraph_node17"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_confignextline.html" xlink:title="ESMF_ConfigNextLine">
+<polygon fill="#d9534f" stroke="#d9534f" points="594,-234 467,-234 467,-210 594,-210 594,-234"/>
+<text text-anchor="middle" x="530.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ConfigNextLine</text>
+</a>
+</g>
+</g>
+<!-- proc~get_vec_from_config&#45;&gt;ESMF_ConfigNextLine -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge19" class="edge">
+<title>proc~get_vec_from_config&#45;&gt;ESMF_ConfigNextLine</title>
+<path fill="none" stroke="#004eff" d="M394.25,-223.38C413.93,-223.18 435.99,-222.96 456.5,-222.75"/>
+<polygon fill="#004eff" stroke="#004eff" points="456.78,-226.24 466.74,-222.64 456.71,-219.24 456.78,-226.24"/>
+</g>
+<!-- push_back -->
+<g id="proc~~initialize_extdata~~CallsGraph_node23" class="node">
+<title>push_back</title>
+<polygon fill="#777777" stroke="#777777" points="565,-192 496,-192 496,-168 565,-168 565,-192"/>
+<text text-anchor="middle" x="530.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">push_back</text>
+</g>
+<!-- proc~get_vec_from_config&#45;&gt;push_back -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge22" class="edge">
+<title>proc~get_vec_from_config&#45;&gt;push_back</title>
+<path fill="none" stroke="#004eff" d="M387.42,-211.98C418.37,-205.01 456.83,-196.35 485.93,-189.81"/>
+<polygon fill="#004eff" stroke="#004eff" points="486.82,-193.19 495.81,-187.58 485.28,-186.36 486.82,-193.19"/>
+</g>
+<!-- proc~mapl_exportstateget&#45;&gt;esmf_stateget -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_exportstateget&#45;&gt;esmf_stateget</title>
+<path fill="none" stroke="#2700ff" d="M351.96,-316.12C373.55,-330.29 411.21,-353.72 446,-369 455.69,-373.26 466.3,-377.12 476.6,-380.5"/>
+<polygon fill="#2700ff" stroke="#2700ff" points="475.76,-383.9 486.35,-383.58 477.87,-377.23 475.76,-383.9"/>
+</g>
+<!-- proc~mapl_exportstateget&#45;&gt;proc~mapl_exportstateget -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_exportstateget&#45;&gt;proc~mapl_exportstateget</title>
+<path fill="none" stroke="#2700ff" d="M300.59,-316.01C289.28,-324.97 300.08,-334 333,-334 353.58,-334 365.51,-330.47 368.81,-325.64"/>
+<polygon fill="#2700ff" stroke="#2700ff" points="372.04,-324.28 365.41,-316.01 365.44,-326.61 372.04,-324.28"/>
+</g>
+<!-- proc~mapl_exportstateget&#45;&gt;proc~mapl_return -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_exportstateget&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#2700ff" d="M387.42,-316.02C416.12,-322.48 451.28,-330.4 479.45,-336.73"/>
+<polygon fill="#2700ff" stroke="#2700ff" points="478.96,-340.21 489.48,-338.99 480.49,-333.38 478.96,-340.21"/>
+</g>
+<!-- proc~mapl_exportstateget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_exportstateget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#2700ff" d="M396.66,-304.64C424.35,-304.92 456.36,-305.25 482.02,-305.51"/>
+<polygon fill="#2700ff" stroke="#2700ff" points="482.2,-309.02 492.23,-305.62 482.27,-302.02 482.2,-309.02"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~initialize_extdata~~CallsGraph_node20" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~initialize_extdata~~CallsGraph_node20"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="775,-360 660,-360 660,-336 775,-336 775,-360"/>
+<text text-anchor="middle" x="717.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#9c00ff" d="M571.64,-348C594.44,-348 623.56,-348 649.71,-348"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="649.94,-351.5 659.94,-348 649.94,-344.5 649.94,-351.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~initialize_extdata~~CallsGraph_node22" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~initialize_extdata~~CallsGraph_node22"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="784,-318 651,-318 651,-294 784,-294 784,-318"/>
+<text text-anchor="middle" x="717.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#9c00ff" d="M571.64,-338.89C595.59,-333.45 626.51,-326.43 653.64,-320.27"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="654.46,-323.67 663.44,-318.05 652.91,-316.85 654.46,-323.67"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00eb" d="M568.94,-306C589.54,-306 615.87,-306 640.57,-306"/>
+<polygon fill="#ff00eb" stroke="#ff00eb" points="640.67,-309.5 650.67,-306 640.67,-302.5 640.67,-309.5"/>
+</g>
+<!-- proc~vector_contains_str~2&#45;&gt;begin -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge30" class="edge">
+<title>proc~vector_contains_str~2&#45;&gt;begin</title>
+<path fill="none" stroke="#ff0075" d="M362.86,-532.04C385.39,-541.33 417.54,-554.35 446,-565 461.53,-570.81 478.83,-576.89 493.63,-581.96"/>
+<polygon fill="#ff0075" stroke="#ff0075" points="492.84,-585.39 503.43,-585.3 495.1,-578.76 492.84,-585.39"/>
+</g>
+<!-- proc~vector_contains_str~2&#45;&gt;get -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge31" class="edge">
+<title>proc~vector_contains_str~2&#45;&gt;get</title>
+<path fill="none" stroke="#ff0075" d="M390.55,-526.94C423.69,-531.01 464.57,-536.03 493.38,-539.57"/>
+<polygon fill="#ff0075" stroke="#ff0075" points="493.06,-543.05 503.42,-540.8 493.92,-536.11 493.06,-543.05"/>
+</g>
+<!-- proc~vector_contains_str~2&#45;&gt;next -->
+<g id="proc~~initialize_extdata~~CallsGraph_edge32" class="edge">
+<title>proc~vector_contains_str~2&#45;&gt;next</title>
+<path fill="none" stroke="#ff0075" d="M390.55,-509.88C423.69,-503.94 464.57,-496.62 493.38,-491.47"/>
+<polygon fill="#ff0075" stroke="#ff0075" points="494.19,-494.88 503.42,-489.67 492.96,-487.99 494.19,-494.88"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocinitialize_extdataCallsGraph = svgPanZoom('#procinitialize_extdataCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~initialize_extdata~~CalledByGraph Pages: 1 -->
+<svg id="procinitialize_extdataCalledByGraph" width="339pt" height="32pt"
+ viewBox="0.00 0.00 339.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~initialize_extdata~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~initialize_extdata~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 335,-28 335,4 -4,4"/>
+<!-- proc~initialize_extdata -->
+<g id="proc~~initialize_extdata~~CalledByGraph_node1" class="node">
+<title>proc~initialize_extdata</title>
+<polygon fill="none" stroke="black" points="331,-24 111,-24 111,0 331,0 331,-24"/>
+<text text-anchor="middle" x="221" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_CapGridComp%initialize_extdata</text>
+</g>
+<!-- proc~initialize_gc~2 -->
+<g id="proc~~initialize_extdata~~CalledByGraph_node2" class="node">
+<title>proc~initialize_gc~2</title>
+<g id="a_proc~~initialize_extdata~~CalledByGraph_node2"><a xlink:href="../proc/initialize_gc~2.html" xlink:title="initialize_gc">
+<polygon fill="#d9534f" stroke="#d9534f" points="75,-24 0,-24 0,0 75,0 75,-24"/>
+<text text-anchor="middle" x="37.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_gc</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_gc~2&#45;&gt;proc~initialize_extdata -->
+<g id="proc~~initialize_extdata~~CalledByGraph_edge1" class="edge">
+<title>proc~initialize_gc~2&#45;&gt;proc~initialize_extdata</title>
+<path fill="none" stroke="#ff0000" d="M75.23,-12C83.06,-12 91.74,-12 100.85,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="100.87,-15.5 110.87,-12 100.87,-8.5 100.87,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">initialize_extdata</span><span class="p">(</span><span class="n">cap</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="n">root_gc</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">    </span><span class="k">class</span><span class="p">(</span><span class="n">MAPL_CapGridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cap</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">root_gc</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">item_count</span><span class="p">,</span><span class="w"> </span><span class="n">status</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_StateItem_Flag</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">item_types</span><span class="p">(:)</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="w"> </span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">item_names</span><span class="p">(:)</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">StringVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cap_imports_vec</span><span class="p">,</span><span class="w"> </span><span class="n">cap_exports_vec</span><span class="p">,</span><span class="w"> </span><span class="n">extdata_imports_vec</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">StringVectorIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">root_imports</span><span class="p">,</span><span class="w"> </span><span class="n">component_state</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">component_name</span><span class="p">,</span><span class="w"> </span><span class="n">field_name</span>
+
+<span class="w">    </span><span class="c">! Prepare EXPORTS for ExtData</span>
+<span class="w">    </span><span class="c">! ---------------------------</span>
+<span class="w">    </span><span class="n">cap_imports_vec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_vec_from_config</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;CAP_IMPORTS&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">    </span><span class="n">cap_exports_vec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_vec_from_config</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;CAP_EXPORTS&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">    </span><span class="n">extdata_imports_vec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_vec_from_config</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;EXTDATA_IMPORTS&quot;</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">cap</span><span class="p">%</span><span class="n">import_state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_StateCreate</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Cap_Imports&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">stateintent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_STATEINTENT_IMPORT</span><span class="p">)</span>
+<span class="w">    </span><span class="n">cap</span><span class="p">%</span><span class="n">export_state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_StateCreate</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Cap_Exports&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">stateintent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_STATEINTENT_EXPORT</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cap_exports_vec</span><span class="p">%</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap_exports_vec</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span>
+<span class="w">       </span><span class="k">do while</span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">cap_exports_vec</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+<span class="w">          </span><span class="n">component_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="n">get</span><span class="p">()</span>
+<span class="w">          </span><span class="n">component_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">component_name</span><span class="p">(</span><span class="nb">index</span><span class="p">(</span><span class="n">component_name</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;,&quot;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:))</span>
+<span class="w">          </span><span class="n">field_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="n">get</span><span class="p">()</span>
+<span class="w">          </span><span class="n">field_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">field_name</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="nb">index</span><span class="p">(</span><span class="n">field_name</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;,&quot;</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">          </span><span class="k">call </span><span class="n">MAPL_ExportStateGet</span><span class="p">([</span><span class="n">cap</span><span class="p">%</span><span class="n">child_exports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">root_id</span><span class="p">)],</span><span class="w"> </span><span class="n">component_name</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">component_state</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">component_state</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">field_name</span><span class="p">),</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">MAPL_StateAdd</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">export_state</span><span class="p">,</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<span class="w">       </span><span class="k">end do</span>
+<span class="k">    end if</span>
+
+<span class="k">    if</span><span class="w"> </span><span class="p">(</span><span class="n">extdata_imports_vec</span><span class="p">%</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">extdata_imports_vec</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span>
+<span class="w">       </span><span class="k">do while</span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">extdata_imports_vec</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+<span class="w">          </span><span class="n">component_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="n">get</span><span class="p">()</span>
+<span class="w">          </span><span class="n">component_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">component_name</span><span class="p">(</span><span class="nb">index</span><span class="p">(</span><span class="n">component_name</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;,&quot;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:))</span>
+
+<span class="w">          </span><span class="n">field_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="n">get</span><span class="p">()</span>
+<span class="w">          </span><span class="n">field_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">field_name</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="nb">index</span><span class="p">(</span><span class="n">field_name</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;,&quot;</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="w">          </span><span class="k">call </span><span class="n">MAPL_ExportStateGet</span><span class="p">([</span><span class="n">cap</span><span class="p">%</span><span class="n">child_exports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">root_id</span><span class="p">)],</span><span class="w"> </span><span class="n">component_name</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">component_state</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">component_state</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">field_name</span><span class="p">),</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">MAPL_StateAdd</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">child_imports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">extdata_id</span><span class="p">),</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<span class="w">       </span><span class="k">end do</span>
+<span class="k">    end if</span>
+
+<span class="k">    call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">child_imports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">root_id</span><span class="p">),</span><span class="w"> </span><span class="n">itemcount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">item_count</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">item_names</span><span class="p">(</span><span class="n">item_count</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">item_types</span><span class="p">(</span><span class="n">item_count</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">child_imports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">root_id</span><span class="p">),</span><span class="w"> </span><span class="n">itemnamelist</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">item_names</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">itemtypelist</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">item_types</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">root_imports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">child_imports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">root_id</span><span class="p">)</span>
+<span class="w">    </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">item_count</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">vector_contains_str</span><span class="p">(</span><span class="n">cap_imports_vec</span><span class="p">,</span><span class="w"> </span><span class="n">item_names</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">import_state</span>
+<span class="w">       </span><span class="k">else</span>
+<span class="k">          </span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">child_exports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">extdata_id</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="n">item_types</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_StateItem_Field</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">root_imports</span><span class="p">,</span><span class="w"> </span><span class="n">item_names</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">MAPL_AddAttributeToFields</span><span class="p">(</span><span class="n">root_gc</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">item_names</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span><span class="s1">&#39;RESTART&#39;</span><span class="p">,</span><span class="n">MAPL_RestartSkip</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">MAPL_StateAdd</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">item_types</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_StateItem_FieldBundle</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">root_imports</span><span class="p">,</span><span class="w"> </span><span class="n">item_names</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">MAPL_StateAdd</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">    end do</span>
+
+<span class="k">    deallocate</span><span class="p">(</span><span class="n">item_types</span><span class="p">)</span>
+<span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="n">item_names</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c">! Initialize the ExtData</span>
+<span class="w">    </span><span class="c">!------------------------</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_GridCompInitialize</span><span class="w"> </span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">gcs</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">extdata_id</span><span class="p">),</span><span class="w"> </span><span class="n">importState</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">child_imports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">extdata_id</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">exportState</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">child_exports</span><span class="p">(</span><span class="n">cap</span><span class="p">%</span><span class="n">extdata_id</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">clock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap</span><span class="p">%</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">userRc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">initialize_extdata</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-29T20:00:34.474192             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

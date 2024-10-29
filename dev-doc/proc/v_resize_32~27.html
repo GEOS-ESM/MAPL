@@ -1,0 +1,606 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>v_resize_32 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>v_resize_32
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">9 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_HistoryCollection.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_historycollection.f90.html'>MAPL_HistoryCollection.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_historycollectionvectormod.html'>MAPL_HistoryCollectionVectorMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">v_resize_32</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine v_resize_32(this, newsize, value, unused, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/historycollectionvector~2.html'>HistoryCollectionVector</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~5358"></span>
+              class(<a href='../type/historycollectionvector~2.html'>HistoryCollectionVector</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-newsize~188"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>newsize</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-value~769"></span>
+              type(<a href='../type/historycollection~2.html'>HistoryCollection</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unused~431"></span>
+              type(<a href='../type/keywordenforcer~54.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unused</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~2077"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~v_resize_32~27~~CallsGraph Pages: 1 -->
+<svg id="procv_resize_3227CallsGraph" width="430pt" height="32pt"
+ viewBox="0.00 0.00 430.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~v_resize_32~27~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~v_resize_32~27~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 426,-28 426,4 -4,4"/>
+<!-- proc~v_resize_32~27 -->
+<g id="proc~~v_resize_32~27~~CallsGraph_node1" class="node">
+<title>proc~v_resize_32~27</title>
+<polygon fill="none" stroke="black" points="208,-24 0,-24 0,0 208,0 208,-24"/>
+<text text-anchor="middle" x="104" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">HistoryCollectionVector%v_resize_32</text>
+</g>
+<!-- none~resize~134 -->
+<g id="proc~~v_resize_32~27~~CallsGraph_node2" class="node">
+<title>none~resize~134</title>
+<g id="a_proc~~v_resize_32~27~~CallsGraph_node2"><a xlink:href="../type/historycollectionvector~2.html#boundprocedure-resize~134" xlink:title="HistoryCollectionVector%resize">
+<polygon fill="#a7506f" stroke="#a7506f" points="422,-24 244,-24 244,0 422,0 422,-24"/>
+<text text-anchor="middle" x="333" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionVector%resize</text>
+</a>
+</g>
+</g>
+<!-- proc~v_resize_32~27&#45;&gt;none~resize~134 -->
+<g id="proc~~v_resize_32~27~~CallsGraph_edge1" class="edge">
+<title>proc~v_resize_32~27&#45;&gt;none~resize~134</title>
+<path fill="none" stroke="#ff0000" d="M208.2,-5.27C216.7,-5.23 225.27,-5.24 233.72,-5.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="233.93,-8.81 243.97,-5.4 234,-1.81 233.93,-8.81"/>
+</g>
+<!-- none~resize~134&#45;&gt;proc~v_resize_32~27 -->
+<g id="proc~~v_resize_32~27~~CallsGraph_edge2" class="edge">
+<title>none~resize~134&#45;&gt;proc~v_resize_32~27</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M243.97,-18.6C235.55,-18.7 226.93,-18.75 218.31,-18.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="218.21,-15.25 208.2,-18.73 218.2,-22.25 218.21,-15.25"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~v_resize_32~27~~CalledByGraph Pages: 1 -->
+<svg id="procv_resize_3227CalledByGraph" width="641pt" height="102pt"
+ viewBox="0.00 0.00 641.00 102.49" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~v_resize_32~27~~CalledByGraph" class="graph" transform="scale(0.9 0.9) rotate(0) translate(4 110)">
+<title>proc~~v_resize_32~27~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-110 709,-110 709,4 -4,4"/>
+<!-- proc~v_resize_32~27 -->
+<g id="proc~~v_resize_32~27~~CalledByGraph_node1" class="node">
+<title>proc~v_resize_32~27</title>
+<polygon fill="none" stroke="black" points="488,-106 280,-106 280,-82 488,-82 488,-106"/>
+<text text-anchor="middle" x="384" y="-91.6" font-family="Helvetica,sans-Serif" font-size="10.50">HistoryCollectionVector%v_resize_32</text>
+</g>
+<!-- none~resize~134 -->
+<g id="proc~~v_resize_32~27~~CalledByGraph_node2" class="node">
+<title>none~resize~134</title>
+<g id="a_proc~~v_resize_32~27~~CalledByGraph_node2"><a xlink:href="../type/historycollectionvector~2.html#boundprocedure-resize~134" xlink:title="HistoryCollectionVector%resize">
+<polygon fill="#a7506f" stroke="#a7506f" points="705,-86 527,-86 527,-62 705,-62 705,-86"/>
+<text text-anchor="middle" x="616" y="-71.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionVector%resize</text>
+</a>
+</g>
+</g>
+<!-- proc~v_resize_32~27&#45;&gt;none~resize~134 -->
+<g id="proc~~v_resize_32~27~~CalledByGraph_edge4" class="edge">
+<title>proc~v_resize_32~27&#45;&gt;none~resize~134</title>
+<path fill="none" stroke="#ff0000" d="M451.83,-81.99C472.08,-79.74 494.75,-77.6 516.61,-75.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="516.88,-79.36 526.58,-75.1 516.34,-72.38 516.88,-79.36"/>
+</g>
+<!-- none~resize~134&#45;&gt;proc~v_resize_32~27 -->
+<g id="proc~~v_resize_32~27~~CalledByGraph_edge1" class="edge">
+<title>none~resize~134&#45;&gt;proc~v_resize_32~27</title>
+<path fill="none" stroke="#ff0000" d="M548.05,-86.02C532.4,-87.76 515.3,-89.43 498.25,-90.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="497.9,-87.42 488.23,-91.74 498.48,-94.39 497.9,-87.42"/>
+</g>
+<!-- proc~v_insert_size_kind~27 -->
+<g id="proc~~v_resize_32~27~~CalledByGraph_node3" class="node">
+<title>proc~v_insert_size_kind~27</title>
+<g id="a_proc~~v_resize_32~27~~CalledByGraph_node3"><a xlink:href="../proc/v_insert_size_kind~27.html" xlink:title="HistoryCollectionVector%v_insert_size_kind">
+<polygon fill="#d9534f" stroke="#d9534f" points="241,-66 0,-66 0,-42 241,-42 241,-66"/>
+<text text-anchor="middle" x="120.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionVector%v_insert_size_kind</text>
+</a>
+</g>
+</g>
+<!-- proc~v_insert_size_kind~27&#45;&gt;none~resize~134 -->
+<g id="proc~~v_resize_32~27~~CalledByGraph_edge2" class="edge">
+<title>proc~v_insert_size_kind~27&#45;&gt;none~resize~134</title>
+<path fill="none" stroke="#ff0000" d="M241.28,-58.85C325.64,-62.27 437.23,-66.8 516.44,-70.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="516.78,-73.52 526.91,-70.43 517.06,-66.53 516.78,-73.52"/>
+</g>
+<!-- proc~v_push_back~27 -->
+<g id="proc~~v_resize_32~27~~CalledByGraph_node4" class="node">
+<title>proc~v_push_back~27</title>
+<g id="a_proc~~v_resize_32~27~~CalledByGraph_node4"><a xlink:href="../proc/v_push_back~27.html" xlink:title="HistoryCollectionVector%v_push_back">
+<polygon fill="#d9534f" stroke="#d9534f" points="491,-26 277,-26 277,-2 491,-2 491,-26"/>
+<text text-anchor="middle" x="384" y="-11.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionVector%v_push_back</text>
+</a>
+</g>
+</g>
+<!-- proc~v_insert_size_kind~27&#45;&gt;proc~v_push_back~27 -->
+<g id="proc~~v_resize_32~27~~CalledByGraph_edge6" class="edge">
+<title>proc~v_insert_size_kind~27&#45;&gt;proc~v_push_back~27</title>
+<path fill="none" stroke="#00ffff" d="M199.96,-42C229.56,-37.47 263.44,-32.29 293.94,-27.62"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="294.79,-31.03 304.15,-26.06 293.73,-24.11 294.79,-31.03"/>
+</g>
+<!-- proc~v_push_back~27&#45;&gt;none~resize~134 -->
+<g id="proc~~v_resize_32~27~~CalledByGraph_edge3" class="edge">
+<title>proc~v_push_back~27&#45;&gt;none~resize~134</title>
+<path fill="none" stroke="#ff0000" d="M435.22,-26.02C452.88,-30.33 472.84,-35.28 491,-40 514.51,-46.11 540.45,-53.17 562.49,-59.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="561.75,-62.69 572.32,-61.99 563.62,-55.95 561.75,-62.69"/>
+</g>
+<!-- proc~initialize~2 -->
+<g id="proc~~v_resize_32~27~~CalledByGraph_node5" class="node">
+<title>proc~initialize~2</title>
+<g id="a_proc~~v_resize_32~27~~CalledByGraph_node5"><a xlink:href="../proc/initialize~2.html" xlink:title="Initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="149,-24 92,-24 92,0 149,0 149,-24"/>
+<text text-anchor="middle" x="120.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize~2&#45;&gt;proc~v_push_back~27 -->
+<g id="proc~~v_resize_32~27~~CalledByGraph_edge5" class="edge">
+<title>proc~initialize~2&#45;&gt;proc~v_push_back~27</title>
+<path fill="none" stroke="#00ffff" d="M149.49,-12.21C177.78,-12.43 223.43,-12.78 266.89,-13.11"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="266.97,-16.61 277,-13.19 267.02,-9.61 266.97,-16.61"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocv_resize_3227CalledByGraph = svgPanZoom('#procv_resize_3227CalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-29T20:00:34.474192             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
