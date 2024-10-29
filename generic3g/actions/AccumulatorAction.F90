@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 module mapl3g_AccumulatorAction
    use mapl3g_ExtensionAction
+   use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
    use MAPL_ExceptionHandling
    use ESMF
    implicit none

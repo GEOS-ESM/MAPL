@@ -969,7 +969,7 @@ contains
       call ESMF_InfoGetFromHost(field,infoh,_RC)
       isPresent = ESMF_InfoIsPresent(infoh,"missing_value",_RC)
       _ASSERT(isPresent,"missing undef value")
-      call ESMF_InfoGet(infoh,value=undef_values,key="missing_value",_RC)
+      call ESMF_InfoGet(infoh,value=undef_value,key="missing_value",_RC)
       _RETURN(_SUCCESS)
 
    end subroutine GetFieldUndef_r4
@@ -986,7 +986,7 @@ contains
       call ESMF_InfoGetFromHost(field,infoh,_RC)
       isPresent = ESMF_InfoIsPresent(infoh,"missing_value",_RC)
       _ASSERT(isPresent,"missing undef value")
-      call ESMF_InfoGet(infoh,value=undef_values,key="missing_value",_RC)
+      call ESMF_InfoGet(infoh,value=undef_value,key="missing_value",_RC)
       _RETURN(_SUCCESS)
 
    end subroutine GetFieldUndef_r8
