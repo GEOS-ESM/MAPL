@@ -3,7 +3,6 @@
 module mapl3g_FixedLevelsVerticalGrid
 
    use mapl_ErrorHandling
-   use MAPLBase_Mod
    use mapl3g_VerticalGrid
    use mapl3g_GriddedComponentDriver
    use mapl3g_VerticalDimSpec
@@ -74,40 +73,24 @@ contains
       type(VerticalDimSpec), intent(in) :: vertical_dim_spec
       integer, optional, intent(out) :: rc
 
-      type(ESMF_Grid) :: grid
-      real(kind=REAL32), allocatable :: adjusted_levels(:), farray(:, :, :)
+      real(kind=REAL32), allocatable :: adjusted_levels(:)
       character(:), allocatable :: vloc
-      integer :: counts(3), IM, JM, i, j, status
+      integer :: status
 
+      ! KLUDGE - for VERTICAL_DIM_EDGE, we simply extend the the size
+      ! [40, 30, 20, 10] -> [40, 30, 20, 10, 10]
+      ! Also, vloc assignment gets simpler once we have co-located description in VerticalDimSpec
       if (vertical_dim_spec == VERTICAL_DIM_CENTER) then
          adjusted_levels = this%levels
          vloc = "VERTICAL_DIM_CENTER"
       else if (vertical_dim_spec == VERTICAL_DIM_EDGE) then
          adjusted_levels = [this%levels, this%levels(size(this%levels))]
-         vloc = "VERTICAL_DIM_CENTER"
+         vloc = "VERTICAL_DIM_EDGE"
       else
-         _FAIL("unsupported vertical_dim_spec")
+         _FAIL("invalid vertical_dim_spec")
       end if
 
-      ! Create an ESMF_Field containing the levels
-      ! First, copy the 1D levels array to each point on the horz grid
-      call ESMF_GeomGet(geom, grid=grid)
-      call MAPL_GridGet(grid, localCellCountPerDim=counts, _RC)
-      IM = counts(1); JM = counts(2)
-      allocate(farray(IM, JM, size(adjusted_levels)))
-      do concurrent (i=1:IM, j=1:JM)
-         farray(i, j, :) = adjusted_levels(:)
-      end do
-      field = ESMF_FieldCreate( &
-           geom=geom, &
-           farray=farray, &
-           indexflag=ESMF_INDEX_DELOCAL, &
-           datacopyFlag=ESMF_DATACOPY_VALUE, &
-           ungriddedLBound=[1], &
-           ungriddedUBound=[size(adjusted_levels)], &
-           _RC)
-      call MAPL_InfoSetInternal(field, key=KEY_VLOC, value=vloc, _RC)
-      call MAPL_InfoSetInternal(field, key=KEY_NUM_LEVELS, value=size(adjusted_levels), _RC)
+      field = esmf_field_create_(geom, adjusted_levels, vloc, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(coupler)
@@ -162,7 +145,61 @@ contains
       type(FixedLevelsVerticalGrid), intent(in) :: a, b
 
       not_equal = .not. (a==b)
-
    end function not_equal_FixedLevelsVerticalGrid
+
+   ! Create an ESMF_Field containing a 3D array that is replicated from
+   ! a 1D array at each point of the horizontal grid
+   function esmf_field_create_(geom, farray1d, vloc, rc) result(field)
+      type(ESMF_Field) :: field ! result
+      type(ESMF_Geom), intent(in) :: geom
+      real(kind=REAL32), intent(in) :: farray1d(:)
+      character(len=*), intent(in) :: vloc
+      integer, optional, intent(out) :: rc
+
+      integer, allocatable :: local_cell_count(:)
+      real(kind=REAL32), allocatable :: farray3d(:, :, :)
+      integer :: i, j, IM, JM, status
+
+      ! First, copy the 1D array, farray1d, to each point on the horz grid
+      call MAPL_GeomGet_(geom, localCellCount=local_cell_count, _RC)
+      IM = local_cell_count(1); JM = local_cell_count(2)
+      allocate(farray3d(IM, JM, size(farray1d)))
+      do concurrent (i=1:IM, j=1:JM)
+         farray3d(i, j, :) = farray1d(:)
+      end do
+
+      ! Create an ESMF_Field containing farray3d
+      field = ESMF_FieldCreate( &
+           geom=geom, &
+           farray=farray3d, &
+           indexflag=ESMF_INDEX_DELOCAL, &
+           datacopyFlag=ESMF_DATACOPY_VALUE, &
+           ungriddedLBound=[1], &
+           ungriddedUBound=[size(farray1d)], &
+           _RC)
+      call MAPL_InfoSetInternal(field, key=KEY_NUM_LEVELS, value=size(farray1d), _RC)
+      call MAPL_InfoSetInternal(field, key=KEY_VLOC, value=vloc, _RC)
+
+      _RETURN(_SUCCESS)
+   end function esmf_field_create_
+
+   ! Temporary version here while the detailed MAPL_GeomGet utility gets developed
+   subroutine MAPL_GeomGet_(geom, localCellCount, rc)
+      use MAPLBase_Mod
+      type(ESMF_Geom), intent(in) :: geom
+      integer, allocatable, intent(out), optional :: localCellCount(:)
+      integer, intent(out), optional :: rc
+
+      type(ESMF_Grid) :: grid
+      integer :: status
+
+      if (present(localCellCount)) then
+         call ESMF_GeomGet(geom, grid=grid)
+         allocate(localCellCount(3), source=-1)
+         call MAPL_GridGet(grid, localCellCountPerDim=localCellCount, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine MAPL_GeomGet_
 
 end module mapl3g_FixedLevelsVerticalGrid
