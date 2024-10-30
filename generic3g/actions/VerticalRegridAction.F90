@@ -91,12 +91,14 @@ contains
 
       allocate(this%matrix(n_horz*n_horz))
 
-      ! TODO: Convert to a do concurrent loop
+      ! TODO: Convert to a `do concurrent` loop
       do horz1 = 1, n_horz
          do horz2 = 1, n_horz
             ndx = horz1 + (horz2 - 1) * n_horz
             do ungrd = 1, n_ungridded
-               call compute_linear_map(v_in(horz1, :, ungrd), v_out(horz2, :, ungrd), this%matrix(ndx), _RC)
+               associate(src => v_in(horz1, :, ungrd), dst => v_out(horz2, :, ungrd))
+                 call compute_linear_map(src, dst, this%matrix(ndx), _RC)
+               end associate
             end do
          end do
       end do
