@@ -6,6 +6,8 @@ module mapl3g_FixedLevelsVerticalGrid
    use mapl3g_VerticalGrid
    use mapl3g_GriddedComponentDriver
    use mapl3g_VerticalDimSpec
+   use mapl3g_InfoUtilities, only: MAPL_InfoSetInternal
+   use mapl3g_esmf_info_keys, only: KEY_VLOC, KEY_NUM_LEVELS
    use esmf
 
    use, intrinsic :: iso_fortran_env, only: REAL32
@@ -72,12 +74,16 @@ contains
       integer, optional, intent(out) :: rc
 
       real(kind=REAL32), allocatable :: adjusted_levels(:)
+      character(:), allocatable :: vloc
       integer :: status
+      type(ESMF_Info) :: info
 
       if (vertical_dim_spec == VERTICAL_DIM_CENTER) then
          adjusted_levels = this%levels
+         vloc = "VERTICAL_DIM_CENTER"
       else if (vertical_dim_spec == VERTICAL_DIM_EDGE) then
          adjusted_levels = [this%levels, this%levels(size(this%levels))]
+         vloc = "VERTICAL_DIM_CENTER"
       else
          _FAIL("unsupported vertical_dim_spec")
       end if
@@ -94,6 +100,8 @@ contains
            ungriddedLBound=[1], &
            ungriddedUBound=[size(adjusted_levels)], &
            _RC)
+      call MAPL_InfoSetInternal(field, key=KEY_VLOC, value=vloc, _RC)
+      call MAPL_InfoSetInternal(field, key=KEY_NUM_LEVELS, value=size(adjusted_levels), _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(coupler)
