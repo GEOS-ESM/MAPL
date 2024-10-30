@@ -212,10 +212,6 @@ module subroutine  create_metadata(this,rc)
     call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC) ! specify lev in fmd
 
     call this%timeinfo%add_time_to_metadata(this%metadata,_RC)
-   !! dupulicate
-   !! v = this%timeinfo%define_time_variable(_RC)
-   !! call this%metadata%add_variable('time',v,_RC)
-    
     call this%metadata%add_dimension('mask_index', this%npt_mask_tot)
 
     v = Variable(type=pFIO_REAL64, dimensions='mask_index')
@@ -721,15 +717,16 @@ module subroutine  create_metadata(this,rc)
 
        call  MPI_Scatterv( this%displs, sendcounts_loc, displs_loc, MPI_INTEGER, &
             this%i1, 1, MPI_INTEGER, iroot, mpic, ierr)
-       this%i1 = this%i1 + 1
        if (this%npt_mask > 0) then
+          this%i1 = this%i1 + 1       ! shift from 0 to 1
           this%in =  this%i1 + this%npt_mask - 1
        else
-          this%in =  this%i1
+          this%i1 = 0
+          this%in = 0
        end if
-          
-       write(6,*) 'ip, this%npt_mask, this%i1, in'
-       write(6,'(200i10)')  ip, this%npt_mask, this%i1, this%in
+
+       write(6,'(2x,a,2x,200i10)')  'ip, this%npt_mask, this%i1, in:', &
+            ip, this%npt_mask, this%i1, this%in
        call MPI_Barrier(mpic,ierr)
 
        _RETURN(_SUCCESS)
@@ -810,18 +807,14 @@ module subroutine  create_metadata(this,rc)
     Have_time = this%timeInfo%am_i_initialized()
 
     if (have_time) then
-       write(6,*) 'have_time'
-
        times = this%timeInfo%compute_time_vector(this%metadata,_RC)
        ref = ArrayReference(times)
        call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
-       
        tindex = size(times)
        if (tindex==1) then
           call this%stage2DLatLon(filename,oClients=oClients,_RC)
        end if
     else
-       write(6,*) 'not have_time'       
        tindex = -1
        call this%stage2DLatLon(filename,oClients=oClients,_RC)
     end if
@@ -838,16 +831,16 @@ module subroutine  create_metadata(this,rc)
     !endif
     !
     !
-    if ( nx>0 ) then
-       allocate ( gridLocalStart,  source=[this%i1] )
-       allocate ( gridGlobalStart, source=[1] )
-       allocate ( gridGlobalCount, source=[this%npt_mask_tot] )
-    else
-       allocate ( gridLocalStart,  source=[0] )
-       allocate ( gridGlobalStart, source=[0] )
-       allocate ( gridGlobalCount, source=[0] )
-       !!allocate ( gridGlobalCount, source=[this%npt_mask_tot] )
-    end if
+
+!!    if ( nx>0 ) then
+!!       allocate ( gridLocalStart,  source=[this%i1] )
+!!       allocate ( gridGlobalStart, source=[1] )
+!!       allocate ( gridGlobalCount, source=[this%npt_mask_tot] )
+!!    else
+!!       allocate ( gridLocalStart,  source=[0] )
+!!       allocate ( gridGlobalStart, source=[0] )
+!!       allocate ( gridGlobalCount, source=[0] )
+!!    end if
 
     iter = this%items%begin()
     do while (iter /= this%items%end())
@@ -873,22 +866,21 @@ module subroutine  create_metadata(this,rc)
 !!             write(6,*) ref             
 
 
-             if (tindex > -1) then
-!                   allocate(local_start,source=[gridLocalStart,1])
-!                   allocate(global_start,source=[gridGlobalStart,tindex])
-!                   allocate(global_count,source=[gridGlobalCount,1])
-                allocate(local_start,source=gridLocalStart)
-                allocate(global_start,source=gridGlobalStart)
-                allocate(global_count,source=gridGlobalCount)
+             if (nx>0) then
+                allocate(local_start,source=[this%i1,1])
+                allocate(global_start,source=[1,1])
+                allocate(global_count,source=[this%npt_mask_tot,1])
              else
-                allocate(local_start,source=gridLocalStart)
-                allocate(global_start,source=gridGlobalStart)
-                allocate(global_count,source=gridGlobalCount)
+                allocate(local_start,source=[0,0])
+                allocate(global_start,source=[0,0])
+                allocate(global_count,source=[0,0])
              end if
 
              write(6,*) 'end collective_stage_data p_dst_2d'
              
           else if (rank==3) then
+             stop -3
+             
              call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
              call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
              _ASSERT (this%vdata%lm == (ub(1)-lb(1)+1), 'vertical level is different from CS grid')
@@ -920,13 +912,14 @@ module subroutine  create_metadata(this,rc)
              _FAIL('grid2LS regridder: rank > 3 not implemented')
           end if
 
-
           
           call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(item%xname), &
                ref,start=local_start, global_start=global_start, global_count=global_count)
 
-          deallocate (local_start, global_start, global_count)
 
+          deallocate (local_start, global_start, global_count)
+          !! if (present(local_start,))  deallocate(local_start)
+          
        end if
 
        

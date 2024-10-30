@@ -3747,10 +3747,13 @@ ENDDO PARSER
          elseif (list(n)%sampler_spec == 'mask') then
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
             call MAPL_TimerOn(GENSTATE,"Mask_append")
-!!            write(6,*) 'bf list(n)%mask_sampler%append_file'
-            call list(n)%mask_sampler%append_file(current_time,&
-                 list(n)%currentFile,oClients=o_Clients,_RC)
-            write(6,*) 'af list(n)%mask_sampler%append_file'            
+
+            if (list(n)%unit < 0) then    ! CFIO
+               !!            write(6,*) 'bf list(n)%mask_sampler%append_file'
+               call list(n)%mask_sampler%append_file(current_time,&
+                    list(n)%currentFile,oClients=o_Clients,_RC)
+               write(6,*) 'af list(n)%mask_sampler%append_file'
+            end if
             call MAPL_TimerOff(GENSTATE,"Mask_append")
          endif
 
@@ -3771,6 +3774,7 @@ ENDDO PARSER
 
 
    call MAPL_TimerOn(GENSTATE,"Done Wait")
+! ygyu
    if (any(writing)) then
       call o_Clients%done_collective_stage(_RC)
       call o_Clients%post_wait()
