@@ -3400,9 +3400,9 @@ ENDDO PARSER
 !-------------------------------
 
     do n = 1, nlist
+       if(Ignore(n)) cycle
        call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
        call MAPL_TimerOn(GENSTATE,"Couplers")
-       if(Ignore(n)) cycle
        if (.not.list(n)%disabled .and. IntState%average(n)) then
           ! R8 to R4 copy (if needed!)
           do m=1,list(n)%field_set%nfields
