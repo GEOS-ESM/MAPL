@@ -1,0 +1,937 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>CompileSubstr &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>CompileSubstr
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">74 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_NewArthParser.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_newarthparser.f90.html'>MAPL_NewArthParser.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_newarthparsermod.html'>MAPL_NewArthParserMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">CompileSubstr</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/compilesubstr.html#src">CompileSubstr</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private recursive subroutine CompileSubstr(Comp, F, b, e, Var)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-comp~6"></span>
+              type(<a href='../type/tcomp.html'>tComp</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Comp</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-f~5"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>F</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-b~39"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>b</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-e~3"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>e</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-var~7"></span>
+              character(len=*),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              DIMENSION(:)
+            </td>
+            <td>::</td>
+            <td><strong>Var</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~compilesubstr~~CallsGraph Pages: 1 -->
+<svg id="proccompilesubstrCallsGraph" width="500pt" height="259pt"
+ viewBox="0.00 0.00 500.00 259.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~compilesubstr~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 255)">
+<title>proc~~compilesubstr~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-255 496,-255 496,4 -4,4"/>
+<!-- proc~compilesubstr -->
+<g id="proc~~compilesubstr~~CallsGraph_node1" class="node">
+<title>proc~compilesubstr</title>
+<polygon fill="none" stroke="black" points="91,-147 0,-147 0,-123 91,-123 91,-147"/>
+<text text-anchor="middle" x="45.5" y="-132.6" font-family="Helvetica,sans-Serif" font-size="10.50">CompileSubstr</text>
+</g>
+<!-- proc~compilesubstr&#45;&gt;proc~compilesubstr -->
+<g id="proc~~compilesubstr~~CallsGraph_edge2" class="edge">
+<title>proc~compilesubstr&#45;&gt;proc~compilesubstr</title>
+<path fill="none" stroke="#ff0000" d="M22.02,-147.01C13.82,-155.97 21.65,-165 45.5,-165 60.03,-165 68.62,-161.65 71.25,-157"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="74.61,-155.99 68.98,-147.01 67.78,-157.54 74.61,-155.99"/>
+</g>
+<!-- proc~addcompiledbyte -->
+<g id="proc~~compilesubstr~~CallsGraph_node2" class="node">
+<title>proc~addcompiledbyte</title>
+<g id="a_proc~~compilesubstr~~CallsGraph_node2"><a xlink:href="../proc/addcompiledbyte.html" xlink:title="AddCompiledByte">
+<polygon fill="#d9534f" stroke="#d9534f" points="241.5,-251 133.5,-251 133.5,-227 241.5,-227 241.5,-251"/>
+<text text-anchor="middle" x="187.5" y="-236.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AddCompiledByte</text>
+</a>
+</g>
+</g>
+<!-- proc~compilesubstr&#45;&gt;proc~addcompiledbyte -->
+<g id="proc~~compilesubstr~~CallsGraph_edge1" class="edge">
+<title>proc~compilesubstr&#45;&gt;proc~addcompiledbyte</title>
+<path fill="none" stroke="#ff0000" d="M55.3,-147.15C68.84,-165.02 96.41,-198.39 127,-218 129.59,-219.66 132.33,-221.21 135.15,-222.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="133.83,-225.9 144.38,-226.9 136.76,-219.54 133.83,-225.9"/>
+</g>
+<!-- proc~completelyenclosed -->
+<g id="proc~~compilesubstr~~CallsGraph_node3" class="node">
+<title>proc~completelyenclosed</title>
+<g id="a_proc~~compilesubstr~~CallsGraph_node3"><a xlink:href="../proc/completelyenclosed.html" xlink:title="CompletelyEnclosed">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="248,-209 127,-209 127,-185 248,-185 248,-209"/>
+<text text-anchor="middle" x="187.5" y="-194.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CompletelyEnclosed</text>
+</a>
+</g>
+</g>
+<!-- proc~compilesubstr&#45;&gt;proc~completelyenclosed -->
+<g id="proc~~compilesubstr~~CallsGraph_edge3" class="edge">
+<title>proc~compilesubstr&#45;&gt;proc~completelyenclosed</title>
+<path fill="none" stroke="#ff0000" d="M68.34,-147.11C84.32,-155.73 106.68,-167.28 127,-176 131.36,-177.87 135.96,-179.71 140.57,-181.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="139.43,-184.79 150.02,-184.98 141.86,-178.22 139.43,-184.79"/>
+</g>
+<!-- proc~isbinaryop -->
+<g id="proc~~compilesubstr~~CallsGraph_node4" class="node">
+<title>proc~isbinaryop</title>
+<g id="a_proc~~compilesubstr~~CallsGraph_node4"><a xlink:href="../proc/isbinaryop.html" xlink:title="IsBinaryOp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="222.5,-167 152.5,-167 152.5,-143 222.5,-143 222.5,-167"/>
+<text text-anchor="middle" x="187.5" y="-152.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">IsBinaryOp</text>
+</a>
+</g>
+</g>
+<!-- proc~compilesubstr&#45;&gt;proc~isbinaryop -->
+<g id="proc~~compilesubstr~~CallsGraph_edge4" class="edge">
+<title>proc~compilesubstr&#45;&gt;proc~isbinaryop</title>
+<path fill="none" stroke="#ff0000" d="M91.18,-141.38C107.46,-143.71 125.85,-146.34 142.11,-148.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="142.04,-152.18 152.44,-150.13 143.03,-145.25 142.04,-152.18"/>
+</g>
+<!-- proc~mathfunctionindex -->
+<g id="proc~~compilesubstr~~CallsGraph_node5" class="node">
+<title>proc~mathfunctionindex</title>
+<g id="a_proc~~compilesubstr~~CallsGraph_node5"><a xlink:href="../proc/mathfunctionindex.html" xlink:title="MathFunctionIndex">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="396,-150 284,-150 284,-126 396,-126 396,-150"/>
+<text text-anchor="middle" x="340" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MathFunctionIndex</text>
+</a>
+</g>
+</g>
+<!-- proc~compilesubstr&#45;&gt;proc~mathfunctionindex -->
+<g id="proc~~compilesubstr~~CallsGraph_edge5" class="edge">
+<title>proc~compilesubstr&#45;&gt;proc~mathfunctionindex</title>
+<path fill="none" stroke="#ff0000" d="M91.21,-134.35C102.86,-134.2 115.4,-134.07 127,-134 180.78,-133.67 194.24,-132.82 248,-134 256.3,-134.18 265.01,-134.46 273.63,-134.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="273.54,-138.28 283.67,-135.18 273.82,-131.29 273.54,-138.28"/>
+</g>
+<!-- proc~mathitemindex -->
+<g id="proc~~compilesubstr~~CallsGraph_node6" class="node">
+<title>proc~mathitemindex</title>
+<g id="a_proc~~compilesubstr~~CallsGraph_node6"><a xlink:href="../proc/mathitemindex.html" xlink:title="MathItemIndex">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="233,-87 142,-87 142,-63 233,-63 233,-87"/>
+<text text-anchor="middle" x="187.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MathItemIndex</text>
+</a>
+</g>
+</g>
+<!-- proc~compilesubstr&#45;&gt;proc~mathitemindex -->
+<g id="proc~~compilesubstr~~CallsGraph_edge6" class="edge">
+<title>proc~compilesubstr&#45;&gt;proc~mathitemindex</title>
+<path fill="none" stroke="#ff0000" d="M74.83,-122.86C96.18,-113.71 125.66,-101.08 148.97,-91.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="150.4,-94.28 158.21,-87.12 147.64,-87.85 150.4,-94.28"/>
+</g>
+<!-- proc~operatorindex -->
+<g id="proc~~compilesubstr~~CallsGraph_node7" class="node">
+<title>proc~operatorindex</title>
+<g id="a_proc~~compilesubstr~~CallsGraph_node7"><a xlink:href="../proc/operatorindex.html" xlink:title="OperatorIndex">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="232,-45 143,-45 143,-21 232,-21 232,-45"/>
+<text text-anchor="middle" x="187.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OperatorIndex</text>
+</a>
+</g>
+</g>
+<!-- proc~compilesubstr&#45;&gt;proc~operatorindex -->
+<g id="proc~~compilesubstr~~CallsGraph_edge7" class="edge">
+<title>proc~compilesubstr&#45;&gt;proc~operatorindex</title>
+<path fill="none" stroke="#ff0000" d="M55.6,-122.87C69.29,-105.37 96.84,-73.07 127,-54 129.73,-52.27 132.62,-50.66 135.6,-49.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="137.07,-52.35 144.73,-45.03 134.18,-45.98 137.07,-52.35"/>
+</g>
+<!-- proc~lowcase -->
+<g id="proc~~compilesubstr~~CallsGraph_node9" class="node">
+<title>proc~lowcase</title>
+<g id="a_proc~~compilesubstr~~CallsGraph_node9"><a xlink:href="../proc/lowcase.html" xlink:title="LowCase">
+<polygon fill="#d9534f" stroke="#d9534f" points="492,-129 432,-129 432,-105 492,-105 492,-129"/>
+<text text-anchor="middle" x="462" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LowCase</text>
+</a>
+</g>
+</g>
+<!-- proc~mathfunctionindex&#45;&gt;proc~lowcase -->
+<g id="proc~~compilesubstr~~CallsGraph_edge8" class="edge">
+<title>proc~mathfunctionindex&#45;&gt;proc~lowcase</title>
+<path fill="none" stroke="#00ffff" d="M396.08,-128.36C404.75,-126.84 413.55,-125.3 421.76,-123.87"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="422.54,-127.28 431.79,-122.11 421.33,-120.39 422.54,-127.28"/>
+</g>
+<!-- proc~checkundef -->
+<g id="proc~~compilesubstr~~CallsGraph_node8" class="node">
+<title>proc~checkundef</title>
+<g id="a_proc~~compilesubstr~~CallsGraph_node8"><a xlink:href="../proc/checkundef.html" xlink:title="checkUndef">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="378,-108 302,-108 302,-84 378,-84 378,-108"/>
+<text text-anchor="middle" x="340" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">checkUndef</text>
+</a>
+</g>
+</g>
+<!-- proc~mathitemindex&#45;&gt;proc~checkundef -->
+<g id="proc~~compilesubstr~~CallsGraph_edge9" class="edge">
+<title>proc~mathitemindex&#45;&gt;proc~checkundef</title>
+<path fill="none" stroke="#0000ff" d="M233.25,-81.24C251.67,-83.81 273.03,-86.79 291.71,-89.4"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="291.39,-92.89 301.78,-90.81 292.36,-85.96 291.39,-92.89"/>
+</g>
+<!-- proc~realnum -->
+<g id="proc~~compilesubstr~~CallsGraph_node10" class="node">
+<title>proc~realnum</title>
+<g id="a_proc~~compilesubstr~~CallsGraph_node10"><a xlink:href="../proc/realnum.html" xlink:title="RealNum">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="370.5,-66 309.5,-66 309.5,-42 370.5,-42 370.5,-66"/>
+<text text-anchor="middle" x="340" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RealNum</text>
+</a>
+</g>
+</g>
+<!-- proc~mathitemindex&#45;&gt;proc~realnum -->
+<g id="proc~~compilesubstr~~CallsGraph_edge10" class="edge">
+<title>proc~mathitemindex&#45;&gt;proc~realnum</title>
+<path fill="none" stroke="#0000ff" d="M233.25,-68.76C254.2,-65.83 278.96,-62.38 299.24,-59.55"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="299.98,-62.98 309.4,-58.13 299.02,-56.05 299.98,-62.98"/>
+</g>
+<!-- proc~variableindex -->
+<g id="proc~~compilesubstr~~CallsGraph_node11" class="node">
+<title>proc~variableindex</title>
+<g id="a_proc~~compilesubstr~~CallsGraph_node11"><a xlink:href="../proc/variableindex.html" xlink:title="VariableIndex">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="382.5,-24 297.5,-24 297.5,0 382.5,0 382.5,-24"/>
+<text text-anchor="middle" x="340" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VariableIndex</text>
+</a>
+</g>
+</g>
+<!-- proc~mathitemindex&#45;&gt;proc~variableindex -->
+<g id="proc~~compilesubstr~~CallsGraph_edge11" class="edge">
+<title>proc~mathitemindex&#45;&gt;proc~variableindex</title>
+<path fill="none" stroke="#0000ff" d="M226.07,-62.95C233.44,-60.25 241.04,-57.22 248,-54 264.81,-46.22 267.29,-41 284,-33 287.63,-31.26 291.44,-29.56 295.3,-27.93"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="296.95,-31.04 304.89,-24.03 294.31,-24.55 296.95,-31.04"/>
+</g>
+<!-- proc~checkundef&#45;&gt;proc~lowcase -->
+<g id="proc~~compilesubstr~~CallsGraph_edge12" class="edge">
+<title>proc~checkundef&#45;&gt;proc~lowcase</title>
+<path fill="none" stroke="#ff0000" d="M378.31,-102.53C392.02,-104.93 407.58,-107.65 421.47,-110.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="421.26,-113.6 431.71,-111.87 422.47,-106.7 421.26,-113.6"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~compilesubstr~~CalledByGraph Pages: 1 -->
+<svg id="proccompilesubstrCalledByGraph" width="641pt" height="271pt"
+ viewBox="0.00 0.00 641.00 271.30" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~compilesubstr~~CalledByGraph" class="graph" transform="scale(0.96 0.96) rotate(0) translate(4 280)">
+<title>proc~~compilesubstr~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-280 667,-280 667,4 -4,4"/>
+<!-- proc~compilesubstr -->
+<g id="proc~~compilesubstr~~CalledByGraph_node1" class="node">
+<title>proc~compilesubstr</title>
+<polygon fill="none" stroke="black" points="663,-150 572,-150 572,-126 663,-126 663,-150"/>
+<text text-anchor="middle" x="617.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50">CompileSubstr</text>
+</g>
+<!-- proc~compilesubstr&#45;&gt;proc~compilesubstr -->
+<g id="proc~~compilesubstr~~CalledByGraph_edge2" class="edge">
+<title>proc~compilesubstr&#45;&gt;proc~compilesubstr</title>
+<path fill="none" stroke="#ff0000" d="M599.31,-150.01C592.96,-158.97 599.02,-168 617.5,-168 628.76,-168 635.41,-164.65 637.45,-160"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="640.87,-159.25 635.69,-150.01 633.98,-160.47 640.87,-159.25"/>
+</g>
+<!-- proc~compile -->
+<g id="proc~~compilesubstr~~CalledByGraph_node2" class="node">
+<title>proc~compile</title>
+<g id="a_proc~~compilesubstr~~CalledByGraph_node2"><a xlink:href="../proc/compile.html" xlink:title="Compile">
+<polygon fill="#d9534f" stroke="#d9534f" points="536,-150 479,-150 479,-126 536,-126 536,-150"/>
+<text text-anchor="middle" x="507.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Compile</text>
+</a>
+</g>
+</g>
+<!-- proc~compile&#45;&gt;proc~compilesubstr -->
+<g id="proc~~compilesubstr~~CalledByGraph_edge1" class="edge">
+<title>proc~compile&#45;&gt;proc~compilesubstr</title>
+<path fill="none" stroke="#ff0000" d="M536.03,-138C543.93,-138 552.84,-138 561.77,-138"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="561.81,-141.5 571.81,-138 561.81,-134.5 561.81,-141.5"/>
+</g>
+<!-- proc~parsef -->
+<g id="proc~~compilesubstr~~CalledByGraph_node3" class="node">
+<title>proc~parsef</title>
+<g id="a_proc~~compilesubstr~~CalledByGraph_node3"><a xlink:href="../proc/parsef.html" xlink:title="parsef">
+<polygon fill="#d9534f" stroke="#d9534f" points="443,-150 389,-150 389,-126 443,-126 443,-150"/>
+<text text-anchor="middle" x="416" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parsef</text>
+</a>
+</g>
+</g>
+<!-- proc~parsef&#45;&gt;proc~compile -->
+<g id="proc~~compilesubstr~~CalledByGraph_edge3" class="edge">
+<title>proc~parsef&#45;&gt;proc~compile</title>
+<path fill="none" stroke="#ff0000" d="M443.37,-138C451.29,-138 460.13,-138 468.64,-138"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="468.76,-141.5 478.76,-138 468.76,-134.5 468.76,-141.5"/>
+</g>
+<!-- proc~mapl_stateeval -->
+<g id="proc~~compilesubstr~~CalledByGraph_node4" class="node">
+<title>proc~mapl_stateeval</title>
+<g id="a_proc~~compilesubstr~~CalledByGraph_node4"><a xlink:href="../proc/mapl_stateeval.html" xlink:title="MAPL_StateEval">
+<polygon fill="#d9534f" stroke="#d9534f" points="353,-150 256,-150 256,-126 353,-126 353,-150"/>
+<text text-anchor="middle" x="304.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StateEval</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_stateeval&#45;&gt;proc~parsef -->
+<g id="proc~~compilesubstr~~CalledByGraph_edge4" class="edge">
+<title>proc~mapl_stateeval&#45;&gt;proc~parsef</title>
+<path fill="none" stroke="#ff0000" d="M353.21,-138C361.71,-138 370.43,-138 378.55,-138"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="378.8,-141.5 388.8,-138 378.8,-134.5 378.8,-141.5"/>
+</g>
+<!-- proc~calcderivedfield -->
+<g id="proc~~compilesubstr~~CalledByGraph_node5" class="node">
+<title>proc~calcderivedfield</title>
+<g id="a_proc~~compilesubstr~~CalledByGraph_node5"><a xlink:href="../proc/calcderivedfield.html" xlink:title="CalcDerivedField">
+<polygon fill="#d9534f" stroke="#d9534f" points="161.5,-276 58.5,-276 58.5,-252 161.5,-252 161.5,-276"/>
+<text text-anchor="middle" x="110" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CalcDerivedField</text>
+</a>
+</g>
+</g>
+<!-- proc~calcderivedfield&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~compilesubstr~~CalledByGraph_edge5" class="edge">
+<title>proc~calcderivedfield&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M161.69,-261.68C181.04,-258.95 202.61,-253.53 220,-243 253.62,-222.64 279.2,-183.5 292.73,-159.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="295.98,-160.53 297.62,-150.06 289.81,-157.22 295.98,-160.53"/>
+</g>
+<!-- proc~evaluate_box_mask -->
+<g id="proc~~compilesubstr~~CalledByGraph_node6" class="node">
+<title>proc~evaluate_box_mask</title>
+<g id="a_proc~~compilesubstr~~CalledByGraph_node6"><a xlink:href="../proc/evaluate_box_mask.html" xlink:title="ExtDataMask%evaluate_box_mask">
+<polygon fill="#d9534f" stroke="#d9534f" points="208,-234 12,-234 12,-210 208,-210 208,-234"/>
+<text text-anchor="middle" x="110" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataMask%evaluate_box_mask</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_box_mask&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~compilesubstr~~CalledByGraph_edge6" class="edge">
+<title>proc~evaluate_box_mask&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M194.64,-209.98C203.38,-207.52 211.99,-204.56 220,-201 244.16,-190.26 267.85,-171.35 283.79,-157.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="286.4,-159.4 291.38,-150.05 281.66,-154.25 286.4,-159.4"/>
+</g>
+<!-- proc~evaluate_derived_field -->
+<g id="proc~~compilesubstr~~CalledByGraph_node7" class="node">
+<title>proc~evaluate_derived_field</title>
+<g id="a_proc~~compilesubstr~~CalledByGraph_node7"><a xlink:href="../proc/evaluate_derived_field.html" xlink:title="DerivedExport%evaluate_derived_field">
+<polygon fill="#d9534f" stroke="#d9534f" points="220,-192 0,-192 0,-168 220,-168 220,-192"/>
+<text text-anchor="middle" x="110" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DerivedExport%evaluate_derived_field</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_derived_field&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~compilesubstr~~CalledByGraph_edge7" class="edge">
+<title>proc~evaluate_derived_field&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M176.54,-167.99C190.89,-165.19 205.98,-162.11 220,-159 229,-157 238.51,-154.75 247.77,-152.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="248.81,-155.82 257.67,-150.02 247.12,-149.03 248.81,-155.82"/>
+</g>
+<!-- proc~evaluate_region_mask -->
+<g id="proc~~compilesubstr~~CalledByGraph_node8" class="node">
+<title>proc~evaluate_region_mask</title>
+<g id="a_proc~~compilesubstr~~CalledByGraph_node8"><a xlink:href="../proc/evaluate_region_mask.html" xlink:title="ExtDataMask%evaluate_region_mask">
+<polygon fill="#d9534f" stroke="#d9534f" points="215.5,-150 4.5,-150 4.5,-126 215.5,-126 215.5,-150"/>
+<text text-anchor="middle" x="110" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataMask%evaluate_region_mask</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_region_mask&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~compilesubstr~~CalledByGraph_edge8" class="edge">
+<title>proc~evaluate_region_mask&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M215.7,-138C225.93,-138 236.04,-138 245.54,-138"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="245.6,-141.5 255.6,-138 245.6,-134.5 245.6,-141.5"/>
+</g>
+<!-- proc~evaluate_zone_mask -->
+<g id="proc~~compilesubstr~~CalledByGraph_node9" class="node">
+<title>proc~evaluate_zone_mask</title>
+<g id="a_proc~~compilesubstr~~CalledByGraph_node9"><a xlink:href="../proc/evaluate_zone_mask.html" xlink:title="ExtDataMask%evaluate_zone_mask">
+<polygon fill="#d9534f" stroke="#d9534f" points="211,-108 9,-108 9,-84 211,-84 211,-108"/>
+<text text-anchor="middle" x="110" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataMask%evaluate_zone_mask</text>
+</a>
+</g>
+</g>
+<!-- proc~evaluate_zone_mask&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~compilesubstr~~CalledByGraph_edge9" class="edge">
+<title>proc~evaluate_zone_mask&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M176.54,-108.01C190.89,-110.81 205.98,-113.89 220,-117 229,-119 238.51,-121.25 247.77,-123.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="247.12,-126.97 257.67,-125.98 248.81,-120.18 247.12,-126.97"/>
+</g>
+<!-- proc~fillstate -->
+<g id="proc~~compilesubstr~~CalledByGraph_node10" class="node">
+<title>proc~fillstate</title>
+<g id="a_proc~~compilesubstr~~CalledByGraph_node10"><a xlink:href="../proc/fillstate.html" xlink:title="FillState">
+<polygon fill="#d9534f" stroke="#d9534f" points="137.5,-66 82.5,-66 82.5,-42 137.5,-42 137.5,-66"/>
+<text text-anchor="middle" x="110" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FillState</text>
+</a>
+</g>
+</g>
+<!-- proc~fillstate&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~compilesubstr~~CalledByGraph_edge10" class="edge">
+<title>proc~fillstate&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M137.55,-55.73C160.26,-58 193.41,-63.18 220,-75 244.16,-85.74 267.85,-104.65 283.79,-118.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="281.66,-121.75 291.38,-125.95 286.4,-116.6 281.66,-121.75"/>
+</g>
+<!-- proc~mapl_runexpression -->
+<g id="proc~~compilesubstr~~CalledByGraph_node11" class="node">
+<title>proc~mapl_runexpression</title>
+<g id="a_proc~~compilesubstr~~CalledByGraph_node11"><a xlink:href="../proc/mapl_runexpression.html" xlink:title="MAPL_RunExpression">
+<polygon fill="#d9534f" stroke="#d9534f" points="172,-24 48,-24 48,0 172,0 172,-24"/>
+<text text-anchor="middle" x="110" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_RunExpression</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_runexpression&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~compilesubstr~~CalledByGraph_edge11" class="edge">
+<title>proc~mapl_runexpression&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M172.04,-16.01C188.48,-19.11 205.66,-24.31 220,-33 253.62,-53.36 279.2,-92.5 292.73,-116.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="289.81,-118.78 297.62,-125.94 295.98,-115.47 289.81,-118.78"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproccompilesubstrCalledByGraph = svgPanZoom('#proccompilesubstrCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">RECURSIVE SUBROUTINE </span><span class="n">CompileSubstr</span><span class="w"> </span><span class="p">(</span><span class="n">Comp</span><span class="p">,</span><span class="w"> </span><span class="n">F</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="n">Var</span><span class="p">)</span>
+<span class="w">    </span><span class="c">!----- -------- --------- --------- --------- --------- --------- --------- -------</span>
+<span class="w">    </span><span class="c">! Compile i-th function string F into bytecode</span>
+<span class="w">    </span><span class="c">!----- -------- --------- --------- --------- --------- --------- --------- -------</span>
+<span class="w">    </span><span class="k">IMPLICIT NONE</span>
+<span class="k">    TYPE</span><span class="w"> </span><span class="p">(</span><span class="n">tComp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Comp</span><span class="w">              </span><span class="c">! Bytecode</span>
+<span class="w">    </span><span class="kt">CHARACTER</span><span class="w"> </span><span class="p">(</span><span class="nb">LEN</span><span class="o">=*</span><span class="p">),</span><span class="w">               </span><span class="k">INTENT</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">F</span><span class="w">         </span><span class="c">! Function substring</span>
+<span class="w">    </span><span class="kt">INTEGER</span><span class="p">,</span><span class="w">                         </span><span class="k">INTENT</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="n">e</span><span class="w">       </span><span class="c">! Begin and end position substring</span>
+<span class="w">    </span><span class="kt">CHARACTER</span><span class="w"> </span><span class="p">(</span><span class="nb">LEN</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">DIMENSION</span><span class="p">(:),</span><span class="w"> </span><span class="k">INTENT</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Var</span><span class="w">       </span><span class="c">! Array with variable names</span>
+<span class="w">    </span><span class="kt">INTEGER</span><span class="w">                                     </span><span class="kd">::</span><span class="w"> </span><span class="n">n</span>
+<span class="w">    </span><span class="kt">INTEGER</span><span class="w">                                     </span><span class="kd">::</span><span class="w"> </span><span class="n">b2</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">io</span>
+<span class="w">    </span><span class="kt">CHARACTER</span><span class="w"> </span><span class="p">(</span><span class="nb">LEN</span><span class="o">=*</span><span class="p">),</span><span class="w">                </span><span class="k">PARAMETER</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">calpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;abcdefghijklmnopqrstuvwxyz&#39;</span><span class="o">//</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                                                            </span><span class="s1">&#39;ABCDEFGHIJKLMNOPQRSTUVWXYZ&#39;</span>
+<span class="w">    </span><span class="c">!----- -------- --------- --------- --------- --------- --------- --------- -------</span>
+<span class="w">    </span><span class="c">! Check for special cases of substring</span>
+<span class="w">    </span><span class="c">!----- -------- --------- --------- --------- --------- --------- --------- -------</span>
+<span class="c">!    write(*,&#39;(A25,I5,I5)&#39;)trim(F(b:e)),b,e !bma</span>
+<span class="w">    </span><span class="k">IF</span><span class="w">     </span><span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="n">b</span><span class="p">:</span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;+&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w">                              </span><span class="c">! Case 1: F(b:e) = &#39;+...&#39;</span>
+<span class="c">!      WRITE(*,*)&#39;1. F(b:e) = &quot;+...&quot;&#39;</span>
+<span class="w">       </span><span class="k">CALL </span><span class="n">CompileSubstr</span><span class="w"> </span><span class="p">(</span><span class="n">Comp</span><span class="p">,</span><span class="w"> </span><span class="n">F</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="n">Var</span><span class="p">)</span>
+<span class="w">       </span><span class="k">RETURN</span>
+<span class="k">    ELSEIF</span><span class="w"> </span><span class="p">(</span><span class="n">CompletelyEnclosed</span><span class="w"> </span><span class="p">(</span><span class="n">F</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">))</span><span class="w"> </span><span class="k">THEN</span><span class="w">               </span><span class="c">! Case 2: F(b:e) = &#39;(...)&#39;</span>
+<span class="c">!      WRITE(*,*)&#39;2. F(b:e) = &quot;(...)&quot;&#39;</span>
+<span class="w">       </span><span class="k">CALL </span><span class="n">CompileSubstr</span><span class="w"> </span><span class="p">(</span><span class="n">Comp</span><span class="p">,</span><span class="w"> </span><span class="n">F</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">Var</span><span class="p">)</span>
+<span class="w">       </span><span class="k">RETURN</span>
+<span class="k">    ELSEIF</span><span class="w"> </span><span class="p">(</span><span class="nb">SCAN</span><span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="n">b</span><span class="p">:</span><span class="n">b</span><span class="p">),</span><span class="n">calpha</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">       </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MathFunctionIndex</span><span class="w"> </span><span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="n">b</span><span class="p">:</span><span class="n">e</span><span class="p">))</span>
+<span class="w">       </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">          </span><span class="n">b2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span><span class="o">+</span><span class="nb">INDEX</span><span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="n">b</span><span class="p">:</span><span class="n">e</span><span class="p">),</span><span class="s1">&#39;(&#39;</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">          </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">CompletelyEnclosed</span><span class="p">(</span><span class="n">F</span><span class="p">,</span><span class="w"> </span><span class="n">b2</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">))</span><span class="w"> </span><span class="k">THEN</span><span class="w">             </span><span class="c">! Case 3: F(b:e) = &#39;fcn(...)&#39;</span>
+<span class="c">!            WRITE(*,*)&#39;3. F(b:e) = &quot;fcn(...)&quot;&#39;</span>
+<span class="w">             </span><span class="k">CALL </span><span class="n">CompileSubstr</span><span class="p">(</span><span class="n">Comp</span><span class="p">,</span><span class="w"> </span><span class="n">F</span><span class="p">,</span><span class="w"> </span><span class="n">b2</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">Var</span><span class="p">)</span>
+<span class="w">             </span><span class="k">CALL </span><span class="n">AddCompiledByte</span><span class="w"> </span><span class="p">(</span><span class="n">Comp</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">)</span>
+<span class="w">             </span><span class="k">RETURN</span>
+<span class="k">          END IF</span>
+<span class="k">       END IF</span>
+<span class="k">    ELSEIF</span><span class="w"> </span><span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="n">b</span><span class="p">:</span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">       IF</span><span class="w"> </span><span class="p">(</span><span class="n">CompletelyEnclosed</span><span class="w"> </span><span class="p">(</span><span class="n">F</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">))</span><span class="w"> </span><span class="k">THEN</span><span class="w">              </span><span class="c">! Case 4: F(b:e) = &#39;-(...)&#39;</span>
+<span class="c">!         WRITE(*,*)&#39;4. F(b:e) = &quot;-(...)&quot;&#39;</span>
+<span class="w">          </span><span class="k">CALL </span><span class="n">CompileSubstr</span><span class="w"> </span><span class="p">(</span><span class="n">Comp</span><span class="p">,</span><span class="w"> </span><span class="n">F</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">Var</span><span class="p">)</span>
+<span class="w">          </span><span class="k">CALL </span><span class="n">AddCompiledByte</span><span class="w"> </span><span class="p">(</span><span class="n">Comp</span><span class="p">,</span><span class="w"> </span><span class="n">cNeg</span><span class="p">)</span>
+<span class="w">          </span><span class="k">RETURN</span>
+<span class="k">       ELSEIF</span><span class="w"> </span><span class="p">(</span><span class="nb">SCAN</span><span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="n">b</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">b</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="n">calpha</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">          </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MathFunctionIndex</span><span class="w"> </span><span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="n">b</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">e</span><span class="p">))</span>
+<span class="w">          </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">             </span><span class="n">b2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span><span class="o">+</span><span class="nb">INDEX</span><span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="n">b</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">e</span><span class="p">),</span><span class="s1">&#39;(&#39;</span><span class="p">)</span>
+<span class="w">             </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">CompletelyEnclosed</span><span class="p">(</span><span class="n">F</span><span class="p">,</span><span class="w"> </span><span class="n">b2</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">))</span><span class="w"> </span><span class="k">THEN</span><span class="w">          </span><span class="c">! Case 5: F(b:e) = &#39;-fcn(...)&#39;</span>
+<span class="c">!               WRITE(*,*)&#39;5. F(b:e) = &quot;-fcn(...)&quot;&#39;</span>
+<span class="w">                </span><span class="k">CALL </span><span class="n">CompileSubstr</span><span class="p">(</span><span class="n">Comp</span><span class="p">,</span><span class="w"> </span><span class="n">F</span><span class="p">,</span><span class="w"> </span><span class="n">b2</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">Var</span><span class="p">)</span>
+<span class="w">                </span><span class="k">CALL </span><span class="n">AddCompiledByte</span><span class="w"> </span><span class="p">(</span><span class="n">Comp</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">)</span>
+<span class="w">                </span><span class="k">CALL </span><span class="n">AddCompiledByte</span><span class="w"> </span><span class="p">(</span><span class="n">Comp</span><span class="p">,</span><span class="w"> </span><span class="n">cNeg</span><span class="p">)</span>
+<span class="w">                </span><span class="k">RETURN</span>
+<span class="k">             END IF</span>
+<span class="k">          END IF</span>
+<span class="k">       ENDIF</span>
+<span class="k">    END IF</span>
+<span class="w">    </span><span class="c">!----- -------- --------- --------- --------- --------- --------- --------- -------</span>
+<span class="w">    </span><span class="c">! Check for operator in substring: check only base level (k=0), exclude expr. in ()</span>
+<span class="w">    </span><span class="c">!----- -------- --------- --------- --------- --------- --------- --------- -------</span>
+<span class="w">    </span><span class="k">DO </span><span class="n">io</span><span class="o">=</span><span class="n">cAdd</span><span class="p">,</span><span class="n">cPow</span><span class="w">                                          </span><span class="c">! Increasing priority +-*/^</span>
+<span class="w">       </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">       </span><span class="k">DO </span><span class="n">j</span><span class="o">=</span><span class="n">e</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">          </span><span class="k">IF</span><span class="w">     </span><span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;)&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">             </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">k</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">          </span><span class="k">ELSEIF</span><span class="w"> </span><span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;(&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">             </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">k</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">          </span><span class="k">END IF</span>
+<span class="k">          IF</span><span class="w"> </span><span class="p">(</span><span class="n">k</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">F</span><span class="p">(</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Ops</span><span class="p">(</span><span class="n">io</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">IsBinaryOp</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">F</span><span class="p">))</span><span class="w"> </span><span class="k">THEN</span>
+<span class="k">             IF</span><span class="w"> </span><span class="p">(</span><span class="nb">ANY</span><span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Ops</span><span class="p">(</span><span class="n">cMul</span><span class="p">:</span><span class="n">cPow</span><span class="p">))</span><span class="w"> </span><span class="p">.</span><span class="nb">AND</span><span class="p">.</span><span class="w"> </span><span class="n">F</span><span class="p">(</span><span class="n">b</span><span class="p">:</span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="c">! Case 6: F(b:e) = &#39;-...Op...&#39; with Op &gt; -</span>
+<span class="c">!               WRITE(*,*)&#39;6. F(b:e) = &quot;-...Op...&quot; with Op &gt; -&#39;</span>
+<span class="w">                </span><span class="k">CALL </span><span class="n">CompileSubstr</span><span class="w"> </span><span class="p">(</span><span class="n">Comp</span><span class="p">,</span><span class="w"> </span><span class="n">F</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="n">Var</span><span class="p">)</span>
+<span class="w">                </span><span class="k">CALL </span><span class="n">AddCompiledByte</span><span class="w"> </span><span class="p">(</span><span class="n">Comp</span><span class="p">,</span><span class="w"> </span><span class="n">cNeg</span><span class="p">)</span>
+<span class="w">                </span><span class="k">RETURN</span>
+<span class="k">             ELSE</span><span class="w">                                                        </span><span class="c">! Case 7: F(b:e) = &#39;...BinOp...&#39;</span>
+<span class="c">!               WRITE(*,*)&#39;7. Binary operator &#39;,F(j:j)</span>
+<span class="w">                </span><span class="k">CALL </span><span class="n">CompileSubstr</span><span class="w"> </span><span class="p">(</span><span class="n">Comp</span><span class="p">,</span><span class="w"> </span><span class="n">F</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">Var</span><span class="p">)</span>
+<span class="w">                </span><span class="k">CALL </span><span class="n">CompileSubstr</span><span class="w"> </span><span class="p">(</span><span class="n">Comp</span><span class="p">,</span><span class="w"> </span><span class="n">F</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="n">Var</span><span class="p">)</span>
+<span class="w">                </span><span class="k">CALL </span><span class="n">AddCompiledByte</span><span class="w"> </span><span class="p">(</span><span class="n">Comp</span><span class="p">,</span><span class="w"> </span><span class="n">OperatorIndex</span><span class="p">(</span><span class="n">Ops</span><span class="p">(</span><span class="n">io</span><span class="p">)))</span>
+<span class="w">                </span><span class="n">Comp</span><span class="p">%</span><span class="n">StackPtr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Comp</span><span class="p">%</span><span class="n">StackPtr</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">                </span><span class="k">RETURN</span>
+<span class="k">             END IF</span>
+<span class="k">          END IF</span>
+<span class="k">       END DO</span>
+<span class="k">    END DO</span>
+<span class="w">    </span><span class="c">!----- -------- --------- --------- --------- --------- --------- --------- -------</span>
+<span class="w">    </span><span class="c">! Check for remaining items, i.e. variables or explicit numbers</span>
+<span class="w">    </span><span class="c">!----- -------- --------- --------- --------- --------- --------- --------- -------</span>
+<span class="w">    </span><span class="n">b2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span>
+<span class="w">    </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="n">b</span><span class="p">:</span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">b2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b2</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">    </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MathItemIndex</span><span class="p">(</span><span class="n">Comp</span><span class="p">,</span><span class="w"> </span><span class="n">F</span><span class="p">(</span><span class="n">b2</span><span class="p">:</span><span class="n">e</span><span class="p">),</span><span class="w"> </span><span class="n">Var</span><span class="p">)</span>
+<span class="c">!   WRITE(*,*)&#39;8. AddCompiledByte &#39;,n</span>
+<span class="w">    </span><span class="k">CALL </span><span class="n">AddCompiledByte</span><span class="w"> </span><span class="p">(</span><span class="n">Comp</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">)</span>
+<span class="w">    </span><span class="n">Comp</span><span class="p">%</span><span class="n">StackPtr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Comp</span><span class="p">%</span><span class="n">StackPtr</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">    </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">Comp</span><span class="p">%</span><span class="n">StackPtr</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">Comp</span><span class="p">%</span><span class="n">StackSize</span><span class="p">)</span><span class="w"> </span><span class="n">Comp</span><span class="p">%</span><span class="n">StackSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Comp</span><span class="p">%</span><span class="n">StackSize</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">    </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">b2</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="k">CALL </span><span class="n">AddCompiledByte</span><span class="w"> </span><span class="p">(</span><span class="n">Comp</span><span class="p">,</span><span class="w"> </span><span class="n">cNeg</span><span class="p">)</span>
+<span class="w">  </span><span class="k">END SUBROUTINE </span><span class="n">CompileSubstr</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-30T12:59:38.686466             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
