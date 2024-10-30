@@ -2,7 +2,7 @@
 module mapl3g_AccumulatorAction
    use mapl3g_ExtensionAction
    use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
-   use MAPL_FieldUtilities
+   use MAPL_FieldUtilities, only: FieldSet 
    use MAPL_FieldPointerUtilities
    use MAPL_ExceptionHandling
    use ESMF
@@ -11,24 +11,23 @@ module mapl3g_AccumulatorAction
    public :: AccumulatorAction
 
    type, extends(ExtensionAction) :: AccumulatorAction
-      private
       logical :: update_calculated = .FALSE.
-      type(ESMF_Field), allocatable :: accumulation_field
-      type(ESMF_Field), allocatable :: result_field
-      real(kind=ESMF_KIND_R4) :: undef_value_R4 = MAPL_UNDEFINED_REAL
-      real(kind=ESMF_KIND_R4) :: clear_value_R4 = 0.0_ESMF_KIND_R4
+      type(ESMF_Field), allocatable, public :: accumulation_field
+      type(ESMF_Field), allocatable, public :: result_field
+      real(kind=ESMF_KIND_R4) :: UNDEF_VALUE_R4 = MAPL_UNDEFINED_REAL
+      real(kind=ESMF_KIND_R4) :: CLEAR_VALUE_R4 = 0.0_ESMF_KIND_R4
    contains
       ! Implementations of deferred procedures
       procedure :: invalidate
       procedure :: initialize
       procedure :: update
       ! Helpers
-      procedure, private :: accumulate
-      procedure, private :: initialized
-      procedure, private :: clear_accumulator
-      procedure, private :: clear_fields
-      procedure, private :: accumulate_R4
-      procedure, private :: calculate_result
+      procedure :: accumulate
+      procedure :: initialized
+      procedure :: clear_accumulator
+      procedure :: clear_fields
+      procedure :: accumulate_R4
+      procedure :: calculate_result
    end type AccumulatorAction
 
 contains
@@ -56,11 +55,11 @@ contains
       
       integer :: status
       type(ESMF_TypeKind_Flag) :: tk
-      real(kind=ESMF_KIND_R4) :: clear_value_R4 !wdb fixme deleteme
+      real(kind=ESMF_KIND_R4) :: CLEAR_VALUE_R4 !wdb fixme deleteme
 
       call ESMF_FieldGet(this%accumulation_field, typekind=tk, _RC)
       if(tk == ESMF_TYPEKIND_R4) then
-         call FieldSet(this%accumulation_field, this%clear_value_R4, _RC)
+         call FieldSet(this%accumulation_field, this%CLEAR_VALUE_R4, _RC)
       else
          _FAIL('Unsupported typekind')
       end if
@@ -187,7 +186,7 @@ contains
       real(kind=ESMF_KIND_R4), pointer :: latest(:)
       real(kind=ESMF_KIND_R4) :: undef
 
-      undef = this%undef_value_R4
+      undef = this%UNDEF_VALUE_R4
       call assign_fptr(this%accumulation_field, current, _RC)
       call assign_fptr(update_field, latest, _RC)
       where(current /= undef .and. latest /= undef)

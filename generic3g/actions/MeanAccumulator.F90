@@ -2,6 +2,7 @@
 module mapl3g_MeanAccumulator
    use mapl3g_AccumulatorAction
    use MAPL_ExceptionHandling
+   use MAPL_FieldPointerUtilities
    use ESMF
    implicit none
    private
@@ -13,10 +14,12 @@ module mapl3g_MeanAccumulator
       logical, allocatable :: valid_points(:)
    contains
       procedure :: invalidate => invalidate_mean_accumulator
-      procedure, private :: clear_accumulator => clear_accumulator_mean
-      procedure, private :: increment_counter
-      procedure, private :: clear_counter
-      procedure, private :: calculate_result => calculate_mean
+      procedure :: clear_accumulator => clear_accumulator_mean
+      procedure :: increment_counter
+      procedure :: clear_counter
+      procedure :: calculate_result => calculate_mean
+      procedure :: calculate_mean_R4
+      procedure :: clear_valid_points
    end type MeanAccumulator
 
 contains
@@ -48,11 +51,9 @@ contains
       integer :: status
       integer :: local_size
 
-      associate(valid => this%valid_points)
-         if(allocated(valid)) deallocate(valid)
-         local_size = FieldGetLocalSize(this%accumulation_field, _RC)
-         allocate(valid(local_size), source = .FALSE.)
-      end associate
+      if(allocated(this%valid_points)) deallocate(this%valid_points)
+      local_size = FieldGetLocalSize(this%accumulation_field)
+      allocate(this%valid_points(local_size), source = .FALSE.)
       _RETURN(_SUCCESS)
 
    end subroutine clear_valid_points
@@ -72,7 +73,7 @@ contains
          _FAIL('Unsupported typekind')
       end if
       call this%AccumulatorAction%calculate_result(_RC)
-      _RESULT(_SUCCESS)
+      !_RESULT(_SUCCESS)
 
    end subroutine calculate_mean
 
@@ -91,7 +92,7 @@ contains
 
    end subroutine invalidate_mean_accumulator
 
-   subroutine increment_counter(this, _RC)
+   subroutine increment_counter(this, rc)
       class(MeanAccumulator), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
@@ -103,20 +104,20 @@ contains
    end subroutine increment_counter
 
    subroutine calculate_mean_R4(this, rc)
-      class(MeanAccumulator), intent(in) :: this
+      class(MeanAccumulator), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
       real(kind=ESMF_KIND_R4), pointer :: current_ptr(:) => null()
       real(kind=ESMF_KIND_R4), pointer :: calculated_ptr(:) => null()
 
-      associate(undef => this%get_undef_R4(), counter => this%counter_scalar, valid => this%valid_points)
-         assign_fptr(this%accumulation_field, current_ptr, _RC)
-         assign_fptr(this%result_field, calculated_ptr, _RC)
+      call assign_fptr(this%accumulation_field, current_ptr, _RC)
+      call assign_fptr(this%result_field, calculated_ptr, _RC)
+      associate(undef => this%undef_value_R4, counter => this%counter_scalar, valid => this%valid_points)
          where(current_ptr /= undef .and. valid)
-            calculated_ptr => current_ptr / counter
+            calculated_ptr = current_ptr / counter
          elsewhere
-            calculated_ptr => undef
+            calculated_ptr = undef
          end where
       end associate
 
