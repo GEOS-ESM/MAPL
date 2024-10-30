@@ -1,0 +1,179 @@
+#include "MAPL_TestErr.h"
+module Test_AccumulatorAction
+   use mapl3g_AccumulatorAction
+   use esmf
+   use funit
+   implicit none
+
+   integer(kind=ESMF_KIND_I4), parameter :: TIME_STEP = 1
+   integer(kind=ESMF_KIND_I4), parameter :: START_TIME = 3000
+
+contains
+
+   logical function is_initialized(rc) result(lval)
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      lval = ESMF_IsInitialized(_RC)
+
+   end function is_initialized
+
+   subroutine initialize_objects(importState, exportState, clock, rc) 
+      type(ESMF_State), intent(inout) :: importState, exportState
+      type(ESMF_Clock), intent(inout) :: clock
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Field) :: importField, exportField
+      type(ESMF_Time) :: startTime
+      type(ESMF_TimeInterval) :: timeStep
+      type(ESMF_TypeKind_Flag), parameter :: typekind = ESMF_TYPEKIND_R4
+      integer, parameter :: MAX_INDEX(2) = [4, 4]
+      real(kind=ESMF_KIND_R8), parameter :: MIN_CORNER_COORD(2) = [0.0_ESMF_KIND_R8, 0.0_ESMF_KIND_R8]
+      real(kind=ESMF_KIND_R8), parameter :: MAX_CORNER_COORD(2) = [4.0_ESMF_KIND_R8, 4.0_ESMF_KIND_R8]
+      type(ESMF_Grid) :: grid
+
+      call ESMF_TimeIntervalSet(timeStep, s=TIME_STEP, _RC)
+      call ESMF_TimeSet(startTime, yy=START_TIME, _RC)
+      clock = ESMF_ClockCreate(timeStep=timeStep, startTime=startTime, _RC)
+!      grid = ESMF_GridCreateNoPeriDimUfrm(maxIndex=MAX_INDEX, minCornerCoord=MIN_CORNER_COORD, maxCornerCoord=MAX_CORNER_COORD, _RC)
+!      importField = ESMF_FieldCreate(grid=grid, typekind=typekind, _RC)
+!      exportField = ESMF_FieldCreate(grid=grid, typekind=typekind, _RC)
+!      importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, fieldList=[importField], name='import', _RC)
+!      exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, fieldList=[exportField], name='export', _RC)
+
+   end subroutine initialize_objects
+
+   subroutine get_field(state, field, rc)
+      type(ESMF_State), intent(inout) :: state
+      type(ESMF_Field), intent(inout) :: field
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(len=ESMF_MAXSTR) :: itemNameList(1)
+
+      call ESMF_StateGet(state, itemNameList=itemNameList, _RC)
+      call ESMF_StateGet(state, itemName=itemNameList(1), field=field, _RC)
+
+   end subroutine get_field
+   
+   subroutine destroy_objects(importState, exportState, clock, rc)
+      type(ESMF_State), intent(inout) :: importState, exportState
+      type(ESMF_Clock), intent(inout) :: clock
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Field) :: importField, exportField
+
+      call get_field(importState, importField, _RC)
+      call ESMF_FieldDestroy(importField, _RC)
+      call get_field(exportState, exportField, _RC)
+      call ESMF_FieldDestroy(exportField, _RC)
+      call ESMF_StateDestroy(importState, _RC)
+      call ESMF_StateDestroy(exportState, _RC)
+      call ESMF_ClockDestroy(clock, _RC)
+
+   end subroutine destroy_objects
+
+   @Before
+   subroutine set_up()
+      integer :: status
+
+      if(is_initialized()) return
+      call ESMF_Initialize(_RC)
+
+   end subroutine set_up
+
+   @Test
+   subroutine test_construct_AccumulatorAction()
+      type(AccumulatorAction) :: acc
+      integer :: status
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+
+      @assert_that(acc%update_calculated, is(false()))
+
+   end subroutine test_construct_AccumulatorAction
+
+   @Test
+   subroutine test_initialize()
+      type(AccumulatorAction) :: acc
+      integer :: status
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+
+!      call initialize_objects(importState, exportState, clock, _RC)
+      @assert_that(acc%initialized(), is(false()))
+      acc%accumulation_field = ESMF_FieldEmptyCreate(_RC)
+      @assert_that(acc%initialized(), is(true()))
+      call ESMF_FieldDestroy(acc%accumulation_field, _RC)
+!      call destroy_objects(importState, exportState, clock, _RC)
+
+   end subroutine test_initialize
+
+!   @Test
+!   subroutine test_invalidate()
+!      type(AccumulatorAction) :: acc
+!      integer :: status
+!
+!      @assert_that(XXX, is(ZZZ))
+!
+!   end subroutine test_invalidate
+
+!   @Test
+!   subroutine test_update()
+!      type(AccumulatorAction) :: acc
+!
+!      @assert_that(XXX, is(ZZZ))
+!
+!   end subroutine test_update
+
+!   @Test
+!   subroutine test_accumulate()
+!      type(AccumulatorAction) :: acc
+!
+!      @assert_that(XXX, is(ZZZ))
+!
+!   end subroutine test_accumulate
+
+!   @Test
+!   subroutine test_initialized()
+!      type(AccumulatorAction) :: acc
+!
+!      @assert_that(XXX, is(ZZZ))
+!
+!   end subroutine test_initialized
+
+!   @Test
+!   subroutine test_clear_accumulator()
+!      type(AccumulatorAction) :: acc
+!
+!      @assert_that(XXX, is(ZZZ))
+!
+!   end subroutine test_clear_accumulator
+
+!   @Test
+!   subroutine test_clear_fields()
+!      type(AccumulatorAction) :: acc
+!
+!      @assert_that(XXX, is(ZZZ))
+!
+!   end subroutine test_clear_fields
+
+!   @Test
+!   subroutine test_accumulate_R4()
+!      type(AccumulatorAction) :: acc
+!
+!      @assert_that(XXX, is(ZZZ))
+!
+!   end subroutine test_accumulate_R4
+
+!   @Test
+!   subroutine test_calculate_result()
+!      type(AccumulatorAction) :: acc
+!
+!      @assert_that(XXX, is(ZZZ))
+!
+!   end subroutine test_calculate_result
+
+end module Test_AccumulatorAction
