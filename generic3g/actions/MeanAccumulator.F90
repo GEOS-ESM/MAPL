@@ -27,7 +27,7 @@ contains
       
       integer :: status
 
-      call this%AccumulatorAction%clear_accumulator(_RC)
+      call this%clear_fields(_RC)
       call this%clear_counter()
       call this%clear_valid_points(_RC)
       _RETURN(_SUCCESS)
@@ -53,7 +53,7 @@ contains
          local_size = FieldGetLocalSize(this%accumulation_field, _RC)
          allocate(valid(local_size), source = .FALSE.)
       end associate
-      _SUCCESS(_RETURN)
+      _RETURN(_SUCCESS)
 
    end subroutine clear_valid_points
 
@@ -71,7 +71,7 @@ contains
       else
          _FAIL('Unsupported typekind')
       end if
-      call this%result_field = this%accumulation_field
+      call this%AccumulatorAction%calculate_result(_RC)
       _RESULT(_SUCCESS)
 
    end subroutine calculate_mean

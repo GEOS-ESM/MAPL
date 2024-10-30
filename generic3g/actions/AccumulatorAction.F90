@@ -2,6 +2,8 @@
 module mapl3g_AccumulatorAction
    use mapl3g_ExtensionAction
    use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
+   use MAPL_FieldUtilities
+   use MAPL_FieldPointerUtilities
    use MAPL_ExceptionHandling
    use ESMF
    implicit none
@@ -24,6 +26,7 @@ module mapl3g_AccumulatorAction
       procedure, private :: accumulate
       procedure, private :: initialized
       procedure, private :: clear_accumulator
+      procedure, private :: clear_fields
       procedure, private :: accumulate_R4
       procedure, private :: calculate_result
    end type AccumulatorAction
@@ -36,8 +39,18 @@ contains
       lval = allocated(this%accumulation_field)
 
    end function initialized
-   
+
    subroutine clear_accumulator(this, rc)
+      class(AccumulatorAction), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      integer :: status
+   
+      call this%clear_fields(_RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine clear_accumulator
+
+   subroutine clear_fields(this, rc)
       class(AccumulatorAction), intent(inout) :: this
       integer, optional, intent(out) :: rc
       
@@ -53,7 +66,7 @@ contains
       end if
       _RETURN(_SUCCESS)
 
-   end subroutine clear_accumulator
+   end subroutine clear_fields
 
    subroutine initialize(this, importState, exportState, clock, rc)
       class(AccumulatorAction), intent(inout) :: this
@@ -155,7 +168,7 @@ contains
       call ESMF_FieldGet(update_field, typekind=tk_field, _RC)
       _ASSERT(tk == tk_field, 'Update field must be the same typekind as the accumulation field.')
       if(tk == ESMF_TYPEKIND_R4) then
-         call this%accumulate_R4(this, update_field, _RC)
+         call this%accumulate_R4(update_field, _RC)
       else
          _FAIL('Unsupported typekind value')
       end if
