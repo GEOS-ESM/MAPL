@@ -1,0 +1,701 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>GeomSpec.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>GeomSpec.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">31 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/GeomSpec.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">GeomSpec.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_geomspec.html">mapl3g_GeomSpec</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/geomspec.f90.html#src">GeomSpec.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~geomspec.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilegeomspecf90AfferentGraph" width="390pt" height="1040pt"
+ viewBox="0.00 0.00 390.00 1040.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~geomspec.f90~~AfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 1036)">
+<title>sourcefile~~geomspec.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-1036 386,-1036 386,4 -4,4"/>
+<!-- sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~geomspec.f90</title>
+<polygon fill="none" stroke="black" points="94,-528 0,-528 0,-504 94,-504 94,-528"/>
+<text text-anchor="middle" x="47" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50">GeomSpec.F90</text>
+</g>
+<!-- sourcefile~create_basic_grid.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~create_basic_grid.f90</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/create_basic_grid.f90.html" xlink:title="create_basic_grid.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="320,-1032 192,-1032 192,-1008 320,-1008 320,-1032"/>
+<text text-anchor="middle" x="256" y="-1017.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">create_basic_grid.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~create_basic_grid.f90&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~create_basic_grid.f90&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M191.93,-1023.65C169.64,-1021.6 146.12,-1015.09 130,-999 63.9,-933.01 50.86,-624.72 48.49,-538.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="51.99,-538.15 48.23,-528.24 44.99,-538.32 51.99,-538.15"/>
+</g>
+<!-- sourcefile~cubedspheregeomfactory.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~cubedspheregeomfactory.f90</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/cubedspheregeomfactory.f90.html" xlink:title="CubedSphereGeomFactory.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="344.5,-990 167.5,-990 167.5,-966 344.5,-966 344.5,-990"/>
+<text text-anchor="middle" x="256" y="-975.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CubedSphereGeomFactory.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cubedspheregeomfactory.f90&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~cubedspheregeomfactory.f90&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M167.44,-977.2C153.48,-973.41 140.28,-967.1 130,-957 69.39,-897.44 52.53,-618.94 48.87,-538.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="52.36,-537.86 48.44,-528.01 45.37,-538.16 52.36,-537.86"/>
+</g>
+<!-- sourcefile~cubedspheregeomfactory_smod.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~cubedspheregeomfactory_smod.f90</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/cubedspheregeomfactory_smod.f90.html" xlink:title="CubedSphereGeomFactory_smod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="362.5,-948 149.5,-948 149.5,-924 362.5,-924 362.5,-948"/>
+<text text-anchor="middle" x="256" y="-933.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CubedSphereGeomFactory_smod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cubedspheregeomfactory_smod.f90&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~cubedspheregeomfactory_smod.f90&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M149.35,-928.31C142.27,-924.87 135.7,-920.5 130,-915 75.05,-862 54.46,-614.57 49.36,-538.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="52.83,-537.81 48.69,-528.06 45.84,-538.26 52.83,-537.81"/>
+</g>
+<!-- sourcefile~cubedspheregeomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~cubedspheregeomspec.f90</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/cubedspheregeomspec.f90.html" xlink:title="CubedSphereGeomSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="339,-906 173,-906 173,-882 339,-882 339,-906"/>
+<text text-anchor="middle" x="256" y="-891.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CubedSphereGeomSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cubedspheregeomspec.f90&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~cubedspheregeomspec.f90&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M172.94,-894.11C157.09,-890.55 141.77,-884.09 130,-873 80.58,-826.43 56.55,-609.09 49.94,-538.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="53.42,-537.92 49.03,-528.28 46.44,-538.55 53.42,-537.92"/>
+</g>
+<!-- sourcefile~cubedspheregeomspec_smod.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~cubedspheregeomspec_smod.f90</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/cubedspheregeomspec_smod.f90.html" xlink:title="CubedSphereGeomSpec_smod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="356,-864 156,-864 156,-840 356,-840 356,-864"/>
+<text text-anchor="middle" x="256" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CubedSphereGeomSpec_smod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~cubedspheregeomspec_smod.f90&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~cubedspheregeomspec_smod.f90&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M155.73,-846.59C146.29,-842.89 137.47,-837.84 130,-831 86.07,-790.78 58.89,-603.2 50.66,-538.23"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="54.12,-537.73 49.42,-528.23 47.17,-538.59 54.12,-537.73"/>
+</g>
+<!-- sourcefile~equal_to.f90~3 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~equal_to.f90~3</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/equal_to.f90~3.html" xlink:title="equal_to.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="296,-822 216,-822 216,-798 296,-798 296,-822"/>
+<text text-anchor="middle" x="256" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">equal_to.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~equal_to.f90~3&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~equal_to.f90~3&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M215.79,-813.52C188.58,-813.78 153.19,-809.45 130,-789 54.96,-722.83 47.3,-590.91 47.4,-538.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="50.9,-538.17 47.52,-528.13 43.9,-538.09 50.9,-538.17"/>
+</g>
+<!-- sourcefile~fill_coordinates.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~fill_coordinates.f90</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/fill_coordinates.f90.html" xlink:title="fill_coordinates.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="314,-780 198,-780 198,-756 314,-756 314,-780"/>
+<text text-anchor="middle" x="256" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">fill_coordinates.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fill_coordinates.f90&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~fill_coordinates.f90&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M197.81,-770.51C174.46,-768.68 148.63,-762.63 130,-747 65.7,-693.05 51.8,-585.11 48.81,-538.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="52.3,-537.96 48.27,-528.16 45.31,-538.33 52.3,-537.96"/>
+</g>
+<!-- sourcefile~geom_mgr.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~geom_mgr.f90</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/geom_mgr.f90.html" xlink:title="geom_mgr.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="301.5,-738 210.5,-738 210.5,-714 301.5,-714 301.5,-738"/>
+<text text-anchor="middle" x="256" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">geom_mgr.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~geom_mgr.f90&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~geom_mgr.f90&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M210.34,-728.56C184.41,-727.77 152.53,-722.63 130,-705 76.19,-662.89 57.02,-578.38 50.76,-538.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="54.2,-537.52 49.32,-528.11 47.27,-538.51 54.2,-537.52"/>
+</g>
+<!-- sourcefile~geomspecvector.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~geomspecvector.f90</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/geomspecvector.f90.html" xlink:title="GeomSpecVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="319,-696 193,-696 193,-672 319,-672 319,-696"/>
+<text text-anchor="middle" x="256" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GeomSpecVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~geomspecvector.f90&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~geomspecvector.f90&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M192.99,-684.31C171.45,-681.78 148.16,-675.81 130,-663 86.66,-632.44 63.56,-571.33 53.78,-538.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="57.04,-537 50.97,-528.32 50.3,-538.9 57.04,-537"/>
+</g>
+<!-- sourcefile~latlongeomfactory.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~latlongeomfactory.f90</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/latlongeomfactory.f90.html" xlink:title="LatLonGeomFactory.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="326.5,-654 185.5,-654 185.5,-630 326.5,-630 326.5,-654"/>
+<text text-anchor="middle" x="256" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LatLonGeomFactory.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~latlongeomfactory.f90&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~latlongeomfactory.f90&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M185.33,-639.49C166.38,-636.42 146.54,-630.85 130,-621 96.47,-601.03 71.51,-561.76 58.4,-537.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="61.36,-535.42 53.66,-528.15 55.14,-538.64 61.36,-535.42"/>
+</g>
+<!-- sourcefile~latlongeomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~latlongeomspec.f90</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/latlongeomspec.f90.html" xlink:title="LatLonGeomSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="321,-612 191,-612 191,-588 321,-588 321,-612"/>
+<text text-anchor="middle" x="256" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LatLonGeomSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~latlongeomspec.f90&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~latlongeomspec.f90&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M190.97,-595.34C170.86,-592.29 148.96,-587.26 130,-579 106.03,-568.56 82.8,-549.61 67.22,-535.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="69.47,-532.52 59.81,-528.17 64.65,-537.6 69.47,-532.52"/>
+</g>
+<!-- sourcefile~make_decomposition.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~make_decomposition.f90</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/make_decomposition.f90.html" xlink:title="make_decomposition.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="330.5,-570 181.5,-570 181.5,-546 330.5,-546 330.5,-570"/>
+<text text-anchor="middle" x="256" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_decomposition.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~make_decomposition.f90&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~make_decomposition.f90&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M181.44,-546.7C164.49,-543.81 146.58,-540.51 130,-537 120.92,-535.08 111.33,-532.83 102.03,-530.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="102.65,-527.07 92.1,-528.02 100.94,-533.86 102.65,-527.07"/>
+</g>
+<!-- sourcefile~make_distribution.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~make_distribution.f90</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/make_distribution.f90.html" xlink:title="make_distribution.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="321,-528 191,-528 191,-504 321,-504 321,-528"/>
+<text text-anchor="middle" x="256" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_distribution.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~make_distribution.f90&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~make_distribution.f90&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M190.92,-516C163.25,-516 131.15,-516 104.4,-516"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="104.05,-512.5 94.05,-516 104.05,-519.5 104.05,-512.5"/>
+</g>
+<!-- sourcefile~make_file_metadata.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~make_file_metadata.f90</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node15"><a xlink:href="../sourcefile/make_file_metadata.f90.html" xlink:title="make_file_metadata.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="328,-486 184,-486 184,-462 328,-462 328,-486"/>
+<text text-anchor="middle" x="256" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_file_metadata.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~make_file_metadata.f90&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~make_file_metadata.f90&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M183.74,-484.9C166.12,-487.89 147.33,-491.33 130,-495 120.92,-496.92 111.33,-499.17 102.03,-501.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="100.94,-498.14 92.1,-503.98 102.65,-504.93 100.94,-498.14"/>
+</g>
+<!-- sourcefile~make_geom.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~make_geom.f90</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node16"><a xlink:href="../sourcefile/make_geom.f90.html" xlink:title="make_geom.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="306.5,-444 205.5,-444 205.5,-420 306.5,-420 306.5,-444"/>
+<text text-anchor="middle" x="256" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_geom.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~make_geom.f90&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~make_geom.f90&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M205.34,-434.76C181.74,-437.45 153.6,-442.72 130,-453 106.03,-463.44 82.8,-482.39 67.22,-496.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="64.65,-494.4 59.81,-503.83 69.47,-499.48 64.65,-494.4"/>
+</g>
+<!-- sourcefile~make_gridded_dims.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~make_gridded_dims.f90</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node17"><a xlink:href="../sourcefile/make_gridded_dims.f90.html" xlink:title="make_gridded_dims.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="327,-402 185,-402 185,-378 327,-378 327,-402"/>
+<text text-anchor="middle" x="256" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_gridded_dims.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~make_gridded_dims.f90&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~make_gridded_dims.f90&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M184.68,-392.62C165.93,-395.71 146.35,-401.26 130,-411 96.47,-430.97 71.51,-470.24 58.4,-494.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="55.14,-493.36 53.66,-503.85 61.36,-496.58 55.14,-493.36"/>
+</g>
+<!-- sourcefile~make_latlongeomspec_from_hconfig.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~make_latlongeomspec_from_hconfig.f90</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node18"><a xlink:href="../sourcefile/make_latlongeomspec_from_hconfig.f90.html" xlink:title="make_LatLonGeomSpec_from_hconfig.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="376,-360 136,-360 136,-336 376,-336 376,-360"/>
+<text text-anchor="middle" x="256" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_LatLonGeomSpec_from_hconfig.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~make_latlongeomspec_from_hconfig.f90&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~make_latlongeomspec_from_hconfig.f90&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M145.53,-360.13C140.08,-362.64 134.86,-365.58 130,-369 86.66,-399.56 63.56,-460.67 53.78,-493.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="50.3,-493.1 50.97,-503.68 57.04,-495 50.3,-493.1"/>
+</g>
+<!-- sourcefile~make_latlongeomspec_from_metadata.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node19" class="node">
+<title>sourcefile~make_latlongeomspec_from_metadata.f90</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node19"><a xlink:href="../sourcefile/make_latlongeomspec_from_metadata.f90.html" xlink:title="make_LatLonGeomSpec_from_metadata.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="382,-318 130,-318 130,-294 382,-294 382,-318"/>
+<text text-anchor="middle" x="256" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_LatLonGeomSpec_from_metadata.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~make_latlongeomspec_from_metadata.f90&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~make_latlongeomspec_from_metadata.f90&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M144.22,-318.01C139.2,-320.56 134.42,-323.54 130,-327 76.19,-369.11 57.02,-453.62 50.76,-493.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="47.27,-493.49 49.32,-503.89 54.2,-494.48 47.27,-493.49"/>
+</g>
+<!-- sourcefile~nullgeomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node20" class="node">
+<title>sourcefile~nullgeomspec.f90</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node20"><a xlink:href="../sourcefile/nullgeomspec.f90.html" xlink:title="NullGeomSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="313,-276 199,-276 199,-252 313,-252 313,-276"/>
+<text text-anchor="middle" x="256" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NullGeomSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~nullgeomspec.f90&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~nullgeomspec.f90&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M198.76,-261.42C175.17,-263.16 148.88,-269.16 130,-285 65.7,-338.95 51.8,-446.89 48.81,-493.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="45.31,-493.67 48.27,-503.84 52.3,-494.04 45.31,-493.67"/>
+</g>
+<!-- sourcefile~supports_hconfig.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node21" class="node">
+<title>sourcefile~supports_hconfig.f90</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node21"><a xlink:href="../sourcefile/supports_hconfig.f90.html" xlink:title="supports_hconfig.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="319,-234 193,-234 193,-210 319,-210 319,-234"/>
+<text text-anchor="middle" x="256" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">supports_hconfig.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~supports_hconfig.f90&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~supports_hconfig.f90&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M192.96,-219.44C170.78,-221.62 147.08,-227.94 130,-243 54.96,-309.17 47.3,-441.09 47.4,-493.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="43.9,-493.91 47.52,-503.87 50.9,-493.83 43.9,-493.91"/>
+</g>
+<!-- sourcefile~supports_metadata.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node22" class="node">
+<title>sourcefile~supports_metadata.f90</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node22"><a xlink:href="../sourcefile/supports_metadata.f90.html" xlink:title="supports_metadata.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="325,-192 187,-192 187,-168 325,-168 325,-192"/>
+<text text-anchor="middle" x="256" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">supports_metadata.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~supports_metadata.f90&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~supports_metadata.f90&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M186.84,-177.76C166.39,-180.42 145.34,-186.96 130,-201 86.07,-241.22 58.89,-428.8 50.66,-493.77"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="47.17,-493.41 49.42,-503.77 54.12,-494.27 47.17,-493.41"/>
+</g>
+<!-- sourcefile~test_cubedspheregeomfactory.pf -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node23" class="node">
+<title>sourcefile~test_cubedspheregeomfactory.pf</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node23"><a xlink:href="../sourcefile/test_cubedspheregeomfactory.pf.html" xlink:title="Test_CubedSphereGeomFactory.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="352.5,-150 159.5,-150 159.5,-126 352.5,-126 352.5,-150"/>
+<text text-anchor="middle" x="256" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_CubedSphereGeomFactory.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_cubedspheregeomfactory.pf&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~test_cubedspheregeomfactory.pf&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M159.24,-141.8C148.43,-145.63 138.33,-151.15 130,-159 80.58,-205.57 56.55,-422.91 49.94,-493.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="46.44,-493.45 49.03,-503.72 53.42,-494.08 46.44,-493.45"/>
+</g>
+<!-- sourcefile~test_latlongeomfactory.pf -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node24" class="node">
+<title>sourcefile~test_latlongeomfactory.pf</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node24"><a xlink:href="../sourcefile/test_latlongeomfactory.pf.html" xlink:title="Test_LatLonGeomFactory.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="334.5,-108 177.5,-108 177.5,-84 334.5,-84 334.5,-108"/>
+<text text-anchor="middle" x="256" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_LatLonGeomFactory.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_latlongeomfactory.pf&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~test_latlongeomfactory.pf&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M177.28,-94.74C159.84,-98.06 142.75,-104.7 130,-117 75.05,-170 54.46,-417.43 49.36,-493.61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="45.84,-493.74 48.69,-503.94 52.83,-494.19 45.84,-493.74"/>
+</g>
+<!-- sourcefile~typesafe_make_file_metadata.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node25" class="node">
+<title>sourcefile~typesafe_make_file_metadata.f90</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node25"><a xlink:href="../sourcefile/typesafe_make_file_metadata.f90.html" xlink:title="typesafe_make_file_metadata.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="353.5,-66 158.5,-66 158.5,-42 353.5,-42 353.5,-66"/>
+<text text-anchor="middle" x="256" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">typesafe_make_file_metadata.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~typesafe_make_file_metadata.f90&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge24" class="edge">
+<title>sourcefile~typesafe_make_file_metadata.f90&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M158.3,-57.7C147.78,-61.57 138,-67.13 130,-75 69.39,-134.56 52.53,-413.06 48.87,-493.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="45.37,-493.84 48.44,-503.99 52.36,-494.14 45.37,-493.84"/>
+</g>
+<!-- sourcefile~typesafe_make_geom.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_node26" class="node">
+<title>sourcefile~typesafe_make_geom.f90</title>
+<g id="a_sourcefile~~geomspec.f90~~AfferentGraph_node26"><a xlink:href="../sourcefile/typesafe_make_geom.f90.html" xlink:title="typesafe_make_geom.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="332,-24 180,-24 180,0 332,0 332,-24"/>
+<text text-anchor="middle" x="256" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">typesafe_make_geom.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~typesafe_make_geom.f90&#45;&gt;sourcefile~geomspec.f90 -->
+<g id="sourcefile~~geomspec.f90~~AfferentGraph_edge25" class="edge">
+<title>sourcefile~typesafe_make_geom.f90&#45;&gt;sourcefile~geomspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M179.91,-9.9C161.47,-13.03 143.24,-19.79 130,-33 63.9,-98.99 50.86,-407.28 48.49,-493.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="44.99,-493.68 48.23,-503.76 51.99,-493.85 44.99,-493.68"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_Generic.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">module </span><span class="n">mapl3g_GeomSpec</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">esmf</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="k">   private</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GeomSpec</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NULL_GEOM_SPEC</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">abstract</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GeomSpec</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">      </span><span class="k">private</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="k">   contains</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="k">      procedure</span><span class="p">(</span><span class="n">I_equal_to</span><span class="p">),</span><span class="w"> </span><span class="k">deferred</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">equal_to</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">      </span><span class="k">generic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">operator</span><span class="p">(</span><span class="o">==</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">equal_to</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">   </span><span class="k">end type </span><span class="n">GeomSpec</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a>
+<a id="ln-18" name="ln-18" href="#ln-18"></a>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">   </span><span class="k">abstract interface</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="k">      </span><span class="kt">logical </span><span class="k">function </span><span class="n">I_equal_to</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">         </span><span class="k">import </span><span class="n">GeomSpec</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">         </span><span class="k">class</span><span class="p">(</span><span class="n">GeomSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">         </span><span class="k">class</span><span class="p">(</span><span class="n">GeomSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">b</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">      </span><span class="k">end function </span><span class="n">I_equal_to</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">   </span><span class="k">end interface</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a>
+<a id="ln-27" name="ln-27" href="#ln-27"></a>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="k">   type</span><span class="p">,</span><span class="w"> </span><span class="k">extends</span><span class="p">(</span><span class="n">GeomSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NullGeomSpec</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">equal_to</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">false</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">   </span><span class="k">end type </span><span class="n">NullGeomSpec</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">NullGeomSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NULL_GEOM_SPEC</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="k">contains</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="k">   </span><span class="kt">logical </span><span class="k">function </span><span class="n">false</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">NullGeomSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">GeomSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">b</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">      </span><span class="n">false</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">   </span><span class="k">end function </span><span class="n">false</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">   </span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="k">end module </span><span class="n">mapl3g_GeomSpec</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-30T12:57:40.061280             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

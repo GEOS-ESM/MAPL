@@ -1,0 +1,893 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>merge_config &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>merge_config
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">90 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataGridComp_private.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/extdatagridcomp_private.f90.html'>ExtDataGridComp_private.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl3g_extdatagridcomp_private.html'>mapl3g_ExtDataGridComp_private</a></li>
+            <li class="breadcrumb-item active" aria-current="page">merge_config</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/merge_config.html#src">merge_config</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public recursive subroutine merge_config(merged_hconfig, input_hconfig, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-merged_hconfig"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_hconfig.html'>ESMF_HConfig</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>merged_hconfig</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-input_hconfig"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_hconfig.html'>ESMF_HConfig</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>input_hconfig</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1527"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~merge_config~~CallsGraph Pages: 1 -->
+<svg id="procmerge_configCallsGraph" width="474pt" height="662pt"
+ viewBox="0.00 0.00 474.00 662.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~merge_config~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 658)">
+<title>proc~~merge_config~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-658 470,-658 470,4 -4,4"/>
+<!-- proc~merge_config -->
+<g id="proc~~merge_config~~CallsGraph_node1" class="node">
+<title>proc~merge_config</title>
+<polygon fill="none" stroke="black" points="86,-339 0,-339 0,-315 86,-315 86,-339"/>
+<text text-anchor="middle" x="43" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50">merge_config</text>
+</g>
+<!-- proc~merge_config&#45;&gt;proc~merge_config -->
+<g id="proc~~merge_config~~CallsGraph_edge17" class="edge">
+<title>proc~merge_config&#45;&gt;proc~merge_config</title>
+<path fill="none" stroke="#ff0000" d="M15.55,-339.01C5.97,-347.97 15.12,-357 43,-357 60.43,-357 70.54,-353.47 73.33,-348.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="76.67,-347.59 70.45,-339.01 69.96,-349.6 76.67,-347.59"/>
+</g>
+<!-- ESMF_HConfigAdd -->
+<g id="proc~~merge_config~~CallsGraph_node2" class="node">
+<title>ESMF_HConfigAdd</title>
+<g id="a_proc~~merge_config~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_hconfigadd.html" xlink:title="ESMF_HConfigAdd">
+<polygon fill="#a7506f" stroke="#a7506f" points="264,-654 155,-654 155,-630 264,-630 264,-654"/>
+<text text-anchor="middle" x="209.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_HConfigAdd</text>
+</a>
+</g>
+</g>
+<!-- proc~merge_config&#45;&gt;ESMF_HConfigAdd -->
+<g id="proc~~merge_config~~CallsGraph_edge1" class="edge">
+<title>proc~merge_config&#45;&gt;ESMF_HConfigAdd</title>
+<path fill="none" stroke="#ff0000" d="M45.55,-339.01C52.22,-389.02 80.12,-579.99 122,-621 128.42,-627.28 136.38,-631.8 144.86,-635.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="144,-638.42 154.59,-638.13 146.13,-631.75 144,-638.42"/>
+</g>
+<!-- ESMF_HConfigAsStringMapKey -->
+<g id="proc~~merge_config~~CallsGraph_node3" class="node">
+<title>ESMF_HConfigAsStringMapKey</title>
+<g id="a_proc~~merge_config~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_hconfigasstringmapkey.html" xlink:title="ESMF_HConfigAsStringMapKey">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="297,-612 122,-612 122,-588 297,-588 297,-612"/>
+<text text-anchor="middle" x="209.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_HConfigAsStringMapKey</text>
+</a>
+</g>
+</g>
+<!-- proc~merge_config&#45;&gt;ESMF_HConfigAsStringMapKey -->
+<g id="proc~~merge_config~~CallsGraph_edge2" class="edge">
+<title>proc~merge_config&#45;&gt;ESMF_HConfigAsStringMapKey</title>
+<path fill="none" stroke="#ff0000" d="M43.84,-339.13C44,-379.66 50.25,-511.57 122,-579 123.28,-580.2 124.61,-581.34 125.99,-582.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="124.12,-585.36 134.4,-587.91 127.95,-579.5 124.12,-585.36"/>
+</g>
+<!-- ESMF_HConfigCreate -->
+<g id="proc~~merge_config~~CallsGraph_node4" class="node">
+<title>ESMF_HConfigCreate</title>
+<g id="a_proc~~merge_config~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_hconfigcreate.html" xlink:title="ESMF_HConfigCreate">
+<polygon fill="#a7506f" stroke="#a7506f" points="271.5,-570 147.5,-570 147.5,-546 271.5,-546 271.5,-570"/>
+<text text-anchor="middle" x="209.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_HConfigCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~merge_config&#45;&gt;ESMF_HConfigCreate -->
+<g id="proc~~merge_config~~CallsGraph_edge3" class="edge">
+<title>proc~merge_config&#45;&gt;ESMF_HConfigCreate</title>
+<path fill="none" stroke="#ff0000" d="M44.7,-339.13C47.45,-375.17 60.67,-482.48 122,-537 126.7,-541.18 132.09,-544.56 137.83,-547.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="136.52,-550.53 147.1,-551.07 139.16,-544.05 136.52,-550.53"/>
+</g>
+<!-- ESMF_HConfigCreateAtMapVal -->
+<g id="proc~~merge_config~~CallsGraph_node5" class="node">
+<title>ESMF_HConfigCreateAtMapVal</title>
+<g id="a_proc~~merge_config~~CallsGraph_node5"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_hconfigcreateatmapval.html" xlink:title="ESMF_HConfigCreateAtMapVal">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="296,-528 123,-528 123,-504 296,-504 296,-528"/>
+<text text-anchor="middle" x="209.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_HConfigCreateAtMapVal</text>
+</a>
+</g>
+</g>
+<!-- proc~merge_config&#45;&gt;ESMF_HConfigCreateAtMapVal -->
+<g id="proc~~merge_config~~CallsGraph_edge4" class="edge">
+<title>proc~merge_config&#45;&gt;ESMF_HConfigCreateAtMapVal</title>
+<path fill="none" stroke="#ff0000" d="M45.99,-339.37C51.68,-370.61 71.04,-453.18 122,-495 123.75,-496.43 125.58,-497.77 127.47,-499.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="125.75,-502.07 136.18,-503.95 129.2,-495.98 125.75,-502.07"/>
+</g>
+<!-- ESMF_HConfigDestroy -->
+<g id="proc~~merge_config~~CallsGraph_node6" class="node">
+<title>ESMF_HConfigDestroy</title>
+<g id="a_proc~~merge_config~~CallsGraph_node6"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_hconfigdestroy.html" xlink:title="ESMF_HConfigDestroy">
+<polygon fill="#d9534f" stroke="#d9534f" points="274.5,-486 144.5,-486 144.5,-462 274.5,-462 274.5,-486"/>
+<text text-anchor="middle" x="209.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_HConfigDestroy</text>
+</a>
+</g>
+</g>
+<!-- proc~merge_config&#45;&gt;ESMF_HConfigDestroy -->
+<g id="proc~~merge_config~~CallsGraph_edge5" class="edge">
+<title>proc~merge_config&#45;&gt;ESMF_HConfigDestroy</title>
+<path fill="none" stroke="#ff0000" d="M47.98,-339.25C56.9,-364.67 80.97,-423.25 122,-453 125.94,-455.85 130.21,-458.32 134.69,-460.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="133.52,-463.77 144.1,-464.4 136.22,-457.31 133.52,-463.77"/>
+</g>
+<!-- ESMF_HConfigIterLoop -->
+<g id="proc~~merge_config~~CallsGraph_node7" class="node">
+<title>ESMF_HConfigIterLoop</title>
+<g id="a_proc~~merge_config~~CallsGraph_node7"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_hconfigiterloop.html" xlink:title="ESMF_HConfigIterLoop">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="276,-444 143,-444 143,-420 276,-420 276,-444"/>
+<text text-anchor="middle" x="209.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_HConfigIterLoop</text>
+</a>
+</g>
+</g>
+<!-- proc~merge_config&#45;&gt;ESMF_HConfigIterLoop -->
+<g id="proc~~merge_config~~CallsGraph_edge6" class="edge">
+<title>proc~merge_config&#45;&gt;ESMF_HConfigIterLoop</title>
+<path fill="none" stroke="#ff0000" d="M51.75,-339.1C64.22,-357.57 90.58,-392.58 122,-411 125.6,-413.11 129.4,-415.01 133.32,-416.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="132.07,-419.98 142.66,-420.37 134.62,-413.47 132.07,-419.98"/>
+</g>
+<!-- ESMF_HConfigSet -->
+<g id="proc~~merge_config~~CallsGraph_node8" class="node">
+<title>ESMF_HConfigSet</title>
+<g id="a_proc~~merge_config~~CallsGraph_node8"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_hconfigset.html" xlink:title="ESMF_HConfigSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="262.5,-402 156.5,-402 156.5,-378 262.5,-378 262.5,-402"/>
+<text text-anchor="middle" x="209.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_HConfigSet</text>
+</a>
+</g>
+</g>
+<!-- proc~merge_config&#45;&gt;ESMF_HConfigSet -->
+<g id="proc~~merge_config~~CallsGraph_edge7" class="edge">
+<title>proc~merge_config&#45;&gt;ESMF_HConfigSet</title>
+<path fill="none" stroke="#ff0000" d="M63.21,-339.15C78.61,-348.43 101.03,-360.96 122,-369 129.78,-371.98 138.12,-374.64 146.43,-376.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="145.59,-380.37 156.15,-379.57 147.4,-373.61 145.59,-380.37"/>
+</g>
+<!-- esmf_hconfigasstringseq -->
+<g id="proc~~merge_config~~CallsGraph_node9" class="node">
+<title>esmf_hconfigasstringseq</title>
+<polygon fill="#777777" stroke="#777777" points="282,-360 137,-360 137,-336 282,-336 282,-360"/>
+<text text-anchor="middle" x="209.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_hconfigasstringseq</text>
+</g>
+<!-- proc~merge_config&#45;&gt;esmf_hconfigasstringseq -->
+<g id="proc~~merge_config~~CallsGraph_edge8" class="edge">
+<title>proc~merge_config&#45;&gt;esmf_hconfigasstringseq</title>
+<path fill="none" stroke="#ff0000" d="M86.36,-332.41C98.77,-333.99 112.78,-335.78 126.77,-337.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="126.56,-341.07 136.93,-338.86 127.45,-334.12 126.56,-341.07"/>
+</g>
+<!-- esmf_hconfigcreateat -->
+<g id="proc~~merge_config~~CallsGraph_node10" class="node">
+<title>esmf_hconfigcreateat</title>
+<polygon fill="#777777" stroke="#777777" points="273.5,-318 145.5,-318 145.5,-294 273.5,-294 273.5,-318"/>
+<text text-anchor="middle" x="209.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_hconfigcreateat</text>
+</g>
+<!-- proc~merge_config&#45;&gt;esmf_hconfigcreateat -->
+<g id="proc~~merge_config~~CallsGraph_edge9" class="edge">
+<title>proc~merge_config&#45;&gt;esmf_hconfigcreateat</title>
+<path fill="none" stroke="#ff0000" d="M86.36,-321.59C101.26,-319.69 118.47,-317.49 135.17,-315.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="136.01,-318.78 145.49,-314.04 135.12,-311.84 136.01,-318.78"/>
+</g>
+<!-- esmf_hconfigisdefined -->
+<g id="proc~~merge_config~~CallsGraph_node11" class="node">
+<title>esmf_hconfigisdefined</title>
+<polygon fill="#777777" stroke="#777777" points="276,-276 143,-276 143,-252 276,-252 276,-276"/>
+<text text-anchor="middle" x="209.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_hconfigisdefined</text>
+</g>
+<!-- proc~merge_config&#45;&gt;esmf_hconfigisdefined -->
+<g id="proc~~merge_config~~CallsGraph_edge10" class="edge">
+<title>proc~merge_config&#45;&gt;esmf_hconfigisdefined</title>
+<path fill="none" stroke="#ff0000" d="M63.21,-314.85C78.61,-305.57 101.03,-293.04 122,-285 127.78,-282.79 133.86,-280.75 140.02,-278.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="141.06,-282.23 149.71,-276.12 139.14,-275.5 141.06,-282.23"/>
+</g>
+<!-- esmf_hconfigissequence -->
+<g id="proc~~merge_config~~CallsGraph_node12" class="node">
+<title>esmf_hconfigissequence</title>
+<polygon fill="#777777" stroke="#777777" points="281.5,-234 137.5,-234 137.5,-210 281.5,-210 281.5,-234"/>
+<text text-anchor="middle" x="209.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_hconfigissequence</text>
+</g>
+<!-- proc~merge_config&#45;&gt;esmf_hconfigissequence -->
+<g id="proc~~merge_config~~CallsGraph_edge11" class="edge">
+<title>proc~merge_config&#45;&gt;esmf_hconfigissequence</title>
+<path fill="none" stroke="#ff0000" d="M51.75,-314.9C64.22,-296.43 90.58,-261.42 122,-243 125.19,-241.13 128.53,-239.43 131.98,-237.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="133.34,-241.1 141.3,-234.11 130.72,-234.61 133.34,-241.1"/>
+</g>
+<!-- esmf_hconfigiterbegin -->
+<g id="proc~~merge_config~~CallsGraph_node13" class="node">
+<title>esmf_hconfigiterbegin</title>
+<polygon fill="#777777" stroke="#777777" points="275.5,-192 143.5,-192 143.5,-168 275.5,-168 275.5,-192"/>
+<text text-anchor="middle" x="209.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_hconfigiterbegin</text>
+</g>
+<!-- proc~merge_config&#45;&gt;esmf_hconfigiterbegin -->
+<g id="proc~~merge_config~~CallsGraph_edge12" class="edge">
+<title>proc~merge_config&#45;&gt;esmf_hconfigiterbegin</title>
+<path fill="none" stroke="#ff0000" d="M47.98,-314.75C56.9,-289.33 80.97,-230.75 122,-201 125.69,-198.33 129.68,-195.99 133.84,-193.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="135.39,-197.09 143.21,-189.93 132.64,-190.66 135.39,-197.09"/>
+</g>
+<!-- esmf_hconfigiterend -->
+<g id="proc~~merge_config~~CallsGraph_node14" class="node">
+<title>esmf_hconfigiterend</title>
+<polygon fill="#777777" stroke="#777777" points="270,-150 149,-150 149,-126 270,-126 270,-150"/>
+<text text-anchor="middle" x="209.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_hconfigiterend</text>
+</g>
+<!-- proc~merge_config&#45;&gt;esmf_hconfigiterend -->
+<g id="proc~~merge_config~~CallsGraph_edge13" class="edge">
+<title>proc~merge_config&#45;&gt;esmf_hconfigiterend</title>
+<path fill="none" stroke="#ff0000" d="M45.99,-314.63C51.68,-283.39 71.04,-200.82 122,-159 127.22,-154.72 133.17,-151.29 139.46,-148.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="140.75,-151.79 148.87,-144.99 138.27,-145.25 140.75,-151.79"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~merge_config~~CallsGraph_node15" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~merge_config~~CallsGraph_node15"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="249,-108 170,-108 170,-84 249,-84 249,-108"/>
+<text text-anchor="middle" x="209.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~merge_config&#45;&gt;interface~mapl_assert -->
+<g id="proc~~merge_config~~CallsGraph_edge14" class="edge">
+<title>proc~merge_config&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M44.7,-314.87C47.45,-278.83 60.67,-171.52 122,-117 132.4,-107.75 146.19,-102.42 159.69,-99.38"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="160.71,-102.75 169.9,-97.48 159.43,-95.87 160.71,-102.75"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~merge_config~~CallsGraph_node16" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~merge_config~~CallsGraph_node16"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="250.5,-66 168.5,-66 168.5,-42 250.5,-42 250.5,-66"/>
+<text text-anchor="middle" x="209.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~merge_config&#45;&gt;proc~mapl_return -->
+<g id="proc~~merge_config~~CallsGraph_edge15" class="edge">
+<title>proc~merge_config&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M43.84,-314.87C44,-274.34 50.25,-142.43 122,-75 131.87,-65.72 145.12,-60.34 158.28,-57.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="159.12,-60.67 168.27,-55.34 157.79,-53.8 159.12,-60.67"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~merge_config~~CallsGraph_node17" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~merge_config~~CallsGraph_node17"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="247.5,-24 171.5,-24 171.5,0 247.5,0 247.5,-24"/>
+<text text-anchor="middle" x="209.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~merge_config&#45;&gt;proc~mapl_verify -->
+<g id="proc~~merge_config~~CallsGraph_edge16" class="edge">
+<title>proc~merge_config&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M45.55,-314.99C52.22,-264.98 80.12,-74.01 122,-33 132.4,-22.82 146.85,-17.29 160.96,-14.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="161.83,-17.77 171.12,-12.66 160.67,-10.86 161.83,-17.77"/>
+</g>
+<!-- at -->
+<g id="proc~~merge_config~~CallsGraph_node18" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="426.5,-108 372.5,-108 372.5,-84 426.5,-84 426.5,-108"/>
+<text text-anchor="middle" x="399.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~merge_config~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#ff00bf" d="M250.83,-63.01C284.03,-70.43 330.66,-80.84 362.59,-87.98"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="361.88,-91.4 372.4,-90.17 363.4,-84.57 361.88,-91.4"/>
+</g>
+<!-- insert -->
+<g id="proc~~merge_config~~CallsGraph_node19" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="426.5,-66 372.5,-66 372.5,-42 426.5,-42 426.5,-66"/>
+<text text-anchor="middle" x="399.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~merge_config~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#ff00bf" d="M250.83,-54C283.89,-54 330.25,-54 362.17,-54"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="362.4,-57.5 372.4,-54 362.4,-50.5 362.4,-57.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~merge_config~~CallsGraph_node20" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~merge_config~~CallsGraph_node20"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="466,-24 333,-24 333,0 466,0 466,-24"/>
+<text text-anchor="middle" x="399.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~merge_config~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00bf" d="M250.83,-44.99C275.24,-39.54 306.9,-32.46 334.65,-26.26"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="335.68,-29.62 344.68,-24.02 334.15,-22.79 335.68,-29.62"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~merge_config~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff005f" d="M247.64,-12C269.09,-12 296.86,-12 322.71,-12"/>
+<polygon fill="#ff005f" stroke="#ff005f" points="322.89,-15.5 332.89,-12 322.89,-8.5 322.89,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~merge_config~~CalledByGraph Pages: 1 -->
+<svg id="procmerge_configCalledByGraph" width="357pt" height="74pt"
+ viewBox="0.00 0.00 357.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~merge_config~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>proc~~merge_config~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 353,-70 353,4 -4,4"/>
+<!-- proc~merge_config -->
+<g id="proc~~merge_config~~CalledByGraph_node1" class="node">
+<title>proc~merge_config</title>
+<polygon fill="none" stroke="black" points="349,-45 263,-45 263,-21 349,-21 349,-45"/>
+<text text-anchor="middle" x="306" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">merge_config</text>
+</g>
+<!-- proc~merge_config&#45;&gt;proc~merge_config -->
+<g id="proc~~merge_config~~CalledByGraph_edge1" class="edge">
+<title>proc~merge_config&#45;&gt;proc~merge_config</title>
+<path fill="none" stroke="#ff0000" d="M283.18,-45.01C275.21,-53.97 282.82,-63 306,-63 320.13,-63 328.47,-59.65 331.03,-55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="334.39,-54.02 328.82,-45.01 327.56,-55.53 334.39,-54.02"/>
+</g>
+<!-- proc~setservices~4 -->
+<g id="proc~~merge_config~~CalledByGraph_node2" class="node">
+<title>proc~setservices~4</title>
+<g id="a_proc~~merge_config~~CalledByGraph_node2"><a xlink:href="../proc/setservices~4.html" xlink:title="setServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="204.5,-66 131.5,-66 131.5,-42 204.5,-42 204.5,-66"/>
+<text text-anchor="middle" x="168" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">setServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~4&#45;&gt;proc~merge_config -->
+<g id="proc~~merge_config~~CalledByGraph_edge2" class="edge">
+<title>proc~setservices~4&#45;&gt;proc~merge_config</title>
+<path fill="none" stroke="#ff0000" d="M204.73,-48.48C219.32,-46.23 236.49,-43.58 252.46,-41.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="253.39,-44.51 262.74,-39.52 252.33,-37.59 253.39,-44.51"/>
+</g>
+<!-- proc~test_merge_hconfig -->
+<g id="proc~~merge_config~~CalledByGraph_node3" class="node">
+<title>proc~test_merge_hconfig</title>
+<g id="a_proc~~merge_config~~CalledByGraph_node3"><a xlink:href="../proc/test_merge_hconfig.html" xlink:title="test_merge_hconfig">
+<polygon fill="#d9534f" stroke="#d9534f" points="227,-24 109,-24 109,0 227,0 227,-24"/>
+<text text-anchor="middle" x="168" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_merge_hconfig</text>
+</a>
+</g>
+</g>
+<!-- proc~test_merge_hconfig&#45;&gt;proc~merge_config -->
+<g id="proc~~merge_config~~CalledByGraph_edge3" class="edge">
+<title>proc~test_merge_hconfig&#45;&gt;proc~merge_config</title>
+<path fill="none" stroke="#ff0000" d="M227.07,-20.97C235.59,-22.28 244.32,-23.63 252.72,-24.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="252.34,-28.41 262.75,-26.48 253.4,-21.49 252.34,-28.41"/>
+</g>
+<!-- proc~setservices~5 -->
+<g id="proc~~merge_config~~CalledByGraph_node4" class="node">
+<title>proc~setservices~5</title>
+<g id="a_proc~~merge_config~~CalledByGraph_node4"><a xlink:href="../proc/setservices~5.html" xlink:title="setServices">
+<polygon fill="#d9534f" stroke="#d9534f" points="73,-66 0,-66 0,-42 73,-42 73,-66"/>
+<text text-anchor="middle" x="36.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">setServices</text>
+</a>
+</g>
+</g>
+<!-- proc~setservices~5&#45;&gt;proc~setservices~4 -->
+<g id="proc~~merge_config~~CalledByGraph_edge4" class="edge">
+<title>proc~setservices~5&#45;&gt;proc~setservices~4</title>
+<path fill="none" stroke="#ff0000" d="M73.23,-54C88.09,-54 105.53,-54 121.3,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="121.39,-57.5 131.39,-54 121.39,-50.5 121.39,-57.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">recursive subroutine </span><span class="n">merge_config</span><span class="p">(</span><span class="n">merged_hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">input_hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">merged_hconfig</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">input_hconfig</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">sub_configs</span><span class="p">(:)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">sub_config</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">is_sequence</span>
+<span class="w">    </span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_HConfigIsDefined</span><span class="p">(</span><span class="n">input_hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">keyString</span><span class="o">=</span><span class="n">SUBCONFIG_KEY</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">is_sequence</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigIsSequence</span><span class="p">(</span><span class="n">input_hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">keyString</span><span class="o">=</span><span class="n">SUBCONFIG_KEY</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">is_sequence</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;subconfig list in extdata not a sequence&quot;</span><span class="p">)</span>
+<span class="w">         </span><span class="n">sub_configs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigAsStringSeq</span><span class="p">(</span><span class="n">input_hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_MAXPATHLEN</span><span class="p">,</span><span class="w"> </span><span class="n">keyString</span><span class="o">=</span><span class="n">SUBCONFIG_KEY</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span><span class="w"> </span>
+<span class="w">         </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">sub_configs</span><span class="p">)</span>
+<span class="w">            </span><span class="n">sub_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">sub_configs</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">merge_config</span><span class="p">(</span><span class="n">merged_hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">sub_config</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">sub_config</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">enddo</span>
+<span class="k">      end if</span>
+<span class="k">      call </span><span class="n">merge_map</span><span class="p">(</span><span class="n">merged_hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">input_hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">COLLECTIONS_KEY</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">merge_map</span><span class="p">(</span><span class="n">merged_hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">input_hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">SAMPLINGS_KEY</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">merge_map</span><span class="p">(</span><span class="n">merged_hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">input_hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">EXPORTS_KEY</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">merge_map</span><span class="p">(</span><span class="n">merged_hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">input_hconfig</span><span class="p">,</span><span class="w"> </span><span class="n">DERIVED_KEY</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">contains</span>
+
+<span class="k">      subroutine </span><span class="n">merge_map</span><span class="p">(</span><span class="n">hconfig_to</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig_from</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig_to</span>
+<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig_from</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">key</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig_temp</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig_exist</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig_accum</span><span class="p">,</span><span class="w"> </span><span class="n">iter_val</span>
+<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfigIter</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span><span class="p">,</span><span class="w"> </span><span class="n">iter_begin</span><span class="p">,</span><span class="n">iter_end</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter_key</span>
+
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_HConfigIsDefined</span><span class="p">(</span><span class="n">hconfig_from</span><span class="p">,</span><span class="w"> </span><span class="n">keyString</span><span class="o">=</span><span class="n">key</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">hconfig_temp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreateAt</span><span class="p">(</span><span class="n">hconfig_from</span><span class="p">,</span><span class="w"> </span><span class="n">keyString</span><span class="o">=</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">else</span>
+<span class="k">            </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
+
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_HConfigIsDefined</span><span class="p">(</span><span class="n">hconfig_to</span><span class="p">,</span><span class="w"> </span><span class="n">keyString</span><span class="o">=</span><span class="n">key</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="n">hconfig_accum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">            </span><span class="n">iter_begin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigIterBegin</span><span class="p">(</span><span class="n">hconfig_temp</span><span class="p">)</span>
+<span class="w">            </span><span class="n">iter_end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigIterEnd</span><span class="p">(</span><span class="n">hconfig_temp</span><span class="p">)</span>
+<span class="w">            </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iter_begin</span>
+<span class="w">            </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_HConfigIterLoop</span><span class="p">(</span><span class="n">iter</span><span class="p">,</span><span class="w"> </span><span class="n">iter_begin</span><span class="p">,</span><span class="w"> </span><span class="n">iter_end</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">))</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="n">iter_key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigAsStringMapKey</span><span class="p">(</span><span class="n">iter</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">               </span><span class="n">iter_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreateAtMapVal</span><span class="p">(</span><span class="n">iter</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">               </span><span class="k">call </span><span class="n">ESMF_HConfigAdd</span><span class="p">(</span><span class="n">hconfig_accum</span><span class="p">,</span><span class="w"> </span><span class="n">iter_val</span><span class="p">,</span><span class="w"> </span><span class="n">addKeyString</span><span class="o">=</span><span class="n">iter_key</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">enddo</span>
+
+<span class="k">            </span><span class="n">hconfig_exist</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreateAt</span><span class="p">(</span><span class="n">hconfig_to</span><span class="p">,</span><span class="w"> </span><span class="n">keyString</span><span class="o">=</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="n">iter_begin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigIterBegin</span><span class="p">(</span><span class="n">hconfig_exist</span><span class="p">)</span>
+<span class="w">            </span><span class="n">iter_end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigIterEnd</span><span class="p">(</span><span class="n">hconfig_exist</span><span class="p">)</span>
+<span class="w">            </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iter_begin</span>
+<span class="w">            </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_HConfigIterLoop</span><span class="p">(</span><span class="n">iter</span><span class="p">,</span><span class="w"> </span><span class="n">iter_begin</span><span class="p">,</span><span class="w"> </span><span class="n">iter_end</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">))</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">               </span><span class="n">iter_key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigAsStringMapKey</span><span class="p">(</span><span class="n">iter</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">               </span><span class="n">iter_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreateAtMapVal</span><span class="p">(</span><span class="n">iter</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">               </span><span class="k">call </span><span class="n">ESMF_HConfigAdd</span><span class="p">(</span><span class="n">hconfig_accum</span><span class="p">,</span><span class="w"> </span><span class="n">iter_val</span><span class="p">,</span><span class="w"> </span><span class="n">addKeyString</span><span class="o">=</span><span class="n">iter_key</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">enddo</span>
+<span class="k">            call </span><span class="n">ESMF_HConfigSet</span><span class="p">(</span><span class="n">hconfig_to</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig_accum</span><span class="p">,</span><span class="w"> </span><span class="n">keyString</span><span class="o">=</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">else</span>
+<span class="k">            call </span><span class="n">ESMF_HConfigAdd</span><span class="p">(</span><span class="n">hconfig_to</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig_temp</span><span class="p">,</span><span class="w"> </span><span class="n">addKeyString</span><span class="o">=</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">end subroutine</span>
+<span class="k">   end subroutine </span><span class="n">merge_config</span><span class="w"> </span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-30T12:57:40.061280             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

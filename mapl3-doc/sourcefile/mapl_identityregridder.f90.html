@@ -1,0 +1,995 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_IdentityRegridder.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_IdentityRegridder.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">140 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_IdentityRegridder.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">MAPL_IdentityRegridder.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_identityregriddermod.html">MAPL_IdentityRegridderMod</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/mapl_identityregridder.f90.html#src">MAPL_IdentityRegridder.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~mapl_identityregridder.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilemapl_identityregridderf90EfferentGraph" width="641pt" height="306pt"
+ viewBox="0.00 0.00 641.00 305.84" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph" class="graph" transform="scale(0.7 0.7) rotate(0) translate(4 434)">
+<title>sourcefile~~mapl_identityregridder.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-434 914,-434 914,4 -4,4"/>
+<!-- sourcefile~mapl_identityregridder.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~mapl_identityregridder.f90</title>
+<polygon fill="none" stroke="black" points="910,-226 750,-226 750,-202 910,-202 910,-226"/>
+<text text-anchor="middle" x="830" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_IdentityRegridder.F90</text>
+</g>
+<!-- sourcefile~base_base.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~base_base.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/base_base.f90.html" xlink:title="Base_Base.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="458,-226 365,-226 365,-202 458,-202 458,-226"/>
+<text text-anchor="middle" x="411.5" y="-211.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base_Base.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~base_base.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~base_base.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M749.68,-214C667.34,-214 540.68,-214 468.31,-214"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="468.04,-210.5 458.04,-214 468.04,-217.5 468.04,-210.5"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="259,-430 150,-430 150,-406 259,-406 259,-430"/>
+<text text-anchor="middle" x="204.5" y="-415.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M410.5,-418C363.13,-419.86 309.55,-419.78 269.05,-419.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="269.09,-415.78 259.05,-419.15 269,-422.78 269.09,-415.78"/>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="266.5,-304 142.5,-304 142.5,-280 266.5,-280 266.5,-304"/>
+<text text-anchor="middle" x="204.5" y="-289.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M819.7,-226.3C794.23,-258.85 719.4,-346.86 633,-378"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M631,-378C628.1,-379.05 415.58,-338.19 412.5,-338"/>
+</g>
+<!-- sourcefile~mapl_abstractregridder.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~mapl_abstractregridder.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/mapl_abstractregridder.f90.html" xlink:title="MAPL_AbstractRegridder.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="714,-267 550,-267 550,-243 714,-243 714,-267"/>
+<text text-anchor="middle" x="632" y="-252.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_AbstractRegridder.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~mapl_abstractregridder.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~mapl_abstractregridder.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M771.52,-226.02C749.28,-230.68 723.66,-236.03 700.56,-240.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="699.55,-237.5 690.48,-242.98 700.99,-244.35 699.55,-237.5"/>
+</g>
+<!-- sourcefile~mapl_comms.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~mapl_comms.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/mapl_comms.f90.html" xlink:title="MAPL_Comms.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="686.5,-146 577.5,-146 577.5,-122 686.5,-122 686.5,-146"/>
+<text text-anchor="middle" x="632" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Comms.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~mapl_comms.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~mapl_comms.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M799.23,-201.85C765.22,-187.97 709.43,-165.2 671.98,-149.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="672.99,-146.54 662.41,-146 670.34,-153.02 672.99,-146.54"/>
+</g>
+<!-- sourcefile~mapl_gridspec.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~mapl_gridspec.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/mapl_gridspec.f90.html" xlink:title="MAPL_GridSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="691,-64 573,-64 573,-40 691,-40 691,-64"/>
+<text text-anchor="middle" x="632" y="-49.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~mapl_gridspec.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~mapl_gridspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M815.83,-201.85C794.74,-182.54 751.92,-143.86 714,-113 695.68,-98.09 674.32,-82.06 658.13,-70.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="659.86,-67.1 649.72,-64.03 655.73,-72.75 659.86,-67.1"/>
+</g>
+<!-- sourcefile~regridderspec.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~regridderspec.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/regridderspec.f90.html" xlink:title="RegridderSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="468.5,-390 354.5,-390 354.5,-366 468.5,-366 468.5,-390"/>
+<text text-anchor="middle" x="411.5" y="-375.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~regridderspec.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~regridderspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M631,-378C582.16,-395.6 523.11,-394.38 478.71,-389.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="478.96,-385.94 468.61,-388.22 478.12,-392.89 478.96,-385.94"/>
+</g>
+<!-- sourcefile~regridmethods.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~regridmethods.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/regridmethods.f90.html" xlink:title="RegridMethods.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="262,-388 147,-388 147,-364 262,-364 262,-388"/>
+<text text-anchor="middle" x="204.5" y="-373.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridMethods.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~regridmethods.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~mapl_identityregridder.f90&#45;&gt;sourcefile~regridmethods.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M631,-378C538.12,-411.47 511.15,-414.13 412.5,-418"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M410.5,-418C382,-419.12 311.33,-403.06 260.95,-390.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="261.71,-387.06 251.16,-388.02 260,-393.85 261.71,-387.06"/>
+</g>
+<!-- sourcefile~base_base.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~base_base.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M364.85,-217.73C346.65,-220.64 326.03,-225.82 309,-235 289.09,-245.74 292.37,-259.3 273,-271 270.02,-272.8 266.87,-274.46 263.63,-275.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="262.14,-272.82 254.31,-279.95 264.88,-279.26 262.14,-272.82"/>
+</g>
+<!-- sourcefile~constants.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~constants.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node10"><a xlink:href="../sourcefile/constants.f90.html" xlink:title="Constants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="248.5,-178 160.5,-178 160.5,-154 248.5,-154 248.5,-178"/>
+<text text-anchor="middle" x="204.5" y="-163.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Constants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~base_base.f90&#45;&gt;sourcefile~constants.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~base_base.f90&#45;&gt;sourcefile~constants.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M364.75,-203.29C333.31,-195.93 291.47,-186.13 258.56,-178.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="259.19,-174.98 248.66,-176.11 257.6,-181.79 259.19,-174.98"/>
+</g>
+<!-- sourcefile~mapl_range.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node15" class="node">
+<title>sourcefile~mapl_range.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node15"><a xlink:href="../sourcefile/mapl_range.f90.html" xlink:title="MAPL_Range.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="256,-262 153,-262 153,-238 256,-238 256,-262"/>
+<text text-anchor="middle" x="204.5" y="-247.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Range.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~base_base.f90&#45;&gt;sourcefile~mapl_range.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~base_base.f90&#45;&gt;sourcefile~mapl_range.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M364.75,-222.03C335.68,-227.14 297.72,-233.81 266.15,-239.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="265.39,-235.93 256.15,-241.11 266.6,-242.82 265.39,-235.93"/>
+</g>
+<!-- sourcefile~maplgrid.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node17" class="node">
+<title>sourcefile~maplgrid.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node17"><a xlink:href="../sourcefile/maplgrid.f90.html" xlink:title="MaplGrid.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="246,-220 163,-220 163,-196 246,-196 246,-220"/>
+<text text-anchor="middle" x="204.5" y="-205.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGrid.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~base_base.f90&#45;&gt;sourcefile~maplgrid.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~base_base.f90&#45;&gt;sourcefile~maplgrid.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M364.75,-212.66C332.7,-211.72 289.84,-210.47 256.66,-209.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="256.35,-205.99 246.25,-209.19 256.14,-212.98 256.35,-205.99"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node16" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node16"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="100,-430 0,-430 0,-406 100,-406 100,-430"/>
+<text text-anchor="middle" x="50" y="-415.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M149.73,-418C137.01,-418 123.38,-418 110.42,-418"/>
+<polygon fill="#ffbf00" stroke="#ffbf00" points="110.21,-414.5 100.21,-418 110.21,-421.5 110.21,-414.5"/>
+</g>
+<!-- sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~base_base.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~base_base.f90</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M566.92,-242.98C535.58,-237.1 498.22,-230.09 468.1,-224.43"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="468.66,-220.98 458.19,-222.57 467.37,-227.86 468.66,-220.98"/>
+</g>
+<!-- sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M613.98,-267.15C578.23,-291.35 492.09,-342.84 412.5,-338"/>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M410.5,-338C355.17,-334.64 293.29,-319.06 252.13,-306.95"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="252.98,-303.55 242.39,-304.03 250.97,-310.25 252.98,-303.55"/>
+</g>
+<!-- sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~regridderspec.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~regridderspec.f90</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M619.97,-267.13C600.58,-287.72 558.19,-329.47 514,-352 502.94,-357.64 490.56,-362.12 478.35,-365.66"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="477.36,-362.3 468.63,-368.3 479.2,-369.06 477.36,-362.3"/>
+</g>
+<!-- sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~constants.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~constants.f90</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M613.72,-242.97C591.7,-228.34 551.92,-204.2 514,-193 427.18,-167.35 321.11,-163.76 258.67,-164.31"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="258.62,-160.81 248.66,-164.44 258.7,-167.81 258.62,-160.81"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node11" class="node">
+<title>sourcefile~mapl_exceptionhandling.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node11"><a xlink:href="../sourcefile/mapl_exceptionhandling.f90.html" xlink:title="MAPL_ExceptionHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="496,-146 327,-146 327,-122 496,-122 496,-146"/>
+<text text-anchor="middle" x="411.5" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M619.61,-242.81C599.99,-222.55 557.7,-182 514,-160 505.44,-155.69 496.1,-152.05 486.67,-148.99"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="487.42,-145.56 476.84,-146.01 485.39,-152.26 487.42,-145.56"/>
+</g>
+<!-- sourcefile~mapl_memutils.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node14" class="node">
+<title>sourcefile~mapl_memutils.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node14"><a xlink:href="../sourcefile/mapl_memutils.f90.html" xlink:title="MAPL_MemUtils.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="470.5,-310 352.5,-310 352.5,-286 470.5,-286 470.5,-310"/>
+<text text-anchor="middle" x="411.5" y="-295.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MemUtils.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~mapl_memutils.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~mapl_memutils.f90</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M569.85,-267.04C542.06,-272.5 509.1,-278.99 480.53,-284.61"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="479.77,-281.19 470.63,-286.56 481.12,-288.06 479.77,-281.19"/>
+</g>
+<!-- sourcefile~regridderspecroutehandlemap.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node18" class="node">
+<title>sourcefile~regridderspecroutehandlemap.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node18"><a xlink:href="../sourcefile/regridderspecroutehandlemap.f90.html" xlink:title="RegridderSpecRouteHandleMap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="514,-268 309,-268 309,-244 514,-244 514,-268"/>
+<text text-anchor="middle" x="411.5" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderSpecRouteHandleMap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~regridderspecroutehandlemap.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~mapl_abstractregridder.f90&#45;&gt;sourcefile~regridderspecroutehandlemap.f90</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M549.95,-255.37C541.57,-255.41 532.95,-255.45 524.31,-255.49"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="524.16,-251.99 514.17,-255.53 524.19,-258.99 524.16,-251.99"/>
+</g>
+<!-- sourcefile~mapl_comms.f90&#45;&gt;sourcefile~base_base.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~mapl_comms.f90&#45;&gt;sourcefile~base_base.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M597.81,-146.15C559.57,-160.15 496.65,-183.19 454.89,-198.48"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="453.47,-195.27 445.28,-202 455.88,-201.85 453.47,-195.27"/>
+</g>
+<!-- sourcefile~mapl_comms.f90&#45;&gt;sourcefile~constants.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~mapl_comms.f90&#45;&gt;sourcefile~constants.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M582.49,-121.94C518.79,-108.11 403.9,-90.12 309,-113 280.75,-119.81 251.54,-135.72 231.39,-148.34"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="229.32,-145.51 222.8,-153.87 233.11,-151.4 229.32,-145.51"/>
+</g>
+<!-- sourcefile~mapl_comms.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~mapl_comms.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M577.27,-134C555.93,-134 530.74,-134 506.57,-134"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="506.28,-130.5 496.28,-134 506.28,-137.5 506.28,-130.5"/>
+</g>
+<!-- sourcefile~shmem.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node19" class="node">
+<title>sourcefile~shmem.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node19"><a xlink:href="../sourcefile/shmem.f90.html" xlink:title="Shmem.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="449.5,-66 373.5,-66 373.5,-42 449.5,-42 449.5,-66"/>
+<text text-anchor="middle" x="411.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Shmem.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_comms.f90&#45;&gt;sourcefile~shmem.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~mapl_comms.f90&#45;&gt;sourcefile~shmem.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M608.21,-121.97C585,-110.09 547.73,-91.99 514,-80 496.52,-73.79 476.86,-68.4 459.53,-64.16"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="460.17,-60.72 449.63,-61.8 458.55,-67.52 460.17,-60.72"/>
+</g>
+<!-- sourcefile~mapl_gridtype.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node13" class="node">
+<title>sourcefile~mapl_gridtype.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node13"><a xlink:href="../sourcefile/mapl_gridtype.f90.html" xlink:title="MAPL_GridType.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="469,-24 354,-24 354,0 469,0 469,-24"/>
+<text text-anchor="middle" x="411.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridType.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_gridspec.f90&#45;&gt;sourcefile~mapl_gridtype.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~mapl_gridspec.f90&#45;&gt;sourcefile~mapl_gridtype.f90</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M572.73,-41.33C543.88,-36.05 508.92,-29.65 479.02,-24.18"/>
+<polygon fill="#003fff" stroke="#003fff" points="479.56,-20.72 469.09,-22.36 478.3,-27.6 479.56,-20.72"/>
+</g>
+<!-- sourcefile~regridderspec.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge26" class="edge">
+<title>sourcefile~regridderspec.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M354.48,-388.93C328.09,-394.08 296.47,-400.25 269.17,-405.58"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="268.47,-402.15 259.33,-407.5 269.81,-409.02 268.47,-402.15"/>
+</g>
+<!-- sourcefile~regridderspec.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge27" class="edge">
+<title>sourcefile~regridderspec.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M354.49,-369.7C339.03,-365.84 322.75,-360.2 309,-352 288.74,-339.91 292.94,-325.6 273,-313 270.25,-311.26 267.35,-309.66 264.35,-308.18"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="265.71,-304.96 255.15,-304.12 262.88,-311.36 265.71,-304.96"/>
+</g>
+<!-- sourcefile~regridderspec.f90&#45;&gt;sourcefile~regridmethods.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge29" class="edge">
+<title>sourcefile~regridderspec.f90&#45;&gt;sourcefile~regridmethods.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M354.48,-377.45C329.16,-377.21 299.03,-376.91 272.51,-376.65"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="272.2,-373.15 262.16,-376.55 272.13,-380.15 272.2,-373.15"/>
+</g>
+<!-- sourcefile~mapl_gridmanager.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node12" class="node">
+<title>sourcefile~mapl_gridmanager.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~EfferentGraph_node12"><a xlink:href="../sourcefile/mapl_gridmanager.f90.html" xlink:title="MAPL_GridManager.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="273,-346 136,-346 136,-322 273,-322 273,-346"/>
+<text text-anchor="middle" x="204.5" y="-331.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridManager.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~regridderspec.f90&#45;&gt;sourcefile~mapl_gridmanager.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~EfferentGraph_edge28" class="edge">
+<title>sourcefile~regridderspec.f90&#45;&gt;sourcefile~mapl_gridmanager.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M354.48,-365.98C328.83,-360.47 298.26,-353.91 271.5,-348.17"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="271.96,-344.69 261.45,-346.01 270.49,-351.53 271.96,-344.69"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilemapl_identityregridderf90EfferentGraph = svgPanZoom('#sourcefilemapl_identityregridderf90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~mapl_identityregridder.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilemapl_identityregridderf90AfferentGraph" width="564pt" height="200pt"
+ viewBox="0.00 0.00 564.00 200.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~mapl_identityregridder.f90~~AfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 196)">
+<title>sourcefile~~mapl_identityregridder.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-196 560,-196 560,4 -4,4"/>
+<!-- sourcefile~mapl_identityregridder.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~mapl_identityregridder.f90</title>
+<polygon fill="none" stroke="black" points="160,-129 0,-129 0,-105 160,-105 160,-129"/>
+<text text-anchor="middle" x="80" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_IdentityRegridder.F90</text>
+</g>
+<!-- sourcefile~mapl_regriddermanager.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~mapl_regriddermanager.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/mapl_regriddermanager.f90.html" xlink:title="MAPL_RegridderManager.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="363,-150 196,-150 196,-126 363,-126 363,-150"/>
+<text text-anchor="middle" x="279.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_RegridderManager.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_regriddermanager.f90&#45;&gt;sourcefile~mapl_identityregridder.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~mapl_regriddermanager.f90&#45;&gt;sourcefile~mapl_identityregridder.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M195.89,-129.22C187.38,-128.31 178.7,-127.39 170.13,-126.48"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="170.44,-122.99 160.12,-125.41 169.7,-129.95 170.44,-122.99"/>
+</g>
+<!-- sourcefile~newregriddermanager.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~newregriddermanager.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/newregriddermanager.f90.html" xlink:title="NewRegridderManager.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="357.5,-108 201.5,-108 201.5,-84 357.5,-84 357.5,-108"/>
+<text text-anchor="middle" x="279.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">NewRegridderManager.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~newregriddermanager.f90&#45;&gt;sourcefile~mapl_identityregridder.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~newregriddermanager.f90&#45;&gt;sourcefile~mapl_identityregridder.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M201.29,-104.21C191.15,-105.29 180.69,-106.4 170.37,-107.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="169.68,-104.05 160.1,-108.59 170.42,-111.01 169.68,-104.05"/>
+</g>
+<!-- sourcefile~base.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~base.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/base.f90.html" xlink:title="Base.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="508,-150 447,-150 447,-126 508,-126 508,-150"/>
+<text text-anchor="middle" x="477.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~base.f90&#45;&gt;sourcefile~mapl_regriddermanager.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~base.f90&#45;&gt;sourcefile~mapl_regriddermanager.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M446.73,-138C426.98,-138 399.89,-138 373.31,-138"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="373.16,-134.5 363.16,-138 373.16,-141.5 373.16,-134.5"/>
+</g>
+<!-- sourcefile~base.f90&#45;&gt;sourcefile~newregriddermanager.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~base.f90&#45;&gt;sourcefile~newregriddermanager.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M446.73,-131.62C420.22,-125.94 380.48,-117.42 346.51,-110.14"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="347.14,-106.7 336.63,-108.03 345.68,-113.55 347.14,-106.7"/>
+</g>
+<!-- sourcefile~griddedio.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~griddedio.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/griddedio.f90.html" xlink:title="GriddedIO.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="521.5,-108 433.5,-108 433.5,-84 521.5,-84 521.5,-108"/>
+<text text-anchor="middle" x="477.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedIO.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~griddedio.f90&#45;&gt;sourcefile~newregriddermanager.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~griddedio.f90&#45;&gt;sourcefile~newregriddermanager.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M433.49,-96C414.15,-96 390.59,-96 367.81,-96"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="367.76,-92.5 357.76,-96 367.76,-99.5 367.76,-92.5"/>
+</g>
+<!-- sourcefile~mapl_cfio.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~mapl_cfio.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/mapl_cfio.f90.html" xlink:title="MAPL_CFIO.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="524,-192 431,-192 431,-168 524,-168 524,-192"/>
+<text text-anchor="middle" x="477.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIO.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_regriddermanager.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~mapl_regriddermanager.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M430.55,-170.15C405.56,-164.8 374.2,-158.08 346.63,-152.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="347.17,-148.71 336.66,-150.03 345.7,-155.55 347.17,-148.71"/>
+</g>
+<!-- sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~newregriddermanager.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~mapl_cfio.f90&#45;&gt;sourcefile~newregriddermanager.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M430.75,-172.43C419.81,-169.35 408.55,-165.03 399,-159 378.21,-145.87 383.89,-129.97 363,-117 360.17,-115.25 357.21,-113.64 354.15,-112.16"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="355.3,-108.85 344.73,-108.13 352.55,-115.29 355.3,-108.85"/>
+</g>
+<!-- sourcefile~mapl_epochswathmod.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~mapl_epochswathmod.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/mapl_epochswathmod.f90.html" xlink:title="MAPL_EpochSwathMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="556,-66 399,-66 399,-42 556,-42 556,-66"/>
+<text text-anchor="middle" x="477.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_EpochSwathMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_epochswathmod.f90&#45;&gt;sourcefile~newregriddermanager.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~mapl_epochswathmod.f90&#45;&gt;sourcefile~newregriddermanager.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M420.33,-66.04C397.37,-70.96 370.63,-76.69 346.73,-81.81"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="345.72,-78.45 336.67,-83.96 347.19,-85.29 345.72,-78.45"/>
+</g>
+<!-- sourcefile~regrid_util.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~regrid_util.f90</title>
+<g id="a_sourcefile~~mapl_identityregridder.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/regrid_util.f90.html" xlink:title="Regrid_Util.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="523.5,-24 431.5,-24 431.5,0 523.5,0 523.5,-24"/>
+<text text-anchor="middle" x="477.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~regrid_util.f90&#45;&gt;sourcefile~newregriddermanager.f90 -->
+<g id="sourcefile~~mapl_identityregridder.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~regrid_util.f90&#45;&gt;sourcefile~newregriddermanager.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M431.27,-22.43C420.54,-25.4 409.24,-28.95 399,-33 366.87,-45.71 332.19,-64.84 308.71,-78.68"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="306.77,-75.76 299.98,-83.89 310.36,-81.77 306.77,-75.76"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_Generic.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">module </span><span class="n">MAPL_IdentityRegridderMod</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_AbstractRegridderMod</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_GridSpecMod</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_RegridderSpec</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_KeywordEnforcerMod</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_ErrorHandlingMod</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_RegridMethods</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">use </span><span class="n">ESMF</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">use</span><span class="p">,</span><span class="w"> </span><span class="k">intrinsic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iso_fortran_env</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">REAL32</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="k">   private</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">   </span><span class="c">!----------------------------</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">   </span><span class="c">! Note this module implements the singleton pattern.  The type is</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">   </span><span class="c">! PRIVATE, which prevents other modules from creating objects of</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">   </span><span class="c">! that type.  The identity_regridder() procedure is PUBLIC and</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">   </span><span class="c">! returns a pointer to the singleton object.</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span><span class="c">!----------------------------</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">identity_regridder</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">NUM_DIMS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">extends</span><span class="p">(</span><span class="n">AbstractRegridder</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">IdentityRegridder</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="k">private</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="k">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">initialized</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">initialize_subclass</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regrid_scalar_2d_real32</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regrid_scalar_3d_real32</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regrid_vector_2d_real32</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regrid_vector_3d_real32</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">   </span><span class="k">end type </span><span class="n">IdentityRegridder</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">   </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MOD_NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;MAPL_IdentityRegridder::&#39;</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">IdentityRegridder</span><span class="p">),</span><span class="w"> </span><span class="k">save</span><span class="p">,</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">singleton</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="k">contains</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a>
+<a id="ln-43" name="ln-43" href="#ln-43"></a>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="k">   function </span><span class="n">identity_regridder</span><span class="p">()</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">regridder</span><span class="p">)</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">      </span><span class="k">use </span><span class="n">ESMF</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">IdentityRegridder</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">regridder</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">RegridderSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="n">regridder</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">singleton</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="c">! Due to how MAPL is set up, the default regrid_method is</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="c">! bilinear. But if an identity regridder is requested, we</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">      </span><span class="c">! want to reflect that in the metadata by updating the spec.</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">      </span><span class="n">spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">regridder</span><span class="p">%</span><span class="n">get_spec</span><span class="p">()</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">      </span><span class="n">spec</span><span class="p">%</span><span class="n">regrid_method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">REGRID_METHOD_IDENTITY</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">      </span><span class="k">call </span><span class="n">regridder</span><span class="p">%</span><span class="n">set_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">    </span><span class="k">end function </span><span class="n">identity_regridder</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a>
+<a id="ln-59" name="ln-59" href="#ln-59"></a>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">regrid_scalar_2d_real32</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">q_in</span><span class="p">,</span><span class="w"> </span><span class="n">q_out</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">IdentityRegridder</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">      </span><span class="kt">real</span><span class="w"> </span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">q_in</span><span class="p">(:,:)</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="kt">real</span><span class="w"> </span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">q_out</span><span class="p">(:,:)</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MOD_NAME</span><span class="o">//</span><span class="s1">&#39;regrid_scalar_2d_real32&#39;</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">      </span><span class="n">q_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">q_in</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">regrid_scalar_2d_real32</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a>
+<a id="ln-76" name="ln-76" href="#ln-76"></a>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">regrid_scalar_3d_real32</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">q_in</span><span class="p">,</span><span class="w"> </span><span class="n">q_out</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">      </span><span class="k">use </span><span class="n">MAPL_CommsMod</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">      </span><span class="k">use </span><span class="n">MAPL_BaseMod</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">IdentityRegridder</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">      </span><span class="kt">real</span><span class="w"> </span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">q_in</span><span class="p">(:,:,:)</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">      </span><span class="kt">real</span><span class="w"> </span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">q_out</span><span class="p">(:,:,:)</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MOD_NAME</span><span class="o">//</span><span class="s1">&#39;regrid_scalar_2d_real32&#39;</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">q_in</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">q_out</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;inconsistent array shape&#39;</span><span class="p">)</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">      </span><span class="n">q_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">q_in</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">regrid_scalar_3d_real32</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">regrid_vector_2d_real32</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">u_in</span><span class="p">,</span><span class="w"> </span><span class="n">v_in</span><span class="p">,</span><span class="w"> </span><span class="n">u_out</span><span class="p">,</span><span class="w"> </span><span class="n">v_out</span><span class="p">,</span><span class="w"> </span><span class="n">rotate</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">      </span><span class="k">use </span><span class="n">MAPL_CommsMod</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">      </span><span class="k">use </span><span class="n">MAPL_BaseMod</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">      </span><span class="k">use</span><span class="p">,</span><span class="w"> </span><span class="k">intrinsic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iso_fortran_env</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">REAL32</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">IdentityRegridder</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">u_in</span><span class="p">(:,:)</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">v_in</span><span class="p">(:,:)</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">u_out</span><span class="p">(:,:)</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">v_out</span><span class="p">(:,:)</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rotate</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MOD_NAME</span><span class="o">//</span><span class="s1">&#39;regrid_vector_3d_real32&#39;</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">rotate</span><span class="p">)</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">      </span><span class="n">u_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">u_in</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">      </span><span class="n">v_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">v_in</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">regrid_vector_2d_real32</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a>
+<a id="ln-122" name="ln-122" href="#ln-122"></a>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">regrid_vector_3d_real32</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">u_in</span><span class="p">,</span><span class="w"> </span><span class="n">v_in</span><span class="p">,</span><span class="w"> </span><span class="n">u_out</span><span class="p">,</span><span class="w"> </span><span class="n">v_out</span><span class="p">,</span><span class="w"> </span><span class="n">rotate</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">      </span><span class="k">use </span><span class="n">MAPL_CommsMod</span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">      </span><span class="k">use </span><span class="n">MAPL_BaseMod</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="w">      </span><span class="k">use</span><span class="p">,</span><span class="w"> </span><span class="k">intrinsic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iso_fortran_env</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">REAL32</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">IdentityRegridder</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">u_in</span><span class="p">(:,:,:)</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">v_in</span><span class="p">(:,:,:)</span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">u_out</span><span class="p">(:,:,:)</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">v_out</span><span class="p">(:,:,:)</span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rotate</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MOD_NAME</span><span class="o">//</span><span class="s1">&#39;regrid_vector_3d_real32&#39;</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">rotate</span><span class="p">)</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">u_in</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">u_out</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;inconsistent array shape&#39;</span><span class="p">)</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">v_in</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">v_out</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;inconsistent array shape&#39;</span><span class="p">)</span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">u_in</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">v_in</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;inconsistent array shape&#39;</span><span class="p">)</span>
+<a id="ln-143" name="ln-143" href="#ln-143"></a>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="w">      </span><span class="n">u_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">u_in</span>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="w">      </span><span class="n">v_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">v_in</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="w">     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a>
+<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">regrid_vector_3d_real32</span>
+<a id="ln-150" name="ln-150" href="#ln-150"></a>
+<a id="ln-151" name="ln-151" href="#ln-151"></a><span class="c">!$$</span>
+<a id="ln-152" name="ln-152" href="#ln-152"></a><span class="c">!$$   function clone(this)</span>
+<a id="ln-153" name="ln-153" href="#ln-153"></a><span class="c">!$$      class (AbstractRegridder), allocatable :: clone</span>
+<a id="ln-154" name="ln-154" href="#ln-154"></a><span class="c">!$$      class (IdentityRegridder), intent(in) :: this</span>
+<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="c">!$$</span>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="c">!$$      ! We just need the type - not the details, so we copy an empty object.</span>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="c">!$$      type (IdentityRegridder) :: foo</span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="c">!$$</span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a><span class="c">!$$      allocate(clone, source=foo)</span>
+<a id="ln-160" name="ln-160" href="#ln-160"></a><span class="c">!$$</span>
+<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="c">!$$   end function clone</span>
+<a id="ln-162" name="ln-162" href="#ln-162"></a><span class="c">!$$</span>
+<a id="ln-163" name="ln-163" href="#ln-163"></a><span class="w">   </span><span class="c">! do nothing</span>
+<a id="ln-164" name="ln-164" href="#ln-164"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">initialize_subclass</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="w">      </span><span class="k">use </span><span class="n">MAPL_KeywordEnforcerMod</span>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="w">      </span><span class="k">use </span><span class="n">MAPL_RegridderSpec</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">IdentityRegridder</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a>
+<a id="ln-171" name="ln-171" href="#ln-171"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;initialize_subclass&#39;</span>
+<a id="ln-172" name="ln-172" href="#ln-172"></a>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<a id="ln-175" name="ln-175" href="#ln-175"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-176" name="ln-176" href="#ln-176"></a>
+<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">initialize_subclass</span>
+<a id="ln-178" name="ln-178" href="#ln-178"></a>
+<a id="ln-179" name="ln-179" href="#ln-179"></a><span class="k">end module </span><span class="n">MAPL_IdentityRegridderMod</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-30T12:57:40.061280             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

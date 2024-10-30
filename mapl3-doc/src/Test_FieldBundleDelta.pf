@@ -1,0 +1,530 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+module Test_FieldBundleDelta
+   use mapl3g_FieldBundleDelta
+   use mapl3g_FieldDelta
+   use mapl3g_ESMF_Info_Keys
+   use mapl3g_InfoUtilities
+   use mapl_FieldUtilities
+   use mapl3g_UngriddedDims
+   use mapl3g_UngriddedDim
+   use mapl3g_LU_Bound
+   use esmf
+   use ESMF_TestMethod_mod
+   use funit
+   implicit none (type, external)
+
+   real, parameter :: FILL_VALUE = 99.
+   real, parameter :: DEFAULT_WEIGHTS(*) = [0.0, 0.5, 0.5]
+   integer, parameter :: FIELD_COUNT = 2
+   integer, parameter :: NUM_LEVELS = 3
+   integer, parameter :: NUM_RADII = 5
+
+contains
+
+   subroutine setup_geom(geom, im)
+      type(ESMF_Geom), intent(out) :: geom
+      integer, intent(in) :: im
+
+      type(ESMF_Grid) :: grid
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM,IM])
+      geom = ESMF_GeomCreate(grid)
+
+   end subroutine setup_geom
+
+   subroutine teardown_geom(geom)
+      type(ESMF_Geom), intent(inout) :: geom
+
+      type(ESMF_Grid) :: grid
+
+      call ESMF_GeomGet(geom, grid=grid)
+      call ESMF_GridDestroy(grid)
+      call ESMF_GeomDestroy(geom)
+
+   end subroutine teardown_geom
+
+   subroutine setup_field(field, geom, typekind, units, with_ungridded)
+      type(ESMF_Field), intent(out) :: field
+      type(ESMF_Geom), intent(in) :: geom
+      type(ESMF_TypeKind_Flag), intent(in) :: typekind
+      character(len=*), intent(in) :: units
+      logical, optional, intent(in) :: with_ungridded
+
+      type(UngriddedDims) :: ungridded_dims
+      type(ESMF_Info) :: ungridded_info
+      type(LU_Bound), allocatable :: bounds(:)
+
+      field = ESMF_FieldEmptyCreate()
+      call ESMF_FieldEmptySet(field, geom=geom)
+
+      call MAPL_InfoSetInternal(field, KEY_UNITS, units)
+
+      call MAPL_InfoSetInternal(field, KEY_VLOC, "VERTICAL_DIM_NONE")
+      
+      ungridded_dims = UngriddedDims()
+      bounds = ungridded_dims%get_bounds()
+      if (present(with_ungridded)) then
+         if (with_ungridded) then
+            call MAPL_InfoSetInternal(field, KEY_VLOC, "VERTICAL_DIM_CENTER")
+            call MAPL_InfoSetInternal(field, KEY_NUM_LEVELS, NUM_LEVELS)
+            call ungridded_dims%add_dim(UngriddedDim(NUM_RADII, "radius", 'nm'))
+            bounds = [LU_Bound(1, NUM_LEVELS), ungridded_dims%get_bounds()]
+         end if
+      end if
+
+      ungridded_info = ungridded_dims%make_info()
+      call MAPL_InfoSetInternal(field, KEY_UNGRIDDED_DIMS, value=ungridded_info)
+
+      call ESMF_FieldEmptyComplete(field, typekind=typekind, ungriddedLBound=bounds%lower, ungriddedUBound=bounds%upper)
+      call FieldSet(field, FILL_VALUE)
+
+   end subroutine setup_field
+
+   subroutine teardown_field(field)
+      type(ESMF_Field), intent(inout) :: field
+
+      call ESMF_FieldDestroy(field)
+
+   end subroutine teardown_field
+
+   subroutine setup_bundle(bundle, weights, geom, typekind, units, with_ungridded)
+      type(ESMF_FieldBundle), intent(out) :: bundle
+      real(kind=ESMF_KIND_R4), intent(in) :: weights(:)
+      type(ESMF_Geom), intent(in) :: geom
+      type(ESMF_TypeKind_Flag), intent(in) :: typekind
+      character(len=*), intent(in) :: units
+      logical, optional, intent(in) :: with_ungridded
+      
+      integer :: i
+      type(ESMF_Field) :: f
+      integer :: fieldCount
+      type(UngriddedDims) :: ungridded_dims
+      type(ESMF_Info) :: ungridded_info
+
+      bundle = ESMF_FieldBundleCreate()
+      call MAPL_FieldBundleSet(bundle, geom=geom)
+      fieldCount = size(weights) - 1
+      do i = 1, fieldCount
+         call setup_field(f, geom, typekind, units, with_ungridded=with_ungridded)
+         call ESMF_FieldBundleAdd(bundle, [f], multiflag=.true.)
+      end do
+
+      ungridded_dims = UngriddedDims()
+      ungridded_info = ungridded_dims%make_info()
+      call MAPL_InfoSetInternal(bundle, KEY_UNGRIDDED_DIMS, value=ungridded_info)
+
+      call MAPL_InfoSetInternal(bundle, KEY_INTERPOLATION_WEIGHTS, weights)
+      if (typekind == ESMF_TYPEKIND_R4) then
+         call MAPL_InfoSetInternal(bundle, KEY_TYPEKIND, "R4")
+      else
+         call MAPL_InfoSetInternal(bundle, KEY_TYPEKIND, "R8")
+      end if
+      call MAPL_InfoSetInternal(bundle, KEY_UNITS, units)
+
+      call MAPL_InfoSetInternal(bundle, KEY_VLOC, "VERTICAL_DIM_NONE")
+      ungridded_dims = UngriddedDims()
+
+      if (present(with_ungridded)) then
+         if (with_ungridded) then
+            call MAPL_InfoSetInternal(bundle, KEY_VLOC, "VERTICAL_DIM_CENTER")
+            call MAPL_InfoSetInternal(bundle, KEY_NUM_LEVELS, NUM_LEVELS)
+            call ungridded_dims%add_dim(UngriddedDim(NUM_RADII, "radius", 'nm'))
+         end if
+      end if
+
+      ungridded_info = ungridded_dims%make_info()
+      call MAPL_InfoSetInternal(bundle, KEY_UNGRIDDED_DIMS, value=ungridded_info)
+
+   end subroutine setup_bundle
+
+   subroutine teardown_bundle(bundle)
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      type(ESMF_Field), allocatable :: fieldList(:)
+
+      integer :: i
+
+      call MAPL_FieldBundleGet(bundle, fieldList=fieldList)
+      do i = 1, size(fieldList)
+         call ESMF_FieldDestroy(fieldList(i))
+      end do
+      call ESMF_FieldBundleDestroy(bundle)
+
+   end subroutine teardown_bundle
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_change_typekind(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer :: status
+      type(Fieldbundledelta) :: delta
+      type(ESMF_Geom) :: geom
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Field), allocatable :: fieldList(:)
+      real(kind=ESMF_KIND_R8), pointer :: x_r8(:,:)
+      real(kind=ESMF_KIND_R4), allocatable :: weights(:)
+      integer :: i
+
+      call setup_geom(geom, 4)
+      call setup_bundle(bundle, weights=DEFAULT_WEIGHTS, geom=geom, typekind=ESMF_TYPEKIND_R4, units='m')
+
+      delta = FieldBundleDelta(FieldDelta(typekind=ESMF_TYPEKIND_R8))
+      call delta%update_bundle(bundle, _RC)
+
+      call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
+      @assert_that(size(fieldList), is(FIELD_COUNT))
+
+      do i = 1, FIELD_COUNT
+         call ESMF_FieldGet(fieldList(i), fArrayPtr=x_r8, _RC)
+         @assert_that(shape(x_r8), is(equal_to([4,4])))
+      end do
+
+      call MAPL_InfoGetInternal(bundle, KEY_INTERPOLATION_WEIGHTS, values=weights, _RC)
+      @assert_that(weights, is(equal_to(DEFAULT_WEIGHTS)))
+
+      call teardown_bundle(bundle)
+      call teardown_geom(geom)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_change_typekind
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_change_units(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer :: status
+      type(Fieldbundledelta) :: delta
+      type(ESMF_Geom) :: geom
+      type(ESMF_FieldBundle) :: bundle
+      integer :: i
+      type(ESMF_Field), allocatable :: fieldList(:)
+      real(kind=ESMF_KIND_R4), pointer :: x_r4(:,:)
+      character(:), allocatable :: new_units
+
+      call setup_geom(geom, 4)
+      call setup_bundle(bundle, weights=DEFAULT_WEIGHTS, geom=geom, typekind=ESMF_TYPEKIND_R4, units='km')
+
+      delta = FieldBundleDelta(FieldDelta(units='m'))
+      call delta%update_bundle(bundle, _RC) ! must reallocate fields
+
+      call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
+      @assert_that(size(fieldList), is(FIELD_COUNT))
+
+      do i = 1, FIELD_COUNT
+         call ESMF_FieldGet(fieldList(i), fArrayPtr=x_r4, _RC)
+         @assert_that(shape(x_r4), is(equal_to([4,4])))
+         @assert_that(x_r4, every_item(is(FILL_VALUE)))
+
+         call MAPL_infoGetInternal(fieldList(i), KEY_UNITS, value=new_units, _RC)
+         @assertEqual('m', new_units)
+      end do
+
+      call teardown_bundle(bundle)
+      call teardown_geom(geom)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_change_units
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_change_geom(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer :: status
+      type(Fieldbundledelta) :: delta
+      type(ESMF_Geom) :: geom, new_geom, tmp_geom
+      type(ESMF_FieldBundle) :: bundle
+      integer :: i
+      type(ESMF_Field), allocatable :: fieldList(:)
+      real(kind=ESMF_KIND_R4), pointer :: x_r4(:,:)
+      character(:), allocatable :: new_units
+
+      call setup_geom(geom, 4)
+      call setup_bundle(bundle, weights=DEFAULT_WEIGHTS, geom=geom, typekind=ESMF_TYPEKIND_R4, units='km')
+
+      call setup_geom(new_geom, 6)
+      delta = FieldBundleDelta(FieldDelta(new_geom)) ! same geom
+      call delta%update_bundle(bundle, _RC) ! should reallocate fields
+
+      call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
+      @assert_that(size(fieldList), is(FIELD_COUNT))
+
+      do i = 1, FIELD_COUNT
+         call ESMF_FieldGet(fieldList(i), fArrayPtr=x_r4, _RC)
+         @assert_that(shape(x_r4), is(equal_to([6,6])))
+
+         call MAPL_InfoGetInternal(fieldList(i), KEY_UNITS, value=new_units, _RC)
+         @assertEqual('km', new_units)
+
+         call ESMF_FieldGet(fieldList(i), geom=tmp_geom, _RC)
+         @assert_that(tmp_geom == new_geom, is(true()))
+      end do
+
+      call teardown_bundle(bundle)
+      call teardown_geom(geom)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_change_geom
+
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_same_geom(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer :: status
+      type(Fieldbundledelta) :: delta
+      type(ESMF_Geom) :: geom, tmp_geom
+      type(ESMF_FieldBundle) :: bundle
+      integer :: i
+      type(ESMF_Field), allocatable :: fieldList(:)
+      real(kind=ESMF_KIND_R4), pointer :: x_r4(:,:)
+      character(:), allocatable :: new_units
+
+      call setup_geom(geom, 4)
+      call setup_bundle(bundle, weights=DEFAULT_WEIGHTS, geom=geom, typekind=ESMF_TYPEKIND_R4, units='km')
+
+      delta = FieldBundleDelta(FieldDelta(geom)) ! same geom
+      call delta%update_bundle(bundle, _RC) ! should not reallocate fields
+
+      call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
+      @assert_that(size(fieldList), is(FIELD_COUNT))
+
+      do i = 1, FIELD_COUNT
+         call ESMF_FieldGet(fieldList(i), fArrayPtr=x_r4, _RC)
+         @assert_that(shape(x_r4), is(equal_to([4,4])))
+         @assert_that(x_r4, every_item(is(FILL_VALUE)))
+
+         call MAPL_InfoGetInternal(fieldList(i), KEY_UNITS, value=new_units, _RC)
+         @assertEqual('km', new_units)
+
+         call ESMF_FieldGet(fieldList(i), geom=tmp_geom, _RC)
+         @assert_that(tmp_geom == geom, is(true()))
+      end do
+
+      call teardown_bundle(bundle)
+      call teardown_geom(geom)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_same_geom
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_change_weights(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer :: status
+      type(Fieldbundledelta) :: delta
+      type(ESMF_Geom) :: geom, tmp_geom
+      type(ESMF_FieldBundle) :: bundle
+      integer :: i
+      type(ESMF_Field), allocatable :: fieldList(:)
+      real(kind=ESMF_KIND_R4), pointer :: x_r4(:,:)
+      character(:), allocatable :: new_units
+      real(kind=ESMF_KIND_R4), allocatable :: weights(:)
+      real(kind=ESMF_KIND_R4), parameter :: new_weights(*) = [0.,0.25,0.75]
+
+      call setup_geom(geom, 4)
+      call setup_bundle(bundle, weights=DEFAULT_WEIGHTS, geom=geom, typekind=ESMF_TYPEKIND_R4, units='km')
+
+
+      delta = FieldBundleDelta(interpolation_weights=new_weights) 
+      call delta%update_bundle(bundle, _RC) ! should not reallocate fields
+
+      call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
+      @assert_that(size(fieldList), is(FIELD_COUNT))
+
+      do i = 1, FIELD_COUNT
+         call ESMF_FieldGet(fieldList(i), fArrayPtr=x_r4, _RC)
+         @assert_that(shape(x_r4), is(equal_to([4,4])))
+         @assert_that(x_r4, every_item(is(FILL_VALUE)))
+
+         call MAPL_InfoGetInternal(fieldList(i), KEY_UNITS, value=new_units, _RC)
+         @assertEqual('km', new_units)
+
+         call ESMF_FieldGet(fieldList(i), geom=tmp_geom, _RC)
+         @assert_that(tmp_geom == geom, is(true()))
+      end do
+
+      call MAPL_InfoGetInternal(bundle, KEY_INTERPOLATION_WEIGHTS, values=weights, _RC)
+      @assert_that(weights, is(equal_to(new_weights)))
+
+      call teardown_bundle(bundle)
+      call teardown_geom(geom)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_change_weights
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_change_weights_with_ungridded(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer :: status
+      type(Fieldbundledelta) :: delta
+      type(ESMF_Geom) :: geom, tmp_geom
+      type(ESMF_FieldBundle) :: bundle
+      integer :: i
+      type(ESMF_Field), allocatable :: fieldList(:)
+      real(kind=ESMF_KIND_R4), pointer :: x_r4(:,:,:,:)
+      character(:), allocatable :: new_units
+      real(kind=ESMF_KIND_R4), allocatable :: weights(:)
+      real(kind=ESMF_KIND_R4), parameter :: new_weights(*) = [0.,0.25,0.75]
+      integer :: ndims, nlevels, rank
+
+      call setup_geom(geom, 4)
+      call setup_bundle(bundle, weights=DEFAULT_WEIGHTS, geom=geom, typekind=ESMF_TYPEKIND_R4, units='km', with_ungridded=.true.)
+
+
+      delta = FieldBundleDelta(interpolation_weights=new_weights) 
+      call delta%update_bundle(bundle, _RC) ! should not reallocate fields
+
+      call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
+      @assert_that(size(fieldList), is(FIELD_COUNT))
+
+      do i = 1, FIELD_COUNT
+         call ESMF_FieldGet(fieldList(i), rank=rank, _RC)
+
+         call ESMF_FieldGet(fieldList(i), fArrayPtr=x_r4, _RC)
+         @assert_that(shape(x_r4), is(equal_to([4,4,NUM_LEVELS,NUM_RADII])))
+         @assert_that(all(x_r4 == FILL_VALUE), is(true()))
+
+         call MAPL_InfoGetInternal(fieldList(i), KEY_UNITS, value=new_units, _RC)
+         @assertEqual('km', new_units)
+
+         call ESMF_FieldGet(fieldList(i), geom=tmp_geom, _RC)
+         @assert_that(tmp_geom == geom, is(true()))
+
+         call MAPL_InfoGetInternal(fieldList(i), KEY_UNGRIDDED_DIMS//KEY_NUM_UNGRIDDED_DIMS, value=ndims, _RC)
+         @assert_that(ndims, is(1))
+
+         call MAPL_InfoGetInternal(fieldList(i), KEY_NUM_LEVELS, value=nlevels, _RC)
+         @assert_that(nlevels, is(NUM_LEVELS))
+
+      end do
+
+      call MAPL_InfoGetInternal(bundle, KEY_INTERPOLATION_WEIGHTS, values=weights, _RC)
+      @assert_that(weights, is(equal_to(new_weights)))
+
+      call MAPL_InfoGetInternal(bundle, KEY_UNGRIDDED_DIMS//KEY_NUM_UNGRIDDED_DIMS, value=ndims, _RC)
+      @assert_that(ndims, is(1))
+
+      call MAPL_InfoGetInternal(bundle, KEY_NUM_LEVELS, value=nlevels, _RC)
+      @assert_that(nlevels, is(NUM_LEVELS))
+
+      call teardown_bundle(bundle)
+      call teardown_geom(geom)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_change_weights_with_ungridded
+
+    @test(type=ESMF_TestMethod, npes=[1])
+   ! This is the hard use case.  Typically it arises when ExtData
+   ! starts with a rule which is a constant expression, but then later
+   ! becomes an ordinary interpolation rule.  The bundle then goes
+   ! from 0 fields to 2 fields. The hard part is finding all the information that
+   ! is needed to create properly initialized fields.  E.g., geom, units, ...
+       subroutine test_create_fields(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer :: status
+      type(Fieldbundledelta) :: delta
+      type(ESMF_Geom) :: geom, tmp_geom
+      type(ESMF_FieldBundle) :: bundle
+      integer :: i
+      type(ESMF_Field), allocatable :: fieldList(:)
+      real(kind=ESMF_KIND_R4), pointer :: x_r4(:,:)
+      character(:), allocatable :: new_units
+      real(kind=ESMF_KIND_R4), allocatable :: weights(:)
+      real(kind=ESMF_KIND_R4), parameter :: new_weights(*) = [0.,0.25,0.75]
+
+      call setup_geom(geom, 4)
+      call setup_bundle(bundle, weights=[5.], geom=geom, typekind=ESMF_TYPEKIND_R4, units='km')
+
+      delta = FieldBundleDelta(interpolation_weights=new_weights) 
+      call delta%update_bundle(bundle, _RC) ! should allocate fields
+
+      call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
+      @assert_that(size(fieldList), is(FIELD_COUNT))
+
+      do i = 1, FIELD_COUNT
+         call ESMF_FieldGet(fieldList(i), fArrayPtr=x_r4, _RC)
+         @assert_that(shape(x_r4), is(equal_to([4,4])))
+   
+         call MAPL_InfoGetInternal(fieldList(i), KEY_UNITS, value=new_units, _RC)
+         @assertEqual('km', new_units)
+
+         call ESMF_FieldGet(fieldList(i), geom=tmp_geom, _RC)
+         @assert_that(tmp_geom == geom, is(true()))
+      end do
+
+      call MAPL_InfoGetInternal(bundle, KEY_INTERPOLATION_WEIGHTS, values=weights, _RC)
+      @assert_that(weights, is(equal_to(new_weights)))
+
+      call teardown_bundle(bundle)
+      call teardown_geom(geom)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_create_fields
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! This is the hard use case.  Typically it arises when ExtData
+   ! starts with a rule which is a constant expression, but then later
+   ! becomes an ordinary interpolation rule.  The bundle then goes
+   ! from 0 fields to 2 fields. The hard part is finding all the information that
+   ! is needed to create properly initialized fields.  E.g., geom, units, ...
+       subroutine test_create_fields_with_ungridded(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer :: status
+      type(Fieldbundledelta) :: delta
+      type(ESMF_Geom) :: geom, tmp_geom
+      type(ESMF_FieldBundle) :: bundle
+      integer :: i
+      type(ESMF_Field), allocatable :: fieldList(:)
+      real(kind=ESMF_KIND_R4), pointer :: x_r4(:,:,:,:)
+      character(:), allocatable :: new_units
+      real(kind=ESMF_KIND_R4), allocatable :: weights(:)
+      real(kind=ESMF_KIND_R4), parameter :: new_weights(*) = [0.,0.25,0.75]
+      integer :: ndims, nlevels
+
+      call setup_geom(geom, 4)
+      call setup_bundle(bundle, weights=[5.], geom=geom, typekind=ESMF_TYPEKIND_R4, units='km', &
+           with_ungridded=.true.)
+
+      delta = FieldBundleDelta(interpolation_weights=new_weights) 
+      call delta%update_bundle(bundle, _RC) ! should allocate fields
+
+      call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
+      @assert_that(size(fieldList), is(FIELD_COUNT))
+
+      do i = 1, FIELD_COUNT
+         call ESMF_FieldGet(fieldList(i), fArrayPtr=x_r4, _RC)
+         @assert_that(shape(x_r4), is(equal_to([4,4,NUM_LEVELS,NUM_RADII])))
+   
+         call MAPL_InfoGetInternal(fieldList(i), KEY_UNITS, value=new_units, _RC)
+         @assertEqual('km', new_units)
+
+         call ESMF_FieldGet(fieldList(i), geom=tmp_geom, _RC)
+         @assert_that(tmp_geom == geom, is(true()))
+
+         call MAPL_InfoGetInternal(fieldList(i), KEY_UNGRIDDED_DIMS//KEY_NUM_UNGRIDDED_DIMS, value=ndims, _RC)
+         @assert_that(ndims, is(1))
+
+         call MAPL_InfoGetInternal(fieldList(i), KEY_NUM_LEVELS, value=nlevels, _RC)
+         @assert_that(nlevels, is(NUM_LEVELS))
+      end do
+
+      call MAPL_InfoGetInternal(bundle, KEY_INTERPOLATION_WEIGHTS, values=weights, _RC)
+      @assert_that(weights, is(equal_to(new_weights)))
+
+      call MAPL_InfoGetInternal(bundle, KEY_UNGRIDDED_DIMS//KEY_NUM_UNGRIDDED_DIMS, value=ndims, _RC)
+      @assert_that(ndims, is(1))
+
+      call MAPL_InfoGetInternal(bundle, KEY_NUM_LEVELS, value=nlevels, _RC)
+      @assert_that(nlevels, is(NUM_LEVELS))
+
+      call teardown_bundle(bundle)
+      call teardown_geom(geom)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_create_fields_with_ungridded
+
+end module Test_FieldBundleDelta
+

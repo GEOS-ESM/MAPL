@@ -1,0 +1,730 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>add_vertical_dimensions &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>add_vertical_dimensions
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">25 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/SharedIO.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/sharedio.f90.html'>SharedIO.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl3g_sharedio.html'>mapl3g_SharedIO</a></li>
+            <li class="breadcrumb-item active" aria-current="page">add_vertical_dimensions</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/add_vertical_dimensions.html#src">add_vertical_dimensions</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine add_vertical_dimensions(bundle, metadata, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bundle~4"></span>
+              type(ESMF_FieldBundle),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>bundle</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-metadata~4"></span>
+              type(<a href='../type/filemetadata.html'>FileMetadata</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>metadata</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~215"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~add_vertical_dimensions~~CallsGraph Pages: 1 -->
+<svg id="procadd_vertical_dimensionsCallsGraph" width="641pt" height="372pt"
+ viewBox="0.00 0.00 641.00 371.71" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~add_vertical_dimensions~~CallsGraph" class="graph" transform="scale(0.95 0.95) rotate(0) translate(4 388.01)">
+<title>proc~~add_vertical_dimensions~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-388.01 672,-388.01 672,4 -4,4"/>
+<!-- proc~add_vertical_dimensions -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_node1" class="node">
+<title>proc~add_vertical_dimensions</title>
+<polygon fill="none" stroke="black" points="144,-195.01 0,-195.01 0,-171.01 144,-171.01 144,-195.01"/>
+<text text-anchor="middle" x="72" y="-180.61" font-family="Helvetica,sans-Serif" font-size="10.50">add_vertical_dimensions</text>
+</g>
+<!-- begin -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_node2" class="node">
+<title>begin</title>
+<polygon fill="#777777" stroke="#777777" points="307.5,-384.01 253.5,-384.01 253.5,-360.01 307.5,-360.01 307.5,-384.01"/>
+<text text-anchor="middle" x="280.5" y="-369.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">begin</text>
+</g>
+<!-- proc~add_vertical_dimensions&#45;&gt;begin -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_edge1" class="edge">
+<title>proc~add_vertical_dimensions&#45;&gt;begin</title>
+<path fill="none" stroke="#ff0000" d="M76.95,-195.09C87.84,-226.38 121.44,-310.45 180,-351.01 198.41,-363.77 223.02,-369.04 243.15,-371.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="242.97,-374.6 253.22,-371.92 243.53,-367.63 242.97,-374.6"/>
+</g>
+<!-- interface~get_num_levels -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_node3" class="node">
+<title>interface~get_num_levels</title>
+<g id="a_proc~~add_vertical_dimensions~~CallsGraph_node3"><a xlink:href="../interface/get_num_levels.html" xlink:title="get_num_levels">
+<polygon fill="#a7506f" stroke="#a7506f" points="328,-342.01 233,-342.01 233,-318.01 328,-318.01 328,-342.01"/>
+<text text-anchor="middle" x="280.5" y="-327.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_num_levels</text>
+</a>
+</g>
+</g>
+<!-- proc~add_vertical_dimensions&#45;&gt;interface~get_num_levels -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_edge2" class="edge">
+<title>proc~add_vertical_dimensions&#45;&gt;interface~get_num_levels</title>
+<path fill="none" stroke="#ff0000" d="M79.69,-195.39C94.25,-221.06 131.43,-280.07 180,-309.01 192.88,-316.68 208.16,-321.58 222.83,-324.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="222.38,-328.17 232.86,-326.57 223.67,-321.29 222.38,-328.17"/>
+</g>
+<!-- interface~get_vertical_dim_spec_names -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_node4" class="node">
+<title>interface~get_vertical_dim_spec_names</title>
+<g id="a_proc~~add_vertical_dimensions~~CallsGraph_node4"><a xlink:href="../interface/get_vertical_dim_spec_names.html" xlink:title="get_vertical_dim_spec_names">
+<polygon fill="#a7506f" stroke="#a7506f" points="366.5,-300.01 194.5,-300.01 194.5,-276.01 366.5,-276.01 366.5,-300.01"/>
+<text text-anchor="middle" x="280.5" y="-285.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_vertical_dim_spec_names</text>
+</a>
+</g>
+</g>
+<!-- proc~add_vertical_dimensions&#45;&gt;interface~get_vertical_dim_spec_names -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_edge3" class="edge">
+<title>proc~add_vertical_dimensions&#45;&gt;interface~get_vertical_dim_spec_names</title>
+<path fill="none" stroke="#ff0000" d="M84.59,-195.15C102.99,-213.66 140.84,-248.73 180,-267.01 184.63,-269.17 189.49,-271.11 194.46,-272.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="193.54,-276.24 204.13,-275.97 195.68,-269.57 193.54,-276.24"/>
+</g>
+<!-- next -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_node5" class="node">
+<title>next</title>
+<polygon fill="#777777" stroke="#777777" points="307.5,-258.01 253.5,-258.01 253.5,-234.01 307.5,-234.01 307.5,-258.01"/>
+<text text-anchor="middle" x="280.5" y="-243.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">next</text>
+</g>
+<!-- proc~add_vertical_dimensions&#45;&gt;next -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_edge4" class="edge">
+<title>proc~add_vertical_dimensions&#45;&gt;next</title>
+<path fill="none" stroke="#ff0000" d="M100.27,-195.17C121.63,-204.34 152.28,-216.71 180,-225.01 200.69,-231.21 224.33,-236.28 243.37,-239.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="242.97,-243.37 253.43,-241.73 244.23,-236.48 242.97,-243.37"/>
+</g>
+<!-- none~add_dimension -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_node6" class="node">
+<title>none~add_dimension</title>
+<g id="a_proc~~add_vertical_dimensions~~CallsGraph_node6"><a xlink:href="../type/filemetadata.html#boundprocedure-add_dimension" xlink:title="FileMetadata%add_dimension">
+<polygon fill="#a7506f" stroke="#a7506f" points="366.5,-216.01 194.5,-216.01 194.5,-192.01 366.5,-192.01 366.5,-216.01"/>
+<text text-anchor="middle" x="280.5" y="-201.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadata%add_dimension</text>
+</a>
+</g>
+</g>
+<!-- proc~add_vertical_dimensions&#45;&gt;none~add_dimension -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_edge5" class="edge">
+<title>proc~add_vertical_dimensions&#45;&gt;none~add_dimension</title>
+<path fill="none" stroke="#ff0000" d="M144.07,-190.24C156.99,-191.55 170.66,-192.94 184.15,-194.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="184.11,-197.83 194.41,-195.36 184.82,-190.86 184.11,-197.83"/>
+</g>
+<!-- of -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_node7" class="node">
+<title>of</title>
+<polygon fill="#777777" stroke="#777777" points="307.5,-174.01 253.5,-174.01 253.5,-150.01 307.5,-150.01 307.5,-174.01"/>
+<text text-anchor="middle" x="280.5" y="-159.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">of</text>
+</g>
+<!-- proc~add_vertical_dimensions&#45;&gt;of -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_edge6" class="edge">
+<title>proc~add_vertical_dimensions&#45;&gt;of</title>
+<path fill="none" stroke="#ff0000" d="M144.07,-175.78C177.44,-172.39 215.79,-168.49 243.14,-165.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="243.82,-169.16 253.42,-164.66 243.12,-162.19 243.82,-169.16"/>
+</g>
+<!-- proc~get_vertical_dimension_name -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_node8" class="node">
+<title>proc~get_vertical_dimension_name</title>
+<g id="a_proc~~add_vertical_dimensions~~CallsGraph_node8"><a xlink:href="../proc/get_vertical_dimension_name.html" xlink:title="get_vertical_dimension_name">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="366.5,-132.01 194.5,-132.01 194.5,-108.01 366.5,-108.01 366.5,-132.01"/>
+<text text-anchor="middle" x="280.5" y="-117.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_vertical_dimension_name</text>
+</a>
+</g>
+</g>
+<!-- proc~add_vertical_dimensions&#45;&gt;proc~get_vertical_dimension_name -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_edge7" class="edge">
+<title>proc~add_vertical_dimensions&#45;&gt;proc~get_vertical_dimension_name</title>
+<path fill="none" stroke="#ff0000" d="M100.27,-170.85C121.63,-161.68 152.28,-149.31 180,-141.01 188.02,-138.61 196.49,-136.37 204.96,-134.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="205.93,-137.7 214.88,-132.02 204.34,-130.88 205.93,-137.7"/>
+</g>
+<!-- proc~get_vertical_dimension_num_levels -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_node9" class="node">
+<title>proc~get_vertical_dimension_num_levels</title>
+<g id="a_proc~~add_vertical_dimensions~~CallsGraph_node9"><a xlink:href="../proc/get_vertical_dimension_num_levels.html" xlink:title="get_vertical_dimension_num_levels">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="381,-90.01 180,-90.01 180,-66.01 381,-66.01 381,-90.01"/>
+<text text-anchor="middle" x="280.5" y="-75.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_vertical_dimension_num_levels</text>
+</a>
+</g>
+</g>
+<!-- proc~add_vertical_dimensions&#45;&gt;proc~get_vertical_dimension_num_levels -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_edge8" class="edge">
+<title>proc~add_vertical_dimensions&#45;&gt;proc~get_vertical_dimension_num_levels</title>
+<path fill="none" stroke="#ff0000" d="M84.59,-170.87C102.99,-152.36 140.84,-117.29 180,-99.01 184.63,-96.85 189.49,-94.91 194.46,-93.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="195.68,-96.45 204.13,-90.05 193.54,-89.78 195.68,-96.45"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_node10" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~add_vertical_dimensions~~CallsGraph_node10"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="499,-159.01 417,-159.01 417,-135.01 499,-135.01 499,-159.01"/>
+<text text-anchor="middle" x="458" y="-144.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~add_vertical_dimensions&#45;&gt;proc~mapl_return -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_edge9" class="edge">
+<title>proc~add_vertical_dimensions&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M78.84,-170.62C92.26,-143.83 128.17,-80.99 180,-57.01 261.07,-19.5 299.98,-19.38 381,-57.01 411.38,-71.12 433.99,-104.01 446.34,-125.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="443.31,-127.63 451.14,-134.76 449.47,-124.3 443.31,-127.63"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_node11" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~add_vertical_dimensions~~CallsGraph_node11"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="496,-72.01 420,-72.01 420,-48.01 496,-48.01 496,-72.01"/>
+<text text-anchor="middle" x="458" y="-57.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~add_vertical_dimensions&#45;&gt;proc~mapl_verify -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_edge10" class="edge">
+<title>proc~add_vertical_dimensions&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M76.73,-170.87C87.08,-139.55 119.5,-56.22 180,-24.01 258.85,17.97 293.84,-4.41 381,-24.01 397.55,-27.73 414.73,-35.49 428.56,-42.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="427.11,-46.05 437.56,-47.84 430.5,-39.93 427.11,-46.05"/>
+</g>
+<!-- none~add_dimension&#45;&gt;proc~mapl_return -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_edge12" class="edge">
+<title>none~add_dimension&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M348.98,-192.01C359.8,-189.44 370.79,-186.45 381,-183.01 396.14,-177.91 412.22,-170.59 425.68,-163.88"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="427.64,-166.81 434.96,-159.14 424.46,-160.57 427.64,-166.81"/>
+</g>
+<!-- insert -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_node13" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="628.5,-205.01 574.5,-205.01 574.5,-181.01 628.5,-181.01 628.5,-205.01"/>
+<text text-anchor="middle" x="601.5" y="-190.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- none~add_dimension&#45;&gt;insert -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_edge11" class="edge">
+<title>none~add_dimension&#45;&gt;insert</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M366.57,-201.08C431.09,-198.85 516.55,-195.91 564.28,-194.26"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="564.57,-197.75 574.44,-193.91 564.33,-190.76 564.57,-197.75"/>
+</g>
+<!-- at -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_node12" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="628.5,-159.01 574.5,-159.01 574.5,-135.01 628.5,-135.01 628.5,-159.01"/>
+<text text-anchor="middle" x="601.5" y="-144.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#cc00ff" d="M499.17,-147.01C519.53,-147.01 544.08,-147.01 563.91,-147.01"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="564.1,-150.51 574.1,-147.01 564.1,-143.51 564.1,-150.51"/>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#cc00ff" d="M496.18,-159.1C517.29,-165.96 543.59,-174.51 564.5,-181.31"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="563.7,-184.73 574.29,-184.49 565.86,-178.07 563.7,-184.73"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_node14" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~add_vertical_dimensions~~CallsGraph_node14"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="668,-102.01 535,-102.01 535,-78.01 668,-78.01 668,-102.01"/>
+<text text-anchor="middle" x="601.5" y="-87.61" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#cc00ff" d="M489.01,-134.92C510.02,-126.46 538.3,-115.06 561.13,-105.87"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="562.57,-109.06 570.53,-102.08 559.95,-102.57 562.57,-109.06"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~add_vertical_dimensions~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff0098" d="M496.18,-67.89C507.79,-70.36 520.98,-73.15 533.97,-75.91"/>
+<polygon fill="#ff0098" stroke="#ff0098" points="533.34,-79.35 543.84,-78 534.79,-72.5 533.34,-79.35"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocadd_vertical_dimensionsCallsGraph = svgPanZoom('#procadd_vertical_dimensionsCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~add_vertical_dimensions~~CalledByGraph Pages: 1 -->
+<svg id="procadd_vertical_dimensionsCalledByGraph" width="310pt" height="32pt"
+ viewBox="0.00 0.00 310.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~add_vertical_dimensions~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~add_vertical_dimensions~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 306,-28 306,4 -4,4"/>
+<!-- proc~add_vertical_dimensions -->
+<g id="proc~~add_vertical_dimensions~~CalledByGraph_node1" class="node">
+<title>proc~add_vertical_dimensions</title>
+<polygon fill="none" stroke="black" points="302,-24 158,-24 158,0 302,0 302,-24"/>
+<text text-anchor="middle" x="230" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">add_vertical_dimensions</text>
+</g>
+<!-- proc~bundle_to_metadata -->
+<g id="proc~~add_vertical_dimensions~~CalledByGraph_node2" class="node">
+<title>proc~bundle_to_metadata</title>
+<g id="a_proc~~add_vertical_dimensions~~CalledByGraph_node2"><a xlink:href="../proc/bundle_to_metadata.html" xlink:title="bundle_to_metadata">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="122,-24 0,-24 0,0 122,0 122,-24"/>
+<text text-anchor="middle" x="61" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bundle_to_metadata</text>
+</a>
+</g>
+</g>
+<!-- proc~bundle_to_metadata&#45;&gt;proc~add_vertical_dimensions -->
+<g id="proc~~add_vertical_dimensions~~CalledByGraph_edge1" class="edge">
+<title>proc~bundle_to_metadata&#45;&gt;proc~add_vertical_dimensions</title>
+<path fill="none" stroke="#ff0000" d="M122.29,-12C130.62,-12 139.28,-12 147.91,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="148,-15.5 158,-12 148,-8.5 148,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">add_vertical_dimensions</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FileMetaData</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">metadata</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">num_levels</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StringVector</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vertical_names</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">StringVectorIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec_name</span><span class="p">,</span><span class="w"> </span><span class="n">dim_name</span>
+<span class="w">      </span>
+<span class="w">      </span><span class="n">num_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_num_levels</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">num_levels</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="k">      </span><span class="n">vertical_names</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_vertical_dim_spec_names</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vertical_names</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span>
+<span class="w">      </span><span class="k">do while</span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">vertical_names</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+<span class="w">         </span><span class="n">spec_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="n">of</span><span class="p">()</span>
+<span class="w">         </span><span class="n">num_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_vertical_dimension_num_levels</span><span class="p">(</span><span class="n">spec_name</span><span class="p">,</span><span class="w"> </span><span class="n">num_levels</span><span class="p">)</span>
+<span class="w">         </span><span class="n">dim_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_vertical_dimension_name</span><span class="p">(</span><span class="n">spec_name</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">metadata</span><span class="p">%</span><span class="n">add_dimension</span><span class="p">(</span><span class="n">dim_name</span><span class="p">,</span><span class="w"> </span><span class="n">num_levels</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<span class="w">      </span><span class="k">end do</span>
+<span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">add_vertical_dimensions</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-30T12:57:40.061280             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

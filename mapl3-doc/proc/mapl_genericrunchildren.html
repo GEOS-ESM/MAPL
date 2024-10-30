@@ -1,0 +1,959 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_GenericRunChildren &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_GenericRunChildren
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">76 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_Generic.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_generic.f90~2.html'>MAPL_Generic.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_genericmod.html'>MAPL_GenericMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_GenericRunChildren</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_genericrunchildren.html#src">MAPL_GenericRunChildren</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public recursive subroutine MAPL_GenericRunChildren(GC, IMPORT, EXPORT, CLOCK, RC)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gc~35"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>GC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-import~20"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>IMPORT</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-export~19"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>EXPORT</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clock~48"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CLOCK</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~361"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_genericrunchildren~~CallsGraph Pages: 1 -->
+<svg id="procmapl_genericrunchildrenCallsGraph" width="641pt" height="289pt"
+ viewBox="0.00 0.00 641.00 289.45" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_genericrunchildren~~CallsGraph" class="graph" transform="scale(0.5 0.5) rotate(0) translate(4 574)">
+<title>proc~~mapl_genericrunchildren~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-574 1276,-574 1276,4 -4,4"/>
+<!-- proc~mapl_genericrunchildren -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node1" class="node">
+<title>proc~mapl_genericrunchildren</title>
+<polygon fill="none" stroke="black" points="153,-318 0,-318 0,-294 153,-294 153,-318"/>
+<text text-anchor="middle" x="76.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GenericRunChildren</text>
+</g>
+<!-- ESMF_CplCompRun -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node2" class="node">
+<title>ESMF_CplCompRun</title>
+<g id="a_proc~~mapl_genericrunchildren~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_cplcomprun.html" xlink:title="ESMF_CplCompRun">
+<polygon fill="#d9534f" stroke="#d9534f" points="364.5,-570 249.5,-570 249.5,-546 364.5,-546 364.5,-570"/>
+<text text-anchor="middle" x="307" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_CplCompRun</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericrunchildren&#45;&gt;ESMF_CplCompRun -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_genericrunchildren&#45;&gt;ESMF_CplCompRun</title>
+<path fill="none" stroke="#ff0000" d="M79.44,-318.23C86.31,-357.24 113.27,-479.51 189,-537 203.29,-547.85 221.37,-553.75 239.01,-556.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="238.92,-560.34 249.32,-558.31 239.92,-553.41 238.92,-560.34"/>
+</g>
+<!-- ESMF_GridCompGet -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node3" class="node">
+<title>ESMF_GridCompGet</title>
+<g id="a_proc~~mapl_genericrunchildren~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_gridcompget.html" xlink:title="ESMF_GridCompGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="366.5,-528 247.5,-528 247.5,-504 366.5,-504 366.5,-528"/>
+<text text-anchor="middle" x="307" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridCompGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericrunchildren&#45;&gt;ESMF_GridCompGet -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_genericrunchildren&#45;&gt;ESMF_GridCompGet</title>
+<path fill="none" stroke="#ff0000" d="M80.78,-318.18C90.68,-352.33 123.63,-449.54 189,-495 203.16,-504.85 220.55,-510.51 237.55,-513.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="237.06,-517.12 247.48,-515.24 238.16,-510.21 237.06,-517.12"/>
+</g>
+<!-- ESMF_GridCompRun -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node4" class="node">
+<title>ESMF_GridCompRun</title>
+<g id="a_proc~~mapl_genericrunchildren~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_gridcomprun.html" xlink:title="ESMF_GridCompRun">
+<polygon fill="#d9534f" stroke="#d9534f" points="367.5,-486 246.5,-486 246.5,-462 367.5,-462 367.5,-486"/>
+<text text-anchor="middle" x="307" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridCompRun</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericrunchildren&#45;&gt;ESMF_GridCompRun -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_genericrunchildren&#45;&gt;ESMF_GridCompRun</title>
+<path fill="none" stroke="#ff0000" d="M82.93,-318.35C96.3,-347.21 133.83,-419.19 189,-453 203.13,-461.66 219.92,-466.95 236.3,-470.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="235.97,-473.64 246.42,-471.86 237.15,-466.73 235.97,-473.64"/>
+</g>
+<!-- ESMF_UserCompGetInternalState -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node5" class="node">
+<title>ESMF_UserCompGetInternalState</title>
+<g id="a_proc~~mapl_genericrunchildren~~CallsGraph_node5"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_usercompgetinternalstate.html" xlink:title="ESMF_UserCompGetInternalState">
+<polygon fill="#a7506f" stroke="#a7506f" points="402,-444 212,-444 212,-420 402,-420 402,-444"/>
+<text text-anchor="middle" x="307" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_UserCompGetInternalState</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericrunchildren&#45;&gt;ESMF_UserCompGetInternalState -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_genericrunchildren&#45;&gt;ESMF_UserCompGetInternalState</title>
+<path fill="none" stroke="#ff0000" d="M86.37,-318.1C103.48,-340.46 143.4,-388.04 189,-411 193.27,-413.15 197.72,-415.08 202.29,-416.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="201.22,-420.15 211.81,-420.12 203.51,-413.54 201.22,-420.15"/>
+</g>
+<!-- interface~mapl_getobjectfromgc -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node6" class="node">
+<title>interface~mapl_getobjectfromgc</title>
+<g id="a_proc~~mapl_genericrunchildren~~CallsGraph_node6"><a xlink:href="../interface/mapl_getobjectfromgc.html" xlink:title="MAPL_GetObjectFromGC">
+<polygon fill="#a7506f" stroke="#a7506f" points="378,-402 236,-402 236,-378 378,-378 378,-402"/>
+<text text-anchor="middle" x="307" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GetObjectFromGC</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericrunchildren&#45;&gt;interface~mapl_getobjectfromgc -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_genericrunchildren&#45;&gt;interface~mapl_getobjectfromgc</title>
+<path fill="none" stroke="#ff0000" d="M94.76,-318.21C115.94,-332.61 153.44,-356.18 189,-369 200.64,-373.2 213.25,-376.58 225.73,-379.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="225.2,-382.76 235.7,-381.34 226.6,-375.9 225.2,-382.76"/>
+</g>
+<!-- interface~mapl_timeroff -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node7" class="node">
+<title>interface~mapl_timeroff</title>
+<g id="a_proc~~mapl_genericrunchildren~~CallsGraph_node7"><a xlink:href="../interface/mapl_timeroff.html" xlink:title="MAPL_TimerOff">
+<polygon fill="#a7506f" stroke="#a7506f" points="353.5,-360 260.5,-360 260.5,-336 353.5,-336 353.5,-360"/>
+<text text-anchor="middle" x="307" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TimerOff</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericrunchildren&#45;&gt;interface~mapl_timeroff -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_genericrunchildren&#45;&gt;interface~mapl_timeroff</title>
+<path fill="none" stroke="#ff0000" d="M140.87,-318.03C156.59,-320.99 173.4,-324.13 189,-327 209.05,-330.69 231.05,-334.66 250.5,-338.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="249.96,-341.6 260.42,-339.91 251.19,-334.71 249.96,-341.6"/>
+</g>
+<!-- interface~mapl_timeron -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node8" class="node">
+<title>interface~mapl_timeron</title>
+<g id="a_proc~~mapl_genericrunchildren~~CallsGraph_node8"><a xlink:href="../interface/mapl_timeron.html" xlink:title="MAPL_TimerOn">
+<polygon fill="#a7506f" stroke="#a7506f" points="353,-318 261,-318 261,-294 353,-294 353,-318"/>
+<text text-anchor="middle" x="307" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_TimerOn</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericrunchildren&#45;&gt;interface~mapl_timeron -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_genericrunchildren&#45;&gt;interface~mapl_timeron</title>
+<path fill="none" stroke="#ff0000" d="M153.27,-306C185.11,-306 221.47,-306 250.72,-306"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="250.75,-309.5 260.75,-306 250.75,-302.5 250.75,-309.5"/>
+</g>
+<!-- none~get_child_export_state -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node9" class="node">
+<title>none~get_child_export_state</title>
+<g id="a_proc~~mapl_genericrunchildren~~CallsGraph_node9"><a xlink:href="../type/mapl_metacomp.html#boundprocedure-get_child_export_state" xlink:title="MAPL_MetaComp%get_child_export_state">
+<polygon fill="#a7506f" stroke="#a7506f" points="423,-276 191,-276 191,-252 423,-252 423,-276"/>
+<text text-anchor="middle" x="307" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MetaComp%get_child_export_state</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericrunchildren&#45;&gt;none~get_child_export_state -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_genericrunchildren&#45;&gt;none~get_child_export_state</title>
+<path fill="none" stroke="#ff0000" d="M140.87,-293.97C156.59,-291.01 173.4,-287.87 189,-285 201.78,-282.65 215.35,-280.19 228.54,-277.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="229.32,-281.22 238.54,-276.01 228.08,-274.33 229.32,-281.22"/>
+</g>
+<!-- none~get_child_gridcomp -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node10" class="node">
+<title>none~get_child_gridcomp</title>
+<g id="a_proc~~mapl_genericrunchildren~~CallsGraph_node10"><a xlink:href="../type/mapl_metacomp.html#boundprocedure-get_child_gridcomp" xlink:title="MAPL_MetaComp%get_child_gridcomp">
+<polygon fill="#a7506f" stroke="#a7506f" points="416,-234 198,-234 198,-210 416,-210 416,-234"/>
+<text text-anchor="middle" x="307" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MetaComp%get_child_gridcomp</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericrunchildren&#45;&gt;none~get_child_gridcomp -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_genericrunchildren&#45;&gt;none~get_child_gridcomp</title>
+<path fill="none" stroke="#ff0000" d="M94.76,-293.79C115.94,-279.39 153.44,-255.82 189,-243 195.74,-240.57 202.8,-238.41 209.98,-236.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="210.96,-239.86 219.82,-234.04 209.27,-233.07 210.96,-239.86"/>
+</g>
+<!-- none~get_child_import_state -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node11" class="node">
+<title>none~get_child_import_state</title>
+<g id="a_proc~~mapl_genericrunchildren~~CallsGraph_node11"><a xlink:href="../type/mapl_metacomp.html#boundprocedure-get_child_import_state" xlink:title="MAPL_MetaComp%get_child_import_state">
+<polygon fill="#a7506f" stroke="#a7506f" points="424,-192 190,-192 190,-168 424,-168 424,-192"/>
+<text text-anchor="middle" x="307" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MetaComp%get_child_import_state</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericrunchildren&#45;&gt;none~get_child_import_state -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_genericrunchildren&#45;&gt;none~get_child_import_state</title>
+<path fill="none" stroke="#ff0000" d="M86.37,-293.9C103.48,-271.54 143.4,-223.96 189,-201 193.05,-198.96 197.27,-197.12 201.59,-195.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="202.93,-198.69 211.21,-192.08 200.61,-192.08 202.93,-198.69"/>
+</g>
+<!-- none~get_num_children~2 -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node12" class="node">
+<title>none~get_num_children~2</title>
+<g id="a_proc~~mapl_genericrunchildren~~CallsGraph_node12"><a xlink:href="../type/compositecomponent.html#boundprocedure-get_num_children~2" xlink:title="CompositeComponent%get_num_children">
+<polygon fill="#a7506f" stroke="#a7506f" points="425,-150 189,-150 189,-126 425,-126 425,-150"/>
+<text text-anchor="middle" x="307" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CompositeComponent%get_num_children</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericrunchildren&#45;&gt;none~get_num_children~2 -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_genericrunchildren&#45;&gt;none~get_num_children~2</title>
+<path fill="none" stroke="#ff0000" d="M82.93,-293.65C96.3,-264.79 133.83,-192.81 189,-159 191.86,-157.25 194.83,-155.63 197.88,-154.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="199.49,-157.26 207.26,-150.06 196.69,-150.85 199.49,-157.26"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node13" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_genericrunchildren~~CallsGraph_node13"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="348,-87 266,-87 266,-63 348,-63 348,-87"/>
+<text text-anchor="middle" x="307" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericrunchildren&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_genericrunchildren&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M81.35,-293.89C92.5,-260.71 127.95,-167.52 189,-117 208.19,-101.12 233.86,-91.02 256.27,-84.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="257.19,-88.1 265.97,-82.17 255.4,-81.33 257.19,-88.1"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node14" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_genericrunchildren~~CallsGraph_node14"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="345,-35 269,-35 269,-11 345,-11 345,-35"/>
+<text text-anchor="middle" x="307" y="-20.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_genericrunchildren&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_genericrunchildren&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M79.14,-293.82C85.3,-253.14 110.77,-120.78 189,-54 208.35,-37.48 235.57,-29.65 258.89,-25.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="259.51,-29.44 268.94,-24.62 258.56,-22.5 259.51,-29.44"/>
+</g>
+<!-- none~get_export_state -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node17" class="node">
+<title>none~get_export_state</title>
+<g id="a_proc~~mapl_genericrunchildren~~CallsGraph_node17"><a xlink:href="../type/maplgenericcomponent.html#boundprocedure-get_export_state" xlink:title="MaplGenericComponent%get_export_state">
+<polygon fill="#a7506f" stroke="#a7506f" points="701.5,-318 461.5,-318 461.5,-294 701.5,-294 701.5,-318"/>
+<text text-anchor="middle" x="581.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGenericComponent%get_export_state</text>
+</a>
+</g>
+</g>
+<!-- none~get_child_export_state&#45;&gt;none~get_export_state -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge14" class="edge">
+<title>none~get_child_export_state&#45;&gt;none~get_export_state</title>
+<path fill="none" stroke="#00c4ff" stroke-dasharray="5,2" d="M386.09,-276.04C419.3,-281.15 458.18,-287.15 492.41,-292.42"/>
+<polygon fill="#00c4ff" stroke="#00c4ff" points="491.98,-295.9 502.4,-293.96 493.05,-288.98 491.98,-295.9"/>
+</g>
+<!-- none~get_ith_child -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node20" class="node">
+<title>none~get_ith_child</title>
+<g id="a_proc~~mapl_genericrunchildren~~CallsGraph_node20"><a xlink:href="../type/mapl_metacomp.html#boundprocedure-get_ith_child" xlink:title="MAPL_MetaComp%get_ith_child">
+<polygon fill="#a7506f" stroke="#a7506f" points="672,-234 491,-234 491,-210 672,-210 672,-234"/>
+<text text-anchor="middle" x="581.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MetaComp%get_ith_child</text>
+</a>
+</g>
+</g>
+<!-- none~get_child_export_state&#45;&gt;none~get_ith_child -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge15" class="edge">
+<title>none~get_child_export_state&#45;&gt;none~get_ith_child</title>
+<path fill="none" stroke="#00c4ff" stroke-dasharray="5,2" d="M386.09,-251.96C419.3,-246.85 458.18,-240.85 492.41,-235.58"/>
+<polygon fill="#00c4ff" stroke="#00c4ff" points="493.05,-239.02 502.4,-234.04 491.98,-232.1 493.05,-239.02"/>
+</g>
+<!-- none~get_gridcomp -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node18" class="node">
+<title>none~get_gridcomp</title>
+<g id="a_proc~~mapl_genericrunchildren~~CallsGraph_node18"><a xlink:href="../type/maplgenericcomponent.html#boundprocedure-get_gridcomp" xlink:title="MaplGenericComponent%get_gridcomp">
+<polygon fill="#a7506f" stroke="#a7506f" points="694.5,-276 468.5,-276 468.5,-252 694.5,-252 694.5,-276"/>
+<text text-anchor="middle" x="581.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGenericComponent%get_gridcomp</text>
+</a>
+</g>
+</g>
+<!-- none~get_child_gridcomp&#45;&gt;none~get_gridcomp -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge16" class="edge">
+<title>none~get_child_gridcomp&#45;&gt;none~get_gridcomp</title>
+<path fill="none" stroke="#004eff" stroke-dasharray="5,2" d="M386.09,-234.04C419.3,-239.15 458.18,-245.15 492.41,-250.42"/>
+<polygon fill="#004eff" stroke="#004eff" points="491.98,-253.9 502.4,-251.96 493.05,-246.98 491.98,-253.9"/>
+</g>
+<!-- none~get_child_gridcomp&#45;&gt;none~get_ith_child -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge17" class="edge">
+<title>none~get_child_gridcomp&#45;&gt;none~get_ith_child</title>
+<path fill="none" stroke="#004eff" stroke-dasharray="5,2" d="M416.09,-222C437.42,-222 459.7,-222 480.74,-222"/>
+<polygon fill="#004eff" stroke="#004eff" points="480.96,-225.5 490.96,-222 480.96,-218.5 480.96,-225.5"/>
+</g>
+<!-- none~get_import_state -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node19" class="node">
+<title>none~get_import_state</title>
+<g id="a_proc~~mapl_genericrunchildren~~CallsGraph_node19"><a xlink:href="../type/maplgenericcomponent.html#boundprocedure-get_import_state" xlink:title="MaplGenericComponent%get_import_state">
+<polygon fill="#a7506f" stroke="#a7506f" points="702,-192 461,-192 461,-168 702,-168 702,-192"/>
+<text text-anchor="middle" x="581.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGenericComponent%get_import_state</text>
+</a>
+</g>
+</g>
+<!-- none~get_child_import_state&#45;&gt;none~get_import_state -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge18" class="edge">
+<title>none~get_child_import_state&#45;&gt;none~get_import_state</title>
+<path fill="none" stroke="#2700ff" stroke-dasharray="5,2" d="M424.35,-180C432.98,-180 441.72,-180 450.43,-180"/>
+<polygon fill="#2700ff" stroke="#2700ff" points="450.62,-183.5 460.62,-180 450.62,-176.5 450.62,-183.5"/>
+</g>
+<!-- none~get_child_import_state&#45;&gt;none~get_ith_child -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge19" class="edge">
+<title>none~get_child_import_state&#45;&gt;none~get_ith_child</title>
+<path fill="none" stroke="#2700ff" stroke-dasharray="5,2" d="M386.09,-192.04C419.3,-197.15 458.18,-203.15 492.41,-208.42"/>
+<polygon fill="#2700ff" stroke="#2700ff" points="491.98,-211.9 502.4,-209.96 493.05,-204.98 491.98,-211.9"/>
+</g>
+<!-- none~get_num_children~4 -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node21" class="node">
+<title>none~get_num_children~4</title>
+<g id="a_proc~~mapl_genericrunchildren~~CallsGraph_node21"><a xlink:href="../type/concretecomposite.html#boundprocedure-get_num_children~4" xlink:title="ConcreteComposite%get_num_children">
+<polygon fill="#a7506f" stroke="#a7506f" points="692.5,-150 470.5,-150 470.5,-126 692.5,-126 692.5,-150"/>
+<text text-anchor="middle" x="581.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ConcreteComposite%get_num_children</text>
+</a>
+</g>
+</g>
+<!-- none~get_num_children~2&#45;&gt;none~get_num_children~4 -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge20" class="edge">
+<title>none~get_num_children~2&#45;&gt;none~get_num_children~4</title>
+<path fill="none" stroke="#9c00ff" stroke-dasharray="5,2" d="M425.15,-138C436.75,-138 448.54,-138 460.18,-138"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="460.35,-141.5 470.35,-138 460.35,-134.5 460.35,-141.5"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node15" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="608.5,-108 554.5,-108 554.5,-84 608.5,-84 608.5,-108"/>
+<text text-anchor="middle" x="581.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#ff00eb" d="M348.21,-78.1C401.15,-82.18 493.44,-89.29 544.3,-93.21"/>
+<polygon fill="#ff00eb" stroke="#ff00eb" points="544.25,-96.72 554.49,-94 544.79,-89.74 544.25,-96.72"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node16" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="608.5,-66 554.5,-66 554.5,-42 608.5,-42 608.5,-66"/>
+<text text-anchor="middle" x="581.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#ff00eb" d="M348.21,-71.9C401.15,-67.82 493.44,-60.71 544.3,-56.79"/>
+<polygon fill="#ff00eb" stroke="#ff00eb" points="544.79,-60.26 554.49,-56 544.25,-53.28 544.79,-60.26"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node22" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_genericrunchildren~~CallsGraph_node22"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="648,-24 515,-24 515,0 648,0 648,-24"/>
+<text text-anchor="middle" x="581.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00eb" d="M348.17,-64.75C370.8,-58.88 399.54,-51.26 425,-44 441.09,-39.41 444.73,-36.9 461,-33 475.06,-29.63 490.18,-26.56 504.77,-23.86"/>
+<polygon fill="#ff00eb" stroke="#ff00eb" points="505.55,-27.28 514.77,-22.06 504.31,-20.39 505.55,-27.28"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff0075" d="M345.03,-21.51C385.83,-19.86 452.53,-17.17 504.55,-15.07"/>
+<polygon fill="#ff0075" stroke="#ff0075" points="504.89,-18.56 514.74,-14.65 504.61,-11.56 504.89,-18.56"/>
+</g>
+<!-- none~is_threading_active -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node24" class="node">
+<title>none~is_threading_active</title>
+<g id="a_proc~~mapl_genericrunchildren~~CallsGraph_node24"><a xlink:href="../type/maplgenericcomponent.html#boundprocedure-is_threading_active" xlink:title="MaplGenericComponent%is_threading_active">
+<polygon fill="#a7506f" stroke="#a7506f" points="992,-276 738,-276 738,-252 992,-252 992,-276"/>
+<text text-anchor="middle" x="865" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplGenericComponent%is_threading_active</text>
+</a>
+</g>
+</g>
+<!-- none~get_export_state&#45;&gt;none~is_threading_active -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge25" class="edge">
+<title>none~get_export_state&#45;&gt;none~is_threading_active</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M663.17,-293.96C697.47,-288.85 737.64,-282.85 773,-277.58"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="773.95,-280.97 783.32,-276.04 772.91,-274.05 773.95,-280.97"/>
+</g>
+<!-- proc~get_current_thread -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node25" class="node">
+<title>proc~get_current_thread</title>
+<g id="a_proc~~mapl_genericrunchildren~~CallsGraph_node25"><a xlink:href="../proc/get_current_thread.html" xlink:title="get_current_thread">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="921.5,-318 808.5,-318 808.5,-294 921.5,-294 921.5,-318"/>
+<text text-anchor="middle" x="865" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_current_thread</text>
+</a>
+</g>
+</g>
+<!-- none~get_export_state&#45;&gt;proc~get_current_thread -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge26" class="edge">
+<title>none~get_export_state&#45;&gt;proc~get_current_thread</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M701.88,-306C734.85,-306 769.41,-306 798.12,-306"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="798.41,-309.5 808.41,-306 798.41,-302.5 798.41,-309.5"/>
+</g>
+<!-- none~get_gridcomp&#45;&gt;none~is_threading_active -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge27" class="edge">
+<title>none~get_gridcomp&#45;&gt;none~is_threading_active</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M694.57,-264C705.48,-264 716.64,-264 727.76,-264"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="727.95,-267.5 737.95,-264 727.95,-260.5 727.95,-267.5"/>
+</g>
+<!-- none~get_gridcomp&#45;&gt;proc~get_current_thread -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge28" class="edge">
+<title>none~get_gridcomp&#45;&gt;proc~get_current_thread</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M663.17,-276.04C706,-282.43 757.98,-290.18 798.32,-296.2"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="797.91,-299.68 808.31,-297.69 798.94,-292.75 797.91,-299.68"/>
+</g>
+<!-- none~get_import_state&#45;&gt;none~is_threading_active -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge29" class="edge">
+<title>none~get_import_state&#45;&gt;none~is_threading_active</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M682.5,-192.1C689.3,-194.57 695.87,-197.51 702,-201 723.36,-213.17 716.59,-230.92 738,-243 741.28,-244.85 744.69,-246.55 748.18,-248.11"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="747.03,-251.42 757.61,-251.91 749.64,-244.93 747.03,-251.42"/>
+</g>
+<!-- none~get_import_state&#45;&gt;proc~get_current_thread -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge30" class="edge">
+<title>none~get_import_state&#45;&gt;proc~get_current_thread</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M687.87,-192.01C692.87,-194.56 697.62,-197.53 702,-201 733.84,-226.22 706.05,-259.92 738,-285 754.94,-298.3 777.16,-304.53 798.21,-307.14"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="798.13,-310.65 808.43,-308.15 798.82,-303.68 798.13,-310.65"/>
+</g>
+<!-- none~get_child~57 -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node23" class="node">
+<title>none~get_child~57</title>
+<g id="a_proc~~mapl_genericrunchildren~~CallsGraph_node23"><a xlink:href="../type/mapl_metacomp.html#boundprocedure-get_child~57" xlink:title="MAPL_MetaComp%get_child">
+<polygon fill="#a7506f" stroke="#a7506f" points="946,-234 784,-234 784,-210 946,-210 946,-234"/>
+<text text-anchor="middle" x="865" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_MetaComp%get_child</text>
+</a>
+</g>
+</g>
+<!-- none~get_ith_child&#45;&gt;none~get_child~57 -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge31" class="edge">
+<title>none~get_ith_child&#45;&gt;none~get_child~57</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M672.34,-222C704.57,-222 740.92,-222 773.23,-222"/>
+<polygon fill="#003fff" stroke="#003fff" points="773.57,-225.5 783.57,-222 773.57,-218.5 773.57,-225.5"/>
+</g>
+<!-- none~get_child_by_index -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node26" class="node">
+<title>none~get_child_by_index</title>
+<g id="a_proc~~mapl_genericrunchildren~~CallsGraph_node26"><a xlink:href="../type/compositecomponent.html#boundprocedure-get_child_by_index" xlink:title="CompositeComponent%get_child_by_index">
+<polygon fill="#a7506f" stroke="#a7506f" points="1270.5,-255 1029.5,-255 1029.5,-231 1270.5,-231 1270.5,-255"/>
+<text text-anchor="middle" x="1150" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CompositeComponent%get_child_by_index</text>
+</a>
+</g>
+</g>
+<!-- none~get_child~57&#45;&gt;none~get_child_by_index -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge32" class="edge">
+<title>none~get_child~57&#45;&gt;none~get_child_by_index</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M946.34,-227.96C969.03,-229.65 994.32,-231.52 1019.13,-233.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1019.12,-236.87 1029.35,-234.12 1019.64,-229.89 1019.12,-236.87"/>
+</g>
+<!-- none~get_child_by_name -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_node27" class="node">
+<title>none~get_child_by_name</title>
+<g id="a_proc~~mapl_genericrunchildren~~CallsGraph_node27"><a xlink:href="../type/compositecomponent.html#boundprocedure-get_child_by_name" xlink:title="CompositeComponent%get_child_by_name">
+<polygon fill="#a7506f" stroke="#a7506f" points="1272,-213 1028,-213 1028,-189 1272,-189 1272,-213"/>
+<text text-anchor="middle" x="1150" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CompositeComponent%get_child_by_name</text>
+</a>
+</g>
+</g>
+<!-- none~get_child~57&#45;&gt;none~get_child_by_name -->
+<g id="proc~~mapl_genericrunchildren~~CallsGraph_edge33" class="edge">
+<title>none~get_child~57&#45;&gt;none~get_child_by_name</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M946.34,-216.04C968.6,-214.39 993.36,-212.55 1017.72,-210.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1018.04,-214.23 1027.76,-210 1017.53,-207.25 1018.04,-214.23"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_genericrunchildrenCallsGraph = svgPanZoom('#procmapl_genericrunchildrenCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">recursive subroutine </span><span class="n">MAPL_GenericRunChildren</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="k">import</span><span class="p">,</span><span class="w"> </span><span class="n">EXPORT</span><span class="p">,</span><span class="w"> </span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">!ARGUMENTS:</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GC</span><span class="w">     </span><span class="c">! Gridded component</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w">    </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">IMPORT</span><span class="w"> </span><span class="c">! Import state</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w">    </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">EXPORT</span><span class="w"> </span><span class="c">! Export state</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w">    </span><span class="k">intent</span><span class="p">(</span><span class="n">INOUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CLOCK</span><span class="w">  </span><span class="c">! The clock</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">   </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span><span class="w">     </span><span class="c">! Error code:</span>
+
+<span class="w">      </span><span class="c">!EOPI</span>
+
+<span class="w">      </span><span class="c">! ErrLog Variables</span>
+
+
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">IAm</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">comp_name</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">userRC</span>
+
+<span class="w">      </span><span class="c">! Local derived type aliases</span>
+
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_MetaComp</span><span class="p">),</span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">STATE</span>
+
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">CHILD_NAME</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                          </span><span class="kd">::</span><span class="w"> </span><span class="n">I</span><span class="p">,</span><span class="w"> </span><span class="n">J</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                          </span><span class="kd">::</span><span class="w"> </span><span class="n">NC</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                          </span><span class="kd">::</span><span class="w"> </span><span class="n">PHASE</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                          </span><span class="kd">::</span><span class="w"> </span><span class="n">NUMPHASES</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">                          </span><span class="kd">::</span><span class="w"> </span><span class="n">MAXPHASES</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_MetaPtr</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">CHLDMAPL</span><span class="p">(:)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gridcomp</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child_import_state</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">child_export_state</span>
+
+<span class="w">      </span><span class="c">!=============================================================================</span>
+
+<span class="w">      </span><span class="c">! Begin...</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="k">IMPORT</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">EXPORT</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! Get the target components name and set-up traceback handle.</span>
+<span class="w">      </span><span class="c">! -----------------------------------------------------------</span>
+
+<span class="w">      </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;MAPL_GenericRunChildren&quot;</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridCompGet</span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="n">comp_name</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">comp_name</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">Iam</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! Retrieve the pointer to the internal state. It comes in a wrapper.</span>
+<span class="w">      </span><span class="c">! ------------------------------------------------------------------</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_InternalStateGet</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">GC</span><span class="p">,</span><span class="w"> </span><span class="n">STATE</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="c">!@ call MAPL_TimerOn (STATE,&quot;GenRunTot&quot;)</span>
+
+<span class="w">      </span><span class="c">! Run the children</span>
+<span class="w">      </span><span class="c">! ----------------</span>
+
+<span class="w">      </span><span class="n">NC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">get_num_children</span><span class="p">()</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">CHLDMAPL</span><span class="p">(</span><span class="n">NC</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="n">MAXPHASES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="k">do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">NC</span>
+<span class="w">         </span><span class="n">gridcomp</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">GET_CHILD_GRIDCOMP</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_GetObjectFromGC</span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="n">CHLDMAPL</span><span class="p">(</span><span class="n">I</span><span class="p">)%</span><span class="n">PTR</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="n">MAXPHASES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">MAX</span><span class="p">(</span><span class="n">MAXPHASES</span><span class="p">,</span><span class="w"> </span><span class="n">SIZE</span><span class="p">(</span><span class="n">CHLDMAPL</span><span class="p">(</span><span class="n">I</span><span class="p">)%</span><span class="n">PTR</span><span class="p">%</span><span class="n">PHASE_RUN</span><span class="p">))</span>
+<span class="w">      </span><span class="k">end do</span>
+
+<span class="k">      do </span><span class="n">PHASE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MAXPHASES</span>
+<span class="w">         </span><span class="k">do </span><span class="n">I</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">NC</span>
+<span class="w">            </span><span class="n">NUMPHASES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SIZE</span><span class="p">(</span><span class="n">CHLDMAPL</span><span class="p">(</span><span class="n">I</span><span class="p">)%</span><span class="n">PTR</span><span class="p">%</span><span class="n">PHASE_RUN</span><span class="p">)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">PHASE</span><span class="w"> </span><span class="p">.</span><span class="n">le</span><span class="p">.</span><span class="w"> </span><span class="n">NUMPHASES</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               </span><span class="n">gridcomp</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">GET_CHILD_GRIDCOMP</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+<span class="w">               </span><span class="k">call </span><span class="n">ESMF_GridCompGet</span><span class="p">(</span><span class="w"> </span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="n">CHILD_NAME</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">MAPL_TimerOn</span><span class="w"> </span><span class="p">(</span><span class="n">STATE</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">CHILD_NAME</span><span class="p">))</span>
+<span class="w">               </span><span class="n">child_import_state</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">get_child_import_state</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">               </span><span class="n">child_export_state</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">get_child_export_state</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+<span class="w">               </span><span class="k">call </span><span class="n">ESMF_GridCompRun</span><span class="w"> </span><span class="p">(</span><span class="n">gridcomp</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">importState</span><span class="o">=</span><span class="n">child_import_state</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">exportState</span><span class="o">=</span><span class="n">child_export_state</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">clock</span><span class="o">=</span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">PHASE</span><span class="o">=</span><span class="n">CHLDMAPL</span><span class="p">(</span><span class="n">I</span><span class="p">)%</span><span class="n">PTR</span><span class="p">%</span><span class="n">PHASE_RUN</span><span class="p">(</span><span class="n">PHASE</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                    </span><span class="n">userRC</span><span class="o">=</span><span class="n">userRC</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span>
+<span class="w">               </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">userRC</span><span class="p">)</span>
+
+<span class="w">                </span><span class="k">call </span><span class="n">MAPL_TimerOff</span><span class="p">(</span><span class="n">STATE</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">CHILD_NAME</span><span class="p">))</span>
+<span class="w">            </span><span class="k">end if</span>
+
+<span class="w">            </span><span class="c">!ALT question for Max - if user wants to run particular phase only, when should we run couplers</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">PHASE</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">NUMPHASES</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               do </span><span class="n">J</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">NC</span>
+<span class="w">                  </span><span class="k">if</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">CCcreated</span><span class="p">(</span><span class="n">I</span><span class="p">,</span><span class="n">J</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                     </span><span class="n">child_export_state</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">get_child_export_state</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">                     </span><span class="n">child_import_state</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">get_child_import_state</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+<span class="w">                     </span><span class="k">call </span><span class="n">ESMF_CplCompRun</span><span class="w"> </span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">CCS</span><span class="p">(</span><span class="n">I</span><span class="p">,</span><span class="n">J</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                          </span><span class="n">importState</span><span class="o">=</span><span class="n">child_export_state</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                          </span><span class="n">exportState</span><span class="o">=</span><span class="n">child_import_state</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                          </span><span class="n">clock</span><span class="o">=</span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">userRC</span><span class="o">=</span><span class="n">userRC</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">                     </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">userRC</span><span class="p">)</span>
+<span class="w">                  </span><span class="k">endif</span>
+<span class="k">               enddo</span>
+<span class="k">            end if</span>
+<span class="k">         enddo</span>
+<span class="k">      enddo</span>
+<span class="k">      deallocate</span><span class="p">(</span><span class="n">CHLDMAPL</span><span class="p">)</span>
+
+<span class="c">!@ call MAPL_TimerOff(STATE,&quot;GenRunTot&quot;)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">MAPL_GenericRunChildren</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-30T12:57:40.061280             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

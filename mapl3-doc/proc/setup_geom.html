@@ -1,0 +1,634 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>setup_geom &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>setup_geom
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">7 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_FieldBundleDelta.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_fieldbundledelta.pf.html'>Test_FieldBundleDelta.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_fieldbundledelta.html'>Test_FieldBundleDelta</a></li>
+            <li class="breadcrumb-item active" aria-current="page">setup_geom</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/setup_geom.html#src">setup_geom</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine setup_geom(geom, im)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-geom~67"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_geom.html'>ESMF_Geom</a>),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>geom</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-im~73"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>im</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~setup_geom~~CallsGraph Pages: 1 -->
+<svg id="procsetup_geomCallsGraph" width="282pt" height="74pt"
+ viewBox="0.00 0.00 282.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~setup_geom~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>proc~~setup_geom~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 278,-70 278,4 -4,4"/>
+<!-- proc~setup_geom -->
+<g id="proc~~setup_geom~~CallsGraph_node1" class="node">
+<title>proc~setup_geom</title>
+<polygon fill="none" stroke="black" points="78,-45 0,-45 0,-21 78,-21 78,-45"/>
+<text text-anchor="middle" x="39" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">setup_geom</text>
+</g>
+<!-- ESMF_GeomCreate -->
+<g id="proc~~setup_geom~~CallsGraph_node2" class="node">
+<title>ESMF_GeomCreate</title>
+<g id="a_proc~~setup_geom~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_geomcreate.html" xlink:title="ESMF_GeomCreate">
+<polygon fill="#a7506f" stroke="#a7506f" points="251,-66 137,-66 137,-42 251,-42 251,-66"/>
+<text text-anchor="middle" x="194" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GeomCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~setup_geom&#45;&gt;ESMF_GeomCreate -->
+<g id="proc~~setup_geom~~CallsGraph_edge1" class="edge">
+<title>proc~setup_geom&#45;&gt;ESMF_GeomCreate</title>
+<path fill="none" stroke="#ff0000" d="M78.21,-38.25C92.87,-40.26 110.06,-42.62 126.61,-44.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="126.41,-48.39 136.8,-46.29 127.36,-41.46 126.41,-48.39"/>
+</g>
+<!-- ESMF_GridCreateNoPeriDim -->
+<g id="proc~~setup_geom~~CallsGraph_node3" class="node">
+<title>ESMF_GridCreateNoPeriDim</title>
+<g id="a_proc~~setup_geom~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridcreatenoperidim.html" xlink:title="ESMF_GridCreateNoPeriDim">
+<polygon fill="#a7506f" stroke="#a7506f" points="274,-24 114,-24 114,0 274,0 274,-24"/>
+<text text-anchor="middle" x="194" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridCreateNoPeriDim</text>
+</a>
+</g>
+</g>
+<!-- proc~setup_geom&#45;&gt;ESMF_GridCreateNoPeriDim -->
+<g id="proc~~setup_geom~~CallsGraph_edge2" class="edge">
+<title>proc~setup_geom&#45;&gt;ESMF_GridCreateNoPeriDim</title>
+<path fill="none" stroke="#ff0000" d="M78.21,-27.75C86.12,-26.67 94.77,-25.48 103.65,-24.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="104.33,-27.7 113.76,-22.88 103.37,-20.77 104.33,-27.7"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~setup_geom~~CalledByGraph Pages: 1 -->
+<svg id="procsetup_geomCalledByGraph" width="332pt" height="326pt"
+ viewBox="0.00 0.00 332.00 326.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~setup_geom~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 322)">
+<title>proc~~setup_geom~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-322 328,-322 328,4 -4,4"/>
+<!-- proc~setup_geom -->
+<g id="proc~~setup_geom~~CalledByGraph_node1" class="node">
+<title>proc~setup_geom</title>
+<polygon fill="none" stroke="black" points="324,-171 246,-171 246,-147 324,-147 324,-171"/>
+<text text-anchor="middle" x="285" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50">setup_geom</text>
+</g>
+<!-- proc~test_change_geom~2 -->
+<g id="proc~~setup_geom~~CalledByGraph_node2" class="node">
+<title>proc~test_change_geom~2</title>
+<g id="a_proc~~setup_geom~~CalledByGraph_node2"><a xlink:href="../proc/test_change_geom~2.html" xlink:title="test_change_geom">
+<polygon fill="#d9534f" stroke="#d9534f" points="161.5,-318 48.5,-318 48.5,-294 161.5,-294 161.5,-318"/>
+<text text-anchor="middle" x="105" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_change_geom</text>
+</a>
+</g>
+</g>
+<!-- proc~test_change_geom~2&#45;&gt;proc~setup_geom -->
+<g id="proc~~setup_geom~~CalledByGraph_edge1" class="edge">
+<title>proc~test_change_geom~2&#45;&gt;proc~setup_geom</title>
+<path fill="none" stroke="#ff0000" d="M161.56,-303.45C178.33,-300.5 195.98,-295 210,-285 246.24,-259.16 267.56,-209.55 277.4,-180.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="280.73,-181.96 280.5,-171.37 274.07,-179.79 280.73,-181.96"/>
+</g>
+<!-- proc~test_change_typekind~2 -->
+<g id="proc~~setup_geom~~CalledByGraph_node3" class="node">
+<title>proc~test_change_typekind~2</title>
+<g id="a_proc~~setup_geom~~CalledByGraph_node3"><a xlink:href="../proc/test_change_typekind~2.html" xlink:title="test_change_typekind">
+<polygon fill="#d9534f" stroke="#d9534f" points="169,-276 41,-276 41,-252 169,-252 169,-276"/>
+<text text-anchor="middle" x="105" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_change_typekind</text>
+</a>
+</g>
+</g>
+<!-- proc~test_change_typekind~2&#45;&gt;proc~setup_geom -->
+<g id="proc~~setup_geom~~CalledByGraph_edge2" class="edge">
+<title>proc~test_change_typekind~2&#45;&gt;proc~setup_geom</title>
+<path fill="none" stroke="#ff0000" d="M169.15,-258.03C183.23,-254.88 197.64,-250.14 210,-243 236.59,-227.64 258.54,-199.25 271.45,-179.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="274.45,-181.57 276.89,-171.26 268.56,-177.79 274.45,-181.57"/>
+</g>
+<!-- proc~test_change_units -->
+<g id="proc~~setup_geom~~CalledByGraph_node4" class="node">
+<title>proc~test_change_units</title>
+<g id="a_proc~~setup_geom~~CalledByGraph_node4"><a xlink:href="../proc/test_change_units.html" xlink:title="test_change_units">
+<polygon fill="#d9534f" stroke="#d9534f" points="159,-234 51,-234 51,-210 159,-210 159,-234"/>
+<text text-anchor="middle" x="105" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_change_units</text>
+</a>
+</g>
+</g>
+<!-- proc~test_change_units&#45;&gt;proc~setup_geom -->
+<g id="proc~~setup_geom~~CalledByGraph_edge3" class="edge">
+<title>proc~test_change_units&#45;&gt;proc~setup_geom</title>
+<path fill="none" stroke="#ff0000" d="M159.01,-214.65C175.65,-211.46 193.87,-207.03 210,-201 226.8,-194.72 244.31,-184.95 258.07,-176.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="259.98,-179.35 266.54,-171.03 256.22,-173.45 259.98,-179.35"/>
+</g>
+<!-- proc~test_change_weights -->
+<g id="proc~~setup_geom~~CalledByGraph_node5" class="node">
+<title>proc~test_change_weights</title>
+<g id="a_proc~~setup_geom~~CalledByGraph_node5"><a xlink:href="../proc/test_change_weights.html" xlink:title="test_change_weights">
+<polygon fill="#d9534f" stroke="#d9534f" points="166.5,-192 43.5,-192 43.5,-168 166.5,-168 166.5,-192"/>
+<text text-anchor="middle" x="105" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_change_weights</text>
+</a>
+</g>
+</g>
+<!-- proc~test_change_weights&#45;&gt;proc~setup_geom -->
+<g id="proc~~setup_geom~~CalledByGraph_edge4" class="edge">
+<title>proc~test_change_weights&#45;&gt;proc~setup_geom</title>
+<path fill="none" stroke="#ff0000" d="M166.76,-172.83C189.26,-170.18 214.45,-167.2 235.7,-164.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="236.26,-168.16 245.78,-163.51 235.44,-161.2 236.26,-168.16"/>
+</g>
+<!-- proc~test_change_weights_with_ungridded -->
+<g id="proc~~setup_geom~~CalledByGraph_node6" class="node">
+<title>proc~test_change_weights_with_ungridded</title>
+<g id="a_proc~~setup_geom~~CalledByGraph_node6"><a xlink:href="../proc/test_change_weights_with_ungridded.html" xlink:title="test_change_weights_with_ungridded">
+<polygon fill="#d9534f" stroke="#d9534f" points="210,-150 0,-150 0,-126 210,-126 210,-150"/>
+<text text-anchor="middle" x="105" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_change_weights_with_ungridded</text>
+</a>
+</g>
+</g>
+<!-- proc~test_change_weights_with_ungridded&#45;&gt;proc~setup_geom -->
+<g id="proc~~setup_geom~~CalledByGraph_edge5" class="edge">
+<title>proc~test_change_weights_with_ungridded&#45;&gt;proc~setup_geom</title>
+<path fill="none" stroke="#ff0000" d="M207.74,-150C217.48,-151.15 227.01,-152.28 235.85,-153.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="235.55,-156.81 245.89,-154.5 236.37,-149.86 235.55,-156.81"/>
+</g>
+<!-- proc~test_create_fields -->
+<g id="proc~~setup_geom~~CalledByGraph_node7" class="node">
+<title>proc~test_create_fields</title>
+<g id="a_proc~~setup_geom~~CalledByGraph_node7"><a xlink:href="../proc/test_create_fields.html" xlink:title="test_create_fields">
+<polygon fill="#d9534f" stroke="#d9534f" points="157.5,-108 52.5,-108 52.5,-84 157.5,-84 157.5,-108"/>
+<text text-anchor="middle" x="105" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_create_fields</text>
+</a>
+</g>
+</g>
+<!-- proc~test_create_fields&#45;&gt;proc~setup_geom -->
+<g id="proc~~setup_geom~~CalledByGraph_edge6" class="edge">
+<title>proc~test_create_fields&#45;&gt;proc~setup_geom</title>
+<path fill="none" stroke="#ff0000" d="M157.68,-103.1C174.67,-106.31 193.44,-110.81 210,-117 226.8,-123.28 244.31,-133.05 258.07,-141.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="256.22,-144.55 266.54,-146.97 259.98,-138.65 256.22,-144.55"/>
+</g>
+<!-- proc~test_create_fields_with_ungridded -->
+<g id="proc~~setup_geom~~CalledByGraph_node8" class="node">
+<title>proc~test_create_fields_with_ungridded</title>
+<g id="a_proc~~setup_geom~~CalledByGraph_node8"><a xlink:href="../proc/test_create_fields_with_ungridded.html" xlink:title="test_create_fields_with_ungridded">
+<polygon fill="#d9534f" stroke="#d9534f" points="201,-66 9,-66 9,-42 201,-42 201,-66"/>
+<text text-anchor="middle" x="105" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_create_fields_with_ungridded</text>
+</a>
+</g>
+</g>
+<!-- proc~test_create_fields_with_ungridded&#45;&gt;proc~setup_geom -->
+<g id="proc~~setup_geom~~CalledByGraph_edge7" class="edge">
+<title>proc~test_create_fields_with_ungridded&#45;&gt;proc~setup_geom</title>
+<path fill="none" stroke="#ff0000" d="M190.35,-66.04C197.21,-68.5 203.86,-71.45 210,-75 236.59,-90.36 258.54,-118.75 271.45,-138.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="268.56,-140.21 276.89,-146.74 274.45,-136.43 268.56,-140.21"/>
+</g>
+<!-- proc~test_same_geom -->
+<g id="proc~~setup_geom~~CalledByGraph_node9" class="node">
+<title>proc~test_same_geom</title>
+<g id="a_proc~~setup_geom~~CalledByGraph_node9"><a xlink:href="../proc/test_same_geom.html" xlink:title="test_same_geom">
+<polygon fill="#d9534f" stroke="#d9534f" points="156.5,-24 53.5,-24 53.5,0 156.5,0 156.5,-24"/>
+<text text-anchor="middle" x="105" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_same_geom</text>
+</a>
+</g>
+</g>
+<!-- proc~test_same_geom&#45;&gt;proc~setup_geom -->
+<g id="proc~~setup_geom~~CalledByGraph_edge8" class="edge">
+<title>proc~test_same_geom&#45;&gt;proc~setup_geom</title>
+<path fill="none" stroke="#ff0000" d="M156.75,-13.77C174.89,-16.49 194.63,-22.04 210,-33 246.24,-58.84 267.56,-108.45 277.4,-137.1"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="274.07,-138.21 280.5,-146.63 280.73,-136.04 274.07,-138.21"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">setup_geom</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">im</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">im</span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid</span>
+
+<span class="w">      </span><span class="n">grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_GridCreateNoPeriDim</span><span class="p">(</span><span class="n">maxIndex</span><span class="o">=</span><span class="p">[</span><span class="n">IM</span><span class="p">,</span><span class="n">IM</span><span class="p">])</span>
+<span class="w">      </span><span class="n">geom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_GeomCreate</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">setup_geom</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-10-30T12:57:40.061280             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
