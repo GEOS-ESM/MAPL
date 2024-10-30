@@ -3,6 +3,7 @@
 module mapl3g_FixedLevelsVerticalGrid
 
    use mapl_ErrorHandling
+   use MAPLBase_Mod
    use mapl3g_VerticalGrid
    use mapl3g_GriddedComponentDriver
    use mapl3g_VerticalDimSpec
@@ -73,10 +74,10 @@ contains
       type(VerticalDimSpec), intent(in) :: vertical_dim_spec
       integer, optional, intent(out) :: rc
 
-      real(kind=REAL32), allocatable :: adjusted_levels(:)
+      type(ESMF_Grid) :: grid
+      real(kind=REAL32), allocatable :: adjusted_levels(:), farray(:, :, :)
       character(:), allocatable :: vloc
-      integer :: status
-      type(ESMF_Info) :: info
+      integer :: counts(3), IM, JM, i, j, status
 
       if (vertical_dim_spec == VERTICAL_DIM_CENTER) then
          adjusted_levels = this%levels
@@ -88,15 +89,20 @@ contains
          _FAIL("unsupported vertical_dim_spec")
       end if
 
-      ! Add the 1D array, levels(:), to an ESMF Field
-      field = ESMF_FieldEmptyCreate(name="FixedLevelsVerticalGrid", _RC)
-      call ESMF_FieldEmptySet(field, geom=geom, _RC)
-      call ESMF_FieldEmptyComplete( &
-           field, &
-           farray=adjusted_levels, &
+      ! Create an ESMF_Field containing the levels
+      ! First, copy the 1D levels array to each point on the horz grid
+      call ESMF_GeomGet(geom, grid=grid)
+      call MAPL_GridGet(grid, localCellCountPerDim=counts, _RC)
+      IM = counts(1); JM = counts(2)
+      allocate(farray(IM, JM, size(adjusted_levels)))
+      do concurrent (i=1:IM, j=1:JM)
+         farray(i, j, :) = adjusted_levels(:)
+      end do
+      field = ESMF_FieldCreate( &
+           geom=geom, &
+           farray=farray, &
            indexflag=ESMF_INDEX_DELOCAL, &
            datacopyFlag=ESMF_DATACOPY_VALUE, &
-           gridToFieldMap=[0, 0], &
            ungriddedLBound=[1], &
            ungriddedUBound=[size(adjusted_levels)], &
            _RC)
