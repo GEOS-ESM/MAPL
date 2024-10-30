@@ -65,9 +65,9 @@ contains
       type(ESMF_Clock) :: clock
       integer, optional, intent(out) :: rc
 
-      real(ESMF_KIND_R4), pointer :: vcoord_in(:, :, :)
-      real(ESMF_KIND_R4), pointer :: vcoord_out(:)
-      integer :: vshape(3), i, j, IM, JM, status
+      real(ESMF_KIND_R4), pointer :: v_in(:, :, :), v_out(:, :, :)
+      integer :: shape_in(3), shape_out(3), n_horz, n_ungridded
+      integer :: horz1, horz2, ungrd, ndx, status
 
       _ASSERT(this%method == VERTICAL_REGRID_LINEAR, "regrid method can only be linear")
 
@@ -79,18 +79,25 @@ contains
       !    call this%v_out_coupler%initialize(_RC)
       ! end if
 
-      ! call assign_fptr_condensed_array(this%v_in_coord, vcoord_in, _RC)
-      ! call assign_fptr_condensed_array(this%v_out_coord, vcoord_out, _RC)
+      call assign_fptr_condensed_array(this%v_in_coord, v_in, _RC)
+      shape_in = shape(v_in)
+      n_horz = shape_in(1)
+      n_ungridded = shape_in(3)
 
-      call ESMF_FieldGet(this%v_in_coord, fArrayPtr=vcoord_in, _RC)
-      vshape = shape(vcoord_in)
-      IM = vshape(1); JM = vshape(2)
-      call ESMF_FieldGet(this%v_out_coord, fArrayPtr=vcoord_out, _RC)
-      allocate(this%matrix(IM*JM))
+      call assign_fptr_condensed_array(this%v_out_coord, v_out, _RC)
+      shape_out = shape(v_out)
+      _ASSERT((shape_in(1) == shape_out(1)), "horz dims are expected to be equal")
+      _ASSERT((shape_in(3) == shape_out(3)), "ungridded dims are expected to be equal")
 
-      do i=1,IM
-         do j=1,JM
-            call compute_linear_map(vcoord_in(i, j, :), vcoord_out(:), this%matrix(i + (j-1) * IM), _RC)
+      allocate(this%matrix(n_horz*n_horz))
+
+      ! TODO: Convert to a do concurrent loop
+      do horz1 = 1, n_horz
+         do horz2 = 1, n_horz
+            ndx = horz1 + (horz2 - 1) * n_horz
+            do ungrd = 1, n_ungridded
+               call compute_linear_map(v_in(horz1, :, ungrd), v_out(horz2, :, ungrd), this%matrix(ndx), _RC)
+            end do
          end do
       end do
 
@@ -108,7 +115,8 @@ contains
       integer :: status
       type(ESMF_Field) :: f_in, f_out
       real(ESMF_KIND_R4), pointer :: x_in(:,:,:), x_out(:,:,:)
-      integer :: x_shape(3), horz, ungridded
+      integer :: shape_in(3), shape_out(3), n_horz, n_ungridded
+      integer :: horz1, horz2, ungrd, ndx
 
       ! if (associated(this%v_in_coupler)) then
       !    call this%v_in_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
@@ -120,13 +128,20 @@ contains
 
       call ESMF_StateGet(importState, itemName='import[1]', field=f_in, _RC)
       call assign_fptr_condensed_array(f_in, x_in, _RC)
+      shape_in = shape(x_in)
+      n_horz = shape_in(1)
+      n_ungridded = shape_in(3)
 
       call ESMF_StateGet(exportState, itemName='export[1]', field=f_out, _RC)
       call assign_fptr_condensed_array(f_out, x_out, _RC)
+      shape_out = shape(x_out)
 
-      x_shape = shape(x_out)
-      do concurrent (horz=1:x_shape(1), ungridded=1:x_shape(3))
-         x_out(horz, :, ungridded) = matmul(this%matrix(horz), x_in(horz, :, ungridded))
+      _ASSERT((shape_in(1) == shape_out(1)), "horz dims are expected to be equal")
+      _ASSERT((shape_in(3) == shape_out(3)), "ungridded dims are expected to be equal")
+
+      do concurrent (horz1=1:n_horz, horz2=1:n_horz, ungrd=1:n_ungridded)
+         ndx = horz1 + (horz2 - 1) * n_horz
+         x_out(horz2, :, ungrd) = matmul(this%matrix(ndx), x_in(horz1, :, ungrd))
       end do
 
       _RETURN(_SUCCESS)
