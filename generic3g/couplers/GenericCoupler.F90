@@ -98,6 +98,7 @@ contains
       type(CouplerMetaComponent), pointer :: meta
 
       meta => get_coupler_meta(gridcomp, _RC)
+!#      call meta%update_time_varying(importState, exportState, _RC)
       call meta%update(importState, exportState, clock, _RC)
 
       _RETURN(_SUCCESS)
@@ -115,6 +116,7 @@ contains
       type(CouplerMetaComponent), pointer :: meta
 
       meta => get_coupler_meta(gridcomp, _RC)
+!#      call meta%invalidate_time_varying(importState, exportState, _RC)
       call meta%invalidate(importstate, exportState, clock, _RC)
 
       _RETURN(_SUCCESS)

@@ -85,6 +85,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ESMA_cmake v3.52.0
     - Fixes for using MAPL as a library in spack builds of GEOSgcm
     - Various backports from v4
+- Update CI to use v7.27.0 Baselibs
 
 ### Fixed
 
@@ -93,6 +94,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.50.2] - 2024-10-30
+
+### Fixed
+
+- Fixed bug with cycle placement in coupler loop in History
 
 ## [2.50.1] - 2024-10-18
 
