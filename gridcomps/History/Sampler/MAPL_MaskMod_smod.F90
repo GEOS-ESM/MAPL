@@ -260,12 +260,17 @@ module subroutine  create_metadata(this,rc)
        else
           units = 'unknown'
        endif
-       if (field_rank==2) then
-          vdims = "mask_index,time"
-          v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
-       else if (field_rank==3) then
-          vdims = "mask_index,lev,time"
-          v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
+
+       if (this%timeInfo%is_initialized) then       
+          if (field_rank==2) then
+             vdims = "mask_index,time"
+             v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
+          else if (field_rank==3) then
+             vdims = "mask_index,lev,time"
+             v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
+          end if
+       else
+          _FAIL('timeinfo is uninitialized in mask')
        end if
        call v%add_attribute('units',         trim(units))
        call v%add_attribute('long_name',     trim(long_name))
@@ -740,7 +745,7 @@ module subroutine  create_metadata(this,rc)
     class(MaskSampler), intent(inout) :: this
     type(ESMF_Time), intent(inout)          :: current_time
     character(len=*), intent(in) :: filename
-    type (ClientManager), optional, intent(inout) :: oClients
+    type (ClientManager), target, optional, intent(inout) :: oClients
     integer, optional, intent(out)          :: rc
     !
     integer :: status
@@ -858,17 +863,17 @@ module subroutine  create_metadata(this,rc)
 
              ref = ArrayReference(p_dst_2d)
 
-             write(6,*) 'test p_dst_2d(j)'
-             write(6,*) 'nx=', nx
-             write(6,*) 'this%npt_mask_tot=', this%npt_mask_tot             
-             write(6,*)  p_dst_2d(1:nx)
+             write(6,*) 'ip, nx, this%npt_mask_tot, i1, in=', &
+                  mypet, nx, this%npt_mask_tot, this%i1, this%in
+             
+             if ( nx>0 )  write(6,*)  p_dst_2d(1:nx)
 
 !!             write(6,*) ref             
 
 
              if (nx>0) then
                 allocate(local_start,source=[this%i1,1])
-                allocate(global_start,source=[1,1])
+                allocate(global_start,source=[1,tindex])
                 allocate(global_count,source=[this%npt_mask_tot,1])
              else
                 allocate(local_start,source=[0,0])
@@ -876,6 +881,10 @@ module subroutine  create_metadata(this,rc)
                 allocate(global_count,source=[0,0])
              end if
 
+             call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(item%xname), &
+                  ref,start=local_start, global_start=global_start, global_count=global_count)
+             deallocate (local_start, global_start, global_count)
+             
              write(6,*) 'end collective_stage_data p_dst_2d'
              
           else if (rank==3) then
@@ -907,17 +916,21 @@ module subroutine  create_metadata(this,rc)
 
              ref = ArrayReference(arr)
              write(6,*) 'end collective_stage_data p_dst_3d'
+
+             call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(item%xname), &
+                  ref,start=local_start, global_start=global_start, global_count=global_count)
+          deallocate (local_start, global_start, global_count)          
+
              
           else
              _FAIL('grid2LS regridder: rank > 3 not implemented')
           end if
 
           
-          call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(item%xname), &
-               ref,start=local_start, global_start=global_start, global_count=global_count)
 
 
-          deallocate (local_start, global_start, global_count)
+
+
           !! if (present(local_start,))  deallocate(local_start)
           
        end if
@@ -1010,5 +1023,29 @@ module subroutine  create_metadata(this,rc)
  end subroutine stage2dlatlon
 
 
+     module subroutine modifyTime(this, oClients, rc)
+        class(MaskSampler), intent(inout) :: this
+        type (ClientManager), optional, intent(inout) :: oClients
+        integer, optional, intent(out) :: rc
 
-end submodule MaskSampler_implement
+        type(Variable) :: v
+        type(StringVariableMap) :: var_map
+        integer :: status
+
+        if (this%timeInfo%is_initialized) then
+           v = this%timeInfo%define_time_variable(_RC)
+           call this%metadata%modify_variable('time',v,rc=status)
+           _VERIFY(status)
+           if (present(oClients)) then
+              call var_map%insert('time',v)
+              call oClients%modify_metadata(this%write_collection_id, var_map=var_map, rc=status)
+              _VERIFY(status)
+           end if
+        else
+           _FAIL("Time was not initialized for the GriddedIO class instance")
+        end if
+        _RETURN(ESMF_SUCCESS)
+
+     end subroutine modifyTime
+
+   end submodule MaskSampler_implement

@@ -3593,16 +3593,18 @@ ENDDO PARSER
                list(n)%unit = -1
             end if
          elseif (list(n)%sampler_spec == 'mask') then            
-            if (list(n)%unit.eq.0) then
-
-               call lgr%debug('%a %a',&
-                    "Mask_data output to new file:",trim(filename(n)))
-
-!               call list(n)%mask_sampler%close_file_handle(_RC)
-!               call list(n)%mask_sampler%create_file_handle(filename(n),_RC)
-               list(n)%currentFile = filename(n)
-               list(n)%unit = -1
-
+            if( list(n)%unit.eq.0 ) then
+               if (list(n)%format == 'CFIO') then
+                  if (.not.intState%allow_overwrite) then
+                     inquire (file=trim(filename(n)),exist=file_exists)
+                     _ASSERT(.not.file_exists,trim(filename(n))//" being created for History output already exists")
+                  end if
+                  call list(n)%mask_sampler%modifyTime(oClients=o_Clients,_RC)
+                  list(n)%currentFile = filename(n)
+                  list(n)%unit = -1
+               else
+                  list(n)%unit = GETFILE( trim(filename(n)),all_pes=.true.)
+               end if
             end if
          else
             if( list(n)%unit.eq.0 ) then
@@ -3774,8 +3776,8 @@ ENDDO PARSER
 
 
    call MAPL_TimerOn(GENSTATE,"Done Wait")
-! ygyu
    if (any(writing)) then
+      print*, 'nail: in writing, bf o_Clients%done_collective_stage'
       call o_Clients%done_collective_stage(_RC)
       call o_Clients%post_wait()
    endif

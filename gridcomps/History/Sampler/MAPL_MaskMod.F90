@@ -105,6 +105,7 @@ module MaskSamplerMod
      procedure :: compute_time_for_current
      procedure :: set_param
      procedure :: stage2dlatlon
+     procedure :: modifytime
   end type MaskSampler
 
   interface MaskSampler
@@ -175,7 +176,7 @@ module MaskSamplerMod
        class(MaskSampler), intent(inout)       :: this
        type(ESMF_Time), intent(inout)          :: current_time
        character(len=*), intent(in)            :: filename
-       type (ClientManager), optional, intent(inout) :: oClients
+       type (ClientManager), target, optional, intent(inout) :: oClients
        integer, optional, intent(out)          :: rc
      end subroutine output_to_server
 
@@ -215,6 +216,12 @@ module MaskSamplerMod
        real(kind=ESMF_KIND_R8) :: rtime
      end function compute_time_for_current
 
-     
+
+    module subroutine modifyTime(this, oClients, rc)
+      class(MaskSampler), intent(inout) :: this
+      type (ClientManager), optional, intent(inout) :: oClients
+      integer, optional, intent(out) :: rc     
+    end subroutine modifyTime
+      
   end interface
 end module MaskSamplerMod
