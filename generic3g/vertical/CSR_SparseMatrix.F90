@@ -45,7 +45,7 @@ module mapl3g_CSR_SparseMatrix
       procedure CONCAT(add_row_,kz)                            ;\
    end interface add_row                                       ;\
    interface shape                                             ;\
-      procedure CONCAT(shape_, kz)                             ;\
+      procedure CONCAT(shape_,kz)                              ;\
    end interface shape                                         ;\
    interface T(kz)                                             ;\
       procedure CONCAT(new_csr_matrix_,kz)                     ;\
@@ -93,7 +93,7 @@ contains
    end subroutine
 
 #define SHAPE(kz)                                                    \
-   pure function CONCAT(shape_, kz)(A) result(s)                    ;\
+   pure function CONCAT(shape_,kz)(A) result(s)                    ;\
       type(T(kz)), intent(in) :: A                                  ;\
       integer :: s(2)                                               ;\
                                                                      \
