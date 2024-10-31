@@ -39,6 +39,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.50.2] - 2024-10-30
+
+### Fixed
+
+- Fixed bug with cycle placement in coupler loop in History
+
 ## [2.50.1] - 2024-10-18
 
 ### Fixed
