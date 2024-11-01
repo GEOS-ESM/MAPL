@@ -11,11 +11,10 @@ module mapl3g_AccumulatorAction
    public :: AccumulatorAction
 
    type, extends(ExtensionAction) :: AccumulatorAction
-      logical :: update_calculated = .FALSE.
       type(ESMF_Field) :: accumulation_field
       type(ESMF_Field) :: result_field
-      real(kind=ESMF_KIND_R4) :: UNDEF_VALUE_R4 = MAPL_UNDEFINED_REAL
       real(kind=ESMF_KIND_R4) :: CLEAR_VALUE_R4 = 0.0_ESMF_KIND_R4
+      logical :: update_calculated = .FALSE.
    contains
       ! Implementations of deferred procedures
       procedure :: invalidate
@@ -25,9 +24,7 @@ module mapl3g_AccumulatorAction
       procedure :: accumulate
       procedure :: initialized
       procedure :: clear_accumulator
-      procedure :: clear_fields
       procedure :: accumulate_R4
-      procedure :: calculate_result
    end type AccumulatorAction
 
 contains
@@ -42,20 +39,9 @@ contains
    subroutine clear_accumulator(this, rc)
       class(AccumulatorAction), intent(inout) :: this
       integer, optional, intent(out) :: rc
-      integer :: status
-   
-      call this%clear_fields(_RC)
-      _RETURN(_SUCCESS)
-
-   end subroutine clear_accumulator
-
-   subroutine clear_fields(this, rc)
-      class(AccumulatorAction), intent(inout) :: this
-      integer, optional, intent(out) :: rc
       
       integer :: status
       type(ESMF_TypeKind_Flag) :: tk
-      real(kind=ESMF_KIND_R4) :: CLEAR_VALUE_R4 !wdb fixme deleteme
 
       call ESMF_FieldGet(this%accumulation_field, typekind=tk, _RC)
       if(tk == ESMF_TYPEKIND_R4) then
@@ -65,7 +51,7 @@ contains
       end if
       _RETURN(_SUCCESS)
 
-   end subroutine clear_fields
+   end subroutine clear_accumulator
 
    subroutine initialize(this, importState, exportState, clock, rc)
       class(AccumulatorAction), intent(inout) :: this
@@ -75,13 +61,21 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_Field) :: import_field
+      type(ESMF_Field) :: import_field, export_field
+      logical :: fields_are_conformable
 
       call get_field(importState, import_field, _RC)
+      call get_field(exportState, export_field, _RC)
+      fields_are_conformable = FieldsAreConformable(import_field, export_field, _RC)
+      _ASSERT(fields_are_conformable, 'Import field and export field are not conformable.')
+
       if(this%initialized()) then
          call ESMF_FieldDestroy(this%accumulation_field, _RC)
+         call ESMF_FieldDestroy(this%result_field, _RC)
       end if
       this%accumulation_field = ESMF_FieldCreate(import_field, _RC)
+      this%result_field = ESMF_FieldCreate(export_field, _RC)
+
       call this%clear_accumulator(_RC)
       _RETURN(_SUCCESS)
 
@@ -99,28 +93,16 @@ contains
       
       _ASSERT(this%initialized(), 'Accumulator has not been initialized.')
       if(.not. this%update_calculated) then
-         call this%calculate_result(_RC)
          call FieldCopy(this%accumulation_field, this%result_field, _RC)
+         this%update_calculated = .TRUE.
       end if
       call get_field(exportState, export_field, _RC)
-      export_field = this%result_field !wdb fixme deleteme Does this need to be a copy?
+      call FieldCopy(this%result_field, export_field, _RC)
 
       call this%clear_accumulator(_RC)
       _RETURN(_SUCCESS)
 
    end subroutine update
-
-   subroutine calculate_result(this, rc)
-      class(AccumulatorAction), intent(inout) :: this
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      this%update_calculated = .TRUE.
-
-      _RETURN(_SUCCESS)
-
-   end subroutine calculate_result
 
    subroutine invalidate(this, importState, exportState, clock, rc)
       class(AccumulatorAction), intent(inout) :: this
@@ -191,7 +173,7 @@ contains
       real(kind=ESMF_KIND_R4), pointer :: latest(:)
       real(kind=ESMF_KIND_R4) :: undef
 
-      undef = this%UNDEF_VALUE_R4
+      undef = MAPL_UNDEFINED_REAL
       call assign_fptr(this%accumulation_field, current, _RC)
       call assign_fptr(update_field, latest, _RC)
       where(current /= undef .and. latest /= undef)

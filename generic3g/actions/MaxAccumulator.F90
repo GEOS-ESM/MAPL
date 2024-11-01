@@ -2,6 +2,7 @@
 module mapl3g_MaxAccumulator
    use mapl3g_AccumulatorAction
    use MAPL_ExceptionHandling
+   use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
    use MAPL_FieldPointerUtilities, only: assign_fptr
    use ESMF
    implicit none
@@ -23,7 +24,7 @@ contains
    function construct_MaxAccumulator() result(acc)
       type(MaxAccumulator) :: acc
 
-      acc%CLEAR_VALUE_R4 = acc%UNDEF_VALUE_R4
+      acc%CLEAR_VALUE_R4 = MAPL_UNDEFINED_REAL
 
    end function construct_MaxAccumulator
 
@@ -35,14 +36,13 @@ contains
       integer :: status
       real(kind=ESMF_KIND_R4), pointer :: current(:)
       real(kind=ESMF_KIND_R4), pointer :: latest(:)
-      real(kind=ESMF_KIND_R4) :: undef
+      real(kind=ESMF_KIND_R4), parameter :: UNDEF = MAPL_UNDEFINED_REAL
 
-      undef = this%UNDEF_VALUE_R4
       call assign_fptr(this%accumulation_field, current, _RC)
       call assign_fptr(update_field, latest, _RC)
-      where(current == undef)
+      where(current == UNDEF)
          current = latest
-      elsewhere(latest /= undef)
+      elsewhere(latest /= UNDEF)
          current = max(current, latest)
       end where
       _RETURN(_SUCCESS)
