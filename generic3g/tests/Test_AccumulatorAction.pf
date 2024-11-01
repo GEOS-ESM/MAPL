@@ -7,10 +7,20 @@ module Test_AccumulatorAction
    use mapl3g_AccumulatorAction
    use esmf
    use funit
+   use MAPL_FieldUtils
    implicit none
+
+   interface copy_field_array
+      module procedure ::  copy_field_array_R4
+   end interface copy_field_array
 
    integer(kind=ESMF_KIND_I4), parameter :: TIME_STEP = 1
    integer(kind=ESMF_KIND_I4), parameter :: START_TIME = 3000
+   integer, parameter :: MAX_INDEX(2) = [4, 4]
+   real(kind=ESMF_KIND_R8), parameter :: MIN_CORNER_COORD(2) = [0.0_ESMF_KIND_R8, 0.0_ESMF_KIND_R8]
+   real(kind=ESMF_KIND_R8), parameter :: MAX_CORNER_COORD(2) = [4.0_ESMF_KIND_R8, 4.0_ESMF_KIND_R8]
+   type(ESMF_TypeKind_Flag), parameter :: typekind = ESMF_TYPEKIND_R4
+   integer, parameter :: ER4 = ESMF_KIND_R4
 
 contains
 
@@ -32,10 +42,6 @@ contains
       type(ESMF_Field) :: importField, exportField
       type(ESMF_Time) :: startTime
       type(ESMF_TimeInterval) :: timeStep
-      type(ESMF_TypeKind_Flag), parameter :: typekind = ESMF_TYPEKIND_R4
-      integer, parameter :: MAX_INDEX(2) = [4, 4]
-      real(kind=ESMF_KIND_R8), parameter :: MIN_CORNER_COORD(2) = [0.0_ESMF_KIND_R8, 0.0_ESMF_KIND_R8]
-      real(kind=ESMF_KIND_R8), parameter :: MAX_CORNER_COORD(2) = [4.0_ESMF_KIND_R8, 4.0_ESMF_KIND_R8]
       type(ESMF_Grid) :: grid
 
       call ESMF_TimeIntervalSet(timeStep, s=TIME_STEP, _RC)
@@ -86,6 +92,20 @@ contains
 
    end subroutine destroy_objects
 
+   subroutine copy_field_array_R4(field, farray, rc)
+      type(ESMF_Field), intent(inout) :: field
+      real(kind=ER4), allocatable, intent(out) :: farray(:,:)
+      integer, optional, intent(out) :: rc
+      integer :: status
+      real(kind=ER4), pointer :: farrayPtr(:,:)
+
+
+      call ESMF_FieldGet(field, farrayPtr=farrayPtr, _RC)
+      farray = farrayPtr
+      _RETURN(_SUCCESS)
+
+   end subroutine copy_field_array_R4
+
    @Before
    subroutine set_up()
       integer :: status
@@ -98,7 +118,6 @@ contains
    @Test
    subroutine test_construct_AccumulatorAction()
       type(AccumulatorAction) :: acc
-      integer :: status
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
 
@@ -109,41 +128,59 @@ contains
    @Test
    subroutine test_initialize()
       type(AccumulatorAction) :: acc
-      integer :: status
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
+      type(ESMF_Field) :: import_field
+      integer :: status
+      real(kind=ER4), parameter :: TEST_VALUE = 1.0_ER4
+      real(kind=ER4), pointer :: farrayPtr(:,:)
+      real(kind=ER4) :: clear_value
+      logical :: import_equals_test_value, accumulation_equals_clear_value
 
       call initialize_objects(importState, exportState, clock, _RC)
       @assert_that(acc%initialized(), is(false()))
+      call get_field(importState, import_field, _RC)
+      call FieldSet(import_field, TEST_VALUE, _RC)
+      import_equals_test_value = FieldIsConstant(import_field, TEST_VALUE, _RC)
+      @assert_that(import_equals_test_value, is(true()))
+!      call ESMF_FieldGet(import_field, farrayPtr=farrayPtr, _RC)
+!      @assert_that(all(farrayPtr == TEST_VALUE), is(true()))
       call acc%initialize(importState, exportState, clock, _RC)
       @assert_that(acc%initialized(), is(true()))
+      clear_value = acc%CLEAR_VALUE_R4
+      accumulation_equals_clear_value = FieldIsConstant(acc%accumulation_field, clear_value, _RC)
+      @assert_that(accumulation_equals_clear_value, is(true()))
+!      call ESMF_FieldGet(acc%accumulation_field, farrayPtr=farrayPtr, _RC)
+!      @assert_that(all(farrayPtr == clear_value), is(true()))
       call destroy_objects(importState, exportState, clock, _RC)
-
-      _UNUSED_DUMMY(importState)
-      _UNUSED_DUMMY(exportState)
-      _UNUSED_DUMMY(clock)
 
    end subroutine test_initialize
 
    @Test
    subroutine test_invalidate()
       type(AccumulatorAction) :: acc
-      integer :: status
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
+      integer :: status
+      type(ESMF_Field) :: import_field
+      real(kind=er4), parameter :: invalidate_value = 4.0_ER4
+      logical :: accumulation_equals_invalidate_value
 
       call initialize_objects(importState, exportState, clock, _RC)
+      call acc%initialize(importState, exportState, clock, _RC)
+      call get_field(importState, import_field, _RC)
+      call FieldSet(import_field, invalidate_value, _RC)
+      call acc%invalidate(importState, exportState, clock, _RC)
+      @assert_that(acc%update_calculated, is(false()))
+      accumulation_equals_invalidate_value = FieldIsConstant(acc%accumulation_field, invalidate_value, _RC)
+      @assert_that(accumulation_equals_invalidate_value, is(true()))
       call destroy_objects(importState, exportState, clock, _RC)
-
-      _UNUSED_DUMMY(importState)
-      _UNUSED_DUMMY(exportState)
-      _UNUSED_DUMMY(clock)
 
    end subroutine test_invalidate
 
    @Test
    subroutine test_update()
-      type(AccumulatorAction) :: acc
+!      type(AccumulatorAction) :: acc
       logical :: lval = .TRUE.
 
       @assert_that(lval, is(true()))
@@ -152,7 +189,7 @@ contains
 
    @Test
    subroutine test_accumulate()
-      type(AccumulatorAction) :: acc
+!      type(AccumulatorAction) :: acc
       logical :: lval = .TRUE.
 
       @assert_that(lval, is(true()))
@@ -161,7 +198,7 @@ contains
 
    @Test
    subroutine test_initialized()
-      type(AccumulatorAction) :: acc
+!      type(AccumulatorAction) :: acc
       logical :: lval = .TRUE.
 
       @assert_that(lval, is(true()))
@@ -170,7 +207,7 @@ contains
 
    @Test
    subroutine test_clear_accumulator()
-      type(AccumulatorAction) :: acc
+!      type(AccumulatorAction) :: acc
       logical :: lval = .TRUE.
 
       @assert_that(lval, is(true()))
@@ -179,7 +216,7 @@ contains
 
    @Test
    subroutine test_clear_fields()
-      type(AccumulatorAction) :: acc
+!      type(AccumulatorAction) :: acc
       logical :: lval = .TRUE.
 
       @assert_that(lval, is(true()))
@@ -188,7 +225,7 @@ contains
 
    @Test
    subroutine test_accumulate_R4()
-      type(AccumulatorAction) :: acc
+!      type(AccumulatorAction) :: acc
       logical :: lval = .TRUE.
 
       @assert_that(lval, is(true()))
@@ -197,7 +234,7 @@ contains
 
    @Test
    subroutine test_calculate_result()
-      type(AccumulatorAction) :: acc
+!      type(AccumulatorAction) :: acc
       logical :: lval = .TRUE.
 
       @assert_that(lval, is(true()))

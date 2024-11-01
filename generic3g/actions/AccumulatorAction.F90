@@ -77,16 +77,12 @@ contains
       integer :: status
       type(ESMF_Field) :: import_field
 
-      _HERE
       call get_field(importState, import_field, _RC)
-      _HERE
       if(this%initialized()) then
          call ESMF_FieldDestroy(this%accumulation_field, _RC)
       end if
       this%accumulation_field = ESMF_FieldCreate(import_field, _RC)
-      _HERE
       call this%clear_accumulator(_RC)
-      _HERE
       _RETURN(_SUCCESS)
 
    end subroutine initialize
