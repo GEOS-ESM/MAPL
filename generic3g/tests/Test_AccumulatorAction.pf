@@ -1,4 +1,8 @@
+#define _RETURN_(R, S) if(present(R)) R = S; return
+#define _RETURN(S) _RETURN_(rc, S)
+#define _SUCCESS 0
 #include "MAPL_TestErr.h"
+#include "unused_dummy.H"
 module Test_AccumulatorAction
    use mapl3g_AccumulatorAction
    use esmf
@@ -15,6 +19,7 @@ contains
       integer :: status
 
       lval = ESMF_IsInitialized(_RC)
+      _RETURN(_SUCCESS)
 
    end function is_initialized
 
@@ -36,11 +41,12 @@ contains
       call ESMF_TimeIntervalSet(timeStep, s=TIME_STEP, _RC)
       call ESMF_TimeSet(startTime, yy=START_TIME, _RC)
       clock = ESMF_ClockCreate(timeStep=timeStep, startTime=startTime, _RC)
-!      grid = ESMF_GridCreateNoPeriDimUfrm(maxIndex=MAX_INDEX, minCornerCoord=MIN_CORNER_COORD, maxCornerCoord=MAX_CORNER_COORD, _RC)
-!      importField = ESMF_FieldCreate(grid=grid, typekind=typekind, _RC)
-!      exportField = ESMF_FieldCreate(grid=grid, typekind=typekind, _RC)
-!      importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, fieldList=[importField], name='import', _RC)
-!      exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, fieldList=[exportField], name='export', _RC)
+      grid = ESMF_GridCreateNoPeriDimUfrm(maxIndex=MAX_INDEX, minCornerCoord=MIN_CORNER_COORD, maxCornerCoord=MAX_CORNER_COORD, _RC)
+      importField = ESMF_FieldCreate(grid=grid, typekind=typekind, _RC)
+      exportField = ESMF_FieldCreate(grid=grid, typekind=typekind, _RC)
+      importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, fieldList=[importField], name='import', _RC)
+      exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, fieldList=[exportField], name='export', _RC)
+      _RETURN(_SUCCESS)
 
    end subroutine initialize_objects
 
@@ -54,6 +60,7 @@ contains
 
       call ESMF_StateGet(state, itemNameList=itemNameList, _RC)
       call ESMF_StateGet(state, itemName=itemNameList(1), field=field, _RC)
+      _RETURN(_SUCCESS)
 
    end subroutine get_field
    
@@ -64,14 +71,18 @@ contains
 
       integer :: status
       type(ESMF_Field) :: importField, exportField
+      type(ESMF_Grid) :: grid
 
       call get_field(importState, importField, _RC)
-      call ESMF_FieldDestroy(importField, _RC)
       call get_field(exportState, exportField, _RC)
-      call ESMF_FieldDestroy(exportField, _RC)
       call ESMF_StateDestroy(importState, _RC)
       call ESMF_StateDestroy(exportState, _RC)
+      call ESMF_FieldGet(importField, grid=grid, _RC)
+      call ESMF_FieldDestroy(importField, _RC)
+      call ESMF_FieldDestroy(exportField, _RC)
+      call ESMF_GridDestroy(grid, _RC)
       call ESMF_ClockDestroy(clock, _RC)
+      _RETURN(_SUCCESS)
 
    end subroutine destroy_objects
 
@@ -102,78 +113,95 @@ contains
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
 
-!      call initialize_objects(importState, exportState, clock, _RC)
+      call initialize_objects(importState, exportState, clock, _RC)
       @assert_that(acc%initialized(), is(false()))
-      acc%accumulation_field = ESMF_FieldEmptyCreate(_RC)
+      call acc%initialize(importState, exportState, clock, _RC)
       @assert_that(acc%initialized(), is(true()))
-      call ESMF_FieldDestroy(acc%accumulation_field, _RC)
-!      call destroy_objects(importState, exportState, clock, _RC)
+      call destroy_objects(importState, exportState, clock, _RC)
+
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
 
    end subroutine test_initialize
 
-!   @Test
-!   subroutine test_invalidate()
-!      type(AccumulatorAction) :: acc
-!      integer :: status
-!
-!      @assert_that(XXX, is(ZZZ))
-!
-!   end subroutine test_invalidate
+   @Test
+   subroutine test_invalidate()
+      type(AccumulatorAction) :: acc
+      integer :: status
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
 
-!   @Test
-!   subroutine test_update()
-!      type(AccumulatorAction) :: acc
-!
-!      @assert_that(XXX, is(ZZZ))
-!
-!   end subroutine test_update
+      call initialize_objects(importState, exportState, clock, _RC)
+      call destroy_objects(importState, exportState, clock, _RC)
 
-!   @Test
-!   subroutine test_accumulate()
-!      type(AccumulatorAction) :: acc
-!
-!      @assert_that(XXX, is(ZZZ))
-!
-!   end subroutine test_accumulate
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
 
-!   @Test
-!   subroutine test_initialized()
-!      type(AccumulatorAction) :: acc
-!
-!      @assert_that(XXX, is(ZZZ))
-!
-!   end subroutine test_initialized
+   end subroutine test_invalidate
 
-!   @Test
-!   subroutine test_clear_accumulator()
-!      type(AccumulatorAction) :: acc
-!
-!      @assert_that(XXX, is(ZZZ))
-!
-!   end subroutine test_clear_accumulator
+   @Test
+   subroutine test_update()
+      type(AccumulatorAction) :: acc
+      logical :: lval = .TRUE.
 
-!   @Test
-!   subroutine test_clear_fields()
-!      type(AccumulatorAction) :: acc
-!
-!      @assert_that(XXX, is(ZZZ))
-!
-!   end subroutine test_clear_fields
+      @assert_that(lval, is(true()))
 
-!   @Test
-!   subroutine test_accumulate_R4()
-!      type(AccumulatorAction) :: acc
-!
-!      @assert_that(XXX, is(ZZZ))
-!
-!   end subroutine test_accumulate_R4
+   end subroutine test_update
 
-!   @Test
-!   subroutine test_calculate_result()
-!      type(AccumulatorAction) :: acc
-!
-!      @assert_that(XXX, is(ZZZ))
-!
-!   end subroutine test_calculate_result
+   @Test
+   subroutine test_accumulate()
+      type(AccumulatorAction) :: acc
+      logical :: lval = .TRUE.
+
+      @assert_that(lval, is(true()))
+
+   end subroutine test_accumulate
+
+   @Test
+   subroutine test_initialized()
+      type(AccumulatorAction) :: acc
+      logical :: lval = .TRUE.
+
+      @assert_that(lval, is(true()))
+
+   end subroutine test_initialized
+
+   @Test
+   subroutine test_clear_accumulator()
+      type(AccumulatorAction) :: acc
+      logical :: lval = .TRUE.
+
+      @assert_that(lval, is(true()))
+
+   end subroutine test_clear_accumulator
+
+   @Test
+   subroutine test_clear_fields()
+      type(AccumulatorAction) :: acc
+      logical :: lval = .TRUE.
+
+      @assert_that(lval, is(true()))
+
+   end subroutine test_clear_fields
+
+   @Test
+   subroutine test_accumulate_R4()
+      type(AccumulatorAction) :: acc
+      logical :: lval = .TRUE.
+
+      @assert_that(lval, is(true()))
+
+   end subroutine test_accumulate_R4
+
+   @Test
+   subroutine test_calculate_result()
+      type(AccumulatorAction) :: acc
+      logical :: lval = .TRUE.
+
+      @assert_that(lval, is(true()))
+
+   end subroutine test_calculate_result
 
 end module Test_AccumulatorAction

@@ -12,8 +12,8 @@ module mapl3g_AccumulatorAction
 
    type, extends(ExtensionAction) :: AccumulatorAction
       logical :: update_calculated = .FALSE.
-      type(ESMF_Field), allocatable, public :: accumulation_field
-      type(ESMF_Field), allocatable, public :: result_field
+      type(ESMF_Field) :: accumulation_field
+      type(ESMF_Field) :: result_field
       real(kind=ESMF_KIND_R4) :: UNDEF_VALUE_R4 = MAPL_UNDEFINED_REAL
       real(kind=ESMF_KIND_R4) :: CLEAR_VALUE_R4 = 0.0_ESMF_KIND_R4
    contains
@@ -35,7 +35,7 @@ contains
    logical function initialized(this) result(lval)
       class(AccumulatorAction), intent(in) :: this
 
-      lval = allocated(this%accumulation_field)
+      lval = ESMF_FieldIsCreated(this%accumulation_field) 
 
    end function initialized
 
@@ -77,9 +77,16 @@ contains
       integer :: status
       type(ESMF_Field) :: import_field
 
+      _HERE
       call get_field(importState, import_field, _RC)
-      call FieldCopy(import_field, this%accumulation_field, _RC)
+      _HERE
+      if(this%initialized()) then
+         call ESMF_FieldDestroy(this%accumulation_field, _RC)
+      end if
+      this%accumulation_field = ESMF_FieldCreate(import_field, _RC)
+      _HERE
       call this%clear_accumulator(_RC)
+      _HERE
       _RETURN(_SUCCESS)
 
    end subroutine initialize
@@ -94,6 +101,7 @@ contains
       integer :: status
       type(ESMF_Field) :: export_field
       
+      _ASSERT(this%initialized(), 'Accumulator has not been initialized.')
       if(.not. this%update_calculated) then
          call this%calculate_result(_RC)
          call FieldCopy(this%accumulation_field, this%result_field, _RC)
@@ -128,6 +136,7 @@ contains
       integer :: status
       type(ESMF_Field) :: import_field
       
+      _ASSERT(this%initialized(), 'Accumulator has not been initialized.')
       this%update_calculated = .FALSE.
       call get_field(importState, import_field, _RC)
       call this%accumulate(import_field, _RC)
