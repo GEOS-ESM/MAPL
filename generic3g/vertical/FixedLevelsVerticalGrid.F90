@@ -110,12 +110,12 @@ contains
       integer, intent(out) :: iostat
       character(*), intent(inout) :: iomsg
 
-      write(unit, "(1x, a, a, 4x, a, a, a, 4x, a, a, a, 4x, a, *(g0, 1x), a, 1x, a)", iostat=iostat, iomsg=iomsg) &
+      write(unit, "(1x, a, a, 4x, a, a, a, 4x, a, a, a, 4x, a, *(g0, 1x))", iostat=iostat, iomsg=iomsg) &
            "FixedLevelsVerticalGrid(", new_line("a"), &
            "standard name: ", this%standard_name, new_line("a"), &
            "units: ", this%units, new_line("a"), &
-           "levels: ", this %levels, new_line("a"), &
-           ")"
+           "levels: ", this %levels
+      write(unit, "(a, 1x, a)", iostat=iostat, iomsg=iomsg) new_line("a"), ")"
 
       _UNUSED_DUMMY(iotype)
       _UNUSED_DUMMY(v_list)
