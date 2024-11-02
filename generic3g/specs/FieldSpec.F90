@@ -12,6 +12,7 @@
 
 module mapl3g_FieldSpec
 
+   use mapl3g_VerticalStaggerLoc
    use mapl3g_StateItemSpec
    use mapl3g_WildcardSpec
    use mapl3g_UngriddedDims
@@ -23,7 +24,7 @@ module mapl3g_FieldSpec
    use mapl3g_ActualConnectionPt
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
-   use mapl3g_esmf_info_keys
+!#   use mapl3g_esmf_info_keys
    use mapl3g_InfoUtilities
    use mapl3g_ExtensionAction
    use mapl3g_VerticalGrid
@@ -48,6 +49,7 @@ module mapl3g_FieldSpec
    use gftl2_StringVector
    use esmf
    use nuopc
+   use mapl3g_Field_API
 
    implicit none
    private
@@ -111,7 +113,7 @@ module mapl3g_FieldSpec
 
       procedure :: make_adapters
 
-      procedure :: set_info
+!#      procedure :: set_info
       procedure :: set_geometry
    end type FieldSpec
 
@@ -256,18 +258,6 @@ contains
       if (present(geom)) this%geom = geom
       if (present(vertical_grid)) this%vertical_grid = vertical_grid
 
-!#      _SET_FIELD(this, variable_spec, vertical_dim_spec)
-!#      _SET_FIELD(this, variable_spec, typekind)
-!#      _SET_FIELD(this, variable_spec, ungridded_dims)
-!#      _SET_FIELD(this, variable_spec, attributes)
-!#      _SET_ALLOCATED_FIELD(this, variable_spec, standard_name)
-!#      _SET_ALLOCATED_FIELD(this, variable_spec, units)
-!#      _SET_ALLOCATED_FIELD(this, variable_spec, default_value)
-!#
-!#      this%regrid_param = EsmfRegridderParam() ! use default regrid method
-!#      regrid_method = get_regrid_method_(this%standard_name)
-!#      this%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
-
       _RETURN(_SUCCESS)
    end subroutine set_geometry
 
@@ -304,6 +294,10 @@ contains
       type(ESMF_FieldStatus_Flag) :: fstatus
       type(LU_Bound), allocatable :: bounds(:)
 
+      integer, allocatable :: num_levels_grid
+      integer, allocatable :: num_levels
+      type(VerticalStaggerLoc) :: vert_staggerloc
+
       _RETURN_UNLESS(this%is_active())
 
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
@@ -311,20 +305,40 @@ contains
 
       call ESMF_FieldEmptySet(this%payload, this%geom, _RC)
 
-      bounds = get_ungridded_bounds(this, _RC)
-      call ESMF_FieldEmptyComplete(this%payload, this%typekind, &
-           ungriddedLBound=bounds%lower,  &
-           ungriddedUBound=bounds%upper,  &
+      if (allocated(this%vertical_grid)) then
+         num_levels_grid = this%vertical_grid%get_num_levels()
+      end if
+
+      if (this%vertical_dim_spec == VERTICAL_DIM_NONE) then
+         vert_staggerloc = VERTICAL_STAGGER_NONE
+      else if (this%vertical_dim_spec == VERTICAL_DIM_EDGE) then
+         vert_staggerloc = VERTICAL_STAGGER_EDGE
+         num_levels = num_levels_grid + 1
+      else if (this%vertical_dim_spec == VERTICAL_DIM_CENTER) then
+         vert_staggerloc = VERTICAL_STAGGER_CENTER
+         num_levels = num_levels_grid
+      else
+         _FAIL('unknown stagger')
+      end if
+
+      call MAPL_FieldEmptyComplete(this%payload, &
+           typekind=this%typekind, &
+           ungridded_dims=this%ungridded_dims, &
+           num_levels=num_levels, &
+           vert_staggerLoc=vert_staggerLoc, &
+           units=this%units, &
+           standard_name=this%standard_name, &
+           long_name=this%long_name, &
            _RC)
-      call ESMF_FieldGet(this%payload, status=fstatus, _RC)
+    
+      bounds = get_ungridded_bounds(this, _RC)
 
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       _ASSERT(fstatus == ESMF_FIELDSTATUS_COMPLETE, 'ESMF field status problem.')
+
       if (allocated(this%default_value)) then
          call FieldSet(this%payload, this%default_value, _RC)
       end if
-
-      call this%set_info(this%payload, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine allocate
@@ -736,45 +750,6 @@ contains
       class(FieldSpec), intent(in) :: this
       payload = this%payload
    end function get_payload
-
-   subroutine set_info(this, field, rc)
-      class(FieldSpec), intent(in) :: this
-      type(ESMF_Field), intent(inout) :: field
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ESMF_Info) :: ungridded_dims_info
-      type(ESMF_Info) :: vertical_dim_info
-      type(ESMF_Info) :: vertical_grid_info
-
-      type(ESMF_Info) :: field_info
-
-      call ESMF_InfoGetFromHost(field, field_info, _RC)
-
-      ungridded_dims_info = this%ungridded_dims%make_info(_RC)
-      call ESMF_InfoSet(field_info, key=INFO_INTERNAL_NAMESPACE//KEY_UNGRIDDED_DIMS, value=ungridded_dims_info, _RC)
-      call ESMF_InfoDestroy(ungridded_dims_info, _RC)
-
-      vertical_dim_info = this%vertical_dim_spec%make_info(_RC)
-      call ESMF_InfoSet(field_info, key=INFO_INTERNAL_NAMESPACE//KEY_VERT_DIM, value=vertical_dim_info, _RC)
-      call ESMF_InfoDestroy(vertical_dim_info, _RC)
-
-      vertical_grid_info = this%vertical_grid%make_info(_RC)
-      call ESMF_InfoSet(field_info, key=INFO_INTERNAL_NAMESPACE//KEY_VERT_GRID, value=vertical_grid_info, _RC)
-      call ESMF_InfoDestroy(vertical_grid_info, _RC)
-
-      if (allocated(this%units)) then
-         call MAPL_InfoSetInternal(field,key='/units', value= this%units, _RC)
-      end if
-      if (allocated(this%long_name)) then
-         call MAPL_InfoSetInternal(field,key='/long_name', value=this%long_name, _RC)
-      end if
-      if (allocated(this%standard_name)) then
-         call MAPL_InfoSetInternal(field,key='/standard_name', value=this%standard_name, _RC)
-      end if
-
-      _RETURN(_SUCCESS)
-   end subroutine set_info
 
    function new_GeomAdapter(geom, regrid_param) result(geom_adapter)
       type(GeomAdapter) :: geom_adapter

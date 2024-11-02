@@ -89,7 +89,7 @@ contains
 
       bounds = make_bounds(num_levels=num_levels, ungridded_dims=ungridded_dims)
       call ESMF_FieldEmptyComplete(field, typekind=typekind, &
-           gridToFieldMap=gridToFieldMap, &
+!#           gridToFieldMap=gridToFieldMap, &
            ungriddedLBound=bounds%lower, ungriddedUBound=bounds%upper, _RC)
 
       call MAPL_FieldInfoSetInternal(field, &

@@ -29,7 +29,7 @@ endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.shared MAPL.esmf_utils PFLOGGER::pflogger udunits2f
+  DEPENDENCIES MAPL.field MAPL.shared MAPL.esmf_utils PFLOGGER::pflogger udunits2f
   TYPE SHARED
   )
   #DEPENDENCIES MAPL.shared PFLOGGER::pflogger udunits2f
