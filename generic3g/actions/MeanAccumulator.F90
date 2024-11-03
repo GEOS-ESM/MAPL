@@ -10,7 +10,7 @@ module mapl3g_MeanAccumulator
    public :: MeanAccumulator
 
    type, extends(AccumulatorAction) :: MeanAccumulator
-      private
+      !private
       integer(ESMF_KIND_R8) :: counter_scalar = 0_ESMF_KIND_I8
       logical, allocatable :: valid_points(:)
    contains

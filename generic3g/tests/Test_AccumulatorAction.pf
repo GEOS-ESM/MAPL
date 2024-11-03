@@ -5,6 +5,7 @@
 #include "unused_dummy.H"
 module Test_AccumulatorAction
    use mapl3g_AccumulatorAction
+   use mapl3g_MeanAccumulator
    use esmf
    use funit
    use MAPL_FieldUtils
@@ -16,8 +17,8 @@ module Test_AccumulatorAction
    real(kind=ESMF_KIND_R8), parameter :: MIN_CORNER_COORD(2) = [0.0_ESMF_KIND_R8, 0.0_ESMF_KIND_R8]
    real(kind=ESMF_KIND_R8), parameter :: MAX_CORNER_COORD(2) = [4.0_ESMF_KIND_R8, 4.0_ESMF_KIND_R8]
    type(ESMF_TypeKind_Flag), parameter :: typekind = ESMF_TYPEKIND_R4
-   integer, parameter :: ER4 = ESMF_KIND_R4
-   integer, parameter :: ER8 = ESMF_KIND_R8
+   integer, parameter :: R4 = ESMF_KIND_R4
+   integer, parameter :: R8 = ESMF_KIND_R8
 
 contains
 
@@ -36,8 +37,8 @@ contains
       type(ESMF_Clock) :: clock
       type(ESMF_Field) :: import_field
       integer :: status
-      real(kind=ER4), parameter :: TEST_VALUE = 1.0_ER4
-      real(kind=ER4) :: clear_value
+      real(kind=R4), parameter :: TEST_VALUE = 1.0_R4
+      real(kind=R4) :: clear_value
       logical :: equals_expected_value 
 
       call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
@@ -67,7 +68,7 @@ contains
       type(ESMF_Clock) :: clock
       integer :: status
       type(ESMF_Field) :: import_field
-      real(kind=er4), parameter :: invalidate_value = 4.0_ER4
+      real(kind=R4), parameter :: invalidate_value = 4.0_R4
       logical :: equals_expected_value
 
       call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
@@ -98,8 +99,8 @@ contains
       type(ESMF_Clock) :: clock
       integer :: status
       type(ESMF_Field) :: import_field, export_field
-      real(kind=er4), parameter :: invalidate_value = 4.0_ER4
-      real(kind=er4) :: update_value
+      real(kind=R4), parameter :: invalidate_value = 4.0_R4
+      real(kind=R4) :: update_value
       logical :: equals_expected_value
 
       ! Set up
@@ -234,9 +235,9 @@ contains
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
       integer :: status
-      real(kind=ER4), parameter :: INITIAL_VALUE = 2.0_ER4
-      real(kind=ER4) :: update_value = 3.0_ER4
-      real(kind=ER4) :: expected_value
+      real(kind=R4), parameter :: INITIAL_VALUE = 2.0_R4
+      real(kind=R4) :: update_value = 3.0_R4
+      real(kind=R4) :: expected_value
       type(ESMF_Field) :: import_field, update_field
       logical :: field_is_expected_value
 
@@ -261,6 +262,25 @@ contains
 
    end subroutine test_accumulate_R4
 
+   @Test
+   subroutine test_calculate_mean_R4()
+      type(MeanAccumulator) :: acc
+      integer :: status
+      type(ESMF_Grid) :: grid
+      integer(kind=ESMF_KIND_I8), parameter :: COUNTER = 4
+      real(kind=ESMF_KIND_R4), parameter :: MEAN = 4.0_R4
+      logical :: matches_expected
+      
+      call initialize_field(acc%accumulation_field, typekind=ESMF_TYPEKIND_R4, grid=grid, _RC)
+      call FieldSet(acc%accumulation_field, COUNTER*MEAN, _RC)
+      acc%counter_scalar = 4
+      acc%valid_points = .TRUE.
+
+      call acc%calculate_mean_R4(_RC)
+      matches_expected = FieldIsConstant(acc%accumulation_field, MEAN, _RC)
+      @assert_that(matches_expected, is(true()))
+
+   end subroutine test_calculate_mean_R4
 ! HELPER PROCEDURES
 
    logical function is_initialized(rc) result(lval)
