@@ -19,7 +19,7 @@ add_pfunit_ctest(MAPL.field.test_fieldreset
 add_pfunit_ctest(MAPL.field.test_utils
                 TEST_SOURCES   Test_FieldBLAS.pf Test_FieldArithmetic.pf Test_FieldCondensedArray_private.pf
                                Test_FieldDelta.pf Test_FieldBundleDelta.pf
-                LINK_LIBRARIES MAPL.pfunit
+                LINK_LIBRARIES MAPL.field MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE MAPL_pFUnit_Initialize
                 OTHER_SOURCES field_utils_setup.F90
