@@ -1,0 +1,41 @@
+#include "MAPL_TestErr.h"
+
+module Test_FieldCreate
+   use mapl3g_FieldCreate
+   use mapl3g_FieldGet
+   use funit
+   use ESMF_TestMethod_mod
+   use esmf
+   implicit none(type,external)
+
+contains
+
+   ! Just a basic test to ensure that things happen.  Far too many
+   ! optional arguments to sensibly test all code paths, but certainly
+   ! more tests could be added.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_get_units(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_Field) :: field
+      type(ESMF_Geom) :: geom
+      type(ESMF_Grid) :: grid
+      character(*), parameter :: EXPECTED_UNITS = 'km'
+      character(:), allocatable :: units
+
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], _RC)
+      geom = ESMF_GeomCreate(grid, _RC)
+      
+      field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, units=EXPECTED_UNITS, _RC)
+
+      call MAPL_FieldGet(field, units=units, _RC)
+      @assertEqual(units, EXPECTED_UNITS)
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+      call ESMF_GeomDestroy(geom, _RC)
+      
+   end subroutine test_get_units
+
+end module Test_FieldCreate
