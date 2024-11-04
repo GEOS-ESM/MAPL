@@ -29,7 +29,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ESMA_cmake v3.52.0
     - Fixes for using MAPL as a library in spack builds of GEOSgcm
     - Various backports from v4
-- Update CI to use v7.27.0 Baselibs
+- Updates to CI
+  - Use v7.27.0 Baselibs
+  - Use GCC 14 for GNU tests
 
 ### Fixed
 
