@@ -13,4 +13,5 @@ target_sources(MAPL.generic3g PRIVATE
   AccumulatorAction.F90
   MeanAccumulator.F90
   MaxAccumulator.F90
+  MinAccumulator.F90
 )
