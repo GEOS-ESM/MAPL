@@ -103,7 +103,7 @@ contains
    ! is added to the export specs of source (this), and the new extension
    ! gains it as a reference (pointer).
 
-   function make_extension(this, goal, rc) result(extension)
+   recursive function make_extension(this, goal, rc) result(extension)
       type(StateItemExtension), target :: extension
       class(StateItemExtension), target, intent(inout) :: this
       class(StateItemSpec), target, intent(in) :: goal

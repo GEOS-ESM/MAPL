@@ -1,0 +1,31 @@
+mapl:
+
+  children:
+    A:
+      sharedObj: libsimple_leaf_gridcomp
+      setServices: setservices_
+      config_file: scenarios/vertical_regridding_2/A.yaml
+    B:
+      sharedObj: libsimple_leaf_gridcomp
+      setServices: setservices_
+      config_file: scenarios/vertical_regridding_2/B.yaml
+    C:
+      sharedObj: libsimple_leaf_gridcomp
+      setServices: setservices_
+      config_file: scenarios/vertical_regridding_2/C.yaml
+    D:
+      sharedObj: libsimple_leaf_gridcomp
+      setServices: setservices_
+      config_file: scenarios/vertical_regridding_2/D.yaml
+
+  states: {}
+
+  connections:
+    - src_name: PLE
+      dst_name: I
+      src_comp: A
+      dst_comp: B
+    - src_name: ZLE
+      dst_name: I
+      src_comp: C
+      dst_comp: D

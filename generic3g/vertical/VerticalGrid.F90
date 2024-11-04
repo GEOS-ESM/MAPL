@@ -14,6 +14,8 @@ module mapl3g_VerticalGrid
       procedure(I_get_num_levels), deferred :: get_num_levels
       procedure(I_get_coordinate_field), deferred :: get_coordinate_field
       procedure(I_can_connect_to), deferred :: can_connect_to
+      procedure(I_write_formatted), deferred :: write_formatted
+      generic :: write(formatted) => write_formatted
 
       procedure :: set_id
       procedure :: get_id
@@ -24,13 +26,15 @@ module mapl3g_VerticalGrid
    integer :: global_id = 0
 
    abstract interface
+
       integer function I_get_num_levels(this) result(num_levels)
          import VerticalGrid
          class(VerticalGrid), intent(in) :: this
       end function I_get_num_levels
 
-      subroutine I_get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, rc)
+      subroutine I_get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, vertical_dim_spec, rc)
          use mapl3g_GriddedComponentDriver
+         use mapl3g_VerticalDimSpec
          use esmf, only: ESMF_Geom, ESMF_TypeKind_Flag, ESMF_Field
          import VerticalGrid
 
@@ -41,6 +45,7 @@ module mapl3g_VerticalGrid
          type(ESMF_Geom), intent(in) :: geom
          type(ESMF_TypeKind_Flag), intent(in) :: typekind
          character(*), intent(in) :: units
+         type(VerticalDimSpec), intent(in) :: vertical_dim_spec
          integer, optional, intent(out) :: rc
       end subroutine I_get_coordinate_field
 
@@ -50,6 +55,16 @@ module mapl3g_VerticalGrid
          class(VerticalGrid), intent(in) :: src
          integer, optional, intent(out) :: rc
       end function I_can_connect_to
+
+      subroutine I_write_formatted(this, unit, iotype, v_list, iostat, iomsg)
+         import VerticalGrid
+         class(VerticalGrid), intent(in) :: this
+         integer, intent(in) :: unit
+         character(*), intent(in) :: iotype
+         integer, intent(in) :: v_list(:)
+         integer, intent(out) :: iostat
+         character(*), intent(inout) :: iomsg
+      end subroutine I_write_formatted
 
    end interface
 

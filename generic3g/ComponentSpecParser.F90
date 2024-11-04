@@ -1,6 +1,7 @@
 #include "MAPL_ErrLog.h"
 
 module mapl3g_ComponentSpecParser
+
    use mapl3g_ComponentSpec
    use mapl3g_ChildSpec
    use mapl3g_ChildSpecMap
@@ -23,12 +24,13 @@ module mapl3g_ComponentSpecParser
    use mapl3g_Stateitem
    use mapl3g_ESMF_Utilities
    use mapl3g_UserSetServices
+   use mapl3g_StateRegistry
    use gftl2_StringVector, only: StringVector
    use esmf
+
    implicit none
    private
 
-   !
    public :: parse_component_spec
 
    ! The following interfaces are public only for testing purposes.
@@ -63,15 +65,17 @@ module mapl3g_ComponentSpecParser
    !>
    ! Submodule declarations
    INTERFACE
-      module function parse_component_spec(hconfig, rc) result(spec)
+      module function parse_component_spec(hconfig, registry, rc) result(spec)
          type(ComponentSpec) :: spec
          type(ESMF_HConfig), target, intent(inout) :: hconfig
+         type(StateRegistry), optional, intent(in) :: registry
          integer, optional, intent(out) :: rc
       end function parse_component_spec
 
-      module function parse_geometry_spec(mapl_cfg, rc) result(geometry_spec)
+      module function parse_geometry_spec(mapl_cfg, registry, rc) result(geometry_spec)
          type(GeometrySpec) :: geometry_spec
          type(ESMF_HConfig), intent(in) :: mapl_cfg
+         type(StateRegistry), optional, intent(in) :: registry
          integer, optional, intent(out) :: rc
       end function parse_geometry_spec
 
