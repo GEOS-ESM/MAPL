@@ -3,11 +3,12 @@ module Test_TimeInterpolateAction
    use mapl3g_TimeInterpolateAction
    use mapl3g_InfoUtilities
    use MAPL_FieldPointerUtilities
+   use mapl3g_FieldBundleGet
    use ESMF_TestMethod_mod
    use MAPL_Constants, only: MAPL_UNDEFINED_REAL
    use esmf
    use funit
-   implicit none
+   implicit none(type,external)
 
 contains
 
@@ -33,7 +34,7 @@ contains
       bracket = ESMF_FieldBundleCreate(name='import[1]', _RC)
 
       call ESMF_StateAdd(importState, [bracket], _RC)
-      call MAPL_InfoSetInternal(importState, 'import[1]', 'weights', values=[7.0], _RC)
+      call MAPL_FieldBundleSet(bracket, interpolation_weights=[7.0], _RC)
 
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom = ESMF_GeomCreate(grid, _RC)
@@ -89,7 +90,8 @@ contains
       end do
       bracket = ESMF_FieldBundleCreate(name='import[1]', multiflag=.true., fieldList=b, _RC)
       call ESMF_StateAdd(importState, [bracket], _RC)
-      call MAPL_InfoSetInternal(importState, 'import[1]', 'weights', values=[1.0, 0.5, 0.5], _RC)
+      call MAPL_FieldBundleSet(bracket, interpolation_weights=[1.0, 0.5, 0.5], _RC)
+
 
       f = ESMF_FieldEmptyCreate(name='export[1]', _RC)
       call ESMF_FieldEmptySet(f, geom=geom, _RC)
@@ -148,7 +150,7 @@ contains
       x(2) = MAPL_UNDEFINED_REAL
       bracket = ESMF_FieldBundleCreate(name='import[1]', multiflag=.true., fieldList=b, _RC)
       call ESMF_StateAdd(importState, [bracket], _RC)
-      call MAPL_InfoSetInternal(importState, 'import[1]', 'weights', values=[1.0, 0.5, 0.5], _RC)
+      call MAPL_FieldBundleSet(bracket, interpolation_weights=[1.0, 0.5, 0.5], _RC)
 
       f = ESMF_FieldEmptyCreate(name='export[1]', _RC)
       call ESMF_FieldEmptySet(f, geom=geom, _RC)

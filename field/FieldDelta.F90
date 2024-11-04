@@ -12,7 +12,7 @@ module mapl3g_FieldDelta
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use esmf
-   implicit none
+   implicit none(type,external)
    private
 
    public :: FieldDelta
@@ -241,7 +241,7 @@ contains
          _RETURN_UNLESS(present(num_levels))
          _RETURN_IF(ignore == 'num_levels')
 
-         call MAPL_InfoSetInternal(field, key=KEY_NUM_LEVELS, value=num_levels, _RC)
+         call MAPL_FieldSet(field, num_levels=num_levels, _RC)
 
          _RETURN(_SUCCESS)
       end subroutine update_num_levels
@@ -257,7 +257,7 @@ contains
          _RETURN_UNLESS(present(units))
          _RETURN_IF(ignore == 'units')
 
-         call MAPL_InfoSetInternal(field, key=KEY_UNITS, value=units, _RC)
+         call MAPL_FieldSet(field, units=units, _RC)
 
          _RETURN(_SUCCESS)
       end subroutine update_units

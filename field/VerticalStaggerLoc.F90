@@ -22,6 +22,8 @@ module mapl3g_VerticalStaggerLoc
       character(24) :: name = "VERTICAL_STAGGER_INVALID"
    contains
       procedure :: to_string
+      procedure :: get_dimension_name
+      procedure :: get_num_levels
    end type VerticalStaggerLoc
 
    interface VerticalStaggerLoc
@@ -39,7 +41,7 @@ module mapl3g_VerticalStaggerLoc
    type(VerticalStaggerLoc), parameter :: VERTICAL_STAGGER_NONE = VerticalStaggerLoc(0, "VERTICAL_STAGGER_NONE")
    type(VerticalStaggerLoc), parameter :: VERTICAL_STAGGER_EDGE = VerticalStaggerLoc(1, "VERTICAL_STAGGER_EDGE")
    type(VerticalStaggerLoc), parameter :: VERTICAL_STAGGER_CENTER = VerticalStaggerLoc(2, "VERTICAL_STAGGER_CENTER")
-   type(VerticalStaggerLoc), parameter :: VERTICAL_STAGGER_INVALID = VerticalStaggerLoc(3, "VERTICAL_STAGGER_INVALID")
+   type(VerticalStaggerLoc), parameter :: VERTICAL_STAGGER_INVALID = VerticalStaggerLoc(-1, "VERTICAL_STAGGER_INVALID")
 
 contains
 
@@ -79,5 +81,37 @@ contains
       type(VerticalStaggerLoc), intent(in) :: that
       are_not_equal = .not. (this == that)
    end function are_not_equal
+
+   function get_dimension_name(this) result(dim_name)
+      character(:), allocatable :: dim_name
+      class(VerticalStaggerLoc), intent(in) :: this
+
+      select case (this%to_string())
+      case ("VERTICAL_STAGGER_NONE")
+         dim_name = ""
+      case ("VERTICAL_STAGGER_EDGE")
+         dim_name = "edge"
+      case ("VERTICAL_STAGGER_CENTER")
+         dim_name = "center"
+      case default
+         dim_name = "invalid"
+      end select
+   end function get_dimension_name
+
+   integer function get_num_levels(this, num_vgrid_levels) result(num_levels)
+      class(VerticalStaggerLoc), intent(in) :: this
+      integer, intent(in) :: num_vgrid_levels
+
+      select case (this%to_string())
+      case ("VERTICAL_STAGGER_NONE")
+         num_levels = 0
+      case ("VERTICAL_STAGGER_EDGE")
+         num_levels = num_vgrid_levels
+      case ("VERTICAL_STAGGER_CENTER")
+         num_levels = num_vgrid_levels - 1
+      case default
+         num_levels = -1
+      end select
+   end function get_num_levels
 
 end module mapl3g_VerticalStaggerLoc
