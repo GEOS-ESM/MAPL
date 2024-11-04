@@ -210,7 +210,6 @@ add_subdirectory (pfio)
 add_subdirectory (profiler)
 add_subdirectory (generic)
 add_subdirectory (generic3g)
-add_subdirectory (field_utils)
 add_subdirectory (field)
 add_subdirectory (oomph) # temporary - will rename to generic when done
 add_subdirectory (shared)

@@ -2,6 +2,18 @@ esma_set_this (OVERRIDE MAPL.field)
 
 set(srcs
   API.F90
+  FieldUtils.F90
+  FieldBLAS.F90
+  FieldPointerUtilities.F90
+  FieldDelta.F90
+  FieldUtilities.F90
+  FieldUnaryFunctions.F90
+  FieldBinaryOperations.F90
+  FieldUnits.F90
+  FieldCondensedArray.F90
+  FieldCondensedArray_private.F90
+  FieldDelta.F90
+  FieldBundleDelta.F90
   VerticalStaggerLoc.F90
   FieldCreate.F90
   FieldReset.F90
@@ -11,9 +23,13 @@ set(srcs
 
 list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 
+if (BUILD_WITH_PFLOGGER)
+  find_package (PFLOGGER REQUIRED)
+endif ()
+
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.shared MAPL.esmf_utils ESMF::ESMF 
+  DEPENDENCIES MAPL.shared MAPL.esmf_utils PFLOGGER::pflogger ESMF::ESMF udunits2f
   TYPE SHARED
   )
   

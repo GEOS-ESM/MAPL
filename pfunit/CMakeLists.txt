@@ -10,5 +10,5 @@ set (srcs
 
 esma_add_library (${this} EXCLUDE_FROM_ALL SRCS ${srcs} NOINSTALL TYPE SHARED)
 
-target_link_libraries (${this} MAPL.shared MAPL.field_utils PFUNIT::pfunit ESMF::ESMF NetCDF::NetCDF_Fortran)
+target_link_libraries (${this} MAPL.shared PFUNIT::pfunit ESMF::ESMF NetCDF::NetCDF_Fortran udunits2f) 
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
