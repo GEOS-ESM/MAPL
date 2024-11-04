@@ -93,11 +93,18 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       character(len=:), allocatable :: spec_name
+      integer :: num_field_levels
 
       num = 0
       spec_name = get_vertical_dim_spec_info(info, _RC)
-      _RETURN_IF(spec_name == VERT_DIM_NONE)
-      call MAPL_InfoGet(info, key=KEY_NUM_LEVELS, value=num, _RC)
+      _RETURN_IF(spec_name == "VERTICAL_STAGGER_NONE")
+      call MAPL_InfoGet(info, key=KEY_NUM_LEVELS, value=num_field_levels, _RC)
+
+      if (spec_name == "VERTICAL_STAGGER_EDGE") then
+         num = num_field_levels - 1
+      else
+         num = num_field_levels
+      end if
 
       _RETURN(_SUCCESS)
    end function get_num_levels_info
@@ -153,7 +160,7 @@ contains
       integer :: status
       logical :: isPresent
 
-      call MAPL_InfoGet(info, key=KEY_VLOC, value=spec_name, _RC)
+      call MAPL_InfoGet(info, key=KEY_VERT_STAGGERLOC, value=spec_name, _RC)
       isPresent = ESMF_InfoIsPresent(info, key=KEY_VLOC, _RC)
 
       _RETURN(_SUCCESS)

@@ -7,9 +7,14 @@ module mapl3g_FieldBundleDelta
    use mapl3g_LU_Bound
    use mapl3g_FieldDelta
    use mapl3g_InfoUtilities
+   use mapl3g_VerticalStaggerLoc
+   use mapl3g_FieldCreate
+   use mapl3g_FieldGet
+   use mapl3g_FieldInfo
    use mapl_FieldUtilities
+   use mapl3g_UngriddedDims
    use mapl_FieldPointerUtilities
-   use mapl3g_esmf_info_keys
+   use mapl3g_esmf_info_keys, only: KEY_INTERPOLATION_WEIGHTS
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use esmf
@@ -205,11 +210,12 @@ contains
       type(ESMF_TypeKind_Flag) :: typekind
       integer, allocatable :: ungriddedLbound(:), ungriddedUbound(:)
       type(ESMF_Info) :: ungridded_info
-      type(ESMF_Info) :: vertical_info
       integer :: old_field_count, new_field_count
-      integer :: num_levels
-      character(:), allocatable :: units, vloc
+      integer, allocatable :: num_levels
+      character(:), allocatable :: units, vert_staggerloc_str
+      type(VerticalStaggerLoc) :: vert_staggerloc
       character(ESMF_MAXSTR), allocatable :: fieldNameList(:)
+      type(UngriddedDims) :: ungridded_dims
 
       ! Easy case 1: field count unchanged
       call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
@@ -233,28 +239,27 @@ contains
 
       ! Need geom, typekind, and bounds to allocate fields before 
       call MAPL_FieldBundleGet(bundle, geom=bundle_geom, _RC)
-      call MAPL_FieldBundleGet(bundle, typekind=typekind, ungriddedUBound=ungriddedUbound, _RC)
-      ungriddedLBound = [(1, i = 1, size(ungriddedUBound))]
+      call MAPL_FieldBundleGet(bundle, typekind=typekind, _RC)
 
       ungridded_info = MAPL_InfoCreateFromInternal(bundle, key=KEY_UNGRIDDED_DIMS, _RC)
+      ungridded_dims = make_UngriddedDims(ungridded_info, _RC)
       call MAPL_InfoGetInternal(bundle, KEY_UNITS, value=units, _RC)
 
-      call MAPL_InfoGetInternal(bundle, KEY_VLOC, value=vloc, _RC)
-      if (vloc /= "VERTICAL_DIM_NONE") then
+      call MAPL_InfoGetInternal(bundle, KEY_VERT_STAGGERLOC, value=vert_staggerloc_str, _RC)
+      vert_staggerloc = VerticalStaggerLoc(vert_staggerloc_str)
+      _ASSERT(vert_staggerloc /= VERTICAL_STAGGER_INVALID, 'Vert stagger is INVALID.')
+      if (vert_staggerloc /= VERTICAL_STAGGER_NONE) then
+         allocate(num_levels)
          call MAPL_InfoGetInternal(bundle, KEY_NUM_LEVELS, value=num_levels, _RC)
       end if
 
       do i = 1, new_field_count
          fieldList(i) = ESMF_FieldEmptyCreate(_RC)
          call ESMF_FieldEmptySet(fieldList(i), geom=bundle_geom, _RC)
-         call ESMF_FieldEmptyComplete(fieldList(i), typekind=typekind, &
-              ungriddedLbound=ungriddedLBound, ungriddedUbound=ungriddedUBound, _RC)
-         call MAPL_InfoSetInternal(fieldList(i), KEY_UNGRIDDED_DIMS, value=ungridded_info, _RC)
-         call MAPL_InfoSetInternal(fieldList(i), KEY_VLOC, value=vloc, _RC)
-         if (vloc /= "VERTICAL_DIM_NONE") then
-            call MAPL_InfoSetInternal(fieldList(i), KEY_NUM_LEVELS, value=num_levels, _RC)
-         end if
-         call MAPL_InfoSetInternal(fieldList(i), KEY_UNITS, value=units, _RC)
+         call MAPL_FieldEmptyComplete(fieldList(i), typekind=typekind, &
+              ungridded_dims=ungridded_dims, &
+              num_levels=num_levels, vert_staggerLoc=vert_staggerLoc, &
+              units=units, _RC)
       end do
 
       call ESMF_InfoDestroy(ungridded_info, _RC)

@@ -25,6 +25,7 @@ module mapl3g_esmf_info_keys
    public :: KEY_UNGRIDDED_COORD
    public :: KEY_DIM_STRINGS
    public :: make_dim_key
+   public :: KEY_VERT_STAGGERLOC
    private
 
    ! FieldSpec info keys
@@ -47,6 +48,8 @@ module mapl3g_esmf_info_keys
 
    ! VerticalDimSpec info keys
    character(len=*), parameter :: KEY_VLOC = KEY_VERT_DIM // '/vloc'
+   character(len=*), parameter :: KEY_VERT_STAGGERLOC = "/vert_staggerloc"
+
 
    ! UngriddedDims info keys
    character(len=*), parameter :: KEY_NUM_UNGRIDDED_DIMS = '/num_ungridded_dimensions'

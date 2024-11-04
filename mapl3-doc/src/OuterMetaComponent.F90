@@ -145,8 +145,8 @@ module mapl3g_OuterMetaComponent
    interface
 
       recursive module subroutine SetServices_(this, rc)
-         class(OuterMetaComponent), intent(inout) :: this
-         integer, intent(out) ::rc
+         class(OuterMetaComponent), target, intent(inout) :: this
+         integer, intent(out) :: rc
       end subroutine
 
       module recursive subroutine add_child_by_name(this, child_name, setservices, hconfig, rc)

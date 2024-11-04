@@ -1,10 +1,10 @@
 #include "MAPL_Generic.h"
 
 module MAPL_FieldUtilities
+   use mapl3g_FieldInfo
    use mapl3g_FieldDimensionInfo
    use MAPL_ErrorHandlingMod
    use MAPL_FieldPointerUtilities
-   use mapl3g_esmf_info_keys
    use mapl3g_InfoUtilities
    use mapl3g_UngriddedDims
    use mapl3g_LU_Bound
@@ -223,7 +223,7 @@ contains
       type(UngriddedDims) :: ungridded_dims
       type(LU_Bound), allocatable :: bounds(:)
       integer :: num_levels
-      character(:), allocatable :: vloc
+      character(:), allocatable :: vert_staggerloc
 
       if (present(fieldList)) then
          call ESMF_FieldBundleGet(fieldBundle, fieldCount=fieldCount, _RC)
@@ -258,19 +258,11 @@ contains
          ungridded_dims =  make_ungriddedDims(ungridded_info, KEY_UNGRIDDED_DIMS, _RC)
          bounds = ungridded_dims%get_bounds()
 
-         call MAPL_InfoGetInternal(fieldBundle, key=KEY_VLOC, value=vloc, _RC)
-         if (vloc /= 'VERTICAL_DIM_NONE') then
+         call MAPL_InfoGetInternal(fieldBundle, key=KEY_VERT_STAGGERLOC, value=vert_staggerloc, _RC)
+         if (vert_staggerloc /= 'VERTICAL_STAGGER_NONE') then
             call MAPL_InfoGetInternal(fieldBundle, key=KEY_NUM_LEVELS, value=num_levels, _RC)
-            select case (vloc)
-            case ('VERTICAL_DIM_CENTER')
-               bounds = [LU_Bound(1, num_levels), bounds]
-            case ('VERTICAL_DIM_EDGE')
-               bounds = [LU_Bound(1, num_levels+1), bounds]
-            case default
-               _FAIL('unsupported vertical location')
-            end select
+            bounds = [LU_Bound(1, num_levels), bounds]
          end if
-
          ungriddedUbound = bounds%upper
       end if
 

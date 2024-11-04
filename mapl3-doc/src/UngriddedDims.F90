@@ -185,7 +185,7 @@ contains
       character(:), allocatable :: dim_key
 
       info = ESMF_InfoCreate(_RC)
-      call MAPL_InfoSet(info, key='num_ungridded_dimensions', value=this%get_num_ungridded(), _RC)
+      call MAPL_InfoSet(info, key='/num_ungridded_dimensions', value=this%get_num_ungridded(), _RC)
 
       do i = 1, this%get_num_ungridded()
          dim_spec => this%get_ith_dim_spec(i, _RC)

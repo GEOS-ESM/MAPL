@@ -4,9 +4,11 @@
 
 #include "MAPL_Exceptions.h"
 module mapl3g_FieldDelta
+   use mapl3g_FieldInfo
+   use mapl3g_FieldGet
+   use mapl3g_VerticalStaggerLoc
    use mapl3g_InfoUtilities
    use mapl_FieldPointerUtilities
-   use mapl3g_esmf_info_keys
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use esmf
@@ -152,8 +154,8 @@ contains
          integer :: status
          integer :: num_levels_a, num_levels_b
 
-         call MAPL_InfoGetInternal(f_a, key=KEY_NUM_LEVELS, value=num_levels_a, _RC)
-         call MAPL_InfoGetInternal(f_b, key=KEY_NUM_LEVELS, value=num_levels_b, _RC)
+         call MAPL_FieldGet(f_a, num_levels=num_levels_a, _RC)
+         call MAPL_FieldGet(f_b, num_levels=num_levels_b, _RC)
 
           if (num_levels_a /= num_levels_b) then
               num_levels = num_levels_b
@@ -172,8 +174,8 @@ contains
          integer :: status
          character(len=:), allocatable :: units_a, units_b
 
-         call MAPL_InfoGetInternal(f_a, KEY_UNITS, value=units_a, _RC)
-         call MAPL_InfoGetInternal(f_b, KEY_UNITS, value=units_b, _RC)
+         call MAPL_FieldGet(f_a, units=units_a, _RC)
+         call MAPL_FieldGet(f_b, units=units_b, _RC)
 
          if (units_a /= units_b) then
             allocate(character(len_trim(units_b)) :: units)
@@ -200,8 +202,7 @@ contains
       call ESMF_FieldGet(f, geom=this%geom, typekind=typekind, _RC)
 
       allocate(this%num_levels)
-      call MAPL_InfoGetInternal(f, KEY_NUM_LEVELS, value=this%num_levels, _RC)
-      call MAPL_InfoGetInternal(f, KEY_UNITS, value=this%units, _RC)
+      call MAPL_FieldGet(f, num_levels=this%num_levels, units=this%units, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine initialize_field_delta_degenerate
@@ -372,7 +373,7 @@ contains
          integer, optional, intent(inout) :: rc
 
          integer :: status
-         character(:), allocatable :: vloc
+         type(VerticalStaggerLoc) :: vert_staggerloc
          integer :: ungriddedDimCount
          integer :: rank
          integer :: current_num_levels
@@ -389,22 +390,17 @@ contains
          if (ignore == 'num_levels') return
          if (.not. present(new_num_levels)) return
 
-         call MAPL_InfoGetInternal(field, KEY_NUM_LEVELS, value=current_num_levels, _RC)
-         call MAPL_InfoGetInternal(field, KEY_VLOC, value=vloc, _RC)
+         call MAPL_FieldGet(field, vert_staggerloc=vert_staggerloc, _RC)
 
          ! Surface fields are not impacted by change in vertical grid
-         _RETURN_IF(vloc == 'VERTICAL_DIM_NONE')
+         _RETURN_IF(vert_staggerloc == VERTICAL_STAGGER_NONE)
+
+
+         call MAPL_FieldGet(field, num_levels=current_num_levels, _RC)
+         _ASSERT(count(vert_staggerloc == [VERTICAL_STAGGER_CENTER, VERTICAL_STAGGER_EDGE]) == 1, 'unsupported vertical stagger')
+         ungriddedUBound(1) = this%num_levels
 
          new_array = new_array .or. (this%num_levels /= current_num_levels)
-
-         select case (vloc)
-         case ('VERTICAL_DIM_CENTER')
-            ungriddedUBound(1) = this%num_levels
-         case ('VERTICAL_DIM_EDGE')
-            ungriddedUBound(1) = this%num_levels + 1
-         case default
-            _FAIL('unsupported vertical location: '//vloc)
-         end select
 
          _RETURN(_SUCCESS)
       end subroutine select_ungriddedUbound
