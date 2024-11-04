@@ -27,7 +27,6 @@ set (test_srcs
   Test_WriteYaml.pf
   Test_HConfigMatch.pf
 
-  Test_FieldInfo.pf
   Test_GenericGridComp.pf
 
   Test_TimeInterpolateAction.pf
