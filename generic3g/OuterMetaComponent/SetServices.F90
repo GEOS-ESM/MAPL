@@ -26,7 +26,7 @@ contains
    
    recursive module subroutine SetServices_(this, rc)
       use mapl3g_GenericGridComp, only: generic_setservices => setservices
-      class(OuterMetaComponent), intent(inout) :: this
+      class(OuterMetaComponent), target, intent(inout) :: this
       integer, intent(out) :: rc
 
       integer :: status

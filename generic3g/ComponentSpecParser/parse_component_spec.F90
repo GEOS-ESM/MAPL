@@ -7,7 +7,7 @@ contains
    module function parse_component_spec(hconfig, registry, rc) result(spec)
       type(ComponentSpec) :: spec
       type(ESMF_HConfig), target, intent(inout) :: hconfig
-      type(StateRegistry), optional, intent(in) :: registry
+      type(StateRegistry), optional, target, intent(in) :: registry
       integer, optional, intent(out) :: rc
 
       integer :: status
