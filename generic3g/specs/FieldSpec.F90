@@ -115,6 +115,9 @@ module mapl3g_FieldSpec
 
 !#      procedure :: set_info
       procedure :: set_geometry
+
+      procedure :: write_formatted
+      generic :: write(formatted) => write_formatted
    end type FieldSpec
 
    interface FieldSpec
@@ -153,6 +156,7 @@ module mapl3g_FieldSpec
       type(ESMF_Geom), allocatable :: geom
       type(ESMF_TypeKind_Flag) :: typekind
       character(:), allocatable :: units
+      type(VerticalDimSpec), allocatable :: vertical_dim_spec
       type(VerticalRegridMethod), allocatable :: regrid_method
    contains
       procedure :: adapt_one => adapt_vertical_grid
@@ -342,6 +346,31 @@ contains
 
       _RETURN(ESMF_SUCCESS)
    end subroutine allocate
+
+   subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
+      class(FieldSpec), intent(in) :: this
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      write(unit, "(a, a)", iostat=iostat, iomsg=iomsg) "FieldSpec(", new_line("a")
+      if (allocated(this%standard_name)) then
+         write(unit, "(3x, a, a, a)", iostat=iostat, iomsg=iomsg) "standard name:", this%standard_name, new_line("a")
+      end if
+      if (allocated(this%long_name)) then
+         write(unit, "(3x, a, a, a)", iostat=iostat, iomsg=iomsg) "long name:", this%long_name, new_line("a")
+      end if
+      if (allocated(this%units)) then
+         write(unit, "(3x, a, a, a)", iostat=iostat, iomsg=iomsg) "unit:", this%units, new_line("a")
+      end if
+      write(unit, "(3x, dt'g0', a)", iostat=iostat, iomsg=iomsg) this%vertical_dim_spec, new_line("a")
+      if (allocated(this%vertical_grid)) then
+         write(unit, "(3x, dt'g0', a)", iostat=iostat, iomsg=iomsg) this%vertical_grid, new_line("a")
+      end if
+      write(unit, "(a)") ")"
+   end subroutine write_formatted
 
    function get_ungridded_bounds(this, rc) result(bounds)
       type(LU_Bound), allocatable :: bounds(:)
@@ -791,18 +820,20 @@ contains
       _RETURN(_SUCCESS)
    end function adapter_match_geom
 
-   function new_VerticalGridAdapter(vertical_grid, geom, typekind, units, regrid_method) result(vertical_grid_adapter)
+   function new_VerticalGridAdapter(vertical_grid, geom, typekind, units, vertical_dim_spec, regrid_method) result(vertical_grid_adapter)
       type(VerticalGridAdapter) :: vertical_grid_adapter
       class(VerticalGrid), optional, intent(in) :: vertical_grid
       type(ESMF_Geom), optional, intent(in) :: geom
       type(ESMF_Typekind_Flag), intent(in) :: typekind
       character(*), optional, intent(in) :: units
+      type(VerticalDimSpec), intent(in) :: vertical_dim_spec
       type(VerticalRegridMethod), optional, intent(in) :: regrid_method
 
       if (present(vertical_grid)) vertical_grid_adapter%vertical_grid = vertical_grid
       if (present(geom)) vertical_grid_adapter%geom = geom
       vertical_grid_adapter%typekind = typekind
       if (present(units)) vertical_grid_adapter%units = units
+      vertical_grid_adapter%vertical_dim_spec = vertical_dim_spec
       if (present(regrid_method)) vertical_grid_adapter%regrid_method = regrid_method
    end function new_VerticalGridAdapter
 
@@ -820,9 +851,9 @@ contains
       select type (spec)
       type is (FieldSpec)
          call spec%vertical_grid%get_coordinate_field(v_in_coord, v_in_coupler, &
-              'ignore', spec%geom, spec%typekind, spec%units, _RC)
+              'ignore', spec%geom, spec%typekind, spec%units, spec%vertical_dim_spec, _RC)
          call this%vertical_grid%get_coordinate_field(v_out_coord, v_out_coupler, &
-              'ignore', this%geom, this%typekind, this%units, _RC)
+              'ignore', this%geom, this%typekind, this%units, this%vertical_dim_spec, _RC)
          action = VerticalRegridAction(v_in_coord, v_out_coupler, v_out_coord, v_out_coupler, this%regrid_method)
          spec%vertical_grid = this%vertical_grid
       end select
@@ -853,8 +884,9 @@ contains
          class(VerticalGrid), allocatable, intent(in) :: dst_grid
          integer, optional, intent(out) :: rc
 
-         same_vertical_grid = .true.
+         same_vertical_grid = .false.
          if (.not. allocated(dst_grid)) then
+            same_vertical_grid = .true.
             _RETURN(_SUCCESS) ! mirror grid
          end if
 
@@ -876,10 +908,11 @@ contains
             type is(FixedLevelsVerticalGrid)
                same_vertical_grid = (src_grid == dst_grid)
             class default
-               _FAIL("not implemented yet")
+               same_vertical_grid = .false.
             end select
          class default
-            _FAIL("not implemented yet")
+            same_vertical_grid = .false.
+            ! _FAIL("not implemented yet")
          end select
 
          _RETURN(_SUCCESS)
@@ -967,14 +1000,21 @@ contains
       class(StateItemSpec), intent(in) :: goal_spec
       integer, optional, intent(out) :: rc
 
+      type(VerticalGridAdapter) :: vertical_grid_adapter
       integer :: status
 
       select type (goal_spec)
       type is (FieldSpec)
          allocate(adapters(4))
          allocate(adapters(1)%adapter, source=GeomAdapter(goal_spec%geom, goal_spec%regrid_param))
-         allocate(adapters(2)%adapter, &
-              source=VerticalGridAdapter(goal_spec%vertical_grid, goal_spec%geom, goal_spec%typekind, goal_spec%units, VERTICAL_REGRID_LINEAR))
+         vertical_grid_adapter = VerticalGridAdapter( &
+              goal_spec%vertical_grid, &
+              goal_spec%geom, &
+              goal_spec%typekind, &
+              goal_spec%units, &
+              goal_spec%vertical_dim_spec, &
+              VERTICAL_REGRID_LINEAR)
+         allocate(adapters(2)%adapter, source=vertical_grid_adapter)
          allocate(adapters(3)%adapter, source=TypeKindAdapter(goal_spec%typekind))
          allocate(adapters(4)%adapter, source=UnitsAdapter(goal_spec%units))
       type is (WildCardSpec)

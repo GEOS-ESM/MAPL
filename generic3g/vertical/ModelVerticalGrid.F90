@@ -38,6 +38,7 @@ module mapl3g_ModelVerticalGrid
       procedure :: get_num_levels
       procedure :: get_coordinate_field
       procedure :: can_connect_to
+      procedure :: write_formatted
 
       ! subclass-specific methods
       procedure :: add_variant
@@ -78,7 +79,6 @@ contains
       !# vgrid%registry => registry
    end function new_ModelVerticalGrid_basic
 
-
    integer function get_num_levels(this) result(num_levels)
       class(ModelVerticalGrid), intent(in) :: this
       num_levels = this%num_levels
@@ -109,7 +109,7 @@ contains
        registry => this%registry
     end function get_registry
 
-    subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, rc)
+    subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, vertical_dim_spec, rc)
        class(ModelVerticalGrid), intent(in) :: this
        type(ESMF_Field), intent(out) :: field
        type(GriddedComponentDriver), pointer, intent(out) :: coupler
@@ -117,28 +117,20 @@ contains
        type(ESMF_Geom), intent(in) :: geom
        type(ESMF_TypeKind_Flag), intent(in) :: typekind
        character(*), intent(in) :: units
+       type(VerticalDimSpec), intent(in) :: vertical_dim_spec
        integer, optional, intent(out) :: rc
 
        integer :: status
-       character(len=ESMF_MAXSTR) :: short_name
+       character(:), allocatable :: short_name
        type(VirtualConnectionPt) :: v_pt
        type(StateItemExtension), pointer :: new_extension
        class(StateItemSpec), pointer :: new_spec
        type(FieldSpec) :: goal_spec
-       type(VerticalDimSpec) :: vertical_dim_spec
        integer :: i
 
        short_name = this%variants%of(1)
-       v_pt = VirtualConnectionPt(state_intent='export', short_name=short_name)
-       select case (short_name)
-       case ("PLE")
-          vertical_dim_spec = VERTICAL_DIM_EDGE
-       case ("PL")
-          vertical_dim_spec = VERTICAL_DIM_CENTER
-       case default
-          _FAIL("short name should be one of PL/PLE, not" // trim(short_name))
-       end select
-
+       v_pt = VirtualConnectionPt(state_intent="export", short_name=short_name)
+       
        goal_spec = FieldSpec( &
             geom=geom, vertical_grid=this, vertical_dim_spec=vertical_dim_spec, &
             typekind=typekind, standard_name=standard_name, units=units, ungridded_dims=UngriddedDims())
@@ -150,10 +142,27 @@ contains
        type is (FieldSpec)
           field = new_spec%get_payload()
        class default
-          _FAIL('unsupported spec type; must be FieldSpec')
+          _FAIL("unsupported spec type; must be FieldSpec")
        end select
 
        _RETURN(_SUCCESS)
     end subroutine get_coordinate_field
+
+   subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
+      class(ModelVerticalGrid), intent(in) :: this
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      write(unit, "(a, a, g0, a)", iostat=iostat, iomsg=iomsg) &
+           "ModelVerticalGrid(", &
+           "num levels: ", this%num_levels, &
+           ")"
+
+      _UNUSED_DUMMY(iotype)
+      _UNUSED_DUMMY(v_list)
+   end subroutine write_formatted
 
 end module mapl3g_ModelVerticalGrid
