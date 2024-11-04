@@ -17,7 +17,7 @@ module Test_FieldDimensionInfo
    implicit none
 
    integer, parameter :: NUM_LEVELS_DEFAULT = 3
-   character(len=*), parameter :: VLOC_DEFAULT = 'VERTICAL_DIM_CENTER'
+   character(len=*), parameter :: VERT_STAGGER_DEFAULT = 'VERTICAL_STAGGER_CENTER'
    character(len=*), parameter :: NAME_DEFAULT = 'A1'
    character(len=*), parameter :: UNITS_DEFAULT = 'stones'
    real, parameter :: COORDINATES_DEFAULT(*) = [2.0, 2.4, 2.5]
@@ -48,16 +48,16 @@ contains
    @Test
    subroutine test_get_vertical_dim_spec_names()
       integer :: status
-      character(len=*), parameter :: EXPECTED_NAME_1 = 'VERTICAL_DIM_CENTER'
-      character(len=*), parameter :: EXPECTED_NAME_2 = 'VERTICAL_DIM_EDGE'
+      character(len=*), parameter :: EXPECTED_NAME_1 = 'VERTICAL_STAGGER_CENTER'
+      character(len=*), parameter :: EXPECTED_NAME_2 = 'VERTICAL_STAGGER_EDGE'
       type(StringVector), allocatable :: names
       integer :: sz
 
       call safe_dealloc(bundle_info)
       allocate(bundle_info(3))
-      bundle_info(1) = make_esmf_info(vloc=EXPECTED_NAME_1, _RC)
-      bundle_info(2) = make_esmf_info(vloc=EXPECTED_NAME_2, _RC)
-      bundle_info(3) = make_esmf_info(vloc=EXPECTED_NAME_1, _RC)
+      bundle_info(1) = make_esmf_info(vert_stagger=EXPECTED_NAME_1, _RC)
+      bundle_info(2) = make_esmf_info(vert_stagger=EXPECTED_NAME_2, _RC)
+      bundle_info(3) = make_esmf_info(vert_stagger=EXPECTED_NAME_1, _RC)
       names = get_vertical_dim_spec_names_bundle_info(bundle_info, _RC)
       sz = names%size()
       @assertEqual(2, sz, 'There should only be two unique vertical_dim_spec names.')
@@ -107,11 +107,11 @@ contains
 
    end subroutine test_get_ungridded_dims
 
-   function make_esmf_info(num_levels, vloc, num_ungridded, names, units_array, coordinates, rc) &
+   function make_esmf_info(num_levels, vert_stagger, num_ungridded, names, units_array, coordinates, rc) &
          result(info)
       type(ESMF_Info) :: info
       integer, optional, intent(in) :: num_levels
-      character(len=*), optional, intent(in) :: vloc
+      character(len=*), optional, intent(in) :: vert_stagger
       integer, optional, intent(in) :: num_ungridded
       character(len=*), optional, intent(in) :: names(:)
       character(len=*), optional, intent(in) :: units_array(:)
@@ -119,16 +119,16 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       integer :: num_levels_, num_ungridded_
-      character(len=:), allocatable :: vloc_
+      character(len=:), allocatable :: vert_stagger_
 
       num_ungridded_ = -1
       num_levels_ = NUM_LEVELS_DEFAULT
       if(present(num_levels)) num_levels_ = num_levels
-      vloc_ = VLOC_DEFAULT
-      if(present(vloc)) vloc_ = vloc
+      vert_stagger_ = VERT_STAGGER_DEFAULT
+      if(present(vert_stagger)) vert_stagger_ = vert_stagger
       info = ESMF_InfoCreate(_RC)
-      call make_vertical_dim(info, vloc_, _RC)
-      call make_vertical_geom(info, num_levels_, _RC)
+      call make_vertical_dim(info, vert_stagger_, _RC)
+      call ESMF_InfoSet(info, KEY_NUM_LEVELS, num_levels_, _RC)
 
       SET_RC(status)
 
@@ -145,27 +145,16 @@ contains
 
    end function make_esmf_info
 
-   subroutine make_vertical_dim(info, vloc, rc)
+   subroutine make_vertical_dim(info, vert_stagger, rc)
       type(ESMF_Info), intent(inout) :: info
-      character(len=*), intent(in) :: vloc
+      character(len=*), intent(in) :: vert_stagger
       integer, optional, intent(out) :: rc
       integer :: status
 
-      call ESMF_InfoSet(info, KEY_VLOC, vloc, _RC)
+      call ESMF_InfoSet(info, KEY_VERT_STAGGERLOC, vert_stagger, _RC)
       SET_RC(status)
 
    end subroutine make_vertical_dim
-
-   subroutine make_vertical_geom(info, num_levels, rc)
-      type(ESMF_Info), intent(inout) :: info
-      integer, intent(in) :: num_levels
-      integer, optional, intent(out) :: rc
-      integer :: status
-
-      call ESMF_InfoSet(info, KEY_NUM_LEVELS, num_levels, _RC)
-      SET_RC(status)
-
-   end subroutine make_vertical_geom
 
    subroutine make_ungridded_dims_info(info, num_ungridded, names, units_array, coordinates, rc)
       type(ESMF_Info), intent(inout) :: info
