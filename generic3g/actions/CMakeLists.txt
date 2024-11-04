@@ -10,4 +10,8 @@ target_sources(MAPL.generic3g PRIVATE
   ConvertUnitsAction.F90
 
   TimeInterpolateAction.F90
+  AccumulatorAction.F90
+  MeanAccumulator.F90
+  MaxAccumulator.F90
+  MinAccumulator.F90
 )

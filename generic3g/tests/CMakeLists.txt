@@ -36,6 +36,7 @@ set (test_srcs
   Test_VerticalLinearMap.pf
 
   Test_CSR_SparseMatrix.pf
+  Test_AccumulatorAction.pf
   )
 
 
