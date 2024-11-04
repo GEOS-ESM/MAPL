@@ -8,7 +8,7 @@ module mapl3g_VerticalRegridAction
    use mapl3g_CouplerPhases, only: GENERIC_COUPLER_UPDATE
    use mapl3g_VerticalRegridMethod
    use mapl3g_VerticalLinearMap, only: compute_linear_map
-   use mapl3g_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp, matmul
+   use mapl3g_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp, matmul, shape
    use mapl3g_FieldCondensedArray, only: assign_fptr_condensed_array
    use esmf
 
@@ -23,7 +23,7 @@ module mapl3g_VerticalRegridAction
 
    type, extends(ExtensionAction) :: VerticalRegridAction
       type(ESMF_Field) :: v_in_coord, v_out_coord
-      type(SparseMatrix_sp) :: matrix
+      type(SparseMatrix_sp), allocatable :: matrix(:, :)
       type(GriddedComponentDriver), pointer :: v_in_coupler => null()
       type(GriddedComponentDriver), pointer :: v_out_coupler => null()
       type(VerticalRegridMethod) :: method = VERTICAL_REGRID_UNKNOWN
@@ -65,9 +65,9 @@ contains
       type(ESMF_Clock) :: clock
       integer, optional, intent(out) :: rc
 
-      real(ESMF_KIND_R4), pointer :: vcoord_in(:)
-      real(ESMF_KIND_R4), pointer :: vcoord_out(:)
-      integer :: status
+      real(ESMF_KIND_R4), pointer :: v_in(:, :, :), v_out(:, :, :)
+      integer :: shape_in(3), shape_out(3), n_horz, n_ungridded
+      integer :: horz1, horz2, ungrd, status
 
       _ASSERT(this%method == VERTICAL_REGRID_LINEAR, "regrid method can only be linear")
 
@@ -79,10 +79,28 @@ contains
       !    call this%v_out_coupler%initialize(_RC)
       ! end if
 
-      call ESMF_FieldGet(this%v_in_coord, fArrayPtr=vcoord_in, _RC)
-      call ESMF_FieldGet(this%v_out_coord, fArrayPtr=vcoord_out, _RC)
+      call assign_fptr_condensed_array(this%v_in_coord, v_in, _RC)
+      shape_in = shape(v_in)
+      n_horz = shape_in(1)
+      n_ungridded = shape_in(3)
 
-      call compute_linear_map(vcoord_in, vcoord_out, this%matrix, RC)
+      call assign_fptr_condensed_array(this%v_out_coord, v_out, _RC)
+      shape_out = shape(v_out)
+      _ASSERT((shape_in(1) == shape_out(1)), "horz dims are expected to be equal")
+      _ASSERT((shape_in(3) == shape_out(3)), "ungridded dims are expected to be equal")
+
+      allocate(this%matrix(n_horz, n_horz))
+
+      ! TODO: Convert to a `do concurrent` loop
+      do horz1 = 1, n_horz
+         do horz2 = 1, n_horz
+            do ungrd = 1, n_ungridded
+               associate(src => v_in(horz1, :, ungrd), dst => v_out(horz2, :, ungrd))
+                 call compute_linear_map(src, dst, this%matrix(horz1, horz2), _RC)
+               end associate
+            end do
+         end do
+      end do
 
       _RETURN(_SUCCESS)
    end subroutine initialize
@@ -98,7 +116,8 @@ contains
       integer :: status
       type(ESMF_Field) :: f_in, f_out
       real(ESMF_KIND_R4), pointer :: x_in(:,:,:), x_out(:,:,:)
-      integer :: x_shape(3), horz, ungridded
+      integer :: shape_in(3), shape_out(3), n_horz, n_ungridded
+      integer :: horz1, horz2, ungrd
 
       ! if (associated(this%v_in_coupler)) then
       !    call this%v_in_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
@@ -110,13 +129,19 @@ contains
 
       call ESMF_StateGet(importState, itemName='import[1]', field=f_in, _RC)
       call assign_fptr_condensed_array(f_in, x_in, _RC)
+      shape_in = shape(x_in)
+      n_horz = shape_in(1)
+      n_ungridded = shape_in(3)
 
       call ESMF_StateGet(exportState, itemName='export[1]', field=f_out, _RC)
       call assign_fptr_condensed_array(f_out, x_out, _RC)
+      shape_out = shape(x_out)
 
-      x_shape = shape(x_out)
-      do concurrent (horz=1:x_shape(1), ungridded=1:x_shape(3))
-         x_out(horz, :, ungridded) = matmul(this%matrix, x_in(horz, :, ungridded))
+      _ASSERT((shape_in(1) == shape_out(1)), "horz dims are expected to be equal")
+      _ASSERT((shape_in(3) == shape_out(3)), "ungridded dims are expected to be equal")
+
+      do concurrent (horz1=1:n_horz, horz2=1:n_horz, ungrd=1:n_ungridded)
+         x_out(horz2, :, ungrd) = matmul(this%matrix(horz1, horz2), x_in(horz1, :, ungrd))
       end do
 
       _RETURN(_SUCCESS)

@@ -797,7 +797,7 @@ contains
 
    ! Repeatedly extend family at v_pt until extension can directly
    ! connect to goal_spec.
-   function extend(registry, v_pt, goal_spec, rc) result(extension)
+   recursive function extend(registry, v_pt, goal_spec, rc) result(extension)
       use mapl3g_MultiState
       use mapl3g_ActualConnectionPt, only: ActualConnectionPt
       type(StateItemExtension), pointer :: extension

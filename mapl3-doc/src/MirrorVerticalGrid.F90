@@ -10,6 +10,7 @@ module mapl3g_MirrorVerticalGrid
    use mapl_ErrorHandling
    use mapl3g_VerticalGrid
    use mapl3g_GriddedComponentDriver
+   use mapl3g_VerticalDimSpec
    use esmf, only: ESMF_TypeKind_Flag
    use esmf, only: ESMF_Field
    use esmf, only: ESMF_Geom
@@ -25,6 +26,7 @@ module mapl3g_MirrorVerticalGrid
       procedure :: get_num_levels
       procedure :: get_coordinate_field
       procedure :: can_connect_to
+      procedure :: write_formatted
    end type MirrorVerticalGrid
 
    interface MirrorVerticalGrid
@@ -44,7 +46,7 @@ contains
       _UNUSED_DUMMY(this)
    end function
       
-   subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, rc)
+   subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, vertical_dim_spec, rc)
       class(MirrorVerticalGrid), intent(in) :: this
       type(ESMF_Field), intent(out) :: field
       type(GriddedComponentDriver), pointer, intent(out) :: coupler
@@ -52,6 +54,7 @@ contains
       type(ESMF_Geom), intent(in) :: geom
       type(ESMF_TypeKind_Flag), intent(in) :: typekind
       character(*), intent(in) :: units
+      type(VerticalDimSpec), intent(in) :: vertical_dim_spec
       integer, optional, intent(out) :: rc
 
       _FAIL('MirrorVerticalGrid should have been replaced before this procedure was called.')
@@ -63,6 +66,7 @@ contains
       _UNUSED_DUMMY(geom)
       _UNUSED_DUMMY(typekind)
       _UNUSED_DUMMY(units)
+      _UNUSED_DUMMY(vertical_dim_spec)
    end subroutine get_coordinate_field
 
    logical function can_connect_to(this, src, rc)
@@ -76,5 +80,19 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(src)
    end function can_connect_to
+
+   subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
+      class(MirrorVerticalGrid), intent(in) :: this
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      write(unit, "(a)", iostat=iostat, iomsg=iomsg) "MirrorVerticalGrid()"
+
+      _UNUSED_DUMMY(iotype)
+      _UNUSED_DUMMY(v_list)
+   end subroutine write_formatted
 
 end module mapl3g_MirrorVerticalGrid
