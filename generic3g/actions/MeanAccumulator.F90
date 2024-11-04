@@ -12,14 +12,15 @@ module mapl3g_MeanAccumulator
    type, extends(AccumulatorAction) :: MeanAccumulator
       !private
       integer(ESMF_KIND_R8) :: counter_scalar = 0_ESMF_KIND_I8
-      logical, allocatable :: valid_points(:)
+      logical, allocatable :: valid_mean(:)
    contains
       procedure :: invalidate => invalidate_mean_accumulator
       procedure :: clear_accumulator => clear_mean_accumulator
       procedure :: update => update_mean_accumulator
       procedure :: calculate_mean
       procedure :: calculate_mean_R4
-      procedure :: clear_valid_points
+      procedure :: clear_valid_mean
+      procedure :: accumulate_R4 => accumulate_mean_R4
    end type MeanAccumulator
 
 contains
@@ -31,25 +32,25 @@ contains
       integer :: status
 
       this%counter_scalar = 0_ESMF_KIND_R8
-      call this%clear_valid_points(_RC)
+      call this%clear_valid_mean(_RC)
       call this%AccumulatorAction%clear_accumulator(_RC)
       _RETURN(_SUCCESS)
 
    end subroutine clear_mean_accumulator
 
-   subroutine clear_valid_points(this, rc)
+   subroutine clear_valid_mean(this, rc)
       class(MeanAccumulator), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
       integer :: local_size
 
-      if(allocated(this%valid_points)) deallocate(this%valid_points)
+      if(allocated(this%valid_mean)) deallocate(this%valid_mean)
       local_size = FieldGetLocalSize(this%accumulation_field, _RC)
-      allocate(this%valid_points(local_size), source = .FALSE.)
+      allocate(this%valid_mean(local_size), source = .FALSE.)
       _RETURN(_SUCCESS)
 
-   end subroutine clear_valid_points
+   end subroutine clear_valid_mean
 
    subroutine calculate_mean(this, rc)
       class(MeanAccumulator), intent(inout) :: this
@@ -65,7 +66,7 @@ contains
       else
          _FAIL('Unsupported typekind')
       end if
-      !_RESULT(_SUCCESS)
+      _RETURN(_SUCCESS)
 
    end subroutine calculate_mean
 
@@ -108,21 +109,39 @@ contains
 
       integer :: status
       real(kind=ESMF_KIND_R4), pointer :: current_ptr(:) => null()
-      real(kind=ESMF_KIND_R4), pointer :: calculated_ptr(:) => null()
       real(kind=ESMF_KIND_R4), parameter :: UNDEF = MAPL_UNDEFINED_REAL
 
       call assign_fptr(this%accumulation_field, current_ptr, _RC)
-      call assign_fptr(this%result_field, calculated_ptr, _RC)
-      associate(counter => this%counter_scalar, valid => this%valid_points)
-         where(current_ptr /= UNDEF .and. valid)
-            calculated_ptr = current_ptr / counter
-         elsewhere
-            calculated_ptr = UNDEF
-         end where
-      end associate
-
+      where(current_ptr /= UNDEF .and. this%valid_mean)
+         current_ptr = current_ptr / this%counter_scalar
+      elsewhere
+         current_ptr = UNDEF
+      end where
       _RETURN(_SUCCESS)
 
    end subroutine calculate_mean_R4
+
+   subroutine accumulate_mean_R4(this, update_field, rc)
+      class(MeanAccumulator), intent(inout) :: this
+      type(ESMF_Field), intent(inout) :: update_field
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      real(kind=ESMF_KIND_R4), pointer :: current(:)
+      real(kind=ESMF_KIND_R4), pointer :: latest(:)
+      real(kind=ESMF_KIND_R4) :: undef
+
+      undef = MAPL_UNDEFINED_REAL
+      call assign_fptr(this%accumulation_field, current, _RC)
+      call assign_fptr(update_field, latest, _RC)
+      where(current /= undef .and. latest /= undef)
+        current = current + latest
+        this%valid_mean = .TRUE.
+      elsewhere(latest == undef)
+        current = undef
+      end where
+      _RETURN(_SUCCESS)
+
+   end subroutine accumulate_mean_R4
 
 end module mapl3g_MeanAccumulator

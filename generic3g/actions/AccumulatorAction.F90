@@ -77,6 +77,7 @@ contains
       this%result_field = ESMF_FieldCreate(export_field, _RC)
 
       call this%clear_accumulator(_RC)
+      _UNUSED_DUMMY(clock)
       _RETURN(_SUCCESS)
 
    end subroutine initialize
@@ -100,6 +101,8 @@ contains
       call FieldCopy(this%result_field, export_field, _RC)
 
       call this%clear_accumulator(_RC)
+      _UNUSED_DUMMY(clock)
+      _UNUSED_DUMMY(importState)
       _RETURN(_SUCCESS)
 
    end subroutine update
@@ -118,6 +121,8 @@ contains
       this%update_calculated = .FALSE.
       call get_field(importState, import_field, _RC)
       call this%accumulate(import_field, _RC)
+      _UNUSED_DUMMY(clock)
+      _UNUSED_DUMMY(exportState)
       _RETURN(_SUCCESS)
 
    end subroutine invalidate

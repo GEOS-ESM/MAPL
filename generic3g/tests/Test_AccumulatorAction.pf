@@ -265,22 +265,25 @@ contains
    @Test
    subroutine test_calculate_mean_R4()
       type(MeanAccumulator) :: acc
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
       integer :: status
-      type(ESMF_Grid) :: grid
       integer(kind=ESMF_KIND_I8), parameter :: COUNTER = 4
       real(kind=ESMF_KIND_R4), parameter :: MEAN = 4.0_R4
       logical :: matches_expected
       
-      call initialize_field(acc%accumulation_field, typekind=ESMF_TYPEKIND_R4, grid=grid, _RC)
+      call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
+      call acc%initialize(importState, exportState, clock, _RC)
       call FieldSet(acc%accumulation_field, COUNTER*MEAN, _RC)
       acc%counter_scalar = 4
-      acc%valid_points = .TRUE.
+      acc%valid_mean = .TRUE.
 
       call acc%calculate_mean_R4(_RC)
       matches_expected = FieldIsConstant(acc%accumulation_field, MEAN, _RC)
       @assert_that(matches_expected, is(true()))
 
    end subroutine test_calculate_mean_R4
+
 ! HELPER PROCEDURES
 
    logical function is_initialized(rc) result(lval)
