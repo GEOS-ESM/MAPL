@@ -10,10 +10,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Allow update offsets of &#177;timestep in ExtData2G
+- Minor revision (and generalization) of grid-def for GSI purposes
 
 ### Changed
 
+- Added commandline options to `checkpoint_benchmark.x` and `restart_benchmark.x` to allow for easier testing of different configurations. Note that the old configuration file style of input is allowed via the `--config_file` option (which overrides any other command line options)
 - Update ESMF version for Baselibs to match that of Spack for consistency
+- Update `components.yaml`
+  - ESMA_env v4.32.0
+    - Baselibs 7.27.0
+      - ESMF 8.7.0
+      - curl 8.10.1
+      - NCO 5.2.8
+      - CDO 2.4.4
+      - GSL 2.8
+      - jpeg 9f
+      - Various build fixes
+  - ESMA_cmake v3.52.0
+    - Fixes for using MAPL as a library in spack builds of GEOSgcm
+    - Various backports from v4
+- Updates to CI
+  - Use v7.27.0 Baselibs
+  - Use GCC 14 for GNU tests
 
 ### Fixed
 
@@ -23,6 +41,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.50.2] - 2024-10-30
+
+### Fixed
+
+- Fixed bug with cycle placement in coupler loop in History
 
 ## [2.50.1] - 2024-10-18
 
