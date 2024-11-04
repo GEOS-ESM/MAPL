@@ -24,7 +24,6 @@ module mapl3g_FieldSpec
    use mapl3g_ActualConnectionPt
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
-!#   use mapl3g_esmf_info_keys
    use mapl3g_InfoUtilities
    use mapl3g_ExtensionAction
    use mapl3g_VerticalGrid
@@ -113,7 +112,6 @@ module mapl3g_FieldSpec
 
       procedure :: make_adapters
 
-!#      procedure :: set_info
       procedure :: set_geometry
 
       procedure :: write_formatted
