@@ -23,7 +23,7 @@ module mapl3g_VerticalRegridAction
 
    type, extends(ExtensionAction) :: VerticalRegridAction
       type(ESMF_Field) :: v_in_coord, v_out_coord
-      type(SparseMatrix_sp), allocatable :: matrix(:, :)
+      type(SparseMatrix_sp), allocatable :: matrix(:)
       type(GriddedComponentDriver), pointer :: v_in_coupler => null()
       type(GriddedComponentDriver), pointer :: v_out_coupler => null()
       type(VerticalRegridMethod) :: method = VERTICAL_REGRID_UNKNOWN
@@ -67,7 +67,7 @@ contains
 
       real(ESMF_KIND_R4), pointer :: v_in(:, :, :), v_out(:, :, :)
       integer :: shape_in(3), shape_out(3), n_horz, n_ungridded
-      integer :: horz1, horz2, ungrd, status
+      integer :: horz, ungrd, status
 
       _ASSERT(this%method == VERTICAL_REGRID_LINEAR, "regrid method can only be linear")
 
@@ -89,16 +89,14 @@ contains
       _ASSERT((shape_in(1) == shape_out(1)), "horz dims are expected to be equal")
       _ASSERT((shape_in(3) == shape_out(3)), "ungridded dims are expected to be equal")
 
-      allocate(this%matrix(n_horz, n_horz))
+      allocate(this%matrix(n_horz))
 
       ! TODO: Convert to a `do concurrent` loop
-      do horz1 = 1, n_horz
-         do horz2 = 1, n_horz
-            do ungrd = 1, n_ungridded
-               associate(src => v_in(horz1, :, ungrd), dst => v_out(horz2, :, ungrd))
-                 call compute_linear_map(src, dst, this%matrix(horz1, horz2), _RC)
-               end associate
-            end do
+      do horz = 1, n_horz
+         do ungrd = 1, n_ungridded
+            associate(src => v_in(horz, :, ungrd), dst => v_out(horz, :, ungrd))
+              call compute_linear_map(src, dst, this%matrix(horz), _RC)
+            end associate
          end do
       end do
 
@@ -117,7 +115,7 @@ contains
       type(ESMF_Field) :: f_in, f_out
       real(ESMF_KIND_R4), pointer :: x_in(:,:,:), x_out(:,:,:)
       integer :: shape_in(3), shape_out(3), n_horz, n_ungridded
-      integer :: horz1, horz2, ungrd
+      integer :: horz, ungrd
 
       ! if (associated(this%v_in_coupler)) then
       !    call this%v_in_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
@@ -140,8 +138,8 @@ contains
       _ASSERT((shape_in(1) == shape_out(1)), "horz dims are expected to be equal")
       _ASSERT((shape_in(3) == shape_out(3)), "ungridded dims are expected to be equal")
 
-      do concurrent (horz1=1:n_horz, horz2=1:n_horz, ungrd=1:n_ungridded)
-         x_out(horz2, :, ungrd) = matmul(this%matrix(horz1, horz2), x_in(horz1, :, ungrd))
+      do concurrent (horz=1:n_horz, ungrd=1:n_ungridded)
+         x_out(horz, :, ungrd) = matmul(this%matrix(horz), x_in(horz, :, ungrd))
       end do
 
       _RETURN(_SUCCESS)
