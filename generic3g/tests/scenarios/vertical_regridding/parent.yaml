@@ -6,13 +6,14 @@ mapl:
       setServices: setservices_
       config_file: scenarios/vertical_regridding/A.yaml
     B:
-      dso: libsimple_leaf_gridcomp
+      sharedObj: libsimple_leaf_gridcomp
+      setServices: setservices_
       config_file: scenarios/vertical_regridding/B.yaml
 
   states: {}
 
   connections:
-    - src_name: E
-      dst_name: I
+    - src_name: E_A
+      dst_name: I_B
       src_comp: A
       dst_comp: B
