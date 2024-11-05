@@ -79,20 +79,20 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.0% of total for procedures.">22 statements</a>
+                 title=" 0.0% of total for procedures.">21 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/checkpoint_simulator.F90"> Source File</a>
+              <a href="../src/restart_simulator.F90"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/checkpoint_simulator.f90.html'>checkpoint_simulator.F90</a></li>
-                <li class="breadcrumb-item"><a href='../module/mapl_checkpoint_support_mod.html'>mapl_checkpoint_support_mod</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/restart_simulator.f90.html'>restart_simulator.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_restart_support_mod.html'>mapl_restart_support_mod</a></li>
             <li class="breadcrumb-item active" aria-current="page">parse_arguments</li>
           </ol>
         </nav>
@@ -155,7 +155,7 @@
     <br>
       <h3>Return Value
         <small>
-          <span class="anchor" id="variable-options~18"></span>
+          <span class="anchor" id="variable-options~13"></span>
           type(StringUnlimitedMap)
         </small>
       </h3>
@@ -485,14 +485,14 @@ large graphs.</div>
 <span class="w">         </span><span class="k">type</span><span class="o">=</span><span class="s2">&quot;integer&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="mi">137</span><span class="p">)</span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">parser</span><span class="p">%</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--num_writers&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">         </span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;The number of processes that will write (default: 1)&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">      </span><span class="k">call </span><span class="n">parser</span><span class="p">%</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--num_readers&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;The number of processes that will read (default: 1)&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="w">         </span><span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="w">         </span><span class="k">type</span><span class="o">=</span><span class="s2">&quot;integer&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
 <span class="w">      </span><span class="k">call </span><span class="n">parser</span><span class="p">%</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--num_arrays&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">         </span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;The number of 3D arrays to write (default: 5)&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;The number of 3D arrays to read (default: 5)&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="w">         </span><span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="w">         </span><span class="k">type</span><span class="o">=</span><span class="s2">&quot;integer&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
@@ -504,37 +504,32 @@ large graphs.</div>
 <span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 
 <span class="w">      </span><span class="k">call </span><span class="n">parser</span><span class="p">%</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--split_file&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">         </span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;Split the file into multiple files (default: do not split)&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;Read split files instead of a single file (default: read single file)&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="w">         </span><span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.)</span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">parser</span><span class="p">%</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--gather_3d&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">         </span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;Gather all levels at once instead of one at a time (default: gather one at a time)&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">      </span><span class="k">call </span><span class="n">parser</span><span class="p">%</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--scatter_3d&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;Scatter all the levels at once instead of one at a time (default: scatter one at a time)&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="w">         </span><span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.)</span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">parser</span><span class="p">%</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--write_barrier&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">         </span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;Add a barrier after every write (default: no barrier)&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">      </span><span class="k">call </span><span class="n">parser</span><span class="p">%</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--read_barrier&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;Add a barrier after every read (default: no barrier)&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="w">         </span><span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.)</span>
 
 <span class="w">      </span><span class="k">call </span><span class="n">parser</span><span class="p">%</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--static_data&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="w">         </span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;Use static data (rank of process) instead of random data (default: random data)&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="w">         </span><span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="p">.</span><span class="n">False</span><span class="p">.)</span>
+<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.)</span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">parser</span><span class="p">%</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--suppress_writes&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">         </span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;Do not write data (default: write data)&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">         </span><span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="p">.</span><span class="n">False</span><span class="p">.)</span>
-
-<span class="w">      </span><span class="k">call </span><span class="n">parser</span><span class="p">%</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--write_binary&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">         </span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;Write binary data instead of NetCDF (default: write NetCDF)&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">      </span><span class="k">call </span><span class="n">parser</span><span class="p">%</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--suppress_reads&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;Do not read data (default: read data)&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="w">         </span><span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.)</span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">parser</span><span class="p">%</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--no_chunking&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">         </span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;Do not chunk output (default: chunk the output)&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">      </span><span class="k">call </span><span class="n">parser</span><span class="p">%</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--read_binary&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;Read binary data instead of netCDF (default: netCDF data)&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="w">         </span><span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
 <span class="w">         </span><span class="n">default</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.)</span>
 
@@ -564,7 +559,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-11-04T21:31:39.275688             </p>
+ on 2024-11-05T01:59:55.452020             </p>
           </div>
         </div>
         <br>
