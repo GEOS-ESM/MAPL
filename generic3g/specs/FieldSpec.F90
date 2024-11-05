@@ -115,7 +115,6 @@ module mapl3g_FieldSpec
       procedure :: set_geometry
 
       procedure :: write_formatted
-      generic :: write(formatted) => write_formatted
    end type FieldSpec
 
    interface FieldSpec
