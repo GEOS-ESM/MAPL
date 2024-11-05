@@ -53,6 +53,9 @@ module mapl3g_StateItemSpec
       procedure(I_add_to_bundle), deferred :: add_to_bundle
       procedure(I_set_geometry), deferred :: set_geometry
 
+      procedure(I_write_formatted), deferred :: write_formatted
+      generic :: write(formatted) => write_formatted
+
       procedure, non_overridable :: set_allocated
       procedure, non_overridable :: is_allocated
       procedure, non_overridable :: is_active
@@ -154,6 +157,16 @@ module mapl3g_StateItemSpec
          class(VerticalGrid), optional, intent(in) :: vertical_grid
          integer, optional, intent(out) :: rc
       end subroutine I_set_geometry
+
+      subroutine I_write_formatted(this, unit, iotype, v_list, iostat, iomsg)
+         import StateItemSpec
+         class(StateItemSpec), intent(in) :: this
+         integer, intent(in) :: unit
+         character(*), intent(in) :: iotype
+         integer, intent(in) :: v_list(:)
+         integer, intent(out) :: iostat
+         character(*), intent(inout) :: iomsg
+      end subroutine I_write_formatted
 
       ! Returns an ordered list of adapters that priorities matching
       ! rules for connecting a family of extension to a goal spec.

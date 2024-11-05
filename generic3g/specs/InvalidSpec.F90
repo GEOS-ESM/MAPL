@@ -1,6 +1,9 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_InvalidSpec
+
+   use mapl_KeywordEnforcer
+   use mapl_ErrorHandling
    use mapl3g_StateItemSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_MultiState
@@ -14,8 +17,7 @@ module mapl3g_InvalidSpec
    use esmf, only: ESMF_Geom
    use esmf, only: ESMF_State
    use esmf, only: ESMF_SUCCESS
-   use mapl_KeywordEnforcer
-   use mapl_ErrorHandling
+
    implicit none
    private
   
@@ -36,13 +38,12 @@ module mapl3g_InvalidSpec
 
       procedure :: set_geometry => set_geometry
 
+      procedure :: write_formatted
+
       procedure :: make_adapters
    end type InvalidSpec
 
-
 contains
-  
-
 
    subroutine create(this, rc)
       class(InvalidSpec), intent(inout) :: this
@@ -51,7 +52,6 @@ contains
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(this)
    end subroutine create
-
 
    subroutine destroy(this, rc)
       class(InvalidSpec), intent(inout) :: this
@@ -64,7 +64,6 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine destroy
 
-
    subroutine allocate(this, rc)
       class(InvalidSpec), intent(inout) :: this
       integer, optional, intent(out) :: rc
@@ -75,7 +74,6 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine allocate
-
 
    subroutine connect_to(this, src_spec, actual_pt, rc)
       class(InvalidSpec), intent(inout) :: this
@@ -92,7 +90,6 @@ contains
       _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to
 
-
    logical function can_connect_to(this, src_spec, rc)
       class(InvalidSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: src_spec
@@ -103,7 +100,6 @@ contains
       _UNUSED_DUMMY(src_spec)
    end function can_connect_to
 
-
    logical function requires_extension(this, src_spec)
       class(InvalidSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: src_spec
@@ -112,7 +108,6 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(src_spec)
    end function requires_extension
-
 
    subroutine add_to_state(this, multi_state, actual_pt, rc)
       class(InvalidSpec), intent(in) :: this
@@ -149,6 +144,17 @@ contains
       _UNUSED_DUMMY(geom)
       _UNUSED_DUMMY(vertical_grid)
    end subroutine set_geometry
+
+   subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
+      class(InvalidSpec), intent(in) :: this
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      write(unit, "(a)", iostat=iostat, iomsg=iomsg) "InvalidSpec(write not implemented yet)"
+   end subroutine write_formatted
 
    ! Stub implementation
    function make_adapters(this, goal_spec, rc) result(adapters)
