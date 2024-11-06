@@ -68,7 +68,6 @@ contains
       logical :: file_found
       logical :: is_right_type
       character(len=:), allocatable :: sub_configs(:)
-      character(len=ESMF_MAXSTR) :: error_message
 
       _UNUSED_DUMMY(unusable)
 
