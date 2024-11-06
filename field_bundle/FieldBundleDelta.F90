@@ -4,6 +4,7 @@
 
 #include "MAPL_Exceptions.h"
 module mapl3g_FieldBundleDelta
+   use mapl3g_FieldBundleGet
    use mapl3g_LU_Bound
    use mapl3g_FieldDelta
    use mapl3g_InfoUtilities
