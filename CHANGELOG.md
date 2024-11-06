@@ -91,6 +91,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updates to CI
   - Use v7.27.0 Baselibs
   - Use GCC 14 for GNU tests
+  - Add pFUnit-less build test
 
 ### Fixed
 
