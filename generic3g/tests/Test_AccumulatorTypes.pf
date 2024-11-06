@@ -3,7 +3,7 @@
 #define _SUCCESS 0
 #include "MAPL_TestErr.h"
 #include "unused_dummy.H"
-module Test_AccumulatorAction
+module Test_AccumulatorTypes
 !   use mapl3g_AccumulatorAction
    use mapl3g_MeanAccumulator
    use esmf
@@ -11,14 +11,15 @@ module Test_AccumulatorAction
    use MAPL_FieldUtils
    implicit none
 
+   integer, parameter :: R4 = ESMF_KIND_R4
+   integer, parameter :: R8 = ESMF_KIND_R8
+   integer, parameter :: I8 = ESMF_KIND_I8
    integer(kind=ESMF_KIND_I4), parameter :: TIME_STEP = 1
    integer(kind=ESMF_KIND_I4), parameter :: START_TIME = 3000
    integer, parameter :: MAX_INDEX(2) = [4, 4]
-   real(kind=ESMF_KIND_R8), parameter :: MIN_CORNER_COORD(2) = [0.0_ESMF_KIND_R8, 0.0_ESMF_KIND_R8]
-   real(kind=ESMF_KIND_R8), parameter :: MAX_CORNER_COORD(2) = [4.0_ESMF_KIND_R8, 4.0_ESMF_KIND_R8]
+   real(kind=ESMF_KIND_R8), parameter :: MIN_CORNER_COORD(2) = [0.0_R8, 0.0_R8]
+   real(kind=ESMF_KIND_R8), parameter :: MAX_CORNER_COORD(2) = [4.0_R8, 4.0_R8]
    type(ESMF_TypeKind_Flag), parameter :: typekind = ESMF_TYPEKIND_R4
-   integer, parameter :: R4 = ESMF_KIND_R4
-   integer, parameter :: R8 = ESMF_KIND_R8
 
 contains
 
@@ -31,6 +32,9 @@ contains
       integer(kind=ESMF_KIND_I8), parameter :: COUNTER = 4
       real(kind=ESMF_KIND_R4), parameter :: MEAN = 4.0_R4
       logical :: matches_expected
+      real(kind=ESMF_KIND_R4), pointer :: fptr(:)
+      integer :: n
+      logical, allocatable :: mask(:)
       
       call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
       call acc%initialize(importState, exportState, clock, _RC)
@@ -38,13 +42,44 @@ contains
       acc%counter_scalar = COUNTER
       acc%valid_mean = .TRUE.
 
+      ! FIELD NOT UNDEF, ALL VALID_MEAN
       call acc%calculate_mean_R4(_RC)
       matches_expected = FieldIsConstant(acc%accumulation_field, MEAN, _RC)
       @assert_that(matches_expected, is(true()))
 
-      !todo add tests for additional cases of accumulation_field defined/undef and valid_mean
-      !cases accumulation_field defined, .not. valid_mean; accumulation_field undef, valid_mean
-      !accmulation undef, .not. valid_mean
+      ! FIELD(n) UNDEF, ALL_VALID_MEAN
+      acc%valid_mean = .TRUE.
+      call FieldSet(acc%accumulation_field, COUNTER*MEAN, _RC)
+      call assign_fptr(acc%accumulation_field, fptr, _RC)
+      n = size(fptr)-1
+      call set_undef(fptr(n))
+      allocate(mask(size(fptr)))
+      mask = .TRUE.
+      mask(n) = .FALSE.
+      call acc%calculate_mean_R4(_RC)
+      @assert_that(all(pack(fptr, mask) == MEAN), is(true()))
+      @assertTrue(undef(fptr(n)))
+      
+      ! FIELD NOT UNDEF, VALID_MEAN(n) .FALSE.
+      acc%valid_mean = .TRUE.
+      call FieldSet(acc%accumulation_field, COUNTER*MEAN, _RC)
+      acc%valid_mean(n) = .FALSE.
+      call acc%calculate_mean_R4(_RC)
+      @assert_that(all(pack(fptr, acc%valid_mean) == MEAN), is(true()))
+      @assertTrue(undef(fptr(n)))
+      
+      ! FIELD(n) UNDEF, VALID_MEAN(n) .FALSE.
+      acc%valid_mean = .TRUE.
+      call FieldSet(acc%accumulation_field, COUNTER*MEAN, _RC)
+      acc%valid_mean(n) = .FALSE.
+      call assign_fptr(acc%accumulation_field, fptr, _RC)
+      !@assert_that(n <= size(fptr), is(true()))
+      call set_undef(fptr(n))
+      mask = (.not. undef(fptr)) .and. acc%valid_mean
+      call acc%calculate_mean_R4(_RC)
+      @assert_that(all(pack(fptr, mask) == MEAN), is(true()))
+      @assertTrue(undef(fptr(n)))
+
    end subroutine test_calculate_mean_R4
 
    @Test
@@ -56,11 +91,12 @@ contains
       integer(kind=ESMF_KIND_I8), parameter :: COUNTER = 4
       real(kind=ESMF_KIND_R4), parameter :: MEAN = 4.0_R4
       logical :: matches_expected
+      type(ESMF_TypeKind_Flag), parameter :: TK = ESMF_TYPEKIND_R4
       
-      call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
+      call initialize_objects(importState, exportState, clock, TK, _RC)
       call acc%initialize(importState, exportState, clock, _RC)
       call FieldSet(acc%accumulation_field, COUNTER*MEAN, _RC)
-      acc%counter_scalar = 0
+      acc%counter_scalar = 0_I8
       acc%valid_mean = .TRUE.
 
       call acc%calculate_mean()
@@ -71,14 +107,10 @@ contains
       matches_expected = FieldIsConstant(acc%accumulation_field, MEAN, _RC)
       @assert_that(matches_expected, is(true()))
 
-      call initialize_field(acc%accumulation_field, typekind=ESMF_TYPEKIND_CHARACTER, _RC)
-      call acc%calculate_mean()
-      @assertExceptionRaised()
-
-   end subroutine test_calculate_mean_R4
+   end subroutine test_calculate_mean
 
    @Test
-   subroutine test_clear_mean_accumulator()
+   subroutine test_clear_accumulator()
       type(MeanAccumulator) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
@@ -87,10 +119,10 @@ contains
       call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
       call acc%initialize(importState, exportState, clock, _RC)
       acc%counter_scalar = 4
-      call acc%clear_mean_accumulator(_RC)
-      @assert_that(this%counter_scalar, is(equal(0))
+      call acc%clear_accumulator(_RC)
+      @assertEqual(acc%counter_scalar, 0_I8)
 
-   end subroutine test_clear_mean_accumulator
+   end subroutine test_clear_accumulator
 
    @Test
    subroutine test_clear_valid_mean()
@@ -108,26 +140,26 @@ contains
    end subroutine test_clear_valid_mean
 
    @Test
-   subroutine test_invalidate_mean_accumulator()
+   subroutine test_invalidate()
       type(MeanAccumulator) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
       integer :: status
-      integer, parameter :: N = 4
+      integer(kind=ESMF_KIND_I8), parameter :: N = 4_I8
       integer :: i
       type(ESMF_Field) :: importField
 
       call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
       call get_field(importState, importField, _RC)
-      call FieldSet(importField, 1.0_ESMF_KIND_R4, _RC)
+      call FieldSet(importField, 1.0_R4, _RC)
       call acc%initialize(importState, exportState, clock, _RC)
-      @assert_that(acc%counter_scalar, is(equal(0)))
+      @assertEqual(acc%counter_scalar, 0_I8)
       do i=1, N
          call acc%invalidate(importState, exportState, clock, _RC)
       end do
-      @assert_that(acc%counter_scalar, is(equal(0)))
+      @assertEqual(acc%counter_scalar, N)
 
-   end subroutine test_invalidate_mean_accumulator
+   end subroutine test_invalidate
    !todo test_accumulate_mean_R4
    !test cases(2): both defined, check accumulation_field & valid_mean
    !latest is undef, check accumulation_field
@@ -141,6 +173,22 @@ contains
       _RETURN(_SUCCESS)
 
    end function is_initialized
+
+   elemental logical function undef(t) result(lval)
+      use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL
+      real(kind=ESMF_KIND_R4), intent(in) :: t
+
+      lval = t == MAPL_UNDEFINED_REAL
+
+   end function undef
+
+   subroutine set_undef(t)
+      use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL
+      real(kind=ESMF_KIND_R4), intent(inout) :: t
+
+      t = MAPL_UNDEFINED_REAL
+
+   end subroutine set_undef
 
    subroutine initialize_field(field, typekind, grid, rc)
       type(ESMF_Field), intent(inout) :: field
@@ -239,4 +287,4 @@ contains
 
    end subroutine set_up
 
-end module Test_AccumulatorAction
+end module Test_AccumulatorTypes

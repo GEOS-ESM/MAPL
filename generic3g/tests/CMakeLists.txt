@@ -37,6 +37,7 @@ set (test_srcs
 
   Test_CSR_SparseMatrix.pf
   Test_AccumulatorAction.pf
+  Test_AccumulatorTypes.pf
   )
 
 
