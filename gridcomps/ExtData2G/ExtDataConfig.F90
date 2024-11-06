@@ -68,6 +68,7 @@ contains
       logical :: file_found
       logical :: is_right_type
       character(len=:), allocatable :: sub_configs(:)
+      character(len=ESMF_MAXSTR) :: error_message
 
       _UNUSED_DUMMY(unusable)
 
@@ -107,7 +108,8 @@ contains
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
             hconfig_key = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
             temp_ds => ext_config%file_stream_map%at(hconfig_key)
-            _ASSERT(.not.associated(temp_ds),"defined duplicate named collection")
+            write(error_message, '("defined duplicate named collection ", a)') trim(hconfig_key)
+            _ASSERT(.not.associated(temp_ds), error_message)
             single_collection = ESMF_HConfigCreateAtMapVal(hconfigIter,_RC)
             ds = ExtDataFileStream(single_collection,current_time,_RC)
             call ext_config%file_stream_map%insert(trim(hconfig_key),ds)
