@@ -2455,7 +2455,8 @@ ENDDO PARSER
              call MAPL_TimerOn(GENSTATE,"mask_init")
              list(n)%mask_sampler = MaskSampler(cfg,string,clock,genstate=GENSTATE,_RC)
              ! initialize + create metadata
-             call list(n)%mask_sampler%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
+             call list(n)%mask_sampler%initialize(list(n)%duration,list(n)%frequency,items=list(n)%items,&
+                  bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
              collection_id = o_Clients%add_hist_collection(list(n)%mask_sampler%metadata, mode = create_mode)
              call list(n)%mask_sampler%set_param(write_collection_id=collection_id)
              call MAPL_TimerOff(GENSTATE,"mask_init")
@@ -3592,7 +3593,7 @@ ENDDO PARSER
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if
-         elseif (list(n)%sampler_spec == 'mask') then            
+         elseif (list(n)%sampler_spec == 'mask') then
             if( list(n)%unit.eq.0 ) then
                if (list(n)%format == 'CFIO') then
                   if (.not.intState%allow_overwrite) then
@@ -3760,7 +3761,7 @@ ENDDO PARSER
          endif
 
          write(6,*) 'nail 2'
-         
+
       endif OUTTIME
 
       if( NewSeg(n) .and. list(n)%unit /= 0 .and. list(n)%duration /= 0 ) then

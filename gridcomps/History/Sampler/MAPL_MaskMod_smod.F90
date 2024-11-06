@@ -95,6 +95,7 @@ module function MaskSampler_from_config(config,string,clock,GENSTATE,rc) result(
   call convert_twostring_2_esmfinterval (symd, shms,  mask%obsfile_interval, _RC)
 
   mask%is_valid = .true.
+  mask%call_count = 0
 
   _RETURN(_SUCCESS)
 
@@ -106,8 +107,10 @@ end function MaskSampler_from_config
    !
    !-- integrate both initialize and reinitialize
    !
-module subroutine initialize_(this,items,bundle,timeInfo,vdata,reinitialize,rc)
+module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdata,reinitialize,rc)
    class(MaskSampler), intent(inout) :: this
+   integer, intent(in) :: duration
+   integer, intent(in) :: frequency
    type(GriddedIOitemVector), optional, intent(inout) :: items
    type(ESMF_FieldBundle), optional, intent(inout)   :: bundle
    type(TimeData), optional, intent(inout)           :: timeInfo
@@ -121,7 +124,8 @@ module subroutine initialize_(this,items,bundle,timeInfo,vdata,reinitialize,rc)
    type(GriddedIOitemVectorIterator) :: iter
    type(GriddedIOitem), pointer :: item
    type(ESMF_Time)            :: currTime
-   integer :: k
+   integer :: n1, n2, k
+   integer :: nitem_scalar, nitem_vector
 
    if (.not. present(reinitialize)) then
       if(present(bundle))   this%bundle=bundle
@@ -138,10 +142,41 @@ module subroutine initialize_(this,items,bundle,timeInfo,vdata,reinitialize,rc)
 !   if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
 
 
+   write(6,*) ' pt 1'
    this%obs_written = 0
-
    call this%create_grid(_RC)
+   write(6,*) ' pt 2'
+
    call this%create_metadata(_RC)
+   write(6,*) ' pt 3'
+
+   nitem_scalar = 0
+   nitem_vector = 0
+
+   iter = this%items%begin()
+   do while (iter /= this%items%end())
+      item => iter%get()
+      if (item%itemType == ItemTypeScalar) then
+         nitem_scalar = nitem_scalar + 1
+      else if (item%itemType == ItemTypeVector) then
+         nitem_vector = nitem_vector + 1
+      end if
+      call iter%next()
+   end do
+   write(6,*) ' pt 4'
+
+   n1 = MAPL_nsecf( duration )
+   n2 = MAPL_nsecf( frequency )
+   _ASSERT (n2>0, "list%frequency ==0, fail!")
+   this%tmax =  n1/n2
+   write(6,*) ' pt 5'
+
+   allocate ( this%array_scalar_2d (this%npt_mask, nitem_scalar, this%tmax+1) )
+   allocate ( this%array_scalar_3d (this%npt_mask, this%vdata%lm, nitem_scalar, this%tmax+1) )
+
+   !
+   ! __ note thse large arrays should be deallocated in the future
+   !
 
    _RETURN(_SUCCESS)
 
@@ -162,8 +197,8 @@ module subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chu
   integer, optional, intent(in) :: regrid_hints
   integer, optional, intent(out) :: rc
   integer :: status
-  
-  if (present(write_collection_id)) this%write_collection_id=write_collection_id        
+
+  if (present(write_collection_id)) this%write_collection_id=write_collection_id
 !!  add later on
 !!        if (present(regrid_method)) this%regrid_method=regrid_method
 !!        if (present(nbits_to_keep)) this%nbits_to_keep=nbits_to_keep
@@ -179,7 +214,7 @@ module subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chu
 !!        _RETURN(ESMF_SUCCESS)
 
 end subroutine set_param
-      
+
 
 module subroutine  create_metadata(this,rc)
     class(MaskSampler), intent(inout) :: this
@@ -203,12 +238,12 @@ module subroutine  create_metadata(this,rc)
 
 
     !__ 1. metadata add_dimension,
-    !     add_variable for time, mask_points, latlon, 
+    !     add_variable for time, mask_points, latlon,
     !
 
     if ( allocated (this%metadata) ) deallocate(this%metadata)
     allocate(this%metadata)
-    
+
     call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC) ! specify lev in fmd
 
     call this%timeinfo%add_time_to_metadata(this%metadata,_RC)
@@ -224,7 +259,7 @@ module subroutine  create_metadata(this,rc)
     call v%add_attribute('unit','degree_north')
     call this%metadata%add_variable('latitude',v)
 
-    
+
     ! To be added when values are available
     !v = Variable(type=pFIO_INT32, dimensions='mask_index')
     !call v%add_attribute('long_name','The Cubed Sphere Global Face ID')
@@ -261,17 +296,23 @@ module subroutine  create_metadata(this,rc)
           units = 'unknown'
        endif
 
-       if (this%timeInfo%is_initialized) then       
+!       if (this%timeInfo%is_initialized) then
+!          if (field_rank==2) then
+!             vdims = "mask_index,time"
+!             v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
+!          else if (field_rank==3) then
+!             vdims = "mask_index,lev,time"
+!             v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
+!          end if
+!       else
           if (field_rank==2) then
-             vdims = "mask_index,time"
+             vdims = "mask_index"
              v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
           else if (field_rank==3) then
-             vdims = "mask_index,lev,time"
+             vdims = "mask_index,lev"
              v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
           end if
-       else
-          _FAIL('timeinfo is uninitialized in mask')
-       end if
+!       end if
        call v%add_attribute('units',         trim(units))
        call v%add_attribute('long_name',     trim(long_name))
        call v%add_attribute('missing_value', MAPL_UNDEF)
@@ -481,11 +522,11 @@ module subroutine  create_metadata(this,rc)
        write(6,'(200i5)')  ip, nx2
        write(6,'(200i5)')  this%recvcounts
        write(6,'(200i5)')  recvcounts_loc
-       write(6,'(200i5)')  displs_loc       
+       write(6,'(200i5)')  displs_loc
        call MPI_Barrier(mpic,ierr)
        _VERIFY(ierr)
 
-       
+
        if (.not. mapl_am_i_root()) then
           this%recvcounts(:) = 0
        end if
@@ -498,11 +539,11 @@ module subroutine  create_metadata(this,rc)
        call MPI_gatherv ( lons_chunk, nsend, MPI_REAL8, &
             lons, this%recvcounts, this%displs, MPI_REAL8,&
             iroot, mpic, ierr )
-       _VERIFY(ierr) 
+       _VERIFY(ierr)
        call MPI_gatherv ( lats_chunk, nsend, MPI_REAL8, &
             lats, this%recvcounts, this%displs, MPI_REAL8,&
             iroot, mpic, ierr )
-       _VERIFY(ierr) 
+       _VERIFY(ierr)
 
 
 !!       if (mapl_am_I_root()) write(6,*) 'nobs tot :', nx
@@ -537,13 +578,13 @@ module subroutine  create_metadata(this,rc)
        ptA(:) = lons_chunk(:)
        call ESMF_FieldRedistStore (fieldA, fieldB, RH, _RC)
        call MPI_Barrier(mpic,ierr)
-       _VERIFY(ierr) 
+       _VERIFY(ierr)
        call ESMF_FieldRedist      (fieldA, fieldB, RH, _RC)
        lons_ds = ptB
 
        ptA(:) = lats_chunk(:)
        call MPI_Barrier(mpic,ierr)
-       _VERIFY(ierr) 
+       _VERIFY(ierr)
        call ESMF_FieldRedist      (fieldA, fieldB, RH, _RC)
        lats_ds = ptB
 
@@ -554,7 +595,7 @@ module subroutine  create_metadata(this,rc)
        call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
 
        call MAPL_TimerOff(this%GENSTATE,"2_ABIgrid_LS")
-       
+
        ! __ s3. find n.n. CS pts for LS_ds (halo)
        !
        call MAPL_TimerOn(this%GENSTATE,"3_CS_halo")
@@ -596,8 +637,8 @@ module subroutine  create_metadata(this,rc)
 !       !-- print out eLB, eUB do they match 1:IM, JM?
 !       !
 !       write(6,*) 'IM,JM', IM,JM
-!       write(6,*) 'eLB(1), eUB(1)', eLB(1), eUB(1) 
-!       write(6,*) 'eLB(2), eUB(2)', eLB(2), eUB(2)      
+!       write(6,*) 'eLB(1), eUB(1)', eLB(1), eUB(1)
+!       write(6,*) 'eLB(2), eUB(2)', eLB(2), eUB(2)
 
 
        k=0
@@ -678,7 +719,7 @@ module subroutine  create_metadata(this,rc)
        call MPI_gatherv ( this%npt_mask, 1, MPI_INTEGER, &
             this%recvcounts, recvcounts_loc, displs_loc, MPI_INTEGER,&
             iroot, mpic, ierr )
-       _VERIFY(ierr) 
+       _VERIFY(ierr)
        !
        ! set nonroot to zero for s4.3
        if (.not. mapl_am_i_root()) then
@@ -689,18 +730,18 @@ module subroutine  create_metadata(this,rc)
           this%displs(i) = this%displs(i-1) + this%recvcounts(i-1)
        end do
 
-       
+
        ! __ s4.3  gatherv lons/lats
        !
        nsend=this%npt_mask
        call MPI_gatherv ( lons, nsend, MPI_REAL8, &
             this%lons, this%recvcounts, this%displs, MPI_REAL8,&
             iroot, mpic, ierr )
-       _VERIFY(ierr) 
+       _VERIFY(ierr)
        call MPI_gatherv ( lats, nsend, MPI_REAL8, &
             this%lats, this%recvcounts, this%displs, MPI_REAL8,&
             iroot, mpic, ierr )
-       _VERIFY(ierr) 
+       _VERIFY(ierr)
 
        call MAPL_TimerOff(this%GENSTATE,"4_gatherV")
 
@@ -709,7 +750,7 @@ module subroutine  create_metadata(this,rc)
        write(6,*) 'ip, this%npt_mask, this%recvcounts, this%displs'
        write(6,'(200i10)')  ip, this%npt_mask
        write(6,'(200i10)')  this%recvcounts
-       write(6,'(200i10)')  this%displs       
+       write(6,'(200i10)')  this%displs
        call MPI_Barrier(mpic,ierr)
        _VERIFY(ierr)
 
@@ -742,7 +783,7 @@ module subroutine  create_metadata(this,rc)
  module subroutine output_to_server(this,current_time,filename,oClients,rc)
     implicit none
 
-    class(MaskSampler), intent(inout) :: this
+    class(MaskSampler), target, intent(inout) :: this
     type(ESMF_Time), intent(inout)          :: current_time
     character(len=*), intent(in) :: filename
     type (ClientManager), target, optional, intent(inout) :: oClients
@@ -753,7 +794,9 @@ module subroutine  create_metadata(this,rc)
     integer :: ub(1), lb(1)
     type(ESMF_Field) :: src_field,dst_field
     real, pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
-    real, allocatable :: p_dst_3d(:),p_dst_2d(:)
+    real, pointer :: p_1d(:) => null()
+    real, pointer :: p_2d(:) => null()
+
     real, allocatable :: p_dst_3d_full(:),p_dst_2d_full(:)
     real, allocatable :: arr(:,:)
     character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
@@ -770,21 +813,24 @@ module subroutine  create_metadata(this,rc)
     type(GriddedIOitemVectorIterator) :: iter
     type(GriddedIOitem), pointer :: item
     type(ESMF_VM) :: vm
-    type(ArrayReference) :: ref
+    type(ArrayReference), target :: ref
     integer, allocatable :: local_start(:)
     integer, allocatable :: global_start(:)
     integer, allocatable :: global_count(:)
     integer, allocatable :: gridLocalStart(:)
     integer, allocatable :: gridGlobalStart(:)
-    integer, allocatable :: gridGlobalCount(:)    
-    
+    integer, allocatable :: gridGlobalCount(:)
+
     real, allocatable :: times(:)
     logical :: have_time
-    integer :: tindex
-    
+    integer :: tindex, nset
+    integer :: count_scalar, count_vector
+
     ! __ s1. find local_start, global_start, etc.
     this%obs_written=1
-    
+    this%call_count = this%call_count + 1
+
+
     ! -- fixed for all fields
     call ESMF_VMGetCurrent(vm,_RC)
     call ESMF_VMGet(vm, mpiCommunicator=mpic, petcount=petcount, localpet=mypet, _RC)
@@ -792,8 +838,7 @@ module subroutine  create_metadata(this,rc)
     nx = this%npt_mask
     nz = this%vdata%lm
 
-    allocate(p_dst_2d (nx), _STAT)
-    allocate(p_dst_3d (nx * nz), _STAT)
+
     if (mapl_am_i_root()) then
        allocate ( p_dst_2d_full (this%npt_mask_tot), _STAT )
        allocate ( p_dst_3d_full (this%npt_mask_tot * nz), _STAT )
@@ -805,10 +850,10 @@ module subroutine  create_metadata(this,rc)
     recvcounts_3d(:) = nz * this%recvcounts(:)
     displs_3d(:)     = nz * this%displs(:)
 
-    
+
     !   use griddedio logic
     !__ 1. stage data :  time variable, lat/lon
-    !   
+    !
     Have_time = this%timeInfo%am_i_initialized()
 
     if (have_time) then
@@ -825,7 +870,7 @@ module subroutine  create_metadata(this,rc)
     end if
 
     write(6,*) 'tindex=', tindex
-    
+
     !__ 2. put_var: ungridded_dim from src to dst [use index_mask]
     !
     !   Currently mask only pickup values
@@ -834,8 +879,8 @@ module subroutine  create_metadata(this,rc)
     !if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
     !   call this%vdata%setup_eta_to_pressure(_RC)
     !endif
-    !
-    !
+
+
 
 !!    if ( nx>0 ) then
 !!       allocate ( gridLocalStart,  source=[this%i1] )
@@ -847,10 +892,13 @@ module subroutine  create_metadata(this,rc)
 !!       allocate ( gridGlobalCount, source=[0] )
 !!    end if
 
+    count_scalar = 0
+    count_vector = 0
     iter = this%items%begin()
     do while (iter /= this%items%end())
        item => iter%get()
        if (item%itemType == ItemTypeScalar) then
+          count_scalar = count_scalar + 1
           call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
           call ESMF_FieldGet(src_field,rank=rank,_RC)
           if (rank==2) then
@@ -858,38 +906,53 @@ module subroutine  create_metadata(this,rc)
              do j=1, nx
                 ix = this%index_mask(1,j)
                 iy = this%index_mask(2,j)
-                p_dst_2d(j) = p_src_2d(ix, iy)
+                this%array_scalar_2d(j, count_scalar, this%call_count) = p_src_2d(ix, iy)
              end do
-
-             ref = ArrayReference(p_dst_2d)
+             if (nx>0) then
+                this%p1d => this%array_scalar_2d(:, count_scalar, this%call_count)
+             else
+                allocate (this%p1d(0))  ! follow griddedio
+             end if
+             ref = ArrayReference(this%p1d)
 
              write(6,*) 'ip, nx, this%npt_mask_tot, i1, in=', &
                   mypet, nx, this%npt_mask_tot, this%i1, this%in
-             
-             if ( nx>0 )  write(6,*)  p_dst_2d(1:nx)
 
-!!             write(6,*) ref             
-
+             write(6,*) 'ip, this%p1d', mypet, this%p1d
+!!
+!!             if (nx>0) then
+!!                allocate(local_start,source=[this%i1,1])
+!!                allocate(global_start,source=[1,tindex])
+!!                allocate(global_count,source=[this%npt_mask_tot,1])
+!!
+!!                print*, 'mypet, local_start, global_start, global_count', &
+!!                     mypet, local_start, global_start, global_count
+!!             else
+!!                allocate(local_start,source=[0,1])
+!!                allocate(global_start,source=[0,tindex])
+!!                allocate(global_count,source=[0,1])
+!!             end if
 
              if (nx>0) then
-                allocate(local_start,source=[this%i1,1])
-                allocate(global_start,source=[1,tindex])
-                allocate(global_count,source=[this%npt_mask_tot,1])
+                allocate(local_start,source=[this%i1])
+                allocate(global_start,source=[1])
+                allocate(global_count,source=[this%npt_mask_tot])
+                print*, 'mypet, local_start, global_start, global_count', &
+                     mypet, local_start, global_start, global_count
              else
-                allocate(local_start,source=[0,0])
-                allocate(global_start,source=[0,0])
-                allocate(global_count,source=[0,0])
+                allocate(local_start,source=[0])
+                allocate(global_start,source=[0])
+                allocate(global_count,source=[0])
              end if
 
              call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(item%xname), &
                   ref,start=local_start, global_start=global_start, global_count=global_count)
              deallocate (local_start, global_start, global_count)
-             
-             write(6,*) 'end collective_stage_data p_dst_2d'
-             
+
+
           else if (rank==3) then
              stop -3
-             
+
              call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
              call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
              _ASSERT (this%vdata%lm == (ub(1)-lb(1)+1), 'vertical level is different from CS grid')
@@ -919,25 +982,24 @@ module subroutine  create_metadata(this,rc)
 
              call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(item%xname), &
                   ref,start=local_start, global_start=global_start, global_count=global_count)
-          deallocate (local_start, global_start, global_count)          
+          deallocate (local_start, global_start, global_count)
 
-             
+
           else
              _FAIL('grid2LS regridder: rank > 3 not implemented')
           end if
 
-          
-
-
-
 
           !! if (present(local_start,))  deallocate(local_start)
-          
+
        end if
 
-       
+
        call iter%next()
     end do
+
+    nset = mod (this%call_count, this%tmax) + 1
+    if (nset == this%tmax) this%call_count = 0
 
     _RETURN(_SUCCESS)
   end subroutine output_to_server
@@ -992,7 +1054,7 @@ module subroutine  create_metadata(this,rc)
     real, allocatable :: lons(:), lats(:)
     type(ArrayReference), target :: ref
     integer :: status
-    
+
     ! Note: we have already gatherV to root the lon/lat
     !       in sub. create_Geosat_grid_find_mask
     !
@@ -1000,7 +1062,7 @@ module subroutine  create_metadata(this,rc)
        nx = this%npt_mask_tot
        allocate (lons(nx), lats(nx))
        lons = this%lons * MAPL_RADIANS_TO_DEGREES
-       lats = this%lats * MAPL_RADIANS_TO_DEGREES       
+       lats = this%lats * MAPL_RADIANS_TO_DEGREES
        allocate(local_start,source=[1])
        allocate(global_start,source=[1])
        allocate(global_count,source=[this%npt_mask_tot])
@@ -1008,7 +1070,7 @@ module subroutine  create_metadata(this,rc)
        allocate (lons(0), lats(0))
        allocate(local_start,source=[0])
        allocate(global_start,source=[0])
-       allocate(global_count,source=[0])     
+       allocate(global_count,source=[0])
     end if
 
     ref = ArrayReference(lons)
@@ -1018,7 +1080,7 @@ module subroutine  create_metadata(this,rc)
     ref = ArrayReference(lats)
     call oClients%collective_stage_data(this%write_collection_id,trim(filename),'latitude', &
          ref,start=local_start, global_start=global_start, global_count=global_count)
-    
+
     _RETURN(_SUCCESS)
  end subroutine stage2dlatlon
 

@@ -85,7 +85,18 @@ module MaskSamplerMod
      integer, allocatable :: local_start(:)
      integer, allocatable :: global_start(:)
      integer, allocatable :: global_count(:)
-     
+
+     !     real, target, allocatable :: array_scalar_2d(:,:,:)       ! (nx, nitem, ntime_seg)
+     real, allocatable :: array_scalar_2d(:,:,:)
+     real, allocatable :: array_scalar_3d(:,:,:,:)
+!     real, target, allocatable :: array_vector_2d(:,:,:)
+!     real, target, allocatable :: array_vector_3d(:,:,:,:)
+     real, pointer :: x1(:) => null()
+     real, pointer :: p1d(:) => null()
+
+     integer :: call_count
+     integer :: tmax     ! duration / freq
+
      real(kind=ESMF_KIND_R8), pointer:: obsTime(:)
      real(kind=ESMF_KIND_R8), allocatable:: t_alongtrack(:)
      integer                        :: nobs_dur
@@ -124,8 +135,10 @@ module MaskSamplerMod
        integer, optional, intent(out)          :: rc
      end function MaskSampler_from_config
 
-     module subroutine initialize_(this,items,bundle,timeInfo,vdata,reinitialize,rc)
+     module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdata,reinitialize,rc)
        class(MaskSampler), intent(inout) :: this
+       integer, intent(in) :: duration
+       integer, intent(in) :: frequency
        type(GriddedIOitemVector), optional, intent(inout) :: items
        type(ESMF_FieldBundle), optional, intent(inout)   :: bundle
        type(TimeData), optional, intent(inout)           :: timeInfo
@@ -173,7 +186,7 @@ module MaskSamplerMod
      end subroutine close_file_handle
 
      module subroutine output_to_server(this,current_time,filename,oClients,rc)
-       class(MaskSampler), intent(inout)       :: this
+       class(MaskSampler), target, intent(inout)       :: this
        type(ESMF_Time), intent(inout)          :: current_time
        character(len=*), intent(in)            :: filename
        type (ClientManager), target, optional, intent(inout) :: oClients
@@ -220,8 +233,8 @@ module MaskSamplerMod
     module subroutine modifyTime(this, oClients, rc)
       class(MaskSampler), intent(inout) :: this
       type (ClientManager), optional, intent(inout) :: oClients
-      integer, optional, intent(out) :: rc     
+      integer, optional, intent(out) :: rc
     end subroutine modifyTime
-      
+
   end interface
 end module MaskSamplerMod
