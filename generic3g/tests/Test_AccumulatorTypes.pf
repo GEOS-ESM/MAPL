@@ -162,30 +162,30 @@ contains
    end subroutine test_invalidate
 
    subroutine test_accumulate_mean_R4()
-      class(MeanAccumulator) :: acc
+      type(MeanAccumulator) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
       integer :: status
       type(ESMF_Field) :: update_field
       type(ESMF_TypeKind_Flag), parameter :: tk =ESMF_TYPEKIND_R4
       type(ESMF_Grid) :: grid
-      real(kind=ESMF_KIND_R4), pointer :: upPtr(:), accPtr
+      real(kind=ESMF_KIND_R4), pointer :: upPtr(:), accPtr(:)
       real(kind=ESMF_KIND_R4), parameter :: IMPORT_VALUE = 2.0_R4
       real(kind=ESMF_KIND_R4), parameter :: UPDATE_VALUE = 3.0_R4
       integer :: n
+      type(ESMF_Field) :: importField
 
       call initialize_objects(importState, exportState, clock, tk, _RC)
       call get_field(importState, importField, _RC)
       call FieldSet(importField, IMPORT_VALUE, _RC)
       call acc%initialize(importState, exportState, clock, _RC)
       call initialize_field(update_field, typekind=tk, grid=grid, _RC)
-      call assign_upPtr(update_field, upPtr, _RC)
+      call assign_fptr(update_field, upPtr, _RC)
       upPtr = UPDATE_VALUE
 
-      call acc%accumulate_mean_R4(update_field, _RC)
+      call acc%accumulate_R4(update_field, _RC)
       call assign_fptr(acc%accumulation_field, accPtr, _RC)
       @assertTrue(all(accPtr == IMPORT_VALUE+UPDATE_VALUE))
-
 
    end subroutine test_accumulate_mean_R4
    !todo test_accumulate_mean_R4
