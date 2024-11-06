@@ -16,12 +16,12 @@ parameters:
 
 # Anchors to prevent forgetting to update a version
 os_version: &os_version ubuntu20
-baselibs_version: &baselibs_version v7.24.0
-bcs_version: &bcs_version v11.3.0
+baselibs_version: &baselibs_version v7.27.0
+bcs_version: &bcs_version v11.6.0
 tag_build_arg_name: &tag_build_arg_name maplversion
 
 orbs:
-  ci: geos-esm/circleci-tools@2
+  ci: geos-esm/circleci-tools@4
 
 workflows:
   build-and-test-MAPL:
@@ -49,13 +49,29 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [ifort]
+              compiler: [gfortran, ifort]
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
           remove_flap: true
           remove_pflogger: true
           extra_cmake_options: "-DBUILD_WITH_FLAP=OFF -DBUILD_WITH_PFLOGGER=OFF -DBUILD_WITH_FARGPARSE=OFF -DUSE_EXTDATA2G=OFF -DBUILD_SHARED_MAPL=OFF"
+          run_unit_tests: true
+          # ExtData1G tests were removed from ESSENTIAL, so we run them separately here as UFS might still use 1G?
+          ctest_options: "-L 'ESSENTIAL|EXTDATA1G_SMALL_TESTS' --output-on-failure"
+
+      # Builds MAPL without pFUnit support
+      - ci/build:
+          name: build-MAPL-without-pFUnit-on-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              compiler: [ifort]
+          baselibs_version: *baselibs_version
+          repo: MAPL
+          mepodevelop: false
+          remove_pfunit: true
           run_unit_tests: true
           ctest_options: "-L 'ESSENTIAL' --output-on-failure"
 
@@ -135,7 +151,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran,ifort]
+              compiler: [gfortran, ifort]
           baselibs_version: *baselibs_version
           repo: GEOSldas
           mepodevelop: false
@@ -170,7 +186,7 @@ workflows:
           filters:
             tags:
               only: /^v.*$/
-          name: publish-intel-docker-image
+          name: publish-ifort-docker-image
           context:
             - docker-hub-creds
             - ghcr-creds
@@ -178,11 +194,28 @@ workflows:
           baselibs_version: *baselibs_version
           container_name: mapl
           mpi_name: intelmpi
-          mpi_version: 2021.6.0
-          compiler_name: intel
-          compiler_version: 2022.1.0
+          mpi_version: "2021.13"
+          compiler_name: ifort
+          compiler_version: "2021.13"
           image_name: geos-env
           tag_build_arg_name: *tag_build_arg_name
+      #- ci/publish_docker:
+          #filters:
+            #tags:
+              #only: /^v.*$/
+          #name: publish-ifx-docker-image
+          #context:
+            #- docker-hub-creds
+            #- ghcr-creds
+          #os_version: *os_version
+          #baselibs_version: *baselibs_version
+          #container_name: mapl
+          #mpi_name: intelmpi
+          #mpi_version: "2021.13"
+          #compiler_name: ifx
+          #compiler_version: "2024.2"
+          #image_name: geos-env
+          #tag_build_arg_name: *tag_build_arg_name
       - ci/publish_docker:
           filters:
             tags:

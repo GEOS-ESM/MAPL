@@ -425,6 +425,7 @@ contains
     logical :: has_conservative_keyword, has_regrid_keyword
     integer :: create_mode
     character(len=:), allocatable :: uppercase_algorithm
+    character(len=2) :: tmpchar
 
 ! Begin
 !------
@@ -835,41 +836,64 @@ contains
        call ESMF_ConfigGetAttribute ( cfg, list(n)%deflate, default=0, &
                                       label=trim(string) // 'deflate:' ,_RC )
 
+       ! We only allow deflate level to be between 0 and 9
+       _ASSERT( .not. (list(n)%deflate < 0 .or. list(n)%deflate > 9), 'deflate level must be between 0 and 9')
+
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%zstandard_level, default=0, &
+                                      label=trim(string) // 'zstandard_level:' ,_RC )
+
+       ! We only allow zstandard level to be between 0 and 22
+       _ASSERT( .not. (list(n)%zstandard_level < 0 .or. list(n)%zstandard_level > 22), 'zstandard level must be between 0 and 22')
+
+       ! We only allow either deflate or zstandard compression to be used, not both
+       _ASSERT( .not. (list(n)%deflate > 0 .and. list(n)%zstandard_level > 0), 'deflate and zstandard_level cannot be used together')
+
        call ESMF_ConfigGetAttribute ( cfg, list(n)%quantize_algorithm_string, default='NONE', &
                                       label=trim(string) // 'quantize_algorithm:' ,_RC )
-
-       ! Uppercase the algorithm string just to allow for any case
-       uppercase_algorithm = ESMF_UtilStringUpperCase(list(n)%quantize_algorithm_string,_RC)
-       select case (trim(uppercase_algorithm))
-       case ('NONE')
-          list(n)%quantize_algorithm = MAPL_Quantize_Disabled
-       case ('BITGROOM')
-          list(n)%quantize_algorithm = MAPL_Quantize_BitGroom
-       case ('GRANULARBR')
-          list(n)%quantize_algorithm = MAPL_Quantize_GranularBR
-       case ('BITROUND')
-          list(n)%quantize_algorithm = MAPL_Quantize_BitRound
-       case default
-          _FAIL('Invalid quantize_algorithm. Allowed values are NONE, BitGroom, GranularBR, BitRound')
-       end select
 
        call ESMF_ConfigGetAttribute ( cfg, list(n)%quantize_level, default=0, &
                                       label=trim(string) // 'quantize_level:' ,_RC )
 
+       ! Uppercase the algorithm string just to allow for any case
+       ! CF Conventions will prefer 'bitgroom', 'bitround', and 'granular_bitround'
+       ! but we will allow 'GranularBR' in MAPL2, deprecate it, and remove it in MAPL3
+       uppercase_algorithm = ESMF_UtilStringUpperCase(list(n)%quantize_algorithm_string,_RC)
+       select case (trim(uppercase_algorithm))
+       case ('NONE')
+          list(n)%quantize_algorithm = MAPL_NOQUANTIZE
+          ! If quantize_algorithm is 0, then quantize_level must be 0
+          _ASSERT( list(n)%quantize_level == 0, 'quantize_algorithm is none, so quantize_level must be "none"')
+       case ('BITGROOM')
+          list(n)%quantize_algorithm = MAPL_QUANTIZE_BITGROOM
+       case ('GRANULARBR', 'GRANULAR_BITROUND')
+          list(n)%quantize_algorithm = MAPL_QUANTIZE_GRANULAR_BITROUND
+       case ('BITROUND')
+          list(n)%quantize_algorithm = MAPL_QUANTIZE_BITROUND
+       case default
+          _FAIL('Invalid quantize_algorithm. Allowed values are none, bitgroom, granular_bitround, granularbr (deprecated), and bitround')
+       end select
+
        ! If nbits_to_keep < MAPL_NBITS_UPPER_LIMIT (24) and quantize_algorithm greater than 0, then a user might be doing different
        ! shaving algorithms. We do not allow this
-       _ASSERT( .not. ( (list(n)%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) .and. (list(n)%quantize_algorithm > 0) ), 'nbits < 24 and quantize_algorithm > 0 is not allowed. Choose one bit grooming method.')
-
-       ! quantize_algorithm must be between 0 and 3 where 0 means not enabled
-       _ASSERT( (list(n)%quantize_algorithm >= 0) .and. (list(n)%quantize_algorithm <= 3), 'quantize_algorithm must be between 0 and 3, where 0 means not enabled')
+       _ASSERT( .not. ( (list(n)%nbits_to_keep < MAPL_NBITS_UPPER_LIMIT) .and. (list(n)%quantize_algorithm > MAPL_NOQUANTIZE) ), 'nbits < 24 and quantize_algorithm not "none" is not allowed. Choose a supported quantization method.')
 
        ! Now we test in the case that a valid quantize algorithm is chosen
-       if (list(n)%quantize_algorithm == 0) then
-         ! If quantize_algorithm is 0, then quantize_level must be 0
-          _ASSERT( list(n)%quantize_level == 0, 'quantize_algorithm is 0, so quantize_level must be 0')
-       else
+       if (list(n)%quantize_algorithm /= MAPL_NOQUANTIZE) then
          ! If quantize_algorithm is greater than 0, then quantize_level must be greater than or equal to 0
          _ASSERT( list(n)%quantize_level >= 0, 'netCDF quantize has been enabled, so quantize_level must be greater than or equal to 0')
+       end if
+
+       ! If a user has chosen MAPL_QUANTIZE_BITROUND, then we allow a maximum of 23 bits to be kept
+       if (list(n)%quantize_algorithm == MAPL_QUANTIZE_BITROUND) then
+          write(tmpchar, '(I2)') MAPL_QUANTIZE_MAX_NSB
+         _ASSERT( list(n)%quantize_level <= MAPL_QUANTIZE_MAX_NSB, 'netCDF bitround has been enabled, so number of significant bits (quantize_level) must be less than or equal to ' // trim(tmpchar))
+       end if
+
+       ! For MAPL_QUANTIZE_GRANULAR_BITROUND and MAPL_QUANTIZE_BITGROOM, these use number of
+       ! significant digits, so for single precision, we allow a maximum of 7 digits to be kept
+       if (list(n)%quantize_algorithm == MAPL_QUANTIZE_GRANULAR_BITROUND .or. list(n)%quantize_algorithm == MAPL_QUANTIZE_BITGROOM) then
+          write(tmpchar, '(I2)') MAPL_QUANTIZE_MAX_NSD
+         _ASSERT( list(n)%quantize_level <= MAPL_QUANTIZE_MAX_NSD, 'netCDF granular bitround or bitgroom has been enabled, so number of significant digits (quantize_level) must be less than or equal to ' // trim(tmpchar))
        end if
 
        tm_default = -1
@@ -2393,6 +2417,7 @@ ENDDO PARSER
              call list(n)%xsampler%set_param(deflation=list(n)%deflate,_RC)
              call list(n)%xsampler%set_param(quantize_algorithm=list(n)%quantize_algorithm,_RC)
              call list(n)%xsampler%set_param(quantize_level=list(n)%quantize_level,_RC)
+             call list(n)%xsampler%set_param(zstandard_level=list(n)%zstandard_level,_RC)
              call list(n)%xsampler%set_param(chunking=list(n)%chunkSize,_RC)
              call list(n)%xsampler%set_param(nbits_to_keep=list(n)%nbits_to_keep,_RC)
              call list(n)%xsampler%set_param(regrid_method=list(n)%regrid_method,_RC)
@@ -2403,6 +2428,7 @@ ENDDO PARSER
           call list(n)%mGriddedIO%set_param(deflation=list(n)%deflate,_RC)
           call list(n)%mGriddedIO%set_param(quantize_algorithm=list(n)%quantize_algorithm,_RC)
           call list(n)%mGriddedIO%set_param(quantize_level=list(n)%quantize_level,_RC)
+          call list(n)%mGriddedIO%set_param(zstandard_level=list(n)%zstandard_level,_RC)
           call list(n)%mGriddedIO%set_param(chunking=list(n)%chunkSize,_RC)
           call list(n)%mGriddedIO%set_param(nbits_to_keep=list(n)%nbits_to_keep,_RC)
           call list(n)%mGriddedIO%set_param(regrid_method=list(n)%regrid_method,_RC)
@@ -2422,15 +2448,17 @@ ENDDO PARSER
              list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n),integer_time=intstate%integer_time)
           end if
           if (list(n)%timeseries_output) then
-             list(n)%trajectory = HistoryTrajectory(cfg,string,clock,_RC)
+             list(n)%trajectory = HistoryTrajectory(cfg,string,clock,genstate=GENSTATE,_RC)
              call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
              IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
           elseif (list(n)%sampler_spec == 'mask') then
-             list(n)%mask_sampler = MaskSamplerGeosat(cfg,string,clock,_RC)
+             call MAPL_TimerOn(GENSTATE,"mask_init")
+             list(n)%mask_sampler = MaskSamplerGeosat(cfg,string,clock,genstate=GENSTATE,_RC)
              call list(n)%mask_sampler%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
+             call MAPL_TimerOff(GENSTATE,"mask_init")
           elseif (list(n)%sampler_spec == 'station') then
-             list(n)%station_sampler = StationSampler (trim(list(n)%stationIdFile), nskip_line=list(n)%stationSkipLine, _RC)
-             call list(n)%station_sampler%add_metadata_route_handle(list(n)%bundle,list(n)%timeInfo,vdata=list(n)%vdata,_RC)
+             list(n)%station_sampler = StationSampler (list(n)%bundle, trim(list(n)%stationIdFile), nskip_line=list(n)%stationSkipLine, genstate=GENSTATE, _RC)
+             call list(n)%station_sampler%add_metadata_route_handle(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
           else
              global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
              if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
@@ -2478,6 +2506,9 @@ ENDDO PARSER
          if (list(n)%quantize_algorithm > 0) then
             print *, 'Quantize Alg: ',       trim(list(n)%quantize_algorithm_string)
             print *, 'Quantize Lvl: ',       list(n)%quantize_level
+         end if
+         if (list(n)%zstandard_level > 0) then
+            print *, 'Zstandard Lvl: ',       list(n)%zstandard_level
          end if
          if (associated(list(n)%chunksize)) then
             print *, '   ChunkSize: ',       list(n)%chunksize
@@ -3363,9 +3394,9 @@ ENDDO PARSER
 !-------------------------------
 
     do n = 1, nlist
+       if(Ignore(n)) cycle
        call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
        call MAPL_TimerOn(GENSTATE,"Couplers")
-       if(Ignore(n)) cycle
        if (.not.list(n)%disabled .and. IntState%average(n)) then
           ! R8 to R4 copy (if needed!)
           do m=1,list(n)%field_set%nfields
@@ -3451,11 +3482,14 @@ ENDDO PARSER
   ! swath only
    epoch_swath_grid_case: do n=1,nlist
       call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
-      call MAPL_TimerOn(GENSTATE,"SwathGen")
       if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
+         call MAPL_TimerOn(GENSTATE,"Swath")
+         call MAPL_TimerOn(GENSTATE,"RegridAccum")
          call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)
+         call MAPL_TimerOff(GENSTATE,"RegridAccum")
 
          if( ESMF_AlarmIsRinging ( Hsampler%alarm ) ) then
+            call MAPL_TimerOn(GENSTATE,"RegenGriddedio")
             create_mode = PFIO_NOCLOBBER ! defaut no overwrite
             if (intState%allow_overwrite) create_mode = PFIO_CLOBBER
             ! add time to items
@@ -3473,12 +3507,13 @@ ENDDO PARSER
             call list(n)%mGriddedIO%destroy(_RC)
             call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%xsampler%acc_bundle,timeinfo_uninit,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
             call list(n)%items%pop_back()
-
             collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
             call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
+            call MAPL_TimerOff(GENSTATE,"RegenGriddedio")
          endif
+         call MAPL_TimerOff(GENSTATE,"Swath")
       end if
-      call MAPL_TimerOff(GENSTATE,"SwathGen")
+
       call MAPL_TimerOff(GENSTATE,trim(list(n)%collection))
    end do epoch_swath_grid_case
 
@@ -3525,7 +3560,7 @@ ENDDO PARSER
                ! it's tempting to use the variable "oneMonth" but it does not work
                ! instead we compute the differece between
                ! thisMonth and lastMonth and as a new timeInterval
-
+               !
                call ESMF_ClockGet(clock,currTime=current_time,_RC)
                call ESMF_TimeIntervalSet( oneMonth, MM=1, _RC)
                lastMonth = current_time - oneMonth
@@ -3645,6 +3680,7 @@ ENDDO PARSER
          if (.not.list(n)%timeseries_output .AND. &
               list(n)%sampler_spec /= 'station' .AND. &
               list(n)%sampler_spec /= 'mask') then
+
             IOTYPE: if (list(n)%unit < 0) then    ! CFIO
                call list(n)%mGriddedIO%bundlepost(list(n)%currentFile,oClients=o_Clients,_RC)
             else
@@ -3691,13 +3727,21 @@ ENDDO PARSER
             end if IOTYPE
          end if
 
+
          if (list(n)%sampler_spec == 'station') then
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
+            call MAPL_TimerOn(GENSTATE,"Station")
+            call MAPL_TimerOn(GENSTATE,"AppendFile")
             call list(n)%station_sampler%append_file(current_time,_RC)
+            call MAPL_TimerOff(GENSTATE,"AppendFile")
+            call MAPL_TimerOff(GENSTATE,"Station")
          elseif (list(n)%sampler_spec == 'mask') then
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
+            call MAPL_TimerOn(GENSTATE,"Mask_append")
             call list(n)%mask_sampler%append_file(current_time,_RC)
+            call MAPL_TimerOff(GENSTATE,"Mask_append")
          endif
+
 
       endif OUTTIME
 
@@ -3724,20 +3768,20 @@ ENDDO PARSER
   ! swath only
    epoch_swath_regen_grid: do n=1,nlist
       call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
-      call MAPL_TimerOn(GENSTATE,"Swath regen")
       if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
+         call MAPL_TimerOn(GENSTATE,"Swath")
          if( ESMF_AlarmIsRinging ( Hsampler%alarm ) .and. .not. ESMF_AlarmIsRinging(list(n)%end_alarm) ) then
-
+            call MAPL_TimerOn(GENSTATE,"RegenGrid")
             key_grid_label = list(n)%output_grid_label
             call Hsampler%destroy_rh_regen_ogrid ( key_grid_label, IntState%output_grids, list(n)%xsampler, _RC )
-
             pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
             call list(n)%xsampler%Create_bundle_RH(list(n)%items,list(n)%bundle,Hsampler%tunit, &
                  ogrid=pgrid,vdata=list(n)%vdata,_RC)
             if( MAPL_AM_I_ROOT() )  write(6,'(//)')
+            call MAPL_TimerOff(GENSTATE,"RegenGrid")
          endif
+         call MAPL_TimerOff(GENSTATE,"Swath")
       end if
-      call MAPL_TimerOff(GENSTATE,"Swath regen")
       call MAPL_TimerOff(GENSTATE,trim(list(n)%collection))
    end do epoch_swath_regen_grid
 
@@ -3754,16 +3798,24 @@ ENDDO PARSER
    WRITELOOP: do n=1,nlist
 
       call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
-      call MAPL_TimerOn(GENSTATE,"Write Timeseries")
+
       if (list(n)%timeseries_output) then
+         call MAPL_TimerOn(GENSTATE,"Trajectory")
+         call MAPL_TimerOn(GENSTATE,"RegridAccum")
          call list(n)%trajectory%regrid_accumulate(_RC)
+         call MAPL_TimerOff(GENSTATE,"RegridAccum")
          if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
+            call MAPL_TimerOn(GENSTATE,"AppendFile")
             call list(n)%trajectory%append_file(current_time,_RC)
             call list(n)%trajectory%close_file_handle(_RC)
+            call MAPL_TimerOff(GENSTATE,"AppendFile")
             if ( .not. ESMF_AlarmIsRinging(list(n)%end_alarm) ) then
+               call MAPL_TimerOn(GENSTATE,"RegenLS")
                call list(n)%trajectory%destroy_rh_regen_LS (_RC)
+               call MAPL_TimerOff(GENSTATE,"RegenLS")
             end if
          end if
+         call MAPL_TimerOff(GENSTATE,"Trajectory")
       end if
 
       if( Writing(n) .and. list(n)%unit < 0) then
@@ -3772,7 +3824,6 @@ ENDDO PARSER
 
       end if
 
-      call MAPL_TimerOff(GENSTATE,"Write Timeseries")
       call MAPL_TimerOff(GENSTATE,trim(list(n)%collection))
    enddo WRITELOOP
 

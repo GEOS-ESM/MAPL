@@ -29,6 +29,7 @@ module pFIO_BaseThreadMod
       procedure :: clear_RequestHandle
       procedure :: get_RequestHandle
       procedure :: insert_RequestHandle
+      procedure :: isEmpty_RequestHandle
    end type BaseThread
 
 contains
@@ -65,6 +66,17 @@ contains
       rh_Ptr => iter%value()
       _RETURN(_SUCCESS)
    end function get_RequestHandle
+
+   function isEmpty_RequestHandle(this, rc) result(empty)
+      class (BaseThread), target, intent(in) :: this
+      integer, optional, intent(out) :: rc
+      logical :: empty
+      type (IntegerRequestMapIterator) :: iter
+
+      iter  = this%open_requests%begin()
+      empty = (iter == this%open_requests%end())
+      _RETURN(_SUCCESS)
+   end function isEmpty_RequestHandle
 
    subroutine insert_RequestHandle(this,request_id, handle, rc) 
       class (BaseThread), target, intent(inout) :: this

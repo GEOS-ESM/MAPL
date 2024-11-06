@@ -1,3 +1,4 @@
+#undef I_AM_MAIN
 #include "MAPL_ErrLog.h"
 module mapl_checkpoint_support_mod
 
@@ -5,6 +6,7 @@ module mapl_checkpoint_support_mod
    use MPI
    use NetCDF
    use MAPL_ErrorHandlingMod
+   use fargparse
    use, intrinsic :: iso_fortran_env, only: INT64, REAL64, REAL32
    implicit none
 
@@ -44,7 +46,8 @@ module mapl_checkpoint_support_mod
       integer(kind=INT64) :: create_file_time
       integer(kind=INT64) :: close_file_time
       contains
-         procedure :: set_parameters
+         procedure :: set_parameters_by_config
+         procedure :: set_parameters_by_cli
          procedure :: compute_decomposition
          procedure :: allocate_n_arrays
          procedure :: create_arrays
@@ -55,17 +58,186 @@ module mapl_checkpoint_support_mod
          procedure :: write_level
          procedure :: write_variable
          procedure :: reset
-   end type 
+   end type
+
+   type cli_options
+      integer :: nx
+      integer :: ny
+      integer :: im_world
+      integer :: lm
+      integer :: num_writers
+      integer :: num_arrays
+      integer :: n_trials
+      logical :: split_file = .false.
+      logical :: gather_3d = .false.
+      logical :: write_barrier = .false.
+      logical :: random_data = .true.
+      logical :: do_writes = .true.
+      logical :: netcdf_writes = .true.
+      logical :: do_chunking = .true.
+      character(len=:), allocatable :: config_file
+   end type cli_options
 
 contains
 
-   subroutine set_parameters(this,config_file)
+   function parse_arguments() result(options)
+
+      type(StringUnlimitedMap) :: options
+      type(ArgParser), target :: parser
+
+      call parser%initialize('checkpoint_simulator.x')
+      parser = ArgParser()
+
+      call parser%add_argument("--config_file", &
+         help="The configuration file to use", &
+         action="store", &
+         type="string")
+
+      call parser%add_argument("--nx", &
+         help="The number of cells in the x direction (default: 4)", &
+         action="store", &
+         type="integer", &
+         default=4)
+
+      call parser%add_argument("--ny", &
+         help="The number of cells in the y direction (default: 4)", &
+         action="store", &
+         type="integer", &
+         default=4)
+
+      call parser%add_argument("--im_world", &
+         help="The resolution of the cubed sphere (default: 90)", &
+         action="store", &
+         type="integer", &
+         default=90)
+
+      call parser%add_argument("--lm", &
+         help="The number of levels in each 3D variable (default: 137)", &
+         action="store", &
+         type="integer", &
+         default=137)
+
+      call parser%add_argument("--num_writers", &
+         help="The number of processes that will write (default: 1)", &
+         action="store", &
+         type="integer", &
+         default=1)
+
+      call parser%add_argument("--num_arrays", &
+         help="The number of 3D arrays to write (default: 5)", &
+         action="store", &
+         type="integer", &
+         default=5)
+
+      call parser%add_argument("--ntrials", &
+         help="The number of trials to run (default: 3)", &
+         action="store", &
+         type="integer", &
+         default=3)
+
+      call parser%add_argument("--split_file", &
+         help="Split the file into multiple files (default: do not split)", &
+         action="store_true", &
+         default=.false.)
+
+      call parser%add_argument("--gather_3d", &
+         help="Gather all levels at once instead of one at a time (default: gather one at a time)", &
+         action="store_true", &
+         default=.false.)
+
+      call parser%add_argument("--write_barrier", &
+         help="Add a barrier after every write (default: no barrier)", &
+         action="store_true", &
+         default=.false.)
+
+      call parser%add_argument("--static_data", &
+         help="Use static data (rank of process) instead of random data (default: random data)", &
+         action="store_true", &
+         default=.False.)
+
+      call parser%add_argument("--suppress_writes", &
+         help="Do not write data (default: write data)", &
+         action="store_true", &
+         default=.False.)
+
+      call parser%add_argument("--write_binary", &
+         help="Write binary data instead of NetCDF (default: write NetCDF)", &
+         action="store_true", &
+         default=.false.)
+
+      call parser%add_argument("--no_chunking", &
+         help="Do not chunk output (default: chunk the output)", &
+         action="store_true", &
+         default=.false.)
+
+      options = parser%parse_args()
+
+   end function parse_arguments
+
+   subroutine get_cli_options(options, cli)
+      type(StringUnlimitedMap), intent(in) :: options
+      type(cli_options), intent(out) :: cli
+      class(*), pointer :: option
+      logical :: tmp
+
+      option => options%at("config_file")
+      if (associated(option)) call cast(option, cli%config_file)
+
+      option => options%at("nx")
+      if (associated(option)) call cast(option, cli%nx)
+
+      option => options%at("ny")
+      if (associated(option)) call cast(option, cli%ny)
+
+      option => options%at("im_world")
+      if (associated(option)) call cast(option, cli%im_world)
+
+      option => options%at("lm")
+      if (associated(option)) call cast(option, cli%lm)
+
+      option => options%at("num_writers")
+      if (associated(option)) call cast(option, cli%num_writers)
+
+      option => options%at("num_arrays")
+      if (associated(option)) call cast(option, cli%num_arrays)
+
+      option => options%at("ntrials")
+      if (associated(option)) call cast(option, cli%n_trials)
+
+      option => options%at("split_file")
+      if (associated(option)) call cast(option, cli%split_file)
+
+      option => options%at("gather_3d")
+      if (associated(option)) call cast(option, cli%gather_3d)
+
+      option => options%at("write_barrier")
+      if (associated(option)) call cast(option, cli%write_barrier)
+
+      option => options%at("static_data")
+      if (associated(option)) call cast(option, tmp)
+      cli%random_data = .not. tmp
+
+      option => options%at("suppress_writes")
+      if (associated(option)) call cast(option, tmp)
+      cli%do_writes = .not. tmp
+
+      option => options%at("write_binary")
+      if (associated(option)) call cast(option, tmp)
+      cli%netcdf_writes = .not. tmp
+
+      option => options%at("no_chunking")
+      if (associated(option)) call cast(option, tmp)
+      cli%do_chunking = .not. tmp
+
+   end subroutine get_cli_options
+
+   subroutine set_parameters_by_config(this,config_file)
       class(test_support), intent(inout) :: this
       character(len=*), intent(in) :: config_file
       type(ESMF_Config) :: config
 
       logical :: is_present
-      integer :: comm_size, status,error_code
+      integer :: comm_size, status,error_code,rc
 
       config = ESMF_ConfigCreate()
       this%extra_info = .false.
@@ -85,7 +257,7 @@ contains
       this%write_barrier = get_logical_key(config,"WRITE_BARRIER:",.false.)
       this%do_writes = get_logical_key(config,"DO_WRITES:",.true.)
       this%netcdf_writes = get_logical_key(config,"NETCDF_WRITES:",.true.)
-      this%n_trials = get_integer_key(config,"NTRIALS:",1)
+      this%n_trials = get_integer_key(config,"NTRIALS:",3)
       this%random = get_logical_key(config,"RANDOM_DATA:",.true.)
 
       this%write_counter = 0
@@ -97,8 +269,12 @@ contains
       this%time_writing = 0.d0
       this%mpi_time = 0.0
       call MPI_COMM_SIZE(MPI_COMM_WORLD,comm_size,status)
-      if (comm_size /= (this%nx*this%ny*6)) call MPI_Abort(mpi_comm_world,error_code,status)
-      
+      _VERIFY(status)
+      if (comm_size /= (this%nx*this%ny*6)) then
+         call MPI_Abort(mpi_comm_world,error_code,status)
+         _VERIFY(status)
+      endif
+
       contains
 
       function get_logical_key(config,label,default_val) result(val)
@@ -115,7 +291,7 @@ contains
             val = default_val
          end if
       end function
-      
+
       function get_integer_key(config,label,default_val) result(val)
          integer :: val
          type(ESMF_Config), intent(Inout)  :: config
@@ -130,8 +306,48 @@ contains
             val = default_val
          end if
       end function
-      
-   end subroutine
+
+   end subroutine set_parameters_by_config
+
+   subroutine set_parameters_by_cli(this,cli)
+      class(test_support), intent(inout) :: this
+      type(cli_options), intent(in) :: cli
+
+      logical :: is_present
+      integer :: comm_size, status,error_code,rc
+
+      this%extra_info = .false.
+      this%write_barrier = cli%write_barrier
+      this%do_writes = cli%do_writes
+      this%netcdf_writes = cli%netcdf_writes
+      this%do_chunking = cli%do_chunking
+      this%gather_3d = cli%gather_3d
+      this%split_file = cli%split_file
+      this%nx = cli%nx
+      this%ny = cli%ny
+      this%im_world = cli%im_world
+      this%lm = cli%lm
+      this%num_writers = cli%num_writers
+      this%num_arrays = cli%num_arrays
+      this%n_trials = cli%n_trials
+      this%random = cli%random_data
+
+      this%write_counter = 0
+      this%write_3d_time = 0
+      this%write_2d_time = 0
+      this%create_file_time = 0
+      this%close_file_time = 0
+      this%data_volume = 0.d0
+      this%time_writing = 0.d0
+      this%mpi_time = 0.0
+      call MPI_COMM_SIZE(MPI_COMM_WORLD,comm_size,status)
+      _VERIFY(status)
+      if (comm_size /= (this%nx*this%ny*6)) then
+         call MPI_Abort(mpi_comm_world,error_code,status)
+         _VERIFY(status)
+      endif
+
+   end subroutine set_parameters_by_cli
 
    subroutine reset(this)
       class(test_support), intent(inout) :: this
@@ -144,7 +360,7 @@ contains
       this%time_writing = 0.d0
       this%mpi_time = 0.0
    end subroutine
-      
+
    function compute_decomposition(this,axis) result(decomp)
       integer, allocatable :: decomp(:)
       class(test_support), intent(inout) :: this
@@ -172,13 +388,14 @@ contains
       class(test_support), intent(inout) :: this
       integer, intent(in) :: im
       integer, intent(in) :: jm
-      
-      integer :: n,rank,status
+
+      integer :: n,rank,status,rc
       character(len=3) :: formatted_int
       integer :: seed_size
       integer, allocatable :: seeds(:)
 
       call MPI_COMM_RANK(MPI_COMM_WORLD,rank,status)
+      _VERIFY(status)
       call random_seed(size=seed_size)
       allocate(seeds(seed_size))
       seeds = rank
@@ -199,10 +416,12 @@ contains
       class(test_support), intent(inout) :: this
 
       integer, allocatable :: ims(:),jms(:)
-      integer :: rank, status,comm_size,n,i,j,rank_counter,offset,index_offset
+      integer :: rank, status,comm_size,n,i,j,rank_counter,offset,index_offset,rc
 
-      call MPI_Comm_Rank(MPI_COMM_WORLD,rank,status) 
+      call MPI_Comm_Rank(MPI_COMM_WORLD,rank,status)
+      _VERIFY(status)
       call MPI_Comm_Size(MPI_COMM_WORLD,comm_size,status)
+      _VERIFY(status)
       allocate(this%bundle(this%num_arrays))
       ims = this%compute_decomposition(axis=1)
       jms = this%compute_decomposition(axis=2)
@@ -244,23 +463,26 @@ contains
                rank_counter = rank_counter + 1
            enddo
         enddo
-     enddo 
-      
+     enddo
+
   end subroutine
 
   subroutine create_communicators(this)
      class(test_support), intent(inout) :: this
- 
-     integer :: myid,status,nx0,ny0,color,j,ny_by_writers,local_ny,key
+
+     integer :: myid,status,nx0,ny0,color,j,ny_by_writers,local_ny,key,rc
 
      local_ny = this%ny*6
      call MPI_Comm_Rank(mpi_comm_world,myid,status)
+     _VERIFY(status)
      nx0 = mod(myid,this%nx) + 1
      ny0 = myid/this%nx + 1
      color = nx0
      call MPI_Comm_Split(MPI_COMM_WORLD,color,myid,this%ycomm,status)
+     _VERIFY(status)
      color = ny0
      call MPI_Comm_Split(MPI_COMM_WORLD,color,myid,this%xcomm,status)
+     _VERIFY(status)
 
 
      ny_by_writers = local_ny/this%num_writers
@@ -270,23 +492,26 @@ contains
         color = MPI_UNDEFINED
      end if
      call MPI_COMM_SPLIT(MPI_COMM_WORLD,color,myid,this%writers_comm,status)
+     _VERIFY(status)
 
      if (this%num_writers == local_ny) then
         this%gather_comm = this%xcomm
      else
         j = ny0 - mod(ny0-1,ny_by_writers)
-        call MPI_COMM_SPLIT(MPI_COMM_WORLD,j,myid,this%gather_comm,status)
+        call MPI_COMM_SPLIT(MPI_COMM_WORLD,j,myid,this%gather_comm, status)
+        _VERIFY(status)
      end if
 
-     call MPI_BARRIER(mpi_comm_world,status)
+     call MPI_BARRIER(mpi_comm_world, status)
+     _VERIFY(status)
 
-     
+
   end subroutine
 
   subroutine close_file(this)
      class(test_support), intent(inout) :: this
 
-     integer :: status
+     integer :: status, rc
 
      integer(kind=INT64) :: sub_start,sub_end
 
@@ -299,7 +524,8 @@ contains
            close(this%ncid)
         end if
      end if
-     call MPI_BARRIER(MPI_COMM_WORLD,status)
+     call MPI_BARRIER(MPI_COMM_WORLD, status)
+     _VERIFY(status)
      call system_clock(count=sub_end)
      this%close_file_time =  sub_end-sub_start
   end subroutine
@@ -307,7 +533,7 @@ contains
   subroutine create_file(this)
      class(test_support), intent(inout) :: this
 
-     integer :: status
+     integer :: status, rc
      integer :: info
      integer :: xdim,ydim,zdim,i,varid,create_mode
      character(len=:), allocatable :: fname
@@ -322,33 +548,44 @@ contains
         create_mode = IOR(create_mode,NF90_NETCDF4)
         create_mode = IOR(create_mode,NF90_SHARE)
         create_mode = IOR(create_mode,NF90_MPIIO)
-        call MPI_INFO_CREATE(info,status)
-        call MPI_INFO_SET(info,"cb_buffer_size","16777216",status)
-        call MPI_INFO_SET(info,"romio_cb_write","enable",status)
+        call MPI_INFO_CREATE(info, status)
+        _VERIFY(status)
+        call MPI_INFO_SET(info,"cb_buffer_size","16777216", status)
+        _VERIFY(status)
+        call MPI_INFO_SET(info,"romio_cb_write","enable", status)
+        _VERIFY(status)
         if (this%extra_info) then
-           call MPI_INFO_SET(info,"IBM_largeblock_io","true",status)
-           call MPI_INFO_SET(info,"striping_unit","4194304",status)
+           call MPI_INFO_SET(info,"IBM_largeblock_io","true", status)
+           _VERIFY(status)
+           call MPI_INFO_SET(info,"striping_unit","4194304", status)
+           _VERIFY(status)
         end if
         if (this%writers_comm /= MPI_COMM_NULL) then
            if (this%split_file) then
-              call MPI_COMM_RANK(this%writers_comm,writer_rank,status)
+              call MPI_COMM_RANK(this%writers_comm,writer_rank, status)
+              _VERIFY(status)
               write(fc,'(I0.3)')writer_rank
               fname = "checkpoint_"//fc//".nc4"
               status = nf90_create(fname,ior(NF90_NETCDF4,NF90_CLOBBER), this%ncid)
+              _VERIFY(status)
               chunk_factor = 1
            else
               fname = "checkpoint.nc4"
               status = nf90_create(fname,create_mode, this%ncid, comm=this%writers_comm, info=info)
+              _VERIFY(status)
               chunk_factor = this%num_writers
            end if
            status = nf90_def_dim(this%ncid,"lon",this%im_world,xdim)
+           _VERIFY(status)
            if (this%split_file) then
               y_size = this%im_world*6/this%num_writers
-           else 
+           else
               y_size = this%im_world*6
            end if
            status = nf90_def_dim(this%ncid,"lat",y_size,ydim)
+           _VERIFY(status)
            status = nf90_def_dim(this%ncid,"lev",this%lm,zdim)
+           _VERIFY(status)
            if (this%gather_3d) then
               z_chunk = this%lm
            else
@@ -357,25 +594,31 @@ contains
            do i=1,this%num_arrays
               if (this%do_chunking) then
                  status = nf90_def_var(this%ncid,this%bundle(i)%field_name,NF90_FLOAT,[xdim,ydim,zdim],varid,chunksizes=[this%im_world,y_size/chunk_factor,z_chunk])
+                 _VERIFY(status)
               else
                  status = nf90_def_var(this%ncid,this%bundle(i)%field_name,NF90_FLOAT,[xdim,ydim,zdim],varid)
+                 _VERIFY(status)
               end if
               status = nf90_def_var_fill(this%ncid,varid,NF90_NOFILL,0)
+              _VERIFY(status)
               !status = nf90_var_par_access(this%ncid,varid,NF90_COLLECTIVE) ! you can turn this on if you really want to hork up performance
+              !_VERIFY(status)
            enddo
            status = nf90_enddef(this%ncid)
         end if
      else
         if (this%writers_comm /= MPI_COMM_NULL) then
            if (this%split_file) then
-              call MPI_COMM_RANK(this%writers_comm,writer_rank,status)
+              call MPI_COMM_RANK(this%writers_comm,writer_rank, status)
+              _VERIFY(status)
               write(fc,'(I0.3)')writer_rank
               fname = "checkpoint_"//fc//".bin"
               open(file=fname,newunit=this%ncid,status='replace',form='unformatted',access='sequential')
            end if
         end if
      end if
-     call MPI_BARRIER(MPI_COMM_WORLD,status)
+     call MPI_BARRIER(MPI_COMM_WORLD, status)
+     _VERIFY(status)
      call system_clock(count=sub_end)
      this%create_file_time = sub_end-sub_start
   end subroutine
@@ -383,13 +626,15 @@ contains
 
   subroutine write_file(this)
      class(test_support), intent(inout) :: this
-     integer :: status,i,l
-    
+     integer :: status,i,l,rc
+
      integer(kind=INT64) :: sub_start,sub_end
 
-     call MPI_BARRIER(MPI_COMM_WORLD,status)
+     call MPI_BARRIER(MPI_COMM_WORLD, status)
+     _VERIFY(status)
      call system_clock(count=sub_start)
-     call MPI_BARRIER(MPI_COMM_WORLD,status)
+     call MPI_BARRIER(MPI_COMM_WORLD, status)
+     _VERIFY(status)
      do i=1,this%num_arrays
         if (this%gather_3d) then
            call this%write_variable(this%bundle(i)%field_name,this%bundle(i)%field)
@@ -399,18 +644,21 @@ contains
            enddo
         end if
      enddo
-     call MPI_BARRIER(MPI_COMM_WORLD,status)
+     call MPI_BARRIER(MPI_COMM_WORLD, status)
+     _VERIFY(status)
      call system_clock(count=sub_end)
-     call MPI_BARRIER(MPI_COMM_WORLD,status)
+     call MPI_BARRIER(MPI_COMM_WORLD, status)
+     _VERIFY(status)
      this%write_3d_time = sub_end-sub_start
-     call MPI_BARRIER(MPI_COMM_WORLD,status)
+     call MPI_BARRIER(MPI_COMM_WORLD, status)
+     _VERIFY(status)
   end subroutine
 
   subroutine write_variable(this,var_name,local_var)
      class(test_support), intent(inout) :: this
      character(len=*), intent(in) :: var_name
      real, intent(in) :: local_var(:,:,:)
-     integer :: status
+     integer :: status,rc
      real,  allocatable :: recvbuf(:)
      integer                               :: I,J,N,K,L,myrow,myiorank,ndes_x
      integer                               :: start(3), cnt(3)
@@ -427,9 +675,12 @@ contains
      jm_world = this%im_world*6
      ndes_x = size(this%in)
 
-       call mpi_comm_rank(this%ycomm,myrow,status)
-       call mpi_comm_rank(this%gather_comm,myiorank,status)
-       call mpi_comm_size(this%gather_comm,num_io_rows,status)
+       call mpi_comm_rank(this%ycomm,myrow, status)
+       _VERIFY(status)
+       call mpi_comm_rank(this%gather_comm,myiorank, status)
+       _VERIFY(status)
+       call mpi_comm_size(this%gather_comm,num_io_rows, status)
+       _VERIFY(status)
        num_io_rows=num_io_rows/ndes_x
 
        allocate (recvcounts(ndes_x*num_io_rows), displs(ndes_x*num_io_rows), stat=status)
@@ -450,18 +701,25 @@ contains
              jsize=jsize + (this%jn(myrow+j) - this%j1(myrow+j) + 1)
           enddo
           allocate(VAR(IM_WORLD,jsize,this%lm), stat=status)
+          _VERIFY(status)
           allocate(recvbuf(IM_WORLD*jsize*this%lm), stat=status)
+          _VERIFY(status)
        end if
 
        if(myiorank/=0) then
           allocate(recvbuf(0), stat=status)
+          _VERIFY(status)
        endif
 
        call mpi_gatherv( local_var, size(local_var), MPI_REAL, recvbuf, recvcounts, displs, MPI_REAL, &
                       0, this%gather_comm, status )
+       _VERIFY(status)
        call system_clock(count=end_mpi)
        this%time_mpi = this%mpi_time  + (end_mpi - start_mpi)
-       if (this%write_barrier) call MPI_Barrier(MPI_COMM_WORLD,status)
+       if (this%write_barrier) then
+          call MPI_Barrier(MPI_COMM_WORLD, status)
+          _VERIFY(status)
+       endif
 
        if(myiorank==0) then
 
@@ -498,7 +756,9 @@ contains
           if (this%do_writes) then
              if (this%netcdf_writes) then
                 status = nf90_inq_varid(this%ncid,name=var_name ,varid=varid)
+                _VERIFY(status)
                 status = nf90_put_var(this%ncid,varid,var,start,cnt)
+                _VERIFY(status)
              else
                 write(this%ncid)var
              end if
@@ -523,7 +783,7 @@ contains
      character(len=*), intent(in) :: var_name
      real, intent(in) :: local_var(:,:)
      integer, intent(in) :: z_index
-     integer :: status
+     integer :: status, rc
      real,  allocatable :: recvbuf(:)
      integer                               :: I,J,N,K,L,myrow,myiorank,ndes_x
      integer                               :: start(3), cnt(3)
@@ -540,9 +800,12 @@ contains
      jm_world = this%im_world*6
      ndes_x = size(this%in)
 
-       call mpi_comm_rank(this%ycomm,myrow,status)
-       call mpi_comm_rank(this%gather_comm,myiorank,status)
-       call mpi_comm_size(this%gather_comm,num_io_rows,status)
+       call mpi_comm_rank(this%ycomm,myrow, status)
+       _VERIFY(status)
+       call mpi_comm_rank(this%gather_comm,myiorank, status)
+       _VERIFY(status)
+       call mpi_comm_size(this%gather_comm,num_io_rows, status)
+       _VERIFY(status)
        num_io_rows=num_io_rows/ndes_x
 
        allocate (recvcounts(ndes_x*num_io_rows), displs(ndes_x*num_io_rows), stat=status)
@@ -574,7 +837,10 @@ contains
                       0, this%gather_comm, status )
        call system_clock(count=end_mpi)
        this%mpi_time = this%mpi_time + (end_mpi - start_mpi)
-       if (this%write_barrier) call MPI_Barrier(MPI_COMM_WORLD,status)
+       if (this%write_barrier) then
+          call MPI_Barrier(MPI_COMM_WORLD, status)
+          _VERIFY(status)
+       endif
 
        if(myiorank==0) then
 
@@ -609,7 +875,9 @@ contains
           if (this%do_writes) then
              if (this%netcdf_writes) then
                 status = nf90_inq_varid(this%ncid,name=var_name ,varid=varid)
+                _VERIFY(status)
                 status = nf90_put_var(this%ncid,varid,var,start,cnt)
+                _VERIFY(status)
              else
                 write(this%ncid)var
              end if
@@ -619,7 +887,7 @@ contains
           io_time = end_time-start_time
           this%data_volume = this%data_volume+byte_to_mega*4.d0*size(var,kind=INT64)
           this%time_writing = this%time_writing + real(io_time,kind=REAL64)/real(count_rate,kind=REAL64)
-          
+
           deallocate(VAR, stat=status)
 
        endif ! myiorank
@@ -631,16 +899,19 @@ contains
 
 end module
 
+#define I_AM_MAIN
 #include "MAPL_ErrLog.h"
 program checkpoint_tester
    use ESMF
+   use MAPL_ErrorHandlingMod
+   use mapl_checkpoint_support_mod
    use MPI
    use NetCDF
-   use mapl_checkpoint_support_mod
+   use fargparse
    use, intrinsic :: iso_fortran_env, only: REAL64, INT64
    implicit NONE
 
-   integer :: status,rank,writer_size,writer_rank,comm_size,i
+   integer :: status,rank,writer_size,writer_rank,comm_size,i,rc
    type(test_support) :: support
    integer(kind=INT64) :: start_write,end_time,count_rate,start_app,end_app
    real(kind=REAL64) :: time_sum,write_time,create_time,close_time,write_3d_time,write_2d_time
@@ -650,23 +921,46 @@ program checkpoint_tester
    real(kind=REAL64) :: mean_throughput, mean_fs_throughput
    real(kind=REAL64) :: std_throughput, std_fs_throughput
 
+   type(StringUnlimitedMap) :: options
+   type(cli_options) :: cli
+
    call system_clock(count=start_app,count_rate=count_rate)
    call MPI_Init(status)
+   _VERIFY(status)
    call MPI_Barrier(MPI_COMM_WORLD,status)
+   _VERIFY(status)
 
    call MPI_Comm_Rank(MPI_COMM_WORLD,rank,status)
+   _VERIFY(status)
    call MPI_Comm_Size(MPI_COMM_WORLD,comm_size,status)
+   _VERIFY(status)
    call ESMF_Initialize(logKindFlag=ESMF_LOGKIND_NONE,mpiCommunicator=MPI_COMM_WORLD)
    call MPI_Barrier(MPI_COMM_WORLD,status)
+   _VERIFY(status)
 
-   call support%set_parameters("checkpoint_benchmark.rc")
+   options = parse_arguments()
+
+   call get_cli_options(options,cli)
+
+   ! if we have it, we load the configuration file
+   if (allocated(cli%config_file)) then
+      if (rank == 0) write(*,*) "Using configuration file ",cli%config_file
+      if (rank == 0) write(*,*) "NOTE: This overrides any other command line options"
+      call support%set_parameters_by_config(cli%config_file)
+   else
+      call support%set_parameters_by_cli(cli)
+   end if
+
    call MPI_Barrier(MPI_COMM_WORLD,status)
+   _VERIFY(status)
 
    call support%create_arrays()
    call MPI_Barrier(MPI_COMM_WORLD,status)
+   _VERIFY(status)
 
    call support%create_communicators()
    call MPI_Barrier(MPI_COMM_WORLD,status)
+   _VERIFY(status)
 
    allocate(total_throughput(support%n_trials))
    allocate(all_proc_throughput(support%n_trials))
@@ -675,15 +969,19 @@ program checkpoint_tester
       call support%reset()
 
       call system_clock(count=start_write)
-      call MPI_Barrier(MPI_COMM_WORLD,status)
-      call support%create_file()
-      call MPI_Barrier(MPI_COMM_WORLD,status)
+      call MPI_Barrier(MPI_COMM_WORLD, status)
+      _VERIFY(status)
+      if (support%do_writes) call support%create_file()
+      call MPI_Barrier(MPI_COMM_WORLD, status)
+      _VERIFY(status)
 
       call support%write_file()
-      call MPI_Barrier(MPI_COMM_WORLD,status)
+      call MPI_Barrier(MPI_COMM_WORLD, status)
+      _VERIFY(status)
 
-      call support%close_file()
-      call MPI_Barrier(MPI_COMM_WORLD,status)
+      if (support%do_writes) call support%close_file()
+      call MPI_Barrier(MPI_COMM_WORLD, status)
+      _VERIFY(status)
 
       call system_clock(count=end_time)
       write_time = real(end_time-start_write,kind=REAL64)/real(count_rate,kind=REAL64)
@@ -694,11 +992,15 @@ program checkpoint_tester
       application_time = real(end_time - start_app,kind=REAL64)/real(count_rate,kind=REAL64)
 
       if (support%write_counter > 0) then
-         call MPI_COMM_SIZE(support%writers_comm,writer_size,status)
-         call MPI_COMM_RANK(support%writers_comm,writer_rank,status)
-         call MPI_AllReduce(support%data_volume,average_volume,1,MPI_DOUBLE_PRECISION,MPI_SUM,support%writers_comm,status)
+         call MPI_COMM_SIZE(support%writers_comm,writer_size, status)
+         _VERIFY(status)
+         call MPI_COMM_RANK(support%writers_comm,writer_rank, status)
+         _VERIFY(status)
+         call MPI_AllReduce(support%data_volume,average_volume,1,MPI_DOUBLE_PRECISION,MPI_SUM,support%writers_comm, status)
+         _VERIFY(status)
          average_volume = average_volume/real(writer_size,kind=REAL64)
-         call MPI_AllReduce(support%time_writing,average_time,1,MPI_DOUBLE_PRECISION,MPI_SUM,support%writers_comm,status)
+         call MPI_AllReduce(support%time_writing,average_time,1,MPI_DOUBLE_PRECISION,MPI_SUM,support%writers_comm, status)
+         _VERIFY(status)
          average_time = average_time/real(writer_size,kind=REAL64)
       end if
       if (rank == 0) then
@@ -707,7 +1009,7 @@ program checkpoint_tester
          all_proc_throughput(i) = real(support%num_writers,kind=REAL32)*average_volume/average_time
       end if
    enddo
-       
+
    call system_clock(count=end_app)
    application_time = real(end_app - start_app,kind=REAL64)/real(count_rate,kind=REAL64)
    if (rank == 0) then
@@ -741,7 +1043,7 @@ program checkpoint_tester
       std_fs_throughput = sqrt(std_fs_throughput/real(support%n_trials,kind=REAL64))
       write(*,'(G16.8,G16.8,G16.8,G16.8)')mean_throughput,std_throughput,mean_fs_throughput,std_fs_throughput
    end if
-   
-     
+
+
    call MPI_Finalize(status)
 end program

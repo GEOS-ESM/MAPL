@@ -12,6 +12,10 @@
 #       INTERNAL_SPECS [file]  include file for AddInternalSpec() code (default <gc>_Internal___.h)
 #       GET_POINTERS [file]  include file for GetPointer() code (default <gc>_GetPointer___.h)
 #       DECLARE_POINTERS [file]  include file for declaring local pointers (default <gc>_DeclarePointer___.h)
+#       LONG_NAME_PREFIX [string]  prefix for long names (default "comp_name")
+#
+# NOTE: Use of LONG_NAME_PREFIX will require changes to the Fortran code as all the ACG does
+#       is write Fortran. So, you'll need to define a string in the Fortran for this
 #
 ################################################################################################
 
@@ -22,7 +26,7 @@ function (mapl_acg target specs_file)
   # This list must align with oneValueArgs above (for later ZIP_LISTS)
   set (flags         -i           -x           -p             -g           -d)
   set (defaults      Import       Export       Internal       GetPointer   DeclarePointer)
-  set (multiValueArgs)
+  set (multiValueArgs LONG_NAME_PREFIX)
   cmake_parse_arguments (ARGS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   string (REPLACE "_GridComp" "" component_name ${target})
@@ -34,6 +38,12 @@ function (mapl_acg target specs_file)
   set (generated) # empty unless
   set (options "")
   set (suffix_for_generated_include_files "___.h")
+
+  # Note: Use the equals sign below. If a space is used, CMake did
+  #       weird things
+  if (ARGS_LONG_NAME_PREFIX)
+    list (APPEND options "--longname_glob_prefix=${ARGS_LONG_NAME_PREFIX}")
+  endif ()
 
   # Handle oneValueArgs with no value (Python provides default)
   foreach (opt flag default IN ZIP_LISTS oneValueArgs flags defaults)
