@@ -117,12 +117,12 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine field_info_set_internal
 
-   subroutine field_info_get_internal(field, unusable, &
+   subroutine field_info_get_internal(field_info, unusable, &
         num_levels, vert_staggerloc, num_vgrid_levels, &
         units, long_name, standard_name, &
         ungridded_dims, rc)
 
-      type(ESMF_Field), intent(in) :: field
+      type(ESMF_Info), intent(in) :: field_info
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: num_levels
       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
@@ -135,11 +135,9 @@ contains
 
       integer :: status
       integer :: num_levels_
-      type(ESMF_Info) :: ungridded_info, field_info
+      type(ESMF_Info) :: ungridded_info
       character(:), allocatable :: vert_staggerloc_str
       type(VerticalStaggerLoc) :: vert_staggerloc_
-
-      call ESMF_InfoGetFromHost(field, field_info, _RC)
 
       if (present(ungridded_dims)) then
          ungridded_info = ESMF_InfoCreate(field_info, INFO_INTERNAL_NAMESPACE // KEY_UNGRIDDED_DIMS, _RC)

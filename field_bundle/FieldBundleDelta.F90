@@ -5,6 +5,7 @@
 #include "MAPL_Exceptions.h"
 module mapl3g_FieldBundleDelta
    use mapl3g_FieldBundleGet
+   use mapl3g_FieldBundleType_Flag
    use mapl3g_LU_Bound
    use mapl3g_FieldDelta
    use mapl3g_InfoUtilities
@@ -24,6 +25,7 @@ module mapl3g_FieldBundleDelta
 
    public :: FieldBundleDelta
 
+   ! Note fieldCount can be derivedy from weights
    type :: FieldBundleDelta
       private
       type(FieldDelta) :: field_delta ! constant across bundle
@@ -119,20 +121,23 @@ contains
          integer :: status
          integer :: fieldCount_a, fieldCount_b
          type(ESMF_Field), allocatable :: fieldList_a(:), fieldList_b(:)
+         type(FieldBundleType_Flag) :: fieldBundleType_a, fieldBundleType_b
 
-         call ESMF_FieldBundleGet(bundle_a, fieldCount=fieldCount_a, _RC)
-         call ESMF_FieldBundleGet(bundle_b, fieldCount=fieldCount_b, _RC)
-         allocate(fieldList_a(fieldCount_a), fieldList_b(fieldCount_b))
+         call MAPL_FieldBundleGet(bundle_a, &
+              fieldCount=fieldCount_a, fieldBundleType=fieldBundleType_a, fieldList=fieldList_a, _RC)
+         call MAPL_FieldBundleGet(bundle_b, &
+              fieldCount=fieldCount_b, fieldBundleType=fieldBundleType_b, fieldList=fieldList_b, _RC)
          
-         if ((fieldCount_a > 0) .and. (fieldCount_b > 0)) then
-            call ESMF_FieldBundleGet(bundle_a, fieldList=fieldList_a, _RC)
-            call ESMF_FieldBundleGet(bundle_b, fieldList=fieldList_b, _RC)
+         _ASSERT(fieldBundleType_a == FIELDBUNDLETYPE_BRACKET, 'incorrect type of FieldBundle')
+         _ASSERT(fieldBundleType_b == FIELDBUNDLETYPE_BRACKET, 'incorrect type of FieldBundle')
+
+         ! TODO: add check thta name of 1st field is "bracket-prototype" or similar.
+         if (fieldCount_a > 0 .and. fieldCount_b > 0) then
             call field_delta%initialize(fieldList_a(1), fieldList_b(1), _RC)
             _RETURN(_SUCCESS)
          end if
 
-         if (fieldCount_b > 0) then
-            call ESMF_FieldBundleGet(bundle_b, fieldList=fieldList_b, _RC)
+         if (fieldCount_b > 1) then
             ! full FieldDelta
             call field_delta%initialize(fieldList_b(1), _RC)
             _RETURN(_SUCCESS)

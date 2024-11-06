@@ -47,7 +47,7 @@ contains
 
       if (need_info) then
          call ESMF_InfoGetFromHost(field, info, _RC)
-         call MAPL_FieldInfoGetInternal(field, &
+         call MAPL_FieldInfoGetInternal(info, &
               num_levels=num_levels, &
               vert_staggerloc=vert_staggerloc, &
               num_vgrid_levels=num_vgrid_levels, &

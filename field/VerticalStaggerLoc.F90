@@ -39,7 +39,7 @@ module mapl3g_VerticalStaggerLoc
    type(VerticalStaggerLoc), parameter :: VERTICAL_STAGGER_NONE = VerticalStaggerLoc(0, "VERTICAL_STAGGER_NONE")
    type(VerticalStaggerLoc), parameter :: VERTICAL_STAGGER_EDGE = VerticalStaggerLoc(1, "VERTICAL_STAGGER_EDGE")
    type(VerticalStaggerLoc), parameter :: VERTICAL_STAGGER_CENTER = VerticalStaggerLoc(2, "VERTICAL_STAGGER_CENTER")
-   type(VerticalStaggerLoc), parameter :: VERTICAL_STAGGER_INVALID = VerticalStaggerLoc(3, "VERTICAL_STAGGER_INVALID")
+   type(VerticalStaggerLoc), parameter :: VERTICAL_STAGGER_INVALID = VerticalStaggerLoc(-1, "VERTICAL_STAGGER_INVALID")
 
 contains
 

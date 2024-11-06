@@ -5,6 +5,7 @@ module mapl3g_FieldBundleGet
    use mapl_ErrorHandling
    use mapl3g_Field_private_API
    use mapl3g_Field_api
+   use mapl3g_FieldBundleType_Flag
    use mapl3g_InfoUtilities
    use mapl3g_LU_Bound
    use esmf
@@ -23,20 +24,26 @@ module mapl3g_FieldBundleGet
       procedure bundle_set
    end interface MAPL_FieldBundleSet
 
+   character(*), parameter :: KEY_FIELD_BUNDLE_TYPE = '/fieldBundleType'
+
 contains
 
    ! Supplement ESMF
-   subroutine bundle_get(fieldBundle, unusable, fieldList, geom, typekind, ungriddedUbound, rc)
+   subroutine bundle_get(fieldBundle, unusable, fieldCount, fieldList, &
+        fieldBundleType, &
+        geom, typekind, ungriddedUbound, rc)
       type(ESMF_FieldBundle), intent(in) :: fieldBundle
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: fieldCount
       type(ESMF_Field), optional, allocatable, intent(out) :: fieldList(:)
+      type(FieldBundleType_Flag), optional, intent(out) :: fieldBundleType
       type(ESMF_Geom), optional, intent(out) :: geom
       type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
       integer, allocatable, optional, intent(out) :: ungriddedUbound(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
-      integer :: fieldCount
+      integer :: fieldCount_
       type(ESMF_GeomType_Flag) :: geomtype
       character(:), allocatable :: typekind_str
       type(ESMF_Info) :: ungridded_info
@@ -44,11 +51,23 @@ contains
       type(LU_Bound), allocatable :: bounds(:)
       integer :: num_levels
       character(:), allocatable :: vert_staggerloc
+      character(:), allocatable :: fieldBundleType_str
+
+      if (present(fieldCount) .or. present(fieldList)) then
+         call ESMF_FieldBundleGet(fieldBundle, fieldCount=fieldCount_, _RC)
+          if (present(fieldCount)) then
+             fieldCount = fieldCount_
+          end if
+      end if
 
       if (present(fieldList)) then
-         call ESMF_FieldBundleGet(fieldBundle, fieldCount=fieldCount, _RC)
-         allocate(fieldList(fieldCount))
+         allocate(fieldList(fieldCount_))
          call ESMF_FieldBundleGet(fieldBundle, fieldList=fieldList, itemOrderflag=ESMF_ITEMORDER_ADDORDER, _RC)
+      end if
+
+      if (present(fieldBundleType)) then
+         call MAPL_InfoGetInternal(fieldBundle, key=KEY_FIELD_BUNDLE_TYPE, value=fieldBundleType_str, _RC)
+         fieldBundleType = FieldBundleType_Flag(fieldBundleType_str)
       end if
 
       if (present(geom)) then
