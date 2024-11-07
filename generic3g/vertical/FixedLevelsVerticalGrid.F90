@@ -157,7 +157,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer, allocatable :: local_cell_count(:)
-      real(kind=REAL32), pointer :: farray3d(:, :, :)
+      real(kind=ESMF_KIND_R4), pointer :: farray3d(:, :, :)
       integer :: i, j, IM, JM, status
 
 !#      ! First, copy the 1D array, farray1d, to each point on the horz grid
