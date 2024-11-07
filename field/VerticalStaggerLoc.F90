@@ -11,6 +11,13 @@ module mapl3g_VerticalStaggerLoc
    public :: operator(==)
    public :: operator(/=)
 
+   enum, bind(c)
+      enumerator :: NONE=0
+      enumerator :: EDGE=1
+      enumerator :: CENTER=2
+      enumerator :: INVALID=-1
+   end enum
+
    ! The type below has an "extraneous" component ID.  The purpose of
    ! this is to allow the default structure constructor to be usable
    ! in constant expressions (parameter statements), while still allowing
@@ -18,7 +25,7 @@ module mapl3g_VerticalStaggerLoc
    ! modules. Subtle.
    type :: VerticalStaggerLoc
       private
-      integer :: id = -1
+      integer :: id = INVALID
       character(24) :: name = "VERTICAL_STAGGER_INVALID"
    contains
       procedure :: to_string
@@ -38,10 +45,15 @@ module mapl3g_VerticalStaggerLoc
       procedure are_not_equal
    end interface operator(/=)
 
-   type(VerticalStaggerLoc), parameter :: VERTICAL_STAGGER_NONE = VerticalStaggerLoc(0, "VERTICAL_STAGGER_NONE")
-   type(VerticalStaggerLoc), parameter :: VERTICAL_STAGGER_EDGE = VerticalStaggerLoc(1, "VERTICAL_STAGGER_EDGE")
-   type(VerticalStaggerLoc), parameter :: VERTICAL_STAGGER_CENTER = VerticalStaggerLoc(2, "VERTICAL_STAGGER_CENTER")
-   type(VerticalStaggerLoc), parameter :: VERTICAL_STAGGER_INVALID = VerticalStaggerLoc(-1, "VERTICAL_STAGGER_INVALID")
+   character(*), parameter :: DIM_NAME_NONE = ""
+   character(*), parameter :: DIM_NAME_EDGE = "edge"
+   character(*), parameter :: DIM_NAME_CENTER = "lev"
+   character(*), parameter :: DIM_NAME_INVALID = "invalid"
+
+   type(VerticalStaggerLoc), parameter :: VERTICAL_STAGGER_NONE = VerticalStaggerLoc(NONE, "VERTICAL_STAGGER_NONE")
+   type(VerticalStaggerLoc), parameter :: VERTICAL_STAGGER_EDGE = VerticalStaggerLoc(EDGE, "VERTICAL_STAGGER_EDGE")
+   type(VerticalStaggerLoc), parameter :: VERTICAL_STAGGER_CENTER = VerticalStaggerLoc(CENTER, "VERTICAL_STAGGER_CENTER")
+   type(VerticalStaggerLoc), parameter :: VERTICAL_STAGGER_INVALID = VerticalStaggerLoc(INVALID, "VERTICAL_STAGGER_INVALID")
 
 contains
 
@@ -86,15 +98,15 @@ contains
       character(:), allocatable :: dim_name
       class(VerticalStaggerLoc), intent(in) :: this
 
-      select case (this%to_string())
-      case ("VERTICAL_STAGGER_NONE")
-         dim_name = ""
-      case ("VERTICAL_STAGGER_EDGE")
-         dim_name = "edge"
-      case ("VERTICAL_STAGGER_CENTER")
-         dim_name = "center"
+      select case (this%id)
+      case (NONE)
+         dim_name = DIM_NAME_NONE
+      case (EDGE)
+         dim_name = DIM_NAME_EDGE
+      case (CENTER)
+         dim_name = DIM_NAME_CENTER
       case default
-         dim_name = "invalid"
+         dim_name = DIM_NAME_INVALID
       end select
    end function get_dimension_name
 
@@ -102,12 +114,12 @@ contains
       class(VerticalStaggerLoc), intent(in) :: this
       integer, intent(in) :: num_vgrid_levels
 
-      select case (this%to_string())
-      case ("VERTICAL_STAGGER_NONE")
+      select case (this%id)
+      case (NONE)
          num_levels = 0
-      case ("VERTICAL_STAGGER_EDGE")
+      case (EDGE)
          num_levels = num_vgrid_levels
-      case ("VERTICAL_STAGGER_CENTER")
+      case (CENTER)
          num_levels = num_vgrid_levels - 1
       case default
          num_levels = -1

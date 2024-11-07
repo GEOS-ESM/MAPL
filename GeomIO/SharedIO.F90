@@ -25,7 +25,6 @@ module mapl3g_SharedIO
    public esmf_to_pfio_type
 
    public :: add_vertical_dimensions
-   public :: get_vertical_dimension_name
    public :: get_vertical_dimension_num_levels
    public :: get_vertical_dimension_name_from_field
    public :: add_ungridded_dimensions
@@ -196,22 +195,29 @@ contains
       type(StringVectorIterator) :: iter
       character(len=:), allocatable :: dim_name
       type(VerticalStaggerLoc) :: vert_staggerloc
-      integer :: i, num_vgrid_levels
+      integer :: i, num_vgrid_levels, field_vgrid_levels
       type(ESMF_Field), allocatable :: fieldList(:)
 
 
       call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
-
+      num_vgrid_levels = 0
+      
       vertical_names = StringVector()
       do i = 1, size(fieldList)
-         _HERE, i, size(fieldList)
          call MAPL_FieldGet(fieldList(i), vert_staggerloc=vert_staggerloc, _RC)
+         if (vert_staggerloc == VERTICAL_STAGGER_NONE) cycle
+
+         ! Ensure consistent vertical grid
+         call MAPL_FieldGet(fieldList(i), num_vgrid_levels=field_vgrid_levels, _RC)
+         if (num_vgrid_levels > 0) then
+            _ASSERT(field_vgrid_levels == num_vgrid_levels, "Inconsistent vertical grid in bundle.")
+         else
+            num_vgrid_levels = field_vgrid_levels
+         end if
+
          dim_name = vert_staggerloc%get_dimension_name()
-         if (dim_name == "") cycle
-         
-         call MAPL_FieldGet(fieldList(i), num_vgrid_levels=num_vgrid_levels, _RC)
          call vertical_names%push_back(dim_name)
-         _HERE, i, size(fieldList)
+
       end do
 
       associate (e => vertical_names%ftn_end())
@@ -228,26 +234,6 @@ contains
 
    end subroutine add_vertical_dimensions
 
-   function get_vertical_dimension_name(dim_spec_name) result(dim_name)
-      character(len=:), allocatable :: dim_name
-      character(len=*), intent(in) :: dim_spec_name
-      character(len=*), parameter :: VERTICAL_CENTER_NAME = 'lev'
-      character(len=*), parameter :: VERTICAL_EDGE_NAME = 'edge'
-      character(len=*), parameter :: VERTICAL_UNKNOWN_NAME = EMPTY
-
-      dim_name = VERTICAL_UNKNOWN_NAME
-
-      if(dim_spec_name == 'VERTICAL_DIM_EDGE') then
-         dim_name = VERTICAL_EDGE_NAME
-         return
-      end if
-
-      if(dim_spec_name == 'VERTICAL_DIM_CENTER') then
-         dim_name = VERTICAL_CENTER_NAME
-         return
-      end if
-
-   end function get_vertical_dimension_name
 
    integer function get_vertical_dimension_num_levels(dim_spec_name, num_levels) result(num)
       character(len=*), intent(in) :: dim_spec_name
