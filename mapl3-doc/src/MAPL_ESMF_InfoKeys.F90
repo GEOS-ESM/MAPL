@@ -12,6 +12,8 @@ module mapl3g_esmf_info_keys
    public :: KEY_VERT_DIM
    public :: KEY_VERT_GRID
    public :: KEY_INTERPOLATION_WEIGHTS
+   public :: KEY_FIELD_PROTOTYPE
+   public :: KEY_FIELDBUNDLETYPE
    public :: KEY_UNITS
    public :: KEY_LONG_NAME
    public :: KEY_STANDARD_NAME
@@ -38,10 +40,8 @@ module mapl3g_esmf_info_keys
    character(len=*), parameter :: KEY_VERT_DIM = '/vertical_dim'
    character(len=*), parameter :: KEY_VERT_GRID = '/vertical_grid'
    character(len=*), parameter :: KEY_UNITS = '/units'
-   character(len=*), parameter :: KEY_TYPEKIND = '/typekind'
    character(len=*), parameter :: KEY_LONG_NAME = '/long_name'
    character(len=*), parameter :: KEY_STANDARD_NAME = '/standard_name'
-   character(len=*), parameter :: KEY_INTERPOLATION_WEIGHTS = '/interpolation_weights'
 
    ! VerticalGeom info keys
    character(len=*), parameter :: KEY_NUM_LEVELS = KEY_VERT_GRID // '/num_levels'
@@ -64,6 +64,11 @@ module mapl3g_esmf_info_keys
       KEYSTUB_DIM // '1', KEYSTUB_DIM // '2', KEYSTUB_DIM // '3', &
       KEYSTUB_DIM // '4', KEYSTUB_DIM // '5', KEYSTUB_DIM // '6', &
       KEYSTUB_DIM // '7', KEYSTUB_DIM // '8', KEYSTUB_DIM // '9']
+
+   character(len=*), parameter :: KEY_TYPEKIND = '/typekind'
+   character(len=*), parameter :: KEY_FIELD_PROTOTYPE = '/field_prototype'
+   character(len=*), parameter :: KEY_INTERPOLATION_WEIGHTS = '/interpolation_weights'
+   character(len=*), parameter :: KEY_FIELDBUNDLETYPE = '/fieldBundleType'
 
 contains
 

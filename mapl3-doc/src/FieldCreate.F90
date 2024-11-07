@@ -86,13 +86,15 @@ contains
 
       integer :: status
       type(LU_Bound), allocatable :: bounds(:)
+      type(ESMF_Info) :: field_info
 
       bounds = make_bounds(num_levels=num_levels, ungridded_dims=ungridded_dims)
       call ESMF_FieldEmptyComplete(field, typekind=typekind, &
            gridToFieldMap=gridToFieldMap, &
            ungriddedLBound=bounds%lower, ungriddedUBound=bounds%upper, _RC)
 
-      call MAPL_FieldInfoSetInternal(field, &
+      call ESMF_InfoGetFromHost(field, field_info, _RC)
+      call MAPL_FieldInfoSetInternal(field_info, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
            units=units, standard_name=standard_name, long_name=long_name, _RC)

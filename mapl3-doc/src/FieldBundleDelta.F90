@@ -4,6 +4,8 @@
 
 #include "MAPL_Exceptions.h"
 module mapl3g_FieldBundleDelta
+   use mapl3g_FieldBundleGet
+   use mapl3g_FieldBundleType_Flag
    use mapl3g_LU_Bound
    use mapl3g_FieldDelta
    use mapl3g_InfoUtilities
@@ -14,15 +16,15 @@ module mapl3g_FieldBundleDelta
    use mapl_FieldUtilities
    use mapl3g_UngriddedDims
    use mapl_FieldPointerUtilities
-   use mapl3g_esmf_info_keys, only: KEY_INTERPOLATION_WEIGHTS
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use esmf
-   implicit none (type, external)
+   implicit none(type, external)
    private
 
    public :: FieldBundleDelta
 
+   ! Note fieldCount can be derivedy from weights
    type :: FieldBundleDelta
       private
       type(FieldDelta) :: field_delta ! constant across bundle
@@ -98,8 +100,8 @@ contains
          integer :: status
          real(ESMF_KIND_R4), allocatable :: weights_a(:), weights_b(:)
 
-         call MAPL_InfoGetInternal(bundle_a, key=KEY_INTERPOLATION_WEIGHTS, values=weights_a, _RC)
-         call MAPL_InfoGetInternal(bundle_b, key=KEY_INTERPOLATION_WEIGHTS, values=weights_b, _RC)
+         call MAPL_FieldBundleGet(bundle_a, interpolation_weights=weights_a, _RC)
+         call MAPL_FieldBundleGet(bundle_b, interpolation_weights=weights_b, _RC)
 
          if (any(weights_a /= weights_b)) then
             interpolation_weights = weights_b
@@ -118,20 +120,23 @@ contains
          integer :: status
          integer :: fieldCount_a, fieldCount_b
          type(ESMF_Field), allocatable :: fieldList_a(:), fieldList_b(:)
+         type(FieldBundleType_Flag) :: fieldBundleType_a, fieldBundleType_b
 
-         call ESMF_FieldBundleGet(bundle_a, fieldCount=fieldCount_a, _RC)
-         call ESMF_FieldBundleGet(bundle_b, fieldCount=fieldCount_b, _RC)
-         allocate(fieldList_a(fieldCount_a), fieldList_b(fieldCount_b))
+         call MAPL_FieldBundleGet(bundle_a, &
+              fieldCount=fieldCount_a, fieldBundleType=fieldBundleType_a, fieldList=fieldList_a, _RC)
+         call MAPL_FieldBundleGet(bundle_b, &
+              fieldCount=fieldCount_b, fieldBundleType=fieldBundleType_b, fieldList=fieldList_b, _RC)
          
-         if ((fieldCount_a > 0) .and. (fieldCount_b > 0)) then
-            call ESMF_FieldBundleGet(bundle_a, fieldList=fieldList_a, _RC)
-            call ESMF_FieldBundleGet(bundle_b, fieldList=fieldList_b, _RC)
+         _ASSERT(fieldBundleType_a == FIELDBUNDLETYPE_BRACKET, 'incorrect type of FieldBundle')
+         _ASSERT(fieldBundleType_b == FIELDBUNDLETYPE_BRACKET, 'incorrect type of FieldBundle')
+
+         ! TODO: add check thta name of 1st field is "bracket-prototype" or similar.
+         if (fieldCount_a > 0 .and. fieldCount_b > 0) then
             call field_delta%initialize(fieldList_a(1), fieldList_b(1), _RC)
             _RETURN(_SUCCESS)
          end if
 
-         if (fieldCount_b > 0) then
-            call ESMF_FieldBundleGet(bundle_b, fieldList=fieldList_b, _RC)
+         if (fieldCount_b > 1) then
             ! full FieldDelta
             call field_delta%initialize(fieldList_b(1), _RC)
             _RETURN(_SUCCESS)
@@ -182,7 +187,7 @@ contains
          _RETURN_UNLESS(present(interpolation_weights))
          _RETURN_IF(ignore == 'interpolation_weights')
 
-         call MAPL_InfoSetInternal(bundle, KEY_INTERPOLATION_WEIGHTS, values=interpolation_weights, _RC)
+         call MAPL_FieldBundleSet(bundle, interpolation_weights=interpolation_weights, _RC)
 
          _RETURN(_SUCCESS)
       end subroutine update_interpolation_weights
@@ -209,7 +214,6 @@ contains
       type(LU_Bound) :: vertical_bounds
       type(ESMF_TypeKind_Flag) :: typekind
       integer, allocatable :: ungriddedLbound(:), ungriddedUbound(:)
-      type(ESMF_Info) :: ungridded_info
       integer :: old_field_count, new_field_count
       integer, allocatable :: num_levels
       character(:), allocatable :: units, vert_staggerloc_str
@@ -238,19 +242,18 @@ contains
       allocate(fieldList(new_field_count))
 
       ! Need geom, typekind, and bounds to allocate fields before 
-      call MAPL_FieldBundleGet(bundle, geom=bundle_geom, _RC)
-      call MAPL_FieldBundleGet(bundle, typekind=typekind, _RC)
+      call MAPL_FieldBundleGet(bundle, geom=bundle_geom, &
+           typekind=typekind, &
+           ungridded_dims=ungridded_dims, &
+           units=units, &
+           vert_staggerloc=vert_staggerloc, &
+           _RC)
 
-      ungridded_info = MAPL_InfoCreateFromInternal(bundle, key=KEY_UNGRIDDED_DIMS, _RC)
-      ungridded_dims = make_UngriddedDims(ungridded_info, _RC)
-      call MAPL_InfoGetInternal(bundle, KEY_UNITS, value=units, _RC)
-
-      call MAPL_InfoGetInternal(bundle, KEY_VERT_STAGGERLOC, value=vert_staggerloc_str, _RC)
-      vert_staggerloc = VerticalStaggerLoc(vert_staggerloc_str)
       _ASSERT(vert_staggerloc /= VERTICAL_STAGGER_INVALID, 'Vert stagger is INVALID.')
       if (vert_staggerloc /= VERTICAL_STAGGER_NONE) then
+         ! Allocate num_levels so that it is PRESENT() int FieldEmptyComplete() below.
          allocate(num_levels)
-         call MAPL_InfoGetInternal(bundle, KEY_NUM_LEVELS, value=num_levels, _RC)
+         call MAPL_FieldBundleGet(bundle, num_levels=num_levels, _RC)
       end if
 
       do i = 1, new_field_count
@@ -261,8 +264,6 @@ contains
               num_levels=num_levels, vert_staggerLoc=vert_staggerLoc, &
               units=units, _RC)
       end do
-
-      call ESMF_InfoDestroy(ungridded_info, _RC)
 
       allocate(fieldNameList(old_field_count))
       call ESMF_FieldBundleGet(bundle, fieldNameList=fieldNameList, _RC)

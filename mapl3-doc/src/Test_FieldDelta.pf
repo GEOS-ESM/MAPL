@@ -2,6 +2,7 @@
 #include "unused_dummy.H"
 module Test_FieldDelta
    use mapl3g_FieldDelta
+   use mapl3g_FieldGet
    use mapl3g_FieldCreate
    use mapl3g_FieldInfo
    use mapl3g_UngriddedDims
@@ -37,7 +38,7 @@ contains
       geom = ESMF_GeomCreate(grid, _RC)
 
       f = ESMF_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
-      call MAPL_FieldInfoSetInternal(f, num_levels=ORIG_VGRID_LEVELS+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      call MAPL_FieldSet(f, num_levels=ORIG_VGRID_LEVELS+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
 
       delta = FieldDelta(typekind=ESMF_TYPEKIND_R8)
       call delta%reallocate_field(f, _RC)
@@ -69,7 +70,7 @@ contains
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom = ESMF_GeomCreate(grid, _RC)
       f = ESMF_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
-      call MAPL_FieldInfoSetInternal(f, num_levels=ORIG_VGRID_LEVELS+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      call MAPL_FieldSet(f, num_levels=ORIG_VGRID_LEVELS+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
 
       call ESMF_FieldGet(f, fArrayPtr=x, _RC)
       x = FILL_VALUE
@@ -108,7 +109,7 @@ contains
       grid1 = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom1 = ESMF_GeomCreate(grid1, _RC)
       f = ESMF_FieldCreate(geom1, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
-      call MAPL_FieldInfoSetInternal(f, num_levels=ORIG_VGRID_LEVELS+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      call MAPL_FieldSet(f, num_levels=ORIG_VGRID_LEVELS+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
 
       grid2 = ESMF_GridCreateNoPeriDim(maxIndex=[3,5], name='I_AM_GROOT', _RC)
       geom2 = ESMF_GeomCreate(grid2, _RC)
@@ -147,7 +148,7 @@ contains
       grid1 = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom1 = ESMF_GeomCreate(grid1, _RC)
       f = ESMF_FieldCreate(geom1, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
-      call MAPL_FieldInfoSetInternal(f, num_levels=ORIG_VGRID_LEVELS+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      call MAPL_FieldSet(f, num_levels=ORIG_VGRID_LEVELS+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
       call ESMF_FieldGet(f, fArrayPtr=x, _RC)
       x = FILL_VALUE
 
@@ -191,7 +192,7 @@ contains
 
       f = ESMF_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', &
            ungriddedLbound=[1,1], ungriddedUbound=[ORIG_VGRID_LEVELS+1,3], _RC)
-      call MAPL_FieldInfoSetInternal(f, num_levels=ORIG_VGRID_LEVELS+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      call MAPL_FieldSet(f, num_levels=ORIG_VGRID_LEVELS+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
 
       delta = FieldDelta(num_levels=NEW_NUM_LEVELS+1) ! edge
       call delta%reallocate_field(f, _RC)
@@ -231,7 +232,7 @@ contains
       ! Surface field
       f = ESMF_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', &
            ungriddedLbound=[1,1], ungriddedUbound=[2,3], _RC)
-      call MAPL_FieldInfoSetInternal(f, num_levels=0, vert_staggerloc=VERTICAL_STAGGER_NONE, _RC)
+      call MAPL_FieldSet(f, num_levels=0, vert_staggerloc=VERTICAL_STAGGER_NONE, _RC)
       call ESMF_FieldGet(f, fArrayPtr=x, _RC)
       x = FILL_VALUE
 
@@ -325,9 +326,9 @@ contains
       f_ref = ESMF_FieldCreate(geom_ref, typekind=ESMF_TYPEKIND_R8, name='in', &
            ungriddedLbound=[1,1], ungriddedUbound=[ORIG_VGRID_LEVELS-1,3], _RC)
 
-      call MAPL_FieldInfoSetInternal(f, num_levels=ORIG_VGRID_LEVELS, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+      call MAPL_FieldSet(f, num_levels=ORIG_VGRID_LEVELS, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            units=ORIGINAL_UNITS, _RC)
-      call MAPL_FieldInfoSetInternal(f_ref, num_levels=ORIG_VGRID_LEVELS, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+      call MAPL_FieldSet(f_ref, num_levels=ORIG_VGRID_LEVELS, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            units=REFERENCE_UNITS, _RC)
 
 
@@ -339,7 +340,7 @@ contains
       @assert_that(typekind == ESMF_TYPEKIND_R8, is(true()))
       @assert_that(new_geom == geom, is(true()))
 
-      call MAPL_InfoGetInternal(f, key=KEY_UNITS, value=new_units, _RC)
+      call MAPL_FieldGet(f, units=new_units, _RC)
       @assertEqual(REFERENCE_UNITS, new_units)
 
       ! check that field shape is changed due to new num levels

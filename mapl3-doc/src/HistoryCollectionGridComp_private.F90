@@ -10,8 +10,6 @@ module mapl3g_HistoryCollectionGridComp_private
    use MAPL_NewArthParserMod, only: parser_variables_in_expression
    use MAPL_TimeStringConversion
    use MAPL_BaseMod, only: MAPL_UnpackTime
-   use mapl3g_FieldDimensionInfo, only: get_num_levels, get_vertical_dim_spec_names
-   use mapl3g_FieldDimensionInfo, only: get_vertical_dim_spec_name, get_ungridded_dims
    use mapl3g_UngriddedDims
    use gFTL2_StringSet
 
