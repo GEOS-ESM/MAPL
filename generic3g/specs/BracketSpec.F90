@@ -1,6 +1,9 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_BracketSpec
+
+   use mapl_ErrorHandling
+   use mapl_KeywordEnforcer
    use mapl3g_FieldSpec
    use mapl3g_StateItemSpec
    use mapl3g_ActualConnectionPt
@@ -9,8 +12,6 @@ module mapl3g_BracketSpec
    use mapl3g_MultiState
    use mapl3g_ActualPtVector
    use mapl3g_ActualConnectionPt
-   use mapl_ErrorHandling
-   use mapl_KeywordEnforcer
    use mapl3g_ExtensionAction
    use mapl3g_VerticalGrid
    use mapl3g_VerticalDimSpec
@@ -46,6 +47,7 @@ module mapl3g_BracketSpec
 
       procedure :: make_adapters
       procedure :: set_geometry
+      procedure :: write_formatted
    end type BracketSpec
 
    interface BracketSpec
@@ -62,9 +64,7 @@ contains
 
       bracket_spec%reference_spec = field_spec
       if (present(bracket_size)) bracket_spec%bracket_size = bracket_size
-
    end function new_BracketSpec_geom
-
 
    subroutine create(this, rc)
       class(BracketSpec), intent(inout) :: this
@@ -94,6 +94,7 @@ contains
       end do
 
       _RETURN(ESMF_SUCCESS)
+
    contains
 
       function int_to_string(i) result(s)
@@ -103,11 +104,10 @@ contains
          write(buffer, '(i0)') i
          s = trim(buffer)
       end function int_to_string
-
    end subroutine allocate
 
-
    subroutine destroy(this, rc)
+
       class(BracketSpec), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
@@ -138,8 +138,8 @@ contains
 
    end subroutine destroy
 
-
    logical function can_connect_to(this, src_spec, rc)
+
       class(BracketSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: src_spec
       integer, optional, intent(out) :: rc
@@ -155,6 +155,7 @@ contains
       end select
 
       _RETURN(_SUCCESS)
+
    contains
 
       ! At least one of src/dst must have allocated a bracket size.
@@ -171,6 +172,7 @@ contains
    end function can_connect_to
 
    subroutine connect_to(this, src_spec, actual_pt, rc)
+
       class(BracketSpec), intent(inout) :: this
       class(StateItemSpec), intent(inout) :: src_spec
       type(ActualConnectionPt), intent(in) :: actual_pt ! unused
@@ -203,6 +205,7 @@ contains
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(actual_pt)
+
    contains
 
       subroutine mirror_bracket(dst, src)
@@ -217,11 +220,9 @@ contains
             _ASSERT(allocated(src), 'cannot mirror unallocated bracket size')
             dst = src
          end if
-
       end subroutine mirror_bracket
 
    end subroutine connect_to
-
 
    subroutine add_to_state(this, multi_state, actual_pt, rc)
       class(BracketSpec), intent(in) :: this
@@ -267,6 +268,17 @@ contains
       _UNUSED_DUMMY(vertical_grid)
    end subroutine set_geometry
 
+   subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
+      class(BracketSpec), intent(in) :: this
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      write(unit, "(a)", iostat=iostat, iomsg=iomsg) "BracketSpec(write not implemented yet)"
+   end subroutine write_formatted
+
    function make_adapters(this, goal_spec, rc) result(adapters)
       type(StateItemAdapterWrapper), allocatable :: adapters(:)
       class(BracketSpec), intent(in) :: this
@@ -281,6 +293,5 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal_spec)
    end function make_adapters
-
  
 end module mapl3g_BracketSpec

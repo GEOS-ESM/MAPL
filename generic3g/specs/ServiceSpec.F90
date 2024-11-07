@@ -1,6 +1,8 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_ServiceSpec
+
+   use mapl_ErrorHandling
    use mapl3g_StateRegistry
    use mapl3g_VariableSpec
    use mapl3g_StateItemSpec
@@ -11,7 +13,6 @@ module mapl3g_ServiceSpec
    use mapl3g_NullAction
    use mapl3g_AbstractActionSpec
    use mapl3g_ESMF_Utilities, only: get_substate
-   use mapl_ErrorHandling
    use mapl3g_ActualPtSpecPtrMap
    use mapl3g_ActualPtVec_Map
    use mapl3g_ActualPtVector
@@ -20,6 +21,7 @@ module mapl3g_ServiceSpec
    use mapl3g_VerticalGrid
    use esmf
    use gftl2_StringVector
+
    implicit none
    private
 
@@ -45,6 +47,8 @@ module mapl3g_ServiceSpec
       procedure :: add_to_state
       procedure :: add_to_bundle
       procedure :: set_geometry
+
+      procedure :: write_formatted
 !!$      procedure :: check_complete
    end type ServiceSpec
 
@@ -61,7 +65,6 @@ contains
 
       spec%variable_spec = variable_spec
       spec%registry => registry
-
    end function new_ServiceSpec
 
    subroutine create(this, rc)
@@ -128,7 +131,6 @@ contains
       _UNUSED_DUMMY(bundle)
    end subroutine add_to_bundle
 
-   
    subroutine connect_to(this, src_spec, actual_pt, rc)
       class(ServiceSpec), intent(inout) :: this
       class(StateItemSpec), intent(inout) :: src_spec
@@ -171,8 +173,7 @@ contains
       _RETURN(_SUCCESS)
    end function can_connect_to
 
-
-  subroutine destroy(this, rc)
+   subroutine destroy(this, rc)
       class(ServiceSpec), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
@@ -182,7 +183,6 @@ contains
 
       _RETURN(ESMF_SUCCESS)
    end subroutine destroy
-
 
    subroutine set_geometry(this, geom, vertical_grid, rc)
       class(ServiceSpec), intent(inout) :: this
@@ -212,12 +212,22 @@ contains
       _RETURN(_SUCCESS)
    end subroutine set_geometry
 
+   subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
+      class(ServiceSpec), intent(in) :: this
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      write(unit, "(a)", iostat=iostat, iomsg=iomsg) "ServiceSpec(write not implemented yet)"
+   end subroutine write_formatted
+
    function make_adapters(this, goal_spec, rc) result(adapters)
       type(StateItemAdapterWrapper), allocatable :: adapters(:)
       class(ServiceSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: goal_spec
       integer, optional, intent(out) :: rc
-
 
       allocate(adapters(0))
 
