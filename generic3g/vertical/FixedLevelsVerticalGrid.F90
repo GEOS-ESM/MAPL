@@ -152,7 +152,7 @@ contains
    function esmf_field_create_(geom, farray1d, rc) result(field)
       type(ESMF_Field) :: field ! result
       type(ESMF_Geom), intent(in) :: geom
-      real(kind=REAL32), intent(in) :: farray1d(:)
+      real(kind=ESMF_KIND_R4), intent(in) :: farray1d(:)
 !#      character(len=*), intent(in) :: vloc
       integer, optional, intent(out) :: rc
 
