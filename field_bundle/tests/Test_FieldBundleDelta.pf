@@ -158,22 +158,22 @@ contains
       call setup_geom(geom, 4)
       call setup_bundle(bundle, weights=DEFAULT_WEIGHTS, geom=geom, typekind=ESMF_TYPEKIND_R4, units='m')
 
-!#      delta = FieldBundleDelta(FieldDelta(typekind=ESMF_TYPEKIND_R8))
-!#      call delta%update_bundle(bundle, _RC)
-!#
-!#      call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
-!#      @assert_that(size(fieldList), is(FIELD_COUNT))
-!#
-!#      do i = 1, FIELD_COUNT
-!#         call ESMF_FieldGet(fieldList(i), fArrayPtr=x_r8, _RC)
-!#         @assert_that(shape(x_r8), is(equal_to([4,4])))
-!#      end do
-!#
-!#      call MAPL_FieldBundleGet(bundle, interpolation_weights=weights, _RC)
-!#      @assert_that(weights, is(equal_to(DEFAULT_WEIGHTS)))
-!#
-!#      call teardown_bundle(bundle)
-!#      call teardown_geom(geom)
+      delta = FieldBundleDelta(FieldDelta(typekind=ESMF_TYPEKIND_R8))
+      call delta%update_bundle(bundle, _RC)
+
+      call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
+      @assert_that(size(fieldList), is(FIELD_COUNT))
+
+      do i = 1, FIELD_COUNT
+         call ESMF_FieldGet(fieldList(i), fArrayPtr=x_r8, _RC)
+         @assert_that(shape(x_r8), is(equal_to([4,4])))
+      end do
+
+      call MAPL_FieldBundleGet(bundle, interpolation_weights=weights, _RC)
+      @assert_that(weights, is(equal_to(DEFAULT_WEIGHTS)))
+
+      call teardown_bundle(bundle)
+      call teardown_geom(geom)
 
       _UNUSED_DUMMY(this)
    end subroutine test_change_typekind
