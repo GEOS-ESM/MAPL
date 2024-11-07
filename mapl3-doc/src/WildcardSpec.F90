@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_WildcardSpec
+
    use mapl3g_StateItemSpec
    use mapl3g_ActualPtStateItemSpecMap
    use mapl3g_ActualConnectionPt
@@ -36,6 +37,8 @@ module mapl3g_WildcardSpec
       procedure :: add_to_bundle
       procedure :: set_geometry
 
+      procedure :: write_formatted
+
       procedure :: get_reference_spec
    end type WildcardSpec
 
@@ -45,14 +48,12 @@ module mapl3g_WildcardSpec
 
 contains
 
-
    function new_WildcardSpec(reference_spec) result(wildcard_spec)
       type(WildcardSpec) :: wildcard_spec
       class(StateItemSpec), intent(in) :: reference_spec
 
       wildcard_spec%reference_spec = reference_spec
       allocate(wildcard_spec%matched_items)
-
    end function new_WildcardSpec
 
    ! No-op
@@ -73,7 +74,6 @@ contains
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(this)
    end subroutine destroy
-
 
    ! No-op
    ! The contained fields are separately allocated on the export side.
@@ -120,7 +120,6 @@ contains
       end subroutine with_target_attribute
    end subroutine connect_to
 
-
    logical function can_connect_to(this, src_spec, rc)
       class(WildcardSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: src_spec
@@ -133,6 +132,7 @@ contains
    end function can_connect_to
 
    subroutine add_to_state(this, multi_state, actual_pt, rc)
+
       class(WildcardSpec), intent(in) :: this
       type(MultiState), intent(inout) :: multi_state
       type(ActualConnectionPt), intent(in) :: actual_pt
@@ -143,6 +143,7 @@ contains
       call with_target_attribute(this, multi_state, actual_pt, _RC)
 
       _RETURN(_SUCCESS)
+
    contains
       
       subroutine with_target_attribute(this, multi_state, actual_pt, rc)
@@ -183,6 +184,7 @@ contains
          
          _RETURN(_SUCCESS)
       end subroutine with_target_attribute
+
    end subroutine add_to_state
 
    subroutine add_to_bundle(this, bundle, rc)
@@ -209,6 +211,17 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine set_geometry
+
+   subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
+      class(WildcardSpec), intent(in) :: this
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      write(unit, "(a)", iostat=iostat, iomsg=iomsg) "WildcardSpec(write not implemented yet)"
+   end subroutine write_formatted
 
    function make_adapters(this, goal_spec, rc) result(adapters)
       type(StateItemAdapterWrapper), allocatable :: adapters(:)

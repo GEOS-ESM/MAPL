@@ -1,6 +1,9 @@
 #include "MAPL_Generic.h"
 
 module MockItemSpecMod
+
+   use mapl_ErrorHandling
+   use mapl_KeywordEnforcer
    use mapl3g_StateItemSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_VariableSpec
@@ -10,9 +13,8 @@ module MockItemSpecMod
    use mapl3g_ExtensionAction
    use mapl3g_NullAction
    use mapl3g_VerticalGrid
-   use mapl_ErrorHandling
-   use mapl_KeywordEnforcer
    use esmf
+
    implicit none
    private
 
@@ -35,6 +37,7 @@ module MockItemSpecMod
       procedure :: make_adapters
       procedure :: add_to_state
       procedure :: add_to_bundle
+      procedure :: write_formatted
    end type MockItemSpec
 
    type, extends(ExtensionAction) :: MockAction
@@ -106,14 +109,12 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine create
 
-
    subroutine destroy(this, rc)
       class(MockItemSpec), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       _RETURN(ESMF_SUCCESS)
    end subroutine destroy
-
 
    ! Tile / Grid   X  or X, Y
    subroutine allocate(this, rc)
@@ -150,7 +151,6 @@ contains
       _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to
 
-
    logical function can_connect_to(this, src_spec, rc)
       class(MockItemSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: src_spec
@@ -165,7 +165,6 @@ contains
 
       _RETURN(_SUCCESS)
    end function can_connect_to
-
 
    subroutine add_to_state(this, multi_state, actual_pt, rc)
       class(MockItemSpec), intent(in) :: this
@@ -190,8 +189,18 @@ contains
       integer, optional, intent(out) :: rc
 
       _FAIL('unimplemented')
-
    end subroutine add_to_bundle
+
+   subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
+      class(MockItemSpec), intent(in) :: this
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      write(unit, "(a)", iostat=iostat, iomsg=iomsg) "MockItemSpec(write not implemented yet)"
+   end subroutine write_formatted
 
    function new_MockAction(src_subtype, dst_subtype) result(action)
       type(MockAction) :: action

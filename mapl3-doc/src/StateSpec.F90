@@ -1,6 +1,9 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_StateSpec
+
+   use mapl_KeywordEnforcer
+   use mapl_ErrorHandling
    use mapl3g_StateItemSpec
    use mapl3g_AbstractActionSpec
    use mapl3g_StateItemSpecMap
@@ -9,11 +12,10 @@ module mapl3g_StateSpec
    use mapl3g_MultiState
    use mapl3g_ActualConnectionPt
    use mapl3g_ActualPtVector
-   use mapl_ErrorHandling
    use mapl3g_ExtensionAction
    use mapl3g_NullAction
    use ESMF
-   use mapl_KeywordEnforcer
+
    implicit none
    private
 
@@ -38,8 +40,8 @@ module mapl3g_StateSpec
       procedure :: add_to_state
       procedure :: add_to_bundle
 
+      procedure :: write_formatted
    end type StateSpec
-
 
 contains
 
@@ -77,7 +79,6 @@ contains
 
    end function get_item
 
-
    subroutine create(this, rc)
       class(StateSpec), intent(inout) :: this
       integer, optional, intent(out) :: rc
@@ -99,7 +100,6 @@ contains
 
       _RETURN(ESMF_SUCCESS)
    end subroutine destroy
-
 
    ! NO-OP
    subroutine allocate(this, rc)
@@ -128,7 +128,6 @@ contains
       _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to
 
-
    logical function can_connect_to(this, src_spec, rc)
       class(StateSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: src_spec
@@ -139,7 +138,6 @@ contains
       _RETURN(_SUCCESS)
 
    end function can_connect_to
-
 
    subroutine add_to_state(this, multi_state, actual_pt, rc)
       class(StateSpec), intent(in) :: this
@@ -154,7 +152,6 @@ contains
       _UNUSED_DUMMY(actual_pt)
    end subroutine add_to_state
 
-
    subroutine add_to_bundle(this, bundle, rc)
       class(StateSpec), intent(in) :: this
       type(ESMF_FieldBundle), intent(inout) :: bundle
@@ -166,15 +163,23 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(bundle)
    end subroutine add_to_bundle
-   
 
+   subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
+      class(StateSpec), intent(in) :: this
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      write(unit, "(a)", iostat=iostat, iomsg=iomsg) "StateSpec(write not implemented yet)"
+   end subroutine write_formatted
 
    function make_adapters(this, goal_spec, rc) result(adapters)
       type(StateItemAdapterWrapper), allocatable :: adapters(:)
       class(StateSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: goal_spec
       integer, optional, intent(out) :: rc
-
 
       allocate(adapters(0))
       _FAIL('unimplemented')
