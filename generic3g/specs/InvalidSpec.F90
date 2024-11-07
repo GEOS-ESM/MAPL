@@ -153,7 +153,7 @@ contains
       integer, intent(out) :: iostat
       character(*), intent(inout) :: iomsg
 
-      write(unit, "(a)", iostat=iostat, iomsg=iomsg) "InvalidSpec(write not implemented yet)"
+      write(unit, "(a)", iostat=iostat, iomsg=iomsg) "InvalidSpec()"
    end subroutine write_formatted
 
    ! Stub implementation

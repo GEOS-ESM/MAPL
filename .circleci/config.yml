@@ -60,6 +60,21 @@ workflows:
           # ExtData1G tests were removed from ESSENTIAL, so we run them separately here as UFS might still use 1G?
           ctest_options: "-L 'ESSENTIAL|EXTDATA1G_SMALL_TESTS' --output-on-failure"
 
+      # Builds MAPL without pFUnit support
+      - ci/build:
+          name: build-MAPL-without-pFUnit-on-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              compiler: [ifort]
+          baselibs_version: *baselibs_version
+          repo: MAPL
+          mepodevelop: false
+          remove_pfunit: true
+          run_unit_tests: true
+          ctest_options: "-L 'ESSENTIAL' --output-on-failure"
+
       # Run MAPL Tutorials
       - ci/run_mapl_tutorial:
           name: run-<< matrix.tutorial_name >>-Tutorial-with-<< matrix.compiler >>
@@ -89,7 +104,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran,ifort]
+              compiler: [gfortran, ifort]
           baselibs_version: *baselibs_version
           repo: GEOSgcm
           checkout_fixture: true
