@@ -4,7 +4,7 @@
 #include "MAPL_TestErr.h"
 #include "unused_dummy.H"
 module Test_AccumulatorTypes
-!   use mapl3g_AccumulatorAction
+
    use mapl3g_MeanAccumulator
    use esmf
    use funit
@@ -172,6 +172,7 @@ contains
       real(kind=ESMF_KIND_R4), pointer :: upPtr(:), accPtr(:)
       real(kind=ESMF_KIND_R4), parameter :: IMPORT_VALUE = 2.0_R4
       real(kind=ESMF_KIND_R4), parameter :: UPDATE_VALUE = 3.0_R4
+      real(kind=ESMF_KIND_R4) :: result_value = IMPORT_VALUE
       integer :: n
       type(ESMF_Field) :: importField
 
@@ -183,14 +184,38 @@ contains
       call assign_fptr(update_field, upPtr, _RC)
       upPtr = UPDATE_VALUE
 
+      ! accumulated not undef, update_field not undef
       call acc%accumulate_R4(update_field, _RC)
+      result_value = result_value + UPDATE_VALUE
       call assign_fptr(acc%accumulation_field, accPtr, _RC)
-      @assertTrue(all(accPtr == IMPORT_VALUE+UPDATE_VALUE))
+      @assertTrue(all(accPtr == result_value))
+
+      ! accumulated undef at point, update_field not undef
+      call assign_fptr(acc%accumulation_field, accPtr, _RC)
+      n = size(accPtr) - 1
+      call set_undef(accPtr(n))
+      call acc%accumulate_R4(update_field, _RC)
+      result_value = result_value + UPDATE_VALUE
+      @assertTrue(undef(accPtr(n)))
+      @assert_that(all(pack(accPtr, .not. undef(accPtr)) == result_value), is(true()))
+
+      ! accumulated undef at point, update_field undef at point
+      n = size(upPtr) - 1
+      call set_undef(upPtr(n))
+      call acc%accumulate_R4(update_field, _RC)
+      result_value = result_value + UPDATE_VALUE
+      @assertTrue(undef(accPtr(n)))
+
+      ! accumulated not undef, update_field undef at point
+      call FieldSet(importField, result_value, _RC)
+      call acc%initialize(importState, exportState, clock, _RC)
+      call acc%accumulate_R4(update_field, _RC)
+      result_value = result_value + UPDATE_VALUE
+      @assertTrue(undef(accPtr(n)))
+      @assert_that(all(pack(accPtr, .not. undef(upPtr)) == result_value), is(true()))
 
    end subroutine test_accumulate_mean_R4
-   !todo test_accumulate_mean_R4
-   !test cases(2): both defined, check accumulation_field & valid_mean
-   !latest is undef, check accumulation_field
+
 ! HELPER PROCEDURES
 
    logical function is_initialized(rc) result(lval)
