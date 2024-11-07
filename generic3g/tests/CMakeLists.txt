@@ -37,7 +37,7 @@ set (test_srcs
 
   Test_CSR_SparseMatrix.pf
   Test_AccumulatorAction.pf
-  Test_AccumulatorTypes.pf
+  Test_MeanAccumulator.pf
   )
 
 
@@ -46,7 +46,7 @@ add_pfunit_ctest(MAPL.generic3g.tests
                 LINK_LIBRARIES MAPL.generic3g MAPL.shared MAPL.pfunit scratchpad
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE MAPL_pFUnit_Initialize
-                OTHER_SOURCES MockUserGridComp.F90 MockItemSpec.F90
+                OTHER_SOURCES MockUserGridComp.F90 MockItemSpec.F90 accumulator_action_test_common.F90
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                 MAX_PES 4
                 )
