@@ -37,7 +37,7 @@ contains
 
    end function undef
 
-   subroutine set_undef(t)
+   elemental subroutine set_undef(t)
       use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL
       real(kind=ESMF_KIND_R4), intent(inout) :: t
 

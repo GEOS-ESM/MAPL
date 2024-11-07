@@ -7,10 +7,9 @@ module mapl3g_MaxAccumulator
    use ESMF
    implicit none
    private
-   public :: AccumulatorAction
+   public :: MaxAccumulator
 
    type, extends(AccumulatorAction) :: MaxAccumulator
-      private
    contains
       procedure :: accumulate_R4 => max_accumulate_R4
    end type MaxAccumulator

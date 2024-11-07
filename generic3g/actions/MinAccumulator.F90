@@ -10,7 +10,6 @@ module mapl3g_MinAccumulator
    public :: AccumulatorAction
 
    type, extends(AccumulatorAction) :: MinAccumulator
-      private
    contains
       procedure :: accumulate_R4 => min_accumulate_R4
    end type MinAccumulator

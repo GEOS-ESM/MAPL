@@ -1,0 +1,72 @@
+#include "MAPL_TestErr.h"
+module Test_MaxAccumulator
+
+   use mapl3g_MaxAccumulator
+   use accumulator_action_test_common
+   use esmf
+   use funit
+   use MAPL_FieldUtils
+   implicit none
+
+contains
+
+   @Test
+   subroutine test_max_accumulate_R4()
+      type(MaxAccumulator) :: acc
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+      integer :: status
+      type(ESMF_Field) :: update_field
+      type(ESMF_TypeKind_Flag), parameter :: tk =ESMF_TYPEKIND_R4
+      type(ESMF_Grid) :: grid
+      real(kind=ESMF_KIND_R4), pointer :: upPtr(:), accPtr(:)
+      real(kind=ESMF_KIND_R4) :: update_value, accumulated_value
+      integer :: i, j, k, n
+      logical, allocatable :: mask(:)
+
+      call initialize_objects(importState, exportState, clock, tk, _RC)
+      call acc%initialize(importState, exportState, clock, _RC)
+      call assign_fptr(acc%accumulation_field, accPtr, _RC)
+
+      update_value = 3.0_R4
+      call initialize_field(update_field, typekind=tk, grid=grid, _RC)
+      call assign_fptr(update_field, upPtr, _RC)
+      upPtr = update_value
+
+      ! accumulation field UNDEF, update_field not UNDEF
+      call acc%accumulate_R4(update_field, _RC)
+      @assertTrue(all(accPtr == update_value))
+      accumulated_value = update_value
+
+      ! accumulated not UNDEF, update_field UNDEF
+      call set_undef(update_value)
+      upPtr = update_value
+      call acc%accumulate_R4(update_field, _RC)
+      @assert_that(all(accPtr == accumulated_value), is(true()))
+
+      n = size(upPtr)
+      allocate(mask(n))
+      mask = .TRUE.
+      i = n - 3
+      j = n - 2
+      k = n - 1
+      mask(j) = .FALSE.
+      upPtr(i) = accumulated_value - 1.0_R4
+      upPtr(j) = accumulated_value + 1.0_R4
+      call set_undef(upPtr(k))
+      call acc%accumulate_R4(update_field, _RC)
+      @assert_that(all(pack(accPtr, mask) == accumulated_value), is(true()))
+      @assertEqual(upPtr(j), accPtr(j))
+
+   end subroutine test_max_accumulate_R4
+
+   @Before
+   subroutine set_up()
+      integer :: status
+
+      if(is_initialized()) return
+      call ESMF_Initialize(_RC)
+
+   end subroutine set_up
+
+end module Test_MaxAccumulator
