@@ -18,7 +18,6 @@ contains
       integer :: status
       type(ESMF_Field) :: update_field
       type(ESMF_TypeKind_Flag), parameter :: tk =ESMF_TYPEKIND_R4
-      type(ESMF_Grid) :: grid
       real(kind=ESMF_KIND_R4), pointer :: upPtr(:), accPtr(:)
       real(kind=ESMF_KIND_R4) :: update_value, accumulated_value
       integer :: i, j, k, n
@@ -29,7 +28,7 @@ contains
       call assign_fptr(acc%accumulation_field, accPtr, _RC)
 
       update_value = 3.0_R4
-      call initialize_field(update_field, typekind=tk, grid=grid, _RC)
+      call initialize_field(update_field, typekind=tk, _RC)
       call assign_fptr(update_field, upPtr, _RC)
       upPtr = update_value
 
