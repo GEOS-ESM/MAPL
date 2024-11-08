@@ -19,7 +19,7 @@ contains
       type(ESMF_Field) :: update_field
       type(ESMF_TypeKind_Flag), parameter :: tk =ESMF_TYPEKIND_R4
       real(kind=ESMF_KIND_R4), pointer :: upPtr(:), accPtr(:)
-      real(kind=ESMF_KIND_R4), parameter :: UPDATE_VALUE = 1.0_R4, accumulated_value = 3.0_R4
+      real(kind=ESMF_KIND_R4), parameter :: UPDATE_VALUE = 1.0_R4, ACCUMULATED_VALUE = 3.0_R4
       real(kind=ESMF_KIND_R4) :: undef_value
       real(kind=ESMF_KIND_R4), allocatable :: expected(:)
       integer :: i, n
@@ -33,11 +33,12 @@ contains
       call assign_fptr(update_field, upPtr, _RC)
       n = size(upPtr)
       i = n - 3
-      accPtr(i:n) = [undef_value, accumulated_value, accumulated_value, accumulated_value]
-      upPtr(i:n) = [update_value, undef_value, update_value, update_value+accumulated_value]
-      expected = [update_value, accumulated_value, update_value, accumulated_value]
+      accPtr(i:n) = [undef_value, ACCUMULATED_VALUE, ACCUMULATED_VALUE, ACCUMULATED_VALUE]
+      upPtr(i:n) = [UPDATE_VALUE, undef_value, UPDATE_VALUE, UPDATE_VALUE+ACCUMULATED_VALUE]
+      expected = [UPDATE_VALUE, ACCUMULATED_VALUE, UPDATE_VALUE, ACCUMULATED_VALUE]
       call acc%accumulate_R4(update_field, _RC)
       @assertEqual(expected, accPtr)
+      call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_min_accumulate_R4
 

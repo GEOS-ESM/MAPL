@@ -66,6 +66,7 @@ contains
       call acc%calculate_mean_R4(_RC)
       @assert_that(all(pack(fptr, mask) == MEAN), is(true()))
       @assertTrue(undef(fptr(n)))
+      call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_calculate_mean_R4
 
@@ -93,6 +94,7 @@ contains
       call acc%calculate_mean()
       matches_expected = FieldIsConstant(acc%accumulation_field, MEAN, _RC)
       @assert_that(matches_expected, is(true()))
+      call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_calculate_mean
 
@@ -108,6 +110,7 @@ contains
       acc%counter_scalar = 4
       call acc%clear_accumulator(_RC)
       @assertEqual(acc%counter_scalar, 0_I8)
+      call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_clear_accumulator
 
@@ -123,6 +126,7 @@ contains
       acc%valid_mean = .TRUE.
       call acc%clear_valid_mean(_RC)
       @assert_that(.not. any(acc%valid_mean), is(true()))
+      call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_clear_valid_mean
 
@@ -145,6 +149,7 @@ contains
          call acc%invalidate(importState, exportState, clock, _RC)
       end do
       @assertEqual(acc%counter_scalar, N)
+      call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_invalidate
 
@@ -200,6 +205,7 @@ contains
       result_value = result_value + UPDATE_VALUE
       @assertTrue(undef(accPtr(n)))
       @assert_that(all(pack(accPtr, .not. undef(upPtr)) == result_value), is(true()))
+      call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_accumulate_mean_R4
 

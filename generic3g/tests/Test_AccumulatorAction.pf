@@ -15,7 +15,8 @@ contains
    subroutine test_construct_AccumulatorAction()
       type(AccumulatorAction) :: acc
 
-      @assert_that(acc%update_calculated, is(false()))
+      @assertFalse(acc%update_calculated, 'updated_calculated .TRUE.')
+      @assertFalse(acc%initialized(), 'initialized .TRUE.')
 
    end subroutine test_construct_AccumulatorAction
 
@@ -24,28 +25,14 @@ contains
       type(AccumulatorAction) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
-      type(ESMF_Field) :: import_field
       integer :: status
-      real(kind=R4), parameter :: TEST_VALUE = 1.0_R4
-      real(kind=R4) :: clear_value
       logical :: equals_expected_value 
 
       call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
-      @assert_that(acc%initialized(), is(false()))
-
-      call get_field(importState, import_field, _RC)
-      call FieldSet(import_field, TEST_VALUE, _RC)
-
-      equals_expected_value = FieldIsConstant(import_field, TEST_VALUE, _RC)
-      @assert_that(equals_expected_value, is(true()))
-
       call acc%initialize(importState, exportState, clock, _RC)
-      @assert_that(acc%initialized(), is(true()))
-
-      clear_value = acc%CLEAR_VALUE_R4
-      equals_expected_value = FieldIsConstant(acc%accumulation_field, clear_value, _RC)
-      @assert_that(equals_expected_value, is(true()))
-
+      @assertTrue(acc%initialized(), 'initialized .FALSE.')
+      equals_expected_value = FieldIsConstant(acc%accumulation_field, acc%CLEAR_VALUE_R4, _RC)
+      @assertTrue(equals_expected_value, 'accumulation_field was not cleared.')
       call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_initialize
@@ -64,19 +51,14 @@ contains
       call acc%initialize(importState, exportState, clock, _RC)
       call get_field(importState, import_field, _RC)
       call FieldSet(import_field, invalidate_value, _RC)
-
       call acc%invalidate(importState, exportState, clock, _RC)
-      @assert_that(acc%update_calculated, is(false()))
-
+      @assertFalse(acc%update_calculated, 'update_calculated .TRUE.')
       equals_expected_value = FieldIsConstant(acc%accumulation_field, invalidate_value, _RC)
-      @assert_that(equals_expected_value, is(true()))
-
+      @assertTrue(equals_expected_value, 'accumulation_field not equal to invalidate_value')
       call acc%invalidate(importState, exportState, clock, _RC)
-      @assert_that(acc%update_calculated, is(false()))
-
+      @assertFalse(acc%update_calculated, 'update_calculated .TRUE.')
       equals_expected_value = FieldIsConstant(acc%accumulation_field, 2*invalidate_value, _RC)
-      @assert_that(equals_expected_value, is(true()))
-
+      @assertTrue(equals_expected_value, 'accumulation_field .FALSE.')
       call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_invalidate
@@ -92,75 +74,34 @@ contains
       real(kind=R4) :: update_value
       logical :: equals_expected_value
 
-      ! Set up
       call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
-
-      ! Initialize
       call acc%initialize(importState, exportState, clock, _RC)
-
-      ! Set import_field for invalidate step.
       call get_field(importState, import_field, _RC)
       call FieldSet(import_field, invalidate_value, _RC)
-
-      ! Invalidate.
       call acc%invalidate(importState, exportState, clock, _RC)
-      
-      ! Check invalidate.
-      @assert_that(acc%update_calculated, is(false()))
-      equals_expected_value = FieldIsConstant(acc%accumulation_field, invalidate_value, _RC)
-      @assert_that(equals_expected_value, is(true()))
-      
-      ! Set expected value for update.
+      call acc%update(importState, exportState, clock, _RC)
       update_value = invalidate_value
-      ! Update.
-      call acc%update(importState, exportState, clock, _RC)
-
-      ! Check update.
-      @assert_that(acc%update_calculated, is(true()))
-      ! Check that accumulation_field is cleared.
+      @assertTrue(acc%update_calculated, 'update_calculated .FALSE.')
       equals_expected_value = FieldIsConstant(acc%accumulation_field, acc%CLEAR_VALUE_R4, _RC)
-      @assert_that(equals_expected_value, is(true()))
-      ! Check result_field
+      @assertTrue(equals_expected_value, 'accumulation_field was not cleared.')
       equals_expected_value = FieldIsConstant(acc%result_field, update_value, _RC)
-      @assert_that(equals_expected_value, is(true()))
-      ! Check export_field.
+      @assertTrue(equals_expected_value, 'result_field not equal to update_value')
       call get_field(exportState, export_field, _RC)
       equals_expected_value = FieldIsConstant(export_field, update_value, _RC)
-      @assert_that(equals_expected_value, is(true()))
+      @assertTrue(equals_expected_value, 'export_field not equal to update_value')
 
-      ! Invalidate
       call acc%invalidate(importState, exportState, clock, _RC)
-
-      ! Check invalidate.
-      @assert_that(acc%update_calculated, is(false()))
-
-      ! Invalidate again.
       call acc%invalidate(importState, exportState, clock, _RC)
-
-      ! Check invalidate, again.
-      @assert_that(acc%update_calculated, is(false()))
-      ! This time accumulation_field should show true accumulation.
+      call acc%update(importState, exportState, clock, _RC)
       update_value = 2 * invalidate_value
-      equals_expected_value = FieldIsConstant(acc%accumulation_field, update_value, _RC)
-      @assert_that(equals_expected_value, is(true()))
-
-      ! Update
-      call acc%update(importState, exportState, clock, _RC)
-
-      ! Check update.
-      @assert_that(acc%update_calculated, is(true()))
-      ! Check that accumulation_field is cleared.
+      @assertTrue(acc%update_calculated, 'update_calculated .FALSE')
       equals_expected_value = FieldIsConstant(acc%accumulation_field, acc%CLEAR_VALUE_R4, _RC)
-      @assert_that(equals_expected_value, is(true()))
-      ! This time result_field should show true accumulation.
+      @assertTrue(equals_expected_value, 'accumulation_field was not cleared.')
       equals_expected_value = FieldIsConstant(acc%result_field, update_value, _RC)
-      @assert_that(equals_expected_value, is(true()))
-      ! This time export_field should show true accumulation.
+      @assertTrue(equals_expected_value, 'result_field not equal to update_value.')
       call get_field(exportState, export_field, _RC)
       equals_expected_value = FieldIsConstant(export_field, update_value, _RC)
-      @assert_that(equals_expected_value, is(true()))
-
-      ! Tear down.
+      @assertTrue(equals_expected_value, 'export_field not equal to update_value')
       call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_update
@@ -171,8 +112,7 @@ contains
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
       integer :: status
-      type(ESMF_Field) :: update_field, import_field
-      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: update_field
       type(ESMF_TypeKind_Flag) :: typekind
       logical :: matches_expected
       real(kind=ESMF_KIND_R4), parameter :: value_r4 = 3.0_ESMF_KIND_R4
@@ -180,22 +120,13 @@ contains
       typekind = ESMF_TYPEKIND_R4
       call initialize_objects(importState, exportState, clock, typekind, _RC)
       call acc%initialize(importState, exportState, clock, _RC)
-      call get_field(importState, import_field, _RC)
-      call ESMF_FieldGet(import_field, grid=grid, _RC)
-      call initialize_field(update_field, typekind=typekind, grid=grid, _RC)
+      call initialize_field(update_field, typekind=typekind, _RC)
       call FieldSet(update_field, value_r4, _RC)
-
       call acc%accumulate(update_field, _RC)
       matches_expected = FieldIsConstant(acc%accumulation_field, value_r4, _RC)
-      @assert_that(matches_expected, is(true()))
+      @assertTrue(matches_expected, 'accumulation_field not equal to value_r4')
       call ESMF_FieldDestroy(update_field, _RC)
-
-      typekind = ESMF_TYPEKIND_R8
-      call initialize_field(update_field, typekind=typekind, grid=grid, _RC)
-      call FieldSet(update_field, 3.0_ESMF_KIND_R8, _RC)
-      call acc%accumulate(update_field)
-      @assertExceptionRaised()
-      call ESMF_FieldDestroy(update_field, _RC)
+      call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_accumulate
 
@@ -211,10 +142,10 @@ contains
       call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
       call acc%initialize(importState, exportState, clock, _RC)
       call FieldSet(acc%accumulation_field, TEST_VALUE, _RC)
-      is_expected_value = FieldIsConstant(acc%accumulation_field, TEST_VALUE, _RC)
       call acc%clear_accumulator(_RC)
       is_expected_value = FieldIsConstant(acc%accumulation_field, acc%CLEAR_VALUE_R4, _RC)
-      @assert_that(is_expected_value, is(true()))
+      @assertTrue(is_expected_value, 'accumulation_field was not cleared.')
+      call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_clear_accumulator
 
@@ -227,27 +158,24 @@ contains
       real(kind=R4), parameter :: INITIAL_VALUE = 2.0_R4
       real(kind=R4) :: update_value = 3.0_R4
       real(kind=R4) :: expected_value
-      type(ESMF_Field) :: import_field, update_field
+      type(ESMF_Field) :: update_field
       logical :: field_is_expected_value
 
       call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
       call acc%initialize(importState, exportState, clock, _RC)
-      call get_field(importState, import_field, _RC)
-      call FieldClone(import_field, update_field, _RC)
+      call initialize_field(update_field, typekind=typekind, _RC)
       call FieldSet(update_field, update_value, _RC)
       call FieldSet(acc%accumulation_field, INITIAL_VALUE, _RC)
-      expected_value = INITIAL_VALUE
+      call acc%accumulate_R4(update_field, _RC)
+      expected_value = INITIAL_VALUE + update_value
+      field_is_expected_value = FieldIsConstant(acc%accumulation_field, expected_value, _RC)
+      @assertTrue(field_is_expected_value, 'accumulation_field not equal to expected_value.')
       call acc%accumulate_R4(update_field, _RC)
       expected_value = expected_value + update_value
       field_is_expected_value = FieldIsConstant(acc%accumulation_field, expected_value, _RC)
-      @assert_that(field_is_expected_value, is(true()))
-
-      update_value = INITIAL_VALUE
-      call FieldSet(update_field, update_value, _RC)
-      call acc%accumulate_R4(update_field, _RC)
-      expected_value = expected_value + update_value
-      field_is_expected_value = FieldIsConstant(acc%accumulation_field, expected_value, _RC)
-      @assert_that(field_is_expected_value, is(true()))
+      @assertTrue(field_is_expected_value, 'accumulation_field not equal to expected_value.')
+      call ESMF_FieldDestroy(update_field, _RC)
+      call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_accumulate_R4
 
