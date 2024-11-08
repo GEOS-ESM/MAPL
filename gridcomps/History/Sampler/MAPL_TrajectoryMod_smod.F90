@@ -741,7 +741,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             zero_obs = .false.
             if (jt1/=jt2) then
                zero_obs = .false.
-               if (jt1==0) jt1=1
+               !-- YGYU: 8-Nov-2024 :
+               !   this fix bug, otherwise, the first time point is missing in ARGOS_geolocation
+               !!if (jt1==0) jt1=1
             else
                ! at most one obs point exist, set it .true.
                zero_obs = .true.

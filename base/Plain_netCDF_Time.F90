@@ -221,13 +221,13 @@ contains
     integer :: ncid, varid, ncid2
 
     call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
-    if(present(group_name)) then
+    if(present(group_name) .AND. group_name/='') then
        ncid2= ncid
        call check_nc_status(nf90_inq_ncid(ncid2, group_name, ncid), _RC)
     end if
     call check_nc_status(nf90_inq_varid(ncid, name, varid), _RC)
     call check_nc_status(nf90_get_var(ncid, varid, array), _RC)
-    if(present(group_name)) then
+    if(present(group_name) .AND. group_name/='') then
        call check_nc_status(nf90_close(ncid2), _RC)
     else
        call check_nc_status(nf90_close(ncid), _RC)
@@ -255,7 +255,7 @@ contains
 
     call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
     ncid_sv = ncid
-    if(present(group_name)) then
+    if(present(group_name) .AND. group_name/='') then
        call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), _RC)
        ! mod
        ncid = ncid_grp
@@ -295,7 +295,7 @@ contains
 
     call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
     ncid_sv = ncid
-    if(present(group_name)) then
+    if(present(group_name) .AND. group_name/='') then
        call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), _RC)
        ! overwrite
        ncid = ncid_grp
@@ -323,7 +323,7 @@ contains
 
     call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
     ncid_sv = ncid
-    if(present(group_name)) then
+    if(present(group_name) .AND. group_name/='') then
        call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), _RC)
        ! overwrite
        ncid = ncid_grp
