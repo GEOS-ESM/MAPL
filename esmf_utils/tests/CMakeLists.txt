@@ -1,7 +1,6 @@
 set(MODULE_DIRECTORY "${esma_include}/MAPL.esmf_utils.tests")
 
 set (test_srcs
-  Test_FieldDimensionInfo.pf
   Test_InfoUtilities.pf
   Test_Ungridded.pf
   )

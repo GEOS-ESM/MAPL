@@ -2,11 +2,12 @@
 #include "unused_dummy.H"
 module Test_FieldBundleDelta
    use mapl3g_FieldBundleDelta
+   use mapl3g_FieldBundleGet
    use mapl3g_FieldDelta
    use mapl3g_FieldGet
    use mapl3g_FieldCreate
    use mapl3g_FieldInfo
-   use mapl3g_esmf_info_keys, only: KEY_INTERPOLATION_WEIGHTS
+   use mapl3g_esmf_info_keys
    use mapl3g_VerticalStaggerLoc
    use mapl3g_InfoUtilities
    use mapl_FieldUtilities
@@ -100,7 +101,6 @@ contains
       type(ESMF_Field) :: f
       integer :: fieldCount
       type(UngriddedDims) :: ungridded_dims
-      type(ESMF_Info) :: ungridded_info
       type(VerticalStaggerLoc) :: vert_staggerloc
 
       bundle = ESMF_FieldBundleCreate()
@@ -111,27 +111,20 @@ contains
          call ESMF_FieldBundleAdd(bundle, [f], multiflag=.true.)
       end do
 
-      call MAPL_InfoSetInternal(bundle, KEY_INTERPOLATION_WEIGHTS, weights)
-      if (typekind == ESMF_TYPEKIND_R4) then
-         call MAPL_InfoSetInternal(bundle, KEY_TYPEKIND, "R4")
-      else
-         call MAPL_InfoSetInternal(bundle, KEY_TYPEKIND, "R8")
-      end if
-      call MAPL_InfoSetInternal(bundle, KEY_UNITS, units)
+      call MAPL_FieldBundleSet(bundle, interpolation_weights=weights, typekind=typekind, units=units)
 
       vert_staggerloc = VERTICAL_STAGGER_NONE
       ungridded_dims = UngriddedDims()
       if (present(with_ungridded)) then
          if (with_ungridded) then
             vert_staggerloc = VERTICAL_STAGGER_CENTER
-            call MAPL_InfoSetInternal(bundle, KEY_NUM_LEVELS, NUM_LEVELS_VGRID)
+            call MAPL_FieldBundleSet(bundle, num_levels=NUM_LEVELS_VGRID)
             call ungridded_dims%add_dim(UngriddedDim(NUM_RADII, "radius", 'nm'))
          end if
       end if
-      call MAPL_InfoSetInternal(bundle, KEY_VERT_STAGGERLOC, vert_staggerloc%to_string())
+      call MAPL_FieldBundleSet(bundle, vert_staggerloc=vert_staggerloc)
 
-      ungridded_info = ungridded_dims%make_info()
-      call MAPL_InfoSetInternal(bundle, KEY_UNGRIDDED_DIMS, value=ungridded_info)
+      call MAPL_FieldBundleSet(bundle, ungridded_dims=ungridded_dims)
 
    end subroutine setup_bundle
 
@@ -176,7 +169,7 @@ contains
          @assert_that(shape(x_r8), is(equal_to([4,4])))
       end do
 
-      call MAPL_InfoGetInternal(bundle, KEY_INTERPOLATION_WEIGHTS, values=weights, _RC)
+      call MAPL_FieldBundleGet(bundle, interpolation_weights=weights, _RC)
       @assert_that(weights, is(equal_to(DEFAULT_WEIGHTS)))
 
       call teardown_bundle(bundle)
@@ -212,7 +205,7 @@ contains
          @assert_that(shape(x_r4), is(equal_to([4,4])))
          @assert_that(x_r4, every_item(is(FILL_VALUE)))
 
-         call MAPL_infoGetInternal(fieldList(i), KEY_UNITS, value=new_units, _RC)
+         call MAPL_FieldGet(fieldList(i), units=new_units, _RC)
          @assertEqual('m', new_units)
       end do
 
@@ -249,7 +242,7 @@ contains
          call ESMF_FieldGet(fieldList(i), fArrayPtr=x_r4, _RC)
          @assert_that(shape(x_r4), is(equal_to([6,6])))
 
-         call MAPL_InfoGetInternal(fieldList(i), KEY_UNITS, value=new_units, _RC)
+         call MAPL_FieldGet(fieldList(i), units=new_units, _RC)
          @assertEqual('km', new_units)
 
          call ESMF_FieldGet(fieldList(i), geom=tmp_geom, _RC)
@@ -290,7 +283,7 @@ contains
          @assert_that(shape(x_r4), is(equal_to([4,4])))
          @assert_that(x_r4, every_item(is(FILL_VALUE)))
 
-         call MAPL_InfoGetInternal(fieldList(i), KEY_UNITS, value=new_units, _RC)
+         call MAPL_FieldGet(fieldList(i), units=new_units, _RC)
          @assertEqual('km', new_units)
 
          call ESMF_FieldGet(fieldList(i), geom=tmp_geom, _RC)
@@ -327,19 +320,19 @@ contains
       call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
       @assert_that(size(fieldList), is(FIELD_COUNT))
 
-     do i = 1, FIELD_COUNT
+      do i = 1, FIELD_COUNT
          call ESMF_FieldGet(fieldList(i), fArrayPtr=x_r4, _RC)
          @assert_that(shape(x_r4), is(equal_to([4,4])))
          @assert_that(x_r4, every_item(is(FILL_VALUE)))
 
-         call MAPL_InfoGetInternal(fieldList(i), KEY_UNITS, value=new_units, _RC)
+         call MAPL_FieldGet(fieldList(i), units=new_units, _RC)
          @assertEqual('km', new_units)
 
          call ESMF_FieldGet(fieldList(i), geom=tmp_geom, _RC)
          @assert_that(tmp_geom == geom, is(true()))
       end do
 
-      call MAPL_InfoGetInternal(bundle, KEY_INTERPOLATION_WEIGHTS, values=weights, _RC)
+      call MAPL_FieldBundleGet(bundle, interpolation_weights=weights, _RC)
       @assert_that(weights, is(equal_to(new_weights)))
 
       call teardown_bundle(bundle)
@@ -362,7 +355,7 @@ contains
       character(:), allocatable :: new_units
       real(kind=ESMF_KIND_R4), allocatable :: weights(:)
       real(kind=ESMF_KIND_R4), parameter :: new_weights(*) = [0.,0.25,0.75]
-      integer :: ndims, nlevels, rank
+      integer :: nlevels, rank
       type(UngriddedDims) :: ungridded_dims
 
       call setup_geom(geom, 4)
@@ -381,7 +374,7 @@ contains
          @assert_that(shape(x_r4), is(equal_to([4,4,NUM_LEVELS_VGRID,NUM_RADII])))
          @assert_that(all(x_r4 == FILL_VALUE), is(true()))
 
-         call MAPL_InfoGetInternal(fieldList(i), KEY_UNITS, value=new_units, _RC)
+         call MAPL_FieldGet(fieldList(i), units=new_units, _RC)
          @assertEqual('km', new_units)
 
          call ESMF_FieldGet(fieldList(i), geom=tmp_geom, _RC)
@@ -390,18 +383,18 @@ contains
          call MAPL_FieldGet(fieldList(i), ungridded_dims=ungridded_dims, _RC)
          @assert_that(ungridded_dims%get_num_ungridded(), is(1))
 
-         call MAPL_InfoGetInternal(fieldList(i), KEY_NUM_LEVELS, value=nlevels, _RC)
+         call MAPL_FieldGet(fieldList(i), num_levels=nlevels, _RC)
          @assert_that(nlevels, is(NUM_LEVELS_VGRID))
 
       end do
 
-      call MAPL_InfoGetInternal(bundle, KEY_INTERPOLATION_WEIGHTS, values=weights, _RC)
+      call MAPL_FieldBundleGet(bundle, interpolation_weights=weights, _RC)
       @assert_that(weights, is(equal_to(new_weights)))
 
-      call MAPL_InfoGetInternal(bundle, KEY_UNGRIDDED_DIMS//'/num_ungridded_dimensions', value=ndims, _RC)
-      @assert_that(ndims, is(1))
+      call MAPL_FieldBundleGet(bundle, ungridded_dims=ungridded_dims, _RC)
+      @assert_that(ungridded_dims%get_num_ungridded(), is(1))
 
-      call MAPL_InfoGetInternal(bundle, KEY_NUM_LEVELS, value=nlevels, _RC)
+      call MAPL_FieldBundleGet(bundle, num_levels=nlevels, _RC)
       @assert_that(nlevels, is(NUM_LEVELS_VGRID))
 
       call teardown_bundle(bundle)
@@ -433,24 +426,27 @@ contains
       call setup_geom(geom, 4)
       call setup_bundle(bundle, weights=[5.], geom=geom, typekind=ESMF_TYPEKIND_R4, units='km')
 
-      delta = FieldBundleDelta(interpolation_weights=new_weights) 
+      _HERE
+      delta = FieldBundleDelta(interpolation_weights=new_weights)
+      _HERE
       call delta%update_bundle(bundle, _RC) ! should allocate fields
 
+      _HERE
       call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
       @assert_that(size(fieldList), is(FIELD_COUNT))
 
       do i = 1, FIELD_COUNT
          call ESMF_FieldGet(fieldList(i), fArrayPtr=x_r4, _RC)
          @assert_that(shape(x_r4), is(equal_to([4,4])))
-   
-         call MAPL_InfoGetInternal(fieldList(i), KEY_UNITS, value=new_units, _RC)
+
+         call MAPL_FieldGet(fieldList(i), units=new_units, _RC)
          @assertEqual('km', new_units)
 
          call ESMF_FieldGet(fieldList(i), geom=tmp_geom, _RC)
          @assert_that(tmp_geom == geom, is(true()))
       end do
 
-      call MAPL_InfoGetInternal(bundle, KEY_INTERPOLATION_WEIGHTS, values=weights, _RC)
+      call MAPL_FieldBundleGet(bundle, interpolation_weights=weights, _RC)
       @assert_that(weights, is(equal_to(new_weights)))
 
       call teardown_bundle(bundle)
@@ -478,14 +474,14 @@ contains
       character(:), allocatable :: new_units
       real(kind=ESMF_KIND_R4), allocatable :: weights(:)
       real(kind=ESMF_KIND_R4), parameter :: new_weights(*) = [0.,0.25,0.75]
-      integer :: ndims, nlevels
+      integer :: nlevels
       type(UngriddedDims) :: ungridded_dims
 
       call setup_geom(geom, 4)
       call setup_bundle(bundle, weights=[5.], geom=geom, typekind=ESMF_TYPEKIND_R4, units='km', &
            with_ungridded=.true.)
 
-      delta = FieldBundleDelta(interpolation_weights=new_weights) 
+      delta = FieldBundleDelta(interpolation_weights=new_weights)
       call delta%update_bundle(bundle, _RC) ! should allocate fields
 
       call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
@@ -494,8 +490,8 @@ contains
       do i = 1, FIELD_COUNT
          call ESMF_FieldGet(fieldList(i), fArrayPtr=x_r4, _RC)
          @assert_that(shape(x_r4), is(equal_to([4,4,NUM_LEVELS_VGRID,NUM_RADII])))
-   
-         call MAPL_InfoGetInternal(fieldList(i), KEY_UNITS, value=new_units, _RC)
+
+         call MAPL_FieldGet(fieldList(i), units=new_units, _RC)
          @assertEqual('km', new_units)
 
          call ESMF_FieldGet(fieldList(i), geom=tmp_geom, _RC)
@@ -504,17 +500,17 @@ contains
          call MAPL_FieldGet(fieldList(i), ungridded_dims=ungridded_dims, _RC)
          @assert_that(ungridded_dims%get_num_ungridded(), is(1))
 
-         call MAPL_InfoGetInternal(fieldList(i), KEY_NUM_LEVELS, value=nlevels, _RC)
+         call MAPL_FieldGet(fieldList(i), num_levels=nlevels, _RC)
          @assert_that(nlevels, is(NUM_LEVELS_VGRID))
       end do
 
-      call MAPL_InfoGetInternal(bundle, KEY_INTERPOLATION_WEIGHTS, values=weights, _RC)
+      call MAPL_FieldBundleGet(bundle, interpolation_weights=weights, _RC)
       @assert_that(weights, is(equal_to(new_weights)))
 
-      call MAPL_InfoGetInternal(bundle, KEY_UNGRIDDED_DIMS // '/num_ungridded_dimensions', value=ndims, _RC)
-      @assert_that(ndims, is(1))
+      call MAPL_FieldBundleGet(bundle, ungridded_dims=ungridded_dims, _RC)
+      @assert_that(ungridded_dims%get_num_ungridded(), is(1))
 
-      call MAPL_InfoGetInternal(bundle, KEY_NUM_LEVELS, value=nlevels, _RC)
+      call MAPL_FieldBundleGet(bundle, num_levels=nlevels, _RC)
       @assert_that(nlevels, is(NUM_LEVELS_VGRID))
 
       call teardown_bundle(bundle)

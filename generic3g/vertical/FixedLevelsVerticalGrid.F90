@@ -8,8 +8,6 @@ module mapl3g_FixedLevelsVerticalGrid
    use mapl3g_FieldCreate
    use mapl3g_GriddedComponentDriver
    use mapl3g_VerticalDimSpec
-   use mapl3g_InfoUtilities, only: MAPL_InfoSetInternal
-   use mapl3g_esmf_info_keys, only: KEY_VLOC, KEY_NUM_LEVELS
    use esmf
 
    use, intrinsic :: iso_fortran_env, only: REAL32
@@ -75,30 +73,30 @@ contains
       type(VerticalDimSpec), intent(in) :: vertical_dim_spec
       integer, optional, intent(out) :: rc
 
-      real(kind=REAL32), allocatable :: adjusted_levels(:)
-      character(:), allocatable :: vloc
-      integer :: status
+      real(kind=REAL32), pointer :: farray3d(:, :, :)
+      integer, allocatable :: local_cell_count(:)
+      integer :: i, j, IM, JM, status
 
-      ! KLUDGE - for VERTICAL_DIM_EDGE, we simply extend the the size
-      ! [40, 30, 20, 10] -> [40, 30, 20, 10, 10]
-      ! Also, vloc assignment gets simpler once we have co-located description in VerticalDimSpec
-      if (vertical_dim_spec == VERTICAL_DIM_CENTER) then
-         adjusted_levels = this%levels
-         vloc = "VERTICAL_DIM_CENTER"
-      else if (vertical_dim_spec == VERTICAL_DIM_EDGE) then
-         adjusted_levels = [this%levels, this%levels(size(this%levels))]
-         vloc = "VERTICAL_DIM_EDGE"
-      else
-         _FAIL("invalid vertical_dim_spec")
-      end if
-
-      field = esmf_field_create_(geom, adjusted_levels, _RC)
+      field = MAPL_FieldCreate( &
+           geom=geom, &
+           typekind=ESMF_TYPEKIND_R4, &
+           num_levels=size(this%levels), &
+           vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           _RC)
+      ! Copy the 1D array, levels(:), to each point on the horz grid
+      call ESMF_FieldGet(field, fArrayPtr=farray3d, _RC)
+      call MAPL_GeomGet_(geom, localCellCount=local_cell_count, _RC)
+      IM = local_cell_count(1); JM = local_cell_count(2)
+      do concurrent (i=1:IM, j=1:JM)
+         farray3d(i, j, :) = this%levels(:)
+      end do
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(coupler)
       _UNUSED_DUMMY(standard_name)
       _UNUSED_DUMMY(typekind)
       _UNUSED_DUMMY(units)
+      _UNUSED_DUMMY(vertical_dim_spec)
    end subroutine get_coordinate_field
 
    logical function can_connect_to(this, src, rc)
@@ -154,12 +152,12 @@ contains
    function esmf_field_create_(geom, farray1d, rc) result(field)
       type(ESMF_Field) :: field ! result
       type(ESMF_Geom), intent(in) :: geom
-      real(kind=REAL32), intent(in) :: farray1d(:)
+      real(kind=ESMF_KIND_R4), intent(in) :: farray1d(:)
 !#      character(len=*), intent(in) :: vloc
       integer, optional, intent(out) :: rc
 
       integer, allocatable :: local_cell_count(:)
-      real(kind=REAL32), pointer :: farray3d(:, :, :)
+      real(kind=ESMF_KIND_R4), pointer :: farray3d(:, :, :)
       integer :: i, j, IM, JM, status
 
 !#      ! First, copy the 1D array, farray1d, to each point on the horz grid
@@ -183,17 +181,6 @@ contains
          farray3d(i, j, :) = farray1d(:)
       end do
 
-!#      field = ESMF_FieldCreate( &
-!#           geom=geom, &
-!#           farray=farray3d, &
-!#           indexflag=ESMF_INDEX_DELOCAL, &
-!#           datacopyFlag=ESMF_DATACOPY_VALUE, &
-!#           ungriddedLBound=[1], &
-!#           ungriddedUBound=[size(farray1d)], &
-!#           _RC)
-!#      
-!#      call MAPL_InfoSetInternal(field, key=KEY_NUM_LEVELS, value=size(farray1d), _RC)
-!#      call MAPL_InfoSetInternal(field, key=KEY_VEVLOC, value=vloc, _RC)
 
       _RETURN(_SUCCESS)
    end function esmf_field_create_

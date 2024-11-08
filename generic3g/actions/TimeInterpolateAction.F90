@@ -3,13 +3,14 @@
 module mapl3g_TimeInterpolateAction
    use mapl3g_ExtensionAction
    use mapl3g_regridder_mgr
+   use mapl3g_FieldBundleGet
    use mapl3g_InfoUtilities
    use MAPL_FieldUtils
    use MAPL_Constants, only: MAPL_UNDEFINED_REAL
    use mapl_ErrorHandling
    use esmf
 
-   implicit none
+   implicit none(type,external)
    private
 
    public :: TimeInterpolateAction
@@ -92,20 +93,15 @@ contains
       real(kind=ESMF_KIND_R4), pointer :: y(:), xi(:)
       real(kind=ESMF_KIND_R4), allocatable :: weights(:)
       integer :: i
-      integer :: fieldCount
       type(ESMF_Field), allocatable :: fieldList(:)
       type(ESMF_Info) :: bundle_info
 
 
-      call ESMF_FieldBundleGet(bundle_in, fieldCount=fieldCount, _RC)
-      allocate(fieldList(fieldCount))
-      call ESMF_FieldBundleGet(bundle_in, fieldList=fieldList, _RC)
-
-      call MAPL_InfoGetInternal(bundle_in, 'weights', weights, _RC)
+      call MAPL_FieldBundleGet(bundle_in, fieldList=fieldList, interpolation_weights=weights, _RC)
 
       call assign_fptr(field_out, y, _RC)
       y = weights(1)
-      do i = 1, fieldCount
+      do i = 1, size(fieldList)
          call assign_fptr(fieldList(i), xi, _RC)
          where (xi /= MAPL_UNDEFINED_REAL .and. y /= MAPL_UNDEFINED_REAL)
             y = y + weights(i+1) * xi

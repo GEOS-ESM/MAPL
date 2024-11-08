@@ -2,7 +2,6 @@ esma_set_this (OVERRIDE MAPL.esmf_utils)
 
 set(srcs
   InfoUtilities.F90
-  FieldDimensionInfo.F90
   UngriddedDim.F90
   UngriddedDims.F90
   UngriddedDimVector.F90

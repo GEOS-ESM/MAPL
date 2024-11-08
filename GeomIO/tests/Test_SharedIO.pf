@@ -34,27 +34,6 @@ contains
 
    end subroutine assign_character_from_string
 
-    @Test
-    subroutine test_get_vertical_dimension_name()
-       character(len=:), allocatable :: name
-       character(len=:), allocatable :: vertical_dim
-       character(len=:), allocatable :: message
-
-       vertical_dim = DIM_CENTER
-       name = CENTER_NAME
-       message = make_message('Dimension name does not match for', vertical_dim)
-       @assertEqual(name, get_vertical_dimension_name(vertical_dim), message)
-
-       vertical_dim = DIM_EDGE
-       name = EDGE_NAME
-       message = make_message('Dimension name does not match for', vertical_dim)
-       @assertEqual(name, get_vertical_dimension_name(vertical_dim), message)
-
-       vertical_dim = DIM_UNK
-       message = make_message('Return value should be empty String', vertical_dim)
-       @assertEqual(0, len(get_vertical_dimension_name(DIM_UNK)), message)
-
-    end subroutine test_get_vertical_dimension_name
 
     @Test
     subroutine test_get_vertical_dimension_num_levels()

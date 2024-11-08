@@ -13,7 +13,6 @@ set(srcs
   FieldCondensedArray.F90
   FieldCondensedArray_private.F90
   FieldDelta.F90
-  FieldBundleDelta.F90
   VerticalStaggerLoc.F90
   FieldCreate.F90
   FieldReset.F90
