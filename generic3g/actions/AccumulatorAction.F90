@@ -66,9 +66,6 @@ contains
 
       call get_field(importState, import_field, _RC)
       call get_field(exportState, export_field, _RC)
-      !fields_are_conformable = FieldsAreConformable(import_field, export_field, _RC)
-      !_ASSERT(fields_are_conformable, 'Import field and export field are not conformable.')
-      !_HERE, 'Fields are conformable.'
 
       if(this%initialized()) then
          call ESMF_FieldDestroy(this%accumulation_field, _RC)
