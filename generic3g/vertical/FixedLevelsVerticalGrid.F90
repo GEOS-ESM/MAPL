@@ -10,8 +10,6 @@ module mapl3g_FixedLevelsVerticalGrid
    use mapl3g_VerticalDimSpec
    use esmf
 
-   use, intrinsic :: iso_fortran_env, only: REAL32
-
    implicit none
    private
 
@@ -21,7 +19,7 @@ module mapl3g_FixedLevelsVerticalGrid
 
    type, extends(VerticalGrid) :: FixedLevelsVerticalGrid
       private
-      real(kind=REAL32), allocatable :: levels(:)
+      real(kind=ESMF_KIND_R4), allocatable :: levels(:)
       character(:), allocatable :: standard_name ! air_pressure, height, etc.
    contains
       procedure :: get_num_levels
@@ -47,7 +45,7 @@ contains
    function new_FixedLevelsVerticalGrid_r32(standard_name, levels, units) result(vgrid)
       type(FixedLevelsVerticalGrid) :: vgrid
       character(*), intent(in) :: standard_name
-      real(REAL32), intent(in) :: levels(:)
+      real(kind=ESMF_KIND_R4), intent(in) :: levels(:)
       character(*), intent(in) :: units
 
       call vgrid%set_id()
@@ -72,7 +70,7 @@ contains
       type(VerticalDimSpec), intent(in) :: vertical_dim_spec
       integer, optional, intent(out) :: rc
 
-      real(kind=REAL32), pointer :: farray3d(:, :, :)
+      real(kind=ESMF_KIND_R4), pointer :: farray3d(:, :, :)
       integer, allocatable :: local_cell_count(:)
       integer :: i, j, IM, JM, status
 
