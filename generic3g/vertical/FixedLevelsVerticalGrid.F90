@@ -23,7 +23,6 @@ module mapl3g_FixedLevelsVerticalGrid
       private
       real(kind=REAL32), allocatable :: levels(:)
       character(:), allocatable :: standard_name ! air_pressure, height, etc.
-      character(:), allocatable :: units
    contains
       procedure :: get_num_levels
       procedure :: get_coordinate_field
@@ -45,16 +44,16 @@ module mapl3g_FixedLevelsVerticalGrid
 
 contains
 
-   function new_FixedLevelsVerticalGrid_r32(standard_name, levels, units) result(grid)
-      type(FixedLevelsVerticalGrid) :: grid
+   function new_FixedLevelsVerticalGrid_r32(standard_name, levels, units) result(vgrid)
+      type(FixedLevelsVerticalGrid) :: vgrid
       character(*), intent(in) :: standard_name
       real(REAL32), intent(in) :: levels(:)
       character(*), intent(in) :: units
 
-      call grid%set_id()
-      grid%standard_name = standard_name
-      grid%levels = levels
-      grid%units = units
+      call vgrid%set_id()
+      vgrid%standard_name = standard_name
+      vgrid%levels = levels
+      call vgrid%set_units(units)
    end function new_FixedLevelsVerticalGrid_r32
 
    integer function get_num_levels(this) result(num_levels)
@@ -77,6 +76,8 @@ contains
       integer, allocatable :: local_cell_count(:)
       integer :: i, j, IM, JM, status
 
+      ! _HERE
+      ! print *, "units: ", units
       field = MAPL_FieldCreate( &
            geom=geom, &
            typekind=ESMF_TYPEKIND_R4, &
@@ -121,9 +122,9 @@ contains
       write(unit, "(a, a, 3x, a, a, a, 3x, a, a, a, 3x, a, *(g0, 1x))", iostat=iostat, iomsg=iomsg) &
            "FixedLevelsVerticalGrid(", new_line("a"), &
            "standard name: ", this%standard_name, new_line("a"), &
-           "units: ", this%units, new_line("a"), &
+           "units: ", this%get_units(), new_line("a"), &
            "levels: ", this %levels
-      write(unit, "(a, a)", iostat=iostat, iomsg=iomsg) new_line("a"), ")"
+      write(unit, "(a)", iostat=iostat, iomsg=iomsg) ")"
 
       _UNUSED_DUMMY(iotype)
       _UNUSED_DUMMY(v_list)
@@ -134,7 +135,7 @@ contains
 
       equal = a%standard_name == b%standard_name
       if (.not. equal) return
-      equal = a%units == b%units
+      equal = a%get_units() == b%get_units()
       if (.not. equal) return
       equal = size(a%levels) == size(b%levels)
       if (.not. equal) return
