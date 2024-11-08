@@ -39,6 +39,7 @@ set (test_srcs
   Test_AccumulatorAction.pf
   Test_MeanAccumulator.pf
   Test_MaxAccumulator.pf
+  Test_MinAccumulator.pf
   )
 
 

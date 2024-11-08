@@ -7,7 +7,7 @@ module mapl3g_MinAccumulator
    use ESMF
    implicit none
    private
-   public :: AccumulatorAction
+   public :: MinAccumulator
 
    type, extends(AccumulatorAction) :: MinAccumulator
    contains
