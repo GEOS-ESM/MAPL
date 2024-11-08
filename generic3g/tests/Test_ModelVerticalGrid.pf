@@ -65,19 +65,19 @@ contains
       rc = 0
       ! Inside user "set_geom" phase.
       geom = make_geom(_RC)
-      vgrid = ModelVerticalGrid(num_levels=LM)
+      vgrid = ModelVerticalGrid(num_levels=LM, units="hPa")
       call vgrid%add_variant(short_name=var_name)
 
       ! inside OuterMeta
-      r = StateRegistry('dyn')
+      r = StateRegistry("dyn")
       call vgrid%set_registry(r) ! MAPL_SetVerticalGrid(...)
 
-      v_pt = VirtualConnectionPt(state_intent='export', short_name=var_name)
+      v_pt = VirtualConnectionPt(state_intent="export", short_name=var_name)
       var_spec = VariableSpec(&
            short_name=var_name, &
            state_intent=ESMF_STATEINTENT_EXPORT, &
-           standard_name='air_pressure', &
-           units='hPa', &
+           standard_name="air_pressure", &
+           units="hPa", &
            vertical_dim_spec=vertical_dim_spec, &
            default_value=3.)
       allocate(fld_spec, source=make_itemSpec(var_spec, r, rc=status))
@@ -96,16 +96,14 @@ contains
    function make_geom(rc) result(geom)
       integer, intent(out) :: rc
       type(ESMF_Geom) :: geom
-      type(ESMF_Grid) :: grid
       integer :: status
       type(ESMF_HConfig) :: hconfig
       type(GeomManager), pointer :: geom_mgr
-      class(GeomSpec), allocatable :: geom_spec
       type(MaplGeom), pointer :: mapl_geom
 
       rc = 0
       geom_mgr => get_geom_manager()
-      hconfig = ESMF_HConfigCreate(content='{class: latlon, im_world: 6, jm_world: 7, pole: PC, dateline: DC}', _RC)
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 6, jm_world: 7, pole: PC, dateline: DC}", _RC)
       mapl_geom => geom_mgr%get_mapl_geom(hconfig, _RC)
       geom = mapl_geom%get_geom()
    end function make_geom
@@ -113,24 +111,22 @@ contains
    @test
    subroutine test_num_levels()
       type(ModelVerticalGrid) :: vgrid
-
       integer :: num_levels
 
       num_levels = 10
-      vgrid = ModelVerticalGrid(num_levels=num_levels)
+      vgrid = ModelVerticalGrid(num_levels=num_levels, units="hPa")
       @assert_that(vgrid%get_num_levels(), is(num_levels))
    end subroutine test_num_levels
 
    @test
    subroutine test_num_variants()
       type(ModelVerticalGrid) :: vgrid
-      integer :: num_variants
 
-      vgrid = ModelVerticalGrid(num_levels=3)
+      vgrid = ModelVerticalGrid(num_levels=3, units="hPa")
       @assert_that(vgrid%get_num_variants(), is(0))
-      call vgrid%add_variant(short_name='PLE')
+      call vgrid%add_variant(short_name="PLE")
       @assert_that(vgrid%get_num_variants(), is(1))
-      call vgrid%add_variant(short_name='ZLE')
+      call vgrid%add_variant(short_name="ZLE")
       @assert_that(vgrid%get_num_variants(), is(2))
    end subroutine test_num_variants
 
@@ -149,17 +145,18 @@ contains
 
       call setup("PLE", vgrid, _RC)
 
-      ple_pt = VirtualConnectionPt(state_intent='export', short_name='PLE')
+      ple_pt = VirtualConnectionPt(state_intent="export", short_name="PLE")
       extension => r%get_primary_extension(ple_pt, _RC)
       spec => extension%get_spec()
 
       multi_state = MultiState()
       call spec%add_to_state(multi_state, ActualConnectionPt(ple_pt), _RC)
-      call ESMF_StateGet(multi_state%exportState, itemName='PLE', field=ple, _RC)
+      call ESMF_StateGet(multi_state%exportState, itemName="PLE", field=ple, _RC)
       call ESMF_FieldGet(ple, rank=rank, _RC)
       allocate(localElementCount(rank))
       call ESMF_FieldGet(ple, localElementCount=localElementCount, _RC)
       @assert_that(localElementCount, is(equal_to([IM,JM,LM+1])))
+      _UNUSED_DUMMY(this)
    end subroutine test_created_fields_have_num_levels
 
    @test(type=ESMF_TestMethod, npes=[1])
@@ -180,16 +177,17 @@ contains
 
       call vgrid%get_coordinate_field( &
            vcoord, coupler, &
-           standard_name='air_pressure', &
+           standard_name="air_pressure", &
            geom=geom, &
            typekind=ESMF_TYPEKIND_R4, &
-           units='hPa', &
+           units="hPa", &
            vertical_dim_spec=VERTICAL_DIM_EDGE, &
            _RC)
       @assert_that(associated(coupler), is(false()))
 
       call ESMF_FieldGet(vcoord, fArrayPtr=a, _RC)
       @assert_that(a, every_item(is(equal_to(3.))))
+      _UNUSED_DUMMY(this)
    end subroutine test_get_coordinate_field_simple
 
    @test(type=ESMF_TestMethod, npes=[1])
@@ -213,10 +211,10 @@ contains
 
       call vgrid%get_coordinate_field( &
            vcoord, coupler, &
-           standard_name='air_pressure', &
+           standard_name="air_pressure", &
            geom=geom, &
            typekind=ESMF_TYPEKIND_R4, &
-           units='Pa', &
+           units="Pa", &
            vertical_dim_spec=VERTICAL_DIM_EDGE, &
            _RC)
       @assert_that(associated(coupler), is(true()))
@@ -234,6 +232,7 @@ contains
       end do
       @assert_that(shape(a), is(equal_to([IM, JM, LM+1])))
       @assert_that(a, every_item(is(equal_to(300.))))
+      _UNUSED_DUMMY(this)
    end subroutine test_get_coordinate_field_change_units_edge
 
    @test(type=ESMF_TestMethod, npes=[1])
@@ -257,9 +256,9 @@ contains
 
       call vgrid%get_coordinate_field( &
            vcoord, coupler, &
-           standard_name='air_pressure', &
+           standard_name="air_pressure", &
            geom=geom, &
-           typekind=ESMF_TYPEKIND_R4, units='Pa', &
+           typekind=ESMF_TYPEKIND_R4, units="Pa", &
            vertical_dim_spec=VERTICAL_DIM_CENTER, &
            _RC)
       @assert_that(associated(coupler), is(true()))
@@ -277,6 +276,7 @@ contains
       end do
       @assert_that(shape(a), is(equal_to([IM, JM, LM])))
       @assert_that(a, every_item(is(equal_to(300.))))
+      _UNUSED_DUMMY(this)
    end subroutine test_get_coordinate_field_change_units_center
 
 end module Test_ModelVerticalGrid
