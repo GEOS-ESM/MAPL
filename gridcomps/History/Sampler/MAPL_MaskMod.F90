@@ -78,6 +78,8 @@ module MaskSamplerMod
      integer(kind=ESMF_KIND_I8)     :: epoch_index(2)
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
+     real, allocatable :: lons_deg(:)   ! degree
+     real, allocatable :: lats_deg(:)     
      integer, allocatable :: recvcounts(:)
      integer, allocatable :: displs(:)
      type(MAPL_MetaComp), pointer :: GENSTATE
@@ -151,7 +153,7 @@ module MaskSamplerMod
        use pflogger, only: Logger, logging
        implicit none
 
-       class(MaskSampler), intent(inout) :: this
+       class(MaskSampler), target, intent(inout) :: this
        integer, optional, intent(out)          :: rc
      end subroutine create_Geosat_grid_find_mask
 

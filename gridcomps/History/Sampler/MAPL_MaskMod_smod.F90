@@ -296,15 +296,15 @@ module subroutine  create_metadata(this,rc)
           units = 'unknown'
        endif
 
-!       if (this%timeInfo%is_initialized) then
-!          if (field_rank==2) then
-!             vdims = "mask_index,time"
-!             v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
-!          else if (field_rank==3) then
-!             vdims = "mask_index,lev,time"
-!             v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
-!          end if
-!       else
+       if (this%timeInfo%is_initialized) then
+          if (field_rank==2) then
+             vdims = "mask_index,time"
+             v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
+          else if (field_rank==3) then
+             vdims = "mask_index,lev,time"
+             v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
+          end if
+       else
           if (field_rank==2) then
              vdims = "mask_index"
              v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
@@ -312,7 +312,7 @@ module subroutine  create_metadata(this,rc)
              vdims = "mask_index,lev"
              v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
           end if
-!       end if
+       end if
        call v%add_attribute('units',         trim(units))
        call v%add_attribute('long_name',     trim(long_name))
        call v%add_attribute('missing_value', MAPL_UNDEF)
@@ -330,7 +330,7 @@ module subroutine  create_metadata(this,rc)
        use pflogger, only: Logger, logging
        implicit none
 
-       class(MaskSampler), intent(inout) :: this
+       class(MaskSampler), target, intent(inout) :: this
        integer, optional, intent(out)          :: rc
 
        type(Logger), pointer :: lgr
@@ -741,8 +741,7 @@ module subroutine  create_metadata(this,rc)
        call MPI_gatherv ( lats, nsend, MPI_REAL8, &
             this%lats, this%recvcounts, this%displs, MPI_REAL8,&
             iroot, mpic, ierr )
-       _VERIFY(ierr)
-
+       _VERIFY(ierr)       
        call MAPL_TimerOff(this%GENSTATE,"4_gatherV")
 
 
@@ -753,6 +752,19 @@ module subroutine  create_metadata(this,rc)
        write(6,'(200i10)')  this%displs
        call MPI_Barrier(mpic,ierr)
        _VERIFY(ierr)
+
+       if (mapl_am_i_root()) then       
+          allocate (this%lons_deg (this%npt_mask_tot))
+          this%lons_deg = this%lons * MAPL_RADIANS_TO_DEGREES
+          allocate (this%lats_deg (this%npt_mask_tot))
+          this%lats_deg = this%lats * MAPL_RADIANS_TO_DEGREES
+       else
+          allocate (this%lons_deg(0))
+          allocate (this%lats_deg(0))
+       end if
+
+       write(6,*) 'ip, lons_deg', ip, this%lons_deg
+
 
 !!       call MAPL_CommsBcast(vm, DATA=, N=1, ROOT=MAPL_Root, _RC)
        allocate (sendcounts_loc(petcount))
@@ -855,7 +867,8 @@ module subroutine  create_metadata(this,rc)
     !__ 1. stage data :  time variable, lat/lon
     !
     Have_time = this%timeInfo%am_i_initialized()
-
+    _ASSERT(Have_time, 'timeinfo is not initialized in output server')
+    
     if (have_time) then
        times = this%timeInfo%compute_time_vector(this%metadata,_RC)
        ref = ArrayReference(times)
@@ -917,33 +930,34 @@ module subroutine  create_metadata(this,rc)
 
              write(6,*) 'ip, nx, this%npt_mask_tot, i1, in=', &
                   mypet, nx, this%npt_mask_tot, this%i1, this%in
-
              write(6,*) 'ip, this%p1d', mypet, this%p1d
-!!
-!!             if (nx>0) then
-!!                allocate(local_start,source=[this%i1,1])
-!!                allocate(global_start,source=[1,tindex])
-!!                allocate(global_count,source=[this%npt_mask_tot,1])
-!!
-!!                print*, 'mypet, local_start, global_start, global_count', &
-!!                     mypet, local_start, global_start, global_count
-!!             else
-!!                allocate(local_start,source=[0,1])
-!!                allocate(global_start,source=[0,tindex])
-!!                allocate(global_count,source=[0,1])
-!!             end if
+
 
              if (nx>0) then
-                allocate(local_start,source=[this%i1])
-                allocate(global_start,source=[1])
-                allocate(global_count,source=[this%npt_mask_tot])
+                allocate(local_start,source=[this%i1,1])
+                allocate(global_start,source=[1,tindex])
+                allocate(global_count,source=[this%npt_mask_tot,1])
                 print*, 'mypet, local_start, global_start, global_count', &
                      mypet, local_start, global_start, global_count
              else
-                allocate(local_start,source=[0])
-                allocate(global_start,source=[0])
-                allocate(global_count,source=[0])
+                allocate(local_start,source=[0,0])
+                allocate(global_start,source=[0,0])
+                allocate(global_count,source=[0,0])
              end if
+
+
+!! wo time
+!!             if (nx>0) then
+!!                allocate(local_start,source=[this%i1])
+!!                allocate(global_start,source=[1])
+!!                allocate(global_count,source=[this%npt_mask_tot])
+!!                print*, 'mypet, local_start, global_start, global_count', &
+!!                     mypet, local_start, global_start, global_count
+!!             else
+!!                allocate(local_start,source=[0])
+!!                allocate(global_start,source=[0])
+!!                allocate(global_count,source=[0])
+!!             end if
 
              call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(item%xname), &
                   ref,start=local_start, global_start=global_start, global_count=global_count)
@@ -951,21 +965,20 @@ module subroutine  create_metadata(this,rc)
 
 
           else if (rank==3) then
-             stop -3
 
              call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
              call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
              _ASSERT (this%vdata%lm == (ub(1)-lb(1)+1), 'vertical level is different from CS grid')
 
              allocate(arr(nx, lb(1):ub(1)))
-             if (tindex > -1) then
+             if (nx>0) then
                 allocate(local_start,source=[1,1,1])
                 allocate(global_start,source=[1,1,tindex])
                 allocate(global_count,source=[this%npt_mask_tot,nz,1])
              else
-                allocate(local_start,source=[1,1])
-                allocate(global_start,source=[1,1])
-                allocate(global_count,source=[this%npt_mask_tot,nz])
+                allocate(local_start,source=[0,1,1])
+                allocate(global_start,source=[0,1,tindex])
+                allocate(global_count,source=[0,0,1])
              end if
 
              do k= lb(1), ub(1)
@@ -1059,25 +1072,20 @@ module subroutine  create_metadata(this,rc)
     !       in sub. create_Geosat_grid_find_mask
     !
     if (mapl_am_i_root()) then
-       nx = this%npt_mask_tot
-       allocate (lons(nx), lats(nx))
-       lons = this%lons * MAPL_RADIANS_TO_DEGREES
-       lats = this%lats * MAPL_RADIANS_TO_DEGREES
        allocate(local_start,source=[1])
        allocate(global_start,source=[1])
        allocate(global_count,source=[this%npt_mask_tot])
     else
-       allocate (lons(0), lats(0))
        allocate(local_start,source=[0])
        allocate(global_start,source=[0])
        allocate(global_count,source=[0])
     end if
 
-    ref = ArrayReference(lons)
+    ref = ArrayReference(this%lons_deg)
     call oClients%collective_stage_data(this%write_collection_id,trim(filename),'longitude', &
          ref,start=local_start, global_start=global_start, global_count=global_count)
 
-    ref = ArrayReference(lats)
+    ref = ArrayReference(this%lats_deg)
     call oClients%collective_stage_data(this%write_collection_id,trim(filename),'latitude', &
          ref,start=local_start, global_start=global_start, global_count=global_count)
 
