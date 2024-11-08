@@ -29,23 +29,35 @@ module mapl3g_FieldBundleGet
 
 contains
 
-   ! Supplement ESMF
-   subroutine bundle_get(fieldBundle, unusable, fieldCount, fieldList, &
-        fieldBundleType, typekind, interpolation_weights, &
-        geom, ungridded_dims, units, num_levels, vert_staggerloc, num_vgrid_levels, rc)
+   ! Supplement ESMF FieldBundleGet
+   !
+   ! For "bracket" bundles, additional metadata is stored in the info object
+
+   subroutine bundle_get(fieldBundle, unusable, &
+        fieldCount, fieldList, geom, &
+        fieldBundleType, &
+        ! Bracket specific items
+        typekind, interpolation_weights, &
+        ! Bracket field-prototype items
+        ungridded_dims, num_levels, vert_staggerloc, num_vgrid_levels, &
+        units, standard_name, long_name, &
+        rc)
+
       type(ESMF_FieldBundle), intent(in) :: fieldBundle
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: fieldCount
       type(ESMF_Field), optional, allocatable, intent(out) :: fieldList(:)
+      type(ESMF_Geom), optional, intent(out) :: geom
       type(FieldBundleType_Flag), optional, intent(out) :: fieldBundleType
       type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
       real(ESMF_KIND_R4), optional, allocatable, intent(out) :: interpolation_weights(:)
-      type(ESMF_Geom), optional, intent(out) :: geom
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
-      type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
-      character(:), optional, allocatable, intent(out) :: units
       integer, optional, intent(out) :: num_levels
+      type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
       integer, optional, intent(out) :: num_vgrid_levels
+      character(:), optional, allocatable, intent(out) :: units
+      character(:), optional, allocatable, intent(out) :: standard_name
+      character(:), optional, allocatable, intent(out) :: long_name
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -64,15 +76,20 @@ contains
          call ESMF_FieldBundleGet(fieldBundle, fieldList=fieldList, itemOrderflag=ESMF_ITEMORDER_ADDORDER, _RC)
       end if
 
-      ! Get these from FieldBundleInfo
-      call ESMF_InfoGetFromHost(fieldBundle, bundle_info, _RC)
-      call MAPL_FieldBundleInfoGetInternal(bundle_info, ungridded_dims=ungridded_dims, typekind=typekind, &
-           fieldBundleType=fieldBundleType, interpolation_weights=interpolation_weights, vert_staggerloc=vert_staggerloc, &
-           units=units, num_levels=num_levels, num_vgrid_levels=num_vgrid_levels, _RC)
-
       if (present(geom)) then
          call get_geom(fieldBundle, geom, rc)
       end if
+
+      ! Get these from FieldBundleInfo
+      call ESMF_InfoGetFromHost(fieldBundle, bundle_info, _RC)
+      call MAPL_FieldBundleInfoGetInternal(bundle_info, &
+           fieldBundleType=fieldBundleType, &
+           typekind=typekind, interpolation_weights=interpolation_weights, &
+           ungridded_dims=ungridded_dims, &
+           num_levels=num_levels, vert_staggerloc=vert_staggerloc, num_vgrid_levels=num_vgrid_levels, &
+           units=units, standard_name=standard_name, long_name=long_name, &
+           _RC)
+
 
       call MAPL_FieldBundleInfoGetInternal(bundle_info, typekind=typekind, fieldBundleType=fieldBundleType, _RC)
 
