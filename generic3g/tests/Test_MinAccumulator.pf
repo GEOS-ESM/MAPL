@@ -37,7 +37,8 @@ contains
       upPtr(i:n) = [UPDATE_VALUE, undef_value, UPDATE_VALUE, UPDATE_VALUE+ACCUMULATED_VALUE]
       expected = [UPDATE_VALUE, ACCUMULATED_VALUE, UPDATE_VALUE, ACCUMULATED_VALUE]
       call acc%accumulate_R4(update_field, _RC)
-      @assertEqual(expected, accPtr)
+      @assertEqual(expected, accPtr, 'accumulated_field not equal to expected values')
+      call ESMF_FieldDestroy(update_field, _RC)
       call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_min_accumulate_R4
