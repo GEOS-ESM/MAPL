@@ -104,7 +104,7 @@ contains
       call acc%initialize(importState, exportState, clock, _RC)
       acc%counter_scalar = 4
       call acc%clear_accumulator(_RC)
-      @assertEqual(acc%counter_scalar, 0_I8, 'counter_scalar is nonzero.')
+      @assertTrue(acc%counter_scalar == 0_I8, 'counter_scalar is nonzero.')
       call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_clear_accumulator
@@ -139,11 +139,11 @@ contains
       call get_field(importState, importField, _RC)
       call FieldSet(importField, 1.0_R4, _RC)
       call acc%initialize(importState, exportState, clock, _RC)
-      @assertEqual(acc%counter_scalar, 0_I8)
+      @assertTrue(acc%counter_scalar == 0_I8, 'counter_scalar is nonzero')
       do i=1, N
          call acc%invalidate(importState, exportState, clock, _RC)
       end do
-      @assertEqual(acc%counter_scalar, N, 'counter_scalar not equal to N')
+      @assertTrue(acc%counter_scalar == N, 'counter_scalar not equal to N')
       call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_invalidate
