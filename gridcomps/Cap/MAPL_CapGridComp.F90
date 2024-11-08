@@ -1076,19 +1076,22 @@ contains
     integer :: status, rc
     character(len=ESMF_MAXSTR) :: cap_import
     type(StringVector) :: vec
+    logical :: tend
 
     call ESMF_ConfigFindLabel(config, key//":", isPresent = present, rc = status)
     _VERIFY(status)
 
     cap_import = ""
+    tend = .false.
     if (present) then
 
-       do while(trim(cap_import) /= "::")
-          call ESMF_ConfigNextLine(config, rc = status)
+       do while(.not. tend)
+          call ESMF_ConfigNextLine(config, tableEnd=tend, rc = status)
           _VERIFY(status)
+          if (tend) exit
           call ESMF_ConfigGetAttribute(config, cap_import, rc = status)
           _VERIFY(status)
-          if (trim(cap_import) /= "::") call vec%push_back(trim(cap_import))
+          call vec%push_back(trim(cap_import))
        end do
     end if
 
