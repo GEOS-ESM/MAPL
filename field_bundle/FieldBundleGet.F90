@@ -90,9 +90,6 @@ contains
            units=units, standard_name=standard_name, long_name=long_name, &
            _RC)
 
-
-      call MAPL_FieldBundleInfoGetInternal(bundle_info, typekind=typekind, fieldBundleType=fieldBundleType, _RC)
-
       _RETURN(_SUCCESS)
 
    contains
@@ -122,34 +119,31 @@ contains
    end subroutine bundle_get
 
    subroutine bundle_set(fieldBundle, unusable, &
-        fieldBundleType, typekind, geom, &
-        interpolation_weights, ungridded_dims, &
+        geom, &
+        fieldBundleType, typekind, interpolation_weights, &
+        ungridded_dims, &
         num_levels, vert_staggerloc, &
-        units, &
+        units, standard_name, long_name, &
         rc)
 
       type(ESMF_FieldBundle), intent(inout) :: fieldBundle
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      type(ESMF_Geom), optional, intent(in) :: geom
       type(FieldBundleType_Flag), optional, intent(in) :: fieldBundleType
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
-      type(ESMF_Geom), optional, intent(in) :: geom
       real(ESMF_KIND_R4), optional, intent(in) :: interpolation_weights(:)
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       integer, optional, intent(in) :: num_levels
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       character(*), optional, intent(in) :: units
+      character(*), optional, intent(in) :: standard_name
+      character(*), optional, intent(in) :: long_name
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(ESMF_GeomType_Flag) :: geomtype
       type(ESMF_Grid) :: grid
       type(ESMF_Info) :: bundle_info
-
-      ! Some things are treated as field info:
-      call ESMF_InfoGetFromHost(fieldBundle, bundle_info, _RC)
-      call MAPL_FieldBundleInfoSetInternal(bundle_info, ungridded_dims=ungridded_dims, typekind=typekind, &
-           fieldBundleType=fieldBundleType, interpolation_weights=interpolation_weights, units=units, num_levels=num_levels, &
-           vert_staggerloc=vert_staggerloc, _RC)
 
       if (present(geom)) then
          call ESMF_GeomGet(geom, geomtype=geomtype, _RC)
@@ -160,6 +154,17 @@ contains
          end if
          _FAIL('unsupported geomtype')
       end if
+
+      ! Some things are treated as field info:
+      call ESMF_InfoGetFromHost(fieldBundle, bundle_info, _RC)
+      call MAPL_FieldBundleInfoSetInternal(bundle_info, &
+           fieldBundleType=fieldBundleType, &
+           typekind=typekind, interpolation_weights=interpolation_weights, &
+           ungridded_dims=ungridded_dims, &
+           num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
+           units=units, standard_name=standard_name, long_name=long_name, &
+           _RC)
+
 
       _RETURN(_SUCCESS)
    end subroutine Bundle_Set
