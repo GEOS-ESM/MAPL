@@ -360,13 +360,16 @@ contains
          write(unit, "(3x, a, a, a)", iostat=iostat, iomsg=iomsg) "long name:", this%long_name, new_line("a")
       end if
       if (allocated(this%units)) then
-         write(unit, "(3x, a, a, a)", iostat=iostat, iomsg=iomsg) "unit:", this%units, new_line("a")
+         write(unit, "(3x, a, a, a)", iostat=iostat, iomsg=iomsg) "units:", this%units, new_line("a")
       end if
       write(unit, "(3x, dt'g0', a)", iostat=iostat, iomsg=iomsg) this%vertical_dim_spec, new_line("a")
       if (allocated(this%vertical_grid)) then
-         write(unit, "(3x, dt'g0', a)", iostat=iostat, iomsg=iomsg) this%vertical_grid, new_line("a")
+         write(unit, "(3x, dt'g0', a)", iostat=iostat, iomsg=iomsg) this%vertical_grid
       end if
       write(unit, "(a)") ")"
+
+      _UNUSED_DUMMY(iotype)
+      _UNUSED_DUMMY(v_list)
    end subroutine write_formatted
 
    function get_ungridded_bounds(this, rc) result(bounds)
@@ -843,14 +846,22 @@ contains
       type(GriddedComponentDriver), pointer :: v_in_coupler
       type(GriddedComponentDriver), pointer :: v_out_coupler
       type(ESMF_Field) :: v_in_coord, v_out_coord
+      type(ESMF_TypeKind_Flag) :: typekind_in, typekind_out
       integer :: status
 
       select type (spec)
       type is (FieldSpec)
-         call spec%vertical_grid%get_coordinate_field(v_in_coord, v_in_coupler, &
-              'ignore', spec%geom, spec%typekind, spec%units, spec%vertical_dim_spec, _RC)
-         call this%vertical_grid%get_coordinate_field(v_out_coord, v_out_coupler, &
+         ! pchakrab: NEED TO RESTRICT SPEC's VERTICAL GRID TO MODEL
+         _ASSERT(spec%vertical_grid%get_units() == this%vertical_grid%get_units(), 'units must match')
+         _ASSERT(spec%vertical_dim_spec == this%vertical_dim_spec, 'temporary restriction')
+         call spec%vertical_grid%get_coordinate_field( &
+              v_in_coord, v_in_coupler, & ! output
+              'ignore', spec%geom, spec%typekind, this%vertical_grid%get_units(), spec%vertical_dim_spec, _RC)
+         call this%vertical_grid%get_coordinate_field( &
+              v_out_coord, v_out_coupler, & ! output
               'ignore', this%geom, this%typekind, this%units, this%vertical_dim_spec, _RC)
+         call ESMF_FieldGet(v_in_coord, typekind=typekind_in)
+         call ESMF_FieldGet(v_out_coord, typekind=typekind_out)
          action = VerticalRegridAction(v_in_coord, v_out_coupler, v_out_coord, v_out_coupler, this%regrid_method)
          spec%vertical_grid = this%vertical_grid
       end select
@@ -975,7 +986,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine adapt_units
 
-  logical function adapter_match_units(this, spec, rc) result(match)
+   logical function adapter_match_units(this, spec, rc) result(match)
       class(UnitsAdapter), intent(in) :: this
       class(StateItemSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
