@@ -17,6 +17,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.40.3.1] - 2024-11-08
+
+### Changed
+
+- Backport changes to use ESMF 8.6.1 to 2.40.3
+  - Update to use `ESMF::ESMF` target
+  - Update to ESMF 8.6.1 `FindESMF.cmake` file
+
 ## [2.40.3] - 2023-08-03
 
 ### Changed
