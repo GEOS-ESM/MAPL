@@ -11,17 +11,22 @@ module mapl3g_FieldGet
    private
 
    public :: MAPL_FieldGet
+   public :: MAPL_FieldSet
 
    interface MAPL_FieldGet
       procedure field_get
    end interface MAPL_FieldGet
+
+   interface MAPL_FieldSet
+      procedure field_set
+   end interface MAPL_FieldSet
 
 contains
 
    subroutine field_get(field, unusable, &
         num_levels, vert_staggerloc, num_vgrid_levels, &
         ungridded_dims, &
-        units, &
+        units, standard_name, &
         rc)
 
       type(ESMF_Field), intent(in) :: field
@@ -31,33 +36,53 @@ contains
       integer, optional, intent(out) :: num_vgrid_levels
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       character(len=:), optional, allocatable, intent(out) :: units
+      character(len=:), optional, allocatable, intent(out) :: standard_name
 
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_Info) :: info
-      logical :: need_info
-      character(:), allocatable :: vert_staggerloc_str
+      type(ESMF_Info) :: field_info
 
-      need_info = any([ &
-           present(num_levels), present(vert_staggerloc), present(num_vgrid_levels), &
-           present(ungridded_dims), &
-           present(units) &
-           ])
-
-      if (need_info) then
-         call ESMF_InfoGetFromHost(field, info, _RC)
-         call MAPL_FieldInfoGetInternal(field, &
-              num_levels=num_levels, &
-              vert_staggerloc=vert_staggerloc, &
-              num_vgrid_levels=num_vgrid_levels, &
-              ungridded_dims=ungridded_dims, &
-              units=units, _RC)
-      end if
+      call ESMF_InfoGetFromHost(field, field_info, _RC)
+      
+      call MAPL_FieldInfoGetInternal(field_info, &
+           num_levels=num_levels, &
+           vert_staggerloc=vert_staggerloc, &
+           num_vgrid_levels=num_vgrid_levels, &
+           ungridded_dims=ungridded_dims, &
+           units=units, standard_name=standard_name, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine field_get
       
+
+   subroutine field_set(field, num_levels, vert_staggerloc, &
+        ungridded_dims, &
+        units, &
+        rc)
+
+      type(ESMF_Field), intent(inout) :: field
+      integer, optional, intent(in) :: num_levels
+      type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
+      type(UngriddedDims), optional, intent(in) :: ungridded_dims
+      character(len=*), optional, intent(in) :: units
+
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: field_info
+
+      call ESMF_InfoGetFromHost(field, field_info, _RC)
+
+      call MAPL_FieldInfoSetInternal(field_info, &
+           num_levels=num_levels, &
+           vert_staggerloc=vert_staggerloc, &
+           ungridded_dims=ungridded_dims, &
+           units=units, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine field_set
+
 
 end module mapl3g_FieldGet
         
