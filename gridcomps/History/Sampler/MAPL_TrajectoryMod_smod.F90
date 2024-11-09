@@ -732,22 +732,11 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                  times_R8_full(1), times_R8_full(nend))
             call lgr%debug ('%a %i20 %i20', 'jt1, jt2 [final intercepted position]', jt1, jt2)
 
-
-!            if (jt1==jt2) then
-!               _FAIL('Epoch Time is too small, empty grid is generated, increase Epoch')
-!            endif
-
-            !-- shift the zero item to index 1
-            zero_obs = .false.
             if (jt1/=jt2) then
                zero_obs = .false.
-               !-- YGYU: 8-Nov-2024 :
-               !   this fix bug, otherwise, the first time point is missing in ARGOS_geolocation
-               !!if (jt1==0) jt1=1
             else
                ! at most one obs point exist, set it .true.
                zero_obs = .true.
-               !!  if (jt1==0) jt1=1
             end if
 
             !
