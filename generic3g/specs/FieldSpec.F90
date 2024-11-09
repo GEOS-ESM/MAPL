@@ -588,8 +588,8 @@ contains
          can_connect_to = all ([ &
               can_match(this%geom,src_spec%geom), &
               can_match(this%vertical_grid, src_spec%vertical_grid), &
-              match(this%vertical_dim_spec,src_spec%vertical_dim_spec), &
-              match(this%ungridded_dims,src_spec%ungridded_dims), &
+              match(this%vertical_dim_spec, src_spec%vertical_dim_spec), &
+              match(this%ungridded_dims, src_spec%ungridded_dims), &
               includes(this%attributes, src_spec%attributes), &
               can_convert_units &
               ])
@@ -851,17 +851,19 @@ contains
 
       select type (spec)
       type is (FieldSpec)
-         ! pchakrab: NEED TO RESTRICT SPEC's VERTICAL GRID TO MODEL
+         ! TODO: DO WE NEED TO RESTRICT SPEC's VERTICAL GRID TO MODEL?
+         ! NOTE: we cannot import ModelVerticalGrid (circular dependency)
          _ASSERT(spec%vertical_grid%get_units() == this%vertical_grid%get_units(), 'units must match')
          _ASSERT(spec%vertical_dim_spec == this%vertical_dim_spec, 'temporary restriction')
+         ! Field (to be regridded) should have the same typekind as the underlying vertical grid
+         ! TODO: Should we add a typekind class variable to VerticalGrid?
+         _ASSERT(spec%typekind == this%typekind, 'typekind must match')
          call spec%vertical_grid%get_coordinate_field( &
               v_in_coord, v_in_coupler, & ! output
               'ignore', spec%geom, spec%typekind, this%vertical_grid%get_units(), spec%vertical_dim_spec, _RC)
          call this%vertical_grid%get_coordinate_field( &
               v_out_coord, v_out_coupler, & ! output
               'ignore', this%geom, this%typekind, this%units, this%vertical_dim_spec, _RC)
-         call ESMF_FieldGet(v_in_coord, typekind=typekind_in)
-         call ESMF_FieldGet(v_out_coord, typekind=typekind_out)
          action = VerticalRegridAction(v_in_coord, v_out_coupler, v_out_coord, v_out_coupler, this%regrid_method)
          spec%vertical_grid = this%vertical_grid
       end select
