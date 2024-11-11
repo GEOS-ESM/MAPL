@@ -50,6 +50,26 @@ contains
    end subroutine test_get_dimension
 
    @test
+   subroutine test_fail_add_existing_dim_with_mismatch()
+      type (FileMetadata) :: cf
+
+      call cf%add_dimension('x', 10)
+      call cf%add_dimension('x', 11)
+
+      @assertExceptionRaised('FileMetadata::add_dimension() - dimension already exists with different extent.')
+
+   end subroutine test_fail_add_existing_dim_with_mismatch
+
+   @test
+   subroutine test_add_duplicate_dimension()
+      type (FileMetadata) :: cf
+
+      call cf%add_dimension('x', 10)
+      call cf%add_dimension('x', 10)
+
+   end subroutine test_add_duplicate_dimension
+
+   @test
    subroutine test_get_dimensions()
       type (FileMetadata), target :: cf
       type (StringIntegerMap), pointer :: dimensions
