@@ -26,7 +26,7 @@ contains
    subroutine field_get(field, unusable, &
         num_levels, vert_staggerloc, num_vgrid_levels, &
         ungridded_dims, &
-        units, standard_name, &
+        units, standard_name, long_name, &
         rc)
 
       type(ESMF_Field), intent(in) :: field
@@ -37,6 +37,7 @@ contains
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       character(len=:), optional, allocatable, intent(out) :: units
       character(len=:), optional, allocatable, intent(out) :: standard_name
+      character(len=:), optional, allocatable, intent(out) :: long_name
 
       integer, optional, intent(out) :: rc
 
@@ -50,7 +51,7 @@ contains
            vert_staggerloc=vert_staggerloc, &
            num_vgrid_levels=num_vgrid_levels, &
            ungridded_dims=ungridded_dims, &
-           units=units, standard_name=standard_name, _RC)
+           units=units, standard_name=standard_name, long_name=long_name, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine field_get
