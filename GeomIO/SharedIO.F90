@@ -98,7 +98,7 @@ contains
       integer :: pfio_type
 
       variable_dim_names = get_variable_dim_names(field, geom, _RC)
-      call ESMF_FieldGet(field, name=short_name, typekind=typekind, _RC)
+      call MAPL_FieldGet(field, short_name=short_name, typekind=typekind, _RC)
       pfio_type = esmf_to_pfio_type(typekind ,_RC)
       v = Variable(type=pfio_type, dimensions=variable_dim_names)
 
