@@ -37,9 +37,9 @@ set (test_srcs
 
   Test_CSR_SparseMatrix.pf
   Test_AccumulatorAction.pf
-  Test_MeanAccumulator.pf
-  Test_MaxAccumulator.pf
-  Test_MinAccumulator.pf
+  Test_MeanAction.pf
+  Test_MaxAction.pf
+  Test_MinAction.pf
   )
 
 

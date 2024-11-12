@@ -1,7 +1,7 @@
 #include "MAPL_TestErr.h"
-module Test_MeanAccumulator
+module Test_MeanAction
 
-   use mapl3g_MeanAccumulator
+   use mapl3g_MeanAction
    use accumulator_action_test_common
    use esmf
    use funit
@@ -12,7 +12,7 @@ contains
 
    @Test
    subroutine test_calculate_mean_R4()
-      type(MeanAccumulator) :: acc
+      type(MeanAction) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
       integer :: status
@@ -70,7 +70,7 @@ contains
 
    @Test
    subroutine test_calculate_mean()
-      type(MeanAccumulator) :: acc
+      type(MeanAction) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
       integer :: status
@@ -95,7 +95,7 @@ contains
 
    @Test
    subroutine test_clear_accumulator()
-      type(MeanAccumulator) :: acc
+      type(MeanAction) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
       integer :: status
@@ -111,7 +111,7 @@ contains
 
    @Test
    subroutine test_clear_valid_mean()
-      type(MeanAccumulator) :: acc
+      type(MeanAction) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
       integer :: status
@@ -127,7 +127,7 @@ contains
 
    @Test
    subroutine test_invalidate()
-      type(MeanAccumulator) :: acc
+      type(MeanAction) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
       integer :: status
@@ -149,7 +149,7 @@ contains
    end subroutine test_invalidate
 
    subroutine test_accumulate_mean_R4()
-      type(MeanAccumulator) :: acc
+      type(MeanAction) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
       integer :: status
@@ -211,4 +211,4 @@ contains
 
    end subroutine set_up
 
-end module Test_MeanAccumulator
+end module Test_MeanAction

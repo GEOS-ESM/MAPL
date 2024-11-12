@@ -1,5 +1,5 @@
 #include "MAPL_Generic.h"
-module mapl3g_MaxAccumulator
+module mapl3g_MinAction
    use mapl3g_AccumulatorAction
    use MAPL_ExceptionHandling
    use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
@@ -7,28 +7,28 @@ module mapl3g_MaxAccumulator
    use ESMF
    implicit none
    private
-   public :: MaxAccumulator
+   public :: MinAction
 
-   type, extends(AccumulatorAction) :: MaxAccumulator
+   type, extends(AccumulatorAction) :: MinAction
    contains
-      procedure :: accumulate_R4 => max_accumulate_R4
-   end type MaxAccumulator
+      procedure :: accumulate_R4 => min_accumulate_R4
+   end type MinAction
 
-   interface MaxAccumulator
-      module procedure :: construct_MaxAccumulator
-   end interface MaxAccumulator
+   interface MinAction
+      module procedure :: construct_MinAction
+   end interface MinAction
 
 contains
 
-   function construct_MaxAccumulator() result(acc)
-      type(MaxAccumulator) :: acc
+   function construct_MinAction() result(acc)
+      type(MinAction) :: acc
 
       acc%CLEAR_VALUE_R4 = MAPL_UNDEFINED_REAL
 
-   end function construct_MaxAccumulator
+   end function construct_MinAction
 
-   subroutine max_accumulate_R4(this, update_field, rc)
-      class(MaxAccumulator), intent(inout) :: this
+   subroutine min_accumulate_R4(this, update_field, rc)
+      class(MinAction), intent(inout) :: this
       type(ESMF_Field), intent(inout) :: update_field
       integer, optional, intent(out) :: rc
 
@@ -42,10 +42,10 @@ contains
       where(current == UNDEF)
          current = latest
       elsewhere(latest /= UNDEF)
-         current = max(current, latest)
+         current = min(current, latest)
       end where
       _RETURN(_SUCCESS)
 
-   end subroutine max_accumulate_R4
+   end subroutine min_accumulate_R4
 
-end module mapl3g_MaxAccumulator
+end module mapl3g_MinAction
