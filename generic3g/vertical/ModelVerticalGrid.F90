@@ -65,14 +65,16 @@ module mapl3g_ModelVerticalGrid
 
 contains
 
-   function new_ModelVerticalGrid_basic(num_levels) result(vgrid)
+   function new_ModelVerticalGrid_basic(num_levels, units) result(vgrid)
       type(ModelVerticalGrid) :: vgrid
       integer, intent(in) :: num_levels
+      character(*) , intent(in) :: units
       !# character(*), intent(in) :: short_name
       !# character(*), intent(in) :: standard_name
       !# type(StateRegistry), pointer, intent(in) :: registry
 
       call vgrid%set_id()
+      call vgrid%set_units(units)
       vgrid%num_levels = num_levels
       !# vgrid%short_name = short_name
       !# vgrid%standard_name = standard_name
@@ -126,7 +128,6 @@ contains
        type(StateItemExtension), pointer :: new_extension
        class(StateItemSpec), pointer :: new_spec
        type(FieldSpec) :: goal_spec
-       integer :: i
 
        short_name = this%variants%of(1)
        v_pt = VirtualConnectionPt(state_intent="export", short_name=short_name)
