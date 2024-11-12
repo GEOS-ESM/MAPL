@@ -20,12 +20,7 @@ contains
       type(ESMF_GridComp) :: gridcomp
       integer, intent(out) :: rc
 
-      type(ESMF_HConfig) :: hconfig, collections_config, child_hconfig
-      character(len=:), allocatable :: child_name, collection_name
-      type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
-      logical :: has_active_collections
-      ! class(logger), pointer :: lgr
-      integer :: num_collections, status
+      integer :: status
 
       ! Set entry points
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name="GENERIC::INIT_REALIZE", _RC)
@@ -41,16 +36,11 @@ contains
       type(ESMF_Clock) :: clock
       integer, intent(out)  :: rc
 
-      type(OuterMetaComponent), pointer :: outer_meta
       type(ESMF_Geom) :: geom
-      class(VerticalGrid), allocatable :: vertical_grid
       type(ESMF_Field) :: field1, field2
       integer :: num_levels, status
 
-      outer_meta => get_outer_meta_from_inner_gc(gridcomp,_RC)
-      geom = outer_meta%get_geom()
-      vertical_grid = outer_meta%get_vertical_grid()
-      num_levels = vertical_grid%get_num_levels()
+      call MAPL_GridCompGet(gridcomp, geom=geom, num_levels=num_levels, _RC)
 
       call ESMF_StateGet(exportState, "PL", field1, _RC)
       call field_complete_(field1, geom, num_levels, VERTICAL_STAGGER_CENTER, "hPa", "air_pressure", rc)
