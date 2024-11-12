@@ -1,14 +1,14 @@
 mapl:
 
   children:
-    A:
+    DYN:
+      sharedObj: libMAPL.fakedyn.so
+      setServices: setservices_
+      config_file: scenarios/vertical_regridding_3/DYN.yaml
+    PHYS:
       sharedObj: libsimple_leaf_gridcomp
       setServices: setservices_
-      config_file: scenarios/vertical_regridding_3/A.yaml
-    B:
-      sharedObj: libsimple_leaf_gridcomp
-      setServices: setservices_
-      config_file: scenarios/vertical_regridding_3/B.yaml
+      config_file: scenarios/vertical_regridding_3/PHYS.yaml
     C:
       sharedObj: libsimple_leaf_gridcomp
       setServices: setservices_
@@ -17,11 +17,11 @@ mapl:
   states: {}
 
   connections:
-    - src_name: E_A
-      dst_name: I_B
-      src_comp: A
-      dst_comp: B
+    - src_name: T_DYN
+      dst_name: T_PHYS
+      src_comp: DYN
+      dst_comp: PHYS
     - src_name: PL
       dst_name: I_C
-      src_comp: A
+      src_comp: DYN
       dst_comp: C
