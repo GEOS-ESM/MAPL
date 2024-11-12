@@ -292,10 +292,20 @@ contains
       ! We look to see if the user has set an environment variable for the
       ! name of the ESMF configuration file. If they have, we use that. If not,
       ! we use the default of "ESMF.rc" for backward compatibility
-      call get_environment_variable('ESMF_CONFIG_FILE', value=esmfConfigFile, length=esmfConfigFileLen, status=status)
-      if (status /= 0) then
-         esmfConfigFile = 'ESMF.rc'
-         esmfConfigFileLen = len_trim(esmfConfigFile)
+
+      ! Step one: default to ESMF.rc
+
+      esmfConfigFile = 'ESMF.rc'
+      esmfConfigFileLen = len(esmfConfigFile)
+
+      ! Step two: get the length of the environment variable
+      call get_environment_variable('ESMF_CONFIG_FILE', length=esmfConfigFileLen, status=status)
+      ! Step three: if the environment variable exists, get the value of the environment variable
+      if (status == 0) then
+         ! We need to deallocate so we can reallocate
+         deallocate(esmfConfigFile)
+         allocate(character(len = esmfConfigFileLen) :: esmfConfigFile)
+         call get_environment_variable('ESMF_CONFIG_FILE', value=esmfConfigFile, status=status)
       end if
 
       if (rank == 0) then
