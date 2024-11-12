@@ -274,9 +274,10 @@ contains
       integer :: rank, ierror
       integer :: status
       class(Logger), pointer :: lgr
-      logical :: file_exists
+      logical :: esmfConfigFileExists
       type (ESMF_VM) :: vm
-      character(len=:), allocatable :: esmfComm
+      character(len=:), allocatable :: esmfComm, esmfConfigFile
+      integer :: esmfConfigFileLen
 
       _UNUSED_DUMMY(unusable)
 
@@ -288,16 +289,27 @@ contains
       call MPI_COMM_RANK(comm, rank, status)
       _VERIFY(status)
 
-      if (rank == 0) then
-         inquire(file='ESMF.rc', exist=file_exists)
+      ! We look to see if the user has set an environment variable for the
+      ! name of the ESMF configuration file. If they have, we use that. If not,
+      ! we use the default of "ESMF.rc" for backward compatibility
+      call get_environment_variable('ESMF_CONFIG_FILE', value=esmfConfigFile, length=esmfConfigFileLen, status=status)
+      if (status /= 0) then
+         esmfConfigFile = 'ESMF.rc'
+         esmfConfigFileLen = len_trim(esmfConfigFile)
       end if
-      call MPI_BCAST(file_exists, 1, MPI_LOGICAL, 0, comm, status)
+
+      if (rank == 0) then
+         inquire(file=esmfConfigFile, exist=esmfConfigFileExists)
+      end if
+      call MPI_BCAST(esmfConfigFileExists, 1, MPI_LOGICAL, 0, comm, status)
+      _VERIFY(status)
+      call MPI_BCAST(esmfConfigFile, esmfConfigFileLen, MPI_CHARACTER, 0, comm, status)
       _VERIFY(status)
 
       ! If the file exists, we pass it into ESMF_Initialize, else, we
       ! use the one from the command line arguments
-      if (file_exists) then
-         call ESMF_Initialize (configFileName='ESMF.rc', mpiCommunicator=comm, vm=vm, _RC)
+      if (esmf_config_file_exists) then
+         call ESMF_Initialize (configFileName=esmfConfig_file, mpiCommunicator=comm, vm=vm, _RC)
       else
          call ESMF_Initialize (logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, vm=vm, _RC)
       end if

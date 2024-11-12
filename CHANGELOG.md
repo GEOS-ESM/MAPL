@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Allow update offsets of &#177;timestep in ExtData2G
 - Minor revision (and generalization) of grid-def for GSI purposes
-- Trajectory sampler: fix a bug when group_name does not exist in netCDF file and a bug that omitted the first time point
+- Add ability to use an `ESMF_CONFIG_FILE` environment variable to specify name of file to pass in pre-`ESMF_Initialize` options to ESMF (see [ESMF Docs](https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node4.html#SECTION04024000000000000000) for allowed flags.
 
 ### Changed
 
@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed issue of some Baselibs builds appearing to support zstandard. This is not possible due to Baselibs building HDF5 and netCDF as static libraries
+- Trajectory sampler: fix a bug when group_name does not exist in netCDF file and a bug that omitted the first time point
 
 ### Removed
 
