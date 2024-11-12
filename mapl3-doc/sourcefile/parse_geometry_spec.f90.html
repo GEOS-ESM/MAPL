@@ -79,7 +79,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.0% of total for source files.">131 statements</a>
+                 title=" 0.0% of total for source files.">133 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -415,23 +415,24 @@ large graphs.</div>
 <a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">            </span><span class="n">vertical_grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FixedLevelsVerticalGrid</span><span class="p">(</span><span class="n">standard_name</span><span class="p">,</span><span class="w"> </span><span class="n">levels</span><span class="p">,</span><span class="w"> </span><span class="n">units</span><span class="p">)</span>
 <a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">         </span><span class="k">case</span><span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">)</span>
 <a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">            </span><span class="n">num_levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigAsI4</span><span class="p">(</span><span class="n">vertical_grid_cfg</span><span class="p">,</span><span class="w"> </span><span class="n">keyString</span><span class="o">=</span><span class="s1">&#39;num_levels&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">            </span><span class="n">vertical_grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ModelVerticalGrid</span><span class="p">(</span><span class="n">num_levels</span><span class="o">=</span><span class="n">num_levels</span><span class="p">)</span>
-<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">            </span><span class="n">short_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigAsString</span><span class="p">(</span><span class="n">vertical_grid_cfg</span><span class="p">,</span><span class="w"> </span><span class="n">keyString</span><span class="o">=</span><span class="s1">&#39;short_name&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">            </span><span class="k">select type</span><span class="p">(</span><span class="n">vertical_grid</span><span class="p">)</span>
-<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">            </span><span class="k">type is</span><span class="p">(</span><span class="n">ModelVerticalGrid</span><span class="p">)</span>
-<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">               </span><span class="k">call </span><span class="n">vertical_grid</span><span class="p">%</span><span class="n">add_variant</span><span class="p">(</span><span class="n">short_name</span><span class="o">=</span><span class="n">short_name</span><span class="p">)</span>
-<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">               </span><span class="k">call </span><span class="n">vertical_grid</span><span class="p">%</span><span class="n">set_registry</span><span class="p">(</span><span class="n">registry</span><span class="p">)</span>
-<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">            </span><span class="k">end select</span>
-<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="k">         case </span><span class="n">default</span>
-<a id="ln-119" name="ln-119" href="#ln-119"></a><span class="w">            </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;vertical grid class &#39;</span><span class="o">//</span><span class="n">vertical_grid_class</span><span class="o">//</span><span class="s1">&#39; not supported&#39;</span><span class="p">)</span>
-<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">         </span><span class="k">end select</span>
-<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="k">      end if</span>
-<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="k">      </span><span class="n">geometry_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GeometrySpec</span><span class="p">(</span><span class="n">geom_spec</span><span class="o">=</span><span class="n">geom_spec</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="o">=</span><span class="n">vertical_grid</span><span class="p">)</span>
-<a id="ln-123" name="ln-123" href="#ln-123"></a>
-<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
-<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">   </span><span class="k">end function </span><span class="n">parse_geometry_spec</span>
-<a id="ln-126" name="ln-126" href="#ln-126"></a>
-<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="k">end submodule </span><span class="n">parse_geometry_spec_smod</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">            </span><span class="n">units</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigAsString</span><span class="p">(</span><span class="n">vertical_grid_cfg</span><span class="p">,</span><span class="w"> </span><span class="n">keyString</span><span class="o">=</span><span class="s1">&#39;units&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">            </span><span class="n">vertical_grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ModelVerticalGrid</span><span class="p">(</span><span class="n">num_levels</span><span class="o">=</span><span class="n">num_levels</span><span class="p">,</span><span class="w"> </span><span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">)</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">            </span><span class="n">short_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigAsString</span><span class="p">(</span><span class="n">vertical_grid_cfg</span><span class="p">,</span><span class="w"> </span><span class="n">keyString</span><span class="o">=</span><span class="s1">&#39;short_name&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">            </span><span class="k">select type</span><span class="p">(</span><span class="n">vertical_grid</span><span class="p">)</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">            </span><span class="k">type is</span><span class="p">(</span><span class="n">ModelVerticalGrid</span><span class="p">)</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">               </span><span class="k">call </span><span class="n">vertical_grid</span><span class="p">%</span><span class="n">add_variant</span><span class="p">(</span><span class="n">short_name</span><span class="o">=</span><span class="n">short_name</span><span class="p">)</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">               </span><span class="k">call </span><span class="n">vertical_grid</span><span class="p">%</span><span class="n">set_registry</span><span class="p">(</span><span class="n">registry</span><span class="p">)</span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">            </span><span class="k">end select</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a><span class="k">         case </span><span class="n">default</span>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">            </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;vertical grid class &#39;</span><span class="o">//</span><span class="n">vertical_grid_class</span><span class="o">//</span><span class="s1">&#39; not supported&#39;</span><span class="p">)</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">         </span><span class="k">end select</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="k">      end if</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="k">      </span><span class="n">geometry_spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GeometrySpec</span><span class="p">(</span><span class="n">geom_spec</span><span class="o">=</span><span class="n">geom_spec</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="o">=</span><span class="n">vertical_grid</span><span class="p">)</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="w">   </span><span class="k">end function </span><span class="n">parse_geometry_spec</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="k">end submodule </span><span class="n">parse_geometry_spec_smod</span>
 </pre></div>
 
       </section>
@@ -453,7 +454,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-11-11T14:07:49.808733             </p>
+ on 2024-11-12T15:07:14.789942+0000             </p>
           </div>
         </div>
         <br>

@@ -117,14 +117,16 @@ contains
       type(ESMF_GridComp) :: coupler_gridcomp
       type(StateItemAdapterWrapper), allocatable :: adapters(:)
       type(ESMF_Clock) :: fake_clock
+      logical :: match
 
       call this%spec%set_active()
 
       new_spec = this%spec
       adapters = this%spec%make_adapters(goal, _RC)
       do i = 1, size(adapters)
-         if (adapters(i)%adapter%match(new_spec)) cycle
-         call adapters(i)%adapter%adapt(new_spec, action)
+         match = adapters(i)%adapter%match(new_spec, _RC)
+         if (match) cycle
+         call adapters(i)%adapter%adapt(new_spec, action, _RC)
          exit
       end do
 
