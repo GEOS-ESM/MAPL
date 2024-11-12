@@ -122,6 +122,7 @@ contains
       type(StateItemExtensionPtr) :: extension_ptr
       type(StateItemExtension), pointer :: primary
       class(StateItemSpec), pointer :: spec
+      logical :: match
       
       closest_extension => null()
       subgroup = family%get_extensions()
@@ -135,7 +136,8 @@ contains
             extension_ptr = subgroup%of(j)
             spec => extension_ptr%ptr%get_spec()
             associate (adapter => adapters(i)%adapter)
-              if (adapter%match(spec)) then
+              match = adapter%match(spec, _RC)
+              if (match) then
                  call new_subgroup%push_back(extension_ptr)
               end if
             end associate
