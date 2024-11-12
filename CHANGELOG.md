@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Backport changes to use ESMF 8.6.1 to 2.40.3
   - Update to use `ESMF::ESMF` target
   - Update to ESMF 8.6.1 `FindESMF.cmake` file
+  - Remove excessive prints in `generic/OpenMP_Support.F90`
 
 ## [2.40.3] - 2023-08-03
 
