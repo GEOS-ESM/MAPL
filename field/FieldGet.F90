@@ -24,33 +24,46 @@ module mapl3g_FieldGet
 contains
 
    subroutine field_get(field, unusable, &
+        short_name, typekind, &
         num_levels, vert_staggerloc, num_vgrid_levels, &
         ungridded_dims, &
-        units, standard_name, &
+        units, standard_name, long_name,  &
         rc)
 
       type(ESMF_Field), intent(in) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(len=:), optional, allocatable, intent(out) :: short_name
+      type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
       integer, optional, intent(out) :: num_levels
       type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
       integer, optional, intent(out) :: num_vgrid_levels
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       character(len=:), optional, allocatable, intent(out) :: units
       character(len=:), optional, allocatable, intent(out) :: standard_name
+      character(len=:), optional, allocatable, intent(out) :: long_name
 
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(ESMF_Info) :: field_info
+      character(len=ESMF_MAXSTR) :: fname
+
+      if (present(short_name)) then
+         call ESMF_FieldGet(field, name=fname, _RC)
+         short_name = trim(fname)
+      end if
+
+      if (present(typekind)) then
+         call ESMF_FieldGet(field, typekind=typekind, _RC)
+      end if
 
       call ESMF_InfoGetFromHost(field, field_info, _RC)
-      
       call MAPL_FieldInfoGetInternal(field_info, &
            num_levels=num_levels, &
            vert_staggerloc=vert_staggerloc, &
            num_vgrid_levels=num_vgrid_levels, &
            ungridded_dims=ungridded_dims, &
-           units=units, standard_name=standard_name, _RC)
+           units=units, standard_name=standard_name, long_name=long_name, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine field_get

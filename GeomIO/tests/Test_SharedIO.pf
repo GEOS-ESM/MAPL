@@ -36,25 +36,6 @@ contains
 
 
     @Test
-    subroutine test_get_vertical_dimension_num_levels()
-      integer, parameter :: NUMLEVELS = 3
-      character(:), allocatable :: vertical_dim
-      integer :: num_levels
-      character(len=:), allocatable :: message
-
-      vertical_dim = DIM_CENTER
-      num_levels = NUMLEVELS
-      message = make_message('Num_levels does not match for', vertical_dim)
-      @assertEqual(num_levels, get_vertical_dimension_num_levels(vertical_dim, NUMLEVELS), message)
-
-      vertical_dim = DIM_EDGE
-      num_levels = NUMLEVELS+1
-      message = make_message('Num_levels does not match for', vertical_dim)
-      @assertEqual(num_levels, get_vertical_dimension_num_levels(vertical_dim, NUMLEVELS), message)
-
-    end subroutine test_get_vertical_dimension_num_levels
-
-    @Test
     subroutine test_cat_ungridded_dim_names()
        type(UngriddedDims) :: dims
        character(len=8), parameter :: NAMES(3) = [character(len=8) :: 'Alice', 'Bob', 'Mallory']

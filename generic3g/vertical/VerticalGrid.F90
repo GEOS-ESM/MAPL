@@ -10,6 +10,7 @@ module mapl3g_VerticalGrid
    type, abstract :: VerticalGrid
       private
       integer :: id = -1
+      character(:), allocatable :: units
    contains
       procedure(I_get_num_levels), deferred :: get_num_levels
       procedure(I_get_coordinate_field), deferred :: get_coordinate_field
@@ -20,6 +21,8 @@ module mapl3g_VerticalGrid
       procedure :: set_id
       procedure :: get_id
       procedure :: same_id
+      procedure :: set_units
+      procedure :: get_units
       procedure :: make_info
    end type VerticalGrid
 
@@ -87,6 +90,18 @@ contains
       class(VerticalGrid), intent(in) :: other
       same_id = (this%id == other%id)
    end function same_id
+
+   subroutine set_units(this, units)
+      class(VerticalGrid), intent(inout) :: this
+      character(*), intent(in) :: units
+      this%units = units
+   end subroutine set_units
+
+   function get_units(this) result(units)
+      character(:), allocatable :: units
+      class(VerticalGrid), intent(in) :: this
+      units = this%units
+   end function get_units
 
    function make_info(this, rc) result(info)
       use esmf
