@@ -309,7 +309,7 @@ contains
       ! If the file exists, we pass it into ESMF_Initialize, else, we
       ! use the one from the command line arguments
       if (esmfConfigFileExists) then
-         call ESMF_Initialize (configFileName=esmfConfig_file, mpiCommunicator=comm, vm=vm, _RC)
+         call ESMF_Initialize (configFileName=esmfConfigFile, mpiCommunicator=comm, vm=vm, _RC)
       else
          call ESMF_Initialize (logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, vm=vm, _RC)
       end if
