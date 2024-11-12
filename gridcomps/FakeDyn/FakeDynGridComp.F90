@@ -38,9 +38,11 @@ contains
 
       type(ESMF_Geom) :: geom
       type(ESMF_Field) :: field1, field2
+      class(VerticalGrid), allocatable :: vertical_grid
       integer :: num_levels, status
 
-      call MAPL_GridCompGet(gridcomp, geom=geom, num_levels=num_levels, _RC)
+      call MAPL_GridCompGet(gridcomp, geom=geom, vertical_grid=vertical_grid, _RC)
+      num_levels = vertical_grid%get_num_levels()
 
       call ESMF_StateGet(exportState, "PL", field1, _RC)
       call field_complete_(field1, geom, num_levels, VERTICAL_STAGGER_CENTER, "hPa", "air_pressure", rc)

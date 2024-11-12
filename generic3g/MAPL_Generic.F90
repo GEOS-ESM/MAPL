@@ -218,7 +218,7 @@ contains
         logger, &
         registry, &
         geom, &
-        num_levels, &
+        vertical_grid, &
         rc)
 
       type(ESMF_GridComp), intent(inout) :: gridcomp
@@ -228,12 +228,11 @@ contains
       class(Logger_t), optional, pointer, intent(out) :: logger
       type(StateRegistry), optional, pointer, intent(out) :: registry
       type(ESMF_Geom), optional, intent(out) :: geom
-      integer, optional, intent(out) :: num_levels
+      class(VerticalGrid), allocatable, optional, intent(out) :: vertical_grid
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta_, outer_meta_from_inner_gc
-      class(VerticalGrid), allocatable :: vertical_grid
 
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta_, _RC)
       
@@ -242,10 +241,9 @@ contains
       if (present(logger)) logger => outer_meta_%get_lgr()
       if (present(registry)) registry => outer_meta_%get_registry()
       if (present(geom)) geom = outer_meta_%get_geom()
-      if (present(num_levels)) then
+      if (present(vertical_grid)) then
          outer_meta_from_inner_gc => get_outer_meta_from_inner_gc(gridcomp, _RC)
          vertical_grid = outer_meta_from_inner_gc%get_vertical_grid()
-         num_levels = vertical_grid%get_num_levels()
       end if
 
       _RETURN(_SUCCESS)
