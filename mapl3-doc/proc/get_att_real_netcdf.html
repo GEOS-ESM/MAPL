@@ -79,7 +79,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.0% of total for procedures.">29 statements</a>
+                 title=" 0.0% of total for procedures.">31 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -280,7 +280,7 @@ large graphs.</div>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-filename~65"></span>
+              <span class="anchor" id="variable-filename~36"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -295,7 +295,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-varname~4"></span>
+              <span class="anchor" id="variable-varname~2"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -340,7 +340,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-group_name~25"></span>
+              <span class="anchor" id="variable-group_name~4"></span>
               character(len=*),
             </td>
 <td>intent(out),</td>
@@ -355,7 +355,7 @@ large graphs.</div>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~2693"></span>
+              <span class="anchor" id="variable-rc~1234"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -690,10 +690,12 @@ large graphs.</div>
 <span class="w">    </span><span class="k">call </span><span class="n">check_nc_status</span><span class="p">(</span><span class="n">nf90_open</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">fileName</span><span class="p">),</span><span class="w"> </span><span class="n">NF90_NOWRITE</span><span class="p">,</span><span class="w"> </span><span class="n">ncid</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <span class="w">    </span><span class="n">ncid_sv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ncid</span>
 <span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">group_name</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
-<span class="k">       call </span><span class="n">check_nc_status</span><span class="p">(</span><span class="n">nf90_inq_ncid</span><span class="p">(</span><span class="n">ncid</span><span class="p">,</span><span class="w"> </span><span class="n">group_name</span><span class="p">,</span><span class="w"> </span><span class="n">ncid_grp</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">       </span><span class="c">! overwrite</span>
-<span class="w">       </span><span class="n">ncid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ncid_grp</span>
-<span class="w">    </span><span class="k">end if</span>
+<span class="k">       if</span><span class="p">(</span><span class="n">group_name</span><span class="o">/=</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          call </span><span class="n">check_nc_status</span><span class="p">(</span><span class="n">nf90_inq_ncid</span><span class="p">(</span><span class="n">ncid</span><span class="p">,</span><span class="w"> </span><span class="n">group_name</span><span class="p">,</span><span class="w"> </span><span class="n">ncid_grp</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">          </span><span class="c">! overwrite</span>
+<span class="w">          </span><span class="n">ncid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ncid_grp</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">    end if</span>
 <span class="k">    call </span><span class="n">check_nc_status</span><span class="p">(</span><span class="n">nf90_inq_varid</span><span class="p">(</span><span class="n">ncid</span><span class="p">,</span><span class="w"> </span><span class="n">varname</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <span class="w">    </span><span class="k">call </span><span class="n">check_nc_status</span><span class="p">(</span><span class="n">nf90_get_att</span><span class="p">(</span><span class="n">ncid</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span><span class="p">,</span><span class="w"> </span><span class="n">att_name</span><span class="p">,</span><span class="w"> </span><span class="n">att_value</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <span class="w">    </span><span class="k">call </span><span class="n">check_nc_status</span><span class="p">(</span><span class="n">nf90_close</span><span class="p">(</span><span class="n">ncid_sv</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
@@ -724,7 +726,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-11-12T15:07:14.789942+0000             </p>
+ on 2024-11-12T15:27:45.352194+0000             </p>
           </div>
         </div>
         <br>
