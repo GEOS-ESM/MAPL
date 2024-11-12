@@ -3752,10 +3752,10 @@ ENDDO PARSER
             call MAPL_TimerOn(GENSTATE,"Mask_append")
 
             if (list(n)%unit < 0) then    ! CFIO
-               !!            write(6,*) 'bf list(n)%mask_sampler%append_file'
-               call list(n)%mask_sampler%append_file(current_time,&
+               !!            write(6,*) 'bf list(n)%mask_sampler%output_to_server'
+               call list(n)%mask_sampler%output_to_server(current_time,&
                     list(n)%currentFile,oClients=o_Clients,_RC)
-               write(6,*) 'af list(n)%mask_sampler%append_file'
+               write(6,*) 'af list(n)%mask_sampler%output_to_server'
             end if
             call MAPL_TimerOff(GENSTATE,"Mask_append")
          endif

@@ -78,6 +78,11 @@ module MaskSamplerMod
      integer(kind=ESMF_KIND_I8)     :: epoch_index(2)
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
+     real(kind=REAL64), allocatable :: lons_deg(:)
+     real(kind=REAL64), allocatable :: lats_deg(:)
+!    real, allocatable :: lons_deg(:)
+!    real, allocatable :: lats_deg(:)     
+     real, allocatable :: times(:)
      integer, allocatable :: recvcounts(:)
      integer, allocatable :: displs(:)
      type(MAPL_MetaComp), pointer :: GENSTATE
@@ -111,7 +116,7 @@ module MaskSamplerMod
      procedure :: initialize => initialize_
      procedure :: create_metadata
 !!     procedure :: create_file_handle
-     procedure :: append_file => output_to_server
+     procedure :: output_to_server
      procedure :: create_grid => create_Geosat_grid_find_mask
      procedure :: compute_time_for_current
      procedure :: set_param
@@ -192,12 +197,6 @@ module MaskSamplerMod
        type (ClientManager), target, optional, intent(inout) :: oClients
        integer, optional, intent(out)          :: rc
      end subroutine output_to_server
-
-     module subroutine append_file_oserver(this,current_time,rc)
-       class(MaskSampler), intent(inout) :: this
-       type(ESMF_Time), intent(inout)          :: current_time
-       integer, optional, intent(out)          :: rc
-     end subroutine append_file_oserver
 
      module subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,&
           nbits_to_keep,regrid_method,itemOrder,write_collection_id,regrid_hints,rc)

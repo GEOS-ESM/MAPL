@@ -754,6 +754,18 @@ module subroutine  create_metadata(this,rc)
        call MPI_Barrier(mpic,ierr)
        _VERIFY(ierr)
 
+
+       if (mapl_am_i_root()) then
+          print*, 'this%npt_mask_tot=', this%npt_mask_tot
+          allocate (this%lons_deg(this%npt_mask_tot), this%lats_deg(this%npt_mask_tot), _STAT)
+          this%lons_deg = this%lons * MAPL_RADIANS_TO_DEGREES
+          this%lats_deg = this%lats * MAPL_RADIANS_TO_DEGREES
+       else
+          allocate (this%lons_deg(0), this%lats_deg(0), _STAT)          
+       end if
+       write(6,'(2x,a,2x,i5,2x,1000f12.2)') 'ip, lons_deg', ip, this%lons_deg
+!!       write(6,'(2x,a,2x,i5,2x,1000f12.2)') 'ip, lats_deg', ip, this%lats_deg       
+
 !!       call MAPL_CommsBcast(vm, DATA=, N=1, ROOT=MAPL_Root, _RC)
        allocate (sendcounts_loc(petcount))
        do i=1, petcount
@@ -821,7 +833,6 @@ module subroutine  create_metadata(this,rc)
     integer, allocatable :: gridGlobalStart(:)
     integer, allocatable :: gridGlobalCount(:)
 
-    real, allocatable :: times(:)
     logical :: have_time
     integer :: tindex, nset
     integer :: count_scalar, count_vector
@@ -857,12 +868,20 @@ module subroutine  create_metadata(this,rc)
     Have_time = this%timeInfo%am_i_initialized()
 
     if (have_time) then
-       times = this%timeInfo%compute_time_vector(this%metadata,_RC)
-       ref = ArrayReference(times)
+       this%times = this%timeInfo%compute_time_vector(this%metadata,_RC)
+       write(6,*)  'this%times=', this%times
+
+
+       ref = ArrayReference(this%times)
+
+       !ygyu
        call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
-       tindex = size(times)
+       tindex = size(this%times)
        if (tindex==1) then
+          write(6,*) 'bf stage2dlatlon'
           call this%stage2DLatLon(filename,oClients=oClients,_RC)
+          write(6,*) 'af stage2dlatlon'
+
        end if
     else
        tindex = -1
@@ -945,8 +964,9 @@ module subroutine  create_metadata(this,rc)
                 allocate(global_count,source=[0])
              end if
 
-             call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(item%xname), &
-                  ref,start=local_start, global_start=global_start, global_count=global_count)
+! ygyu test             
+!             call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(item%xname), &
+!                  ref,start=local_start, global_start=global_start, global_count=global_count)
              deallocate (local_start, global_start, global_count)
 
 
@@ -1059,27 +1079,26 @@ module subroutine  create_metadata(this,rc)
     !       in sub. create_Geosat_grid_find_mask
     !
     if (mapl_am_i_root()) then
-       nx = this%npt_mask_tot
-       allocate (lons(nx), lats(nx))
-       lons = this%lons * MAPL_RADIANS_TO_DEGREES
-       lats = this%lats * MAPL_RADIANS_TO_DEGREES
        allocate(local_start,source=[1])
        allocate(global_start,source=[1])
        allocate(global_count,source=[this%npt_mask_tot])
+       write(6,*) 'this%lons_deg  root',     this%lons_deg
     else
-       allocate (lons(0), lats(0))
        allocate(local_start,source=[0])
        allocate(global_start,source=[0])
        allocate(global_count,source=[0])
+       write(6,*) 'this%lons_deg else',     this%lons_deg       
     end if
 
-    ref = ArrayReference(lons)
+    
+    ref = ArrayReference(this%lons_deg)
     call oClients%collective_stage_data(this%write_collection_id,trim(filename),'longitude', &
          ref,start=local_start, global_start=global_start, global_count=global_count)
 
-    ref = ArrayReference(lats)
-    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'latitude', &
-         ref,start=local_start, global_start=global_start, global_count=global_count)
+!ygyu
+!    ref = ArrayReference(this%lats_deg)
+!    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'latitude', &
+!         ref,start=local_start, global_start=global_start, global_count=global_count)
 
     _RETURN(_SUCCESS)
  end subroutine stage2dlatlon
