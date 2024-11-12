@@ -426,12 +426,9 @@ contains
       call setup_geom(geom, 4)
       call setup_bundle(bundle, weights=[5.], geom=geom, typekind=ESMF_TYPEKIND_R4, units='km')
 
-      _HERE
       delta = FieldBundleDelta(interpolation_weights=new_weights)
-      _HERE
       call delta%update_bundle(bundle, _RC) ! should allocate fields
 
-      _HERE
       call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
       @assert_that(size(fieldList), is(FIELD_COUNT))
 
