@@ -316,9 +316,12 @@ contains
       call MPI_BCAST(esmfConfigFile, esmfConfigFileLen, MPI_CHARACTER, 0, comm, status)
       _VERIFY(status)
 
+      lgr => logging%get_logger('MAPL')
+
       ! If the file exists, we pass it into ESMF_Initialize, else, we
       ! use the one from the command line arguments
       if (esmfConfigFileExists) then
+         call lgr%info("Using ESMF configuration file: %a", esmfConfigFile)
          call ESMF_Initialize (configFileName=esmfConfigFile, mpiCommunicator=comm, vm=vm, _RC)
       else
          call ESMF_Initialize (logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, vm=vm, _RC)
@@ -334,7 +337,6 @@ contains
       call ESMF_MeshSetMOAB(this%cap_options%with_esmf_moab, rc=status)
       _VERIFY(status)
 
-      lgr => logging%get_logger('MAPL')
       call lgr%info("Running with MOAB library for ESMF Mesh: %l1", this%cap_options%with_esmf_moab)
 
       call this%initialize_cap_gc(rc=status)
