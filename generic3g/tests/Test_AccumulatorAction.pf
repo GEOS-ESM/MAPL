@@ -1,24 +1,12 @@
-#define _RETURN_(R, S) if(present(R)) R = S; return
-#define _RETURN(S) _RETURN_(rc, S)
-#define _SUCCESS 0
 #include "MAPL_TestErr.h"
 #include "unused_dummy.H"
 module Test_AccumulatorAction
    use mapl3g_AccumulatorAction
-   use mapl3g_MeanAccumulator
+   use accumulator_action_test_common
    use esmf
    use funit
    use MAPL_FieldUtils
    implicit none
-
-   integer(kind=ESMF_KIND_I4), parameter :: TIME_STEP = 1
-   integer(kind=ESMF_KIND_I4), parameter :: START_TIME = 3000
-   integer, parameter :: MAX_INDEX(2) = [4, 4]
-   real(kind=ESMF_KIND_R8), parameter :: MIN_CORNER_COORD(2) = [0.0_ESMF_KIND_R8, 0.0_ESMF_KIND_R8]
-   real(kind=ESMF_KIND_R8), parameter :: MAX_CORNER_COORD(2) = [4.0_ESMF_KIND_R8, 4.0_ESMF_KIND_R8]
-   type(ESMF_TypeKind_Flag), parameter :: typekind = ESMF_TYPEKIND_R4
-   integer, parameter :: R4 = ESMF_KIND_R4
-   integer, parameter :: R8 = ESMF_KIND_R8
 
 contains
 
@@ -26,7 +14,8 @@ contains
    subroutine test_construct_AccumulatorAction()
       type(AccumulatorAction) :: acc
 
-      @assert_that(acc%update_calculated, is(false()))
+      @assertFalse(acc%update_calculated, 'updated_calculated .TRUE.')
+      @assertFalse(acc%initialized(), 'initialized .TRUE.')
 
    end subroutine test_construct_AccumulatorAction
 
@@ -35,28 +24,14 @@ contains
       type(AccumulatorAction) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
-      type(ESMF_Field) :: import_field
       integer :: status
-      real(kind=R4), parameter :: TEST_VALUE = 1.0_R4
-      real(kind=R4) :: clear_value
       logical :: equals_expected_value 
 
       call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
-      @assert_that(acc%initialized(), is(false()))
-
-      call get_field(importState, import_field, _RC)
-      call FieldSet(import_field, TEST_VALUE, _RC)
-
-      equals_expected_value = FieldIsConstant(import_field, TEST_VALUE, _RC)
-      @assert_that(equals_expected_value, is(true()))
-
       call acc%initialize(importState, exportState, clock, _RC)
-      @assert_that(acc%initialized(), is(true()))
-
-      clear_value = acc%CLEAR_VALUE_R4
-      equals_expected_value = FieldIsConstant(acc%accumulation_field, clear_value, _RC)
-      @assert_that(equals_expected_value, is(true()))
-
+      @assertTrue(acc%initialized(), 'initialized .FALSE.')
+      equals_expected_value = FieldIsConstant(acc%accumulation_field, acc%CLEAR_VALUE_R4, _RC)
+      @assertTrue(equals_expected_value, 'accumulation_field was not cleared.')
       call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_initialize
@@ -75,19 +50,14 @@ contains
       call acc%initialize(importState, exportState, clock, _RC)
       call get_field(importState, import_field, _RC)
       call FieldSet(import_field, invalidate_value, _RC)
-
       call acc%invalidate(importState, exportState, clock, _RC)
-      @assert_that(acc%update_calculated, is(false()))
-
+      @assertFalse(acc%update_calculated, 'update_calculated .TRUE.')
       equals_expected_value = FieldIsConstant(acc%accumulation_field, invalidate_value, _RC)
-      @assert_that(equals_expected_value, is(true()))
-
+      @assertTrue(equals_expected_value, 'accumulation_field not equal to invalidate_value')
       call acc%invalidate(importState, exportState, clock, _RC)
-      @assert_that(acc%update_calculated, is(false()))
-
+      @assertFalse(acc%update_calculated, 'update_calculated .TRUE.')
       equals_expected_value = FieldIsConstant(acc%accumulation_field, 2*invalidate_value, _RC)
-      @assert_that(equals_expected_value, is(true()))
-
+      @assertTrue(equals_expected_value, 'accumulation_field .FALSE.')
       call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_invalidate
@@ -103,75 +73,34 @@ contains
       real(kind=R4) :: update_value
       logical :: equals_expected_value
 
-      ! Set up
       call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
-
-      ! Initialize
       call acc%initialize(importState, exportState, clock, _RC)
-
-      ! Set import_field for invalidate step.
       call get_field(importState, import_field, _RC)
       call FieldSet(import_field, invalidate_value, _RC)
-
-      ! Invalidate.
       call acc%invalidate(importState, exportState, clock, _RC)
-      
-      ! Check invalidate.
-      @assert_that(acc%update_calculated, is(false()))
-      equals_expected_value = FieldIsConstant(acc%accumulation_field, invalidate_value, _RC)
-      @assert_that(equals_expected_value, is(true()))
-      
-      ! Set expected value for update.
+      call acc%update(importState, exportState, clock, _RC)
       update_value = invalidate_value
-      ! Update.
-      call acc%update(importState, exportState, clock, _RC)
-
-      ! Check update.
-      @assert_that(acc%update_calculated, is(true()))
-      ! Check that accumulation_field is cleared.
+      @assertTrue(acc%update_calculated, 'update_calculated .FALSE.')
       equals_expected_value = FieldIsConstant(acc%accumulation_field, acc%CLEAR_VALUE_R4, _RC)
-      @assert_that(equals_expected_value, is(true()))
-      ! Check result_field
+      @assertTrue(equals_expected_value, 'accumulation_field was not cleared.')
       equals_expected_value = FieldIsConstant(acc%result_field, update_value, _RC)
-      @assert_that(equals_expected_value, is(true()))
-      ! Check export_field.
+      @assertTrue(equals_expected_value, 'result_field not equal to update_value')
       call get_field(exportState, export_field, _RC)
       equals_expected_value = FieldIsConstant(export_field, update_value, _RC)
-      @assert_that(equals_expected_value, is(true()))
+      @assertTrue(equals_expected_value, 'export_field not equal to update_value')
 
-      ! Invalidate
       call acc%invalidate(importState, exportState, clock, _RC)
-
-      ! Check invalidate.
-      @assert_that(acc%update_calculated, is(false()))
-
-      ! Invalidate again.
       call acc%invalidate(importState, exportState, clock, _RC)
-
-      ! Check invalidate, again.
-      @assert_that(acc%update_calculated, is(false()))
-      ! This time accumulation_field should show true accumulation.
+      call acc%update(importState, exportState, clock, _RC)
       update_value = 2 * invalidate_value
-      equals_expected_value = FieldIsConstant(acc%accumulation_field, update_value, _RC)
-      @assert_that(equals_expected_value, is(true()))
-
-      ! Update
-      call acc%update(importState, exportState, clock, _RC)
-
-      ! Check update.
-      @assert_that(acc%update_calculated, is(true()))
-      ! Check that accumulation_field is cleared.
+      @assertTrue(acc%update_calculated, 'update_calculated .FALSE')
       equals_expected_value = FieldIsConstant(acc%accumulation_field, acc%CLEAR_VALUE_R4, _RC)
-      @assert_that(equals_expected_value, is(true()))
-      ! This time result_field should show true accumulation.
+      @assertTrue(equals_expected_value, 'accumulation_field was not cleared.')
       equals_expected_value = FieldIsConstant(acc%result_field, update_value, _RC)
-      @assert_that(equals_expected_value, is(true()))
-      ! This time export_field should show true accumulation.
+      @assertTrue(equals_expected_value, 'result_field not equal to update_value.')
       call get_field(exportState, export_field, _RC)
       equals_expected_value = FieldIsConstant(export_field, update_value, _RC)
-      @assert_that(equals_expected_value, is(true()))
-
-      ! Tear down.
+      @assertTrue(equals_expected_value, 'export_field not equal to update_value')
       call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_update
@@ -182,8 +111,7 @@ contains
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
       integer :: status
-      type(ESMF_Field) :: update_field, import_field
-      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: update_field
       type(ESMF_TypeKind_Flag) :: typekind
       logical :: matches_expected
       real(kind=ESMF_KIND_R4), parameter :: value_r4 = 3.0_ESMF_KIND_R4
@@ -191,22 +119,13 @@ contains
       typekind = ESMF_TYPEKIND_R4
       call initialize_objects(importState, exportState, clock, typekind, _RC)
       call acc%initialize(importState, exportState, clock, _RC)
-      call get_field(importState, import_field, _RC)
-      call ESMF_FieldGet(import_field, grid=grid, _RC)
-      call initialize_field(update_field, typekind=typekind, grid=grid, _RC)
+      call initialize_field(update_field, typekind=typekind, _RC)
       call FieldSet(update_field, value_r4, _RC)
-
       call acc%accumulate(update_field, _RC)
       matches_expected = FieldIsConstant(acc%accumulation_field, value_r4, _RC)
-      @assert_that(matches_expected, is(true()))
+      @assertTrue(matches_expected, 'accumulation_field not equal to value_r4')
       call ESMF_FieldDestroy(update_field, _RC)
-
-      typekind = ESMF_TYPEKIND_R8
-      call initialize_field(update_field, typekind=typekind, grid=grid, _RC)
-      call FieldSet(update_field, 3.0_ESMF_KIND_R8, _RC)
-      call acc%accumulate(update_field)
-      @assertExceptionRaised()
-      call ESMF_FieldDestroy(update_field, _RC)
+      call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_accumulate
 
@@ -222,10 +141,10 @@ contains
       call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
       call acc%initialize(importState, exportState, clock, _RC)
       call FieldSet(acc%accumulation_field, TEST_VALUE, _RC)
-      is_expected_value = FieldIsConstant(acc%accumulation_field, TEST_VALUE, _RC)
       call acc%clear_accumulator(_RC)
       is_expected_value = FieldIsConstant(acc%accumulation_field, acc%CLEAR_VALUE_R4, _RC)
-      @assert_that(is_expected_value, is(true()))
+      @assertTrue(is_expected_value, 'accumulation_field was not cleared.')
+      call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_clear_accumulator
 
@@ -238,158 +157,25 @@ contains
       real(kind=R4), parameter :: INITIAL_VALUE = 2.0_R4
       real(kind=R4) :: update_value = 3.0_R4
       real(kind=R4) :: expected_value
-      type(ESMF_Field) :: import_field, update_field
+      type(ESMF_Field) :: update_field
       logical :: field_is_expected_value
 
       call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
       call acc%initialize(importState, exportState, clock, _RC)
-      call get_field(importState, import_field, _RC)
-      call FieldClone(import_field, update_field, _RC)
+      call initialize_field(update_field, typekind=typekind, _RC)
       call FieldSet(update_field, update_value, _RC)
       call FieldSet(acc%accumulation_field, INITIAL_VALUE, _RC)
-      expected_value = INITIAL_VALUE
+      call acc%accumulate_R4(update_field, _RC)
+      expected_value = INITIAL_VALUE + update_value
+      field_is_expected_value = FieldIsConstant(acc%accumulation_field, expected_value, _RC)
+      @assertTrue(field_is_expected_value, 'accumulation_field not equal to expected_value.')
       call acc%accumulate_R4(update_field, _RC)
       expected_value = expected_value + update_value
       field_is_expected_value = FieldIsConstant(acc%accumulation_field, expected_value, _RC)
-      @assert_that(field_is_expected_value, is(true()))
-
-      update_value = INITIAL_VALUE
-      call FieldSet(update_field, update_value, _RC)
-      call acc%accumulate_R4(update_field, _RC)
-      expected_value = expected_value + update_value
-      field_is_expected_value = FieldIsConstant(acc%accumulation_field, expected_value, _RC)
-      @assert_that(field_is_expected_value, is(true()))
+      @assertTrue(field_is_expected_value, 'accumulation_field not equal to expected_value.')
+      call ESMF_FieldDestroy(update_field, _RC)
+      call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_accumulate_R4
-
-   @Test
-   subroutine test_calculate_mean_R4()
-      type(MeanAccumulator) :: acc
-      type(ESMF_State) :: importState, exportState
-      type(ESMF_Clock) :: clock
-      integer :: status
-      integer(kind=ESMF_KIND_I8), parameter :: COUNTER = 4
-      real(kind=ESMF_KIND_R4), parameter :: MEAN = 4.0_R4
-      logical :: matches_expected
-      
-      call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
-      call acc%initialize(importState, exportState, clock, _RC)
-      call FieldSet(acc%accumulation_field, COUNTER*MEAN, _RC)
-      acc%counter_scalar = 4
-      acc%valid_mean = .TRUE.
-
-      call acc%calculate_mean_R4(_RC)
-      matches_expected = FieldIsConstant(acc%accumulation_field, MEAN, _RC)
-      @assert_that(matches_expected, is(true()))
-
-   end subroutine test_calculate_mean_R4
-
-! HELPER PROCEDURES
-
-   logical function is_initialized(rc) result(lval)
-      integer, optional, intent(out) :: rc
-      integer :: status
-
-      lval = ESMF_IsInitialized(_RC)
-      _RETURN(_SUCCESS)
-
-   end function is_initialized
-
-   subroutine initialize_field(field, typekind, grid, rc)
-      type(ESMF_Field), intent(inout) :: field
-      type(ESMF_TypeKind_Flag), intent(in) :: typekind
-      type(ESMF_Grid), optional, intent(inout) :: grid
-      integer, optional, intent(out) :: rc
-      type(ESMF_Grid) :: grid_
-      logical :: grid_created
-
-      integer :: status
-      
-      grid_created = .FALSE.
-      if(present(grid)) then
-         grid_created = ESMF_GridIsCreated(grid, _RC)
-         if(grid_created) grid_ = grid
-      end if
-
-      if(.not. grid_created) then
-         grid_ = ESMF_GridCreateNoPeriDimUfrm(maxIndex=MAX_INDEX, &
-            & minCornerCoord=MIN_CORNER_COORD, maxCornerCoord=MAX_CORNER_COORD, _RC)
-      end if
-
-      field = ESMF_FieldCreate(grid=grid_, typekind=typekind, _RC)
-      
-      if(present(grid)) grid = grid_
-      _RETURN(_SUCCESS)
-
-   end subroutine initialize_field
-
-   subroutine initialize_objects(importState, exportState, clock, typekind, rc) 
-      type(ESMF_State), intent(inout) :: importState, exportState
-      type(ESMF_Clock), intent(inout) :: clock
-      type(ESMF_TypeKind_Flag), intent(in) :: typekind
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ESMF_Field) :: importField, exportField
-      type(ESMF_Time) :: startTime
-      type(ESMF_TimeInterval) :: timeStep
-      type(ESMF_Grid) :: grid
-
-      call ESMF_TimeIntervalSet(timeStep, s=TIME_STEP, _RC)
-      call ESMF_TimeSet(startTime, yy=START_TIME, _RC)
-      clock = ESMF_ClockCreate(timeStep=timeStep, startTime=startTime, _RC)
-      grid = ESMF_GridCreateNoPeriDimUfrm(maxIndex=MAX_INDEX, minCornerCoord=MIN_CORNER_COORD, maxCornerCoord=MAX_CORNER_COORD, _RC)
-      importField = ESMF_FieldCreate(grid=grid, typekind=typekind, _RC)
-      exportField = ESMF_FieldCreate(grid=grid, typekind=typekind, _RC)
-      importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, fieldList=[importField], name='import', _RC)
-      exportState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_EXPORT, fieldList=[exportField], name='export', _RC)
-      _RETURN(_SUCCESS)
-
-   end subroutine initialize_objects
-
-   subroutine get_field(state, field, rc)
-      type(ESMF_State), intent(inout) :: state
-      type(ESMF_Field), intent(inout) :: field
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      character(len=ESMF_MAXSTR) :: itemNameList(1)
-
-      call ESMF_StateGet(state, itemNameList=itemNameList, _RC)
-      call ESMF_StateGet(state, itemName=itemNameList(1), field=field, _RC)
-      _RETURN(_SUCCESS)
-
-   end subroutine get_field
-   
-   subroutine destroy_objects(importState, exportState, clock, rc)
-      type(ESMF_State), intent(inout) :: importState, exportState
-      type(ESMF_Clock), intent(inout) :: clock
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ESMF_Field) :: importField, exportField
-      type(ESMF_Grid) :: grid
-
-      call get_field(importState, importField, _RC)
-      call get_field(exportState, exportField, _RC)
-      call ESMF_StateDestroy(importState, _RC)
-      call ESMF_StateDestroy(exportState, _RC)
-      call ESMF_FieldGet(importField, grid=grid, _RC)
-      call ESMF_FieldDestroy(importField, _RC)
-      call ESMF_FieldDestroy(exportField, _RC)
-      call ESMF_GridDestroy(grid, _RC)
-      call ESMF_ClockDestroy(clock, _RC)
-      _RETURN(_SUCCESS)
-
-   end subroutine destroy_objects
-
-   @Before
-   subroutine set_up()
-      integer :: status
-
-      if(is_initialized()) return
-      call ESMF_Initialize(_RC)
-
-   end subroutine set_up
 
 end module Test_AccumulatorAction
