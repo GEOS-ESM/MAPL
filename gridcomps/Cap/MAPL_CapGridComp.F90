@@ -979,12 +979,11 @@ contains
 
     cap_import = ""
     if (present) then
-
-       do while(trim(cap_import) /= "::")
+       do while( .true.)
           call ESMF_ConfigNextLine(config, tableEnd=tableEnd, _RC)
           if (tableEnd) exit
           call ESMF_ConfigGetAttribute(config, cap_import, _RC)
-          if (trim(cap_import) /= "::") call vec%push_back(trim(cap_import))
+          call vec%push_back(trim(cap_import))
        end do
     end if
     _RETURN(_SUCCESS)
