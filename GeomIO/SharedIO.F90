@@ -1,7 +1,6 @@
 #include "MAPL_Generic.h"
 module mapl3g_SharedIO
    use mapl_ErrorHandlingMod
-   use mapl3g_InfoUtilities
    use mapl3g_FieldBundleGet
    use mapl3g_FieldGet
    use mapl3g_VerticalStaggerLoc
@@ -25,7 +24,6 @@ module mapl3g_SharedIO
    public esmf_to_pfio_type
 
    public :: add_vertical_dimensions
-   public :: get_vertical_dimension_num_levels
    public :: get_vertical_dimension_name_from_field
    public :: add_ungridded_dimensions
    public :: ungridded_dim_names
@@ -46,8 +44,10 @@ contains
 
       mapl_geom => get_mapl_geom(geom, _RC)
       metadata = mapl_geom%get_file_metadata()
+
       ! Add metadata for vertical geom, note could be both center and edge
       call add_vertical_dimensions(bundle, metadata, _RC)
+
       ! Add metadata for all unique ungridded dimensions the set of fields has
       call add_ungridded_dimensions(bundle, metadata, _RC)
 
@@ -73,11 +73,11 @@ contains
       type(ESMF_Field), allocatable :: fieldList(:)
 
       call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
-      do i=1,size(fieldList)
+      do i = 1, size(fieldList)
          call add_variable(metadata, fieldList(i), _RC)
       enddo
-      _RETURN(_SUCCESS)
 
+      _RETURN(_SUCCESS)
    end subroutine add_variables
 
    subroutine add_variable(metadata, field,  rc)
@@ -85,41 +85,68 @@ contains
       type(FileMetaData), intent(inout) :: metadata
       integer, intent(out), optional :: rc
 
-      type(Variable) :: v
       integer :: status
-      character(len=:), allocatable :: dims
+      type(Variable) :: v
+      character(len=:), allocatable :: variable_dim_names
       type(ESMF_TYPEKIND_FLAG) :: typekind
+      character(len=:), allocatable :: short_name
+      character(len=:), allocatable :: units
+      character(len=:), allocatable :: long_name
+      character(len=:), allocatable :: standard_name
+
+      type(ESMF_Geom) :: geom
       integer :: pfio_type
-      character(len=:), allocatable :: char
-      character(len=ESMF_MAXSTR) :: fname
+
+      variable_dim_names = get_variable_dim_names(field, geom, _RC)
+      call MAPL_FieldGet(field, short_name=short_name, typekind=typekind, _RC)
+      pfio_type = esmf_to_pfio_type(typekind ,_RC)
+      v = Variable(type=pfio_type, dimensions=variable_dim_names)
+
+      ! Attributes
+      call MAPL_FieldGet(field, units=units, long_name=long_name, standard_name=standard_name, _RC)
+      if (allocated(units))then
+         call v%add_attribute('units', units)
+      end if
+      if (allocated(long_name)) then
+         call v%add_attribute('long_name', long_name)
+      end if
+      if (allocated(standard_name)) then
+         call v%add_attribute('standard_name', standard_name)
+      end if
+
+      call metadata%add_variable(short_name, v, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine add_variable
+
+   function get_variable_dim_names(field, geom, rc) result(dim_names)
+      character(len=:), allocatable :: dim_names
+      type(ESMF_Field), intent(in) :: field
+      type(ESMF_Geom), intent(in) :: geom
+      integer, optional, intent(out) :: rc
+      
       type(MAPLGeom), pointer :: mapl_geom
       type(StringVector) :: grid_variables
       type(ESMF_Geom) :: esmfgeom
       character(len=:), allocatable :: vert_dim_name, ungridded_names
-
+      integer :: status
+      
       call ESMF_FieldGet(field, geom=esmfgeom, _RC)
       mapl_geom => get_mapl_geom(esmfgeom, _RC)
       grid_variables = mapl_geom%get_gridded_dims()
-      dims = string_vec_to_comma_sep(grid_variables)
-      call ESMF_FieldGet(field, name=fname, typekind=typekind, _RC)
+      dim_names = string_vec_to_comma_sep(grid_variables)
       ! add vertical dimension
       vert_dim_name = get_vertical_dimension_name_from_field(field, _RC)
-      if(vert_dim_name /= EMPTY) dims = dims//","//vert_dim_name
+      if(vert_dim_name /= EMPTY) dim_names = dim_names // "," // vert_dim_name
       ! add any ungridded dimensions
       ungridded_names = ungridded_dim_names(field, _RC)
-      if(ungridded_names /= EMPTY) dims = dims // ungridded_names
+      if(ungridded_names /= EMPTY) dim_names = dim_names // ungridded_names
       ! add time dimension
-      dims = dims//",time"
-      pfio_type = esmf_to_pfio_type(typekind ,_RC)
-      v = Variable(type=pfio_type, dimensions=dims)
-      call MAPL_FieldGet(field, units=char, _RC)
-      call v%add_attribute('units',char)
-      call MAPL_FieldGet(field, standard_name=char, _RC)
-      call v%add_attribute('long_name',char)
-      call metadata%add_variable(trim(fname), v, _RC)
-      _RETURN(_SUCCESS)
+      dim_names = dim_names // ",time"
 
-   end subroutine add_variable
+      _RETURN(_SUCCESS)
+   end function get_variable_dim_names
+
 
    function get_mapl_geom(geom, rc) result(mapl_geom)
       type(MAPLGeom), pointer :: mapl_geom
@@ -140,6 +167,7 @@ contains
       integer :: pfio_type
       type(ESMF_TYPEKIND_FLAG), intent(in) :: esmf_type
       integer, intent(out), optional :: rc
+
       if (esmf_type == ESMF_TYPEKIND_R4) then
          pfio_type = pFIO_REAL32
       else if (esmf_type == ESMF_TYPEKIND_R8) then
@@ -147,6 +175,7 @@ contains
       else
          _FAIL("Unsupported ESMF field typekind for output")
       end if
+
       _RETURN(_SUCCESS)
    end function
 
@@ -162,9 +191,10 @@ contains
       call iter%next()
       do while (iter /= string_vec%end())
          var => iter%of()
-         comma_sep = comma_sep//","//var
+         comma_sep = comma_sep // "," // var
          call iter%next()
       enddo
+
    end function  
 
    function create_time_variable(current_time, rc) result(time_var)
@@ -191,7 +221,6 @@ contains
 
       integer :: status
       integer :: num_levels
-      type(StringVector) :: vertical_names
       type(StringVectorIterator) :: iter
       character(len=:), allocatable :: dim_name
       type(VerticalStaggerLoc) :: vert_staggerloc
@@ -202,7 +231,6 @@ contains
       call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
       num_vgrid_levels = 0
       
-      vertical_names = StringVector()
       do i = 1, size(fieldList)
          call MAPL_FieldGet(fieldList(i), vert_staggerloc=vert_staggerloc, _RC)
          if (vert_staggerloc == VERTICAL_STAGGER_NONE) cycle
@@ -216,33 +244,13 @@ contains
          end if
 
          dim_name = vert_staggerloc%get_dimension_name()
-         call vertical_names%push_back(dim_name)
+         call metadata%add_dimension(dim_name, num_levels)
 
       end do
 
-      associate (e => vertical_names%ftn_end())
-        iter = vertical_names%ftn_begin()
-        do while(iter /= e)
-           call iter%next()
-           dim_name = iter%of()
-           num_levels = vert_staggerloc%get_num_levels(num_vgrid_levels)
-           call metadata%add_dimension(dim_name, num_levels)
-        end do
-      end associate
-
       _RETURN(_SUCCESS)
-
    end subroutine add_vertical_dimensions
 
-
-   integer function get_vertical_dimension_num_levels(dim_spec_name, num_levels) result(num)
-      character(len=*), intent(in) :: dim_spec_name
-      integer, intent(in) :: num_levels
-
-      num = num_levels
-      if(dim_spec_name == 'VERTICAL_DIM_EDGE') num = num_levels + 1
-      
-   end function get_vertical_dimension_num_levels
 
    function get_vertical_dimension_name_from_field(field, rc) result(dim_name)
       character(len=:), allocatable :: dim_name
@@ -298,22 +306,25 @@ contains
 
       call MAPL_FieldGet(field, ungridded_dims=ungridded_dims, _RC)
       dim_names = cat_ungridded_dim_names(ungridded_dims)
+
       _RETURN(_SUCCESS)
-      
    end function ungridded_dim_names
 
+   
    function cat_ungridded_dim_names(dims) result(dim_names)
       character(len=:), allocatable :: dim_names
       class(UngriddedDims), intent(in) :: dims
-      type(UngriddedDim) :: u
-      integer :: i
-      character, parameter :: JOIN = ','
 
+      integer :: i
+
+#define JOIN(a,b) a // ',' // b
       dim_names = EMPTY
       do i = 1, dims%get_num_ungridded()
-         u = dims%get_ith_dim_spec(i)
-         dim_names = JOIN // u%get_name()
+         associate (u => dims%get_ith_dim_spec(i))
+           dim_names = JOIN(dim_names, u%get_name())
+         end associate
       end do
+#undef JOIN
 
    end function cat_ungridded_dim_names
 

@@ -123,11 +123,20 @@ contains
       class (FileMetadata), target, intent(inout) :: this
       character(len=*), intent(in) :: dim_name
       integer, intent(in) :: extent
-
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      call this%dimensions%insert(dim_name, extent)
+      integer :: existing_extent
+
+      if (.not. this%has_dimension(dim_name)) then
+         call this%dimensions%insert(dim_name, extent)
+         _RETURN(_SUCCESS)
+      end if
+
+      ! Otherwise verify consistency
+      existing_extent = this%get_dimension(dim_name)
+      _ASSERT(extent == existing_extent,'FileMetadata::add_dimension() - dimension already exists with different extent.')
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine add_dimension
