@@ -34,6 +34,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Use v7.27.0 Baselibs
   - Use GCC 14 for GNU tests
   - Add pFUnit-less build test
+- Improve some writes to be more informative
+  - In `base/MAPL_CFIO.F90`, added `Iam` to a print statement so that when a read fails we know which routine failed
+  - In `gridcomps/ExtData2G/ExtDataConfig.F90`, print out the name of the duplicate collection that causes model to fail
 
 ### Fixed
 
