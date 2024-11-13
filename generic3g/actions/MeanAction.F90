@@ -1,5 +1,5 @@
 #include "MAPL_Generic.h"
-module mapl3g_MeanAccumulator
+module mapl3g_MeanAction
    use mapl3g_AccumulatorAction
    use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
    use MAPL_ExceptionHandling
@@ -7,9 +7,9 @@ module mapl3g_MeanAccumulator
    use ESMF
    implicit none
    private
-   public :: MeanAccumulator
+   public :: MeanAction
 
-   type, extends(AccumulatorAction) :: MeanAccumulator
+   type, extends(AccumulatorAction) :: MeanAction
       !private
       integer(ESMF_KIND_R8) :: counter_scalar = 0_ESMF_KIND_I8
       logical, allocatable :: valid_mean(:)
@@ -21,12 +21,12 @@ module mapl3g_MeanAccumulator
       procedure :: calculate_mean_R4
       procedure :: clear_valid_mean
       procedure :: accumulate_R4 => accumulate_mean_R4
-   end type MeanAccumulator
+   end type MeanAction
 
 contains
 
    subroutine clear_mean_accumulator(this, rc)
-      class(MeanAccumulator), intent(inout) :: this
+      class(MeanAction), intent(inout) :: this
       integer, optional, intent(out) :: rc
       
       integer :: status
@@ -39,7 +39,7 @@ contains
    end subroutine clear_mean_accumulator
 
    subroutine clear_valid_mean(this, rc)
-      class(MeanAccumulator), intent(inout) :: this
+      class(MeanAction), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -53,7 +53,7 @@ contains
    end subroutine clear_valid_mean
 
    subroutine calculate_mean(this, rc)
-      class(MeanAccumulator), intent(inout) :: this
+      class(MeanAction), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -71,7 +71,7 @@ contains
    end subroutine calculate_mean
 
    subroutine update_mean_accumulator(this, importState, exportState, clock, rc)
-      class(MeanAccumulator), intent(inout) :: this
+      class(MeanAction), intent(inout) :: this
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
       type(ESMF_Clock) :: clock
@@ -89,7 +89,7 @@ contains
    end subroutine update_mean_accumulator
 
    subroutine invalidate_mean_accumulator(this, importState, exportState, clock, rc)
-      class(MeanAccumulator), intent(inout) :: this
+      class(MeanAction), intent(inout) :: this
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
       type(ESMF_Clock) :: clock
@@ -104,7 +104,7 @@ contains
    end subroutine invalidate_mean_accumulator
 
    subroutine calculate_mean_R4(this, rc)
-      class(MeanAccumulator), intent(inout) :: this
+      class(MeanAction), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -122,7 +122,7 @@ contains
    end subroutine calculate_mean_R4
 
    subroutine accumulate_mean_R4(this, update_field, rc)
-      class(MeanAccumulator), intent(inout) :: this
+      class(MeanAction), intent(inout) :: this
       type(ESMF_Field), intent(inout) :: update_field
       integer, optional, intent(out) :: rc
 
@@ -144,4 +144,4 @@ contains
 
    end subroutine accumulate_mean_R4
 
-end module mapl3g_MeanAccumulator
+end module mapl3g_MeanAction

@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added vertical and ungridded dimensions to output for History3G
 - Create rank-agnostic representation of `ESMF_Field` objects as rank-3 array pointers.
 - Add time accumulation for output from ESMF_Field objects.
+- Add tests for time accumulation
 
 ### Changed
 

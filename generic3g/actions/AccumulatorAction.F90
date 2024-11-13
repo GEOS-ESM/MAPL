@@ -66,8 +66,6 @@ contains
 
       call get_field(importState, import_field, _RC)
       call get_field(exportState, export_field, _RC)
-      fields_are_conformable = FieldsAreConformable(import_field, export_field, _RC)
-      _ASSERT(fields_are_conformable, 'Import field and export field are not conformable.')
 
       if(this%initialized()) then
          call ESMF_FieldDestroy(this%accumulation_field, _RC)
@@ -77,8 +75,8 @@ contains
       this%result_field = ESMF_FieldCreate(export_field, _RC)
 
       call this%clear_accumulator(_RC)
-      _UNUSED_DUMMY(clock)
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(clock)
 
    end subroutine initialize
 
