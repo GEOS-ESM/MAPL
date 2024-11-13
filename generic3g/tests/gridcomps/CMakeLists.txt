@@ -8,11 +8,14 @@ target_link_libraries(simple_parent_gridcomp scratchpad)
 
 add_library(proto_extdata_gc SHARED ProtoExtDataGC.F90)
 
-set (comps simple_parent_gridcomp simple_leaf_gridcomp proto_extdata_gc)
+add_library(fakedyn_gridcomp SHARED FakeDynGridComp.F90)
+
+set (comps simple_parent_gridcomp simple_leaf_gridcomp proto_extdata_gc fakedyn_gridcomp)
 foreach (comp ${comps})
   target_link_libraries(${comp} MAPL.generic3g)
   target_include_directories(${comp} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/..)
 endforeach()  
+target_link_libraries(fakedyn_gridcomp MAPL)
 
 #add_library(parameterized_gridcomp SHARED ParameterizedGridComp.F90)
 #target_link_libraries(parameterized_gridcomp MAPL.generic3g scratchpad)

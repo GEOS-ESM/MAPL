@@ -131,7 +131,7 @@ contains
 #ifndef __GFORTRAN__
               , &
               ScenarioDescription('vertical_regridding_2',   'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('vertical_regridding_3',   'parent.yaml',      check_name, check_stateitem)  &
+              ScenarioDescription('vertical_regridding_3',   'AGCM.yaml',        check_name, check_stateitem)  &
 #endif
               ]
       end function add_params
@@ -156,7 +156,6 @@ contains
       call NUOPC_FieldDictionarySetup(filename='./scenarios/FieldDictionary.yml', _RC)
       @assert_that(status, is(0))
 
-
       associate (outer_gc => this%outer_gc, outer_states => this%outer_states, grid => this%grid)
 
         call ESMF_TimeSet(t, h=0)
@@ -180,10 +179,10 @@ contains
            end associate
         end do
 
-           call ESMF_GridCompRun(outer_gc, &
-                  importState=importState, exportState=exportState, clock=clock, &
-                  userRC=user_status, phase=GENERIC_RUN_USER, _RC)
-           _VERIFY(user_status)
+        call ESMF_GridCompRun(outer_gc, &
+             importState=importState, exportState=exportState, clock=clock, &
+             userRC=user_status, phase=GENERIC_RUN_USER, _RC)
+        _VERIFY(user_status)
 
       end associate
 
@@ -219,8 +218,7 @@ contains
       type(ESMF_FieldStatus_Flag) :: expected_field_status, field_status
       character(:), allocatable :: expected_status
 
-     components: do i = 1, ESMF_HConfigGetSize(this%expectations)
-
+      components: do i = 1, ESMF_HConfigGetSize(this%expectations)
          comp_expectations = ESMF_HConfigCreateAt(this%expectations,index=i,_RC)
          comp_path = ESMF_HConfigAsString(comp_expectations,keyString='component',_RC)
          call get_substates(this%outer_gc, this%outer_states, comp_path, substates=comp_states, _RC)
@@ -228,12 +226,11 @@ contains
          call check_items_in_state('import', _RC)
          call check_items_in_state('export', _RC)
          call check_items_in_state('internal', _RC)
-
       end do components
 
    contains
 
-     subroutine check_items_in_state(state_intent, rc)
+      subroutine check_items_in_state(state_intent, rc)
          character(*), intent(in) :: state_intent
          integer, intent(out) :: rc
 
@@ -252,12 +249,10 @@ contains
 
          call comp_states%get_state(state, state_intent, _RC)
 
-
          msg = comp_path // '::' // state_intent
 
          state_items = ESMF_HConfigCreateAt(comp_expectations,keyString=state_intent,_RC)
          @assertTrue(ESMF_HConfigIsMap(state_items), msg)
-
 
          hconfigIter = ESMF_HConfigIterBegin(state_items)
          hconfigIterBegin = ESMF_HConfigIterBegin(state_items)
@@ -266,13 +261,12 @@ contains
             item_name = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
             expected_properties = ESMF_HConfigCreateAtMapVal(hconfigIter,_RC)
 
-             msg = comp_path // '::' // state_intent // '::' // item_name
+            msg = comp_path // '::' // state_intent // '::' // item_name
 
-             associate (test_description => msg // '::' // this%check_name)
-               call this%check_stateitem(expected_properties, state, item_name, test_description, _RC)
-             end associate
-
-           end do
+            associate (test_description => msg // '::' // this%check_name)
+              call this%check_stateitem(expected_properties, state, item_name, test_description, _RC)
+            end associate
+         end do
 
          rc = 0
       end subroutine check_items_in_state
@@ -379,7 +373,6 @@ contains
       integer :: status
       character(len=:), allocatable :: msg
 
-
       msg = short_name // ':: '// description
 
       call ESMF_StateGet(state, short_name, itemtype=itemtype, _RC)
@@ -430,7 +423,6 @@ contains
          rc = 0
          return
       end if
-
 
       if (.not. ESMF_HConfigIsDefined(expectations,keyString='typekind')) then
          rc = 0
@@ -491,33 +483,33 @@ contains
 
       if (typekind == ESMF_TYPEKIND_R4) then
          block
-           real(kind=ESMF_KIND_R4), pointer :: x2(:,:),x3(:,:,:),x4(:,:,:,:)
-           select case(rank)
-           case(2)
-              call ESMF_FieldGet(field, farrayptr=x2, _RC)
-              @assert_that('value of '//short_name, all(x2 == expected_field_value), is(true()))
-           case(3)
-              call ESMF_FieldGet(field, farrayptr=x3, _RC)
-              @assert_that('value of '//short_name, all(x3 == expected_field_value), is(true()))
-           case(4)
-              call ESMF_FieldGet(field, farrayptr=x4, _RC)
-              @assert_that('value of '//short_name, all(x4 == expected_field_value), is(true()))
-           end select
+            real(kind=ESMF_KIND_R4), pointer :: x2(:,:),x3(:,:,:),x4(:,:,:,:)
+            select case(rank)
+            case(2)
+               call ESMF_FieldGet(field, farrayptr=x2, _RC)
+               @assert_that('value of '//short_name, all(x2 == expected_field_value), is(true()))
+            case(3)
+               call ESMF_FieldGet(field, farrayptr=x3, _RC)
+               @assert_that('value of '//short_name, all(x3 == expected_field_value), is(true()))
+            case(4)
+               call ESMF_FieldGet(field, farrayptr=x4, _RC)
+               @assert_that('value of '//short_name, all(x4 == expected_field_value), is(true()))
+            end select
          end block
       elseif (typekind == ESMF_TYPEKIND_R8) then
          block
-           real(kind=ESMF_KIND_R8), pointer :: x2(:,:),x3(:,:,:),x4(:,:,:,:)
-           select case(rank)
-           case(2)
-              call ESMF_FieldGet(field, farrayptr=x2, _RC)
-              @assert_that('value of '//short_name, all(x2 == expected_field_value), is(true()))
-           case(3)
-              call ESMF_FieldGet(field, farrayptr=x3, _RC)
-              @assert_that('value of '//short_name, all(x3 == expected_field_value), is(true()))
-           case(4)
-              call ESMF_FieldGet(field, farrayptr=x4, _RC)
-              @assert_that('value of '//short_name, all(x4 == expected_field_value), is(true()))
-           end select
+            real(kind=ESMF_KIND_R8), pointer :: x2(:,:),x3(:,:,:),x4(:,:,:,:)
+            select case(rank)
+            case(2)
+               call ESMF_FieldGet(field, farrayptr=x2, _RC)
+               @assert_that('value of '//short_name, all(x2 == expected_field_value), is(true()))
+            case(3)
+               call ESMF_FieldGet(field, farrayptr=x3, _RC)
+               @assert_that('value of '//short_name, all(x3 == expected_field_value), is(true()))
+            case(4)
+               call ESMF_FieldGet(field, farrayptr=x4, _RC)
+               @assert_that('value of '//short_name, all(x4 == expected_field_value), is(true()))
+            end select
          end block
       else
          _VERIFY(-1)
@@ -632,12 +624,10 @@ contains
 
       child_gc = child%get_gridcomp()
 
-      call get_substates(child_gc, child%get_states(), component_path(idx+1:), &
-           substates, _RC)
+      call get_substates(child_gc, child%get_states(), component_path(idx+1:), substates, _RC)
 
       return
    end subroutine get_substates
-
 
    function tostring_description(this) result(s)
       character(:), allocatable :: s
@@ -665,14 +655,12 @@ contains
 
       do i = 1, itemCount
          call ESMF_StateGet(state, itemName=trim(itemNameList(i)), itemType=itemType, _RC)
-
          if (itemType == ESMF_STATEITEM_FIELD) then
             n = n + 1
          elseif (itemType == ESMF_STATEITEM_STATE) then
             call ESMF_StateGet(state, trim(itemNameList(i)), substate, _RC)
             n = n + num_fields(substate, _RC)
          end if
-
       end do
 
       return
