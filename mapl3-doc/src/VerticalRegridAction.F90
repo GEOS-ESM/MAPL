@@ -8,7 +8,7 @@ module mapl3g_VerticalRegridAction
    use mapl3g_CouplerPhases, only: GENERIC_COUPLER_UPDATE
    use mapl3g_VerticalRegridMethod
    use mapl3g_VerticalLinearMap, only: compute_linear_map
-   use mapl3g_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp, matmul, shape
+   use mapl3g_CSR_SparseMatrix, only: SparseMatrix_sp => CSR_SparseMatrix_sp, matmul
    use mapl3g_FieldCondensedArray, only: assign_fptr_condensed_array
    use esmf
 
@@ -58,64 +58,31 @@ contains
    end function new_VerticalRegridAction
 
    subroutine initialize(this, importState, exportState, clock, rc)
-      use esmf
       class(VerticalRegridAction), intent(inout) :: this
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
       type(ESMF_Clock) :: clock
       integer, optional, intent(out) :: rc
-
-      real(ESMF_KIND_R4), pointer :: v_in(:, :, :), v_out(:, :, :)
-      integer :: shape_in(3), shape_out(3), n_horz, n_ungridded
-      integer :: horz, ungrd, status
 
       _ASSERT(this%method == VERTICAL_REGRID_LINEAR, "regrid method can only be linear")
 
-      ! if (associated(this%v_in_coupler)) then
-      !    call this%v_in_coupler%initialize(_RC)
-      ! end if
-
-      ! if (associated(this%v_out_coupler)) then
-      !    call this%v_out_coupler%initialize(_RC)
-      ! end if
-
-      call assign_fptr_condensed_array(this%v_in_coord, v_in, _RC)
-      shape_in = shape(v_in)
-      n_horz = shape_in(1)
-      n_ungridded = shape_in(3)
-
-      call assign_fptr_condensed_array(this%v_out_coord, v_out, _RC)
-      shape_out = shape(v_out)
-      _ASSERT((shape_in(1) == shape_out(1)), "horz dims are expected to be equal")
-      _ASSERT((shape_in(3) == shape_out(3)), "ungridded dims are expected to be equal")
-
-      allocate(this%matrix(n_horz))
-
-      ! TODO: Convert to a `do concurrent` loop
-      do horz = 1, n_horz
-         do ungrd = 1, n_ungridded
-            associate(src => v_in(horz, :, ungrd), dst => v_out(horz, :, ungrd))
-              call compute_linear_map(src, dst, this%matrix(horz), _RC)
-            end associate
-         end do
-      end do
-
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
    end subroutine initialize
 
    subroutine update(this, importState, exportState, clock, rc)
-      use esmf
       class(VerticalRegridAction), intent(inout) :: this
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
       type(ESMF_Clock) :: clock
       integer, optional, intent(out) :: rc
 
-      integer :: status
       type(ESMF_Field) :: f_in, f_out
       real(ESMF_KIND_R4), pointer :: x_in(:,:,:), x_out(:,:,:)
       integer :: shape_in(3), shape_out(3), n_horz, n_ungridded
-      integer :: horz, ungrd
+      integer :: horz, ungrd, status
 
       ! if (associated(this%v_in_coupler)) then
       !    call this%v_in_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
@@ -124,6 +91,8 @@ contains
       ! if (associated(this%v_out_coupler)) then
       !    call this%v_out_coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
       ! end if
+
+      call compute_interpolation_matrix_(this%v_in_coord, this%v_out_coord, this%matrix, _RC)
 
       call ESMF_StateGet(importState, itemName='import[1]', field=f_in, _RC)
       call assign_fptr_condensed_array(f_in, x_in, _RC)
@@ -143,6 +112,7 @@ contains
       end do
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(clock)
    end subroutine update
 
    subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
@@ -176,5 +146,39 @@ contains
       _UNUSED_DUMMY(iotype)
       _UNUSED_DUMMY(v_list)
    end subroutine write_formatted
+
+   subroutine compute_interpolation_matrix_(v_in_coord, v_out_coord, matrix, rc)
+      type(ESMF_Field), intent(inout) :: v_in_coord
+      type(ESMF_Field), intent(inout) :: v_out_coord
+      type(SparseMatrix_sp), allocatable, intent(out) :: matrix(:)
+      integer, optional, intent(out) :: rc
+
+      real(ESMF_KIND_R4), pointer :: v_in(:, :, :), v_out(:, :, :)
+      integer :: shape_in(3), shape_out(3), n_horz, n_ungridded
+      integer :: horz, ungrd, status
+
+      call assign_fptr_condensed_array(v_in_coord, v_in, _RC)
+      shape_in = shape(v_in)
+      n_horz = shape_in(1)
+      n_ungridded = shape_in(3)
+
+      call assign_fptr_condensed_array(v_out_coord, v_out, _RC)
+      shape_out = shape(v_out)
+      _ASSERT((shape_in(1) == shape_out(1)), "horz dims are expected to be equal")
+      _ASSERT((shape_in(3) == shape_out(3)), "ungridded dims are expected to be equal")
+
+      allocate(matrix(n_horz))
+
+      ! TODO: Convert to a `do concurrent` loop
+      do horz = 1, n_horz
+         do ungrd = 1, n_ungridded
+            associate(src => v_in(horz, :, ungrd), dst => v_out(horz, :, ungrd))
+              call compute_linear_map(src, dst, matrix(horz), _RC)
+            end associate
+         end do
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine compute_interpolation_matrix_
 
 end module mapl3g_VerticalRegridAction

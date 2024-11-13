@@ -116,6 +116,7 @@ module mapl3g_OuterMetaComponent
       procedure :: get_internal_state
 
       procedure :: set_vertical_grid
+      procedure :: get_vertical_grid
 
       procedure :: connect_all
 
@@ -365,6 +366,11 @@ module mapl3g_OuterMetaComponent
          class(VerticalGrid), intent(in) :: verticaL_grid
       end subroutine set_vertical_grid
     
+      module function get_vertical_grid(this) result(vertical_grid)
+         class(VerticalGrid), allocatable :: verticaL_grid
+         class(OuterMetaComponent), intent(inout) :: this
+      end function get_vertical_grid
+
       module function get_registry(this) result(registry)
          type(StateRegistry), pointer :: registry
          class(OuterMetaComponent), target, intent(in) :: this
