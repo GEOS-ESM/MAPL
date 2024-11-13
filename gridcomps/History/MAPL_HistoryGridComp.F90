@@ -3600,7 +3600,8 @@ ENDDO PARSER
                      inquire (file=trim(filename(n)),exist=file_exists)
                      _ASSERT(.not.file_exists,trim(filename(n))//" being created for History output already exists")
                   end if
-                  call list(n)%mask_sampler%modifyTime(oClients=o_Clients,_RC)
+!ygyu??
+!!                  call list(n)%mask_sampler%modifyTime(oClients=o_Clients,_RC)
                   list(n)%currentFile = filename(n)
                   list(n)%unit = -1
                else

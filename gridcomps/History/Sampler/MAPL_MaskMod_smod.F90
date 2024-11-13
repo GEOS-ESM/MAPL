@@ -141,14 +141,9 @@ module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdat
 !   this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
 !   if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
 
-
-   write(6,*) ' pt 1'
    this%obs_written = 0
    call this%create_grid(_RC)
-   write(6,*) ' pt 2'
-
    call this%create_metadata(_RC)
-   write(6,*) ' pt 3'
 
    nitem_scalar = 0
    nitem_vector = 0
@@ -163,21 +158,18 @@ module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdat
       end if
       call iter%next()
    end do
-   write(6,*) ' pt 4'
 
    n1 = MAPL_nsecf( duration )
    n2 = MAPL_nsecf( frequency )
    _ASSERT (n2>0, "list%frequency ==0, fail!")
    this%tmax =  n1/n2
-   write(6,*) ' pt 5'
 
    allocate ( this%array_scalar_2d (this%npt_mask, nitem_scalar, this%tmax+1) )
    allocate ( this%array_scalar_3d (this%npt_mask, this%vdata%lm, nitem_scalar, this%tmax+1) )
-
    !
    ! __ note thse large arrays should be deallocated in the future
    !
-
+   
    _RETURN(_SUCCESS)
 
 end subroutine initialize_
