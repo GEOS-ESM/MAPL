@@ -164,8 +164,11 @@ module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdat
    _ASSERT (n2>0, "list%frequency ==0, fail!")
    this%tmax =  n1/n2
 
-   allocate ( this%array_scalar_2d (this%npt_mask, nitem_scalar ) )
-   allocate ( this%array_scalar_3d (this%npt_mask, this%vdata%lm, nitem_scalar) )
+   allocate ( this%array_scalar_2d (this%npt_mask_tot, nitem_scalar ) )
+   allocate ( this%array_scalar_3d (this%npt_mask_tot, this%vdata%lm, nitem_scalar) )
+   if (mapl_am_I_root()) then
+      write(6,*) 'ck count_scalar=',  nitem_scalar
+   end if
    !
    ! __ note thse large arrays should be deallocated in the future
    !
@@ -755,7 +758,7 @@ module subroutine  create_metadata(this,rc)
        else
           allocate (this%lons_deg(0), this%lats_deg(0), _STAT)          
        end if
-       write(6,'(2x,a,2x,i5,2x,1000f12.2)') 'ip, lons_deg', ip, this%lons_deg
+!!       write(6,'(2x,a,2x,i5,2x,1000f12.2)') 'ip, lons_deg', ip, this%lons_deg
 !!       write(6,'(2x,a,2x,i5,2x,1000f12.2)') 'ip, lats_deg', ip, this%lats_deg       
 
 !!       call MAPL_CommsBcast(vm, DATA=, N=1, ROOT=MAPL_Root, _RC)
@@ -919,10 +922,14 @@ module subroutine  create_metadata(this,rc)
              end if
              ref = ArrayReference(ptr1d)
 
-             write(6,*) 'ip, nx, this%npt_mask_tot, i1, in=', &
-                  mypet, nx, this%npt_mask_tot, this%i1, this%in
+             if (mapl_am_I_root()) then
+                write(6,*) ' count_scalar=',  count_scalar
+             end if
 
-             write(6,*) 'ip, this%p1d', mypet, this%p1d
+!                write(6,*) 'ip, nx, this%npt_mask_tot, i1, in=', &
+!                     mypet, nx, this%npt_mask_tot, this%i1, this%in
+             write(6,*) 'ip, this%p1d', mypet, ptr1d
+                
 
              if (nx>0) then
                 allocate(local_start,source=[this%i1])
@@ -935,6 +942,8 @@ module subroutine  create_metadata(this,rc)
                 allocate(global_start,source=[0])
                 allocate(global_count,source=[0])
              end if
+             print*, 'ck ip, this%npt_mask_tot = ', mypet, this%npt_mask_tot
+
 
              call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(item%xname), &
                   ref,start=local_start, global_start=global_start, global_count=global_count)

@@ -3759,7 +3759,7 @@ ENDDO PARSER
             call MAPL_TimerOff(GENSTATE,"Mask_append")
          endif
 
-         write(6,*) 'nail 2'
+         if (mapl_am_i_root()) write(6,*) 'nail 2'
 
       endif OUTTIME
 
@@ -3775,6 +3775,7 @@ ENDDO PARSER
    enddo POSTLOOP
 
 
+   
    call MAPL_TimerOn(GENSTATE,"Done Wait")
    if (any(writing)) then
       if (mapl_am_i_root()) then
