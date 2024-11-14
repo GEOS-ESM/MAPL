@@ -107,13 +107,12 @@ contains
             levels = ESMF_HConfigAsR4Seq(vertical_grid_cfg, keyString='levels' ,_RC)
             vertical_grid = FixedLevelsVerticalGrid(standard_name, levels, units)
          case('model')
-            num_levels = ESMF_HConfigAsI4(vertical_grid_cfg, keyString='num_levels', _RC)
+            standard_name = ESMF_HConfigAsString(vertical_grid_cfg, keyString='standard_name', _RC)
             units = ESMF_HConfigAsString(vertical_grid_cfg, keyString='units', _RC)
-            vertical_grid = ModelVerticalGrid(num_levels=num_levels, units=units)
-            short_name = ESMF_HConfigAsString(vertical_grid_cfg, keyString='short_name', _RC)
+            num_levels = ESMF_HConfigAsI4(vertical_grid_cfg, keyString='num_levels', _RC)
+            vertical_grid = ModelVerticalGrid(standard_name=standard_name, units=units, num_levels=num_levels)
             select type(vertical_grid)
             type is(ModelVerticalGrid)
-               call vertical_grid%add_variant(short_name=short_name)
                call vertical_grid%set_registry(registry)
             end select
          case default
