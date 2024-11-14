@@ -978,7 +978,7 @@ contains
     call ESMF_ConfigFindLabel(config, key//":", isPresent = present, _RC)
 
     if (present) then
-       do while(.true.)
+       do
           call ESMF_ConfigNextLine(config, tableEnd=tableEnd, _RC)
           if (tableEnd) exit
           call ESMF_ConfigGetAttribute(config, value, _RC)
