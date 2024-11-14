@@ -17,6 +17,7 @@ module mapl3g_ModelVerticalGrid
    use mapl3g_StateItemExtensionPtrVector
    use mapl3g_GriddedComponentDriver
    use mapl3g_VerticalDimSpec
+   use gftl2_StringVector
    use esmf
 
    implicit none
@@ -24,20 +25,11 @@ module mapl3g_ModelVerticalGrid
 
    public :: ModelVerticalGrid
 
-   type :: Pair
-      type(VerticalDimSpec) :: vertical_dim_spec = VERTICAL_DIM_UNKNOWN
-      character(:), allocatable :: short_name
-   end type Pair
-
-   interface Pair
-      module procedure new_Pair
-   end interface Pair
-
    type, extends(VerticalGrid) :: ModelVerticalGrid
       private
       character(:), allocatable :: standard_name
       integer :: num_levels = -1
-      type(Pair) :: variants(2)
+      character(len=ESMF_MAXSTR) :: variants(2) = ["UNDEFINED", "UNDEFINED"]
       type(StateRegistry), pointer :: registry => null()
    contains
       procedure :: get_num_levels
@@ -46,6 +38,7 @@ module mapl3g_ModelVerticalGrid
       procedure :: write_formatted
 
       ! subclass-specific methods
+      procedure :: add_short_names
       procedure :: get_short_name
       procedure :: set_registry
       procedure :: get_registry
@@ -64,19 +57,12 @@ module mapl3g_ModelVerticalGrid
       end function
    end interface
 
+   integer, parameter :: NDX_EDGE=1, NDX_CENTER=2
+
    ! TODO:
    ! - Ensure that there really is a vertical dimension
 
 contains
-
-   function new_Pair(vertical_dim_spec, short_name) result(pair)
-      type(Pair) :: pair
-      type(VerticalDimSpec), intent(in) :: vertical_dim_spec
-      character(*), intent(in) :: short_name
-
-      pair%vertical_dim_spec = vertical_dim_spec
-      pair%short_name = short_name
-   end function new_Pair
 
    function new_ModelVerticalGrid_basic(standard_name, units, num_levels) result(vgrid)
       type(ModelVerticalGrid) :: vgrid
@@ -88,8 +74,6 @@ contains
       vgrid%standard_name = standard_name
       call vgrid%set_units(units)
       vgrid%num_levels = num_levels
-      vgrid%variants(1) = Pair(VERTICAL_DIM_EDGE, "PLE")
-      vgrid%variants(2) = Pair(VERTICAL_DIM_CENTER, "PL")
    end function new_ModelVerticalGrid_basic
 
    integer function get_num_levels(this) result(num_levels)
@@ -97,24 +81,30 @@ contains
       num_levels = this%num_levels
    end function get_num_levels
 
+   subroutine add_short_names(this, edge, center)
+      class(ModelVerticalGrid), intent(inout) :: this
+      character(*), intent(in) :: edge
+      character(*), intent(in) :: center
+
+      this%variants(NDX_EDGE) = edge
+      this%variants(NDX_CENTER) = center
+   end subroutine add_short_names
+
    function get_short_name(this, vertical_dim_spec, rc) result(short_name)
       character(:), allocatable :: short_name
       class(ModelVerticalGrid), intent(in) :: this
       type(VerticalDimSpec), intent(in) :: vertical_dim_spec
       integer, optional :: rc
 
-      integer :: i
-
-      do i = 1, 2
-         if (this%variants(i)%vertical_dim_spec == vertical_dim_spec) then
-            short_name = this%variants(i)%short_name
-         end if
-      end do
-      if (.not. allocated(short_name)) then
+      if (vertical_dim_spec == VERTICAL_DIM_EDGE) then
+         short_name = trim(this%variants(NDX_EDGE))
+         _RETURN(_SUCCESS)
+      else if (vertical_dim_spec == VERTICAL_DIM_CENTER) then
+         short_name = trim(this%variants(NDX_CENTER))
+         _RETURN(_SUCCESS)
+      else
          _FAIL("unsupported vertical_dim_spec")
       end if
-
-      _RETURN(_SUCCESS)
    end function get_short_name
 
    subroutine set_registry(this, registry)

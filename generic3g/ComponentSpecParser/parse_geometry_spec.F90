@@ -33,7 +33,7 @@ contains
       type(GeomManager), pointer :: geom_mgr
       class(GeomSpec), allocatable :: geom_spec
       integer :: num_levels
-      character(:), allocatable :: vertical_grid_class, standard_name, units, short_name
+      character(:), allocatable :: vertical_grid_class, standard_name, units
       class(VerticalGrid), allocatable :: vertical_grid
       real, allocatable :: levels(:)
 
@@ -114,6 +114,7 @@ contains
             select type(vertical_grid)
             type is(ModelVerticalGrid)
                call vertical_grid%set_registry(registry)
+               call vertical_grid%add_short_names(edge="PLE", center="PL")
             end select
          case default
             _FAIL('vertical grid class '//vertical_grid_class//' not supported')
