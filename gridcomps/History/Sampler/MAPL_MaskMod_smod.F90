@@ -164,8 +164,9 @@ module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdat
    _ASSERT (n2>0, "list%frequency ==0, fail!")
    this%tmax =  n1/n2
 
-   allocate ( this%array_scalar_2d (this%npt_mask_tot, nitem_scalar ) )
-   allocate ( this%array_scalar_3d (this%npt_mask_tot, this%vdata%lm, nitem_scalar) )
+   allocate ( this%array_scalar_1d (this%npt_mask))
+   allocate ( this%array_scalar_2d (this%npt_mask, nitem_scalar ) )
+   allocate ( this%array_scalar_3d (this%npt_mask, this%vdata%lm, nitem_scalar) )
    if (mapl_am_I_root()) then
       write(6,*) 'ck count_scalar=',  nitem_scalar
    end if
@@ -862,7 +863,6 @@ module subroutine  create_metadata(this,rc)
 
     if (have_time) then
        this%times = this%timeInfo%compute_time_vector(this%metadata,_RC)
-       write(6,*)  'this%times=', this%times
 
        ref = ArrayReference(this%times)
 
@@ -876,7 +876,6 @@ module subroutine  create_metadata(this,rc)
        call this%stage2DLatLon(filename,oClients=oClients,_RC)
     end if
 
-    write(6,*) 'tindex=', tindex
 
     !__ 2. put_var: ungridded_dim from src to dst [use index_mask]
     !
@@ -914,9 +913,11 @@ module subroutine  create_metadata(this,rc)
                 ix = this%index_mask(1,j)
                 iy = this%index_mask(2,j)
                 this%array_scalar_2d(j, count_scalar) = p_src_2d(ix, iy)
+                this%array_scalar_1d(j) = 1.d0                
              end do
              if (nx>0) then
-                ptr1d(1:nx) => this%array_scalar_2d(1:nx, count_scalar)
+                !                ptr1d(1:nx) => this%array_scalar_2d(1:nx, count_scalar)
+                ptr1d => this%array_scalar_1d
              else
                 allocate (ptr1d(0))
              end if
@@ -1062,12 +1063,10 @@ module subroutine  create_metadata(this,rc)
        allocate(local_start,source=[1])
        allocate(global_start,source=[1])
        allocate(global_count,source=[this%npt_mask_tot])
-       write(6,*) 'this%lons_deg  root',     this%lons_deg
     else
        allocate(local_start,source=[0])
        allocate(global_start,source=[0])
        allocate(global_count,source=[0])
-       write(6,*) 'this%lons_deg else',     this%lons_deg       
     end if
     
     ref = ArrayReference(this%lons_deg)
