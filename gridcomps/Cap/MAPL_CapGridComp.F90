@@ -967,23 +967,22 @@ contains
 
 
   function get_vec_from_config(config, key, rc) result(vec)
+    type(StringVector) :: vec
     type(ESMF_Config), intent(inout) :: config
     character(len=*), intent(in) :: key
     integer, intent(out), optional :: rc
     logical :: present, tableEnd
     integer :: status
-    character(len=ESMF_MAXSTR) :: cap_import
-    type(StringVector) :: vec
+    character(len=ESMF_MAXSTR) :: value
 
     call ESMF_ConfigFindLabel(config, key//":", isPresent = present, _RC)
 
-    cap_import = ""
     if (present) then
-       do while( .true.)
+       do while(.true.)
           call ESMF_ConfigNextLine(config, tableEnd=tableEnd, _RC)
           if (tableEnd) exit
-          call ESMF_ConfigGetAttribute(config, cap_import, _RC)
-          call vec%push_back(trim(cap_import))
+          call ESMF_ConfigGetAttribute(config, value, _RC)
+          call vec%push_back(trim(value))
        end do
     end if
     _RETURN(_SUCCESS)
