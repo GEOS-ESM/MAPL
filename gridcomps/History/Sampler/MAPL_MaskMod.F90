@@ -92,8 +92,8 @@ module MaskSamplerMod
      integer, allocatable :: global_count(:)
 
      !     real, target, allocatable :: array_scalar_2d(:,:,:)       ! (nx, nitem, ntime_seg)
-     real, allocatable :: array_scalar_2d(:,:,:)
-     real, allocatable :: array_scalar_3d(:,:,:,:)
+     real, allocatable :: array_scalar_2d(:,:)
+     real, allocatable :: array_scalar_3d(:,:,:)
 !     real, target, allocatable :: array_vector_2d(:,:,:)
 !     real, target, allocatable :: array_vector_3d(:,:,:,:)
      real, pointer :: x1(:) => null()

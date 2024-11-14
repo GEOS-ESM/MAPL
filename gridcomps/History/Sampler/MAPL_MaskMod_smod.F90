@@ -164,8 +164,8 @@ module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdat
    _ASSERT (n2>0, "list%frequency ==0, fail!")
    this%tmax =  n1/n2
 
-   allocate ( this%array_scalar_2d (this%npt_mask, nitem_scalar, this%tmax+1) )
-   allocate ( this%array_scalar_3d (this%npt_mask, this%vdata%lm, nitem_scalar, this%tmax+1) )
+   allocate ( this%array_scalar_2d (this%npt_mask, nitem_scalar ) )
+   allocate ( this%array_scalar_3d (this%npt_mask, this%vdata%lm, nitem_scalar) )
    !
    ! __ note thse large arrays should be deallocated in the future
    !
@@ -798,9 +798,9 @@ module subroutine  create_metadata(this,rc)
     integer :: ub(1), lb(1)
     type(ESMF_Field) :: src_field,dst_field
     real, pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
-    real, pointer :: p_1d(:) => null()
-    real, pointer :: p_2d(:) => null()
-
+    real, pointer :: ptr1d(:) => null()
+    real, pointer :: ptr2d(:,:) => null()
+    
     real, allocatable :: p_dst_3d_full(:),p_dst_2d_full(:)
     real, allocatable :: arr(:,:)
     character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
@@ -833,14 +833,12 @@ module subroutine  create_metadata(this,rc)
     this%obs_written=1
     this%call_count = this%call_count + 1
 
-
     ! -- fixed for all fields
     call ESMF_VMGetCurrent(vm,_RC)
     call ESMF_VMGet(vm, mpiCommunicator=mpic, petcount=petcount, localpet=mypet, _RC)
     iroot=0
     nx = this%npt_mask
     nz = this%vdata%lm
-
 
     if (mapl_am_i_root()) then
        allocate ( p_dst_2d_full (this%npt_mask_tot), _STAT )
@@ -863,18 +861,13 @@ module subroutine  create_metadata(this,rc)
        this%times = this%timeInfo%compute_time_vector(this%metadata,_RC)
        write(6,*)  'this%times=', this%times
 
-
        ref = ArrayReference(this%times)
 
-       !ygyu
        call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
        tindex = size(this%times)
        if (tindex==1) then
-          write(6,*) 'bf stage2dlatlon'
           call this%stage2DLatLon(filename,oClients=oClients,_RC)
-          write(6,*) 'af stage2dlatlon'
-
-       end if
+        end if
     else
        tindex = -1
        call this%stage2DLatLon(filename,oClients=oClients,_RC)
@@ -917,32 +910,19 @@ module subroutine  create_metadata(this,rc)
              do j=1, nx
                 ix = this%index_mask(1,j)
                 iy = this%index_mask(2,j)
-                this%array_scalar_2d(j, count_scalar, this%call_count) = p_src_2d(ix, iy)
+                this%array_scalar_2d(j, count_scalar) = p_src_2d(ix, iy)
              end do
              if (nx>0) then
-                this%p1d => this%array_scalar_2d(:, count_scalar, this%call_count)
+                ptr1d(1:nx) => this%array_scalar_2d(1:nx, count_scalar)
              else
-                allocate (this%p1d(0))  ! follow griddedio
+                allocate (ptr1d(0))
              end if
-             ref = ArrayReference(this%p1d)
+             ref = ArrayReference(ptr1d)
 
              write(6,*) 'ip, nx, this%npt_mask_tot, i1, in=', &
                   mypet, nx, this%npt_mask_tot, this%i1, this%in
 
              write(6,*) 'ip, this%p1d', mypet, this%p1d
-!!
-!!             if (nx>0) then
-!!                allocate(local_start,source=[this%i1,1])
-!!                allocate(global_start,source=[1,tindex])
-!!                allocate(global_count,source=[this%npt_mask_tot,1])
-!!
-!!                print*, 'mypet, local_start, global_start, global_count', &
-!!                     mypet, local_start, global_start, global_count
-!!             else
-!!                allocate(local_start,source=[0,1])
-!!                allocate(global_start,source=[0,tindex])
-!!                allocate(global_count,source=[0,1])
-!!             end if
 
              if (nx>0) then
                 allocate(local_start,source=[this%i1])
@@ -956,9 +936,8 @@ module subroutine  create_metadata(this,rc)
                 allocate(global_count,source=[0])
              end if
 
-! ygyu test             
-!             call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(item%xname), &
-!                  ref,start=local_start, global_start=global_start, global_count=global_count)
+             call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(item%xname), &
+                  ref,start=local_start, global_start=global_start, global_count=global_count)
              deallocate (local_start, global_start, global_count)
 
 
@@ -1081,16 +1060,14 @@ module subroutine  create_metadata(this,rc)
        allocate(global_count,source=[0])
        write(6,*) 'this%lons_deg else',     this%lons_deg       
     end if
-
     
     ref = ArrayReference(this%lons_deg)
     call oClients%collective_stage_data(this%write_collection_id,trim(filename),'longitude', &
          ref,start=local_start, global_start=global_start, global_count=global_count)
 
-!ygyu
-!    ref = ArrayReference(this%lats_deg)
-!    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'latitude', &
-!         ref,start=local_start, global_start=global_start, global_count=global_count)
+    ref = ArrayReference(this%lats_deg)
+    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'latitude', &
+         ref,start=local_start, global_start=global_start, global_count=global_count)
 
     _RETURN(_SUCCESS)
  end subroutine stage2dlatlon
