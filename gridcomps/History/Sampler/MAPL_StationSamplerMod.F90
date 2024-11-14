@@ -47,7 +47,7 @@ module StationSamplerMod
      type(FileMetadata)             :: metadata
      type(NetCDF4_FileFormatter)    :: formatter
      type(VerticalData)             :: vdata
-     type(TimeData)                 :: time_info
+     type(TimeData)                 :: timeinfo
      character(LEN=ESMF_MAXPATHLEN) :: ofile
      integer                        :: obs_written
 
@@ -351,7 +351,7 @@ contains
     !
     if(present(bundle))   this%bundle=bundle
     if(present(items))    this%items=items
-    if(present(timeInfo)) this%time_info=timeInfo
+    if(present(timeInfo)) this%timeinfo=timeInfo
     if (present(vdata)) then
        this%vdata = vdata
     else
@@ -366,7 +366,7 @@ contains
     endif
 
     call timeInfo%add_time_to_metadata(this%metadata,_RC) ! specify time in fmd
-    this%time_info = timeInfo
+    this%timeinfo = timeInfo
 
     call this%metadata%add_dimension('station_index',nstation)
 
@@ -712,7 +712,7 @@ contains
     integer :: status, j
 
     this%ofile = trim(filename)
-    v = this%time_info%define_time_variable(_RC)
+    v = this%timeinfo%define_time_variable(_RC)
     call this%metadata%modify_variable('time',v,_RC)
     this%obs_written = 0
 

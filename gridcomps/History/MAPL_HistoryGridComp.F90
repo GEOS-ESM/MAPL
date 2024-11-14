@@ -53,7 +53,7 @@
   use pFIO_ConstantsMod
   use HistoryTrajectoryMod
   use StationSamplerMod
-  use MaskSamplerGeosatMod
+  use MaskSamplerMod
   use MAPL_StringTemplate
   use regex_module
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
@@ -2453,8 +2453,12 @@ ENDDO PARSER
              IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
           elseif (list(n)%sampler_spec == 'mask') then
              call MAPL_TimerOn(GENSTATE,"mask_init")
-             list(n)%mask_sampler = MaskSamplerGeosat(cfg,string,clock,genstate=GENSTATE,_RC)
-             call list(n)%mask_sampler%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
+             list(n)%mask_sampler = MaskSampler(cfg,string,clock,genstate=GENSTATE,_RC)
+             ! initialize + create metadata
+             call list(n)%mask_sampler%initialize(list(n)%duration,list(n)%frequency,items=list(n)%items,&
+                  bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
+             collection_id = o_Clients%add_hist_collection(list(n)%mask_sampler%metadata, mode = create_mode)
+             call list(n)%mask_sampler%set_param(write_collection_id=collection_id)
              call MAPL_TimerOff(GENSTATE,"mask_init")
           elseif (list(n)%sampler_spec == 'station') then
              list(n)%station_sampler = StationSampler (list(n)%bundle, trim(list(n)%stationIdFile), nskip_line=list(n)%stationSkipLine, genstate=GENSTATE, _RC)
@@ -3494,7 +3498,7 @@ ENDDO PARSER
             if (intState%allow_overwrite) create_mode = PFIO_CLOBBER
             ! add time to items
             ! true metadata comes here from mGriddedIO%metadata
-            ! the mGriddedIO below only touches metadata, collection_id etc., it is safe.
+            ! list(n)%mgriddedio for swath changed due to grid change
             !
             if (.NOT. list(n)%xsampler%have_initalized) then
                list(n)%xsampler%have_initalized = .true.
@@ -3507,6 +3511,9 @@ ENDDO PARSER
             call list(n)%mGriddedIO%destroy(_RC)
             call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%xsampler%acc_bundle,timeinfo_uninit,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
             call list(n)%items%pop_back()
+            !
+            ! we may have a memory leakage here:  o_Clients should first delete the old metada
+            !
             collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
             call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
             call MAPL_TimerOff(GENSTATE,"RegenGriddedio")
@@ -3587,13 +3594,19 @@ ENDDO PARSER
                list(n)%unit = -1
             end if
          elseif (list(n)%sampler_spec == 'mask') then
-            if (list(n)%unit.eq.0) then
-               call lgr%debug('%a %a',&
-                    "Mask_data output to new file:",trim(filename(n)))
-               call list(n)%mask_sampler%close_file_handle(_RC)
-               call list(n)%mask_sampler%create_file_handle(filename(n),_RC)
-               list(n)%currentFile = filename(n)
-               list(n)%unit = -1
+            if( list(n)%unit.eq.0 ) then
+               if (list(n)%format == 'CFIO') then
+                  if (.not.intState%allow_overwrite) then
+                     inquire (file=trim(filename(n)),exist=file_exists)
+                     _ASSERT(.not.file_exists,trim(filename(n))//" being created for History output already exists")
+                  end if
+                  if (mapl_am_i_root()) write(6,*) 'this line for mask %modifyTime'
+                  call list(n)%mask_sampler%modifyTime(oClients=o_Clients,_RC)
+                  list(n)%currentFile = filename(n)
+                  list(n)%unit = -1
+               else
+                  list(n)%unit = GETFILE( trim(filename(n)),all_pes=.true.)
+               end if
             end if
          else
             if( list(n)%unit.eq.0 ) then
@@ -3738,10 +3751,13 @@ ENDDO PARSER
          elseif (list(n)%sampler_spec == 'mask') then
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
             call MAPL_TimerOn(GENSTATE,"Mask_append")
-            call list(n)%mask_sampler%append_file(current_time,_RC)
+            if (list(n)%unit < 0) then    ! CFIO
+               call list(n)%mask_sampler%output_to_server(current_time,&
+                    list(n)%currentFile,oClients=o_Clients,_RC)
+               if (mapl_am_i_root()) write(6,*) 'af list(n)%mask_sampler%output_to_server'
+            end if
             call MAPL_TimerOff(GENSTATE,"Mask_append")
          endif
-
 
       endif OUTTIME
 
@@ -3755,6 +3771,7 @@ ENDDO PARSER
       call MAPL_TimerOff(GENSTATE,"IO Post")
       call MAPL_TimerOff(GENSTATE,trim(list(n)%collection))
    enddo POSTLOOP
+
 
 
    call MAPL_TimerOn(GENSTATE,"Done Wait")
