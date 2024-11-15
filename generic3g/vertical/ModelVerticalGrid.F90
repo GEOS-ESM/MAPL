@@ -58,8 +58,6 @@ module mapl3g_ModelVerticalGrid
       end function
    end interface
 
-   integer, parameter :: NDX_EDGE=1, NDX_CENTER=2
-
    ! TODO:
    ! - Ensure that there really is a vertical dimension
 
