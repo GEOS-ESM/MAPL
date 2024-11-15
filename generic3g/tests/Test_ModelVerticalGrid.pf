@@ -65,8 +65,8 @@ contains
       rc = 0
       ! Inside user "set_geom" phase.
       geom = make_geom(_RC)
-      vgrid = ModelVerticalGrid(num_levels=LM, units="hPa")
-      call vgrid%add_variant(short_name=var_name)
+      vgrid = ModelVerticalGrid(standard_name="air_pressure", units="hPa", num_levels=LM)
+      call vgrid%add_short_names(edge="PLE", center="PL")
 
       ! inside OuterMeta
       r = StateRegistry("dyn")
@@ -114,21 +114,9 @@ contains
       integer :: num_levels
 
       num_levels = 10
-      vgrid = ModelVerticalGrid(num_levels=num_levels, units="hPa")
+      vgrid = ModelVerticalGrid(standard_name="height", units="m", num_levels=num_levels)
       @assert_that(vgrid%get_num_levels(), is(num_levels))
    end subroutine test_num_levels
-
-   @test
-   subroutine test_num_variants()
-      type(ModelVerticalGrid) :: vgrid
-
-      vgrid = ModelVerticalGrid(num_levels=3, units="hPa")
-      @assert_that(vgrid%get_num_variants(), is(0))
-      call vgrid%add_variant(short_name="PLE")
-      @assert_that(vgrid%get_num_variants(), is(1))
-      call vgrid%add_variant(short_name="ZLE")
-      @assert_that(vgrid%get_num_variants(), is(2))
-   end subroutine test_num_variants
 
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_created_fields_have_num_levels(this)
