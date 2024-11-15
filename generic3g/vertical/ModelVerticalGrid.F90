@@ -5,19 +5,15 @@ module mapl3g_ModelVerticalGrid
    use mapl_ErrorHandling
    use mapl3g_VerticalGrid
    use mapl3g_StateRegistry
-   use mapl3g_MultiState
    use mapl3g_VirtualConnectionPt
-   use mapl3g_ActualConnectionPt
    use mapl3g_StateItemSpec
    use mapl3g_FieldSpec
    use mapl3g_UngriddedDims
    use mapl3g_StateItemExtension
    use mapl3g_ExtensionFamily
    use mapl3g_ExtensionAction
-   use mapl3g_StateItemExtensionPtrVector
    use mapl3g_GriddedComponentDriver
    use mapl3g_VerticalDimSpec
-   use gftl2_StringVector
    use esmf
 
    implicit none
