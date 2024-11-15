@@ -833,6 +833,8 @@ module subroutine  create_metadata(this,rc)
     integer :: tindex, nset
     integer :: count_scalar, count_vector
 
+    integer :: jj, kk
+    
     ! __ s1. find local_start, global_start, etc.
     this%obs_written=1
     this%call_count = this%call_count + 1
@@ -879,25 +881,6 @@ module subroutine  create_metadata(this,rc)
 
     !__ 2. put_var: ungridded_dim from src to dst [use index_mask]
     !
-    !   Currently mask only pickup values
-    !   It does not support vertical regridding
-    !
-    !if (this%vdata%regrid_type==VERTICAL_METHOD_ETA2LEV) then
-    !   call this%vdata%setup_eta_to_pressure(_RC)
-    !endif
-
-
-
-!!    if ( nx>0 ) then
-!!       allocate ( gridLocalStart,  source=[this%i1] )
-!!       allocate ( gridGlobalStart, source=[1] )
-!!       allocate ( gridGlobalCount, source=[this%npt_mask_tot] )
-!!    else
-!!       allocate ( gridLocalStart,  source=[0] )
-!!       allocate ( gridGlobalStart, source=[0] )
-!!       allocate ( gridGlobalCount, source=[0] )
-!!    end if
-
     count_scalar = 0
     count_vector = 0
     iter = this%items%begin()
@@ -912,12 +895,10 @@ module subroutine  create_metadata(this,rc)
              do j=1, nx
                 ix = this%index_mask(1,j)
                 iy = this%index_mask(2,j)
-                this%array_scalar_2d(j, count_scalar) = p_src_2d(ix, iy)
-                this%array_scalar_1d(j) = 1.d0                
+                this%array_scalar_1d(j) = (mypet+11)
              end do
              if (nx>0) then
-                !                ptr1d(1:nx) => this%array_scalar_2d(1:nx, count_scalar)
-                ptr1d => this%array_scalar_1d
+                ptr1d => this%array_scalar_1d    !  allocate(arr(nx))  arr(nx_tot) ??
              else
                 allocate (ptr1d(0))
              end if
@@ -927,24 +908,45 @@ module subroutine  create_metadata(this,rc)
                 write(6,*) ' count_scalar=',  count_scalar
              end if
 
-!                write(6,*) 'ip, nx, this%npt_mask_tot, i1, in=', &
-!                     mypet, nx, this%npt_mask_tot, this%i1, this%in
+             !  proc    1  2  3  4  5  6 
+             !  nx      19 0  0  0  0  46  def arry(nx)
+             !  i1      1              20
+             !  in      19             65
+             !  nx_tot  65
+             write(6,*) 'ip, nx, this%npt_mask_tot, i1, in=', &
+                  mypet, nx, this%npt_mask_tot, this%i1, this%in
              write(6,*) 'ip, this%p1d', mypet, ptr1d
-                
 
              if (nx>0) then
-                allocate(local_start,source=[this%i1])
-                allocate(global_start,source=[1])
-                allocate(global_count,source=[this%npt_mask_tot])
+                jj=2
+                select case(jj)
+                case (1)
+                   ! choice-1
+                   allocate(local_start,source=[this%i1])
+                   allocate(global_start,source=[1])
+                   allocate(global_count,source=[this%npt_mask_tot])
+                case(2)
+                   ! choice-2                
+                   allocate(local_start,source=[1])
+                   allocate(global_start,source=[this%i1])
+                   allocate(global_count,source=[this%npt_mask_tot])
+                end select
                 print*, 'mypet, local_start, global_start, global_count', &
                      mypet, local_start, global_start, global_count
              else
-                allocate(local_start,source=[this%i1])
-                allocate(global_start,source=[1])
-                allocate(global_count,source=[this%npt_mask_tot])
-!                allocate(local_start,source=[0])
-!                allocate(global_start,source=[0])
-!                allocate(global_count,source=[0])
+                kk=1
+                select case(kk)
+                case (1)
+                   ! choice-1
+                   allocate(local_start,source=[1])
+                   allocate(global_start,source=[1])
+                   allocate(global_count,source=[this%npt_mask_tot])
+                case(2)
+                   ! choice-2                
+                   allocate(local_start,source=[0])
+                   allocate(global_start,source=[0])
+                   allocate(global_count,source=[0])
+                end select
              end if
              print*, 'ck ip, this%npt_mask_tot = ', mypet, this%npt_mask_tot
 
