@@ -93,13 +93,13 @@ contains
 
       if (vertical_dim_spec == VERTICAL_DIM_EDGE) then
          short_name = this%short_name_edge
-         _RETURN(_SUCCESS)
       else if (vertical_dim_spec == VERTICAL_DIM_CENTER) then
          short_name = this%short_name_center
-         _RETURN(_SUCCESS)
       else
          _FAIL("unsupported vertical_dim_spec")
       end if
+
+      _RETURN(_SUCCESS)
    end function get_short_name
 
    subroutine set_registry(this, registry)
