@@ -29,7 +29,8 @@ module mapl3g_ModelVerticalGrid
       private
       character(:), allocatable :: standard_name
       integer :: num_levels = -1
-      character(len=ESMF_MAXSTR) :: variants(2) = ["UNDEFINED", "UNDEFINED"]
+      character(:), allocatable :: short_name_edge
+      character(:), allocatable :: short_name_center
       type(StateRegistry), pointer :: registry => null()
    contains
       procedure :: get_num_levels
@@ -83,11 +84,11 @@ contains
 
    subroutine add_short_names(this, edge, center)
       class(ModelVerticalGrid), intent(inout) :: this
-      character(*), intent(in) :: edge
-      character(*), intent(in) :: center
+      character(*), optional, intent(in) :: edge
+      character(*), optional, intent(in) :: center
 
-      this%variants(NDX_EDGE) = edge
-      this%variants(NDX_CENTER) = center
+      if (present(edge)) this%short_name_edge = edge
+      if (present(center)) this%short_name_center = center
    end subroutine add_short_names
 
    function get_short_name(this, vertical_dim_spec, rc) result(short_name)
@@ -97,10 +98,10 @@ contains
       integer, optional :: rc
 
       if (vertical_dim_spec == VERTICAL_DIM_EDGE) then
-         short_name = trim(this%variants(NDX_EDGE))
+         short_name = this%short_name_edge
          _RETURN(_SUCCESS)
       else if (vertical_dim_spec == VERTICAL_DIM_CENTER) then
-         short_name = trim(this%variants(NDX_CENTER))
+         short_name = this%short_name_center
          _RETURN(_SUCCESS)
       else
          _FAIL("unsupported vertical_dim_spec")
