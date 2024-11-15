@@ -3778,6 +3778,9 @@ ENDDO PARSER
    if (any(writing)) then
       call o_Clients%done_collective_stage(_RC)
       call o_Clients%post_wait()
+      
+      write(6,*) ' list(1)%mask_sampler%this%array_scalar_1d',      list(1)%mask_sampler%array_scalar_1d
+      
    endif
    call MAPL_TimerOff(GENSTATE,"Done Wait")
 

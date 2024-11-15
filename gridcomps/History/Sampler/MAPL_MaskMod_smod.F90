@@ -939,9 +939,12 @@ module subroutine  create_metadata(this,rc)
                 print*, 'mypet, local_start, global_start, global_count', &
                      mypet, local_start, global_start, global_count
              else
-                allocate(local_start,source=[0])
-                allocate(global_start,source=[0])
-                allocate(global_count,source=[0])
+                allocate(local_start,source=[this%i1])
+                allocate(global_start,source=[1])
+                allocate(global_count,source=[this%npt_mask_tot])
+!                allocate(local_start,source=[0])
+!                allocate(global_start,source=[0])
+!                allocate(global_count,source=[0])
              end if
              print*, 'ck ip, this%npt_mask_tot = ', mypet, this%npt_mask_tot
 

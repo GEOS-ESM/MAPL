@@ -31,7 +31,8 @@ module MaskSamplerMod
 
   public :: MaskSampler
   type :: MaskSampler
-     private
+     !     private
+!!     public
      !     character(len=:), allocatable :: grid_file_name
      character(len=ESMF_MAXSTR) :: grid_file_name
      !     we need on each PET
