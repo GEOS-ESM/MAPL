@@ -108,7 +108,7 @@ end function MaskSampler_from_config
    !-- integrate both initialize and reinitialize
    !
 module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdata,reinitialize,rc)
-   class(MaskSampler), intent(inout) :: this
+   class(MaskSampler), target, intent(inout) :: this
    integer, intent(in) :: duration
    integer, intent(in) :: frequency
    type(GriddedIOitemVector), optional, intent(inout) :: items
@@ -142,7 +142,7 @@ module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdat
 !   if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
 
    this%obs_written = 0
-   call this%create_grid(_RC)
+   call this%create_Geosat_grid_find_mask(_RC)
    call this%create_metadata(_RC)
 
    nitem_scalar = 0
@@ -181,7 +181,7 @@ end subroutine initialize_
 
 module subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,&
      nbits_to_keep,regrid_method,itemOrder,write_collection_id,regrid_hints,rc)
-  class (MaskSampler), intent(inout) :: this
+  class (MaskSampler), target, intent(inout) :: this
   integer, optional, intent(in) :: deflation
   integer, optional, intent(in) :: quantize_algorithm
   integer, optional, intent(in) :: quantize_level
@@ -207,13 +207,14 @@ module subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chu
 !!        end if
 !!        if (present(itemOrder)) this%itemOrderAlphabetical = itemOrder
 !!        if (present(regrid_hints)) this%regrid_hints = regrid_hints
-!!        _RETURN(ESMF_SUCCESS)
+
+  _RETURN(ESMF_SUCCESS)
 
 end subroutine set_param
 
 
 module subroutine  create_metadata(this,rc)
-    class(MaskSampler), intent(inout) :: this
+    class(MaskSampler), target, intent(inout) :: this
     integer, optional, intent(out)          :: rc
 
     type(variable)   :: v
@@ -232,7 +233,6 @@ module subroutine  create_metadata(this,rc)
     character(len=ESMF_MAXSTR) :: var_name, long_name, units, vdims
     character(len=40) :: datetime_units
 
-
     !__ 1. metadata add_dimension,
     !     add_variable for time, mask_points, latlon,
     !
@@ -242,6 +242,7 @@ module subroutine  create_metadata(this,rc)
 
     call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC) ! specify lev in fmd
 
+    !- add time dimension to metadata
     call this%timeinfo%add_time_to_metadata(this%metadata,_RC)
     call this%metadata%add_dimension('mask_index', this%npt_mask_tot)
 
@@ -292,23 +293,14 @@ module subroutine  create_metadata(this,rc)
           units = 'unknown'
        endif
 
-!       if (this%timeInfo%is_initialized) then
-!          if (field_rank==2) then
-!             vdims = "mask_index,time"
-!             v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
-!          else if (field_rank==3) then
-!             vdims = "mask_index,lev,time"
-!             v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
-!          end if
-!       else
-          if (field_rank==2) then
-             vdims = "mask_index"
-             v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
-          else if (field_rank==3) then
-             vdims = "mask_index,lev"
-             v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
-          end if
-!       end if
+       if (field_rank==2) then
+          vdims = "mask_index"
+          v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
+       else if (field_rank==3) then
+          vdims = "mask_index,lev"
+          v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
+       end if
+
        call v%add_attribute('units',         trim(units))
        call v%add_attribute('long_name',     trim(long_name))
        call v%add_attribute('missing_value', MAPL_UNDEF)
@@ -326,7 +318,7 @@ module subroutine  create_metadata(this,rc)
        use pflogger, only: Logger, logging
        implicit none
 
-       class(MaskSampler), intent(inout) :: this
+       class(MaskSampler), target, intent(inout) :: this
        integer, optional, intent(out)          :: rc
 
        type(Logger), pointer :: lgr
@@ -804,6 +796,7 @@ module subroutine  create_metadata(this,rc)
     real, pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
     real, pointer :: ptr1d(:) => null()
     real, pointer :: ptr2d(:,:) => null()
+    real, allocatable :: times_loc(:)
     
     real, allocatable :: p_dst_3d_full(:),p_dst_2d_full(:)
     real, allocatable :: arr(:,:)
@@ -829,6 +822,7 @@ module subroutine  create_metadata(this,rc)
     integer, allocatable :: gridGlobalStart(:)
     integer, allocatable :: gridGlobalCount(:)
 
+    
     logical :: have_time
     integer :: tindex, nset
     integer :: count_scalar, count_vector
@@ -837,7 +831,6 @@ module subroutine  create_metadata(this,rc)
     
     ! __ s1. find local_start, global_start, etc.
     this%obs_written=1
-    this%call_count = this%call_count + 1
 
     ! -- fixed for all fields
     call ESMF_VMGetCurrent(vm,_RC)
@@ -861,23 +854,19 @@ module subroutine  create_metadata(this,rc)
     !   use griddedio logic
     !__ 1. stage data :  time variable, lat/lon
     !
-    Have_time = this%timeInfo%am_i_initialized()
 
-    if (have_time) then
-       this%times = this%timeInfo%compute_time_vector(this%metadata,_RC)
-
-       ref = ArrayReference(this%times)
-
-       call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
-       tindex = size(this%times)
-       if (tindex==1) then
-          call this%stage2DLatLon(filename,oClients=oClients,_RC)
-        end if
-    else
-       tindex = -1
-       call this%stage2DLatLon(filename,oClients=oClients,_RC)
+    if (allocated(times_loc)) deallocate(times_loc)
+    if (allocated(this%times)) deallocate(this%times)    
+    times_loc = this%timeInfo%compute_time_vector(this%metadata,_RC)
+    !
+    ! __ intentionaly send one-time variable element to oClients
+    allocate (this%times, source=[times_loc(1)])
+    if (mapl_am_i_root()) then
+       print*, 'this%times', this%times
     end if
-
+    ref = ArrayReference(this%times)
+    call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
+    call this%stage2DLatLon(filename,oClients=oClients,_RC)
 
     !__ 2. put_var: ungridded_dim from src to dst [use index_mask]
     !
@@ -902,7 +891,9 @@ module subroutine  create_metadata(this,rc)
              else
                 allocate (ptr1d(0))
              end if
-             ref = ArrayReference(ptr1d)
+             !!             ref = ArrayReference(ptr1d)
+
+             ref = ArrayReference(this%array_scalar_1d)             
 
              if (mapl_am_I_root()) then
                 write(6,*) ' count_scalar=',  count_scalar
@@ -918,7 +909,8 @@ module subroutine  create_metadata(this,rc)
              write(6,*) 'ip, this%p1d', mypet, ptr1d
 
              if (nx>0) then
-                jj=2
+                !! jj=1 is correct
+                jj=1
                 select case(jj)
                 case (1)
                    ! choice-1
@@ -934,7 +926,8 @@ module subroutine  create_metadata(this,rc)
                 print*, 'mypet, local_start, global_start, global_count', &
                      mypet, local_start, global_start, global_count
              else
-                kk=1
+                !!  kk=3 is correct
+                kk=3
                 select case(kk)
                 case (1)
                    ! choice-1
@@ -943,6 +936,11 @@ module subroutine  create_metadata(this,rc)
                    allocate(global_count,source=[this%npt_mask_tot])
                 case(2)
                    ! choice-2                
+                   allocate(local_start,source=[0])
+                   allocate(global_start,source=[0])
+                   allocate(global_count,source=[this%npt_mask_tot])
+                case(3)
+                   ! choice-3                
                    allocate(local_start,source=[0])
                    allocate(global_start,source=[0])
                    allocate(global_count,source=[0])
@@ -1013,7 +1011,7 @@ module subroutine  create_metadata(this,rc)
 
   module function compute_time_for_current(this,current_time,rc) result(rtime)
     use  MAPL_NetCDF, only : convert_NetCDF_DateTime_to_ESMF
-    class(MaskSampler), intent(inout) :: this
+    class(MaskSampler), target, intent(inout) :: this
     type(ESMF_Time), intent(in) :: current_time
     integer, optional, intent(out) :: rc
     real(kind=ESMF_KIND_R8) :: rtime
@@ -1048,7 +1046,7 @@ module subroutine  create_metadata(this,rc)
   module subroutine stage2dlatlon(this,filename,oClients,rc)
     implicit none
 
-    class(MaskSampler), intent(inout) :: this
+    class(MaskSampler), target, intent(inout) :: this
     character(len=*), intent(in) :: fileName
     type (ClientManager), optional, target, intent(inout) :: oClients
     integer, optional, intent(out) :: rc
@@ -1056,8 +1054,9 @@ module subroutine  create_metadata(this,rc)
     integer, allocatable :: local_start(:)
     integer, allocatable :: global_start(:)
     integer, allocatable :: global_count(:)
-    integer :: nx
-    real, allocatable :: lons(:), lats(:)
+    integer :: n
+    real(kind=REAL64), pointer :: ptr1dx(:) => null()
+    real(kind=REAL64), pointer :: ptr1dy(:) => null()
     type(ArrayReference), target :: ref
     integer :: status
 
@@ -1068,26 +1067,28 @@ module subroutine  create_metadata(this,rc)
        allocate(local_start,source=[1])
        allocate(global_start,source=[1])
        allocate(global_count,source=[this%npt_mask_tot])
+       ptr1dx => this%lons_deg
     else
        allocate(local_start,source=[0])
        allocate(global_start,source=[0])
        allocate(global_count,source=[0])
+       allocate(ptr1dx(0))
     end if
     
-    ref = ArrayReference(this%lons_deg)
+    ref = ArrayReference(ptr1dx)
     call oClients%collective_stage_data(this%write_collection_id,trim(filename),'longitude', &
          ref,start=local_start, global_start=global_start, global_count=global_count)
 
-    ref = ArrayReference(this%lats_deg)
-    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'latitude', &
-         ref,start=local_start, global_start=global_start, global_count=global_count)
+!    ref = ArrayReference(this%lats_deg)
+!    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'latitude', &
+!         ref,start=local_start, global_start=global_start, global_count=global_count)
 
     _RETURN(_SUCCESS)
  end subroutine stage2dlatlon
 
 
      module subroutine modifyTime(this, oClients, rc)
-        class(MaskSampler), intent(inout) :: this
+        class(MaskSampler), target, intent(inout) :: this
         type (ClientManager), optional, intent(inout) :: oClients
         integer, optional, intent(out) :: rc
 
