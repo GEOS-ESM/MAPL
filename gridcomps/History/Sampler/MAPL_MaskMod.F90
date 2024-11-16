@@ -33,7 +33,6 @@ module MaskSamplerMod
   type :: MaskSampler
      !     private
 !!     public
-     !     character(len=:), allocatable :: grid_file_name
      character(len=ESMF_MAXSTR) :: grid_file_name
      !     we need on each PET
      !     npt_mask, index_mask(1:2,npt_mask)=[i,j]
@@ -79,10 +78,11 @@ module MaskSamplerMod
      integer(kind=ESMF_KIND_I8)     :: epoch_index(2)
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
-     real(kind=REAL64), allocatable :: lons_deg(:)
-     real(kind=REAL64), allocatable :: lats_deg(:)
-!    real, allocatable :: lons_deg(:)
-!    real, allocatable :: lats_deg(:)     
+!     real(kind=pFIO_REAL64), allocatable :: lons_deg(:)
+!     real(kind=pFIO_REAL64), allocatable :: lats_deg(:)
+     real, allocatable :: lons_deg(:)
+     real, allocatable :: lats_deg(:)
+
      real, allocatable :: times(:)
      integer, allocatable :: recvcounts(:)
      integer, allocatable :: displs(:)
@@ -92,16 +92,10 @@ module MaskSamplerMod
      integer, allocatable :: global_start(:)
      integer, allocatable :: global_count(:)
 
-     !     real, target, allocatable :: array_scalar_2d(:,:,:)       ! (nx, nitem, ntime_seg)
      real, allocatable :: array_scalar_1d(:)
      real, allocatable :: array_scalar_2d(:,:)
      real, allocatable :: array_scalar_3d(:,:,:)
-!     real, target, allocatable :: array_vector_2d(:,:,:)
-!     real, target, allocatable :: array_vector_3d(:,:,:,:)
-     real, pointer :: x1(:) => null()
-     real, pointer :: p1d(:) => null()
 
-     integer :: call_count
      integer :: tmax     ! duration / freq
 
      real(kind=ESMF_KIND_R8), pointer:: obsTime(:)
@@ -121,7 +115,7 @@ module MaskSamplerMod
      procedure :: create_Geosat_grid_find_mask
      procedure :: compute_time_for_current
      procedure :: set_param
-     procedure :: stage2dlatlon
+!!     procedure :: stage2dlatlon
      procedure :: modifytime
   end type MaskSampler
 

@@ -95,7 +95,6 @@ module function MaskSampler_from_config(config,string,clock,GENSTATE,rc) result(
   call convert_twostring_2_esmfinterval (symd, shms,  mask%obsfile_interval, _RC)
 
   mask%is_valid = .true.
-  mask%call_count = 0
 
   _RETURN(_SUCCESS)
 
@@ -795,6 +794,7 @@ module subroutine  create_metadata(this,rc)
     type(ESMF_Field) :: src_field,dst_field
     real, pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
     real, pointer :: ptr1d(:) => null()
+    real(pFIO_REAL64), pointer :: ptr1d_r8(:) => null()    
     real, pointer :: ptr2d(:,:) => null()
     real, allocatable :: times_loc(:)
     
@@ -866,8 +866,27 @@ module subroutine  create_metadata(this,rc)
     end if
     ref = ArrayReference(this%times)
     call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
-    call this%stage2DLatLon(filename,oClients=oClients,_RC)
+!!    call this%stage2DLatLon(filename,oClients=oClients,_RC)
 
+    if (mapl_am_i_root()) then
+       allocate(local_start,source=[1])
+       allocate(global_start,source=[1])
+       allocate(global_count,source=[this%npt_mask_tot])
+       ptr1d => this%lons_deg
+    else
+       allocate(local_start,source=[0])
+       allocate(global_start,source=[0])
+       allocate(global_count,source=[0])
+       allocate(ptr1d(0))
+    end if
+    
+    ref = ArrayReference(ptr1d)
+    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'longitude', &
+         ref,start=local_start, global_start=global_start, global_count=global_count)
+    
+    deallocate (local_start, global_start, global_count)
+
+    
     !__ 2. put_var: ungridded_dim from src to dst [use index_mask]
     !
     count_scalar = 0
@@ -986,24 +1005,13 @@ module subroutine  create_metadata(this,rc)
 
              call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(item%xname), &
                   ref,start=local_start, global_start=global_start, global_count=global_count)
-          deallocate (local_start, global_start, global_count)
-
-
+             deallocate (local_start, global_start, global_count)
           else
              _FAIL('grid2LS regridder: rank > 3 not implemented')
           end if
-
-
-          !! if (present(local_start,))  deallocate(local_start)
-
        end if
-
-
        call iter%next()
     end do
-
-    nset = mod (this%call_count, this%tmax) + 1
-    if (nset == this%tmax) this%call_count = 0
 
     _RETURN(_SUCCESS)
   end subroutine output_to_server
@@ -1043,48 +1051,48 @@ module subroutine  create_metadata(this,rc)
     _RETURN(_SUCCESS)
   end function compute_time_for_current
 
-  module subroutine stage2dlatlon(this,filename,oClients,rc)
-    implicit none
-
-    class(MaskSampler), target, intent(inout) :: this
-    character(len=*), intent(in) :: fileName
-    type (ClientManager), optional, target, intent(inout) :: oClients
-    integer, optional, intent(out) :: rc
-
-    integer, allocatable :: local_start(:)
-    integer, allocatable :: global_start(:)
-    integer, allocatable :: global_count(:)
-    integer :: n
-    real(kind=REAL64), pointer :: ptr1dx(:) => null()
-    real(kind=REAL64), pointer :: ptr1dy(:) => null()
-    type(ArrayReference), target :: ref
-    integer :: status
-
-    ! Note: we have already gatherV to root the lon/lat
-    !       in sub. create_Geosat_grid_find_mask
-    !
-    if (mapl_am_i_root()) then
-       allocate(local_start,source=[1])
-       allocate(global_start,source=[1])
-       allocate(global_count,source=[this%npt_mask_tot])
-       ptr1dx => this%lons_deg
-    else
-       allocate(local_start,source=[0])
-       allocate(global_start,source=[0])
-       allocate(global_count,source=[0])
-       allocate(ptr1dx(0))
-    end if
-    
-    ref = ArrayReference(ptr1dx)
-    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'longitude', &
-         ref,start=local_start, global_start=global_start, global_count=global_count)
-
-!    ref = ArrayReference(this%lats_deg)
-!    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'latitude', &
+!  module subroutine stage2dlatlon(this,filename,oClients,rc)
+!    implicit none
+!
+!    class(MaskSampler), target, intent(inout) :: this
+!    character(len=*), intent(in) :: fileName
+!    type (ClientManager), optional, target, intent(inout) :: oClients
+!    integer, optional, intent(out) :: rc
+!
+!    integer, allocatable :: local_start(:)
+!    integer, allocatable :: global_start(:)
+!    integer, allocatable :: global_count(:)
+!    integer :: n
+!    real(kind=REAL64), pointer :: ptr1dx(:) => null()
+!    real(kind=REAL64), pointer :: ptr1dy(:) => null()
+!    type(ArrayReference), target :: ref
+!    integer :: status
+!
+!    ! Note: we have already gatherV to root the lon/lat
+!    !       in sub. create_Geosat_grid_find_mask
+!    !
+!    if (mapl_am_i_root()) then
+!       allocate(local_start,source=[1])
+!       allocate(global_start,source=[1])
+!       allocate(global_count,source=[this%npt_mask_tot])
+!       ptr1dx => this%lons_deg
+!    else
+!       allocate(local_start,source=[0])
+!       allocate(global_start,source=[0])
+!       allocate(global_count,source=[0])
+!       allocate(ptr1dx(0))
+!    end if
+!    
+!    ref = ArrayReference(ptr1dx)
+!    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'longitude', &
 !         ref,start=local_start, global_start=global_start, global_count=global_count)
-
-    _RETURN(_SUCCESS)
- end subroutine stage2dlatlon
+!
+!!    ref = ArrayReference(this%lats_deg)
+!!    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'latitude', &
+!!         ref,start=local_start, global_start=global_start, global_count=global_count)
+!
+!    _RETURN(_SUCCESS)
+! end subroutine stage2dlatlon
 
 
      module subroutine modifyTime(this, oClients, rc)
