@@ -10,7 +10,6 @@ module mapl3g_MeanAction
    public :: MeanAction
 
    type, extends(AccumulatorAction) :: MeanAction
-      !private
       integer(ESMF_KIND_R8) :: counter_scalar = 0_ESMF_KIND_I8
       logical, allocatable :: valid_mean(:)
    contains

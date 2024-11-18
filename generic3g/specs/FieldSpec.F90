@@ -95,6 +95,7 @@ module mapl3g_FieldSpec
       type(ESMF_Field) :: payload
       real, allocatable :: default_value
 !#      type(VariableSpec) :: variable_spec
+      character(len=:), allocatable :: accumulation_type
 
       logical :: is_created = .false.
 
