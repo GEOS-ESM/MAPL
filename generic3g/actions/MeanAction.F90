@@ -22,6 +22,8 @@ module mapl3g_MeanAction
       procedure :: increment_counter
    end type MeanAction
 
+   type(ESMF_TypeKind_Flag), parameter :: TK_COUNTER = TYPE_KIND_R8
+
 contains
 
    subroutine mean_pre_initialize(this, rc)
@@ -45,13 +47,16 @@ contains
       integer :: status
       type(ESMF_Geom) :: geom
       type(ESMF_Grid) :: grid
-      type(ESMF_TypeKind_Flag) :: typekind
+      type(ESMF_TypeKind_Flag) :: tk_accum
       type(ESMF_StaggerLoc) :: stagger_loc
       integer :: gridToFieldMap(:)
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       integer, optional, intent(in) :: num_levels
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       ! Get from accumulation field
+
+      call ESMF_FieldGet(this%accumulation_field, typekind=tk_accum, _RC)
+      if(tk_accum /= TK_COUNTER)
 
       this%counter_field =  MAPL_FieldCreate(geom, typekind, gridToFieldMap=gridToFieldMap,&
          ungridded_dims=ungridded_dims, num_levels, vert_staggerloc=vert_staggerloc, _RC)
