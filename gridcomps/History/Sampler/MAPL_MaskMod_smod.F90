@@ -245,12 +245,14 @@ module subroutine  create_metadata(this,rc)
     call this%timeinfo%add_time_to_metadata(this%metadata,_RC)
     call this%metadata%add_dimension('mask_index', this%npt_mask_tot)
 
-    v = Variable(type=pFIO_REAL64, dimensions='mask_index')
+    !    v = Variable(type=pFIO_REAL64, dimensions='mask_index')
+    v = Variable(type=REAL32, dimensions='mask_index')    
     call v%add_attribute('long_name','longitude')
     call v%add_attribute('unit','degree_east')
     call this%metadata%add_variable('longitude',v)
 
-    v = Variable(type=pFIO_REAL64, dimensions='mask_index')
+    v = Variable(type=REAL32, dimensions='mask_index')
+!    v = Variable(type=pFIO_REAL64, dimensions='mask_index')    
     call v%add_attribute('long_name','latitude')
     call v%add_attribute('unit','degree_north')
     call this%metadata%add_variable('latitude',v)
@@ -856,7 +858,7 @@ module subroutine  create_metadata(this,rc)
 
     if (allocated(times_loc)) deallocate(times_loc)
     if (allocated(this%times)) deallocate(this%times)    
-    times_loc = this%timeInfo%compute_time_vector(this%metadata,_RC)
+    times_loc = this%timeInfo%compute_time_vector(this%metadata,_RC)     ! freq=10 min, dur=10 not 60 min :  6 data
     !
     ! __ intentionaly send one-time variable element to oClients
     allocate (this%times, source=[times_loc(1)])
@@ -867,8 +869,11 @@ module subroutine  create_metadata(this,rc)
 !! YGYU test if time affects lon/lat + var2
     call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
 
+    !! come out
     call this%stage2DLatLon(filename,oClients=oClients,_RC)
 
+
+    
 !!    if (mapl_am_i_root()) then
 !!       allocate(local_start,source=[1])
 !!       allocate(global_start,source=[1])
