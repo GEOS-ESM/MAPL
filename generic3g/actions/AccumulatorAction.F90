@@ -25,6 +25,9 @@ module mapl3g_AccumulatorAction
       procedure :: initialized
       procedure :: clear_accumulator
       procedure :: accumulate_R4
+      procedure :: post_initialize
+      procedure :: pre_initialize
+      procedure :: pre_update
    end type AccumulatorAction
 
 contains
@@ -53,6 +56,20 @@ contains
 
    end subroutine clear_accumulator
 
+   subroutine pre_initialize(this, rc)
+      class(AccumulatorAction), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      
+      integer :: status
+
+      if(this%initialized()) then
+         call ESMF_FieldDestroy(this%accumulation_field, _RC)
+         call ESMF_FieldDestroy(this%result_field, _RC)
+      end if
+      _RETURN(_SUCCESS)
+      
+   end subroutine pre_initialize
+
    subroutine initialize(this, importState, exportState, clock, rc)
       class(AccumulatorAction), intent(inout) :: this
       type(ESMF_State) :: importState
@@ -64,21 +81,27 @@ contains
       type(ESMF_Field) :: import_field, export_field
       logical :: fields_are_conformable
 
+      call this%pre_initialize(_RC)
       call get_field(importState, import_field, _RC)
       call get_field(exportState, export_field, _RC)
-
-      if(this%initialized()) then
-         call ESMF_FieldDestroy(this%accumulation_field, _RC)
-         call ESMF_FieldDestroy(this%result_field, _RC)
-      end if
       this%accumulation_field = ESMF_FieldCreate(import_field, _RC)
       this%result_field = ESMF_FieldCreate(export_field, _RC)
-
-      call this%clear_accumulator(_RC)
+      call this%post_initialize(_RC)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(clock)
 
    end subroutine initialize
+
+   subroutine post_initialize(this, rc)
+      class(AccumulatorAction), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      
+      integer :: status
+
+      call this%clear_accumulator(_RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine post_initialize
 
    subroutine update(this, importState, exportState, clock, rc)
       class(AccumulatorAction), intent(inout) :: this
@@ -92,8 +115,7 @@ contains
       
       _ASSERT(this%initialized(), 'Accumulator has not been initialized.')
       if(.not. this%update_calculated) then
-         call FieldCopy(this%accumulation_field, this%result_field, _RC)
-         this%update_calculated = .TRUE.
+         call this%pre_update(_RC)
       end if
       call get_field(exportState, export_field, _RC)
       call FieldCopy(this%result_field, export_field, _RC)
@@ -104,6 +126,18 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine update
+
+   subroutine pre_update(this, rc)
+      class(AccumulatorAction), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      
+      integer :: status
+
+      call FieldCopy(this%accumulation_field, this%result_field, _RC)
+      this%update_calculated = .TRUE.
+      _RETURN(_SUCCESS)
+
+   end subroutine pre_update
 
    subroutine invalidate(this, importState, exportState, clock, rc)
       class(AccumulatorAction), intent(inout) :: this
