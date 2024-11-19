@@ -14,6 +14,7 @@ module mapl3g_ModelVerticalGrid
    use mapl3g_ExtensionAction
    use mapl3g_GriddedComponentDriver
    use mapl3g_VerticalDimSpec
+   use mapl_KeywordEnforcer
    use esmf
 
    implicit none
@@ -35,7 +36,7 @@ module mapl3g_ModelVerticalGrid
       procedure :: write_formatted
 
       ! subclass-specific methods
-      procedure :: add_short_names
+      procedure :: add_short_name
       procedure :: get_short_name
       procedure :: set_registry
       procedure :: get_registry
@@ -76,14 +77,16 @@ contains
       num_levels = this%num_levels
    end function get_num_levels
 
-   subroutine add_short_names(this, edge, center)
+   subroutine add_short_name(this, unusable, edge, center)
       class(ModelVerticalGrid), intent(inout) :: this
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: edge
       character(*), optional, intent(in) :: center
 
       if (present(edge)) this%short_name_edge = edge
       if (present(center)) this%short_name_center = center
-   end subroutine add_short_names
+      _UNUSED_DUMMY(unusable)
+   end subroutine add_short_name
 
    function get_short_name(this, vertical_dim_spec, rc) result(short_name)
       character(:), allocatable :: short_name
