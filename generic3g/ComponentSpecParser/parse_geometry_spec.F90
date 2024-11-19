@@ -115,9 +115,9 @@ contains
             type is(ModelVerticalGrid)
                call vertical_grid%set_registry(registry)
                if (standard_name == "air_pressure") then
-                  call vertical_grid%add_short_names(edge="PLE", center="PL")
+                  call vertical_grid%add_short_name(edge="PLE", center="PL")
                else if (standard_name == "height") then
-                  call vertical_grid%add_short_names(edge="ZLE", center="ZL")
+                  call vertical_grid%add_short_name(edge="ZLE", center="ZL")
                else
                   _FAIL("unsupported standard name ["//standard_name//"]")
                end if

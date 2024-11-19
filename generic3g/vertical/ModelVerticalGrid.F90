@@ -5,19 +5,16 @@ module mapl3g_ModelVerticalGrid
    use mapl_ErrorHandling
    use mapl3g_VerticalGrid
    use mapl3g_StateRegistry
-   use mapl3g_MultiState
    use mapl3g_VirtualConnectionPt
-   use mapl3g_ActualConnectionPt
    use mapl3g_StateItemSpec
    use mapl3g_FieldSpec
    use mapl3g_UngriddedDims
    use mapl3g_StateItemExtension
    use mapl3g_ExtensionFamily
    use mapl3g_ExtensionAction
-   use mapl3g_StateItemExtensionPtrVector
    use mapl3g_GriddedComponentDriver
    use mapl3g_VerticalDimSpec
-   use gftl2_StringVector
+   use mapl_KeywordEnforcer
    use esmf
 
    implicit none
@@ -39,7 +36,7 @@ module mapl3g_ModelVerticalGrid
       procedure :: write_formatted
 
       ! subclass-specific methods
-      procedure :: add_short_names
+      procedure :: add_short_name
       procedure :: get_short_name
       procedure :: set_registry
       procedure :: get_registry
@@ -80,14 +77,16 @@ contains
       num_levels = this%num_levels
    end function get_num_levels
 
-   subroutine add_short_names(this, edge, center)
+   subroutine add_short_name(this, unusable, edge, center)
       class(ModelVerticalGrid), intent(inout) :: this
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: edge
       character(*), optional, intent(in) :: center
 
       if (present(edge)) this%short_name_edge = edge
       if (present(center)) this%short_name_center = center
-   end subroutine add_short_names
+      _UNUSED_DUMMY(unusable)
+   end subroutine add_short_name
 
    function get_short_name(this, vertical_dim_spec, rc) result(short_name)
       character(:), allocatable :: short_name
@@ -97,13 +96,13 @@ contains
 
       if (vertical_dim_spec == VERTICAL_DIM_EDGE) then
          short_name = this%short_name_edge
-         _RETURN(_SUCCESS)
       else if (vertical_dim_spec == VERTICAL_DIM_CENTER) then
          short_name = this%short_name_center
-         _RETURN(_SUCCESS)
       else
          _FAIL("unsupported vertical_dim_spec")
       end if
+
+      _RETURN(_SUCCESS)
    end function get_short_name
 
    subroutine set_registry(this, registry)
