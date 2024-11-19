@@ -255,7 +255,6 @@ module subroutine  create_metadata(this,rc)
     call v%add_attribute('unit','degree_north')
     call this%metadata%add_variable('latitude',v)
 
-
     ! To be added when values are available
     !v = Variable(type=pFIO_INT32, dimensions='mask_index')
     !call v%add_attribute('long_name','The Cubed Sphere Global Face ID')
@@ -814,7 +813,7 @@ module subroutine  create_metadata(this,rc)
     type(GriddedIOitemVectorIterator) :: iter
     type(GriddedIOitem), pointer :: item
     type(ESMF_VM) :: vm
-    type(ArrayReference), target :: ref
+    type(ArrayReference), target :: ref   !! , reft, reflon, reflat, ref2d, ref3d
     integer, allocatable :: local_start(:)
     integer, allocatable :: global_start(:)
     integer, allocatable :: global_count(:)
@@ -865,28 +864,30 @@ module subroutine  create_metadata(this,rc)
        print*, 'this%times', this%times
     end if
     ref = ArrayReference(this%times)
+!! YGYU test if time affects lon/lat + var2
     call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
-!!    call this%stage2DLatLon(filename,oClients=oClients,_RC)
 
-    if (mapl_am_i_root()) then
-       allocate(local_start,source=[1])
-       allocate(global_start,source=[1])
-       allocate(global_count,source=[this%npt_mask_tot])
-       ptr1d => this%lons_deg
-    else
-       allocate(local_start,source=[0])
-       allocate(global_start,source=[0])
-       allocate(global_count,source=[0])
-       allocate(ptr1d(0))
-    end if
-    
-    ref = ArrayReference(ptr1d)
-    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'longitude', &
-         ref,start=local_start, global_start=global_start, global_count=global_count)
-    
-    deallocate (local_start, global_start, global_count)
+    call this%stage2DLatLon(filename,oClients=oClients,_RC)
 
-    
+!!    if (mapl_am_i_root()) then
+!!       allocate(local_start,source=[1])
+!!       allocate(global_start,source=[1])
+!!       allocate(global_count,source=[this%npt_mask_tot])
+!!       ptr1d => this%lons_deg
+!!    else
+!!       allocate(local_start,source=[0])
+!!       allocate(global_start,source=[0])
+!!       allocate(global_count,source=[0])
+!!       allocate(ptr1d(0))
+!!    end if
+!!    
+!!    ref = ArrayReference(ptr1d)
+!!    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'longitude', &
+!!         ref,start=local_start, global_start=global_start, global_count=global_count)
+!!    
+!!    deallocate (local_start, global_start, global_count)
+
+
     !__ 2. put_var: ungridded_dim from src to dst [use index_mask]
     !
     count_scalar = 0
@@ -1051,48 +1052,48 @@ module subroutine  create_metadata(this,rc)
     _RETURN(_SUCCESS)
   end function compute_time_for_current
 
-!  module subroutine stage2dlatlon(this,filename,oClients,rc)
-!    implicit none
-!
-!    class(MaskSampler), target, intent(inout) :: this
-!    character(len=*), intent(in) :: fileName
-!    type (ClientManager), optional, target, intent(inout) :: oClients
-!    integer, optional, intent(out) :: rc
-!
-!    integer, allocatable :: local_start(:)
-!    integer, allocatable :: global_start(:)
-!    integer, allocatable :: global_count(:)
-!    integer :: n
-!    real(kind=REAL64), pointer :: ptr1dx(:) => null()
-!    real(kind=REAL64), pointer :: ptr1dy(:) => null()
-!    type(ArrayReference), target :: ref
-!    integer :: status
-!
-!    ! Note: we have already gatherV to root the lon/lat
-!    !       in sub. create_Geosat_grid_find_mask
-!    !
-!    if (mapl_am_i_root()) then
-!       allocate(local_start,source=[1])
-!       allocate(global_start,source=[1])
-!       allocate(global_count,source=[this%npt_mask_tot])
-!       ptr1dx => this%lons_deg
-!    else
-!       allocate(local_start,source=[0])
-!       allocate(global_start,source=[0])
-!       allocate(global_count,source=[0])
-!       allocate(ptr1dx(0))
-!    end if
-!    
-!    ref = ArrayReference(ptr1dx)
-!    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'longitude', &
-!         ref,start=local_start, global_start=global_start, global_count=global_count)
-!
-!!    ref = ArrayReference(this%lats_deg)
-!!    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'latitude', &
-!!         ref,start=local_start, global_start=global_start, global_count=global_count)
-!
-!    _RETURN(_SUCCESS)
-! end subroutine stage2dlatlon
+  module subroutine stage2dlatlon(this,filename,oClients,rc)
+    implicit none
+
+    class(MaskSampler), target, intent(inout) :: this
+    character(len=*), intent(in) :: fileName
+    type (ClientManager), optional, target, intent(inout) :: oClients
+    integer, optional, intent(out) :: rc
+
+    integer, allocatable :: local_start(:)
+    integer, allocatable :: global_start(:)
+    integer, allocatable :: global_count(:)
+    integer :: n
+    real(kind=REAL32), pointer :: ptr1dx(:) => null()
+    real(kind=REAL32), pointer :: ptr1dy(:) => null()
+    type(ArrayReference), target :: ref
+    integer :: status
+
+    ! Note: we have already gatherV to root the lon/lat
+    !       in sub. create_Geosat_grid_find_mask
+    !
+    if (mapl_am_i_root()) then
+       allocate(local_start,source=[1])
+       allocate(global_start,source=[1])
+       allocate(global_count,source=[this%npt_mask_tot])
+       ptr1dx => this%lons_deg
+    else
+       allocate(local_start,source=[0])
+       allocate(global_start,source=[0])
+       allocate(global_count,source=[0])
+       allocate(ptr1dx(0))
+    end if
+    
+    ref = ArrayReference(ptr1dx)
+    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'longitude', &
+         ref,start=local_start, global_start=global_start, global_count=global_count)
+
+!    ref = ArrayReference(this%lats_deg)
+    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'latitude', &
+         ref,start=local_start, global_start=global_start, global_count=global_count)
+
+    _RETURN(_SUCCESS)
+ end subroutine stage2dlatlon
 
 
      module subroutine modifyTime(this, oClients, rc)

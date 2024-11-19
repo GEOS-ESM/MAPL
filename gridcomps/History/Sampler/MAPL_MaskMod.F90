@@ -115,7 +115,7 @@ module MaskSamplerMod
      procedure :: create_Geosat_grid_find_mask
      procedure :: compute_time_for_current
      procedure :: set_param
-!!     procedure :: stage2dlatlon
+     procedure :: stage2dlatlon
      procedure :: modifytime
   end type MaskSampler
 
