@@ -15,18 +15,19 @@ module mapl3g_MeanAction
    type, extends(AccumulatorAction) :: MeanAction
       type(ESMF_Field) :: counter_field
    contains
-      procedure :: clear_accumulator => clear_mean_accumulator
-      procedure :: post_initialize => mean_post_initialize
-      procedure :: pre_initialize => mean_pre_initialize
+!      procedure :: clear => clear_mean_accumulator
+      procedure :: clear_post => clear_mean_post
+      procedure :: initialize_post => mean_initialize_post
+      procedure :: initialize_pre => mean_initialize_pre
       procedure :: accumulate_R4 => accumulate_mean_R4
-      procedure :: pre_update => mean_pre_update
+      procedure :: update_pre => mean_update_pre
       procedure :: calculate_mean
       procedure :: calculate_mean_R4
    end type MeanAction
 
 contains
 
-   subroutine mean_pre_initialize(this, rc)
+   subroutine mean_initialize_pre(this, rc)
       class(MeanAction), intent(inout) :: this
       integer, optional, intent(out) :: rc
       
@@ -35,12 +36,11 @@ contains
       if(this%initialized()) then
          call ESMF_FieldDestroy(this%counter_field, _RC)
       end if
-      call this%AccumulatorAction%pre_initialize(_RC)
       _RETURN(_SUCCESS)
 
-   end subroutine mean_pre_initialize
+   end subroutine mean_initialize_pre
 
-   subroutine mean_post_initialize(this, rc)
+   subroutine mean_initialize_post(this, rc)
       class(MeanAction), intent(inout) :: this
       integer, optional, intent(out) :: rc
       
@@ -55,22 +55,33 @@ contains
          call ESMF_FieldGet(f, geom=geom, gridToFieldMap=gmap, _RC)
          this%counter_field =  MAPL_FieldCreate(geom, typekind=this%typekind, gridToFieldMap=gmap, _RC) !, &
       end associate
-      call this%clear_accumulator(_RC)
+      call this%clear(_RC)
       _RETURN(_SUCCESS)
 
-   end subroutine mean_post_initialize
+   end subroutine mean_initialize_post
 
-   subroutine clear_mean_accumulator(this, rc)
+!   subroutine clear_mean_accumulator(this, rc)
+!      class(MeanAction), intent(inout) :: this
+!      integer, optional, intent(out) :: rc
+!      
+!      integer :: status
+!
+!      call this%AccumulatorAction%clear(_RC)
+!      call FieldSet(this%counter_field, this%CLEAR_VALUE_R4, _RC)
+!      _RETURN(_SUCCESS)
+!
+!   end subroutine clear_mean_accumulator
+
+   subroutine clear_mean_post(this, rc)
       class(MeanAction), intent(inout) :: this
       integer, optional, intent(out) :: rc
       
       integer :: status
 
-      call this%AccumulatorAction%clear_accumulator(_RC)
       call FieldSet(this%counter_field, this%CLEAR_VALUE_R4, _RC)
       _RETURN(_SUCCESS)
 
-   end subroutine clear_mean_accumulator
+   end subroutine clear_mean_post
 
    subroutine calculate_mean(this, rc)
       class(MeanAction), intent(inout) :: this
@@ -87,17 +98,16 @@ contains
 
    end subroutine calculate_mean
 
-   subroutine mean_pre_update(this, rc)
+   subroutine mean_update_pre(this, rc)
       class(MeanAction), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       call this%calculate_mean(_RC)
-      call this%AccumulatorAction%pre_update(_RC)
       _RETURN(_SUCCESS)
 
-   end subroutine mean_pre_update
+   end subroutine mean_update_pre
 
    subroutine calculate_mean_R4(this, rc)
       class(MeanAction), intent(inout) :: this
