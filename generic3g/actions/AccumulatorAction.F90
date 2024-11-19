@@ -15,6 +15,7 @@ module mapl3g_AccumulatorAction
       type(ESMF_Field) :: result_field
       real(kind=ESMF_KIND_R4) :: CLEAR_VALUE_R4 = 0.0_ESMF_KIND_R4
       logical :: update_calculated = .FALSE.
+      type(ESMF_TypeKind_Flag) :: typekind = ESMF_TYPEKIND_R4
    contains
       ! Implementations of deferred procedures
       procedure :: invalidate
@@ -79,13 +80,23 @@ contains
 
       integer :: status
       type(ESMF_Field) :: import_field, export_field
-      logical :: fields_are_conformable
+      type(ESMF_TypeKind_Flag) :: typekind
+      logical :: conformable = .FALSE.
+      logical :: same_typekind = .FALSE.
 
       call this%pre_initialize(_RC)
       call get_field(importState, import_field, _RC)
       call get_field(exportState, export_field, _RC)
+      conformable = FieldsAreConformable(import_field, export_field, _RC)
+      _ASSERT(conformable, 'Import and export fields are not conformable.')
+      same_typekind = FieldsAreSameTypeKind(import_field, export_field, _RC)
+      _ASSERT(same_typekind, 'Import and export fields are not conformable.')
+
       this%accumulation_field = ESMF_FieldCreate(import_field, _RC)
       this%result_field = ESMF_FieldCreate(export_field, _RC)
+      call ESMF_FieldGet(import_field, typekind=typekind, _RC)
+      _ASSERT(typekind==ESMF_TYPEKIND_R4, 'Only ESMF_TYPEKIND_R4 is supported.')
+      this%typekind = typekind
       call this%post_initialize(_RC)
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(clock)

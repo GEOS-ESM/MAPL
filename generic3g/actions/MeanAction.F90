@@ -3,7 +3,10 @@ module mapl3g_MeanAction
    use mapl3g_AccumulatorAction
    use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
    use MAPL_ExceptionHandling
-   use MAPL_FieldPointerUtilities
+   use MAPL_FieldPointerUtilities, only: assign_fptr
+   use mapl3g_FieldCreate, only: MAPL_FieldCreate
+   use mapl3g_FieldGet, only: MAPL_FieldGet
+   use MAPL_FieldUtilities, only: FieldSet
    use ESMF
    implicit none
    private
@@ -19,10 +22,7 @@ module mapl3g_MeanAction
       procedure :: pre_update => mean_pre_update
       procedure :: calculate_mean
       procedure :: calculate_mean_R4
-      procedure :: increment_counter
    end type MeanAction
-
-   type(ESMF_TypeKind_Flag), parameter :: TK_COUNTER = TYPE_KIND_R8
 
 contains
 
@@ -35,7 +35,7 @@ contains
       if(this%initialized()) then
          call ESMF_FieldDestroy(this%counter_field, _RC)
       end if
-      call Accumulator%pre_initialize(_RC)
+      call this%AccumulatorAction%pre_initialize(_RC)
       _RETURN(_SUCCESS)
 
    end subroutine mean_pre_initialize
@@ -46,21 +46,16 @@ contains
       
       integer :: status
       type(ESMF_Geom) :: geom
-      type(ESMF_Grid) :: grid
-      type(ESMF_TypeKind_Flag) :: tk_accum
-      type(ESMF_StaggerLoc) :: stagger_loc
-      integer :: gridToFieldMap(:)
-      type(UngriddedDims), optional, intent(in) :: ungridded_dims
-      integer, optional, intent(in) :: num_levels
-      type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
-      ! Get from accumulation field
+      integer, allocatable :: gmap(:)
+      integer :: ndims
 
-      call ESMF_FieldGet(this%accumulation_field, typekind=tk_accum, _RC)
-      if(tk_accum /= TK_COUNTER)
-
-      this%counter_field =  MAPL_FieldCreate(geom, typekind, gridToFieldMap=gridToFieldMap,&
-         ungridded_dims=ungridded_dims, num_levels, vert_staggerloc=vert_staggerloc, _RC)
-      call AccumulatorAction%post_initialize(_RC)
+      associate(f => this%accumulation_field)
+         call ESMF_FieldGet(f, dimCount=ndims, _RC)
+         allocate(gmap(ndims))
+         call ESMF_FieldGet(f, geom=geom, gridToFieldMap=gmap, _RC)
+         this%counter_field =  MAPL_FieldCreate(geom, typekind=this%typekind, gridToFieldMap=gmap, _RC) !, &
+      end associate
+      call this%clear_accumulator(_RC)
       _RETURN(_SUCCESS)
 
    end subroutine mean_post_initialize
@@ -72,7 +67,7 @@ contains
       integer :: status
 
       call this%AccumulatorAction%clear_accumulator(_RC)
-      call FieldSet(this%counter_field, 0_ESMF_KIND_R8, _RC)
+      call FieldSet(this%counter_field, this%CLEAR_VALUE_R4, _RC)
       _RETURN(_SUCCESS)
 
    end subroutine clear_mean_accumulator
@@ -82,10 +77,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_TypeKind_Flag) :: tk
 
-      call ESMF_FieldGet(this%accumulation_field, typekind=tk, _RC)
-      if(tk == ESMF_TypeKind_R4) then
+      if(this%typekind == ESMF_TypeKind_R4) then
          call this%calculate_mean_R4(_RC)
       else
          _FAIL('Unsupported typekind')
@@ -101,10 +94,10 @@ contains
       integer :: status
 
       call this%calculate_mean(_RC)
-      call Accumulator%pre_update(_RC)
+      call this%AccumulatorAction%pre_update(_RC)
       _RETURN(_SUCCESS)
 
-   end mean_pre_update
+   end subroutine mean_pre_update
 
    subroutine calculate_mean_R4(this, rc)
       class(MeanAction), intent(inout) :: this
@@ -112,7 +105,7 @@ contains
 
       integer :: status
       real(kind=ESMF_KIND_R4), pointer :: current_ptr(:) => null()
-      real(kind=ESMF_KIND_R8), pointer :: counter(:) => null()
+      real(kind=ESMF_KIND_R4), pointer :: counter(:) => null()
       real(kind=ESMF_KIND_R4), parameter :: UNDEF = MAPL_UNDEFINED_REAL
 
       call assign_fptr(this%accumulation_field, current_ptr, _RC)
@@ -132,18 +125,18 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      real(kind=ESMF_KIND_R4), pointer :: current(:)
-      real(kind=ESMF_KIND_R4), pointer :: latest(:)
-      real(kind=ESMF_KIND_R8), pointer :: counter(:) => null()
+      real(kind=ESMF_KIND_R4), pointer :: current(:) => null()
+      real(kind=ESMF_KIND_R4), pointer :: latest(:) => null()
+      real(kind=ESMF_KIND_R4), pointer :: counter(:) => null()
       real(kind=ESMF_KIND_R4) :: undef
 
       undef = MAPL_UNDEFINED_REAL
       call assign_fptr(this%accumulation_field, current, _RC)
       call assign_fptr(update_field, latest, _RC)
-      call assign_fptr(this%counter_field, _RC)
+      call assign_fptr(this%counter_field, counter, _RC)
       where(current /= undef .and. latest /= undef)
         current = current + latest
-        counter = count+1
+        counter = counter + 1_ESMF_KIND_R4
       end where
       _RETURN(_SUCCESS)
 
