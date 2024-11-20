@@ -854,7 +854,6 @@ contains
          ! TODO: DO WE NEED TO RESTRICT SPEC's VERTICAL GRID TO MODEL?
          ! NOTE: we cannot import ModelVerticalGrid (circular dependency)
          _ASSERT(spec%vertical_grid%get_units() == this%vertical_grid%get_units(), 'units must match')
-         _ASSERT(spec%vertical_dim_spec == this%vertical_dim_spec, 'temporary restriction')
          ! Field (to be regridded) should have the same typekind as the underlying vertical grid
          ! TODO: Should we add a typekind class variable to VerticalGrid?
          _ASSERT(spec%typekind == this%typekind, 'typekind must match')
@@ -866,6 +865,7 @@ contains
               'ignore', this%geom, this%typekind, this%units, this%vertical_dim_spec, _RC)
          action = VerticalRegridAction(v_in_coord, v_out_coupler, v_out_coord, v_out_coupler, this%regrid_method)
          spec%vertical_grid = this%vertical_grid
+         spec%vertical_dim_spec = this%vertical_dim_spec
       end select
 
       _RETURN(_SUCCESS)
