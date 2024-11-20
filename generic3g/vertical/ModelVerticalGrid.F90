@@ -5,19 +5,16 @@ module mapl3g_ModelVerticalGrid
    use mapl_ErrorHandling
    use mapl3g_VerticalGrid
    use mapl3g_StateRegistry
-   use mapl3g_MultiState
    use mapl3g_VirtualConnectionPt
-   use mapl3g_ActualConnectionPt
    use mapl3g_StateItemSpec
    use mapl3g_FieldSpec
    use mapl3g_UngriddedDims
    use mapl3g_StateItemExtension
    use mapl3g_ExtensionFamily
    use mapl3g_ExtensionAction
-   use mapl3g_StateItemExtensionPtrVector
    use mapl3g_GriddedComponentDriver
    use mapl3g_VerticalDimSpec
-   use gftl2_StringVector
+   use mapl_KeywordEnforcer
    use esmf
 
    implicit none
@@ -27,12 +24,10 @@ module mapl3g_ModelVerticalGrid
 
    type, extends(VerticalGrid) :: ModelVerticalGrid
       private
+      character(:), allocatable :: standard_name
       integer :: num_levels = -1
-      type(StringVector) :: variants
-
-      !# character(:), allocatable :: short_name
-      !# character(:), allocatable :: standard_name
-      !# type(ESMF_Field) :: reference_field
+      character(:), allocatable :: short_name_edge
+      character(:), allocatable :: short_name_center
       type(StateRegistry), pointer :: registry => null()
    contains
       procedure :: get_num_levels
@@ -41,8 +36,8 @@ module mapl3g_ModelVerticalGrid
       procedure :: write_formatted
 
       ! subclass-specific methods
-      procedure :: add_variant
-      procedure :: get_num_variants
+      procedure :: add_short_name
+      procedure :: get_short_name
       procedure :: set_registry
       procedure :: get_registry
    end type ModelVerticalGrid
@@ -65,20 +60,16 @@ module mapl3g_ModelVerticalGrid
 
 contains
 
-   function new_ModelVerticalGrid_basic(num_levels, units) result(vgrid)
+   function new_ModelVerticalGrid_basic(standard_name, units, num_levels) result(vgrid)
       type(ModelVerticalGrid) :: vgrid
-      integer, intent(in) :: num_levels
+      character(*), intent(in) :: standard_name
       character(*) , intent(in) :: units
-      !# character(*), intent(in) :: short_name
-      !# character(*), intent(in) :: standard_name
-      !# type(StateRegistry), pointer, intent(in) :: registry
+      integer, intent(in) :: num_levels
 
       call vgrid%set_id()
+      vgrid%standard_name = standard_name
       call vgrid%set_units(units)
       vgrid%num_levels = num_levels
-      !# vgrid%short_name = short_name
-      !# vgrid%standard_name = standard_name
-      !# vgrid%registry => registry
    end function new_ModelVerticalGrid_basic
 
    integer function get_num_levels(this) result(num_levels)
@@ -86,68 +77,84 @@ contains
       num_levels = this%num_levels
    end function get_num_levels
 
-   subroutine add_variant(this, short_name)
+   subroutine add_short_name(this, unusable, edge, center)
       class(ModelVerticalGrid), intent(inout) :: this
-      character(*), intent(in) :: short_name
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(*), optional, intent(in) :: edge
+      character(*), optional, intent(in) :: center
 
-      call this%variants%push_back(short_name)
-   end subroutine add_variant
+      if (present(edge)) this%short_name_edge = edge
+      if (present(center)) this%short_name_center = center
+      _UNUSED_DUMMY(unusable)
+   end subroutine add_short_name
 
-   integer function get_num_variants(this) result(num_variants)
+   function get_short_name(this, vertical_dim_spec, rc) result(short_name)
+      character(:), allocatable :: short_name
       class(ModelVerticalGrid), intent(in) :: this
-      num_variants = this%variants%size()
-   end function get_num_variants
+      type(VerticalDimSpec), intent(in) :: vertical_dim_spec
+      integer, optional :: rc
 
-    subroutine set_registry(this, registry)
-       class(ModelVerticalGrid), intent(inout) :: this
-       type(StateRegistry), target, intent(in) :: registry
+      if (vertical_dim_spec == VERTICAL_DIM_EDGE) then
+         short_name = this%short_name_edge
+      else if (vertical_dim_spec == VERTICAL_DIM_CENTER) then
+         short_name = this%short_name_center
+      else
+         _FAIL("unsupported vertical_dim_spec")
+      end if
 
-       this%registry => registry
-    end subroutine set_registry
+      _RETURN(_SUCCESS)
+   end function get_short_name
 
-    function get_registry(this) result(registry)
-       class(ModelVerticalGrid), intent(in) :: this
-       type(StateRegistry), pointer :: registry
-       registry => this%registry
-    end function get_registry
+   subroutine set_registry(this, registry)
+      class(ModelVerticalGrid), intent(inout) :: this
+      type(StateRegistry), target, intent(in) :: registry
 
-    subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, vertical_dim_spec, rc)
-       class(ModelVerticalGrid), intent(in) :: this
-       type(ESMF_Field), intent(out) :: field
-       type(GriddedComponentDriver), pointer, intent(out) :: coupler
-       character(*), intent(in) :: standard_name
-       type(ESMF_Geom), intent(in) :: geom
-       type(ESMF_TypeKind_Flag), intent(in) :: typekind
-       character(*), intent(in) :: units
-       type(VerticalDimSpec), intent(in) :: vertical_dim_spec
-       integer, optional, intent(out) :: rc
+      this%registry => registry
+   end subroutine set_registry
 
-       integer :: status
-       character(:), allocatable :: short_name
-       type(VirtualConnectionPt) :: v_pt
-       type(StateItemExtension), pointer :: new_extension
-       class(StateItemSpec), pointer :: new_spec
-       type(FieldSpec) :: goal_spec
+   function get_registry(this) result(registry)
+      class(ModelVerticalGrid), intent(in) :: this
+      type(StateRegistry), pointer :: registry
+      registry => this%registry
+   end function get_registry
 
-       short_name = this%variants%of(1)
-       v_pt = VirtualConnectionPt(state_intent="export", short_name=short_name)
-       
-       goal_spec = FieldSpec( &
-            geom=geom, vertical_grid=this, vertical_dim_spec=vertical_dim_spec, &
-            typekind=typekind, standard_name=standard_name, units=units, ungridded_dims=UngriddedDims())
+   subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, vertical_dim_spec, rc)
+      class(ModelVerticalGrid), intent(in) :: this
+      type(ESMF_Field), intent(out) :: field
+      type(GriddedComponentDriver), pointer, intent(out) :: coupler
+      character(*), intent(in) :: standard_name
+      type(ESMF_Geom), intent(in) :: geom
+      type(ESMF_TypeKind_Flag), intent(in) :: typekind
+      character(*), intent(in) :: units
+      type(VerticalDimSpec), intent(in) :: vertical_dim_spec
+      integer, optional, intent(out) :: rc
 
-       new_extension => this%registry%extend(v_pt, goal_spec, _RC)
-       coupler => new_extension%get_producer()
-       new_spec => new_extension%get_spec()
-       select type (new_spec)
-       type is (FieldSpec)
-          field = new_spec%get_payload()
-       class default
-          _FAIL("unsupported spec type; must be FieldSpec")
-       end select
+      integer :: status
+      character(:), allocatable :: short_name
+      type(VirtualConnectionPt) :: v_pt
+      type(StateItemExtension), pointer :: new_extension
+      class(StateItemSpec), pointer :: new_spec
+      type(FieldSpec) :: goal_spec
 
-       _RETURN(_SUCCESS)
-    end subroutine get_coordinate_field
+      short_name = this%get_short_name(vertical_dim_spec)
+      v_pt = VirtualConnectionPt(state_intent="export", short_name=short_name)
+
+      goal_spec = FieldSpec( &
+           geom=geom, vertical_grid=this, vertical_dim_spec=vertical_dim_spec, &
+           typekind=typekind, standard_name=standard_name, units=units, ungridded_dims=UngriddedDims())
+
+      new_extension => this%registry%extend(v_pt, goal_spec, _RC)
+      coupler => new_extension%get_producer()
+      new_spec => new_extension%get_spec()
+      select type (new_spec)
+      type is (FieldSpec)
+         field = new_spec%get_payload()
+      class default
+         _FAIL("unsupported spec type; must be FieldSpec")
+      end select
+
+      _RETURN(_SUCCESS)
+   end subroutine get_coordinate_field
 
    subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
       class(ModelVerticalGrid), intent(in) :: this
