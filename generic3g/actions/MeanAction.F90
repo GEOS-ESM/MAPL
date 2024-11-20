@@ -55,7 +55,6 @@ contains
          call ESMF_FieldGet(f, dimCount=ndims, _RC)
          allocate(gmap(ndims))
          call ESMF_FieldGet(f, geom=geom, gridToFieldMap=gmap, _RC)
-         !this%counter_field =  MAPL_FieldCreate(geom, typekind=COUNTER_TYPEKIND, gridToFieldMap=gmap, _RC)
          this%counter_field =  MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_I4, gridToFieldMap=gmap, _RC)
       end associate
       call this%clear(_RC)

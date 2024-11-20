@@ -848,8 +848,11 @@ contains
 
       real(kind=ESMF_KIND_R4), pointer :: r4_1d(:),r4_2d(:,:),r4_3d(:,:,:),r4_4d(:,:,:,:)
       real(kind=ESMF_KIND_R8), pointer :: r8_1d(:),r8_2d(:,:),r8_3d(:,:,:),r8_4d(:,:,:,:)
+      integer(kind=ESMF_KIND_I4), pointer :: i4_1d(:),i4_2d(:,:),i4_3d(:,:,:),i4_4d(:,:,:,:)
+      integer(kind=ESMF_KIND_I8), pointer :: i8_1d(:),i8_2d(:,:),i8_3d(:,:,:),i8_4d(:,:,:,:)
 
       call ESMF_FieldGet(field,rank=rank,typekind=tk,_RC)
+      _ASSERT(rank > 0 .and. rank < 5, "Unsupported rank")
       if (tk == ESMF_TypeKind_R4) then
          if (rank==1) then
             call ESMF_FieldGet(field,0,farrayptr=r4_1d,_RC)
@@ -863,8 +866,6 @@ contains
          else if (rank ==4) then
             call ESMF_FieldGet(field,0,farrayptr=r4_4d,_RC)
             local_count = shape(r4_4d)
-         else
-            _FAIL("Unsupported rank")
          end if
       else if (tk == ESMF_TypeKind_R8) then
          if (rank==1) then
@@ -879,8 +880,34 @@ contains
          else if (rank ==4) then
             call ESMF_FieldGet(field,0,farrayptr=r8_4d,_RC)
             local_count = shape(r8_4d)
-         else
-            _FAIL("Unsupported rank")
+         end if
+      else if (tk == ESMF_TypeKind_I4) then
+         if (rank==1) then
+            call ESMF_FieldGet(field,0,farrayptr=i4_1d,_RC)
+            local_count = shape(i4_1d)
+         else if (rank ==2) then
+            call ESMF_FieldGet(field,0,farrayptr=i4_2d,_RC)
+            local_count = shape(i4_2d)
+         else if (rank ==3) then
+            call ESMF_FieldGet(field,0,farrayptr=i4_3d,_RC)
+            local_count = shape(i4_3d)
+         else if (rank ==4) then
+            call ESMF_FieldGet(field,0,farrayptr=i4_4d,_RC)
+            local_count = shape(i4_4d)
+         end if
+      else if (tk == ESMF_TypeKind_I8) then
+         if (rank==1) then
+            call ESMF_FieldGet(field,0,farrayptr=i8_1d,_RC)
+            local_count = shape(i8_1d)
+         else if (rank ==2) then
+            call ESMF_FieldGet(field,0,farrayptr=i8_2d,_RC)
+            local_count = shape(i8_2d)
+         else if (rank ==3) then
+            call ESMF_FieldGet(field,0,farrayptr=i8_3d,_RC)
+            local_count = shape(i8_3d)
+         else if (rank ==4) then
+            call ESMF_FieldGet(field,0,farrayptr=i8_4d,_RC)
+            local_count = shape(i8_4d)
          end if
       else
          _FAIL("Unsupported type")

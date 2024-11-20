@@ -16,17 +16,19 @@ contains
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
       integer :: status
-      real(kind=ESMF_KIND_R4), parameter :: COUNTER = 4_R4
+      integer(kind=ESMF_KIND_I4), parameter :: COUNTER = 4
       real(kind=ESMF_KIND_R4), parameter :: MEAN = 4.0_R4
       logical :: matches_expected
       real(kind=ESMF_KIND_R4), pointer :: fptr(:)
+      integer(kind=ESMF_KIND_I4), pointer :: ifptr(:)
       integer :: n
       logical, allocatable :: mask(:)
       
       call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
       call acc%initialize(importState, exportState, clock, _RC)
       call FieldSet(acc%accumulation_field, COUNTER*MEAN, _RC)
-      call FieldSet(acc%counter_field, COUNTER, _RC)
+      call assign_fptr(acc%counter_field, ifptr, _RC)
+      ifptr = COUNTER
 
       ! All points are not UNDEF and counter > 0
       call acc%calculate_mean_R4(_RC)
@@ -73,14 +75,17 @@ contains
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
       integer :: status
-      real(kind=ESMF_KIND_R4), parameter :: COUNTER = 4_R4
+      integer(kind=ESMF_KIND_I4), parameter :: COUNTER = 4
       logical :: cleared = .FALSE.
+      integer(kind=ESMF_KIND_I4), pointer :: fptr(:)
 
       call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
       call acc%initialize(importState, exportState, clock, _RC)
-      call FieldSet(acc%counter_field, COUNTER, _RC)
+      call assign_fptr(acc%counter_field, fptr, _RC)
+      fptr = COUNTER
       call acc%clear(_RC)
-      cleared = FieldIsConstant(acc%counter_field, real(0, R4), _RC)
+      call assign_fptr(acc%counter_field, fptr, _RC)
+      cleared = all(fptr == 0)
       @assertTrue(cleared, 'Counter field is nonzero.')
       call destroy_objects(importState, exportState, clock, _RC)
 
@@ -96,17 +101,20 @@ contains
       integer :: i
       type(ESMF_Field) :: importField
       logical :: counter_is_set = .FALSE.
+      integer(kind=ESMF_KIND_I4), pointer :: fptr(:)
 
       call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
       call get_field(importState, importField, _RC)
       call FieldSet(importField, 1.0_R4, _RC)
       call acc%initialize(importState, exportState, clock, _RC)
-      counter_is_set = FieldIsConstant(acc%counter_field, acc%CLEAR_VALUE_R4, _RC)
+      call assign_fptr(acc%counter_field, fptr, _RC)
+      counter_is_set = all(fptr == 0)
       @assertTrue(counter_is_set, 'Counter field is nonzero.')
       do i=1, N
          call acc%invalidate(importState, exportState, clock, _RC)
       end do
-      counter_is_set = FieldIsConstant(acc%counter_field, real(N, R4), _RC)
+      call assign_fptr(acc%counter_field, fptr, _RC)
+      counter_is_set = all(fptr == N)
       @assertTrue(counter_is_set, 'counter_scalar not equal to N')
       call destroy_objects(importState, exportState, clock, _RC)
 
@@ -173,10 +181,12 @@ contains
       type(ESMF_Clock) :: clock
       integer :: status
       logical :: equals_expected_value 
+      integer(kind=ESMF_KIND_I4), pointer :: fptr(:)
 
       call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
       call acc%initialize(importState, exportState, clock, _RC)
-      equals_expected_value = FieldIsConstant(acc%counter_field, acc%CLEAR_VALUE_R4, _RC)
+      call assign_fptr(acc%counter_field, fptr, _RC)
+      equals_expected_value = all(fptr == 0)
       @assertTrue(equals_expected_value, 'counter_field was not cleared.')
       call destroy_objects(importState, exportState, clock, _RC)
 
