@@ -22,11 +22,12 @@ module mapl3g_AccumulatorAction
       procedure :: initialize
       procedure :: update
       ! Helpers
-      procedure :: accumulate
       procedure :: initialized
-      procedure :: clear
-      procedure :: clear_post
+      procedure :: accumulate
       procedure :: accumulate_R4
+      procedure :: clear
+      ! These are hooks for additional code for subtypes.
+      procedure :: clear_post
       procedure :: initialize_post
       procedure :: initialize_pre
       procedure :: update_pre

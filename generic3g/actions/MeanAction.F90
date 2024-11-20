@@ -15,7 +15,6 @@ module mapl3g_MeanAction
    type, extends(AccumulatorAction) :: MeanAction
       type(ESMF_Field) :: counter_field
    contains
-!      procedure :: clear => clear_mean_accumulator
       procedure :: clear_post => clear_mean_post
       procedure :: initialize_post => mean_initialize_post
       procedure :: initialize_pre => mean_initialize_pre
@@ -59,18 +58,6 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine mean_initialize_post
-
-!   subroutine clear_mean_accumulator(this, rc)
-!      class(MeanAction), intent(inout) :: this
-!      integer, optional, intent(out) :: rc
-!      
-!      integer :: status
-!
-!      call this%AccumulatorAction%clear(_RC)
-!      call FieldSet(this%counter_field, this%CLEAR_VALUE_R4, _RC)
-!      _RETURN(_SUCCESS)
-!
-!   end subroutine clear_mean_accumulator
 
    subroutine clear_mean_post(this, rc)
       class(MeanAction), intent(inout) :: this
