@@ -24,6 +24,9 @@ module mapl3g_MeanAction
       procedure :: calculate_mean_R4
    end type MeanAction
 
+   type(ESMF_TypeKind_Flag), parameter :: COUNTER_TYPEKIND = ESMF_TYPEKIND_I4
+   integer, parameter :: COUNTER_KIND = ESMF_KIND_I4
+
 contains
 
    subroutine mean_initialize_pre(this, rc)
@@ -52,7 +55,8 @@ contains
          call ESMF_FieldGet(f, dimCount=ndims, _RC)
          allocate(gmap(ndims))
          call ESMF_FieldGet(f, geom=geom, gridToFieldMap=gmap, _RC)
-         this%counter_field =  MAPL_FieldCreate(geom, typekind=this%typekind, gridToFieldMap=gmap, _RC) !, &
+         !this%counter_field =  MAPL_FieldCreate(geom, typekind=COUNTER_TYPEKIND, gridToFieldMap=gmap, _RC)
+         this%counter_field =  MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_I4, gridToFieldMap=gmap, _RC)
       end associate
       call this%clear(_RC)
       _RETURN(_SUCCESS)
@@ -64,8 +68,10 @@ contains
       integer, optional, intent(out) :: rc
       
       integer :: status
+      integer(COUNTER_KIND), pointer :: counter(:) => null()
 
-      call FieldSet(this%counter_field, this%CLEAR_VALUE_R4, _RC)
+      call assign_fptr(this%counter_field, counter, _RC)
+      counter = 0_COUNTER_KIND
       _RETURN(_SUCCESS)
 
    end subroutine clear_mean_post
@@ -76,7 +82,7 @@ contains
 
       integer :: status
 
-      if(this%typekind == ESMF_TypeKind_R4) then
+      if(this%typekind == ESMF_TYPEKIND_R4) then
          call this%calculate_mean_R4(_RC)
       else
          _FAIL('Unsupported typekind')
@@ -102,7 +108,7 @@ contains
 
       integer :: status
       real(kind=ESMF_KIND_R4), pointer :: current_ptr(:) => null()
-      real(kind=ESMF_KIND_R4), pointer :: counter(:) => null()
+      integer(kind=COUNTER_KIND), pointer :: counter(:) => null()
       real(kind=ESMF_KIND_R4), parameter :: UNDEF = MAPL_UNDEFINED_REAL
 
       call assign_fptr(this%accumulation_field, current_ptr, _RC)
@@ -124,7 +130,7 @@ contains
       integer :: status
       real(kind=ESMF_KIND_R4), pointer :: current(:) => null()
       real(kind=ESMF_KIND_R4), pointer :: latest(:) => null()
-      real(kind=ESMF_KIND_R4), pointer :: counter(:) => null()
+      integer(kind=COUNTER_KIND), pointer :: counter(:) => null()
       real(kind=ESMF_KIND_R4) :: undef
 
       undef = MAPL_UNDEFINED_REAL
@@ -133,7 +139,7 @@ contains
       call assign_fptr(this%counter_field, counter, _RC)
       where(current /= undef .and. latest /= undef)
         current = current + latest
-        counter = counter + 1_ESMF_KIND_R4
+        counter = counter + 1_COUNTER_KIND
       end where
       _RETURN(_SUCCESS)
 

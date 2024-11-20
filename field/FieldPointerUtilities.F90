@@ -33,6 +33,8 @@ module MAPL_FieldPointerUtilities
       module procedure assign_fptr_r8_rank2
       module procedure assign_fptr_r4_rank3
       module procedure assign_fptr_r8_rank3
+      module procedure assign_fptr_i4_rank1
+      module procedure assign_fptr_i8_rank1
    end interface assign_fptr
 
    interface FieldGetCptr
@@ -989,5 +991,43 @@ contains
       _RETURN(ESMF_SUCCESS)
 
    end subroutine Destroy
+
+   subroutine assign_fptr_i4_rank1(x, fptr, rc)
+      type(ESMF_Field), intent(inout) :: x
+      integer(kind=ESMF_KIND_I4), pointer, intent(out) :: fptr(:)
+      integer, optional, intent(out) :: rc
+
+      ! local declarations
+      type(c_ptr) :: cptr
+      integer(ESMF_KIND_I8), allocatable :: fp_shape(:)
+      integer(ESMF_KIND_I8) :: local_size
+      integer :: status
+
+      local_size = FieldGetLocalSize(x, _RC)
+      fp_shape = [ local_size ]
+      call FieldGetCptr(x, cptr, _RC)
+      call c_f_pointer(cptr, fptr, fp_shape)
+
+      _RETURN(_SUCCESS)
+   end subroutine assign_fptr_i4_rank1
+
+   subroutine assign_fptr_i8_rank1(x, fptr, rc)
+      type(ESMF_Field), intent(inout) :: x
+      integer(kind=ESMF_KIND_I8), pointer, intent(out) :: fptr(:)
+      integer, optional, intent(out) :: rc
+
+      ! local declarations
+      type(c_ptr) :: cptr
+      integer(ESMF_KIND_I8), allocatable :: fp_shape(:)
+      integer(ESMF_KIND_I8) :: local_size
+      integer :: status
+
+      local_size = FieldGetLocalSize(x, _RC)
+      fp_shape = [ local_size ]
+      call FieldGetCptr(x, cptr, _RC)
+      call c_f_pointer(cptr, fptr, fp_shape)
+
+      _RETURN(_SUCCESS)
+   end subroutine assign_fptr_i8_rank1
 
 end module MAPL_FieldPointerUtilities
