@@ -58,11 +58,11 @@ module Test_Scenarios
 
    interface Scenario
       procedure :: new_Scenario
-   end interface
+   end interface Scenario
 
    interface ScenarioDescription
       procedure :: new_ScenarioDescription
-   end interface
+   end interface ScenarioDescription
 
 contains
 
@@ -470,7 +470,7 @@ contains
          return
       end if
 
-     if (.not. ESMF_HConfigIsDefined(expectations,keyString='value')) then
+      if (.not. ESMF_HConfigIsDefined(expectations,keyString='value')) then
          rc = 0
          return
       end if
