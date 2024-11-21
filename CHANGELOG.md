@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [v2.35.3+R21C_v1.4.0] - 2024-11-21
+
+### Changed
+
+- Backport Python3 changes from `main`
+
 ## [v2.35.3+R21C_v1.3.1] - 2024-10-22
 
 ### Fixed
