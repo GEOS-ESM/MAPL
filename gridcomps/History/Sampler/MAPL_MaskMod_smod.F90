@@ -821,7 +821,6 @@ module subroutine  create_metadata(this,rc)
     integer, allocatable :: gridLocalStart(:)
     integer, allocatable :: gridGlobalStart(:)
     integer, allocatable :: gridGlobalCount(:)
-
     
     logical :: have_time
     integer :: tindex, nset
@@ -855,42 +854,22 @@ module subroutine  create_metadata(this,rc)
     !__ 1. stage data :  time variable, lat/lon
     !
 
-    if (allocated(times_loc)) deallocate(times_loc)
-    if (allocated(this%times)) deallocate(this%times)    
-    times_loc = this%timeInfo%compute_time_vector(this%metadata,_RC)     ! freq=10 min, dur=10 not 60 min :  6 data
-    !
-    ! __ intentionaly send one-time variable element to oClients
-    allocate (this%times, source=[times_loc(1)])
-    if (mapl_am_i_root()) then
-       print*, 'this%times', this%times
+    have_time = this%timeInfo%am_i_initialized()   
+    if (have_time) then
+       this%times = this%timeInfo%compute_time_vector(this%metadata,_RC)
+       ref = ArrayReference(this%times)
+       call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
+       tindex = size(this%times)
+       if (tindex==1) then
+          call this%stage2DLatLon(filename,oClients=oClients,_RC)
+       end if
+    else
+       tindex = -1
+       call this%stage2DLatLon(filename,oClients=oClients,_RC)
     end if
-    ref = ArrayReference(this%times)
-!! YGYU test if time affects lon/lat + var2
-    call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
-
-    !! come out
-    call this%stage2DLatLon(filename,oClients=oClients,_RC)
-
-
-    
-!!    if (mapl_am_i_root()) then
-!!       allocate(local_start,source=[1])
-!!       allocate(global_start,source=[1])
-!!       allocate(global_count,source=[this%npt_mask_tot])
-!!       ptr1d => this%lons_deg
-!!    else
-!!       allocate(local_start,source=[0])
-!!       allocate(global_start,source=[0])
-!!       allocate(global_count,source=[0])
-!!       allocate(ptr1d(0))
-!!    end if
-!!    
-!!    ref = ArrayReference(ptr1d)
-!!    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'longitude', &
-!!         ref,start=local_start, global_start=global_start, global_count=global_count)
-!!    
-!!    deallocate (local_start, global_start, global_count)
-
+    if (mapl_am_i_root()) then
+       print*, 'tindex=', tindex
+    end if
 
     !__ 2. put_var: ungridded_dim from src to dst [use index_mask]
     !
@@ -914,6 +893,7 @@ module subroutine  create_metadata(this,rc)
                 ptr1d => this%array_scalar_1d    !  allocate(arr(nx))  arr(nx_tot) ??
              else
                 allocate (ptr1d(0))
+
              end if
              !!             ref = ArrayReference(ptr1d)
 
@@ -973,8 +953,8 @@ module subroutine  create_metadata(this,rc)
              print*, 'ck ip, this%npt_mask_tot = ', mypet, this%npt_mask_tot
 
 
-             call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(item%xname), &
-                  ref,start=local_start, global_start=global_start, global_count=global_count)
+!             call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(item%xname), &
+!                  ref,start=local_start, global_start=global_start, global_count=global_count)
              deallocate (local_start, global_start, global_count)
 
 
