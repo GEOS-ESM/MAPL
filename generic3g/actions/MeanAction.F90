@@ -39,7 +39,7 @@ contains
       integer, allocatable :: gmap(:)
       integer :: ndims
 
-      call this%AccumulatorAction%create_fields(import_field, export_fields, _RC)
+      call this%AccumulatorAction%create_fields(import_field, export_field, _RC)
       if(this%initialized()) then
          call ESMF_FieldDestroy(this%counter_field, _RC)
       end if
