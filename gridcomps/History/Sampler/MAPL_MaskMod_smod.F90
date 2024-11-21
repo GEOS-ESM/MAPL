@@ -295,10 +295,10 @@ module subroutine  create_metadata(this,rc)
 
        if (field_rank==2) then
           vdims = "mask_index"
-          v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
+          v = variable(type=REAL32,dimensions=trim(vdims))
        else if (field_rank==3) then
           vdims = "mask_index,lev"
-          v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
+          v = variable(type=REAL32,dimensions=trim(vdims))
        end if
 
        call v%add_attribute('units',         trim(units))
@@ -795,7 +795,6 @@ module subroutine  create_metadata(this,rc)
     type(ESMF_Field) :: src_field,dst_field
     real, pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
     real, pointer :: ptr1d(:) => null()
-    real(pFIO_REAL64), pointer :: ptr1d_r8(:) => null()    
     real, pointer :: ptr2d(:,:) => null()
     real, allocatable :: times_loc(:)
     
