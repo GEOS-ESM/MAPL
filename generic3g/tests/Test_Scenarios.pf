@@ -100,6 +100,7 @@ contains
       params = [params, add_params('field status', check_field_status)]
       params = [params, add_params('field typekind', check_field_typekind)]
       params = [params, add_params('field value', check_field_value)]
+      params = [params, add_params('field k_values', check_field_k_values)]
       params = [params, add_params('field exists', check_field_rank)]
 
       ! Service oriented tests
@@ -453,7 +454,6 @@ contains
       character(*), intent(in) :: description
       integer, intent(out) :: rc
 
-      character(len=:), allocatable :: expected_field_typekind_str
       real :: expected_field_value
       integer :: rank
       type(ESMF_TypeKind_Flag) :: typekind
@@ -517,6 +517,73 @@ contains
 
       rc = 0
    end subroutine check_field_value
+
+   subroutine check_field_k_values(expectations, state, short_name, description, rc)
+      type(ESMF_HConfig), intent(in) :: expectations
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: short_name
+      character(*), intent(in) :: description
+      integer, intent(out) :: rc
+
+      real, allocatable :: expected_k_values(:)
+      integer :: rank
+      type(ESMF_TypeKind_Flag) :: typekind
+      integer :: status
+      character(len=:), allocatable :: msg
+      type(ESMF_Field) :: field
+      type(ESMF_StateItem_Flag) :: itemtype
+
+      msg = description
+
+      itemtype = get_itemtype(state, short_name, _RC)
+      if (itemtype /= ESMF_STATEITEM_FIELD) then ! that's ok
+         rc = 0
+         return
+      end if
+
+      if (.not. ESMF_HConfigIsDefined(expectations,keyString='k_values')) then
+         rc = 0
+         return
+      end if
+
+      expected_k_values = ESMF_HConfigAsR4Seq(expectations,keyString='k_values',_RC)
+
+      call ESMF_StateGet(state, short_name, field, _RC)
+      call ESMF_FieldGet(field, typekind=typekind, rank=rank, rc=status)
+      @assert_that('field get failed '//short_name,  status, is(0))
+
+      if (typekind == ESMF_TYPEKIND_R4) then
+         block
+            real(kind=ESMF_KIND_R4), pointer :: x3(:, :, :), x4(:, :, :, :)
+            select case(rank)
+            case(3)
+               call ESMF_FieldGet(field, farrayptr=x3, _RC)
+               @assert_that("value of "//short_name, x3(1, 1, :), is(equal_to(expected_k_values)))
+            case(4)
+               call ESMF_FieldGet(field, farrayptr=x4, _RC)
+               @assert_that("value of "//short_name, x4(1, 1, :, 1), is(equal_to(expected_k_values)))
+            case default
+
+            end select
+         end block
+      elseif (typekind == ESMF_TYPEKIND_R8) then
+         block
+            real(kind=ESMF_KIND_R8), pointer :: x3(:, :, :), x4(:, :, :, :)
+            select case(rank)
+            case(3)
+               call ESMF_FieldGet(field, farrayptr=x3, _RC)
+               @assert_that("value of "//short_name, x3(1, 1, :), is(equal_to(expected_k_values)))
+            case(4)
+               call ESMF_FieldGet(field, farrayptr=x4, _RC)
+               @assert_that("value of "//short_name, x4(1, 1, :, 1), is(equal_to(expected_k_values)))
+            end select
+         end block
+      else
+         _VERIFY(-1)
+      end if
+
+      rc = 0
+   end subroutine check_field_k_values
 
    subroutine check_field_rank(expectations, state, short_name, description, rc)
       type(ESMF_HConfig), intent(in) :: expectations
