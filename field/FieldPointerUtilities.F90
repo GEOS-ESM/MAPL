@@ -935,6 +935,8 @@ contains
       ! If you made it this far, you had an unsupported type.
       _FAIL("Unsupported type")
 
+      _RETURN(_SUCCESS)
+
    end subroutine MAPL_FieldGetLocalElementCount
 
    function FieldsHaveUndef(fields,rc) result(all_have_undef)
