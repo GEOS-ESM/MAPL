@@ -56,6 +56,8 @@ module MAPL_LatLonGridFactoryMod
       integer :: px, py
       logical :: is_halo_initialized = .false.
       logical :: periodic = .true.
+      character(len=:), allocatable :: lon_bounds_name
+      character(len=:), allocatable :: lat_bounds_name
    contains
       procedure :: make_new_grid
       procedure :: create_basic_grid
@@ -226,7 +228,7 @@ contains
          if (this%pole == "XY") then 
             polekindflag = ESMF_POLEKIND_NONE
          else
-            polekindflag = ESMF_POLEKIND_BIPOLE
+            polekindflag = ESMF_POLEKIND_MONOPOLE
          end if
          grid = ESMF_GridCreate1PeriDim( &
               & name = this%grid_name, &
@@ -768,6 +770,7 @@ contains
 
         has_bnds = coordinate_has_bounds(file_metadata, lon_name, _RC)
         if (has_bnds) then
+           this%lon_bounds_name = get_coordinate_bounds_name(file_metadata, lon_name, _RC)
            this%lon_corners = get_coordinate_bounds(file_metadata, lon_name, _RC)
         end if
 
@@ -786,6 +789,7 @@ contains
 
         has_bnds = coordinate_has_bounds(file_metadata, lat_name, _RC)
         if (has_bnds) then
+           this%lat_bounds_name = get_coordinate_bounds_name(file_metadata, lat_name, _RC)
            this%lat_corners = get_coordinate_bounds(file_metadata, lat_name, _RC)
         end if
 
@@ -851,13 +855,10 @@ contains
          end if
 
          if (abs(this%lat_centers(1) + 90) < 1000*epsilon(1.0)) then
-            write(*,*)'bmaa here 1'
             this%pole = 'PC'
          else if (abs(this%lat_corners(1) + 90) < 1000*epsilon(1.0)) then
-            write(*,*)'bmaa here 2'
             this%pole = 'PE'
          else ! assume XY
-            write(*,*)'bmaa here 3'
             this%pole = 'XY'
             this%lat_range = RealMinMax(this%lat_centers(1), this%lat_centers(jm))
          end if
@@ -1872,7 +1873,15 @@ contains
       character(len=:), allocatable :: vars
       _UNUSED_DUMMY(this)
 
-      vars = 'lon,lat'
+      if (allocated(this%lon_bounds_name) .and. allocated(this%lat_bounds_name)) then
+         vars = 'lon,lat,'//this%lon_bounds_name//','//this%lat_bounds_name
+      else if (allocated(this%lon_bounds_name) .and. (.not. allocated(this%lat_bounds_name))) then
+         vars = 'lon,lat,'//this%lon_bounds_name
+      else if (allocated(this%lat_bounds_name) .and. (.not. allocated(this%lon_bounds_name))) then
+         vars = 'lon,lat,'//this%lat_bounds_name
+      else if ((.not.allocated(this%lat_bounds_name)) .and. (.not. allocated(this%lon_bounds_name))) then
+         vars = 'lon,lat'
+      end if
 
    end function get_file_format_vars
 
@@ -1961,6 +1970,29 @@ contains
       var => metadata%get_variable(coord_name, _RC)
       has_bounds = var%is_attribute_present("bounds")
 
+      _RETURN(_SUCCESS)
+   end function
+
+   function get_coordinate_bounds_name(metadata, coord_name, rc) result(coord_bounds_name)
+      character(len=:), allocatable :: coord_bounds_name
+      type(FileMetadata), intent(in) :: metadata
+      character(len=*), intent(in) :: coord_name
+      integer, optional, intent(out) :: rc
+      
+      type(Variable), pointer :: var
+      type(Attribute), pointer :: attr
+      integer :: status
+      class(*), pointer :: attr_val
+
+      var => metadata%get_variable(coord_name, _RC)
+      attr => var%get_attribute("bounds", _RC)
+      attr_val => attr%get_value()
+      select type(attr_val)
+      type is(character(*))
+         coord_bounds_name = attr_val
+      class default
+         _FAIL('coordinate bounds must be a string')
+      end select
       _RETURN(_SUCCESS)
    end function
 

@@ -71,7 +71,7 @@ module MAPL_ESMFFieldBundleRead
          factory => get_factory(file_grid,rc=status)
          _VERIFY(status)
          grid_vars = factory%get_file_format_vars()
-         exclude_vars = grid_vars//",lev,time,lons,lats"
+         exclude_vars = grid_vars//",lev,time,lons,lats,time_bnds"
          if (has_vertical_level) lev_size = metadata%get_dimension(trim(lev_name))
 
          variables => metadata%get_variables()
