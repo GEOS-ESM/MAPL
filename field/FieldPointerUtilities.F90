@@ -852,63 +852,74 @@ contains
       integer(kind=ESMF_KIND_I8), pointer :: i8_1d(:),i8_2d(:,:),i8_3d(:,:,:),i8_4d(:,:,:,:)
 
       call ESMF_FieldGet(field,rank=rank,typekind=tk,_RC)
-      _ASSERT(rank > 0 .and. rank < 5, "Unsupported rank")
       if (tk == ESMF_TypeKind_R4) then
-         if (rank==1) then
+         select case(rank)
+         case(1)
             call ESMF_FieldGet(field,0,farrayptr=r4_1d,_RC)
             local_count = shape(r4_1d)
-         else if (rank ==2) then
+         case(2)
             call ESMF_FieldGet(field,0,farrayptr=r4_2d,_RC)
             local_count = shape(r4_2d)
-         else if (rank ==3) then
+         case(3)
             call ESMF_FieldGet(field,0,farrayptr=r4_3d,_RC)
             local_count = shape(r4_3d)
-         else if (rank ==4) then
+         case(4)
             call ESMF_FieldGet(field,0,farrayptr=r4_4d,_RC)
             local_count = shape(r4_4d)
-         end if
+         case default
+            _FAIL("Unsupported rank")
+         end select
       else if (tk == ESMF_TypeKind_R8) then
-         if (rank==1) then
+         select case(rank)
+         case(1)
             call ESMF_FieldGet(field,0,farrayptr=r8_1d,_RC)
             local_count = shape(r8_1d)
-         else if (rank ==2) then
+         case(2)
             call ESMF_FieldGet(field,0,farrayptr=r8_2d,_RC)
             local_count = shape(r8_2d)
-         else if (rank ==3) then
+         case(3)
             call ESMF_FieldGet(field,0,farrayptr=r8_3d,_RC)
             local_count = shape(r8_3d)
-         else if (rank ==4) then
+         case(4)
             call ESMF_FieldGet(field,0,farrayptr=r8_4d,_RC)
             local_count = shape(r8_4d)
-         end if
+         case default
+            _FAIL("Unsupported rank")
+         end select
       else if (tk == ESMF_TypeKind_I4) then
-         if (rank==1) then
+         select case(rank)
+         case(1)
             call ESMF_FieldGet(field,0,farrayptr=i4_1d,_RC)
             local_count = shape(i4_1d)
-         else if (rank ==2) then
+         case(2)
             call ESMF_FieldGet(field,0,farrayptr=i4_2d,_RC)
             local_count = shape(i4_2d)
-         else if (rank ==3) then
+         case(3)
             call ESMF_FieldGet(field,0,farrayptr=i4_3d,_RC)
             local_count = shape(i4_3d)
-         else if (rank ==4) then
+         case(4)
             call ESMF_FieldGet(field,0,farrayptr=i4_4d,_RC)
             local_count = shape(i4_4d)
-         end if
+         case default
+            _FAIL("Unsupported rank")
+         end select
       else if (tk == ESMF_TypeKind_I8) then
-         if (rank==1) then
+         select case(rank)
+         case(1)
             call ESMF_FieldGet(field,0,farrayptr=i8_1d,_RC)
             local_count = shape(i8_1d)
-         else if (rank ==2) then
+         case(2)
             call ESMF_FieldGet(field,0,farrayptr=i8_2d,_RC)
             local_count = shape(i8_2d)
-         else if (rank ==3) then
+         case(3)
             call ESMF_FieldGet(field,0,farrayptr=i8_3d,_RC)
             local_count = shape(i8_3d)
-         else if (rank ==4) then
+         case(4)
             call ESMF_FieldGet(field,0,farrayptr=i8_4d,_RC)
             local_count = shape(i8_4d)
-         end if
+         case default
+            _FAIL("Unsupported rank")
+         end select
       else
          _FAIL("Unsupported type")
       end if

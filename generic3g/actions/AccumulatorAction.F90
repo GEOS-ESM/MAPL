@@ -69,15 +69,22 @@ contains
 
       conformable = .FALSE.
       same_typekind = .FALSE.
+
+      ! Get fields from state and confirm typekind match and conformable.
       call get_field(importState, import_field, _RC)
       call ESMF_FieldGet(import_field, typekind=typekind, _RC)
+      ! This check goes away if ESMF_TYPEKIND_R8 is supported.
       _ASSERT(typekind==ESMF_TYPEKIND_R4, 'Only ESMF_TYPEKIND_R4 is supported.')
+
       call get_field(exportState, export_field, _RC)
-      conformable = FieldsAreConformable(import_field, export_field, _RC)
-      _ASSERT(conformable, 'Import and export fields are not conformable.')
       same_typekind = FieldsAreSameTypeKind(import_field, export_field, _RC)
       _ASSERT(same_typekind, 'Import and export fields are different typekinds.')
+
+      conformable = FieldsAreConformable(import_field, export_field, _RC)
+      _ASSERT(conformable, 'Import and export fields are not conformable.')
+
       this%typekind = typekind
+      ! Create and initialize field values. 
       call this%create_fields(import_field, export_field, _RC)
       call this%clear(_RC)
       _RETURN(_SUCCESS)
