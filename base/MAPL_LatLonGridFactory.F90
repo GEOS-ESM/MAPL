@@ -851,10 +851,13 @@ contains
          end if
 
          if (abs(this%lat_centers(1) + 90) < 1000*epsilon(1.0)) then
+            write(*,*)'bmaa here 1'
             this%pole = 'PC'
          else if (abs(this%lat_corners(1) + 90) < 1000*epsilon(1.0)) then
+            write(*,*)'bmaa here 2'
             this%pole = 'PE'
          else ! assume XY
+            write(*,*)'bmaa here 3'
             this%pole = 'XY'
             this%lat_range = RealMinMax(this%lat_centers(1), this%lat_centers(jm))
          end if
@@ -1987,18 +1990,18 @@ contains
       end select
       im = metadata%get_dimension(coord_name, _RC)
       allocate(coord_bounds(im+1), _STAT)
-      allocate(file_bounds(im,2), _STAT)
+      allocate(file_bounds(2,im), _STAT)
       source_file = metadata%get_source_file() 
- 
+
       call file_formatter%open(source_file, PFIO_READ, _RC)
-      call file_formatter%get_var(coord_name, file_bounds, _RC)
+      call file_formatter%get_var(bnds_name, file_bounds, _RC)
       call file_formatter%close(_RC)
       do i=1,im-1
-         _ASSERT(file_bounds(i,2)==file_bounds(i+1,1), "Bounds are not contiguous in file")
+         _ASSERT(file_bounds(2,i)==file_bounds(1,i+1), "Bounds are not contiguous in file")
       enddo
       do i=1,im
-         coord_bounds(i) = file_bounds(i,1)
-         coord_bounds(i+1) = file_bounds(i,2)
+         coord_bounds(i) = file_bounds(1,i)
+         coord_bounds(i+1) = file_bounds(2,i)
       enddo
 
       _RETURN(_SUCCESS)
