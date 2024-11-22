@@ -852,6 +852,7 @@ contains
       integer(kind=ESMF_KIND_I8), pointer :: i8_1d(:),i8_2d(:,:),i8_3d(:,:,:),i8_4d(:,:,:,:)
 
       call ESMF_FieldGet(field,rank=rank,typekind=tk,_RC)
+
       if (tk == ESMF_TypeKind_R4) then
          select case(rank)
          case(1)
@@ -869,7 +870,10 @@ contains
          case default
             _FAIL("Unsupported rank")
          end select
-      else if (tk == ESMF_TypeKind_R8) then
+         _RETURN(_SUCCESS)
+      end if
+      
+      if (tk == ESMF_TypeKind_R8) then
          select case(rank)
          case(1)
             call ESMF_FieldGet(field,0,farrayptr=r8_1d,_RC)
@@ -886,7 +890,10 @@ contains
          case default
             _FAIL("Unsupported rank")
          end select
-      else if (tk == ESMF_TypeKind_I4) then
+         _RETURN(_SUCCESS)
+      end if
+
+      if (tk == ESMF_TypeKind_I4) then
          select case(rank)
          case(1)
             call ESMF_FieldGet(field,0,farrayptr=i4_1d,_RC)
@@ -903,7 +910,10 @@ contains
          case default
             _FAIL("Unsupported rank")
          end select
-      else if (tk == ESMF_TypeKind_I8) then
+         _RETURN(_SUCCESS)
+      end if
+
+      if (tk == ESMF_TypeKind_I8) then
          select case(rank)
          case(1)
             call ESMF_FieldGet(field,0,farrayptr=i8_1d,_RC)
@@ -920,10 +930,11 @@ contains
          case default
             _FAIL("Unsupported rank")
          end select
-      else
-         _FAIL("Unsupported type")
       end if
-      _RETURN(_SUCCESS)
+
+      ! If you made it this far, you had an unsupported type.
+      _FAIL("Unsupported type")
+
    end subroutine MAPL_FieldGetLocalElementCount
 
    function FieldsHaveUndef(fields,rc) result(all_have_undef)
