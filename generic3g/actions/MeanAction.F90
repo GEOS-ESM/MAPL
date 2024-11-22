@@ -17,10 +17,10 @@ module mapl3g_MeanAction
    contains
       procedure :: clear => clear_mean
       procedure :: create_fields => create_fields_mean
-      procedure :: accumulate_R4 => accumulate_mean_R4
       procedure :: update_result => update_result_mean
       procedure :: calculate_mean
       procedure :: calculate_mean_R4
+      procedure :: accumulate_R4
    end type MeanAction
 
    type(ESMF_TypeKind_Flag), parameter :: COUNTER_TYPEKIND = ESMF_TYPEKIND_I4
@@ -40,7 +40,7 @@ contains
       integer :: ndims
 
       call this%AccumulatorAction%create_fields(import_field, export_field, _RC)
-      if(this%initialized()) then
+      if(ESMF_FieldIsCreated(this%counter_field)) then
          call ESMF_FieldDestroy(this%counter_field, _RC)
       end if
       associate(f => this%accumulation_field)
@@ -108,7 +108,7 @@ contains
       counter => null()
       call assign_fptr(this%accumulation_field, current_ptr, _RC)
       call assign_fptr(this%counter_field, counter, _RC)
-      where(current_ptr /= UNDEF .and. counter /= 0)
+      where(counter /= 0)
          current_ptr = current_ptr / counter
       elsewhere
          current_ptr = UNDEF
@@ -117,7 +117,7 @@ contains
 
    end subroutine calculate_mean_R4
 
-   subroutine accumulate_mean_R4(this, update_field, rc)
+   subroutine accumulate_R4(this, update_field, rc)
       class(MeanAction), intent(inout) :: this
       type(ESMF_Field), intent(inout) :: update_field
       integer, optional, intent(out) :: rc
@@ -134,12 +134,12 @@ contains
       call assign_fptr(this%accumulation_field, current, _RC)
       call assign_fptr(update_field, latest, _RC)
       call assign_fptr(this%counter_field, counter, _RC)
-      where(current /= UNDEF .and. latest /= UNDEF)
+      where(latest /= UNDEF)
         current = current + latest
         counter = counter + 1_COUNTER_KIND
       end where
       _RETURN(_SUCCESS)
 
-   end subroutine accumulate_mean_R4
+   end subroutine accumulate_R4
 
 end module mapl3g_MeanAction

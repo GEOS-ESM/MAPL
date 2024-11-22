@@ -90,6 +90,7 @@ contains
       type(ESMF_Field), intent(inout) :: import_field
       type(ESMF_Field), intent(inout) :: export_field
       integer, optional, intent(out) :: rc
+
       integer :: status
 
       if(this%initialized()) then
@@ -129,6 +130,8 @@ contains
    subroutine update_result(this, rc)
       class(AccumulatorAction), intent(inout) :: this
       integer, optional, intent(out) :: rc
+      
+      integer :: status
 
       call FieldCopy(this%accumulation_field, this%result_field, _RC)
       this%update_calculated = .TRUE.
@@ -196,8 +199,8 @@ contains
 
    end subroutine accumulate
 
-   subroutine accumulate_R4(accumulation_field, update_field, rc)
-      type(ESMF_Field), intent(inout) :: accumulation_field
+   subroutine accumulate_R4(this, update_field, rc)
+      class(AccumulatorAction), intent(inout) :: this
       type(ESMF_Field), intent(inout) :: update_field
       integer, optional, intent(out) :: rc
 
@@ -208,7 +211,7 @@ contains
 
       current => null()
       latest => null()
-      call assign_fptr(accumulation_field, current, _RC)
+      call assign_fptr(this%accumulation_field, current, _RC)
       call assign_fptr(update_field, latest, _RC)
       where(current /= UNDEF .and. latest /= UNDEF)
         current = current + latest
