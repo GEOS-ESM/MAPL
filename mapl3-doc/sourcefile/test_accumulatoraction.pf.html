@@ -578,18 +578,18 @@
 <path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M733.17,-176.59C695.52,-169.98 636.73,-161.86 585.5,-164.26"/>
 <path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M583.5,-164.26C498.7,-168.24 476.38,-151.19 392.5,-164.26"/>
 </g>
-<!-- sourcefile~verticalstaggerloc.f90~2 -->
+<!-- sourcefile~verticalstaggerloc.f90 -->
 <g id="sourcefile~~test_accumulatoraction.pf~~EfferentGraph_node23" class="node">
-<title>sourcefile~verticalstaggerloc.f90~2</title>
-<g id="a_sourcefile~~test_accumulatoraction.pf~~EfferentGraph_node23"><a xlink:href="../sourcefile/verticalstaggerloc.f90~2.html" xlink:title="VerticalStaggerLoc.F90">
+<title>sourcefile~verticalstaggerloc.f90</title>
+<g id="a_sourcefile~~test_accumulatoraction.pf~~EfferentGraph_node23"><a xlink:href="../sourcefile/verticalstaggerloc.f90.html" xlink:title="VerticalStaggerLoc.F90">
 <polygon fill="#f0ad4e" stroke="#f0ad4e" points="652.5,-216.26 516.5,-216.26 516.5,-192.26 652.5,-192.26 652.5,-216.26"/>
 <text text-anchor="middle" x="584.5" y="-201.86" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalStaggerLoc.F90</text>
 </a>
 </g>
 </g>
-<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~verticalstaggerloc.f90~2 -->
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
 <g id="sourcefile~~test_accumulatoraction.pf~~EfferentGraph_edge39" class="edge">
-<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~verticalstaggerloc.f90~2</title>
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
 <path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M733.36,-188.4C712.91,-190.6 687.07,-193.37 662.72,-195.98"/>
 <polygon fill="#ffda00" stroke="#ffda00" points="662.33,-192.5 652.76,-197.05 663.08,-199.46 662.33,-192.5"/>
 </g>
@@ -857,7 +857,7 @@ large graphs.</div>
 <a id="ln-130" name="ln-130" href="#ln-130"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_accumulate</span>
 <a id="ln-131" name="ln-131" href="#ln-131"></a>
 <a id="ln-132" name="ln-132" href="#ln-132"></a><span class="w">   </span><span class="err">@</span><span class="n">Test</span>
-<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_clear_accumulator</span><span class="p">()</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_clear</span><span class="p">()</span>
 <a id="ln-134" name="ln-134" href="#ln-134"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">AccumulatorAction</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">acc</span>
 <a id="ln-135" name="ln-135" href="#ln-135"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span>
 <a id="ln-136" name="ln-136" href="#ln-136"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
@@ -868,12 +868,12 @@ large graphs.</div>
 <a id="ln-141" name="ln-141" href="#ln-141"></a><span class="w">      </span><span class="k">call </span><span class="n">initialize_objects</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <a id="ln-142" name="ln-142" href="#ln-142"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <a id="ln-143" name="ln-143" href="#ln-143"></a><span class="w">      </span><span class="k">call </span><span class="n">FieldSet</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">accumulation_field</span><span class="p">,</span><span class="w"> </span><span class="n">TEST_VALUE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">clear_accumulator</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">clear</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <a id="ln-145" name="ln-145" href="#ln-145"></a><span class="w">      </span><span class="n">is_expected_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldIsConstant</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">accumulation_field</span><span class="p">,</span><span class="w"> </span><span class="n">acc</span><span class="p">%</span><span class="n">CLEAR_VALUE_R4</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <a id="ln-146" name="ln-146" href="#ln-146"></a><span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">is_expected_value</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;accumulation_field was not cleared.&#39;</span><span class="p">)</span>
 <a id="ln-147" name="ln-147" href="#ln-147"></a><span class="w">      </span><span class="k">call </span><span class="n">destroy_objects</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <a id="ln-148" name="ln-148" href="#ln-148"></a>
-<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_clear_accumulator</span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_clear</span>
 <a id="ln-150" name="ln-150" href="#ln-150"></a>
 <a id="ln-151" name="ln-151" href="#ln-151"></a><span class="w">   </span><span class="err">@</span><span class="n">Test</span>
 <a id="ln-152" name="ln-152" href="#ln-152"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_accumulate_R4</span><span class="p">()</span>
@@ -927,7 +927,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-11-22T00:29:00.839280+0000             </p>
+ on 2024-11-22T21:08:17.196050+0000             </p>
           </div>
         </div>
         <br>

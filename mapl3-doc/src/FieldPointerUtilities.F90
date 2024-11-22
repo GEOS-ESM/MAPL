@@ -33,6 +33,8 @@ module MAPL_FieldPointerUtilities
       module procedure assign_fptr_r8_rank2
       module procedure assign_fptr_r4_rank3
       module procedure assign_fptr_r8_rank3
+      module procedure assign_fptr_i4_rank1
+      module procedure assign_fptr_i8_rank1
    end interface assign_fptr
 
    interface FieldGetCptr
@@ -846,44 +848,95 @@ contains
 
       real(kind=ESMF_KIND_R4), pointer :: r4_1d(:),r4_2d(:,:),r4_3d(:,:,:),r4_4d(:,:,:,:)
       real(kind=ESMF_KIND_R8), pointer :: r8_1d(:),r8_2d(:,:),r8_3d(:,:,:),r8_4d(:,:,:,:)
+      integer(kind=ESMF_KIND_I4), pointer :: i4_1d(:),i4_2d(:,:),i4_3d(:,:,:),i4_4d(:,:,:,:)
+      integer(kind=ESMF_KIND_I8), pointer :: i8_1d(:),i8_2d(:,:),i8_3d(:,:,:),i8_4d(:,:,:,:)
 
       call ESMF_FieldGet(field,rank=rank,typekind=tk,_RC)
+
       if (tk == ESMF_TypeKind_R4) then
-         if (rank==1) then
+         select case(rank)
+         case(1)
             call ESMF_FieldGet(field,0,farrayptr=r4_1d,_RC)
             local_count = shape(r4_1d)
-         else if (rank ==2) then
+         case(2)
             call ESMF_FieldGet(field,0,farrayptr=r4_2d,_RC)
             local_count = shape(r4_2d)
-         else if (rank ==3) then
+         case(3)
             call ESMF_FieldGet(field,0,farrayptr=r4_3d,_RC)
             local_count = shape(r4_3d)
-         else if (rank ==4) then
+         case(4)
             call ESMF_FieldGet(field,0,farrayptr=r4_4d,_RC)
             local_count = shape(r4_4d)
-         else
+         case default
             _FAIL("Unsupported rank")
-         end if
-      else if (tk == ESMF_TypeKind_R8) then
-         if (rank==1) then
+         end select
+         _RETURN(_SUCCESS)
+      end if
+      
+      if (tk == ESMF_TypeKind_R8) then
+         select case(rank)
+         case(1)
             call ESMF_FieldGet(field,0,farrayptr=r8_1d,_RC)
             local_count = shape(r8_1d)
-         else if (rank ==2) then
+         case(2)
             call ESMF_FieldGet(field,0,farrayptr=r8_2d,_RC)
             local_count = shape(r8_2d)
-         else if (rank ==3) then
+         case(3)
             call ESMF_FieldGet(field,0,farrayptr=r8_3d,_RC)
             local_count = shape(r8_3d)
-         else if (rank ==4) then
+         case(4)
             call ESMF_FieldGet(field,0,farrayptr=r8_4d,_RC)
             local_count = shape(r8_4d)
-         else
+         case default
             _FAIL("Unsupported rank")
-         end if
-      else
-         _FAIL("Unsupported type")
+         end select
+         _RETURN(_SUCCESS)
       end if
+
+      if (tk == ESMF_TypeKind_I4) then
+         select case(rank)
+         case(1)
+            call ESMF_FieldGet(field,0,farrayptr=i4_1d,_RC)
+            local_count = shape(i4_1d)
+         case(2)
+            call ESMF_FieldGet(field,0,farrayptr=i4_2d,_RC)
+            local_count = shape(i4_2d)
+         case(3)
+            call ESMF_FieldGet(field,0,farrayptr=i4_3d,_RC)
+            local_count = shape(i4_3d)
+         case(4)
+            call ESMF_FieldGet(field,0,farrayptr=i4_4d,_RC)
+            local_count = shape(i4_4d)
+         case default
+            _FAIL("Unsupported rank")
+         end select
+         _RETURN(_SUCCESS)
+      end if
+
+      if (tk == ESMF_TypeKind_I8) then
+         select case(rank)
+         case(1)
+            call ESMF_FieldGet(field,0,farrayptr=i8_1d,_RC)
+            local_count = shape(i8_1d)
+         case(2)
+            call ESMF_FieldGet(field,0,farrayptr=i8_2d,_RC)
+            local_count = shape(i8_2d)
+         case(3)
+            call ESMF_FieldGet(field,0,farrayptr=i8_3d,_RC)
+            local_count = shape(i8_3d)
+         case(4)
+            call ESMF_FieldGet(field,0,farrayptr=i8_4d,_RC)
+            local_count = shape(i8_4d)
+         case default
+            _FAIL("Unsupported rank")
+         end select
+      end if
+
+      ! If you made it this far, you had an unsupported type.
+      _FAIL("Unsupported type")
+
       _RETURN(_SUCCESS)
+
    end subroutine MAPL_FieldGetLocalElementCount
 
    function FieldsHaveUndef(fields,rc) result(all_have_undef)
@@ -989,5 +1042,43 @@ contains
       _RETURN(ESMF_SUCCESS)
 
    end subroutine Destroy
+
+   subroutine assign_fptr_i4_rank1(x, fptr, rc)
+      type(ESMF_Field), intent(inout) :: x
+      integer(kind=ESMF_KIND_I4), pointer, intent(out) :: fptr(:)
+      integer, optional, intent(out) :: rc
+
+      ! local declarations
+      type(c_ptr) :: cptr
+      integer(ESMF_KIND_I8), allocatable :: fp_shape(:)
+      integer(ESMF_KIND_I8) :: local_size
+      integer :: status
+
+      local_size = FieldGetLocalSize(x, _RC)
+      fp_shape = [ local_size ]
+      call FieldGetCptr(x, cptr, _RC)
+      call c_f_pointer(cptr, fptr, fp_shape)
+
+      _RETURN(_SUCCESS)
+   end subroutine assign_fptr_i4_rank1
+
+   subroutine assign_fptr_i8_rank1(x, fptr, rc)
+      type(ESMF_Field), intent(inout) :: x
+      integer(kind=ESMF_KIND_I8), pointer, intent(out) :: fptr(:)
+      integer, optional, intent(out) :: rc
+
+      ! local declarations
+      type(c_ptr) :: cptr
+      integer(ESMF_KIND_I8), allocatable :: fp_shape(:)
+      integer(ESMF_KIND_I8) :: local_size
+      integer :: status
+
+      local_size = FieldGetLocalSize(x, _RC)
+      fp_shape = [ local_size ]
+      call FieldGetCptr(x, cptr, _RC)
+      call c_f_pointer(cptr, fptr, fp_shape)
+
+      _RETURN(_SUCCESS)
+   end subroutine assign_fptr_i8_rank1
 
 end module MAPL_FieldPointerUtilities

@@ -130,7 +130,7 @@ contains
    end subroutine test_accumulate
 
    @Test
-   subroutine test_clear_accumulator()
+   subroutine test_clear()
       type(AccumulatorAction) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
@@ -141,12 +141,12 @@ contains
       call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
       call acc%initialize(importState, exportState, clock, _RC)
       call FieldSet(acc%accumulation_field, TEST_VALUE, _RC)
-      call acc%clear_accumulator(_RC)
+      call acc%clear(_RC)
       is_expected_value = FieldIsConstant(acc%accumulation_field, acc%CLEAR_VALUE_R4, _RC)
       @assertTrue(is_expected_value, 'accumulation_field was not cleared.')
       call destroy_objects(importState, exportState, clock, _RC)
 
-   end subroutine test_clear_accumulator
+   end subroutine test_clear
 
    @Test
    subroutine test_accumulate_R4()
