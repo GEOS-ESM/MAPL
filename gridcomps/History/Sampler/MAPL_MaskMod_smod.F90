@@ -106,7 +106,7 @@ end function MaskSampler_from_config
    !
    !-- integrate both initialize and reinitialize
    !
-module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdata,reinitialize,rc)
+module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdata,global_attributes,reinitialize,rc)
    class(MaskSampler), target, intent(inout) :: this
    integer, intent(in) :: duration
    integer, intent(in) :: frequency
@@ -114,6 +114,7 @@ module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdat
    type(ESMF_FieldBundle), optional, intent(inout)   :: bundle
    type(TimeData), optional, intent(inout)           :: timeInfo
    type(VerticalData), optional, intent(inout)       :: vdata
+   type(StringStringMap), target, intent(in), optional :: global_attributes   
    logical, optional, intent(in)           :: reinitialize
    integer, optional, intent(out)          :: rc
 
@@ -136,13 +137,15 @@ module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdat
          this%vdata=VerticalData(_RC)
       end if
    end if
+   _ASSERT(present(global_attributes), 'PFIO needs global_attributes')
 
+  
 !   this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
 !   if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
 
    this%obs_written = 0
    call this%create_Geosat_grid_find_mask(_RC)
-   call this%create_metadata(_RC)
+   call this%create_metadata(global_attributes,_RC)
 
    nitem_scalar = 0
    nitem_vector = 0
@@ -193,7 +196,9 @@ module subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chu
   integer, optional, intent(out) :: rc
   integer :: status
 
+
   if (present(write_collection_id)) this%write_collection_id=write_collection_id
+  if (present(itemOrder)) this%itemOrderAlphabetical = itemOrder  
 !!  add later on
 !!        if (present(regrid_method)) this%regrid_method=regrid_method
 !!        if (present(nbits_to_keep)) this%nbits_to_keep=nbits_to_keep
@@ -204,7 +209,6 @@ module subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chu
 !!           allocate(this%chunking,source=chunking,stat=status)
 !!           _VERIFY(status)
 !!        end if
-!!        if (present(itemOrder)) this%itemOrderAlphabetical = itemOrder
 !!        if (present(regrid_hints)) this%regrid_hints = regrid_hints
 
   _RETURN(ESMF_SUCCESS)
@@ -212,8 +216,9 @@ module subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chu
 end subroutine set_param
 
 
-module subroutine  create_metadata(this,rc)
+module subroutine  create_metadata(this,global_attributes,rc)
     class(MaskSampler), target, intent(inout) :: this
+    type(StringStringMap), target, intent(in) :: global_attributes
     integer, optional, intent(out)          :: rc
 
     type(variable)   :: v
@@ -232,6 +237,12 @@ module subroutine  create_metadata(this,rc)
     character(len=ESMF_MAXSTR) :: var_name, long_name, units, vdims
     character(len=40) :: datetime_units
 
+    type(StringStringMapIterator) :: s_iter
+    type(stringVector) :: order
+    integer :: metadataVarsSize
+    character(len=:), pointer :: attr_name, attr_val
+
+    
     !__ 1. metadata add_dimension,
     !     add_variable for time, mask_points, latlon,
     !
@@ -239,10 +250,6 @@ module subroutine  create_metadata(this,rc)
     if ( allocated (this%metadata) ) deallocate(this%metadata)
     allocate(this%metadata)
 
-    call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC) ! specify lev in fmd
-
-    !- add time dimension to metadata
-    call this%timeinfo%add_time_to_metadata(this%metadata,_RC)
     call this%metadata%add_dimension('mask_index', this%npt_mask_tot)
 
     !    v = Variable(type=pFIO_REAL64, dimensions='mask_index')
@@ -271,6 +278,16 @@ module subroutine  create_metadata(this,rc)
     !call this%metadata%add_variable('mask_CS_global_index_J',v)
 
 
+    call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC) ! specify lev in fmd
+
+    !- add time dimension to metadata
+    call this%timeinfo%add_time_to_metadata(this%metadata,_RC)
+
+    order = this%metadata%get_order(rc=status)
+    _VERIFY(status)
+    metadataVarsSize = order%size()
+        
+    
     !__ 2. filemetadata: extract field from bundle, add_variable to metadata
     !
     call ESMF_FieldBundleGet(this%bundle, fieldCount=fieldCount, _RC)
@@ -310,6 +327,22 @@ module subroutine  create_metadata(this,rc)
     end do
     deallocate (fieldNameList, _STAT)
 
+
+    if (this%itemOrderAlphabetical) then
+       call this%alphabatize_variables(metadataVarsSize,rc=status)
+       _VERIFY(status)
+    end if
+
+
+    s_iter = global_attributes%begin()
+    do while(s_iter /= global_attributes%end())
+       attr_name => s_iter%key()
+       attr_val => s_iter%value()
+       call this%metadata%add_attribute(attr_name,attr_val,_RC)
+       call s_iter%next()
+    enddo
+
+        
     _RETURN(_SUCCESS)
   end subroutine create_metadata
 
@@ -1104,5 +1137,60 @@ module subroutine  create_metadata(this,rc)
         _RETURN(ESMF_SUCCESS)
 
      end subroutine modifyTime
+
+
+
+   module subroutine alphabatize_variables(this,nfixedVars,rc)
+     class (masksampler), intent(inout) :: this
+     integer, intent(in) :: nFixedVars
+     integer, optional, intent(out) :: rc
+
+     type(StringVector) :: order
+     type(StringVector) :: newOrder
+     character(len=:), pointer :: v1
+     character(len=ESMF_MAXSTR) :: c1,c2
+     character(len=ESMF_MAXSTR), allocatable :: temp(:)
+     logical :: swapped
+     integer :: n,i
+     integer :: status
+
+     order = this%metadata%get_order(rc=status)
+     _VERIFY(status)
+     n = Order%size()
+     allocate(temp(nFixedVars+1:n))
+     do i=1,n
+        v1 => order%at(i)
+        if ( i > nFixedVars) temp(i)=trim(v1)
+     enddo
+
+     swapped = .true.
+     do while(swapped)
+        swapped = .false.
+        do i=nFixedVars+1,n-1
+           c1 = temp(i)
+           c2 = temp(i+1)
+           if (c1 > c2) then
+              temp(i+1)=c1
+              temp(i)=c2
+              swapped =.true.
+           end if
+        enddo
+     enddo
+
+     do i=1,nFixedVars
+        v1 => Order%at(i)
+        call newOrder%push_back(v1)
+     enddo
+     do i=nFixedVars+1,n
+        call newOrder%push_back(trim(temp(i)))
+     enddo
+     call this%metadata%set_order(newOrder,rc=status)
+     _VERIFY(status)
+     deallocate(temp)
+
+     _RETURN(_SUCCESS)
+
+  end subroutine alphabatize_variables     
+
 
    end submodule MaskSampler_implement

@@ -15,6 +15,8 @@ module MaskSamplerMod
   use MAPL_SortMod
   use MAPL_NetCDF
   use MAPL_StringTemplate
+  use gFTL_StringVector
+  use gFTL_StringStringMap
   use Plain_netCDF_Time
   use MAPL_ObsUtilMod
   use MPI
@@ -95,7 +97,8 @@ module MaskSamplerMod
      real, allocatable :: array_scalar_1d(:)
      real, allocatable :: array_scalar_2d(:,:)
      real, allocatable :: array_scalar_3d(:,:,:)
-
+     logical :: itemOrderAlphabetical = .true.
+     
      integer :: tmax     ! duration / freq
 
      real(kind=ESMF_KIND_R8), pointer:: obsTime(:)
@@ -117,6 +120,7 @@ module MaskSamplerMod
      procedure :: set_param
      procedure :: stage2dlatlon
      procedure :: modifytime
+     procedure :: alphabatize_variables
   end type MaskSampler
 
   interface MaskSampler
@@ -135,7 +139,7 @@ module MaskSamplerMod
        integer, optional, intent(out)          :: rc
      end function MaskSampler_from_config
 
-     module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdata,reinitialize,rc)
+     module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdata,global_attributes,reinitialize,rc)
        class(MaskSampler), target, intent(inout) :: this
        integer, intent(in) :: duration
        integer, intent(in) :: frequency
@@ -143,6 +147,7 @@ module MaskSamplerMod
        type(ESMF_FieldBundle), optional, intent(inout)   :: bundle
        type(TimeData), optional, intent(inout)           :: timeInfo
        type(VerticalData), optional, intent(inout)       :: vdata
+       type(StringStringMap), target, intent(in), optional :: global_attributes
        logical, optional, intent(in)           :: reinitialize
        integer, optional, intent(out)          :: rc
      end subroutine initialize_
@@ -154,8 +159,9 @@ module MaskSamplerMod
        integer, optional, intent(out)          :: rc
      end subroutine create_Geosat_grid_find_mask
 
-     module subroutine  create_metadata(this,rc)
+     module subroutine  create_metadata(this,global_attributes,rc)
        class(MaskSampler), target, intent(inout) :: this
+       type(StringStringMap), target, intent(in) :: global_attributes
        integer, optional, intent(out)          :: rc
      end subroutine create_metadata
 
@@ -197,12 +203,17 @@ module MaskSamplerMod
        real(kind=ESMF_KIND_R8) :: rtime
      end function compute_time_for_current
 
-
     module subroutine modifyTime(this, oClients, rc)
       class(MaskSampler), target, intent(inout) :: this
       type (ClientManager), optional, intent(inout) :: oClients
       integer, optional, intent(out) :: rc
     end subroutine modifyTime
 
+    module subroutine alphabatize_variables(this,nfixedVars,rc)
+      class (MaskSampler), intent(inout) :: this
+      integer, intent(in) :: nFixedVars
+      integer, optional, intent(out) :: rc
+    end subroutine alphabatize_variables
+    
   end interface
 end module MaskSamplerMod
