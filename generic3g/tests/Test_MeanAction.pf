@@ -16,114 +16,60 @@ contains
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
       integer :: status
-      integer(kind=ESMF_KIND_I8), parameter :: COUNTER = 4
+      integer(kind=ESMF_KIND_I4), parameter :: COUNTER = 4
       real(kind=ESMF_KIND_R4), parameter :: MEAN = 4.0_R4
       logical :: matches_expected
       real(kind=ESMF_KIND_R4), pointer :: fptr(:)
+      integer(kind=ESMF_KIND_I4), pointer :: ifptr(:)
       integer :: n
       logical, allocatable :: mask(:)
-      
+
       call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
       call acc%initialize(importState, exportState, clock, _RC)
       call FieldSet(acc%accumulation_field, COUNTER*MEAN, _RC)
-      acc%counter_scalar = COUNTER
+      call assign_fptr(acc%accumulation_field, fptr, _RC)
+      call assign_fptr(acc%counter_field, ifptr, _RC)
+      ifptr = COUNTER
+      n = size(fptr)-1
 
-      ! All points are not UNDEF and valid_mean .TRUE.
-      acc%valid_mean = .TRUE.
+      ! All points are not UNDEF and counter > 0
       call acc%calculate_mean_R4(_RC)
       matches_expected = FieldIsConstant(acc%accumulation_field, MEAN, _RC)
       @assertTrue(matches_expected, 'accumulation_field not equal to MEAN')
 
-      ! One point is UNDEF
+      ! counter 0 at one point
       call FieldSet(acc%accumulation_field, COUNTER*MEAN, _RC)
+      call assign_fptr(acc%counter_field, fptr, _RC)
+      fptr(n) = 0
+      mask = fptr /= 0
       call assign_fptr(acc%accumulation_field, fptr, _RC)
-      n = size(fptr)-1
-      call set_undef(fptr(n))
-      allocate(mask(size(fptr)))
-      mask = .TRUE.
-      mask(n) = .FALSE.
       call acc%calculate_mean_R4(_RC)
       @assertTrue(all(pack(fptr, mask) == MEAN), 'Some valid points not equal to MEAN')
       @assertTrue(undef(fptr(n)), 'mean at point was not UNDEF')
-      
-      ! valid_mean .FALSE. at one point
-      acc%valid_mean = .TRUE.
-      call FieldSet(acc%accumulation_field, COUNTER*MEAN, _RC)
-      acc%valid_mean(n) = .FALSE.
-      call acc%calculate_mean_R4(_RC)
-      @assertTrue(all(pack(fptr, acc%valid_mean) == MEAN), 'Some valid points not equal to MEAN')
-      @assertTrue(undef(fptr(n)), 'mean at point was not UNDEF')
-      
-      ! One point is UNDEF; valid_mean .FALSE. at one point
-      acc%valid_mean = .TRUE.
-      call FieldSet(acc%accumulation_field, COUNTER*MEAN, _RC)
-      acc%valid_mean(n) = .FALSE.
-      call assign_fptr(acc%accumulation_field, fptr, _RC)
-      call set_undef(fptr(n))
-      mask = (.not. undef(fptr)) .and. acc%valid_mean
-      call acc%calculate_mean_R4(_RC)
-      @assertTrue(all(pack(fptr, mask) == MEAN), 'Some valid points not equal to MEAN')
-      @assertTrue(undef(fptr(n)), 'mean at point was not UNDEF')
-      call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_calculate_mean_R4
 
    @Test
-   subroutine test_calculate_mean()
+   subroutine test_clear()
       type(MeanAction) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
       integer :: status
-      integer(kind=ESMF_KIND_I8), parameter :: COUNTER = 4
-      real(kind=ESMF_KIND_R4), parameter :: MEAN = 4.0_R4
-      logical :: matches_expected
-      
-      call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
-      call acc%initialize(importState, exportState, clock, _RC)
-      call FieldSet(acc%accumulation_field, COUNTER*MEAN, _RC)
-      acc%counter_scalar = 0_I8
-      acc%valid_mean = .TRUE.
-      call acc%calculate_mean()
-      @assertExceptionRaised()
-      acc%counter_scalar = COUNTER
-      call acc%calculate_mean()
-      matches_expected = FieldIsConstant(acc%accumulation_field, MEAN, _RC)
-      @assertTrue(matches_expected, 'accumulation_field not equal to MEAN.')
-      call destroy_objects(importState, exportState, clock, _RC)
-
-   end subroutine test_calculate_mean
-
-   @Test
-   subroutine test_clear_accumulator()
-      type(MeanAction) :: acc
-      type(ESMF_State) :: importState, exportState
-      type(ESMF_Clock) :: clock
-      integer :: status
+      integer(kind=ESMF_KIND_I4), parameter :: COUNTER = 4
+      logical :: cleared = .FALSE.
+      integer(kind=ESMF_KIND_I4), pointer :: fptr(:)
 
       call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
       call acc%initialize(importState, exportState, clock, _RC)
-      acc%counter_scalar = 4
-      call acc%clear_accumulator(_RC)
-      @assertTrue(acc%counter_scalar == 0_I8, 'counter_scalar is nonzero.')
+      call assign_fptr(acc%counter_field, fptr, _RC)
+      fptr = COUNTER
+      call acc%clear(_RC)
+      call assign_fptr(acc%counter_field, fptr, _RC)
+      cleared = all(fptr == 0)
+      @assertTrue(cleared, 'Counter field is nonzero.')
       call destroy_objects(importState, exportState, clock, _RC)
 
-   end subroutine test_clear_accumulator
-
-   @Test
-   subroutine test_clear_valid_mean()
-      type(MeanAction) :: acc
-      type(ESMF_State) :: importState, exportState
-      type(ESMF_Clock) :: clock
-      integer :: status
-
-      call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
-      call acc%initialize(importState, exportState, clock, _RC)
-      acc%valid_mean = .TRUE.
-      call acc%clear_valid_mean(_RC)
-      @assertTrue(.not. any(acc%valid_mean), 'valid_mean .TRUE. in elements')
-      call destroy_objects(importState, exportState, clock, _RC)
-
-   end subroutine test_clear_valid_mean
+   end subroutine test_clear
 
    @Test
    subroutine test_invalidate()
@@ -131,19 +77,25 @@ contains
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
       integer :: status
-      integer(kind=ESMF_KIND_I8), parameter :: N = 4_I8
+      integer, parameter :: N = 4
       integer :: i
       type(ESMF_Field) :: importField
+      logical :: counter_is_set = .FALSE.
+      integer(kind=ESMF_KIND_I4), pointer :: fptr(:)
 
       call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
       call get_field(importState, importField, _RC)
       call FieldSet(importField, 1.0_R4, _RC)
       call acc%initialize(importState, exportState, clock, _RC)
-      @assertTrue(acc%counter_scalar == 0_I8, 'counter_scalar is nonzero')
+      call assign_fptr(acc%counter_field, fptr, _RC)
+      counter_is_set = all(fptr == 0)
+      @assertTrue(counter_is_set, 'Counter field is nonzero.')
       do i=1, N
          call acc%invalidate(importState, exportState, clock, _RC)
       end do
-      @assertTrue(acc%counter_scalar == N, 'counter_scalar not equal to N')
+      call assign_fptr(acc%counter_field, fptr, _RC)
+      counter_is_set = all(fptr == N)
+      @assertTrue(counter_is_set, 'counter_scalar not equal to N')
       call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_invalidate
@@ -169,29 +121,13 @@ contains
       call assign_fptr(update_field, upPtr, _RC)
       upPtr = UPDATE_VALUE
 
-      ! accumulated not undef, update_field not undef
+      ! update_field not undef
       call acc%accumulate_R4(update_field, _RC)
       result_value = result_value + UPDATE_VALUE
       call assign_fptr(acc%accumulation_field, accPtr, _RC)
       @assertTrue(all(accPtr == result_value), 'accumulation_field not equal to expected value.')
 
-      ! accumulated undef at point, update_field not undef
-      call assign_fptr(acc%accumulation_field, accPtr, _RC)
-      n = size(accPtr) - 1
-      call set_undef(accPtr(n))
-      call acc%accumulate_R4(update_field, _RC)
-      result_value = result_value + UPDATE_VALUE
-      @assertTrue(undef(accPtr(n)), 'invalid point is not UNDEF')
-      @assertTrue(all(pack(accPtr, .not. undef(accPtr)) == result_value), 'valid point not equal to expected value.')
-
-      ! accumulated undef at point, update_field undef at point
-      n = size(upPtr) - 1
-      call set_undef(upPtr(n))
-      call acc%accumulate_R4(update_field, _RC)
-      result_value = result_value + UPDATE_VALUE
-      @assertTrue(undef(accPtr(n)), 'invalid point is not UNDEF')
-
-      ! accumulated not undef, update_field undef at point
+      ! update_field undef at point
       call FieldSet(importField, result_value, _RC)
       call acc%initialize(importState, exportState, clock, _RC)
       call acc%accumulate_R4(update_field, _RC)
@@ -201,5 +137,68 @@ contains
       call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_accumulate_mean_R4
+
+   @Test
+   subroutine test_initialize()
+      type(MeanAction) :: acc
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+      integer :: status
+      logical :: equals_expected_value 
+      integer(kind=ESMF_KIND_I4), pointer :: fptr(:)
+
+      call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
+      call acc%initialize(importState, exportState, clock, _RC)
+      call assign_fptr(acc%counter_field, fptr, _RC)
+      equals_expected_value = all(fptr == 0)
+      @assertTrue(equals_expected_value, 'counter_field was not cleared.')
+      call destroy_objects(importState, exportState, clock, _RC)
+
+   end subroutine test_initialize
+
+   @Test
+   subroutine test_accumulate_with_undef_some_steps()
+      type(MeanAction) :: acc
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+      integer :: status
+      type(ESMF_Field) :: update_field
+      integer :: n
+      real(kind=ESMF_KIND_R4), parameter :: UPDATE_VALUE = 3.0_R4
+      real(kind=ESMF_KIND_R4), pointer :: upPtr(:), accPtr(:)
+      integer(kind=ESMF_KIND_I4), pointer :: countPtr(:)
+      logical, allocatable :: mask(:)
+
+      call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
+      call acc%initialize(importState, exportState, clock, _RC)
+      call initialize_field(update_field, typekind=ESMF_TYPEKIND_R4, _RC)
+      call assign_fptr(update_field, upPtr, _RC)
+      upPtr = UPDATE_VALUE
+      allocate(mask(size(upPtr)))
+      mask = .TRUE.
+
+      call acc%accumulate(update_field, _RC)
+      call acc%accumulate(update_field, _RC)
+
+      call assign_fptr(update_field, upPtr, _RC)
+      n = size(upPtr) - 1
+      call set_undef(upPtr(n)) 
+      call acc%accumulate(update_field, _RC)
+      mask(n) = .FALSE.
+
+      call assign_fptr(update_field, upPtr, _RC)
+      upPtr = UPDATE_VALUE
+      call acc%accumulate(update_field, _RC)
+      call acc%accumulate(update_field, _RC)
+
+      call assign_fptr(acc%counter_field, countPtr, _RC)
+      @assertEqual(4, countPtr(n), 'Missing point counter does not match.')
+      @assertTrue(all(pack(countPtr, mask) == 5), 'Other point counters do not match.')
+
+      call assign_fptr(acc%accumulation_field, accPtr, _RC)
+      @assertEqual(4*UPDATE_VALUE, accPtr(n), 'Missing point does not match.')
+      @assertTrue(all(pack(accPtr, mask) == 5*UPDATE_VALUE), 'Other points do not match.')
+
+   end subroutine test_accumulate_with_undef_some_steps
 
 end module Test_MeanAction

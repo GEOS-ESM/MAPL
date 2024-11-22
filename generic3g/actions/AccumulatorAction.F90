@@ -15,16 +15,19 @@ module mapl3g_AccumulatorAction
       type(ESMF_Field) :: result_field
       real(kind=ESMF_KIND_R4) :: CLEAR_VALUE_R4 = 0.0_ESMF_KIND_R4
       logical :: update_calculated = .FALSE.
+      type(ESMF_TypeKind_Flag) :: typekind = ESMF_TYPEKIND_R4
    contains
       ! Implementations of deferred procedures
       procedure :: invalidate
       procedure :: initialize
       procedure :: update
       ! Helpers
-      procedure :: accumulate
       procedure :: initialized
-      procedure :: clear_accumulator
+      procedure :: accumulate
       procedure :: accumulate_R4
+      procedure :: clear
+      procedure :: create_fields
+      procedure :: update_result
    end type AccumulatorAction
 
 contains
@@ -36,22 +39,20 @@ contains
 
    end function initialized
 
-   subroutine clear_accumulator(this, rc)
+   subroutine clear(this, rc)
       class(AccumulatorAction), intent(inout) :: this
       integer, optional, intent(out) :: rc
       
       integer :: status
-      type(ESMF_TypeKind_Flag) :: tk
 
-      call ESMF_FieldGet(this%accumulation_field, typekind=tk, _RC)
-      if(tk == ESMF_TYPEKIND_R4) then
+      if(this%typekind == ESMF_TYPEKIND_R4) then
          call FieldSet(this%accumulation_field, this%CLEAR_VALUE_R4, _RC)
       else
          _FAIL('Unsupported typekind')
       end if
       _RETURN(_SUCCESS)
 
-   end subroutine clear_accumulator
+   end subroutine clear
 
    subroutine initialize(this, importState, exportState, clock, rc)
       class(AccumulatorAction), intent(inout) :: this
@@ -62,10 +63,42 @@ contains
 
       integer :: status
       type(ESMF_Field) :: import_field, export_field
-      logical :: fields_are_conformable
+      type(ESMF_TypeKind_Flag) :: typekind
+      logical :: conformable
+      logical :: same_typekind
 
+      conformable = .FALSE.
+      same_typekind = .FALSE.
+
+      ! Get fields from state and confirm typekind match and conformable.
       call get_field(importState, import_field, _RC)
+      call ESMF_FieldGet(import_field, typekind=typekind, _RC)
+      ! This check goes away if ESMF_TYPEKIND_R8 is supported.
+      _ASSERT(typekind==ESMF_TYPEKIND_R4, 'Only ESMF_TYPEKIND_R4 is supported.')
+
       call get_field(exportState, export_field, _RC)
+      same_typekind = FieldsAreSameTypeKind(import_field, export_field, _RC)
+      _ASSERT(same_typekind, 'Import and export fields are different typekinds.')
+
+      conformable = FieldsAreConformable(import_field, export_field, _RC)
+      _ASSERT(conformable, 'Import and export fields are not conformable.')
+
+      this%typekind = typekind
+      ! Create and initialize field values. 
+      call this%create_fields(import_field, export_field, _RC)
+      call this%clear(_RC)
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(clock)
+
+   end subroutine initialize
+
+   subroutine create_fields(this, import_field, export_field, rc)
+      class(AccumulatorAction), intent(inout) :: this
+      type(ESMF_Field), intent(inout) :: import_field
+      type(ESMF_Field), intent(inout) :: export_field
+      integer, optional, intent(out) :: rc
+
+      integer :: status
 
       if(this%initialized()) then
          call ESMF_FieldDestroy(this%accumulation_field, _RC)
@@ -73,12 +106,9 @@ contains
       end if
       this%accumulation_field = ESMF_FieldCreate(import_field, _RC)
       this%result_field = ESMF_FieldCreate(export_field, _RC)
-
-      call this%clear_accumulator(_RC)
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(clock)
 
-   end subroutine initialize
+   end subroutine create_fields
 
    subroutine update(this, importState, exportState, clock, rc)
       class(AccumulatorAction), intent(inout) :: this
@@ -92,18 +122,29 @@ contains
       
       _ASSERT(this%initialized(), 'Accumulator has not been initialized.')
       if(.not. this%update_calculated) then
-         call FieldCopy(this%accumulation_field, this%result_field, _RC)
-         this%update_calculated = .TRUE.
+         call this%update_result(_RC)
       end if
       call get_field(exportState, export_field, _RC)
       call FieldCopy(this%result_field, export_field, _RC)
 
-      call this%clear_accumulator(_RC)
+      call this%clear(_RC)
+      _RETURN(_SUCCESS)
       _UNUSED_DUMMY(clock)
       _UNUSED_DUMMY(importState)
-      _RETURN(_SUCCESS)
 
    end subroutine update
+
+   subroutine update_result(this, rc)
+      class(AccumulatorAction), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      
+      integer :: status
+
+      call FieldCopy(this%accumulation_field, this%result_field, _RC)
+      this%update_calculated = .true.
+      _RETURN(_SUCCESS)
+      
+   end subroutine update_result
 
    subroutine invalidate(this, importState, exportState, clock, rc)
       class(AccumulatorAction), intent(inout) :: this
@@ -119,9 +160,9 @@ contains
       this%update_calculated = .FALSE.
       call get_field(importState, import_field, _RC)
       call this%accumulate(import_field, _RC)
+      _RETURN(_SUCCESS)
       _UNUSED_DUMMY(clock)
       _UNUSED_DUMMY(exportState)
-      _RETURN(_SUCCESS)
 
    end subroutine invalidate
 
@@ -151,12 +192,11 @@ contains
       integer, optional, intent(out) :: rc
       
       integer :: status
-      type(ESMF_TypeKind_Flag) :: tk, tk_field
+      type(ESMF_TypeKind_Flag) :: tk_field
 
-      call ESMF_FieldGet(this%accumulation_field, typekind=tk, _RC)
       call ESMF_FieldGet(update_field, typekind=tk_field, _RC)
-      _ASSERT(tk == tk_field, 'Update field must be the same typekind as the accumulation field.')
-      if(tk == ESMF_TYPEKIND_R4) then
+      _ASSERT(this%typekind == tk_field, 'Update field must be the same typekind as the accumulation field.')
+      if(this%typekind == ESMF_TYPEKIND_R4) then
          call this%accumulate_R4(update_field, _RC)
       else
          _FAIL('Unsupported typekind value')
@@ -174,15 +214,16 @@ contains
       integer :: status
       real(kind=ESMF_KIND_R4), pointer :: current(:)
       real(kind=ESMF_KIND_R4), pointer :: latest(:)
-      real(kind=ESMF_KIND_R4) :: undef
+      real(kind=ESMF_KIND_R4), parameter :: UNDEF = MAPL_UNDEFINED_REAL
 
-      undef = MAPL_UNDEFINED_REAL
+      current => null()
+      latest => null()
       call assign_fptr(this%accumulation_field, current, _RC)
       call assign_fptr(update_field, latest, _RC)
-      where(current /= undef .and. latest /= undef)
+      where(current /= UNDEF .and. latest /= UNDEF)
         current = current + latest
-      elsewhere(latest == undef)
-        current = undef
+      elsewhere(latest == UNDEF)
+        current = UNDEF
       end where
       _RETURN(_SUCCESS)
 
