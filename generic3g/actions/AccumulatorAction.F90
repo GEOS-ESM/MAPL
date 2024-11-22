@@ -134,7 +134,7 @@ contains
       integer :: status
 
       call FieldCopy(this%accumulation_field, this%result_field, _RC)
-      this%update_calculated = .TRUE.
+      this%update_calculated = .true.
       _RETURN(_SUCCESS)
       
    end subroutine update_result
