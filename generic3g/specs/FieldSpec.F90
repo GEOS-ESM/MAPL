@@ -189,6 +189,16 @@ module mapl3g_FieldSpec
       procedure :: new_UnitsAdapter
    end interface UnitsAdapter
 
+   type, extends(StateItemAdapter) :: AccumulatorAdapter
+   contains
+      procedure :: adapt_one => adapt_accumulator
+      procedure :: match_one => adapter_match_accumulator
+   end type AccumulatorAdapter
+
+   interface AccumulatorAdapter
+      procedure :: new_AccumulatorAdapter
+   end interface AccumulatorAdapter
+
 contains
 
    function new_FieldSpec_geom(unusable, geom, vertical_grid, vertical_dim_spec, typekind, ungridded_dims, &
@@ -1006,6 +1016,16 @@ contains
 
       _RETURN(_SUCCESS)
    end function adapter_match_units
+
+   subroutine adapt_accumulator(this, spec, action, rc)
+      class(AccumulatorAdapter), intent(in) :: this
+      class(StateItemSpec), intent(inout) :: spec
+      class(ExtensionAction), allocatable, intent(out) :: action
+      integer, optional, intent(out) :: rc
+      
+      integer :: status
+
+   end subroutine adapt_accumulator
 
    recursive function make_adapters(this, goal_spec, rc) result(adapters)
       type(StateItemAdapterWrapper), allocatable :: adapters(:)
