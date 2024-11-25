@@ -91,6 +91,15 @@ module MAPL_ESMFFieldBundleRead
                enddo
             end if
 
+            write(*,*)'bmaa exclude ',','//trim(exclude_vars)//','
+            write(*,*)'bmaa var_name ',trim(var_name)
+            write(*,*)'bmaa index(exclude_var,var_name) ',index(','//trim(exclude_vars)//',',','//trim(var_name)//',')
+            write(*,*)'bmaa hardcode string index comma vs no ',index(',lon,lat,lon_bnds,lat_bnds,lev,time,lons,lats,time_bnds,',",lat_bnds,"),index(',lon,lat,lon_bnds,lat_bnds,lev,time,lons,lats,time_bnds,',"lat_bnds")
+            write(*,*)'bmaa allocatable string index comma vs no ',index(exclude_vars,",lat_bnds,"),index(exclude_vars,"lat_bnds")
+            write(*,*)'bmaa allocatable string index comma vs no ',index(exclude_vars,",time_bnds,"),index(exclude_vars,"time_bnds")
+            write(*,*)'bmaa allocatable string index comma vs no ',index(exclude_vars,",time,"),index(exclude_vars,"time")
+            write(*,*)'bmaa allocatable string index comma vs no ',index(exclude_vars,",lat,"),index(exclude_vars,"lat")
+
             if (index(','//trim(exclude_vars)//',',','//trim(var_name)//',') > 0) then
                call var_iter%next()
                   cycle
@@ -137,6 +146,7 @@ module MAPL_ESMFFieldBundleRead
                _VERIFY(status)
                call ESMF_AttributeSet(field,name='VLOCATION',value=location,rc=status)
                _VERIFY(status)
+               write(*,*)"bmaa getting units for ",trim(var_name)
                units = metadata%get_var_attr_string(var_name,'units',_RC)
                long_name = metadata%get_var_attr_string(var_name,'long_name',_RC)
                call ESMF_AttributeSet(field,name='UNITS',value=units,rc=status)
