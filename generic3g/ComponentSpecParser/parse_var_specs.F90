@@ -88,7 +88,7 @@ contains
                units = ESMF_HConfigAsString(attributes,keyString='units', _RC)
             end if
 
-            has_accumulation_type = ESMF_HConfigIsDefined(accumulation_type, key=KEY_ACCUMULATION_TYPE, _RC)
+            has_accumulation_type = ESMF_HConfigIsDefined(attributes, keyString=KEY_ACCUMULATION_TYPE, _RC)
             if(has_accumulation_type) then
                accumulation_type = ESMF_HConfigAsString(attributes, keyString=KEY_ACCUMULATION_TYPE, _RC)
             end if
@@ -115,7 +115,7 @@ contains
                  )
             if (allocated(units)) deallocate(units)
             if (allocated(standard_name)) deallocate(standard_name)
-            if (allocated(accumulation_type) deallocate(accumulation_type)
+            if (allocated(accumulation_type)) deallocate(accumulation_type)
 
             call var_specs%push_back(var_spec)
 
