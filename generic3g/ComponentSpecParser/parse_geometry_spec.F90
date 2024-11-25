@@ -94,7 +94,7 @@ contains
 
       if (has_vertical_grid) then
          call parse_vertical_grid_(vertical_grid_cfg, registry, vertical_grid, _RC)
-       end if
+      end if
       geometry_spec = GeometrySpec(geom_spec=geom_spec, vertical_grid=vertical_grid)
 
       _RETURN(_SUCCESS)
