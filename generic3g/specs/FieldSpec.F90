@@ -352,19 +352,19 @@ contains
       integer, intent(out) :: iostat
       character(*), intent(inout) :: iomsg
 
-      write(unit, "(a, a)", iostat=iostat, iomsg=iomsg) "FieldSpec(", new_line("a")
+      write(unit, "(a)", iostat=iostat, iomsg=iomsg) "FieldSpec("
       if (allocated(this%standard_name)) then
-         write(unit, "(3x, a, a, a)", iostat=iostat, iomsg=iomsg) "standard name:", this%standard_name, new_line("a")
+         write(unit, "(a, a, a)", iostat=iostat, iomsg=iomsg) new_line("a"), "standard name:", this%standard_name
       end if
       if (allocated(this%long_name)) then
-         write(unit, "(3x, a, a, a)", iostat=iostat, iomsg=iomsg) "long name:", this%long_name, new_line("a")
+         write(unit, "(a, a, a)", iostat=iostat, iomsg=iomsg) new_line("a"), "long name:", this%long_name
       end if
       if (allocated(this%units)) then
-         write(unit, "(3x, a, a, a)", iostat=iostat, iomsg=iomsg) "units:", this%units, new_line("a")
+         write(unit, "(a, a, a)", iostat=iostat, iomsg=iomsg) new_line("a"), "units:", this%units
       end if
-      write(unit, "(3x, dt'g0', a)", iostat=iostat, iomsg=iomsg) this%vertical_dim_spec, new_line("a")
+      write(unit, "(a, dt'g0')", iostat=iostat, iomsg=iomsg) new_line("a"), this%vertical_dim_spec
       if (allocated(this%vertical_grid)) then
-         write(unit, "(3x, dt'g0', a)", iostat=iostat, iomsg=iomsg) this%vertical_grid
+         write(unit, "(a, dt'g0', a)", iostat=iostat, iomsg=iomsg) new_line("a"), this%vertical_grid
       end if
       write(unit, "(a)") ")"
 
@@ -867,6 +867,7 @@ contains
          spec%vertical_grid = this%vertical_grid
          spec%vertical_dim_spec = this%vertical_dim_spec
       end select
+      print *, "adapt_vertical_grid::spec: ", spec
 
       _RETURN(_SUCCESS)
    end subroutine adapt_vertical_grid
