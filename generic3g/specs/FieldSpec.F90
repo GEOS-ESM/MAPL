@@ -87,6 +87,7 @@ module mapl3g_FieldSpec
       character(:), allocatable :: standard_name
       character(:), allocatable :: long_name
       character(:), allocatable :: units
+      character(:), allocatable :: accumulation_type
       ! TBD
 !#      type(FrequencySpec) :: freq_spec
 !#      class(AbstractFrequencySpec), allocatable :: freq_spec
@@ -192,7 +193,7 @@ contains
 
    function new_FieldSpec_geom(unusable, geom, vertical_grid, vertical_dim_spec, typekind, ungridded_dims, &
         standard_name, long_name, units, &
-        attributes, regrid_param, default_value) result(field_spec)
+        attributes, regrid_param, default_value, accumulation_type) result(field_spec)
       type(FieldSpec) :: field_spec
 
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -209,6 +210,7 @@ contains
 
       ! optional args last
       real, optional, intent(in) :: default_value
+      character(*), optional, intent(in) :: accumulation_type
 
       integer :: status
 
@@ -228,6 +230,7 @@ contains
       if (present(regrid_param)) field_spec%regrid_param = regrid_param
 
       if (present(default_value)) field_spec%default_value = default_value
+      if (present(accumulation_type)) field_spec%accumulation_type = accumulation_type
    end function new_FieldSpec_geom
 
    function new_FieldSpec_varspec(variable_spec) result(field_spec)
