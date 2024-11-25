@@ -164,10 +164,18 @@ contains
       integer, intent(out) :: iostat
       character(*), intent(inout) :: iomsg
 
-      write(unit, "(a, a, g0, a)", iostat=iostat, iomsg=iomsg) &
-           "ModelVerticalGrid(", &
-           "num levels: ", this%num_levels, &
-           ")"
+      write(unit, "(a)", iostat=iostat, iomsg=iomsg) "ModelVerticalGrid("
+      if (allocated(this%standard_name)) then
+         write(unit, "(a, 3x, a, a)", iostat=iostat, iomsg=iomsg) new_line("a"), "standard name: ", this%standard_name
+      end if
+      write(unit, "(a, 3x, a, g0)", iostat=iostat, iomsg=iomsg) new_line("a"), "num_levels: ", this%num_levels
+      if (allocated(this%short_name_edge)) then
+         write(unit, "(a, 3x, a, a)", iostat=iostat, iomsg=iomsg) new_line("a"), "field (edge): ", this%short_name_edge
+      end if
+      if (allocated(this%short_name_center)) then
+         write(unit, "(a, 3x, a, a)", iostat=iostat, iomsg=iomsg) new_line("a"), "field (center): ", this%short_name_center
+      end if
+      write(unit, "(a)") ")"
 
       _UNUSED_DUMMY(iotype)
       _UNUSED_DUMMY(v_list)
