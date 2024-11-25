@@ -52,10 +52,10 @@ module mapl3g_VerticalGrid
          integer, optional, intent(out) :: rc
       end subroutine I_get_coordinate_field
 
-      logical function I_can_connect_to(this, src, rc) result(can_connect_to)
+      logical function I_can_connect_to(this, dst, rc) result(can_connect_to)
          import VerticalGrid
          class(VerticalGrid), intent(in) :: this
-         class(VerticalGrid), intent(in) :: src
+         class(VerticalGrid), intent(in) :: dst
          integer, optional, intent(out) :: rc
       end function I_can_connect_to
 

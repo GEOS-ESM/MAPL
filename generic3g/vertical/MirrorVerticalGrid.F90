@@ -69,16 +69,16 @@ contains
       _UNUSED_DUMMY(vertical_dim_spec)
    end subroutine get_coordinate_field
 
-   logical function can_connect_to(this, src, rc)
+   logical function can_connect_to(this, dst, rc)
       class(MirrorVerticalGrid), intent(in) :: this
-      class(VerticalGrid), intent(in) :: src
+      class(VerticalGrid), intent(in) :: dst
       integer, optional, intent(out) :: rc
 
       can_connect_to = .false.
       _RETURN(_SUCCESS)
       
       _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(src)
+      _UNUSED_DUMMY(dst)
    end function can_connect_to
 
    subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)

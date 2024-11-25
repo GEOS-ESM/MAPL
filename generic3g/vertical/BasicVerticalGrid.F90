@@ -4,6 +4,7 @@ module mapl3g_BasicVerticalGrid
 
    use mapl_ErrorHandling
    use mapl3g_VerticalGrid
+   use mapl3g_MirrorVerticalGrid
    use mapl3g_GriddedComponentDriver
    use mapl3g_VerticalDimSpec
    use esmf, only: ESMF_TypeKind_Flag
@@ -36,15 +37,6 @@ module mapl3g_BasicVerticalGrid
    interface BasicVerticalGrid
       module procedure new_BasicVerticalGrid
    end interface BasicVerticalGrid
-
-   interface
-      module function can_connect_to(this, src, rc)
-         logical :: can_connect_to
-         class(BasicVerticalGrid), intent(in) :: this
-         class(VerticalGrid), intent(in) :: src
-         integer, optional, intent(out) :: rc
-      end function
-   end interface
 
 contains
 
@@ -83,6 +75,23 @@ contains
       _UNUSED_DUMMY(units)
       _UNUSED_DUMMY(vertical_dim_spec)
    end subroutine get_coordinate_field
+
+   logical function can_connect_to(this, dst, rc)
+      class(BasicVerticalGrid), intent(in) :: this
+      class(VerticalGrid), intent(in) :: dst
+      integer, optional, intent(out) :: rc
+
+      select type(dst)
+      type is (BasicVerticalGrid)
+         can_connect_to = (this%get_num_levels() == dst%get_num_levels())
+      type is (MirrorVerticalGrid)
+         can_connect_to = .true.
+      class default
+         _FAIL("BasicVerticalGrid can only connect to BasicVerticalGrid, or MirrorVerticalGrid")
+      end select
+
+      _RETURN(_SUCCESS)
+   end function can_connect_to
 
    elemental logical function equal_to(a, b)
       type(BasicVerticalGrid), intent(in) :: a, b

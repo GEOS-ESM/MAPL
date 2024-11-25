@@ -3,7 +3,10 @@
 module mapl3g_ModelVerticalGrid
 
    use mapl_ErrorHandling
+   use mapl_KeywordEnforcer
    use mapl3g_VerticalGrid
+   use mapl3g_MirrorVerticalGrid
+   use mapl3g_FixedLevelsVerticalGrid
    use mapl3g_StateRegistry
    use mapl3g_VirtualConnectionPt
    use mapl3g_StateItemSpec
@@ -14,7 +17,6 @@ module mapl3g_ModelVerticalGrid
    use mapl3g_ExtensionAction
    use mapl3g_GriddedComponentDriver
    use mapl3g_VerticalDimSpec
-   use mapl_KeywordEnforcer
    use esmf
 
    implicit none
@@ -45,15 +47,6 @@ module mapl3g_ModelVerticalGrid
    interface ModelVerticalGrid
       procedure new_ModelVerticalGrid_basic
    end interface ModelVerticalGrid
-
-   interface
-      module function can_connect_to(this, src, rc)
-         logical :: can_connect_to
-         class(ModelVerticalGrid), intent(in) :: this
-         class(VerticalGrid), intent(in) :: src
-         integer, optional, intent(out) :: rc
-      end function
-   end interface
 
    ! TODO:
    ! - Ensure that there really is a vertical dimension
@@ -180,5 +173,29 @@ contains
       _UNUSED_DUMMY(iotype)
       _UNUSED_DUMMY(v_list)
    end subroutine write_formatted
+
+   logical function can_connect_to(this, dst, rc)
+      class(ModelVerticalGrid), intent(in) :: this
+      class(VerticalGrid), intent(in) :: dst
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      if (this%same_id(dst)) then
+         can_connect_to = .true.
+         _RETURN(_SUCCESS)
+      end if
+
+      select type (dst)
+      type is (MirrorVerticalGrid)
+         can_connect_to = .true.
+      type is (FixedLevelsVerticalGrid)
+         can_connect_to = .true.
+      class default
+         _FAIL("ModelVerticalGrid can only connect to FixedLevelsVerticalGrid, or MirrorVerticalGrid")
+      end select
+
+      _RETURN(_SUCCESS)
+   end function can_connect_to
 
 end module mapl3g_ModelVerticalGrid

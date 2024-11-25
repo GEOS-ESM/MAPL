@@ -851,10 +851,10 @@ contains
 
       select type (spec)
       type is (FieldSpec)
+         _ASSERT(spec%vertical_grid%can_connect_to(this%vertical_grid), "cannot connect vertical grids")
          ! TODO: DO WE NEED TO RESTRICT SPEC's VERTICAL GRID TO MODEL?
          ! NOTE: we cannot import ModelVerticalGrid (circular dependency)
          _ASSERT(spec%vertical_grid%get_units() == this%vertical_grid%get_units(), 'units must match')
-         ! Field (to be regridded) should have the same typekind as the underlying vertical grid
          ! TODO: Should we add a typekind class variable to VerticalGrid?
          _ASSERT(spec%typekind == this%typekind, 'typekind must match')
          call spec%vertical_grid%get_coordinate_field( &
@@ -920,7 +920,7 @@ contains
             class default
                same_vertical_grid = .false.
             end select
-         class default
+         class default ! ModelVerticalGrid
             same_vertical_grid = .false.
             ! _FAIL("not implemented yet")
          end select
