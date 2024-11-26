@@ -132,6 +132,12 @@ MODULE ExtDataUtRoot_GridCompMod
                units = 'na', &
                dims = vloc, &
                vlocation = MAPL_VLocationNone, _RC)
+         call MAPL_AddInternalSpec(GC,&
+               short_name='numlev', &
+               long_name='level number' , &
+               units = 'na', &
+               dims = MAPL_DimsHorzVert, &
+               vlocation = MAPL_VLocationCenter, _RC)
          call MAPL_AddExportSpec(GC, &
                short_name='test_bundle', &
                long_name='test', &
@@ -549,11 +555,11 @@ MODULE ExtDataUtRoot_GridCompMod
       integer, optional, intent(out) :: rc
 
       integer :: status
-      real, pointer                       :: Exptr2(:,:), Exptr1(:)
+      real, pointer                       :: Exptr3(:,:,:), Exptr2(:,:), Exptr1(:)
       integer :: itemcount
       character(len=ESMF_MAXSTR), allocatable :: outNameList(:)
       type(ESMF_StateItem_Flag), allocatable :: item_type(:)
-      type(ESMF_Field) :: expf,farray(7)
+      type(ESMF_Field) :: expf,farray(8)
       type(ESMF_State) :: pstate
       character(len=:), pointer :: fexpr
       integer :: i1,in,j1,jn,ldims(3),i,j,seed_size,mypet
@@ -592,6 +598,10 @@ MODULE ExtDataUtRoot_GridCompMod
                exPtr2(i,j)=j1+j-1
             enddo
          enddo
+         call MAPL_GetPointer(inState,exPtr3,'numlev',_RC)
+         do i=1,size(exPtr3,3)
+            exPtr3(:,:,i)=i
+         enddo
       end if
 
       if (synth%on_tiles) then
@@ -623,6 +633,7 @@ MODULE ExtDataUtRoot_GridCompMod
       call ESMF_StateGet(inState,'j_index',farray(5),_RC)
       call ESMF_StateGet(inState,'doy',farray(6),_RC)
       call ESMF_StateGet(inState,'rand',farray(7),_RC)
+      call ESMF_StateGet(inState,'numlev',farray(8),_RC)
       pstate = ESMF_StateCreate(_RC)
       call ESMF_StateAdd(pstate,farray,_RC)
 
