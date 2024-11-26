@@ -11,6 +11,7 @@ module mapl3g_MeanAction
    implicit none
    private
    public :: MeanAction
+   public :: construct_MeanAction
 
    type, extends(AccumulatorAction) :: MeanAction
       type(ESMF_Field) :: counter_field
@@ -27,6 +28,14 @@ module mapl3g_MeanAction
    integer, parameter :: COUNTER_KIND = ESMF_KIND_I4
 
 contains
+
+   function construct_MeanAction(typekind) result(acc)
+      type(MeanAction) :: acc
+      type(ESMF_TypeKind_Flag), intent(in) :: typekind
+
+      acc%typekind = typekind
+
+   end construct_MeanAction
 
    subroutine create_fields_mean(this, import_field, export_field, rc)
       class(MeanAction), intent(inout) :: this

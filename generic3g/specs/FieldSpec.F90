@@ -44,6 +44,7 @@ module mapl3g_FieldSpec
    use mapl3g_GriddedComponentDriver
    use mapl3g_VariableSpec, only: VariableSpec
    use mapl3g_VerticalRegridMethod
+   use mapl3g_AccumulatorAction
    use udunits2f, only: UDUNITS_are_convertible => are_convertible, udunit
    use gftl2_StringVector
    use esmf
@@ -190,6 +191,8 @@ module mapl3g_FieldSpec
    end interface UnitsAdapter
 
    type, extends(StateItemAdapter) :: AccumulatorAdapter
+      character(len=:), allocatable :: accumulation_type
+      type(ESMF_Typekind_Flag) :: typekind
    contains
       procedure :: adapt_one => adapt_accumulator
       procedure :: match_one => adapter_match_accumulator
@@ -1017,6 +1020,17 @@ contains
       _RETURN(_SUCCESS)
    end function adapter_match_units
 
+   function new_AccumulatorAdapter(accumulation_type, typekind) result(acc_adapter)
+      type(AccumulatorAdapter) :: acc_adapter
+      character(len=*), intent(in) :: accumulation_type
+      type(ESMF_Typekind_Flag), intent(in) :: typekind
+
+      acc_adapter%accumulation_type = accumulation_type
+      acc_adapter%typekind = typekind
+      _RETURN(_SUCCESS)
+
+   end function new_AccumulatorAdapter
+
    subroutine adapt_accumulator(this, spec, action, rc)
       class(AccumulatorAdapter), intent(in) :: this
       class(StateItemSpec), intent(inout) :: spec
@@ -1025,7 +1039,29 @@ contains
       
       integer :: status
 
+      select type(spec)
+      type is (FieldSpec)
+         call get_accumulator_action(this%accumulation_type, this%typekind, action, _RC)
+      end select
+      _RETURN(_SUCCESS)
+
    end subroutine adapt_accumulator
+
+   logical function adapter_match_accumulator(this, spec, rc) result(match)
+      class(AccumulatorAdapter), intent(in) :: this
+      class(StateItemSpec), intent(in) :: spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      match = .false.
+      select type(spec)
+      type is (FieldSpec)
+         match = accumulation_type_is_valid(this%accumulation_type) .and. this%typekind == spec%typekind
+      end select
+      _RETURN(_SUCCESS)
+
+   end function adapter_match_accumulator
 
    recursive function make_adapters(this, goal_spec, rc) result(adapters)
       type(StateItemAdapterWrapper), allocatable :: adapters(:)
@@ -1050,6 +1086,7 @@ contains
          allocate(adapters(2)%adapter, source=vertical_grid_adapter)
          allocate(adapters(3)%adapter, source=TypeKindAdapter(goal_spec%typekind))
          allocate(adapters(4)%adapter, source=UnitsAdapter(goal_spec%units))
+         allocate(adapters(5)%adapter, source=AccumulatorAdapter(goal_spec%accumulation_type, goal_spec%typekind)
       type is (WildCardSpec)
          adapters = goal_spec%make_adapters(goal_spec, _RC)
       class default
