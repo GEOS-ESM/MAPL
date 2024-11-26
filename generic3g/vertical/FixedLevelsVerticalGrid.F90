@@ -112,7 +112,7 @@ contains
       type is (MirrorVerticalGrid)
          can_connect_to = .true.
       class default
-         _FAIL("FixedLevelsVerticalGrid can only connect to a FixedLevelsVerticalGrid, or MirrorVerticalGrid")
+         _FAIL("FixedLevelsVerticalGrid can only connect to FixedLevelsVerticalGrid, or MirrorVerticalGrid")
       end select
 
       _RETURN(_SUCCESS)
