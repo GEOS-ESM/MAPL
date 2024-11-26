@@ -23,6 +23,7 @@ module mapl3g_BasicVerticalGrid
       procedure :: get_num_levels
       procedure :: get_coordinate_field
       procedure :: can_connect_to
+      procedure :: is_identical_to
       procedure :: write_formatted
    end type BasicVerticalGrid
 
@@ -81,17 +82,16 @@ contains
       class(VerticalGrid), intent(in) :: dst
       integer, optional, intent(out) :: rc
 
-      select type(dst)
-      type is (BasicVerticalGrid)
-         can_connect_to = (this%get_num_levels() == dst%get_num_levels())
-      type is (MirrorVerticalGrid)
-         can_connect_to = .true.
-      class default
-         _FAIL("BasicVerticalGrid can only connect to BasicVerticalGrid, or MirrorVerticalGrid")
-      end select
-
-      _RETURN(_SUCCESS)
+      _FAIL("BasicVerticalGrid::can_connect_to - NOT implemented yet")
    end function can_connect_to
+
+   logical function is_identical_to(this, that, rc)
+      class(BasicVerticalGrid), intent(in) :: this
+      class(VerticalGrid), allocatable, intent(in) :: that
+      integer, optional, intent(out) :: rc
+
+      _FAIL("BasicVerticalGrid::is_identical_to - NOT implemented yet")
+   end function is_identical_to
 
    elemental logical function equal_to(a, b)
       type(BasicVerticalGrid), intent(in) :: a, b

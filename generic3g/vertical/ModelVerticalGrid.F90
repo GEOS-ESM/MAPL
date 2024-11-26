@@ -35,6 +35,7 @@ module mapl3g_ModelVerticalGrid
       procedure :: get_num_levels
       procedure :: get_coordinate_field
       procedure :: can_connect_to
+      procedure :: is_identical_to
       procedure :: write_formatted
 
       ! subclass-specific methods
@@ -47,6 +48,14 @@ module mapl3g_ModelVerticalGrid
    interface ModelVerticalGrid
       procedure new_ModelVerticalGrid_basic
    end interface ModelVerticalGrid
+
+   interface operator(==)
+      module procedure equal_ModelVerticalGrid
+   end interface operator(==)
+
+   interface operator(/=)
+      module procedure not_equal_ModelVerticalGrid
+   end interface operator(/=)
 
    ! TODO:
    ! - Ensure that there really is a vertical dimension
@@ -179,8 +188,6 @@ contains
       class(VerticalGrid), intent(in) :: dst
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       if (this%same_id(dst)) then
          can_connect_to = .true.
          _RETURN(_SUCCESS)
@@ -197,5 +204,52 @@ contains
 
       _RETURN(_SUCCESS)
    end function can_connect_to
+
+   logical function is_identical_to(this, that, rc)
+      class(ModelVerticalGrid), intent(in) :: this
+      class(VerticalGrid), allocatable, intent(in) :: that
+      integer, optional, intent(out) :: rc
+
+      is_identical_to = .false.
+
+      ! Mirror grid
+      if (.not. allocated(that)) then
+         is_identical_to = .true.
+         _RETURN(_SUCCESS) ! mirror grid
+      end if
+
+      ! Same id
+      is_identical_to = this%same_id(that)
+      if (is_identical_to) then
+         _RETURN(_SUCCESS)
+      end if
+
+      select type(that)
+      type is(ModelVerticalGrid)
+         is_identical_to = (this == that)
+      end select
+
+      _RETURN(_SUCCESS)
+   end function is_identical_to
+
+   impure elemental logical function equal_ModelVerticalGrid(a, b) result(equal)
+      type(ModelVerticalGrid), intent(in) :: a, b
+
+      equal = a%standard_name == b%standard_name
+      if (.not. equal) return
+      equal = (a%get_units() == b%get_units())
+      if (.not. equal) return
+      equal = (a%num_levels == b%num_levels)
+      if (.not. equal) return
+      equal = (a%short_name_edge == b%short_name_edge)
+      if (.not. equal) return
+      equal = (a%short_name_center == b%short_name_center)
+   end function equal_ModelVerticalGrid
+
+   impure elemental logical function not_equal_ModelVerticalGrid(a, b) result(not_equal)
+      type(ModelVerticalGrid), intent(in) :: a, b
+
+      not_equal = .not. (a==b)
+   end function not_equal_ModelVerticalGrid
 
 end module mapl3g_ModelVerticalGrid

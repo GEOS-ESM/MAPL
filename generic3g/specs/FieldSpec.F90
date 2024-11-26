@@ -872,7 +872,6 @@ contains
    end subroutine adapt_vertical_grid
 
    logical function adapter_match_vertical_grid(this, spec, rc) result(match)
-
       class(VerticalGridAdapter), intent(in) :: this
       class(StateItemSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
@@ -882,52 +881,10 @@ contains
       match = .false.
       select type (spec)
       type is (FieldSpec)
-         match = same_vertical_grid(spec%vertical_grid, this%vertical_grid, _RC)
+         match = spec%vertical_grid%is_identical_to(this%vertical_grid)
       end select
 
       _RETURN(_SUCCESS)
-
-   contains
-
-      logical function same_vertical_grid(src_grid, dst_grid, rc)
-         class(VerticalGrid), intent(in) :: src_grid
-         class(VerticalGrid), allocatable, intent(in) :: dst_grid
-         integer, optional, intent(out) :: rc
-
-         same_vertical_grid = .false.
-         if (.not. allocated(dst_grid)) then
-            same_vertical_grid = .true.
-            _RETURN(_SUCCESS) ! mirror grid
-         end if
-
-         same_vertical_grid = src_grid%same_id(dst_grid)
-         if (same_vertical_grid) then
-            _RETURN(_SUCCESS)
-         end if
-
-         select type(src_grid)
-         type is(BasicVerticalGrid)
-            select type(dst_grid)
-            type is(BasicVerticalGrid)
-               same_vertical_grid = (src_grid%get_num_levels() == dst_grid%get_num_levels())
-            class default
-               _FAIL("not implemented yet")
-            end select
-         type is(FixedLevelsVerticalGrid)
-            select type(dst_grid)
-            type is(FixedLevelsVerticalGrid)
-               same_vertical_grid = (src_grid == dst_grid)
-            class default
-               same_vertical_grid = .false.
-            end select
-         class default ! ModelVerticalGrid
-            same_vertical_grid = .false.
-            ! _FAIL("not implemented yet")
-         end select
-
-         _RETURN(_SUCCESS)
-      end function same_vertical_grid
-
    end function adapter_match_vertical_grid
 
    function new_TypekindAdapter(typekind) result(typekind_adapter)
