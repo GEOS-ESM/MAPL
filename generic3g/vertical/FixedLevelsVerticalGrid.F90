@@ -124,8 +124,6 @@ contains
       class(VerticalGrid), allocatable, intent(in) :: that
       integer, optional, intent(out) :: rc
 
-      logical :: same_id
-
       is_identical_to = .false.
 
       ! Mirror grid
