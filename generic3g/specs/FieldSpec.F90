@@ -27,8 +27,6 @@ module mapl3g_FieldSpec
    use mapl3g_InfoUtilities
    use mapl3g_ExtensionAction
    use mapl3g_VerticalGrid
-   use mapl3g_BasicVerticalGrid
-   use mapl3g_FixedLevelsVerticalGrid
    use mapl3g_VerticalRegridAction
    use mapl3g_VerticalDimSpec
    use mapl3g_AbstractActionSpec
