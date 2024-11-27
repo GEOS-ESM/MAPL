@@ -3,65 +3,78 @@ module mapl3g_MeanAction
    use mapl3g_AccumulatorAction
    use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
    use MAPL_ExceptionHandling
-   use MAPL_FieldPointerUtilities
+   use MAPL_FieldPointerUtilities, only: assign_fptr
+   use mapl3g_FieldCreate, only: MAPL_FieldCreate
+   use mapl3g_FieldGet, only: MAPL_FieldGet
+   use MAPL_FieldUtilities, only: FieldSet
    use ESMF
    implicit none
    private
    public :: MeanAction
 
    type, extends(AccumulatorAction) :: MeanAction
-      !private
-      integer(ESMF_KIND_R8) :: counter_scalar = 0_ESMF_KIND_I8
-      logical, allocatable :: valid_mean(:)
+      type(ESMF_Field) :: counter_field
    contains
-      procedure :: invalidate => invalidate_mean_accumulator
-      procedure :: clear_accumulator => clear_mean_accumulator
-      procedure :: update => update_mean_accumulator
+      procedure :: clear => clear_mean
+      procedure :: create_fields => create_fields_mean
+      procedure :: update_result => update_result_mean
       procedure :: calculate_mean
       procedure :: calculate_mean_R4
-      procedure :: clear_valid_mean
-      procedure :: accumulate_R4 => accumulate_mean_R4
+      procedure :: accumulate_R4
    end type MeanAction
+
+   type(ESMF_TypeKind_Flag), parameter :: COUNTER_TYPEKIND = ESMF_TYPEKIND_I4
+   integer, parameter :: COUNTER_KIND = ESMF_KIND_I4
 
 contains
 
-   subroutine clear_mean_accumulator(this, rc)
+   subroutine create_fields_mean(this, import_field, export_field, rc)
+      class(MeanAction), intent(inout) :: this
+      type(ESMF_Field), intent(inout) :: import_field
+      type(ESMF_Field), intent(inout) :: export_field
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Geom) :: geom
+      integer, allocatable :: gmap(:)
+      integer :: ndims
+
+      call this%AccumulatorAction%create_fields(import_field, export_field, _RC)
+      if(ESMF_FieldIsCreated(this%counter_field)) then
+         call ESMF_FieldDestroy(this%counter_field, _RC)
+      end if
+      associate(f => this%accumulation_field)
+         call ESMF_FieldGet(f, dimCount=ndims, _RC)
+         allocate(gmap(ndims))
+         call ESMF_FieldGet(f, geom=geom, gridToFieldMap=gmap, _RC)
+         this%counter_field =  MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_I4, gridToFieldMap=gmap, _RC)
+      end associate
+      _RETURN(_SUCCESS)
+
+   end subroutine create_fields_mean
+
+   subroutine clear_mean(this, rc)
       class(MeanAction), intent(inout) :: this
       integer, optional, intent(out) :: rc
       
       integer :: status
+      integer(COUNTER_KIND), pointer :: counter(:)
 
-      this%counter_scalar = 0_ESMF_KIND_R8
-      call this%clear_valid_mean(_RC)
-      call this%AccumulatorAction%clear_accumulator(_RC)
+      call this%AccumulatorAction%clear(_RC)
+      counter => null()
+      call assign_fptr(this%counter_field, counter, _RC)
+      counter = 0_COUNTER_KIND
       _RETURN(_SUCCESS)
 
-   end subroutine clear_mean_accumulator
-
-   subroutine clear_valid_mean(this, rc)
-      class(MeanAction), intent(inout) :: this
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      integer :: local_size
-
-      if(allocated(this%valid_mean)) deallocate(this%valid_mean)
-      local_size = FieldGetLocalSize(this%accumulation_field, _RC)
-      allocate(this%valid_mean(local_size), source = .FALSE.)
-      _RETURN(_SUCCESS)
-
-   end subroutine clear_valid_mean
+   end subroutine clear_mean
 
    subroutine calculate_mean(this, rc)
       class(MeanAction), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_TypeKind_Flag) :: tk
 
-      _ASSERT(this%counter_scalar > 0, 'Cannot calculate mean for zero steps')
-      call ESMF_FieldGet(this%accumulation_field, typekind=tk, _RC)
-      if(tk == ESMF_TypeKind_R4) then
+      if(this%typekind == ESMF_TYPEKIND_R4) then
          call this%calculate_mean_R4(_RC)
       else
          _FAIL('Unsupported typekind')
@@ -70,50 +83,33 @@ contains
 
    end subroutine calculate_mean
 
-   subroutine update_mean_accumulator(this, importState, exportState, clock, rc)
+   subroutine update_result_mean(this, rc)
       class(MeanAction), intent(inout) :: this
-      type(ESMF_State) :: importState
-      type(ESMF_State) :: exportState
-      type(ESMF_Clock) :: clock
       integer, optional, intent(out) :: rc
 
       integer :: status
-      
-      _ASSERT(this%initialized(), 'Accumulator has not been initialized.')
-      if(.not. this%update_calculated) then
-         call this%calculate_mean(_RC)
-      end if
-      call this%AccumulatorAction%update(importState, exportState, clock, _RC)
+
+      call this%calculate_mean(_RC)
+      call this%AccumulatorAction%update_result(_RC)
       _RETURN(_SUCCESS)
 
-   end subroutine update_mean_accumulator
-
-   subroutine invalidate_mean_accumulator(this, importState, exportState, clock, rc)
-      class(MeanAction), intent(inout) :: this
-      type(ESMF_State) :: importState
-      type(ESMF_State) :: exportState
-      type(ESMF_Clock) :: clock
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      
-      call this%AccumulatorAction%invalidate(importState, exportState, clock, _RC)
-      this%counter_scalar = this%counter_scalar + 1
-      _RETURN(_SUCCESS)
-
-   end subroutine invalidate_mean_accumulator
+   end subroutine update_result_mean
 
    subroutine calculate_mean_R4(this, rc)
       class(MeanAction), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
-      real(kind=ESMF_KIND_R4), pointer :: current_ptr(:) => null()
+      real(kind=ESMF_KIND_R4), pointer :: current_ptr(:)
+      integer(kind=COUNTER_KIND), pointer :: counter(:)
       real(kind=ESMF_KIND_R4), parameter :: UNDEF = MAPL_UNDEFINED_REAL
 
+      current_ptr => null()
+      counter => null()
       call assign_fptr(this%accumulation_field, current_ptr, _RC)
-      where(current_ptr /= UNDEF .and. this%valid_mean)
-         current_ptr = current_ptr / this%counter_scalar
+      call assign_fptr(this%counter_field, counter, _RC)
+      where(counter /= 0)
+         current_ptr = current_ptr / counter
       elsewhere
          current_ptr = UNDEF
       end where
@@ -121,7 +117,7 @@ contains
 
    end subroutine calculate_mean_R4
 
-   subroutine accumulate_mean_R4(this, update_field, rc)
+   subroutine accumulate_R4(this, update_field, rc)
       class(MeanAction), intent(inout) :: this
       type(ESMF_Field), intent(inout) :: update_field
       integer, optional, intent(out) :: rc
@@ -129,19 +125,21 @@ contains
       integer :: status
       real(kind=ESMF_KIND_R4), pointer :: current(:)
       real(kind=ESMF_KIND_R4), pointer :: latest(:)
-      real(kind=ESMF_KIND_R4) :: undef
+      integer(kind=COUNTER_KIND), pointer :: counter(:)
+      real(kind=ESMF_KIND_R4), parameter :: UNDEF = MAPL_UNDEFINED_REAL
 
-      undef = MAPL_UNDEFINED_REAL
+      current => null()
+      latest => null()
+      counter => null()
       call assign_fptr(this%accumulation_field, current, _RC)
       call assign_fptr(update_field, latest, _RC)
-      where(current /= undef .and. latest /= undef)
+      call assign_fptr(this%counter_field, counter, _RC)
+      where(latest /= UNDEF)
         current = current + latest
-        this%valid_mean = .TRUE.
-      elsewhere(latest == undef)
-        current = undef
+        counter = counter + 1_COUNTER_KIND
       end where
       _RETURN(_SUCCESS)
 
-   end subroutine accumulate_mean_R4
+   end subroutine accumulate_R4
 
 end module mapl3g_MeanAction
