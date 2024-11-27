@@ -44,7 +44,7 @@ module mapl3g_FieldSpec
    use mapl3g_GriddedComponentDriver
    use mapl3g_VariableSpec, only: VariableSpec
    use mapl3g_VerticalRegridMethod
-   use mapl3g_AccumulatorAction
+   use mapl3g_AccumulatorActionInterface
    use udunits2f, only: UDUNITS_are_convertible => are_convertible, udunit
    use gftl2_StringVector
    use esmf
@@ -1027,7 +1027,7 @@ contains
 
       acc_adapter%accumulation_type = accumulation_type
       acc_adapter%typekind = typekind
-      _RETURN(_SUCCESS)
+      !wdb fixme deleteme _RETURN(_SUCCESS)
 
    end function new_AccumulatorAdapter
 
@@ -1074,7 +1074,7 @@ contains
 
       select type (goal_spec)
       type is (FieldSpec)
-         allocate(adapters(4))
+         allocate(adapters(5))
          allocate(adapters(1)%adapter, source=GeomAdapter(goal_spec%geom, goal_spec%regrid_param))
          vertical_grid_adapter = VerticalGridAdapter( &
               goal_spec%vertical_grid, &
@@ -1086,7 +1086,7 @@ contains
          allocate(adapters(2)%adapter, source=vertical_grid_adapter)
          allocate(adapters(3)%adapter, source=TypeKindAdapter(goal_spec%typekind))
          allocate(adapters(4)%adapter, source=UnitsAdapter(goal_spec%units))
-         allocate(adapters(5)%adapter, source=AccumulatorAdapter(goal_spec%accumulation_type, goal_spec%typekind)
+         allocate(adapters(5)%adapter, source=AccumulatorAdapter(goal_spec%accumulation_type, goal_spec%typekind))
       type is (WildCardSpec)
          adapters = goal_spec%make_adapters(goal_spec, _RC)
       class default

@@ -1,8 +1,13 @@
+#include "MAPL_Generic.h"
 module mapl3g_AccumulatorActionInterface
    use mapl3g_AccumulatorAction
    use mapl3g_MeanAction
    use mapl3g_MaxAction
    use mapl3g_MinAction
+   use mapl3g_ExtensionAction
+   use mapl_ErrorHandling
+   use mapl_KeywordEnforcer
+   use esmf, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R4, operator(/=)
    implicit none
 
    public :: AccumulatorAction
@@ -14,6 +19,7 @@ module mapl3g_AccumulatorActionInterface
    public :: MIN_ACCUMULATION
    public :: SIMPLE_ACCUMULATION
    public :: accumulation_type_is_valid
+   public :: get_accumulator_action
 
    character(len=*), parameter :: MAX_ACCUMULATION = 'max'
    character(len=*), parameter :: MEAN_ACCUMULATION = 'mean'
@@ -34,12 +40,14 @@ contains
    subroutine get_accumulator_action(accumulation_type, typekind, action, rc)
       character(len=*), intent(in) :: accumulation_type
       type(ESMF_TypeKind_Flag), intent(in) :: typekind
-      class(AccumulatorAction), allocatable, intent(out) :: action
+      class(ExtensionAction), allocatable, intent(out) :: action
       integer, optional, intent(out) :: rc 
 
       integer :: status
 
-      _ASSERT(typekind == ESMF_TYPEKIND_R4, 'Unsupported typekind')
+      if(typekind /= ESMF_TYPEKIND_R4) then
+         _FAIL('Unsupported typekind')
+      end if
       _ASSERT(accumulation_type_is_valid(accumulation_type), 'Unsupported AccumulationAction')
 
       select case(accumulation_type)
