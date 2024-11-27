@@ -114,7 +114,7 @@ contains
       integer, intent(out) :: iostat
       character(*), intent(inout) :: iomsg
 
-      write(unit, "(a, a, a, a, a, a, a, a, a, *(g0, 1x))", iostat=iostat, iomsg=iomsg) &
+      write(unit, "(a, a, 3x, a, a, a, 3x, a, a, a, 3x, a, *(g0, 1x))", iostat=iostat, iomsg=iomsg) &
            "FixedLevelsVerticalGrid(", new_line("a"), &
            "standard name: ", this%standard_name, new_line("a"), &
            "units: ", this%get_units(), new_line("a"), &
