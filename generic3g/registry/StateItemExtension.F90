@@ -126,9 +126,7 @@ contains
       do i = 1, size(adapters)
          match = adapters(i)%adapter%match(new_spec, _RC)
          if (match) cycle
-         _HERE
          call adapters(i)%adapter%adapt(new_spec, action, _RC)
-         print *, "make_extension::new_spec: ", new_spec
          exit
       end do
 
