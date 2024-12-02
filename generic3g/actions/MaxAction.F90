@@ -8,21 +8,20 @@ module mapl3g_MaxAction
    implicit none
    private
    public :: MaxAction
+   public :: construct_MaxAction
 
    type, extends(AccumulatorAction) :: MaxAction
    contains
       procedure :: accumulate_R4 => max_accumulate_R4
    end type MaxAction
 
-   interface MaxAction
-      module procedure :: construct_MaxAction
-   end interface MaxAction
-
 contains
 
-   function construct_MaxAction() result(acc)
+   function construct_MaxAction(typekind) result(acc)
       type(MaxAction) :: acc
+      type(ESMF_TypeKind_Flag), intent(in) :: typekind
 
+      acc%typekind = typekind
       acc%CLEAR_VALUE_R4 = MAPL_UNDEFINED_REAL
 
    end function construct_MaxAction
