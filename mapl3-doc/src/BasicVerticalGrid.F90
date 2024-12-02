@@ -4,6 +4,7 @@ module mapl3g_BasicVerticalGrid
 
    use mapl_ErrorHandling
    use mapl3g_VerticalGrid
+   use mapl3g_MirrorVerticalGrid
    use mapl3g_GriddedComponentDriver
    use mapl3g_VerticalDimSpec
    use esmf, only: ESMF_TypeKind_Flag
@@ -22,6 +23,7 @@ module mapl3g_BasicVerticalGrid
       procedure :: get_num_levels
       procedure :: get_coordinate_field
       procedure :: can_connect_to
+      procedure :: is_identical_to
       procedure :: write_formatted
    end type BasicVerticalGrid
 
@@ -36,15 +38,6 @@ module mapl3g_BasicVerticalGrid
    interface BasicVerticalGrid
       module procedure new_BasicVerticalGrid
    end interface BasicVerticalGrid
-
-   interface
-      module function can_connect_to(this, src, rc)
-         logical :: can_connect_to
-         class(BasicVerticalGrid), intent(in) :: this
-         class(VerticalGrid), intent(in) :: src
-         integer, optional, intent(out) :: rc
-      end function
-   end interface
 
 contains
 
@@ -83,6 +76,41 @@ contains
       _UNUSED_DUMMY(units)
       _UNUSED_DUMMY(vertical_dim_spec)
    end subroutine get_coordinate_field
+
+   logical function can_connect_to(this, dst, rc)
+      class(BasicVerticalGrid), intent(in) :: this
+      class(VerticalGrid), intent(in) :: dst
+      integer, optional, intent(out) :: rc
+
+      _FAIL("BasicVerticalGrid::can_connect_to - NOT implemented yet")
+   end function can_connect_to
+
+   logical function is_identical_to(this, that, rc)
+      class(BasicVerticalGrid), intent(in) :: this
+      class(VerticalGrid), allocatable, intent(in) :: that
+      integer, optional, intent(out) :: rc
+
+      is_identical_to = .false.
+
+      ! Mirror grid
+      if (.not. allocated(that)) then
+         is_identical_to = .true.
+         _RETURN(_SUCCESS) ! mirror grid
+      end if
+
+      ! Same id
+      is_identical_to = this%same_id(that)
+      if (is_identical_to) then
+         _RETURN(_SUCCESS)
+      end if
+
+      select type(that)
+      type is(BasicVerticalGrid)
+         is_identical_to = (this == that)
+      end select
+
+      _RETURN(_SUCCESS)
+   end function is_identical_to
 
    elemental logical function equal_to(a, b)
       type(BasicVerticalGrid), intent(in) :: a, b

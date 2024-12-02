@@ -4,6 +4,7 @@ module mapl3g_FixedLevelsVerticalGrid
 
    use mapl_ErrorHandling
    use mapl3g_VerticalGrid
+   use mapl3g_MirrorVerticalGrid
    use mapl3g_VerticalStaggerLoc
    use mapl3g_FieldCreate
    use mapl3g_GriddedComponentDriver
@@ -26,6 +27,7 @@ module mapl3g_FixedLevelsVerticalGrid
       procedure :: get_num_levels
       procedure :: get_coordinate_field
       procedure :: can_connect_to
+      procedure :: is_identical_to
       procedure :: write_formatted
    end type FixedLevelsVerticalGrid
 
@@ -95,16 +97,54 @@ contains
       _UNUSED_DUMMY(vertical_dim_spec)
    end subroutine get_coordinate_field
 
-   logical function can_connect_to(this, src, rc)
+   logical function can_connect_to(this, dst, rc)
       class(FixedLevelsVerticalGrid), intent(in) :: this
-      class(VerticalGrid), intent(in) :: src
+      class(VerticalGrid), intent(in) :: dst
       integer, optional, intent(out) :: rc
 
-      can_connect_to = .false.
-      _FAIL("not implemented")
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(src)
+      if (this%same_id(dst)) then
+         can_connect_to = .true.
+         _RETURN(_SUCCESS)
+      end if
+
+      select type(dst)
+      type is (FixedLevelsVerticalGrid)
+         can_connect_to = .true.
+      type is (MirrorVerticalGrid)
+         can_connect_to = .true.
+      class default
+         _FAIL("FixedLevelsVerticalGrid can only connect to FixedLevelsVerticalGrid, or MirrorVerticalGrid")
+      end select
+
+      _RETURN(_SUCCESS)
    end function can_connect_to
+
+   logical function is_identical_to(this, that, rc)
+      class(FixedLevelsVerticalGrid), intent(in) :: this
+      class(VerticalGrid), allocatable, intent(in) :: that
+      integer, optional, intent(out) :: rc
+
+      is_identical_to = .false.
+
+      ! Mirror grid
+      if (.not. allocated(that)) then
+         is_identical_to = .true.
+         _RETURN(_SUCCESS) ! mirror grid
+      end if
+
+      ! Same id
+      is_identical_to = this%same_id(that)
+      if (is_identical_to) then
+         _RETURN(_SUCCESS)
+      end if
+
+      select type(that)
+      type is(FixedLevelsVerticalGrid)
+         is_identical_to = (this == that)
+      end select
+
+      _RETURN(_SUCCESS)
+   end function is_identical_to
 
    subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
       class(FixedLevelsVerticalGrid), intent(in) :: this

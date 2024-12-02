@@ -32,10 +32,7 @@ contains
       type(ESMF_HConfig) :: vertical_grid_cfg
       type(GeomManager), pointer :: geom_mgr
       class(GeomSpec), allocatable :: geom_spec
-      integer :: num_levels
-      character(:), allocatable :: vertical_grid_class, standard_name, units
       class(VerticalGrid), allocatable :: vertical_grid
-      real, allocatable :: levels(:)
 
       has_geometry_section = ESMF_HConfigIsDefined(mapl_cfg,keyString=COMPONENT_GEOMETRY_SECTION, _RC)
       _RETURN_UNLESS(has_geometry_section)
@@ -96,39 +93,66 @@ contains
       end if
 
       if (has_vertical_grid) then
-         vertical_grid_class = ESMF_HConfigAsString(vertical_grid_cfg, keyString='class', _RC)
-         select case(vertical_grid_class)
-         case('basic')
-            num_levels = ESMF_HConfigAsI4(vertical_grid_cfg, keyString='num_levels', _RC)
-            vertical_grid = BasicVerticalGrid(num_levels)
-         case('fixed_levels')
-            standard_name = ESMF_HConfigAsString(vertical_grid_cfg, keyString='standard_name', _RC)
-            units = ESMF_HConfigAsString(vertical_grid_cfg, keyString='units', _RC)
-            levels = ESMF_HConfigAsR4Seq(vertical_grid_cfg, keyString='levels' ,_RC)
-            vertical_grid = FixedLevelsVerticalGrid(standard_name, levels, units)
-         case('model')
-            standard_name = ESMF_HConfigAsString(vertical_grid_cfg, keyString='standard_name', _RC)
-            units = ESMF_HConfigAsString(vertical_grid_cfg, keyString='units', _RC)
-            num_levels = ESMF_HConfigAsI4(vertical_grid_cfg, keyString='num_levels', _RC)
-            vertical_grid = ModelVerticalGrid(standard_name=standard_name, units=units, num_levels=num_levels)
-            select type(vertical_grid)
-            type is(ModelVerticalGrid)
-               call vertical_grid%set_registry(registry)
-               if (standard_name == "air_pressure") then
-                  call vertical_grid%add_short_name(edge="PLE", center="PL")
-               else if (standard_name == "height") then
-                  call vertical_grid%add_short_name(edge="ZLE", center="ZL")
-               else
-                  _FAIL("unsupported standard name ["//standard_name//"]")
-               end if
-            end select
-         case default
-            _FAIL('vertical grid class '//vertical_grid_class//' not supported')
-         end select
+         call parse_vertical_grid_(vertical_grid_cfg, registry, vertical_grid, _RC)
       end if
       geometry_spec = GeometrySpec(geom_spec=geom_spec, vertical_grid=vertical_grid)
 
       _RETURN(_SUCCESS)
    end function parse_geometry_spec
+
+   subroutine parse_vertical_grid_(vertical_grid_cfg, registry, vertical_grid, rc)
+      type(ESMF_HConfig), intent(in) :: vertical_grid_cfg
+      type(StateRegistry), target, intent(in) :: registry
+      class(VerticalGrid), allocatable, intent(out) :: vertical_grid
+      integer, optional, intent(out) :: rc
+
+      integer :: num_levels
+      character(:), allocatable :: class, standard_name, units
+      real, allocatable :: levels(:)
+      integer :: status
+
+      class = ESMF_HConfigAsString(vertical_grid_cfg, keyString="class", _RC)
+      select case(class)
+      case("basic")
+         num_levels = ESMF_HConfigAsI4(vertical_grid_cfg, keyString="num_levels", _RC)
+         vertical_grid = BasicVerticalGrid(num_levels)
+      case("fixed_levels")
+         standard_name = ESMF_HConfigAsString(vertical_grid_cfg, keyString="standard_name", _RC)
+         units = ESMF_HConfigAsString(vertical_grid_cfg, keyString="units", _RC)
+         levels = ESMF_HConfigAsR4Seq(vertical_grid_cfg, keyString="levels" ,_RC)
+         vertical_grid = FixedLevelsVerticalGrid(standard_name, levels, units)
+      case("model")
+         call parse_model_vertical_grid_(vertical_grid_cfg, registry, vertical_grid, _RC)
+      case default
+         _FAIL("vertical grid class "//class//" not supported")
+      end select
+
+      _RETURN(_SUCCESS)
+   end subroutine parse_vertical_grid_
+
+   subroutine parse_model_vertical_grid_(vertical_grid_cfg, registry, vertical_grid, rc)
+      type(ESMF_HConfig), intent(in) :: vertical_grid_cfg
+      type(StateRegistry), target, intent(in) :: registry
+      class(VerticalGrid), allocatable, intent(out) :: vertical_grid
+      integer, optional, intent(out) :: rc
+
+      integer :: num_levels
+      character(:), allocatable :: standard_name, units, field_edge, field_center
+      integer :: status
+
+      standard_name = ESMF_HConfigAsString(vertical_grid_cfg, keyString="standard_name", _RC)
+      units = ESMF_HConfigAsString(vertical_grid_cfg, keyString="units", _RC)
+      num_levels = ESMF_HConfigAsI4(vertical_grid_cfg, keyString="num_levels", _RC)
+      vertical_grid = ModelVerticalGrid(standard_name=standard_name, units=units, num_levels=num_levels)
+      field_edge = ESMF_HConfigAsString(vertical_grid_cfg, keyString="field_edge", _RC)
+      field_center = ESMF_HConfigAsString(vertical_grid_cfg, keyString="field_center", _RC)
+      select type(vertical_grid)
+      type is(ModelVerticalGrid)
+         call vertical_grid%set_registry(registry)
+         call vertical_grid%add_short_name(edge=field_edge, center=field_center)
+      end select
+
+      _RETURN(_SUCCESS)
+   end subroutine parse_model_vertical_grid_
 
 end submodule parse_geometry_spec_smod
