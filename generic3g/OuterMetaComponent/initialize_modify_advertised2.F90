@@ -1,6 +1,9 @@
 #include "MAPL_Generic.h"
 
 submodule (mapl3g_OuterMetaComponent) initialize_modify_advertised2_smod
+   use mapl3g_Multistate
+   use mapl3g_GenericPhases
+   use mapl_ErrorHandling
    implicit none
 
 contains
@@ -29,6 +32,7 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(clock)
    end subroutine initialize_modify_advertised2
    
 end submodule initialize_modify_advertised2_smod

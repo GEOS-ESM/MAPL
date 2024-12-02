@@ -2,6 +2,7 @@
 
 submodule (mapl3g_OuterMetaComponent) attach_outer_meta_smod
    use mapl3g_ESMF_Interfaces, only: MAPL_UserCompSetInternalState
+   use mapl_ErrorHandling
    implicit none (type, external)
 
 contains
