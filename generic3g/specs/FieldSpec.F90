@@ -1025,12 +1025,9 @@ contains
    function new_AccumulatorAdapter(spec) result(acc_adapter)
       type(AccumulatorAdapter) :: acc_adapter
       class(FieldSpec), intent(in) :: spec
-      character(len=*), intent(in) :: accumulation_type
-      type(ESMF_Typekind_Flag), intent(in) :: typekind
 
-      associate(acctype => spec%accumulation_type)
       if(allocated(spec%accumulation_type)) acc_adapter%accumulation_type = spec%accumulation_type
-      acc_adapter%typekind = typekind
+      acc_adapter%typekind = spec%typekind
 
    end function new_AccumulatorAdapter
 
@@ -1042,6 +1039,7 @@ contains
       
       integer :: status
 
+      _ASSERT(accumulation_type_is_valid(this%accumulation_type), 'Invalid accumulation type')
       select type(spec)
       type is (FieldSpec)
          call get_accumulator_action(this%accumulation_type, this%typekind, action, _RC)
@@ -1089,7 +1087,7 @@ contains
          allocate(adapters(2)%adapter, source=vertical_grid_adapter)
          allocate(adapters(3)%adapter, source=TypeKindAdapter(goal_spec%typekind))
          allocate(adapters(4)%adapter, source=UnitsAdapter(goal_spec%units))
-         allocate(adapters(5)%adapter, source=AccumulatorAdapter(goal_spec%accumulation_type, goal_spec%typekind))
+         allocate(adapters(5)%adapter, source=AccumulatorAdapter(goal_spec))
       type is (WildCardSpec)
          adapters = goal_spec%make_adapters(goal_spec, _RC)
       class default
