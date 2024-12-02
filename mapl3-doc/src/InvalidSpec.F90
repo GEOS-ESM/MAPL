@@ -39,7 +39,6 @@ module mapl3g_InvalidSpec
       procedure :: set_geometry => set_geometry
 
       procedure :: write_formatted
-
       procedure :: make_adapters
    end type InvalidSpec
 

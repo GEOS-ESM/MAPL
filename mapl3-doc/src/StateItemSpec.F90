@@ -54,7 +54,9 @@ module mapl3g_StateItemSpec
       procedure(I_set_geometry), deferred :: set_geometry
 
       procedure(I_write_formatted), deferred :: write_formatted
+#ifndef __GFORTRAN__
       generic :: write(formatted) => write_formatted
+#endif
 
       procedure, non_overridable :: set_allocated
       procedure, non_overridable :: is_allocated
