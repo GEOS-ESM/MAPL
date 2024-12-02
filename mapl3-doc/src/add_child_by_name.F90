@@ -6,6 +6,8 @@ submodule (mapl3g_OuterMetaComponent) add_child_by_name_smod
    use mapl3g_ChildSpecMap
    use mapl3g_GenericGridComp
    use mapl3g_Validation
+   use mapl3g_Multistate
+   use mapl_ErrorHandling
    implicit none
 
 contains

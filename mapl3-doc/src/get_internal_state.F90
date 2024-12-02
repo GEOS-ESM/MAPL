@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 submodule (mapl3g_OuterMetaComponent) get_internal_state_smod
+   use mapl3g_Multistate
    implicit none
 
 contains

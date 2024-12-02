@@ -1,7 +1,12 @@
 #include "MAPL_Generic.h"
 
 submodule (mapl3g_OuterMetaComponent) connect_all_smod
-   implicit none
+   use mapl3g_Connection
+   use mapl3g_ConnectionPt
+   use mapl3g_VirtualConnectionPt
+   use mapl3g_MatchConnection
+   use mapl_ErrorHandling
+   implicit none(type,external)
 
 contains
 
@@ -19,7 +24,6 @@ contains
       character(*), intent(in) :: dst_comp
       integer, optional, intent(out) :: rc
 
-      integer :: status
       class(Connection), allocatable :: conn
 
       conn = MatchConnection( &

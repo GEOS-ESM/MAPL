@@ -1,7 +1,21 @@
 #include "MAPL_Generic.h"
 
 submodule (mapl3g_OuterMetaComponent) initialize_advertise_smod
-   use mapl3g_make_ItemSpec
+   use mapl3g_GenericPhases, only: GENERIC_INIT_ADVERTISE
+   use mapl3g_VirtualConnectionPt
+   use mapl3g_StateItem
+   use mapl3g_VariableSpec
+   use mapl3g_VariableSpecVector, only: VariableSpecVectorIterator
+   use mapl3g_make_ItemSpec, only: make_ItemSpec
+   use esmf, only: operator(==)
+   use mapl3g_Connection
+   use mapl3g_ConnectionVector, only: ConnectionVectorIterator
+   use mapl3g_ConnectionVector, only: operator(/=)
+   use mapl3g_VariableSpecVector, only: operator(/=)
+   use mapl3g_geom_mgr
+   use mapl3g_GeometrySpec
+   use mapl3g_StateItemSpec
+   use mapl_ErrorHandling
    implicit none (type, external)
 
 
@@ -54,7 +68,7 @@ contains
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   contains
+  end subroutine initialize_advertise
 
       subroutine self_advertise(this, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
@@ -88,7 +102,6 @@ contains
          integer :: status
          class(StateItemSpec), allocatable :: item_spec
          type(VirtualConnectionPt) :: virtual_pt
-         integer :: i
 
          _ASSERT(var_spec%itemtype /= MAPL_STATEITEM_UNKNOWN, 'Invalid type id in variable spec <'//var_spec%short_name//'>.')
 
@@ -102,7 +115,6 @@ contains
          _RETURN(_SUCCESS)
          _UNUSED_DUMMY(unusable)
       end subroutine advertise_variable
-
 
       subroutine process_connections(this, rc)
         class(OuterMetaComponent), intent(inout) :: this
@@ -123,6 +135,6 @@ contains
 
         _RETURN(_SUCCESS)
      end subroutine process_connections
-  end subroutine initialize_advertise
+
 
 end submodule initialize_advertise_smod
