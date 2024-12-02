@@ -250,6 +250,8 @@ contains
 
       field_spec%long_name = 'unknown'
       field_spec%accumulation_type = NO_ACCUMULATION
+      _SET_ALLOCATED_FIELD(field_spec, variable_spec, accumulation_type)
+
    end function new_FieldSpec_varspec
 
    subroutine set_geometry(this, geom, vertical_grid, rc)
