@@ -27,8 +27,6 @@ module mapl3g_FieldSpec
    use mapl3g_InfoUtilities
    use mapl3g_ExtensionAction
    use mapl3g_VerticalGrid
-   use mapl3g_BasicVerticalGrid
-   use mapl3g_FixedLevelsVerticalGrid
    use mapl3g_VerticalRegridAction
    use mapl3g_VerticalDimSpec
    use mapl3g_AbstractActionSpec
@@ -869,10 +867,10 @@ contains
 
       select type (spec)
       type is (FieldSpec)
+         _ASSERT(spec%vertical_grid%can_connect_to(this%vertical_grid), "cannot connect vertical grids")
          ! TODO: DO WE NEED TO RESTRICT SPEC's VERTICAL GRID TO MODEL?
          ! NOTE: we cannot import ModelVerticalGrid (circular dependency)
          _ASSERT(spec%vertical_grid%get_units() == this%vertical_grid%get_units(), 'units must match')
-         ! Field (to be regridded) should have the same typekind as the underlying vertical grid
          ! TODO: Should we add a typekind class variable to VerticalGrid?
          _ASSERT(spec%typekind == this%typekind, 'typekind must match')
          call spec%vertical_grid%get_coordinate_field( &
@@ -890,7 +888,6 @@ contains
    end subroutine adapt_vertical_grid
 
    logical function adapter_match_vertical_grid(this, spec, rc) result(match)
-
       class(VerticalGridAdapter), intent(in) :: this
       class(StateItemSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
@@ -900,52 +897,10 @@ contains
       match = .false.
       select type (spec)
       type is (FieldSpec)
-         match = same_vertical_grid(spec%vertical_grid, this%vertical_grid, _RC)
+         match = spec%vertical_grid%is_identical_to(this%vertical_grid)
       end select
 
       _RETURN(_SUCCESS)
-
-   contains
-
-      logical function same_vertical_grid(src_grid, dst_grid, rc)
-         class(VerticalGrid), intent(in) :: src_grid
-         class(VerticalGrid), allocatable, intent(in) :: dst_grid
-         integer, optional, intent(out) :: rc
-
-         same_vertical_grid = .false.
-         if (.not. allocated(dst_grid)) then
-            same_vertical_grid = .true.
-            _RETURN(_SUCCESS) ! mirror grid
-         end if
-
-         same_vertical_grid = src_grid%same_id(dst_grid)
-         if (same_vertical_grid) then
-            _RETURN(_SUCCESS)
-         end if
-
-         select type(src_grid)
-         type is(BasicVerticalGrid)
-            select type(dst_grid)
-            type is(BasicVerticalGrid)
-               same_vertical_grid = (src_grid%get_num_levels() == dst_grid%get_num_levels())
-            class default
-               _FAIL("not implemented yet")
-            end select
-         type is(FixedLevelsVerticalGrid)
-            select type(dst_grid)
-            type is(FixedLevelsVerticalGrid)
-               same_vertical_grid = (src_grid == dst_grid)
-            class default
-               same_vertical_grid = .false.
-            end select
-         class default
-            same_vertical_grid = .false.
-            ! _FAIL("not implemented yet")
-         end select
-
-         _RETURN(_SUCCESS)
-      end function same_vertical_grid
-
    end function adapter_match_vertical_grid
 
    function new_TypekindAdapter(typekind) result(typekind_adapter)

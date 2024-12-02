@@ -9,15 +9,3 @@ target_sources(MAPL.generic3g PRIVATE
   VerticalLinearMap.F90
   CSR_SparseMatrix.F90
 )
-
-esma_add_fortran_submodules(
-  TARGET MAPL.generic3g
-  SUBDIRECTORY BasicVerticalGrid
-  SOURCES can_connect_to.F90
-)
-
-esma_add_fortran_submodules(
-  TARGET MAPL.generic3g
-  SUBDIRECTORY ModelVerticalGrid
-  SOURCES can_connect_to.F90
-)
