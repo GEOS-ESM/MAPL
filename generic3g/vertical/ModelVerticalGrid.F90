@@ -3,7 +3,10 @@
 module mapl3g_ModelVerticalGrid
 
    use mapl_ErrorHandling
+   use mapl_KeywordEnforcer
    use mapl3g_VerticalGrid
+   use mapl3g_MirrorVerticalGrid
+   use mapl3g_FixedLevelsVerticalGrid
    use mapl3g_StateRegistry
    use mapl3g_VirtualConnectionPt
    use mapl3g_StateItemSpec
@@ -14,7 +17,6 @@ module mapl3g_ModelVerticalGrid
    use mapl3g_ExtensionAction
    use mapl3g_GriddedComponentDriver
    use mapl3g_VerticalDimSpec
-   use mapl_KeywordEnforcer
    use esmf
 
    implicit none
@@ -33,6 +35,7 @@ module mapl3g_ModelVerticalGrid
       procedure :: get_num_levels
       procedure :: get_coordinate_field
       procedure :: can_connect_to
+      procedure :: is_identical_to
       procedure :: write_formatted
 
       ! subclass-specific methods
@@ -46,14 +49,13 @@ module mapl3g_ModelVerticalGrid
       procedure new_ModelVerticalGrid_basic
    end interface ModelVerticalGrid
 
-   interface
-      module function can_connect_to(this, src, rc)
-         logical :: can_connect_to
-         class(ModelVerticalGrid), intent(in) :: this
-         class(VerticalGrid), intent(in) :: src
-         integer, optional, intent(out) :: rc
-      end function
-   end interface
+   interface operator(==)
+      module procedure equal_ModelVerticalGrid
+   end interface operator(==)
+
+   interface operator(/=)
+      module procedure not_equal_ModelVerticalGrid
+   end interface operator(/=)
 
    ! TODO:
    ! - Ensure that there really is a vertical dimension
@@ -164,13 +166,90 @@ contains
       integer, intent(out) :: iostat
       character(*), intent(inout) :: iomsg
 
-      write(unit, "(a, a, g0, a)", iostat=iostat, iomsg=iomsg) &
-           "ModelVerticalGrid(", &
-           "num levels: ", this%num_levels, &
-           ")"
+      write(unit, "(a)", iostat=iostat, iomsg=iomsg) "ModelVerticalGrid("
+      if (allocated(this%standard_name)) then
+         write(unit, "(a, 3x, a, a)", iostat=iostat, iomsg=iomsg) new_line("a"), "standard name: ", this%standard_name
+      end if
+      write(unit, "(a, 3x, a, g0)", iostat=iostat, iomsg=iomsg) new_line("a"), "num_levels: ", this%num_levels
+      if (allocated(this%short_name_edge)) then
+         write(unit, "(a, 3x, a, a)", iostat=iostat, iomsg=iomsg) new_line("a"), "field (edge): ", this%short_name_edge
+      end if
+      if (allocated(this%short_name_center)) then
+         write(unit, "(a, 3x, a, a)", iostat=iostat, iomsg=iomsg) new_line("a"), "field (center): ", this%short_name_center
+      end if
+      write(unit, "(a)") ")"
 
       _UNUSED_DUMMY(iotype)
       _UNUSED_DUMMY(v_list)
    end subroutine write_formatted
+
+   logical function can_connect_to(this, dst, rc)
+      class(ModelVerticalGrid), intent(in) :: this
+      class(VerticalGrid), intent(in) :: dst
+      integer, optional, intent(out) :: rc
+
+      if (this%same_id(dst)) then
+         can_connect_to = .true.
+         _RETURN(_SUCCESS)
+      end if
+
+      select type (dst)
+      type is (MirrorVerticalGrid)
+         can_connect_to = .true.
+      type is (FixedLevelsVerticalGrid)
+         can_connect_to = .true.
+      class default
+         _FAIL("ModelVerticalGrid can only connect to FixedLevelsVerticalGrid, or MirrorVerticalGrid")
+      end select
+
+      _RETURN(_SUCCESS)
+   end function can_connect_to
+
+   logical function is_identical_to(this, that, rc)
+      class(ModelVerticalGrid), intent(in) :: this
+      class(VerticalGrid), allocatable, intent(in) :: that
+      integer, optional, intent(out) :: rc
+
+      is_identical_to = .false.
+
+      ! Mirror grid
+      if (.not. allocated(that)) then
+         is_identical_to = .true.
+         _RETURN(_SUCCESS) ! mirror grid
+      end if
+
+      ! Same id
+      is_identical_to = this%same_id(that)
+      if (is_identical_to) then
+         _RETURN(_SUCCESS)
+      end if
+
+      select type(that)
+      type is(ModelVerticalGrid)
+         is_identical_to = (this == that)
+      end select
+
+      _RETURN(_SUCCESS)
+   end function is_identical_to
+
+   impure elemental logical function equal_ModelVerticalGrid(a, b) result(equal)
+      type(ModelVerticalGrid), intent(in) :: a, b
+
+      equal = a%standard_name == b%standard_name
+      if (.not. equal) return
+      equal = (a%get_units() == b%get_units())
+      if (.not. equal) return
+      equal = (a%num_levels == b%num_levels)
+      if (.not. equal) return
+      equal = (a%short_name_edge == b%short_name_edge)
+      if (.not. equal) return
+      equal = (a%short_name_center == b%short_name_center)
+   end function equal_ModelVerticalGrid
+
+   impure elemental logical function not_equal_ModelVerticalGrid(a, b) result(not_equal)
+      type(ModelVerticalGrid), intent(in) :: a, b
+
+      not_equal = .not. (a==b)
+   end function not_equal_ModelVerticalGrid
 
 end module mapl3g_ModelVerticalGrid

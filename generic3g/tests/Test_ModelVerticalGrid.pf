@@ -39,40 +39,30 @@ module Test_ModelVerticalGrid
 
 contains
 
-   subroutine setup(var_name, vgrid, rc)
+   subroutine setup_(var_name, geom, vgrid, registry, rc)
       character(*), intent(in) :: var_name
-      type(ModelVerticalGrid), intent(out) :: vgrid
-      integer, intent(out) :: rc
+      type(ESMF_Geom), intent(in) :: geom
+      type(ModelVerticalGrid), intent(in) :: vgrid
+      type(StateRegistry), intent(inout) :: registry
+      integer, optional, intent(out) :: rc
 
       type(VerticalDimSpec) :: vertical_dim_spec
-      type(ESMF_Geom) :: geom
-      type(VirtualConnectionPt) :: v_pt
       type(VariableSpec) :: var_spec
       class(StateItemSpec), allocatable :: fld_spec
+      type(VirtualConnectionPt) :: v_pt
       type(StateItemExtension), pointer :: extension
       class(StateItemSpec), pointer :: spec
       integer :: status
 
-      select case (var_name)
-      case ("PLE")
+      select case(var_name)
+      case("PLE")
          vertical_dim_spec = VERTICAL_DIM_EDGE
-      case ("PL")
+      case("PL")
          vertical_dim_spec = VERTICAL_DIM_CENTER
       case default
-         _FAIL("var_name should be one of PLE/PL, not" // trim(var_name))
+         _FAIL("unsupported var name " // var_name)
       end select
 
-      rc = 0
-      ! Inside user "set_geom" phase.
-      geom = make_geom(_RC)
-      vgrid = ModelVerticalGrid(standard_name="air_pressure", units="hPa", num_levels=LM)
-      call vgrid%add_short_name(edge="PLE", center="PL")
-
-      ! inside OuterMeta
-      r = StateRegistry("dyn")
-      call vgrid%set_registry(r) ! MAPL_SetVerticalGrid(...)
-
-      v_pt = VirtualConnectionPt(state_intent="export", short_name=var_name)
       var_spec = VariableSpec(&
            short_name=var_name, &
            state_intent=ESMF_STATEINTENT_EXPORT, &
@@ -80,17 +70,39 @@ contains
            units="hPa", &
            vertical_dim_spec=vertical_dim_spec, &
            default_value=3.)
-      allocate(fld_spec, source=make_itemSpec(var_spec, r, rc=status))
-      _VERIFY(status)
+      allocate(fld_spec, source=make_itemSpec(var_spec, r, rc=status)); _VERIFY(status)
       call fld_spec%set_geometry(geom=geom, vertical_grid=vgrid, _RC)
 
-      call r%add_primary_spec(v_pt, fld_spec)
-
-      extension => r%get_primary_extension(v_pt, _RC)
+      v_pt = VirtualConnectionPt(state_intent="export", short_name=var_name)
+      call registry%add_primary_spec(v_pt, fld_spec)
+      extension => registry%get_primary_extension(v_pt, _RC)
       spec => extension%get_spec()
       call spec%set_active()
       call spec%create(_RC)
       call spec%allocate(_RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine setup_
+
+   subroutine setup(geom, vgrid, rc)
+      type(ESMF_Geom), intent(out) :: geom
+      type(ModelVerticalGrid), intent(out) :: vgrid
+      integer, intent(out) :: rc
+
+      integer :: status
+
+      ! geom, registry etc.
+      geom = make_geom(_RC)
+      r = StateRegistry("dyn")
+
+      vgrid = ModelVerticalGrid(standard_name="air_pressure", units="hPa", num_levels=LM)
+      call vgrid%add_short_name(edge="PLE", center="PL")
+      call vgrid%set_registry(r) ! MAPL_SetVerticalGrid(...)
+
+      call setup_("PLE", geom, vgrid, r, _RC)
+      call setup_("PL", geom, vgrid, r, _RC)
+
+      _RETURN(_SUCCESS)
    end subroutine setup
 
    function make_geom(rc) result(geom)
@@ -129,9 +141,10 @@ contains
       type(MultiState) :: multi_state
       type(StateItemExtension), pointer :: extension
       type(ESMF_Field) :: ple
+      type(ESMF_Geom) :: geom
       integer :: rc, status
 
-      call setup("PLE", vgrid, _RC)
+      call setup(geom, vgrid, _RC)
 
       ple_pt = VirtualConnectionPt(state_intent="export", short_name="PLE")
       extension => r%get_primary_extension(ple_pt, _RC)
@@ -144,6 +157,7 @@ contains
       allocate(localElementCount(rank))
       call ESMF_FieldGet(ple, localElementCount=localElementCount, _RC)
       @assert_that(localElementCount, is(equal_to([IM,JM,LM+1])))
+
       _UNUSED_DUMMY(this)
    end subroutine test_created_fields_have_num_levels
 
@@ -160,8 +174,7 @@ contains
       integer :: rc, status
       real(ESMF_KIND_R4), pointer :: a(:,:,:)
 
-      call setup("PLE", vgrid, _RC)
-      geom = make_geom(_RC)
+      call setup(geom, vgrid, _RC)
 
       call vgrid%get_coordinate_field( &
            vcoord, coupler, &
@@ -175,6 +188,7 @@ contains
 
       call ESMF_FieldGet(vcoord, fArrayPtr=a, _RC)
       @assert_that(a, every_item(is(equal_to(3.))))
+
       _UNUSED_DUMMY(this)
    end subroutine test_get_coordinate_field_simple
 
@@ -194,8 +208,7 @@ contains
       type(GriddedComponentDriver), pointer :: coupler
       integer :: i, rc
 
-      call setup("PLE", vgrid, _RC)
-      geom = make_geom(_RC)
+      call setup(geom, vgrid, _RC)
 
       call vgrid%get_coordinate_field( &
            vcoord, coupler, &
@@ -220,6 +233,7 @@ contains
       end do
       @assert_that(shape(a), is(equal_to([IM, JM, LM+1])))
       @assert_that(a, every_item(is(equal_to(300.))))
+
       _UNUSED_DUMMY(this)
    end subroutine test_get_coordinate_field_change_units_edge
 
@@ -239,8 +253,7 @@ contains
       type(GriddedComponentDriver), pointer :: coupler
       integer :: i, rc
 
-      call setup("PL", vgrid, _RC)
-      geom = make_geom(_RC)
+      call setup(geom, vgrid, _RC)
 
       call vgrid%get_coordinate_field( &
            vcoord, coupler, &
