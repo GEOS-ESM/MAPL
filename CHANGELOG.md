@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Create rank-agnostic representation of `ESMF_Field` objects as rank-3 array pointers.
 - Add time accumulation for output from ESMF_Field objects.
 - Add tests for time accumulation
+- Add variable to FieldSpec for accumulation type
 
 ### Changed
 
