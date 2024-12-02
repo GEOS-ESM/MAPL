@@ -40,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add time accumulation for output from ESMF_Field objects.
 - Add tests for time accumulation
 - Add variable to FieldSpec for accumulation type
+- Add accumulation type variable to VariableSpec and ComponentSpecParser
 
 ### Changed
 
