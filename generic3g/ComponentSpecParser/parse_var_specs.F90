@@ -93,7 +93,6 @@ contains
                accumulation_type = ESMF_HConfigAsString(attributes, keyString=KEY_ACCUMULATION_TYPE, _RC)
             end if
 
-
             call to_itemtype(itemtype, attributes, _RC)
             call to_service_items(service_items, attributes, _RC)
 
