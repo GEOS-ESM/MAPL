@@ -243,7 +243,8 @@ contains
       if (present(regrid_param)) field_spec%regrid_param = regrid_param
 
       if (present(default_value)) field_spec%default_value = default_value
-      if (present(accumulation_type)) field_spec%accumulation_type = accumulation_type
+      field_spec%accumulation_type = NO_ACCUMULATION
+      if (present(accumulation_type)) field_spec%accumulation_type = trim(accumulation_type)
    end function new_FieldSpec_geom
 
    function new_FieldSpec_varspec(variable_spec) result(field_spec)
@@ -262,6 +263,7 @@ contains
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, default_value)
 
       field_spec%long_name = 'unknown'
+      field_spec%accumulation_type = NO_ACCUMULATION
    end function new_FieldSpec_varspec
 
    subroutine set_geometry(this, geom, vertical_grid, rc)
@@ -1020,14 +1022,15 @@ contains
       _RETURN(_SUCCESS)
    end function adapter_match_units
 
-   function new_AccumulatorAdapter(accumulation_type, typekind) result(acc_adapter)
+   function new_AccumulatorAdapter(spec) result(acc_adapter)
       type(AccumulatorAdapter) :: acc_adapter
+      class(FieldSpec), intent(in) :: spec
       character(len=*), intent(in) :: accumulation_type
       type(ESMF_Typekind_Flag), intent(in) :: typekind
 
-      acc_adapter%accumulation_type = accumulation_type
+      associate(acctype => spec%accumulation_type)
+      if(allocated(spec%accumulation_type)) acc_adapter%accumulation_type = spec%accumulation_type
       acc_adapter%typekind = typekind
-      !wdb fixme deleteme _RETURN(_SUCCESS)
 
    end function new_AccumulatorAdapter
 

@@ -18,6 +18,7 @@ module mapl3g_AccumulatorActionInterface
    public :: MEAN_ACCUMULATION
    public :: MIN_ACCUMULATION
    public :: SIMPLE_ACCUMULATION
+   public :: NO_ACCUMULATION
    public :: accumulation_type_is_valid
    public :: get_accumulator_action
 
@@ -25,7 +26,8 @@ module mapl3g_AccumulatorActionInterface
    character(len=*), parameter :: MEAN_ACCUMULATION = 'mean'
    character(len=*), parameter :: MIN_ACCUMULATION = 'min'
    character(len=*), parameter :: SIMPLE_ACCUMULATION = 'simple'
-   character(len=8), parameter :: ACCUMULATION_TYPES(4) = [character(len=8) :: &
+   character(len=*), parameter :: NO_ACCUMULATION =''
+   character(len=8), parameter :: ACCUMULATION_TYPES(5) = [character(len=8) :: &
       MAX_ACCUMULATION, MEAN_ACCUMULATION, MIN_ACCUMULATION, SIMPLE_ACCUMULATION]
 
 contains
