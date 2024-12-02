@@ -300,4 +300,19 @@ contains
 
    end subroutine test_mirror_ungridded_dims
 
+   @test
+   subroutine test_field_accumulation()
+      type(FieldSpec) :: field_spec
+      type(VerticalDimSpec) :: vertical_dim_spec
+      type(ESMF_Typekind_Flag) :: typekind
+      character(len=8) :: accumulation_type
+
+      typekind = ESMF_TYPEKIND_R4
+      accumulation_type = 'mean'
+      field_spec = FieldSpec(vertical_dim_spec=vertical_dim_spec, typekind=typekind, &
+         accumulation_type=accumulation_type, ungridded_dims=UngriddedDims())
+      @assertEqual(accumulation_type, field_spec%accumulation_type, 'accumulation_type does not match expected.')
+
+   end subroutine test_field_accumulation
+
 end module Test_FieldSpec

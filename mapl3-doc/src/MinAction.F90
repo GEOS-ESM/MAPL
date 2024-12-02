@@ -8,21 +8,20 @@ module mapl3g_MinAction
    implicit none
    private
    public :: MinAction
+   public :: construct_MinAction
 
    type, extends(AccumulatorAction) :: MinAction
    contains
       procedure :: accumulate_R4 => min_accumulate_R4
    end type MinAction
 
-   interface MinAction
-      module procedure :: construct_MinAction
-   end interface MinAction
-
 contains
 
-   function construct_MinAction() result(acc)
+   function construct_MinAction(typekind) result(acc)
       type(MinAction) :: acc
+      type(ESMF_TypeKind_Flag), intent(in) :: typekind
 
+      acc%typekind = typekind
       acc%CLEAR_VALUE_R4 = MAPL_UNDEFINED_REAL
 
    end function construct_MinAction

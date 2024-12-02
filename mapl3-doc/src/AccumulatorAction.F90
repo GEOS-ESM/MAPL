@@ -9,20 +9,21 @@ module mapl3g_AccumulatorAction
    implicit none
    private
    public :: AccumulatorAction
+   public :: construct_AccumulatorAction
 
    type, extends(ExtensionAction) :: AccumulatorAction
-      type(ESMF_Field) :: accumulation_field
-      type(ESMF_Field) :: result_field
+      type(ESMF_TypeKind_Flag) :: typekind = ESMF_TYPEKIND_R4
+      type(ESMF_Field), allocatable :: accumulation_field
+      type(ESMF_Field), allocatable :: result_field
       real(kind=ESMF_KIND_R4) :: CLEAR_VALUE_R4 = 0.0_ESMF_KIND_R4
       logical :: update_calculated = .FALSE.
-      type(ESMF_TypeKind_Flag) :: typekind = ESMF_TYPEKIND_R4
+      logical :: initialized = .FALSE.
    contains
       ! Implementations of deferred procedures
       procedure :: invalidate
       procedure :: initialize
       procedure :: update
       ! Helpers
-      procedure :: initialized
       procedure :: accumulate
       procedure :: accumulate_R4
       procedure :: clear
@@ -32,12 +33,13 @@ module mapl3g_AccumulatorAction
 
 contains
 
-   logical function initialized(this) result(lval)
-      class(AccumulatorAction), intent(in) :: this
+   function construct_AccumulatorAction(typekind) result(acc)
+      type(AccumulatorAction) :: acc
+      type(ESMF_TypeKind_Flag), intent(in) :: typekind
 
-      lval = ESMF_FieldIsCreated(this%accumulation_field) 
+      acc%typekind = typekind
 
-   end function initialized
+   end function construct_AccumulatorAction
 
    subroutine clear(this, rc)
       class(AccumulatorAction), intent(inout) :: this
@@ -74,7 +76,7 @@ contains
       call get_field(importState, import_field, _RC)
       call ESMF_FieldGet(import_field, typekind=typekind, _RC)
       ! This check goes away if ESMF_TYPEKIND_R8 is supported.
-      _ASSERT(typekind==ESMF_TYPEKIND_R4, 'Only ESMF_TYPEKIND_R4 is supported.')
+      _ASSERT(this%typekind==typekind, 'Import typekind does not match accumulator typekind')
 
       call get_field(exportState, export_field, _RC)
       same_typekind = FieldsAreSameTypeKind(import_field, export_field, _RC)
@@ -83,10 +85,10 @@ contains
       conformable = FieldsAreConformable(import_field, export_field, _RC)
       _ASSERT(conformable, 'Import and export fields are not conformable.')
 
-      this%typekind = typekind
       ! Create and initialize field values. 
       call this%create_fields(import_field, export_field, _RC)
       call this%clear(_RC)
+      this%initialized = .TRUE.
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(clock)
 
@@ -100,10 +102,7 @@ contains
 
       integer :: status
 
-      if(this%initialized()) then
-         call ESMF_FieldDestroy(this%accumulation_field, _RC)
-         call ESMF_FieldDestroy(this%result_field, _RC)
-      end if
+      _RETURN_IF(this%initialized)
       this%accumulation_field = ESMF_FieldCreate(import_field, _RC)
       this%result_field = ESMF_FieldCreate(export_field, _RC)
       _RETURN(_SUCCESS)
@@ -120,7 +119,7 @@ contains
       integer :: status
       type(ESMF_Field) :: export_field
       
-      _ASSERT(this%initialized(), 'Accumulator has not been initialized.')
+      _ASSERT(this%initialized, 'Accumulator has not been initialized.')
       if(.not. this%update_calculated) then
          call this%update_result(_RC)
       end if
@@ -156,7 +155,7 @@ contains
       integer :: status
       type(ESMF_Field) :: import_field
       
-      _ASSERT(this%initialized(), 'Accumulator has not been initialized.')
+      _ASSERT(this%initialized, 'Accumulator has not been initialized.')
       this%update_calculated = .FALSE.
       call get_field(importState, import_field, _RC)
       call this%accumulate(import_field, _RC)
