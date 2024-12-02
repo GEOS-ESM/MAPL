@@ -993,7 +993,9 @@ contains
             status = nf90_get_att(this%ncid, varid, trim(attr_name), str)
             !$omp end critical
             _VERIFY(status)
-            if (str(len:len) == C_NULL_CHAR) str = str(1:len-1)
+            if (len > 0) then
+               if (str(len:len) == C_NULL_CHAR) str = str(1:len-1)
+            end if
             call cf%add_attribute(trim(attr_name), str)
             deallocate(str)
          case (NF90_STRING)
@@ -1090,7 +1092,9 @@ contains
             status = nf90_get_att(this%ncid, varid, trim(attr_name), str)
             !$omp end critical
             _VERIFY(status)
-            if (str(len:len) == C_NULL_CHAR) str = str(1:len-1)
+            if (len > 0) then
+               if (str(len:len) == C_NULL_CHAR) str = str(1:len-1)
+            end if
             call var%add_attribute(trim(attr_name), str)
             deallocate(str)
          case (NF90_STRING)
