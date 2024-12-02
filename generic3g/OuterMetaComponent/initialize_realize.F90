@@ -1,6 +1,8 @@
 #include "MAPL_Generic.h"
 
 submodule (mapl3g_OuterMetaComponent) initialize_realize_smod
+   use mapl3g_GenericPhases
+   use mapl_ErrorHandling
    implicit none
 
 contains

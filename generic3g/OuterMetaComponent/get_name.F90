@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 submodule (mapl3g_OuterMetaComponent) get_name_smod
+   use mapl_ErrorHandling
    implicit none
 
 contains
