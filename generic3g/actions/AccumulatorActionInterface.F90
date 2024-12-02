@@ -27,15 +27,16 @@ module mapl3g_AccumulatorActionInterface
    character(len=*), parameter :: MIN_ACCUMULATION = 'min'
    character(len=*), parameter :: SIMPLE_ACCUMULATION = 'simple'
    character(len=*), parameter :: NO_ACCUMULATION =''
-   character(len=8), parameter :: ACCUMULATION_TYPES(5) = [character(len=8) :: &
+   character(len=8), parameter :: ACCUMULATION_TYPES(4) = [character(len=8) :: &
       MAX_ACCUMULATION, MEAN_ACCUMULATION, MIN_ACCUMULATION, SIMPLE_ACCUMULATION]
 
 contains
 
    logical function accumulation_type_is_valid(acctype) result(lval)
-      character(len=*), intent(in) :: acctype
+      character(len=*), optional, intent(in) :: acctype
 
-      lval = any(ACCUMULATION_TYPES == acctype)
+      lval = present(acctype)
+      if(lval) lval = any(ACCUMULATION_TYPES == acctype)
 
    end function accumulation_type_is_valid
 
@@ -50,7 +51,7 @@ contains
       if(typekind /= ESMF_TYPEKIND_R4) then
          _FAIL('Unsupported typekind')
       end if
-      _ASSERT(accumulation_type_is_valid(accumulation_type), 'Unsupported AccumulationAction')
+      _ASSERT(accumulation_type_is_valid(accumulation_type), 'Unsupported AccumulatorAction')
 
       select case(accumulation_type)
       case (SIMPLE_ACCUMULATION)
