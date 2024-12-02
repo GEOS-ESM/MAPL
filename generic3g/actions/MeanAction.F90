@@ -11,9 +11,10 @@ module mapl3g_MeanAction
    implicit none
    private
    public :: MeanAction
+   public :: construct_MeanAction
 
    type, extends(AccumulatorAction) :: MeanAction
-      type(ESMF_Field) :: counter_field
+      type(ESMF_Field), allocatable :: counter_field
    contains
       procedure :: clear => clear_mean
       procedure :: create_fields => create_fields_mean
@@ -28,6 +29,14 @@ module mapl3g_MeanAction
 
 contains
 
+   function construct_MeanAction(typekind) result(acc)
+      type(MeanAction) :: acc
+      type(ESMF_TypeKind_Flag), intent(in) :: typekind
+
+      acc%typekind = typekind
+
+   end function construct_MeanAction
+
    subroutine create_fields_mean(this, import_field, export_field, rc)
       class(MeanAction), intent(inout) :: this
       type(ESMF_Field), intent(inout) :: import_field
@@ -39,10 +48,8 @@ contains
       integer, allocatable :: gmap(:)
       integer :: ndims
 
+      _RETURN_IF(this%initialized)
       call this%AccumulatorAction%create_fields(import_field, export_field, _RC)
-      if(ESMF_FieldIsCreated(this%counter_field)) then
-         call ESMF_FieldDestroy(this%counter_field, _RC)
-      end if
       associate(f => this%accumulation_field)
          call ESMF_FieldGet(f, dimCount=ndims, _RC)
          allocate(gmap(ndims))
