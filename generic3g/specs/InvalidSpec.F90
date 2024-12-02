@@ -38,9 +38,9 @@ module mapl3g_InvalidSpec
 
       procedure :: set_geometry => set_geometry
 
-#ifndef __GFORTRAN__
+! #ifndef __GFORTRAN__
       procedure :: write_formatted
-#endif
+! #endif
       procedure :: make_adapters
    end type InvalidSpec
 
@@ -146,7 +146,7 @@ contains
       _UNUSED_DUMMY(vertical_grid)
    end subroutine set_geometry
 
-#ifndef __GFORTRAN__
+! #ifndef __GFORTRAN__
    subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
       class(InvalidSpec), intent(in) :: this
       integer, intent(in) :: unit
@@ -157,7 +157,7 @@ contains
 
       write(unit, "(a)", iostat=iostat, iomsg=iomsg) "InvalidSpec()"
    end subroutine write_formatted
-#endif
+! #endif
 
    ! Stub implementation
    function make_adapters(this, goal_spec, rc) result(adapters)

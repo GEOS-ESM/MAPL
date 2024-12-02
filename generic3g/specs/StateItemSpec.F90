@@ -53,8 +53,8 @@ module mapl3g_StateItemSpec
       procedure(I_add_to_bundle), deferred :: add_to_bundle
       procedure(I_set_geometry), deferred :: set_geometry
 
-#ifndef __GFORTRAN__
       procedure(I_write_formatted), deferred :: write_formatted
+#ifndef __GFORTRAN__
       generic :: write(formatted) => write_formatted
 #endif
 
@@ -160,7 +160,7 @@ module mapl3g_StateItemSpec
          integer, optional, intent(out) :: rc
       end subroutine I_set_geometry
 
-#ifndef __GFORTRAN__
+! #ifndef __GFORTRAN__
       subroutine I_write_formatted(this, unit, iotype, v_list, iostat, iomsg)
          import StateItemSpec
          class(StateItemSpec), intent(in) :: this
@@ -170,7 +170,7 @@ module mapl3g_StateItemSpec
          integer, intent(out) :: iostat
          character(*), intent(inout) :: iomsg
       end subroutine I_write_formatted
-#endif
+! #endif
 
       ! Returns an ordered list of adapters that priorities matching
       ! rules for connecting a family of extension to a goal spec.
