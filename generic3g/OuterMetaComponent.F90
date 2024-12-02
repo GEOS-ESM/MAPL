@@ -1,35 +1,17 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_OuterMetaComponent
-
-   use mapl3g_geom_mgr
    use mapl3g_UserSetServices, only: AbstractUserSetServices
-   use mapl3g_VariableSpec
-   use mapl3g_StateItem
-   use mapl3g_MultiState
-   use mapl3g_VariableSpecVector
    use mapl3g_ComponentSpec
-   use mapl3g_GenericPhases
    use mapl3g_InnerMetaComponent
    use mapl3g_MethodPhasesMap
-   use mapl3g_StateItemSpec
-   use mapl3g_Connection
-   use mapl3g_ConnectionPt
-   use mapl3g_MatchConnection
-   use mapl3g_VirtualConnectionPt
-   use mapl3g_ActualPtVector
-   use mapl3g_ConnectionVector
    use mapl3g_StateRegistry
    use mapl3g_ESMF_Interfaces, only: I_Run
-   use mapl3g_ComponentDriver
    use mapl3g_GriddedComponentDriver
    use mapl3g_ComponentDriverVector
    use mapl3g_GriddedComponentDriverMap, only: GriddedComponentDriverMap
    use mapl3g_GriddedComponentDriverMap, only: operator(/=)
-   use mapl3g_ActualPtComponentDriverMap
-   use mapl_ErrorHandling
    use mapl3g_VerticalGrid
-   use mapl3g_GeometrySpec
    use gFTL2_StringVector
    use mapl_keywordEnforcer, only: KE => KeywordEnforcer
    use esmf
