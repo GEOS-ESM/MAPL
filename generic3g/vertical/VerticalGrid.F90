@@ -15,6 +15,7 @@ module mapl3g_VerticalGrid
       procedure(I_get_num_levels), deferred :: get_num_levels
       procedure(I_get_coordinate_field), deferred :: get_coordinate_field
       procedure(I_can_connect_to), deferred :: can_connect_to
+      procedure(I_is_identical_to), deferred :: is_identical_to
       procedure(I_write_formatted), deferred :: write_formatted
       generic :: write(formatted) => write_formatted
 
@@ -58,6 +59,13 @@ module mapl3g_VerticalGrid
          class(VerticalGrid), intent(in) :: dst
          integer, optional, intent(out) :: rc
       end function I_can_connect_to
+
+      logical function I_is_identical_to(this, that, rc) result(is_identical_to)
+         import VerticalGrid
+         class(VerticalGrid), intent(in) :: this
+         class(VerticalGrid), allocatable, intent(in) :: that
+         integer, optional, intent(out) :: rc
+      end function I_is_identical_to
 
       subroutine I_write_formatted(this, unit, iotype, v_list, iostat, iomsg)
          import VerticalGrid

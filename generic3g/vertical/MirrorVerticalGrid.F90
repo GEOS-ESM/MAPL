@@ -26,6 +26,7 @@ module mapl3g_MirrorVerticalGrid
       procedure :: get_num_levels
       procedure :: get_coordinate_field
       procedure :: can_connect_to
+      procedure :: is_identical_to
       procedure :: write_formatted
    end type MirrorVerticalGrid
 
@@ -80,6 +81,18 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(dst)
    end function can_connect_to
+
+   logical function is_identical_to(this, that, rc)
+      class(MirrorVerticalGrid), intent(in) :: this
+      class(VerticalGrid), allocatable, intent(in) :: that
+      integer, optional, intent(out) :: rc
+
+      is_identical_to = .false.
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(that)
+   end function is_identical_to
 
    subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
       class(MirrorVerticalGrid), intent(in) :: this
