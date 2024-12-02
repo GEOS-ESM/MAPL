@@ -114,9 +114,7 @@ module mapl3g_FieldSpec
 
       procedure :: set_geometry
 
-! #ifndef __GFORTRAN__
       procedure :: write_formatted
-! #endif
    end type FieldSpec
 
    interface FieldSpec
@@ -346,7 +344,6 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine allocate
 
-! #ifndef __GFORTRAN__
    subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
       class(FieldSpec), intent(in) :: this
       integer, intent(in) :: unit
@@ -374,7 +371,6 @@ contains
       _UNUSED_DUMMY(iotype)
       _UNUSED_DUMMY(v_list)
    end subroutine write_formatted
-! #endif
 
    function get_ungridded_bounds(this, rc) result(bounds)
       type(LU_Bound), allocatable :: bounds(:)

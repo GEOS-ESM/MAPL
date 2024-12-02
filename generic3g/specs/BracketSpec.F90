@@ -47,9 +47,7 @@ module mapl3g_BracketSpec
 
       procedure :: make_adapters
       procedure :: set_geometry
-! #ifndef __GFORTRAN__
       procedure :: write_formatted
-! #endif
    end type BracketSpec
 
    interface BracketSpec
@@ -270,7 +268,6 @@ contains
       _UNUSED_DUMMY(vertical_grid)
    end subroutine set_geometry
 
-! #ifndef __GFORTRAN__
    subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
       class(BracketSpec), intent(in) :: this
       integer, intent(in) :: unit
@@ -281,7 +278,6 @@ contains
 
       write(unit, "(a)", iostat=iostat, iomsg=iomsg) "BracketSpec(write not implemented yet)"
    end subroutine write_formatted
-! #endif
 
    function make_adapters(this, goal_spec, rc) result(adapters)
       type(StateItemAdapterWrapper), allocatable :: adapters(:)

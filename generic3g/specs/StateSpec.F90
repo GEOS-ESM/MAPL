@@ -40,9 +40,7 @@ module mapl3g_StateSpec
       procedure :: add_to_state
       procedure :: add_to_bundle
 
-! #ifndef __GFORTRAN__
       procedure :: write_formatted
-! #endif
    end type StateSpec
 
 contains
@@ -166,7 +164,6 @@ contains
       _UNUSED_DUMMY(bundle)
    end subroutine add_to_bundle
 
-! #ifndef __GFORTRAN__
    subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
       class(StateSpec), intent(in) :: this
       integer, intent(in) :: unit
@@ -177,7 +174,6 @@ contains
 
       write(unit, "(a)", iostat=iostat, iomsg=iomsg) "StateSpec(write not implemented yet)"
    end subroutine write_formatted
-! #endif
 
    function make_adapters(this, goal_spec, rc) result(adapters)
       type(StateItemAdapterWrapper), allocatable :: adapters(:)
