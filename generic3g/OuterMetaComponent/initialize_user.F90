@@ -1,10 +1,11 @@
 #include "MAPL_Generic.h"
 
 submodule (mapl3g_OuterMetaComponent) initialize_user_smod
-
+   use mapl3g_GenericPhases
+   use mapl3g_ComponentDriver
    use mapl3g_ComponentDriverPtrVector
    use mapl3g_CouplerPhases, only: GENERIC_COUPLER_INITIALIZE
-
+   use mapl_ErrorHandling
    implicit none
 
 contains

@@ -2,6 +2,7 @@
 
 submodule (mapl3g_OuterMetaComponent) run_children_smod
    use mapl3g_GriddedComponentDriverMap
+   use mapl_ErrorHandling
    implicit none
 
 contains

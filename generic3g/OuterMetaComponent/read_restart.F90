@@ -2,6 +2,8 @@
 
 submodule (mapl3g_OuterMetaComponent) read_restart_smod
    use mapl3g_RestartHandler
+   use mapl3g_Multistate
+   use mapl_ErrorHandling
    implicit none
 
 contains
@@ -17,7 +19,6 @@ contains
 
       ! Locals
       type(GriddedComponentDriver), pointer :: driver
-      type(ESMF_GridComp) :: gc
       character(:), allocatable :: name
       type(MultiState) :: states
       type(ESMF_State) :: internal_state, import_state
@@ -29,7 +30,6 @@ contains
       name = driver%get_name()
       ! TODO: Need a better way of identifying a gridcomp that reads a restart
       if ((name /= "cap") .and. (name /= "HIST") .and. (name /= "EXTDATA")) then
-         gc = driver%get_gridcomp()
          geom = this%get_geom()
          states = driver%get_states()
          call states%get_state(import_state, "import", _RC)
@@ -43,6 +43,9 @@ contains
       end if
 
       _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
    end subroutine read_restart
 
 end submodule read_restart_smod
