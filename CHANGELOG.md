@@ -77,7 +77,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- refactored tableEnd check
+- Change minimum CMake version to 3.24
+  - This is needed for f2py and meson support
+- Refactored tableEnd check
 - Added commandline options to `checkpoint_benchmark.x` and `restart_benchmark.x` to allow for easier testing of different configurations. Note that the old configuration file style of input is allowed via the `--config_file` option (which overrides any other command line options)
 - Update ESMF version for Baselibs to match that of Spack for consistency
 - Update `components.yaml`
@@ -90,9 +92,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
       - GSL 2.8
       - jpeg 9f
       - Various build fixes
-  - ESMA_cmake v3.52.0
+  - ESMA_cmake v3.55.0
     - Fixes for using MAPL as a library in spack builds of GEOSgcm
     - Various backports from v4
+    - Code for capturing `mepo status` output
+    - Fixes for f2py and meson (NOTE: Requires CMake minimum version of 3.24 in project for complete functionality)
+    - Fixes for `MPI_STACK` code run multiple times
 - Updates to CI
   - Use v7.27.0 Baselibs
   - Use GCC 14 for GNU tests
