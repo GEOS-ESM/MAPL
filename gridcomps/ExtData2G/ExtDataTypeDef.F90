@@ -21,9 +21,6 @@ module MAPL_ExtDataTypeDef
      ! fields to store endpoints for interpolation of a vector pair
      type(ExtDataBracket) :: comp1
      type(ExtDataBracket) :: comp2
-     ! if vertically interpolating vector fields
-     type(ExtDataBracket) :: auxiliary1
-     type(ExtDataBracket) :: auxiliary2
      logical :: initialized = .false.
   end type BracketingFields
 
@@ -78,6 +75,9 @@ module MAPL_ExtDataTypeDef
      logical :: initialized = .false.
      logical :: fail_on_missing_file = .true.
 
+     ! needed for final after time interp if no vertical interp, same field as import
+     type(ESMF_Field) :: t_interp_field 
+
      ! vertical description, abstract type and extensions or just 2 types?
      ! type(model_sigma)
      !   integer :: item_with_ps
@@ -120,6 +120,7 @@ module MAPL_ExtDataTypeDef
          new_name = "PS_"//trim(p1%name)
          p2%name=new_name
          p2%fileVars%xname = 'PS'
+         p2%fcomp1 = 'PS'
          p2%vcomp1=new_name
          if (.not.p1%havePressure) p2%file_template = "/dev/null"
          if (.not.p1%havePressure) p2%isConst = .true.
