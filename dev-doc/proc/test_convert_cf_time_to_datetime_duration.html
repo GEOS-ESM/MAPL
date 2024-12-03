@@ -1,0 +1,649 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>test_convert_CF_Time_to_datetime_duration &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>test_convert_CF_Time_to_datetime_duration
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">25 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/test_MAPL_CF_Time.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_mapl_cf_time.pf.html'>test_MAPL_CF_Time.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_mapl_cf_time.html'>test_MAPL_CF_Time</a></li>
+            <li class="breadcrumb-item active" aria-current="page">test_convert_CF_Time_to_datetime_duration</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/test_convert_cf_time_to_datetime_duration.html#src">test_convert_CF_Time_to_datetime_duration</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine test_convert_CF_Time_to_datetime_duration()  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+    <em>None</em>
+    <br>
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph Pages: 1 -->
+<svg id="proctest_convert_cf_time_to_datetime_durationCallsGraph" width="641pt" height="109pt"
+ viewBox="0.00 0.00 641.00 109.48" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph" class="graph" transform="scale(0.55 0.55) rotate(0) translate(4 196)">
+<title>proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-196 1167,-196 1167,4 -4,4"/>
+<!-- proc~test_convert_cf_time_to_datetime_duration -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node1" class="node">
+<title>proc~test_convert_cf_time_to_datetime_duration</title>
+<polygon fill="none" stroke="black" points="247,-108 0,-108 0,-84 247,-84 247,-108"/>
+<text text-anchor="middle" x="123.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_convert_CF_Time_to_datetime_duration</text>
+</g>
+<!-- assertequal -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node2" class="node">
+<title>assertequal</title>
+<polygon fill="#777777" stroke="#777777" points="432,-150 357,-150 357,-126 432,-126 432,-150"/>
+<text text-anchor="middle" x="394.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assertequal</text>
+</g>
+<!-- proc~test_convert_cf_time_to_datetime_duration&#45;&gt;assertequal -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge1" class="edge">
+<title>proc~test_convert_cf_time_to_datetime_duration&#45;&gt;assertequal</title>
+<path fill="none" stroke="#ff0000" d="M201.58,-108.04C248.43,-115.35 306.71,-124.45 346.68,-130.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="346.27,-134.17 356.69,-132.25 347.35,-127.25 346.27,-134.17"/>
+</g>
+<!-- asserttrue -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node3" class="node">
+<title>asserttrue</title>
+<polygon fill="#777777" stroke="#777777" points="428,-108 361,-108 361,-84 428,-84 428,-108"/>
+<text text-anchor="middle" x="394.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">asserttrue</text>
+</g>
+<!-- proc~test_convert_cf_time_to_datetime_duration&#45;&gt;asserttrue -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge2" class="edge">
+<title>proc~test_convert_cf_time_to_datetime_duration&#45;&gt;asserttrue</title>
+<path fill="none" stroke="#ff0000" d="M247.19,-96C284.3,-96 322.61,-96 350.72,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="350.97,-99.5 360.97,-96 350.97,-92.5 350.97,-99.5"/>
+</g>
+<!-- interface~convert_cf_time_to_datetime_duration -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node4" class="node">
+<title>interface~convert_cf_time_to_datetime_duration</title>
+<g id="a_proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node4"><a xlink:href="../interface/convert_cf_time_to_datetime_duration.html" xlink:title="convert_CF_Time_to_datetime_duration">
+<polygon fill="#a7506f" stroke="#a7506f" points="506,-66 283,-66 283,-42 506,-42 506,-66"/>
+<text text-anchor="middle" x="394.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">convert_CF_Time_to_datetime_duration</text>
+</a>
+</g>
+</g>
+<!-- proc~test_convert_cf_time_to_datetime_duration&#45;&gt;interface~convert_cf_time_to_datetime_duration -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge3" class="edge">
+<title>proc~test_convert_cf_time_to_datetime_duration&#45;&gt;interface~convert_cf_time_to_datetime_duration</title>
+<path fill="none" stroke="#ff0000" d="M201.58,-83.96C234.23,-78.87 272.42,-72.9 306.11,-67.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="307.06,-71.04 316.4,-66.04 305.98,-64.12 307.06,-71.04"/>
+</g>
+<!-- proc~convert_cf_time_to_datetime_duration_integer -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node5" class="node">
+<title>proc~convert_cf_time_to_datetime_duration_integer</title>
+<g id="a_proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node5"><a xlink:href="../proc/convert_cf_time_to_datetime_duration_integer.html" xlink:title="convert_CF_Time_to_datetime_duration_integer">
+<polygon fill="#d9534f" stroke="#d9534f" points="833,-150 567,-150 567,-126 833,-126 833,-150"/>
+<text text-anchor="middle" x="700" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">convert_CF_Time_to_datetime_duration_integer</text>
+</a>
+</g>
+</g>
+<!-- interface~convert_cf_time_to_datetime_duration&#45;&gt;proc~convert_cf_time_to_datetime_duration_integer -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge4" class="edge">
+<title>interface~convert_cf_time_to_datetime_duration&#45;&gt;proc~convert_cf_time_to_datetime_duration_integer</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M486.58,-66.06C493.36,-68.53 499.92,-71.48 506,-75 527.27,-87.32 520.4,-105.27 542,-117 546.91,-119.67 552.03,-122.04 557.29,-124.16"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="556.31,-127.52 566.91,-127.68 558.72,-120.95 556.31,-127.52"/>
+</g>
+<!-- proc~convert_cf_time_to_datetime_duration_integer_duration -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node6" class="node">
+<title>proc~convert_cf_time_to_datetime_duration_integer_duration</title>
+<g id="a_proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node6"><a xlink:href="../proc/convert_cf_time_to_datetime_duration_integer_duration.html" xlink:title="convert_CF_Time_to_datetime_duration_integer_duration">
+<polygon fill="#d9534f" stroke="#d9534f" points="858,-66 542,-66 542,-42 858,-42 858,-66"/>
+<text text-anchor="middle" x="700" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">convert_CF_Time_to_datetime_duration_integer_duration</text>
+</a>
+</g>
+</g>
+<!-- interface~convert_cf_time_to_datetime_duration&#45;&gt;proc~convert_cf_time_to_datetime_duration_integer_duration -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge5" class="edge">
+<title>interface~convert_cf_time_to_datetime_duration&#45;&gt;proc~convert_cf_time_to_datetime_duration_integer_duration</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M506.36,-47.47C514.7,-47.38 523.21,-47.32 531.79,-47.28"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="531.9,-50.78 541.89,-47.25 531.88,-43.78 531.9,-50.78"/>
+</g>
+<!-- proc~convert_cf_time_to_datetime_duration_real -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node7" class="node">
+<title>proc~convert_cf_time_to_datetime_duration_real</title>
+<g id="a_proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node7"><a xlink:href="../proc/convert_cf_time_to_datetime_duration_real.html" xlink:title="convert_CF_Time_to_datetime_duration_real">
+<polygon fill="#d9534f" stroke="#d9534f" points="824,-108 576,-108 576,-84 824,-84 824,-108"/>
+<text text-anchor="middle" x="700" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">convert_CF_Time_to_datetime_duration_real</text>
+</a>
+</g>
+</g>
+<!-- interface~convert_cf_time_to_datetime_duration&#45;&gt;proc~convert_cf_time_to_datetime_duration_real -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge6" class="edge">
+<title>interface~convert_cf_time_to_datetime_duration&#45;&gt;proc~convert_cf_time_to_datetime_duration_real</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M478.38,-66.02C499.15,-68.99 521.38,-72.14 542,-75 560.13,-77.51 579.44,-80.14 598.09,-82.65"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="597.7,-86.12 608.07,-83.99 598.63,-79.19 597.7,-86.12"/>
+</g>
+<!-- proc~convert_cf_time_to_datetime_duration_real_duration -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node8" class="node">
+<title>proc~convert_cf_time_to_datetime_duration_real_duration</title>
+<g id="a_proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node8"><a xlink:href="../proc/convert_cf_time_to_datetime_duration_real_duration.html" xlink:title="convert_CF_Time_to_datetime_duration_real_duration">
+<polygon fill="#d9534f" stroke="#d9534f" points="849,-24 551,-24 551,0 849,0 849,-24"/>
+<text text-anchor="middle" x="700" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">convert_CF_Time_to_datetime_duration_real_duration</text>
+</a>
+</g>
+</g>
+<!-- interface~convert_cf_time_to_datetime_duration&#45;&gt;proc~convert_cf_time_to_datetime_duration_real_duration -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge7" class="edge">
+<title>interface~convert_cf_time_to_datetime_duration&#45;&gt;proc~convert_cf_time_to_datetime_duration_real_duration</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M429.24,-41.96C456.83,-36.19 497.14,-30.26 540.72,-24.18"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="541.24,-27.65 550.66,-22.8 540.28,-20.71 541.24,-27.65"/>
+</g>
+<!-- get_time_unit -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node9" class="node">
+<title>get_time_unit</title>
+<polygon fill="#777777" stroke="#777777" points="979,-192 894,-192 894,-168 979,-168 979,-192"/>
+<text text-anchor="middle" x="936.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_time_unit</text>
+</g>
+<!-- proc~convert_cf_time_to_datetime_duration_integer&#45;&gt;get_time_unit -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge8" class="edge">
+<title>proc~convert_cf_time_to_datetime_duration_integer&#45;&gt;get_time_unit</title>
+<path fill="none" stroke="#ff0000" d="M768.2,-150.04C804.87,-156.6 849.59,-164.61 883.56,-170.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="883.28,-174.2 893.74,-172.52 884.51,-167.31 883.28,-174.2"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node10" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node10"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="976,-150 897,-150 897,-126 976,-126 976,-150"/>
+<text text-anchor="middle" x="936.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~convert_cf_time_to_datetime_duration_integer&#45;&gt;interface~mapl_assert -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge9" class="edge">
+<title>proc~convert_cf_time_to_datetime_duration_integer&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M833.33,-138C852.42,-138 870.96,-138 886.9,-138"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="886.97,-141.5 896.97,-138 886.97,-134.5 886.97,-141.5"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node11" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node11"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="977.5,-66 895.5,-66 895.5,-42 977.5,-42 977.5,-66"/>
+<text text-anchor="middle" x="936.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~convert_cf_time_to_datetime_duration_integer&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge10" class="edge">
+<title>proc~convert_cf_time_to_datetime_duration_integer&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M833.09,-127.68C841.76,-124.79 850.15,-121.27 858,-117 879.6,-105.27 874.66,-90.18 894,-75 895.57,-73.77 897.23,-72.57 898.94,-71.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="901.03,-74.26 907.78,-66.1 897.41,-68.26 901.03,-74.26"/>
+</g>
+<!-- set_value -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node13" class="node">
+<title>set_value</title>
+<polygon fill="#777777" stroke="#777777" points="968,-108 905,-108 905,-84 968,-84 968,-108"/>
+<text text-anchor="middle" x="936.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set_value</text>
+</g>
+<!-- proc~convert_cf_time_to_datetime_duration_integer&#45;&gt;set_value -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge11" class="edge">
+<title>proc~convert_cf_time_to_datetime_duration_integer&#45;&gt;set_value</title>
+<path fill="none" stroke="#ff0000" d="M805.62,-125.96C823.17,-123.38 841.15,-120.39 858,-117 870.17,-114.55 883.25,-111.26 895.14,-108.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="896.11,-111.38 904.8,-105.32 894.22,-104.64 896.11,-111.38"/>
+</g>
+<!-- proc~convert_cf_time_to_datetime_duration_integer_duration&#45;&gt;interface~convert_cf_time_to_datetime_duration -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge12" class="edge">
+<title>proc~convert_cf_time_to_datetime_duration_integer_duration&#45;&gt;interface~convert_cf_time_to_datetime_duration</title>
+<path fill="none" stroke="#7fff00" d="M541.89,-60.75C533.37,-60.73 524.87,-60.69 516.5,-60.63"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="516.39,-57.12 506.36,-60.53 516.32,-64.12 516.39,-57.12"/>
+</g>
+<!-- proc~convert_cf_time_to_datetime_duration_integer_duration&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge13" class="edge">
+<title>proc~convert_cf_time_to_datetime_duration_integer_duration&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#7fff00" d="M858.07,-54C867.57,-54 876.68,-54 885.09,-54"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="885.37,-57.5 895.37,-54 885.36,-50.5 885.37,-57.5"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node12" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node12"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="974.5,-24 898.5,-24 898.5,0 974.5,0 974.5,-24"/>
+<text text-anchor="middle" x="936.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~convert_cf_time_to_datetime_duration_integer_duration&#45;&gt;proc~mapl_verify -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge14" class="edge">
+<title>proc~convert_cf_time_to_datetime_duration_integer_duration&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#7fff00" d="M805.62,-41.96C823.17,-39.38 841.15,-36.39 858,-33 867.94,-31 878.49,-28.44 888.5,-25.8"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="889.55,-29.14 898.29,-23.15 887.72,-22.38 889.55,-29.14"/>
+</g>
+<!-- proc~convert_cf_time_to_datetime_duration_real&#45;&gt;get_time_unit -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge15" class="edge">
+<title>proc~convert_cf_time_to_datetime_duration_real&#45;&gt;get_time_unit</title>
+<path fill="none" stroke="#00ffff" d="M824.21,-103.58C836.02,-106.91 847.49,-111.29 858,-117 879.6,-128.73 874.66,-143.82 894,-159 895.57,-160.23 897.23,-161.43 898.94,-162.57"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="897.41,-165.74 907.78,-167.9 901.03,-159.74 897.41,-165.74"/>
+</g>
+<!-- proc~convert_cf_time_to_datetime_duration_real&#45;&gt;interface~mapl_assert -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge16" class="edge">
+<title>proc~convert_cf_time_to_datetime_duration_real&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ffff" d="M805.62,-108.04C823.17,-110.62 841.15,-113.61 858,-117 867.43,-118.9 877.41,-121.3 886.96,-123.8"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="886.14,-127.2 896.71,-126.41 887.96,-120.44 886.14,-127.2"/>
+</g>
+<!-- proc~convert_cf_time_to_datetime_duration_real&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge17" class="edge">
+<title>proc~convert_cf_time_to_datetime_duration_real&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ffff" d="M805.62,-83.96C823.17,-81.38 841.15,-78.39 858,-75 866.93,-73.2 876.35,-70.95 885.44,-68.6"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="886.35,-71.98 895.12,-66.02 884.55,-65.21 886.35,-71.98"/>
+</g>
+<!-- proc~convert_cf_time_to_datetime_duration_real&#45;&gt;set_value -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge18" class="edge">
+<title>proc~convert_cf_time_to_datetime_duration_real&#45;&gt;set_value</title>
+<path fill="none" stroke="#00ffff" d="M824.09,-96C849.58,-96 874.71,-96 894.63,-96"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="894.84,-99.5 904.84,-96 894.84,-92.5 894.84,-99.5"/>
+</g>
+<!-- proc~convert_cf_time_to_datetime_duration_real_duration&#45;&gt;interface~convert_cf_time_to_datetime_duration -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge19" class="edge">
+<title>proc~convert_cf_time_to_datetime_duration_real_duration&#45;&gt;interface~convert_cf_time_to_datetime_duration</title>
+<path fill="none" stroke="#7f00ff" d="M661.87,-24.04C630.05,-30.06 583,-36.32 542,-42 533.68,-43.15 525.09,-44.35 516.44,-45.55"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="515.7,-42.12 506.27,-46.96 516.66,-49.06 515.7,-42.12"/>
+</g>
+<!-- proc~convert_cf_time_to_datetime_duration_real_duration&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge20" class="edge">
+<title>proc~convert_cf_time_to_datetime_duration_real_duration&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#7f00ff" d="M805.62,-24.04C823.17,-26.62 841.15,-29.61 858,-33 866.93,-34.8 876.35,-37.05 885.44,-39.4"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="884.55,-42.79 895.12,-41.98 886.35,-36.02 884.55,-42.79"/>
+</g>
+<!-- proc~convert_cf_time_to_datetime_duration_real_duration&#45;&gt;proc~mapl_verify -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge21" class="edge">
+<title>proc~convert_cf_time_to_datetime_duration_real_duration&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#7f00ff" d="M849.18,-12C863,-12 876.21,-12 887.95,-12"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="888.29,-15.5 898.29,-12 888.29,-8.5 888.29,-15.5"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node15" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node15"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1156,-171 1022,-171 1022,-147 1156,-147 1156,-171"/>
+<text text-anchor="middle" x="1089" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge22" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M976.26,-143.41C987.25,-144.94 999.62,-146.67 1012.01,-148.4"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="1011.55,-151.87 1021.93,-149.78 1012.51,-144.93 1011.55,-151.87"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node16" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node16"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1163,-129 1015,-129 1015,-105 1163,-105 1163,-129"/>
+<text text-anchor="middle" x="1089" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge23" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M976.26,-132.59C985.14,-131.35 994.92,-129.99 1004.88,-128.6"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="1005.47,-132.05 1014.89,-127.2 1004.5,-125.12 1005.47,-132.05"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node14" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node14"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1146.5,-66 1031.5,-66 1031.5,-42 1146.5,-42 1146.5,-66"/>
+<text text-anchor="middle" x="1089" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ff66" d="M977.83,-54C991.2,-54 1006.46,-54 1021.28,-54"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="1021.43,-57.5 1031.43,-54 1021.43,-50.5 1021.43,-57.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node17" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_node17"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1155.5,-24 1022.5,-24 1022.5,0 1155.5,0 1155.5,-24"/>
+<text text-anchor="middle" x="1089" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff66" d="M977.83,-42.74C995.48,-37.82 1016.42,-31.98 1035.28,-26.71"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="1036.23,-30.08 1044.92,-24.02 1034.35,-23.34 1036.23,-30.08"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~test_convert_cf_time_to_datetime_duration~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#0066ff" d="M974.7,-12C986.04,-12 998.93,-12 1011.86,-12"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="1012.21,-15.5 1022.21,-12 1012.21,-8.5 1012.21,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproctest_convert_cf_time_to_datetime_durationCallsGraph = svgPanZoom('#proctest_convert_cf_time_to_datetime_durationCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_convert_CF_Time_to_datetime_duration</span><span class="p">()</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">CF_Time_Integer</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cfti</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">CF_Time_Real</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cftr</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iduration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1800</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">R64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rduration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">180</span><span class="mf">0.0</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">datetime_duration</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dt_dur</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">time_unit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;seconds&#39;</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">base_datetime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;1999-12-31 23:29:59&#39;</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">units</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time_unit</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39; since &#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">base_datetime</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span>
+<span class="w">      </span><span class="k">call </span><span class="n">convert_CF_Time_to_datetime_duration</span><span class="p">(</span><span class="n">iduration</span><span class="p">,</span><span class="w"> </span><span class="n">units</span><span class="p">,</span><span class="w"> </span><span class="n">dt_dur</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">convert_CF_Time_to_datetime_duration</span><span class="p">(</span><span class="n">rduration</span><span class="p">,</span><span class="w"> </span><span class="n">units</span><span class="p">,</span><span class="w"> </span><span class="n">dt_dur</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">SUCCESS</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Conversion unsuccessful&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">rduration</span><span class="p">,</span><span class="w"> </span><span class="n">dt_dur</span><span class="w"> </span><span class="p">%</span><span class="w"> </span><span class="n">second_real</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Duration does not match.&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">cfti</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CF_Time_Integer</span><span class="p">(</span><span class="n">iduration</span><span class="p">,</span><span class="w"> </span><span class="n">units</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">cfti</span><span class="w"> </span><span class="p">%</span><span class="w"> </span><span class="n">is_valid</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Invalid CF_Time_Integer&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">convert_CF_Time_to_datetime_duration</span><span class="p">(</span><span class="n">cfti</span><span class="p">,</span><span class="w"> </span><span class="n">dt_dur</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">SUCCESS</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Conversion unsuccessful&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">iduration</span><span class="p">,</span><span class="w"> </span><span class="n">dt_dur</span><span class="w"> </span><span class="p">%</span><span class="w"> </span><span class="nb">second</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Duration does not match.&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">cftr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CF_Time_Real</span><span class="p">(</span><span class="n">rduration</span><span class="p">,</span><span class="w"> </span><span class="n">units</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">cftr</span><span class="w"> </span><span class="p">%</span><span class="w"> </span><span class="n">is_valid</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Invalid CF_Time_Real&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">convert_CF_Time_to_datetime_duration</span><span class="p">(</span><span class="n">cftr</span><span class="p">,</span><span class="w"> </span><span class="n">dt_dur</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">SUCCESS</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Conversion unsuccessful&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">rduration</span><span class="p">,</span><span class="w"> </span><span class="n">dt_dur</span><span class="w"> </span><span class="p">%</span><span class="w"> </span><span class="n">second_real</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Duration does not match.&#39;</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_convert_CF_Time_to_datetime_duration</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-12-03T14:32:23.557683+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

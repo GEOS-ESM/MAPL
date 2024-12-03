@@ -1,0 +1,1090 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>deserialize_real64_1d &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>deserialize_real64_1d
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">12 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/pFIO_Utilities.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/pfio_utilities.f90.html'>pFIO_Utilities.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/pfio_utilitiesmod.html'>pFIO_UtilitiesMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">deserialize_real64_1d</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/deserialize_real64_1d.html#src">deserialize_real64_1d</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine deserialize_real64_1d(buffer, array, rc)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-buffer~141"></span>
+              integer(kind=INT32),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>buffer</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-array~107"></span>
+              real(kind=REAL64),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>array</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~2122"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~deserialize_real64_1d~~CallsGraph Pages: 1 -->
+<svg id="procdeserialize_real64_1dCallsGraph" width="641pt" height="145pt"
+ viewBox="0.00 0.00 641.00 145.31" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~deserialize_real64_1d~~CallsGraph" class="graph" transform="scale(0.92 0.92) rotate(0) translate(4 154)">
+<title>proc~~deserialize_real64_1d~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 693,-154 693,4 -4,4"/>
+<!-- proc~deserialize_real64_1d -->
+<g id="proc~~deserialize_real64_1d~~CallsGraph_node1" class="node">
+<title>proc~deserialize_real64_1d</title>
+<polygon fill="none" stroke="black" points="128,-86 0,-86 0,-62 128,-62 128,-86"/>
+<text text-anchor="middle" x="64" y="-71.6" font-family="Helvetica,sans-Serif" font-size="10.50">deserialize_real64_1d</text>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~deserialize_real64_1d~~CallsGraph_node2" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~deserialize_real64_1d~~CallsGraph_node2"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="243,-66 164,-66 164,-42 243,-42 243,-66"/>
+<text text-anchor="middle" x="203.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~deserialize_real64_1d&#45;&gt;interface~mapl_assert -->
+<g id="proc~~deserialize_real64_1d~~CallsGraph_edge1" class="edge">
+<title>proc~deserialize_real64_1d&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M128.12,-64.82C136.75,-63.56 145.5,-62.29 153.82,-61.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="154.33,-64.54 163.72,-59.64 153.32,-57.62 154.33,-64.54"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~deserialize_real64_1d~~CallsGraph_node3" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~deserialize_real64_1d~~CallsGraph_node3"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="394,-108 312,-108 312,-84 394,-84 394,-108"/>
+<text text-anchor="middle" x="353" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~deserialize_real64_1d&#45;&gt;proc~mapl_return -->
+<g id="proc~~deserialize_real64_1d~~CallsGraph_edge2" class="edge">
+<title>proc~deserialize_real64_1d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M128.34,-78.86C180.47,-82.85 253.39,-88.44 301.62,-92.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="301.58,-95.65 311.82,-92.92 302.11,-88.67 301.58,-95.65"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~deserialize_real64_1d~~CallsGraph_node5" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~deserialize_real64_1d~~CallsGraph_node5"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="420,-24 286,-24 286,0 420,0 420,-24"/>
+<text text-anchor="middle" x="353" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~deserialize_real64_1d~~CallsGraph_edge3" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M243.25,-42.96C260.55,-38.04 281.18,-32.17 299.8,-26.86"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="300.96,-30.17 309.62,-24.07 299.04,-23.44 300.96,-30.17"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~deserialize_real64_1d~~CallsGraph_node6" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~deserialize_real64_1d~~CallsGraph_node6"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="427,-66 279,-66 279,-42 427,-42 427,-66"/>
+<text text-anchor="middle" x="353" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~deserialize_real64_1d~~CallsGraph_edge4" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M243.25,-54C251.25,-54 259.97,-54 268.87,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="268.97,-57.5 278.97,-54 268.97,-50.5 268.97,-57.5"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~deserialize_real64_1d~~CallsGraph_node4" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~deserialize_real64_1d~~CallsGraph_node4"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="587,-108 472,-108 472,-84 587,-84 587,-108"/>
+<text text-anchor="middle" x="529.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~deserialize_real64_1d~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ffff" d="M394.03,-96C414.02,-96 438.73,-96 461.49,-96"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="461.79,-99.5 471.79,-96 461.79,-92.5 461.79,-99.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~deserialize_real64_1d~~CallsGraph_node7" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~deserialize_real64_1d~~CallsGraph_node7"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="596,-66 463,-66 463,-42 596,-42 596,-66"/>
+<text text-anchor="middle" x="529.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~deserialize_real64_1d~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M394.03,-86.36C416.05,-81.06 443.82,-74.38 468.39,-68.47"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="469.44,-71.82 478.34,-66.07 467.8,-65.01 469.44,-71.82"/>
+</g>
+<!-- at -->
+<g id="proc~~deserialize_real64_1d~~CallsGraph_node8" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="687.5,-108 633.5,-108 633.5,-84 687.5,-84 687.5,-108"/>
+<text text-anchor="middle" x="660.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~deserialize_real64_1d~~CallsGraph_edge7" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M587.08,-96C599.29,-96 611.89,-96 623.08,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="623.32,-99.5 633.32,-96 623.32,-92.5 623.32,-99.5"/>
+</g>
+<!-- insert -->
+<g id="proc~~deserialize_real64_1d~~CallsGraph_node9" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="687.5,-150 633.5,-150 633.5,-126 687.5,-126 687.5,-150"/>
+<text text-anchor="middle" x="660.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~deserialize_real64_1d~~CallsGraph_edge8" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ff0000" d="M567.47,-108.04C585.02,-113.75 605.92,-120.55 623.36,-126.23"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="622.59,-129.66 633.18,-129.43 624.75,-123.01 622.59,-129.66"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~deserialize_real64_1d~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7fff00" d="M404,-24.04C424.18,-28.89 447.62,-34.53 468.68,-39.6"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="467.95,-43.03 478.49,-41.96 469.58,-36.22 467.95,-43.03"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~deserialize_real64_1d~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ffff" d="M404,-66.04C424.18,-70.89 447.62,-76.53 468.68,-81.6"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="467.95,-85.03 478.49,-83.96 469.58,-78.22 467.95,-85.03"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~deserialize_real64_1d~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M427.25,-54C435.67,-54 444.27,-54 452.72,-54"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="452.94,-57.5 462.94,-54 452.94,-50.5 452.94,-57.5"/>
+</g>
+<!-- proc~initialize~3 -->
+<g id="proc~~deserialize_real64_1d~~CallsGraph_node10" class="node">
+<title>proc~initialize~3</title>
+<g id="a_proc~~deserialize_real64_1d~~CallsGraph_node10"><a xlink:href="../proc/initialize~3.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="689,-66 632,-66 632,-42 689,-42 689,-66"/>
+<text text-anchor="middle" x="660.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~3 -->
+<g id="proc~~deserialize_real64_1d~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~3</title>
+<path fill="none" stroke="#7f00ff" d="M596.13,-54C604.88,-54 613.59,-54 621.63,-54"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="621.77,-57.5 631.77,-54 621.77,-50.5 621.77,-57.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocdeserialize_real64_1dCallsGraph = svgPanZoom('#procdeserialize_real64_1dCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~deserialize_real64_1d~~CalledByGraph Pages: 1 -->
+<svg id="procdeserialize_real64_1dCalledByGraph" width="575pt" height="1166pt"
+ viewBox="0.00 0.00 575.00 1166.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~deserialize_real64_1d~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 1162)">
+<title>proc~~deserialize_real64_1d~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-1162 571,-1162 571,4 -4,4"/>
+<!-- proc~deserialize_real64_1d -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node1" class="node">
+<title>proc~deserialize_real64_1d</title>
+<polygon fill="none" stroke="black" points="567,-591 439,-591 439,-567 567,-567 567,-591"/>
+<text text-anchor="middle" x="503" y="-576.6" font-family="Helvetica,sans-Serif" font-size="10.50">deserialize_real64_1d</text>
+</g>
+<!-- interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node2" class="node">
+<title>interface~deserialize_intrinsic</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node2"><a xlink:href="../interface/deserialize_intrinsic.html" xlink:title="deserialize_intrinsic">
+<polygon fill="#a7506f" stroke="#a7506f" points="403,-591 285,-591 285,-567 403,-567 403,-591"/>
+<text text-anchor="middle" x="344" y="-576.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">deserialize_intrinsic</text>
+</a>
+</g>
+</g>
+<!-- interface~deserialize_intrinsic&#45;&gt;proc~deserialize_real64_1d -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge1" class="edge">
+<title>interface~deserialize_intrinsic&#45;&gt;proc~deserialize_real64_1d</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M403.01,-579C411.43,-579 420.18,-579 428.84,-579"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="428.95,-582.5 438.95,-579 428.95,-575.5 428.95,-582.5"/>
+</g>
+<!-- proc~coordinatevariable_deserialize -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node3" class="node">
+<title>proc~coordinatevariable_deserialize</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node3"><a xlink:href="../proc/coordinatevariable_deserialize.html" xlink:title="CoordinateVariable_deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="213.5,-1158 35.5,-1158 35.5,-1134 213.5,-1134 213.5,-1158"/>
+<text text-anchor="middle" x="124.5" y="-1143.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CoordinateVariable_deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~coordinatevariable_deserialize&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge2" class="edge">
+<title>proc~coordinatevariable_deserialize&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M213.71,-1144.69C226.9,-1140.87 239.3,-1134.68 249,-1125 324.57,-1049.59 339.76,-694.44 342.46,-601.37"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="345.96,-601.45 342.74,-591.36 338.97,-601.26 345.96,-601.45"/>
+</g>
+<!-- proc~deserialize~10 -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node4" class="node">
+<title>proc~deserialize~10</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node4"><a xlink:href="../proc/deserialize~10.html" xlink:title="AbstractDataMessage%deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="222.5,-1116 26.5,-1116 26.5,-1092 222.5,-1092 222.5,-1116"/>
+<text text-anchor="middle" x="124.5" y="-1101.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractDataMessage%deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~deserialize~10&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge3" class="edge">
+<title>proc~deserialize~10&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M222.56,-1099.56C232.38,-1095.75 241.48,-1090.4 249,-1083 318.96,-1014.15 338.15,-689.8 342.12,-601.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="345.61,-601.46 342.55,-591.32 338.62,-601.16 345.61,-601.46"/>
+</g>
+<!-- proc~deserialize~11 -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node5" class="node">
+<title>proc~deserialize~11</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node5"><a xlink:href="../proc/deserialize~11.html" xlink:title="AbstractCollectiveDataMessage%deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="249,-1074 0,-1074 0,-1050 249,-1050 249,-1074"/>
+<text text-anchor="middle" x="124.5" y="-1059.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractCollectiveDataMessage%deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~deserialize~11&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge4" class="edge">
+<title>proc~deserialize~11&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M237.53,-1049.95C241.63,-1047.37 245.48,-1044.4 249,-1041 313.37,-978.67 336.39,-685.04 341.71,-601.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="345.21,-601.35 342.33,-591.16 338.23,-600.93 345.21,-601.35"/>
+</g>
+<!-- proc~deserialize~12 -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node6" class="node">
+<title>proc~deserialize~12</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node6"><a xlink:href="../proc/deserialize~12.html" xlink:title="AddExtCollectionMessage%deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="233,-1032 16,-1032 16,-1008 233,-1008 233,-1032"/>
+<text text-anchor="middle" x="124.5" y="-1017.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AddExtCollectionMessage%deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~deserialize~12&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge5" class="edge">
+<title>proc~deserialize~12&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M233.25,-1010.3C238.95,-1007.22 244.27,-1003.49 249,-999 307.75,-943.22 334.41,-680.61 341.2,-601.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="344.71,-601.54 342.06,-591.28 337.74,-600.96 344.71,-601.54"/>
+</g>
+<!-- proc~deserialize~15 -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node7" class="node">
+<title>proc~deserialize~15</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node7"><a xlink:href="../proc/deserialize~15.html" xlink:title="AddHistCollectionMessage%deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="234.5,-990 14.5,-990 14.5,-966 234.5,-966 234.5,-990"/>
+<text text-anchor="middle" x="124.5" y="-975.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AddHistCollectionMessage%deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~deserialize~15&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge6" class="edge">
+<title>proc~deserialize~15&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M234.55,-967.4C239.75,-964.5 244.61,-961.07 249,-957 302.29,-907.58 332.37,-674.62 340.64,-601.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="344.12,-601.54 341.74,-591.22 337.16,-600.77 344.12,-601.54"/>
+</g>
+<!-- proc~deserialize~2 -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node8" class="node">
+<title>proc~deserialize~2</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node8"><a xlink:href="../proc/deserialize~2.html" xlink:title="ModifyMetadataMessage%deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="230.5,-948 18.5,-948 18.5,-924 230.5,-924 230.5,-948"/>
+<text text-anchor="middle" x="124.5" y="-933.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ModifyMetadataMessage%deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~deserialize~2&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge7" class="edge">
+<title>proc~deserialize~2&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M230.65,-927.18C237.29,-923.95 243.51,-919.95 249,-915 296.75,-871.99 329.92,-669.44 339.88,-601.38"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="343.37,-601.71 341.32,-591.31 336.44,-600.71 343.37,-601.71"/>
+</g>
+<!-- proc~deserialize~21 -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node9" class="node">
+<title>proc~deserialize~21</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node9"><a xlink:href="../proc/deserialize~21.html" xlink:title="ShmemReference%deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="212,-906 37,-906 37,-882 212,-882 212,-906"/>
+<text text-anchor="middle" x="124.5" y="-891.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ShmemReference%deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~deserialize~21&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge8" class="edge">
+<title>proc~deserialize~21&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M212.28,-891.59C225.72,-887.91 238.57,-882.05 249,-873 331.72,-801.19 342.27,-656.61 343.16,-601.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="346.66,-601.16 343.23,-591.14 339.67,-601.11 346.66,-601.16"/>
+</g>
+<!-- proc~deserialize~5 -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node10" class="node">
+<title>proc~deserialize~5</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node10"><a xlink:href="../proc/deserialize~5.html" xlink:title="RDMAReference%deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="207.5,-864 41.5,-864 41.5,-840 207.5,-840 207.5,-864"/>
+<text text-anchor="middle" x="124.5" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RDMAReference%deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~deserialize~5&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge9" class="edge">
+<title>proc~deserialize~5&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M207.77,-850.22C222.72,-846.67 237.27,-840.7 249,-831 321.09,-771.37 337.91,-650.73 341.82,-601.1"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="345.32,-601.33 342.51,-591.11 338.33,-600.85 345.32,-601.33"/>
+</g>
+<!-- proc~deserialize~7 -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node11" class="node">
+<title>proc~deserialize~7</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node11"><a xlink:href="../proc/deserialize~7.html" xlink:title="ForwardDataMessage%deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="222.5,-822 26.5,-822 26.5,-798 222.5,-798 222.5,-822"/>
+<text text-anchor="middle" x="124.5" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ForwardDataMessage%deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~deserialize~7&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge10" class="edge">
+<title>proc~deserialize~7&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M222.51,-803.16C232.04,-799.73 241.09,-795.13 249,-789 310.43,-741.4 332.78,-644.85 339.97,-601.25"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="343.47,-601.55 341.52,-591.14 336.55,-600.5 343.47,-601.55"/>
+</g>
+<!-- proc~deserialize~9 -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node12" class="node">
+<title>proc~deserialize~9</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node12"><a xlink:href="../proc/deserialize~9.html" xlink:title="ReplaceMetadataMessage%deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="234.5,-780 14.5,-780 14.5,-756 234.5,-756 234.5,-780"/>
+<text text-anchor="middle" x="124.5" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ReplaceMetadataMessage%deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~deserialize~9&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge11" class="edge">
+<title>proc~deserialize~9&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M233.35,-755.92C238.85,-753.4 244.11,-750.45 249,-747 300.2,-710.87 326.82,-637.55 337.41,-600.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="340.8,-601.75 340.08,-591.18 334.05,-599.89 340.8,-601.75"/>
+</g>
+<!-- proc~filemetadata_deserialize -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node13" class="node">
+<title>proc~filemetadata_deserialize</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node13"><a xlink:href="../proc/filemetadata_deserialize.html" xlink:title="FileMetadata_deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="196.5,-738 52.5,-738 52.5,-714 196.5,-714 196.5,-738"/>
+<text text-anchor="middle" x="124.5" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadata_deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~filemetadata_deserialize&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge12" class="edge">
+<title>proc~filemetadata_deserialize&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M196.73,-723.21C214.76,-720.07 233.42,-714.54 249,-705 290.23,-679.77 319.41,-629.14 333.47,-600.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="336.71,-601.67 337.81,-591.13 330.38,-598.68 336.71,-601.67"/>
+</g>
+<!-- proc~historycollectionvector_deserialize -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node14" class="node">
+<title>proc~historycollectionvector_deserialize</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node14"><a xlink:href="../proc/historycollectionvector_deserialize.html" xlink:title="HistoryCollectionVector_deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="224.5,-696 24.5,-696 24.5,-672 224.5,-672 224.5,-696"/>
+<text text-anchor="middle" x="124.5" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">HistoryCollectionVector_deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~historycollectionvector_deserialize&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge13" class="edge">
+<title>proc~historycollectionvector_deserialize&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M224.8,-672.25C233.18,-669.73 241.36,-666.68 249,-663 280.75,-647.71 309.74,-618.43 326.89,-598.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="329.67,-600.93 333.49,-591.05 324.34,-596.4 329.67,-600.93"/>
+</g>
+<!-- proc~stringattributemap_deserialize -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node15" class="node">
+<title>proc~stringattributemap_deserialize</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node15"><a xlink:href="../proc/stringattributemap_deserialize.html" xlink:title="StringAttributeMap_deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="212,-654 37,-654 37,-630 212,-630 212,-654"/>
+<text text-anchor="middle" x="124.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringAttributeMap_deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~stringattributemap_deserialize&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge14" class="edge">
+<title>proc~stringattributemap_deserialize&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M212.18,-630.11C224.66,-627.58 237.24,-624.56 249,-621 270.36,-614.53 293.25,-604.37 311.09,-595.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="313.05,-598.61 320.44,-591.02 309.93,-592.34 313.05,-598.61"/>
+</g>
+<!-- proc~stringintegermap_deserialize -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node16" class="node">
+<title>proc~stringintegermap_deserialize</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node16"><a xlink:href="../proc/stringintegermap_deserialize.html" xlink:title="StringIntegerMap_deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="208.5,-612 40.5,-612 40.5,-588 208.5,-588 208.5,-612"/>
+<text text-anchor="middle" x="124.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringIntegerMap_deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~stringintegermap_deserialize&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge15" class="edge">
+<title>proc~stringintegermap_deserialize&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M208.66,-591.97C230.51,-589.86 253.82,-587.61 274.78,-585.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="275.25,-589.06 284.87,-584.61 274.58,-582.09 275.25,-589.06"/>
+</g>
+<!-- proc~stringunlimitedentitymap_deserialize -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node17" class="node">
+<title>proc~stringunlimitedentitymap_deserialize</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node17"><a xlink:href="../proc/stringunlimitedentitymap_deserialize.html" xlink:title="StringUnlimitedEntityMap_deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="230,-570 19,-570 19,-546 230,-546 230,-570"/>
+<text text-anchor="middle" x="124.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringUnlimitedEntityMap_deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~stringunlimitedentitymap_deserialize&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge16" class="edge">
+<title>proc~stringunlimitedentitymap_deserialize&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M230.11,-568.1C245.26,-569.56 260.52,-571.04 274.7,-572.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="274.54,-575.91 284.83,-573.38 275.21,-568.94 274.54,-575.91"/>
+</g>
+<!-- proc~stringvariablemap_deserialize -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node18" class="node">
+<title>proc~stringvariablemap_deserialize</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node18"><a xlink:href="../proc/stringvariablemap_deserialize.html" xlink:title="StringVariableMap_deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="211,-528 38,-528 38,-504 211,-504 211,-528"/>
+<text text-anchor="middle" x="124.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringVariableMap_deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~stringvariablemap_deserialize&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge17" class="edge">
+<title>proc~stringvariablemap_deserialize&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M211.19,-527.69C223.99,-530.26 236.93,-533.34 249,-537 270.36,-543.47 293.25,-553.63 311.09,-562.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="309.93,-565.66 320.44,-566.98 313.05,-559.39 309.93,-565.66"/>
+</g>
+<!-- proc~stringvector_deserialize -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node19" class="node">
+<title>proc~stringvector_deserialize</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node19"><a xlink:href="../proc/stringvector_deserialize.html" xlink:title="StringVector_deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="195,-486 54,-486 54,-462 195,-462 195,-486"/>
+<text text-anchor="middle" x="124.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringVector_deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~stringvector_deserialize&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge18" class="edge">
+<title>proc~stringvector_deserialize&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M195.22,-478.91C213.36,-482.03 232.44,-487.03 249,-495 280.75,-510.29 309.74,-539.57 326.89,-559.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="324.34,-561.6 333.49,-566.95 329.67,-557.07 324.34,-561.6"/>
+</g>
+<!-- proc~test_serialize_int64_array -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node20" class="node">
+<title>proc~test_serialize_int64_array</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node20"><a xlink:href="../proc/test_serialize_int64_array.html" xlink:title="test_serialize_int64_array">
+<polygon fill="#d9534f" stroke="#d9534f" points="198.5,-444 50.5,-444 50.5,-420 198.5,-420 198.5,-444"/>
+<text text-anchor="middle" x="124.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_serialize_int64_array</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize_int64_array&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge19" class="edge">
+<title>proc~test_serialize_int64_array&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M198.67,-435.13C216.09,-438.33 233.97,-443.81 249,-453 290.23,-478.23 319.41,-528.86 333.47,-557.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="330.38,-559.32 337.81,-566.87 336.71,-556.33 330.38,-559.32"/>
+</g>
+<!-- proc~test_serialize_int64_scalar -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node21" class="node">
+<title>proc~test_serialize_int64_scalar</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node21"><a xlink:href="../proc/test_serialize_int64_scalar.html" xlink:title="test_serialize_int64_scalar">
+<polygon fill="#d9534f" stroke="#d9534f" points="200,-402 49,-402 49,-378 200,-378 200,-402"/>
+<text text-anchor="middle" x="124.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_serialize_int64_scalar</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize_int64_scalar&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge20" class="edge">
+<title>proc~test_serialize_int64_scalar&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M200.2,-391.9C217.39,-395.16 234.78,-400.97 249,-411 300.2,-447.13 326.82,-520.45 337.41,-557.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="334.05,-558.11 340.08,-566.82 340.8,-556.25 334.05,-558.11"/>
+</g>
+<!-- proc~test_serialize_int_array -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node22" class="node">
+<title>proc~test_serialize_int_array</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node22"><a xlink:href="../proc/test_serialize_int_array.html" xlink:title="test_serialize_int_array">
+<polygon fill="#d9534f" stroke="#d9534f" points="191.5,-360 57.5,-360 57.5,-336 191.5,-336 191.5,-360"/>
+<text text-anchor="middle" x="124.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_serialize_int_array</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize_int_array&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge21" class="edge">
+<title>proc~test_serialize_int_array&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M191.54,-347.5C211.67,-350.26 232.75,-356.41 249,-369 310.43,-416.6 332.78,-513.15 339.97,-556.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="336.55,-557.5 341.52,-566.86 343.47,-556.45 336.55,-557.5"/>
+</g>
+<!-- proc~test_serialize_int_scalar -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node23" class="node">
+<title>proc~test_serialize_int_scalar</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node23"><a xlink:href="../proc/test_serialize_int_scalar.html" xlink:title="test_serialize_int_scalar">
+<polygon fill="#d9534f" stroke="#d9534f" points="193.5,-318 55.5,-318 55.5,-294 193.5,-294 193.5,-318"/>
+<text text-anchor="middle" x="124.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_serialize_int_scalar</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize_int_scalar&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge22" class="edge">
+<title>proc~test_serialize_int_scalar&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M193.63,-305.11C213.3,-307.95 233.58,-314.25 249,-327 321.09,-386.63 337.91,-507.27 341.82,-556.9"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="338.33,-557.15 342.51,-566.89 345.32,-556.67 338.33,-557.15"/>
+</g>
+<!-- proc~test_serialize_logical_array -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node24" class="node">
+<title>proc~test_serialize_logical_array</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node24"><a xlink:href="../proc/test_serialize_logical_array.html" xlink:title="test_serialize_logical_array">
+<polygon fill="#d9534f" stroke="#d9534f" points="202.5,-276 46.5,-276 46.5,-252 202.5,-252 202.5,-276"/>
+<text text-anchor="middle" x="124.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_serialize_logical_array</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize_logical_array&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge23" class="edge">
+<title>proc~test_serialize_logical_array&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M202.69,-264.15C219.51,-267.51 236.11,-273.81 249,-285 331.72,-356.81 342.27,-501.39 343.16,-556.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="339.67,-556.89 343.23,-566.86 346.66,-556.84 339.67,-556.89"/>
+</g>
+<!-- proc~test_serialize_logical_scalar -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node25" class="node">
+<title>proc~test_serialize_logical_scalar</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node25"><a xlink:href="../proc/test_serialize_logical_scalar.html" xlink:title="test_serialize_logical_scalar">
+<polygon fill="#d9534f" stroke="#d9534f" points="204.5,-234 44.5,-234 44.5,-210 204.5,-210 204.5,-234"/>
+<text text-anchor="middle" x="124.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_serialize_logical_scalar</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize_logical_scalar&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge24" class="edge">
+<title>proc~test_serialize_logical_scalar&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M204.59,-222.14C220.84,-225.59 236.72,-231.94 249,-243 296.75,-286.01 329.92,-488.56 339.88,-556.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="336.44,-557.29 341.32,-566.69 343.37,-556.29 336.44,-557.29"/>
+</g>
+<!-- proc~test_serialize_real_array -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node26" class="node">
+<title>proc~test_serialize_real_array</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node26"><a xlink:href="../proc/test_serialize_real_array.html" xlink:title="test_serialize_real_array">
+<polygon fill="#d9534f" stroke="#d9534f" points="195,-192 54,-192 54,-168 195,-168 195,-192"/>
+<text text-anchor="middle" x="124.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_serialize_real_array</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize_real_array&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge25" class="edge">
+<title>proc~test_serialize_real_array&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M195.19,-178.15C214.69,-181 234.49,-187.54 249,-201 302.29,-250.42 332.37,-483.38 340.64,-556.79"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="337.16,-557.23 341.74,-566.78 344.12,-556.46 337.16,-557.23"/>
+</g>
+<!-- proc~test_serialize_real_scalar -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node27" class="node">
+<title>proc~test_serialize_real_scalar</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node27"><a xlink:href="../proc/test_serialize_real_scalar.html" xlink:title="test_serialize_real_scalar">
+<polygon fill="#d9534f" stroke="#d9534f" points="197,-150 52,-150 52,-126 197,-126 197,-150"/>
+<text text-anchor="middle" x="124.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_serialize_real_scalar</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize_real_scalar&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge26" class="edge">
+<title>proc~test_serialize_real_scalar&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M197,-136.18C215.98,-139.15 235.04,-145.75 249,-159 307.75,-214.78 334.41,-477.39 341.2,-556.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="337.74,-557.04 342.06,-566.72 344.71,-556.46 337.74,-557.04"/>
+</g>
+<!-- proc~test_serialize_string -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node28" class="node">
+<title>proc~test_serialize_string</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node28"><a xlink:href="../proc/test_serialize_string.html" xlink:title="test_serialize_string">
+<polygon fill="#d9534f" stroke="#d9534f" points="183,-108 66,-108 66,-84 183,-84 183,-108"/>
+<text text-anchor="middle" x="124.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_serialize_string</text>
+</a>
+</g>
+</g>
+<!-- proc~test_serialize_string&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge27" class="edge">
+<title>proc~test_serialize_string&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M183.1,-92.44C206.36,-94.09 231.73,-100.28 249,-117 313.37,-179.33 336.39,-472.96 341.71,-556.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="338.23,-557.07 342.33,-566.84 345.21,-556.65 338.23,-557.07"/>
+</g>
+<!-- proc~unlimitedentity_deserialize -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node29" class="node">
+<title>proc~unlimitedentity_deserialize</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node29"><a xlink:href="../proc/unlimitedentity_deserialize.html" xlink:title="UnlimitedEntity_deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="203,-66 46,-66 46,-42 203,-42 203,-66"/>
+<text text-anchor="middle" x="124.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UnlimitedEntity_deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~unlimitedentity_deserialize&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge28" class="edge">
+<title>proc~unlimitedentity_deserialize&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M203.09,-52.89C220.1,-56.25 236.68,-62.87 249,-75 318.96,-143.85 338.15,-468.2 342.12,-556.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="338.62,-556.84 342.55,-566.68 345.61,-556.54 338.62,-556.84"/>
+</g>
+<!-- proc~variable_deserialize -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_node30" class="node">
+<title>proc~variable_deserialize</title>
+<g id="a_proc~~deserialize_real64_1d~~CalledByGraph_node30"><a xlink:href="../proc/variable_deserialize.html" xlink:title="Variable_deserialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="184,-24 65,-24 65,0 184,0 184,-24"/>
+<text text-anchor="middle" x="124.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Variable_deserialize</text>
+</a>
+</g>
+</g>
+<!-- proc~variable_deserialize&#45;&gt;interface~deserialize_intrinsic -->
+<g id="proc~~deserialize_real64_1d~~CalledByGraph_edge29" class="edge">
+<title>proc~variable_deserialize&#45;&gt;interface~deserialize_intrinsic</title>
+<path fill="none" stroke="#ff0000" d="M184.3,-8.26C207.34,-9.96 232.22,-16.25 249,-33 324.57,-108.41 339.76,-463.56 342.46,-556.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="338.97,-556.74 342.74,-566.64 345.96,-556.55 338.97,-556.74"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">deserialize_real64_1d</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="k">array</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">INT32</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">buffer</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">REAL64</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">array</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">INT32</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n</span>
+
+
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;wrong buffer&quot;</span><span class="p">)</span><span class="w">      </span>
+<span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buffer</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="k">array</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">      </span><span class="k">array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">transfer</span><span class="p">(</span><span class="n">buffer</span><span class="p">(</span><span class="mi">2</span><span class="p">:</span><span class="n">n</span><span class="p">),</span><span class="k">array</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">deserialize_real64_1d</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-12-03T14:32:23.557683+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

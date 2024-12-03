@@ -1,0 +1,683 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>fill_row_real64_stats &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>fill_row_real64_stats
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">21 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/AbstractColumn.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/abstractcolumn.f90.html'>AbstractColumn.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_abstractcolumn.html'>MAPL_AbstractColumn</a></li>
+            <li class="breadcrumb-item active" aria-current="page">fill_row_real64_stats</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/fill_row_real64_stats.html#src">fill_row_real64_stats</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine fill_row_real64_stats(stats, option, row)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/abstractcolumn.html'>AbstractColumn</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-stats~5"></span>
+              type(<a href='../type/distributedreal64.html'>DistributedReal64</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>stats</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-option~11"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>option</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-row~13"></span>
+              class(*),
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>row</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~fill_row_real64_stats~~CalledByGraph Pages: 1 -->
+<svg id="procfill_row_real64_statsCalledByGraph" width="641pt" height="185pt"
+ viewBox="0.00 0.00 641.00 184.89" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~fill_row_real64_stats~~CalledByGraph" class="graph" transform="scale(0.76 0.76) rotate(0) translate(4 238)">
+<title>proc~~fill_row_real64_stats~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-238 835,-238 835,4 -4,4"/>
+<!-- proc~fill_row_real64_stats -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_node1" class="node">
+<title>proc~fill_row_real64_stats</title>
+<polygon fill="none" stroke="black" points="831,-129 617,-129 617,-105 831,-105 831,-129"/>
+<text text-anchor="middle" x="724" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50">AbstractColumn%fill_row_real64_stats</text>
+</g>
+<!-- none~fill_row~2 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_node2" class="node">
+<title>none~fill_row~2</title>
+<g id="a_proc~~fill_row_real64_stats~~CalledByGraph_node2"><a xlink:href="../type/meancyclecolumn.html#boundprocedure-fill_row~2" xlink:title="MeanCycleColumn%fill_row">
+<polygon fill="#a7506f" stroke="#a7506f" points="581,-234 422,-234 422,-210 581,-210 581,-234"/>
+<text text-anchor="middle" x="501.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MeanCycleColumn%fill_row</text>
+</a>
+</g>
+</g>
+<!-- none~fill_row~2&#45;&gt;proc~fill_row_real64_stats -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_edge1" class="edge">
+<title>none~fill_row~2&#45;&gt;proc~fill_row_real64_stats</title>
+<path fill="none" stroke="#ff0000" d="M555.52,-209.94C564.17,-207.37 572.94,-204.39 581,-201 624.13,-182.88 670.02,-153.69 697.6,-134.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="699.63,-137.78 705.88,-129.23 695.66,-132.02 699.63,-137.78"/>
+</g>
+<!-- none~fill_row~3 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_node3" class="node">
+<title>none~fill_row~3</title>
+<g id="a_proc~~fill_row_real64_stats~~CalledByGraph_node3"><a xlink:href="../type/stddevcolumn.html#boundprocedure-fill_row~3" xlink:title="StdDevColumn%fill_row">
+<polygon fill="#a7506f" stroke="#a7506f" points="571,-192 432,-192 432,-168 571,-168 571,-192"/>
+<text text-anchor="middle" x="501.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StdDevColumn%fill_row</text>
+</a>
+</g>
+</g>
+<!-- none~fill_row~3&#45;&gt;proc~fill_row_real64_stats -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_edge2" class="edge">
+<title>none~fill_row~3&#45;&gt;proc~fill_row_real64_stats</title>
+<path fill="none" stroke="#ff0000" d="M548.22,-167.99C558.98,-165.1 570.41,-161.98 581,-159 611.86,-150.31 646.34,-140.12 673.6,-131.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="674.72,-135.27 683.3,-129.05 672.71,-128.57 674.72,-135.27"/>
+</g>
+<!-- none~fill_row~4 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_node4" class="node">
+<title>none~fill_row~4</title>
+<g id="a_proc~~fill_row_real64_stats~~CalledByGraph_node4"><a xlink:href="../type/maxcyclecolumn.html#boundprocedure-fill_row~4" xlink:title="MaxCycleColumn%fill_row">
+<polygon fill="#a7506f" stroke="#a7506f" points="577,-150 426,-150 426,-126 577,-126 577,-150"/>
+<text text-anchor="middle" x="501.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaxCycleColumn%fill_row</text>
+</a>
+</g>
+</g>
+<!-- none~fill_row~4&#45;&gt;proc~fill_row_real64_stats -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_edge3" class="edge">
+<title>none~fill_row~4&#45;&gt;proc~fill_row_real64_stats</title>
+<path fill="none" stroke="#ff0000" d="M577.15,-130.89C586.71,-129.98 596.67,-129.03 606.69,-128.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="607.1,-131.55 616.73,-127.12 606.44,-124.59 607.1,-131.55"/>
+</g>
+<!-- none~fill_row~5 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_node5" class="node">
+<title>none~fill_row~5</title>
+<g id="a_proc~~fill_row_real64_stats~~CalledByGraph_node5"><a xlink:href="../type/exclusivecolumn.html#boundprocedure-fill_row~5" xlink:title="ExclusiveColumn%fill_row">
+<polygon fill="#a7506f" stroke="#a7506f" points="576.5,-108 426.5,-108 426.5,-84 576.5,-84 576.5,-108"/>
+<text text-anchor="middle" x="501.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExclusiveColumn%fill_row</text>
+</a>
+</g>
+</g>
+<!-- none~fill_row~5&#45;&gt;proc~fill_row_real64_stats -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_edge4" class="edge">
+<title>none~fill_row~5&#45;&gt;proc~fill_row_real64_stats</title>
+<path fill="none" stroke="#ff0000" d="M576.54,-103.05C586.3,-103.98 596.48,-104.95 606.73,-105.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="606.71,-109.44 617,-106.9 607.38,-102.47 606.71,-109.44"/>
+</g>
+<!-- none~fill_row~6 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_node6" class="node">
+<title>none~fill_row~6</title>
+<g id="a_proc~~fill_row_real64_stats~~CalledByGraph_node6"><a xlink:href="../type/inclusivecolumn.html#boundprocedure-fill_row~6" xlink:title="InclusiveColumn%fill_row">
+<polygon fill="#a7506f" stroke="#a7506f" points="575,-66 428,-66 428,-42 575,-42 575,-66"/>
+<text text-anchor="middle" x="501.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">InclusiveColumn%fill_row</text>
+</a>
+</g>
+</g>
+<!-- none~fill_row~6&#45;&gt;proc~fill_row_real64_stats -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_edge5" class="edge">
+<title>none~fill_row~6&#45;&gt;proc~fill_row_real64_stats</title>
+<path fill="none" stroke="#ff0000" d="M548.22,-66.01C558.98,-68.9 570.41,-72.02 581,-75 611.86,-83.69 646.34,-93.88 673.6,-102.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="672.71,-105.43 683.3,-104.95 674.72,-98.73 672.71,-105.43"/>
+</g>
+<!-- none~fill_row~7 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_node7" class="node">
+<title>none~fill_row~7</title>
+<g id="a_proc~~fill_row_real64_stats~~CalledByGraph_node7"><a xlink:href="../type/mincyclecolumn.html#boundprocedure-fill_row~7" xlink:title="MinCycleColumn%fill_row">
+<polygon fill="#a7506f" stroke="#a7506f" points="575.5,-24 427.5,-24 427.5,0 575.5,0 575.5,-24"/>
+<text text-anchor="middle" x="501.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MinCycleColumn%fill_row</text>
+</a>
+</g>
+</g>
+<!-- none~fill_row~7&#45;&gt;proc~fill_row_real64_stats -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_edge6" class="edge">
+<title>none~fill_row~7&#45;&gt;proc~fill_row_real64_stats</title>
+<path fill="none" stroke="#ff0000" d="M555.52,-24.06C564.17,-26.63 572.94,-29.61 581,-33 624.13,-51.12 670.02,-80.31 697.6,-99.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="695.66,-101.98 705.88,-104.77 699.63,-96.22 695.66,-101.98"/>
+</g>
+<!-- proc~get_row_dist -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_node8" class="node">
+<title>proc~get_row_dist</title>
+<g id="a_proc~~fill_row_real64_stats~~CalledByGraph_node8"><a xlink:href="../proc/get_row_dist.html" xlink:title="MeanCycleColumn%get_row_dist">
+<polygon fill="#d9534f" stroke="#d9534f" points="386,-234 199,-234 199,-210 386,-210 386,-234"/>
+<text text-anchor="middle" x="292.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MeanCycleColumn%get_row_dist</text>
+</a>
+</g>
+</g>
+<!-- proc~get_row_dist&#45;&gt;none~fill_row~2 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_edge7" class="edge">
+<title>proc~get_row_dist&#45;&gt;none~fill_row~2</title>
+<path fill="none" stroke="#ff0000" d="M386.1,-222C394.6,-222 403.19,-222 411.65,-222"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="411.89,-225.5 421.89,-222 411.89,-218.5 411.89,-225.5"/>
+</g>
+<!-- proc~get_row_dist~2 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_node9" class="node">
+<title>proc~get_row_dist~2</title>
+<g id="a_proc~~fill_row_real64_stats~~CalledByGraph_node9"><a xlink:href="../proc/get_row_dist~2.html" xlink:title="StdDevColumn%get_row_dist">
+<polygon fill="#d9534f" stroke="#d9534f" points="376,-192 209,-192 209,-168 376,-168 376,-192"/>
+<text text-anchor="middle" x="292.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StdDevColumn%get_row_dist</text>
+</a>
+</g>
+</g>
+<!-- proc~get_row_dist~2&#45;&gt;none~fill_row~3 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_edge8" class="edge">
+<title>proc~get_row_dist~2&#45;&gt;none~fill_row~3</title>
+<path fill="none" stroke="#ffff00" d="M376.2,-180C391.21,-180 406.82,-180 421.71,-180"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="421.89,-183.5 431.89,-180 421.89,-176.5 421.89,-183.5"/>
+</g>
+<!-- proc~get_row_dist~3 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_node10" class="node">
+<title>proc~get_row_dist~3</title>
+<g id="a_proc~~fill_row_real64_stats~~CalledByGraph_node10"><a xlink:href="../proc/get_row_dist~3.html" xlink:title="MaxCycleColumn%get_row_dist">
+<polygon fill="#d9534f" stroke="#d9534f" points="382.5,-150 202.5,-150 202.5,-126 382.5,-126 382.5,-150"/>
+<text text-anchor="middle" x="292.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaxCycleColumn%get_row_dist</text>
+</a>
+</g>
+</g>
+<!-- proc~get_row_dist~3&#45;&gt;none~fill_row~4 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_edge9" class="edge">
+<title>proc~get_row_dist~3&#45;&gt;none~fill_row~4</title>
+<path fill="none" stroke="#00ff00" d="M382.79,-138C393.65,-138 404.73,-138 415.52,-138"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="415.78,-141.5 425.78,-138 415.78,-134.5 415.78,-141.5"/>
+</g>
+<!-- proc~get_row_dist~4 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_node11" class="node">
+<title>proc~get_row_dist~4</title>
+<g id="a_proc~~fill_row_real64_stats~~CalledByGraph_node11"><a xlink:href="../proc/get_row_dist~4.html" xlink:title="ExclusiveColumn%get_row_dist">
+<polygon fill="#d9534f" stroke="#d9534f" points="381.5,-108 203.5,-108 203.5,-84 381.5,-84 381.5,-108"/>
+<text text-anchor="middle" x="292.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExclusiveColumn%get_row_dist</text>
+</a>
+</g>
+</g>
+<!-- proc~get_row_dist~4&#45;&gt;none~fill_row~5 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_edge10" class="edge">
+<title>proc~get_row_dist~4&#45;&gt;none~fill_row~5</title>
+<path fill="none" stroke="#00ffff" d="M381.59,-96C392.96,-96 404.59,-96 415.9,-96"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="416.19,-99.5 426.19,-96 416.19,-92.5 416.19,-99.5"/>
+</g>
+<!-- proc~get_row_dist~5 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_node12" class="node">
+<title>proc~get_row_dist~5</title>
+<g id="a_proc~~fill_row_real64_stats~~CalledByGraph_node12"><a xlink:href="../proc/get_row_dist~5.html" xlink:title="InclusiveColumn%get_row_dist">
+<polygon fill="#d9534f" stroke="#d9534f" points="380,-66 205,-66 205,-42 380,-42 380,-66"/>
+<text text-anchor="middle" x="292.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">InclusiveColumn%get_row_dist</text>
+</a>
+</g>
+</g>
+<!-- proc~get_row_dist~5&#45;&gt;none~fill_row~6 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_edge11" class="edge">
+<title>proc~get_row_dist~5&#45;&gt;none~fill_row~6</title>
+<path fill="none" stroke="#0000ff" d="M380.09,-54C392.46,-54 405.17,-54 417.48,-54"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="417.71,-57.5 427.71,-54 417.71,-50.5 417.71,-57.5"/>
+</g>
+<!-- proc~get_row_dist~6 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_node13" class="node">
+<title>proc~get_row_dist~6</title>
+<g id="a_proc~~fill_row_real64_stats~~CalledByGraph_node13"><a xlink:href="../proc/get_row_dist~6.html" xlink:title="MinCycleColumn%get_row_dist">
+<polygon fill="#d9534f" stroke="#d9534f" points="381,-24 204,-24 204,0 381,0 381,-24"/>
+<text text-anchor="middle" x="292.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MinCycleColumn%get_row_dist</text>
+</a>
+</g>
+</g>
+<!-- proc~get_row_dist~6&#45;&gt;none~fill_row~7 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_edge12" class="edge">
+<title>proc~get_row_dist~6&#45;&gt;none~fill_row~7</title>
+<path fill="none" stroke="#ff00ff" d="M381.29,-12C393.13,-12 405.26,-12 417.03,-12"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="417.26,-15.5 427.26,-12 417.26,-8.5 417.26,-15.5"/>
+</g>
+<!-- proc~get_row -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_node14" class="node">
+<title>proc~get_row</title>
+<g id="a_proc~~fill_row_real64_stats~~CalledByGraph_node14"><a xlink:href="../proc/get_row.html" xlink:title="MeanCycleColumn%get_row">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="163,-234 0,-234 0,-210 163,-210 163,-234"/>
+<text text-anchor="middle" x="81.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MeanCycleColumn%get_row</text>
+</a>
+</g>
+</g>
+<!-- proc~get_row&#45;&gt;proc~get_row_dist -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_edge13" class="edge">
+<title>proc~get_row&#45;&gt;proc~get_row_dist</title>
+<path fill="none" stroke="#ff0000" d="M163.01,-222C171.44,-222 180.09,-222 188.72,-222"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="188.84,-225.5 198.84,-222 188.84,-218.5 188.84,-225.5"/>
+</g>
+<!-- proc~get_row~10 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_node15" class="node">
+<title>proc~get_row~10</title>
+<g id="a_proc~~fill_row_real64_stats~~CalledByGraph_node15"><a xlink:href="../proc/get_row~10.html" xlink:title="MinCycleColumn%get_row">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="158,-24 5,-24 5,0 158,0 158,-24"/>
+<text text-anchor="middle" x="81.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MinCycleColumn%get_row</text>
+</a>
+</g>
+</g>
+<!-- proc~get_row~10&#45;&gt;proc~get_row_dist~6 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_edge18" class="edge">
+<title>proc~get_row~10&#45;&gt;proc~get_row_dist~6</title>
+<path fill="none" stroke="#ff00ff" d="M158.25,-12C169.84,-12 181.94,-12 193.92,-12"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="193.94,-15.5 203.94,-12 193.94,-8.5 193.94,-15.5"/>
+</g>
+<!-- proc~get_row~4 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_node16" class="node">
+<title>proc~get_row~4</title>
+<g id="a_proc~~fill_row_real64_stats~~CalledByGraph_node16"><a xlink:href="../proc/get_row~4.html" xlink:title="StdDevColumn%get_row">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="153,-192 10,-192 10,-168 153,-168 153,-192"/>
+<text text-anchor="middle" x="81.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StdDevColumn%get_row</text>
+</a>
+</g>
+</g>
+<!-- proc~get_row~4&#45;&gt;proc~get_row_dist~2 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_edge14" class="edge">
+<title>proc~get_row~4&#45;&gt;proc~get_row_dist~2</title>
+<path fill="none" stroke="#ffff00" d="M153.26,-180C167.93,-180 183.59,-180 198.91,-180"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="198.91,-183.5 208.91,-180 198.91,-176.5 198.91,-183.5"/>
+</g>
+<!-- proc~get_row~5 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_node17" class="node">
+<title>proc~get_row~5</title>
+<g id="a_proc~~fill_row_real64_stats~~CalledByGraph_node17"><a xlink:href="../proc/get_row~5.html" xlink:title="MaxCycleColumn%get_row">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="159.5,-150 3.5,-150 3.5,-126 159.5,-126 159.5,-150"/>
+<text text-anchor="middle" x="81.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaxCycleColumn%get_row</text>
+</a>
+</g>
+</g>
+<!-- proc~get_row~5&#45;&gt;proc~get_row_dist~3 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_edge15" class="edge">
+<title>proc~get_row~5&#45;&gt;proc~get_row_dist~3</title>
+<path fill="none" stroke="#00ff00" d="M159.73,-138C170.22,-138 181.1,-138 191.91,-138"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="192.23,-141.5 202.23,-138 192.23,-134.5 192.23,-141.5"/>
+</g>
+<!-- proc~get_row~7 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_node18" class="node">
+<title>proc~get_row~7</title>
+<g id="a_proc~~fill_row_real64_stats~~CalledByGraph_node18"><a xlink:href="../proc/get_row~7.html" xlink:title="ExclusiveColumn%get_row">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="158.5,-108 4.5,-108 4.5,-84 158.5,-84 158.5,-108"/>
+<text text-anchor="middle" x="81.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExclusiveColumn%get_row</text>
+</a>
+</g>
+</g>
+<!-- proc~get_row~7&#45;&gt;proc~get_row_dist~4 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_edge16" class="edge">
+<title>proc~get_row~7&#45;&gt;proc~get_row_dist~4</title>
+<path fill="none" stroke="#00ffff" d="M158.55,-96C169.83,-96 181.59,-96 193.25,-96"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="193.46,-99.5 203.46,-96 193.46,-92.5 193.46,-99.5"/>
+</g>
+<!-- proc~get_row~9 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_node19" class="node">
+<title>proc~get_row~9</title>
+<g id="a_proc~~fill_row_real64_stats~~CalledByGraph_node19"><a xlink:href="../proc/get_row~9.html" xlink:title="InclusiveColumn%get_row">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="157,-66 6,-66 6,-42 157,-42 157,-66"/>
+<text text-anchor="middle" x="81.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">InclusiveColumn%get_row</text>
+</a>
+</g>
+</g>
+<!-- proc~get_row~9&#45;&gt;proc~get_row_dist~5 -->
+<g id="proc~~fill_row_real64_stats~~CalledByGraph_edge17" class="edge">
+<title>proc~get_row~9&#45;&gt;proc~get_row_dist~5</title>
+<path fill="none" stroke="#0000ff" d="M157.07,-54C169.28,-54 182.08,-54 194.74,-54"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="194.84,-57.5 204.84,-54 194.84,-50.5 194.84,-57.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocfill_row_real64_statsCalledByGraph = svgPanZoom('#procfill_row_real64_statsCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">fill_row_real64_stats</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span><span class="w"> </span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">row</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">DistributedReal64</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">stats</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">option</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">row</span>
+
+<span class="w">      </span><span class="k">select case</span><span class="w"> </span><span class="p">(</span><span class="n">option</span><span class="p">)</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;MAX&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="n">stats</span><span class="p">%</span><span class="nb">max</span><span class="p">)</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;MAX_PE&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="n">stats</span><span class="p">%</span><span class="n">max_pe</span><span class="p">)</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;MIN&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="n">stats</span><span class="p">%</span><span class="nb">min</span><span class="p">)</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;MIN_PE&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="n">stats</span><span class="p">%</span><span class="n">min_pe</span><span class="p">)</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;MEAN&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="n">stats</span><span class="p">%</span><span class="n">total</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">stats</span><span class="p">%</span><span class="n">num_pes</span><span class="p">)</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;TOTAL&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="n">stats</span><span class="p">%</span><span class="n">total</span><span class="p">)</span>
+<span class="w">      </span><span class="k">case </span><span class="n">default</span>
+<span class="w">         </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="err">__</span><span class="n">FILE__</span><span class="p">,</span><span class="err">__</span><span class="n">LINE__</span><span class="p">,</span><span class="s1">&#39;ERROR: unsupported option &#39;</span><span class="o">//</span><span class="n">option</span>
+<span class="w">      </span><span class="k">end select</span>
+
+<span class="k">   end subroutine </span><span class="n">fill_row_real64_stats</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-12-03T14:32:23.557683+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

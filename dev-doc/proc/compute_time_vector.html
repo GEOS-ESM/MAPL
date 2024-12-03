@@ -1,0 +1,1226 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>compute_time_vector &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>compute_time_vector
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">50 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_TimeMethods.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_timemethods.f90.html'>MAPL_TimeMethods.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_timedatamod.html'>MAPL_TimeDataMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">compute_time_vector</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/compute_time_vector.html#src">compute_time_vector</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  function compute_time_vector(this, metadata, rc) result(times)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/timedata.html'>timeData</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~3799"></span>
+              class(<a href='../type/timedata.html'>timeData</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-metadata~34"></span>
+              type(<a href='../type/filemetadata.html'>FileMetadata</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>metadata</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1460"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-times~4"></span>
+          real, allocatable, (:)
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~compute_time_vector~~CallsGraph Pages: 1 -->
+<svg id="proccompute_time_vectorCallsGraph" width="641pt" height="263pt"
+ viewBox="0.00 0.00 641.00 263.11" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~compute_time_vector~~CallsGraph" class="graph" transform="scale(0.49 0.49) rotate(0) translate(4 537)">
+<title>proc~~compute_time_vector~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-537 1314,-537 1314,4 -4,4"/>
+<!-- proc~compute_time_vector -->
+<g id="proc~~compute_time_vector~~CallsGraph_node1" class="node">
+<title>proc~compute_time_vector</title>
+<polygon fill="none" stroke="black" points="187,-253 0,-253 0,-229 187,-229 187,-253"/>
+<text text-anchor="middle" x="93.5" y="-238.6" font-family="Helvetica,sans-Serif" font-size="10.50">timeData%compute_time_vector</text>
+</g>
+<!-- ESMF_ClockGet -->
+<g id="proc~~compute_time_vector~~CallsGraph_node2" class="node">
+<title>ESMF_ClockGet</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_clockget.html" xlink:title="ESMF_ClockGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="374,-533 280,-533 280,-509 374,-509 374,-533"/>
+<text text-anchor="middle" x="327" y="-518.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ClockGet</text>
+</a>
+</g>
+</g>
+<!-- proc~compute_time_vector&#45;&gt;ESMF_ClockGet -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge1" class="edge">
+<title>proc~compute_time_vector&#45;&gt;ESMF_ClockGet</title>
+<path fill="none" stroke="#ff0000" d="M96.64,-253.15C104.66,-294.96 137.06,-433.89 223,-500 236.3,-510.23 253.32,-515.82 269.69,-518.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="269.34,-522.27 279.75,-520.31 270.39,-515.35 269.34,-522.27"/>
+</g>
+<!-- ESMF_TimeIntervalGet -->
+<g id="proc~~compute_time_vector~~CallsGraph_node3" class="node">
+<title>ESMF_TimeIntervalGet</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeintervalget.html" xlink:title="ESMF_TimeIntervalGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="393,-491 261,-491 261,-467 393,-467 393,-491"/>
+<text text-anchor="middle" x="327" y="-476.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeIntervalGet</text>
+</a>
+</g>
+</g>
+<!-- proc~compute_time_vector&#45;&gt;ESMF_TimeIntervalGet -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge2" class="edge">
+<title>proc~compute_time_vector&#45;&gt;ESMF_TimeIntervalGet</title>
+<path fill="none" stroke="#ff0000" d="M98.16,-253.09C109.84,-289.49 149.8,-398.89 223,-453 231.37,-459.19 241.06,-463.91 251.08,-467.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="250.16,-470.9 260.75,-470.64 252.31,-464.24 250.16,-470.9"/>
+</g>
+<!-- proc~get_start_time -->
+<g id="proc~~compute_time_vector~~CallsGraph_node4" class="node">
+<title>proc~get_start_time</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node4"><a xlink:href="../proc/get_start_time.html" xlink:title="timeData%get_start_time">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="401,-293 253,-293 253,-269 401,-269 401,-293"/>
+<text text-anchor="middle" x="327" y="-278.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">timeData%get_start_time</text>
+</a>
+</g>
+</g>
+<!-- proc~compute_time_vector&#45;&gt;proc~get_start_time -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge3" class="edge">
+<title>proc~compute_time_vector&#45;&gt;proc~get_start_time</title>
+<path fill="none" stroke="#ff0000" d="M163.96,-253C189.82,-257.47 219.38,-262.58 246.1,-267.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="245.74,-270.68 256.19,-268.94 246.93,-263.79 245.74,-270.68"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~compute_time_vector~~CallsGraph_node5" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node5"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="801,-240 719,-240 719,-216 801,-216 801,-240"/>
+<text text-anchor="middle" x="760" y="-225.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~compute_time_vector&#45;&gt;proc~mapl_return -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge4" class="edge">
+<title>proc~compute_time_vector&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M163.97,-253.04C235.25,-261.88 347.25,-265.77 431,-222 454.01,-209.98 443.66,-187.37 467,-176 532.13,-144.27 560.46,-155.68 630,-176 648.22,-181.32 648.78,-190.99 666,-199 679.58,-205.32 694.9,-210.73 709.12,-215.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="708.17,-218.49 718.76,-217.99 710.17,-211.78 708.17,-218.49"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~compute_time_vector~~CallsGraph_node6" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node6"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="798,-417 722,-417 722,-393 798,-393 798,-417"/>
+<text text-anchor="middle" x="760" y="-402.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~compute_time_vector&#45;&gt;proc~mapl_verify -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge5" class="edge">
+<title>proc~compute_time_vector&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M113.26,-253.07C166.19,-286.3 322.23,-378.65 467,-409 551.73,-426.76 653.33,-419.05 711.61,-411.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="712.14,-415.4 721.62,-410.68 711.26,-408.46 712.14,-415.4"/>
+</g>
+<!-- proc~v_begin~19 -->
+<g id="proc~~compute_time_vector~~CallsGraph_node7" class="node">
+<title>proc~v_begin~19</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node7"><a xlink:href="../proc/v_begin~19.html" xlink:title="ESMFTimeVector%v_begin">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="403,-213 251,-213 251,-189 403,-189 403,-213"/>
+<text text-anchor="middle" x="327" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFTimeVector%v_begin</text>
+</a>
+</g>
+</g>
+<!-- proc~compute_time_vector&#45;&gt;proc~v_begin~19 -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge6" class="edge">
+<title>proc~compute_time_vector&#45;&gt;proc~v_begin~19</title>
+<path fill="none" stroke="#ff0000" d="M163.96,-229C189.82,-224.53 219.38,-219.42 246.1,-214.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="246.93,-218.21 256.19,-213.06 245.74,-211.32 246.93,-218.21"/>
+</g>
+<!-- proc~v_iter_get~19 -->
+<g id="proc~~compute_time_vector~~CallsGraph_node8" class="node">
+<title>proc~v_iter_get~19</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node8"><a xlink:href="../proc/v_iter_get~19.html" xlink:title="ESMFTimeVectorIterator%v_iter_get">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="428,-171 226,-171 226,-147 428,-147 428,-171"/>
+<text text-anchor="middle" x="327" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFTimeVectorIterator%v_iter_get</text>
+</a>
+</g>
+</g>
+<!-- proc~compute_time_vector&#45;&gt;proc~v_iter_get~19 -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge7" class="edge">
+<title>proc~compute_time_vector&#45;&gt;proc~v_iter_get~19</title>
+<path fill="none" stroke="#ff0000" d="M115.66,-228.99C140.6,-215.3 183.65,-193.14 223,-180 230.24,-177.58 237.87,-175.39 245.56,-173.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="246.43,-176.82 255.31,-171.05 244.77,-170.02 246.43,-176.82"/>
+</g>
+<!-- proc~v_iter_next~19 -->
+<g id="proc~~compute_time_vector~~CallsGraph_node9" class="node">
+<title>proc~v_iter_next~19</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node9"><a xlink:href="../proc/v_iter_next~19.html" xlink:title="ESMFTimeVectorIterator%v_iter_next">
+<polygon fill="#d9534f" stroke="#d9534f" points="431,-129 223,-129 223,-105 431,-105 431,-129"/>
+<text text-anchor="middle" x="327" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFTimeVectorIterator%v_iter_next</text>
+</a>
+</g>
+</g>
+<!-- proc~compute_time_vector&#45;&gt;proc~v_iter_next~19 -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge8" class="edge">
+<title>proc~compute_time_vector&#45;&gt;proc~v_iter_next~19</title>
+<path fill="none" stroke="#ff0000" d="M105.58,-228.93C126.36,-207.11 173.56,-161.18 223,-138 227.63,-135.83 232.48,-133.88 237.45,-132.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="238.68,-135.41 247.13,-129.02 236.53,-128.75 238.68,-135.41"/>
+</g>
+<!-- proc~v_push_back~19 -->
+<g id="proc~~compute_time_vector~~CallsGraph_node10" class="node">
+<title>proc~v_push_back~19</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node10"><a xlink:href="../proc/v_push_back~19.html" xlink:title="ESMFTimeVector%v_push_back">
+<polygon fill="#d9534f" stroke="#d9534f" points="416,-87 238,-87 238,-63 416,-63 416,-87"/>
+<text text-anchor="middle" x="327" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFTimeVector%v_push_back</text>
+</a>
+</g>
+</g>
+<!-- proc~compute_time_vector&#45;&gt;proc~v_push_back~19 -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge9" class="edge">
+<title>proc~compute_time_vector&#45;&gt;proc~v_push_back~19</title>
+<path fill="none" stroke="#ff0000" d="M101.39,-228.9C118.17,-200.61 164.15,-129.96 223,-96 226.27,-94.11 229.69,-92.39 233.21,-90.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="234.74,-93.98 242.73,-87.02 232.15,-87.48 234.74,-93.98"/>
+</g>
+<!-- proc~get_start_time&#45;&gt;proc~mapl_verify -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge14" class="edge">
+<title>proc~get_start_time&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#aaff00" d="M339.64,-293.06C361.95,-315.27 413.27,-362.17 467,-382 548.91,-412.22 652.29,-412.25 711.5,-408.99"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="711.9,-412.48 721.67,-408.38 711.48,-405.49 711.9,-412.48"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~compute_time_vector~~CallsGraph_node11" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node11"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="799.5,-333 720.5,-333 720.5,-309 799.5,-309 799.5,-333"/>
+<text text-anchor="middle" x="760" y="-318.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~get_start_time&#45;&gt;interface~mapl_assert -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge10" class="edge">
+<title>proc~get_start_time&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#aaff00" d="M399.63,-293.01C421.24,-296.31 445.04,-299.63 467,-302 552.29,-311.2 652.11,-316.53 710.18,-319.09"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="710.04,-322.59 720.18,-319.52 710.34,-315.6 710.04,-322.59"/>
+</g>
+<!-- proc~get_attribute -->
+<g id="proc~~compute_time_vector~~CallsGraph_node13" class="node">
+<title>proc~get_attribute</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node13"><a xlink:href="../proc/get_attribute.html" xlink:title="Variable%get_attribute">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="615.5,-293 481.5,-293 481.5,-269 615.5,-269 615.5,-293"/>
+<text text-anchor="middle" x="548.5" y="-278.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Variable%get_attribute</text>
+</a>
+</g>
+</g>
+<!-- proc~get_start_time&#45;&gt;proc~get_attribute -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge11" class="edge">
+<title>proc~get_start_time&#45;&gt;proc~get_attribute</title>
+<path fill="none" stroke="#aaff00" d="M401.09,-281C423.59,-281 448.4,-281 471.11,-281"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="471.38,-284.5 481.38,-281 471.38,-277.5 471.38,-284.5"/>
+</g>
+<!-- proc~get_value -->
+<g id="proc~~compute_time_vector~~CallsGraph_node15" class="node">
+<title>proc~get_value</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node15"><a xlink:href="../proc/get_value.html" xlink:title="UnlimitedEntity%get_value">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="626,-251 471,-251 471,-227 626,-227 626,-251"/>
+<text text-anchor="middle" x="548.5" y="-236.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UnlimitedEntity%get_value</text>
+</a>
+</g>
+</g>
+<!-- proc~get_start_time&#45;&gt;proc~get_value -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge12" class="edge">
+<title>proc~get_start_time&#45;&gt;proc~get_value</title>
+<path fill="none" stroke="#aaff00" d="M390.9,-268.96C417.08,-263.96 447.63,-258.11 474.76,-252.92"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="475.43,-256.35 484.59,-251.04 474.11,-249.48 475.43,-256.35"/>
+</g>
+<!-- proc~get_variable -->
+<g id="proc~~compute_time_vector~~CallsGraph_node16" class="node">
+<title>proc~get_variable</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node16"><a xlink:href="../proc/get_variable.html" xlink:title="FileMetadata%get_variable">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="627,-209 470,-209 470,-185 627,-185 627,-209"/>
+<text text-anchor="middle" x="548.5" y="-194.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadata%get_variable</text>
+</a>
+</g>
+</g>
+<!-- proc~get_start_time&#45;&gt;proc~get_variable -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge13" class="edge">
+<title>proc~get_start_time&#45;&gt;proc~get_variable</title>
+<path fill="none" stroke="#aaff00" d="M397.92,-268.93C409.41,-265.4 420.86,-260.85 431,-255 450.87,-243.54 447.17,-229.54 467,-218 470.25,-216.11 473.67,-214.38 477.19,-212.81"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="478.73,-215.97 486.72,-209 476.13,-209.47 478.73,-215.97"/>
+</g>
+<!-- proc~parse_time_string -->
+<g id="proc~~compute_time_vector~~CallsGraph_node18" class="node">
+<title>proc~parse_time_string</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node18"><a xlink:href="../proc/parse_time_string.html" xlink:title="parse_time_string">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="602,-373 495,-373 495,-349 602,-349 602,-373"/>
+<text text-anchor="middle" x="548.5" y="-358.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_time_string</text>
+</a>
+</g>
+</g>
+<!-- proc~get_start_time&#45;&gt;proc~parse_time_string -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge15" class="edge">
+<title>proc~get_start_time&#45;&gt;proc~parse_time_string</title>
+<path fill="none" stroke="#aaff00" d="M357.64,-293.09C385.65,-304.38 428.94,-321.48 467,-335 477.28,-338.65 488.37,-342.37 498.93,-345.82"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="497.86,-349.15 508.45,-348.89 500.01,-342.49 497.86,-349.15"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~compute_time_vector~~CallsGraph_node14" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node14"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1208,-263 1093,-263 1093,-239 1208,-239 1208,-263"/>
+<text text-anchor="middle" x="1150.5" y="-248.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ff00" d="M801.13,-224.17C856.79,-219.63 960.49,-213.97 1048,-225 1065.95,-227.26 1085.28,-231.69 1102.2,-236.26"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="1101.29,-239.64 1111.86,-238.96 1103.17,-232.9 1101.29,-239.64"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~compute_time_vector~~CallsGraph_node17" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node17"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1217,-354 1084,-354 1084,-330 1217,-330 1217,-354"/>
+<text text-anchor="middle" x="1150.5" y="-339.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff00" d="M801.32,-225.06C858.55,-222.44 965.56,-223.36 1048,-258 1082.29,-272.41 1113.97,-302.4 1132.52,-322.37"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="1130.11,-324.92 1139.41,-329.98 1135.3,-320.22 1130.11,-324.92"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffa9" d="M798.27,-406.02C853.57,-406.71 960.25,-404.79 1048,-384 1072.08,-378.29 1097.83,-367.58 1117.37,-358.4"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="1118.93,-361.54 1126.42,-354.05 1115.89,-355.23 1118.93,-361.54"/>
+</g>
+<!-- none~resize~98 -->
+<g id="proc~~compute_time_vector~~CallsGraph_node12" class="node">
+<title>none~resize~98</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node12"><a xlink:href="../type/esmftimevector.html#boundprocedure-resize~98" xlink:title="ESMFTimeVector%resize">
+<polygon fill="#a7506f" stroke="#a7506f" points="619.5,-108 477.5,-108 477.5,-84 619.5,-84 619.5,-108"/>
+<text text-anchor="middle" x="548.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFTimeVector%resize</text>
+</a>
+</g>
+</g>
+<!-- proc~v_push_back~19&#45;&gt;none~resize~98 -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge19" class="edge">
+<title>proc~v_push_back~19&#45;&gt;none~resize~98</title>
+<path fill="none" stroke="#ff00aa" d="M416.01,-83.42C432.9,-85.04 450.51,-86.72 467.14,-88.31"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="467.07,-91.82 477.36,-89.29 467.74,-84.85 467.07,-91.82"/>
+</g>
+<!-- proc~v_grow_to~19 -->
+<g id="proc~~compute_time_vector~~CallsGraph_node19" class="node">
+<title>proc~v_grow_to~19</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node19"><a xlink:href="../proc/v_grow_to~19.html" xlink:title="ESMFTimeVector%v_grow_to">
+<polygon fill="#d9534f" stroke="#d9534f" points="630,-66 467,-66 467,-42 630,-42 630,-66"/>
+<text text-anchor="middle" x="548.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFTimeVector%v_grow_to</text>
+</a>
+</g>
+</g>
+<!-- proc~v_push_back~19&#45;&gt;proc~v_grow_to~19 -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge20" class="edge">
+<title>proc~v_push_back~19&#45;&gt;proc~v_grow_to~19</title>
+<path fill="none" stroke="#ff00aa" d="M416.01,-66.58C429.42,-65.3 443.27,-63.97 456.73,-62.68"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="457.31,-66.15 466.93,-61.71 456.64,-59.18 457.31,-66.15"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~compute_time_vector~~CallsGraph_node26" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node26"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1036,-375 902,-375 902,-351 1036,-351 1036,-375"/>
+<text text-anchor="middle" x="969" y="-360.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge21" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M799.94,-328.9C827.64,-334.52 865.61,-342.23 898.46,-348.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="897.97,-352.36 908.47,-350.92 899.36,-345.5 897.97,-352.36"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~compute_time_vector~~CallsGraph_node27" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node27"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1043,-333 895,-333 895,-309 1043,-309 1043,-333"/>
+<text text-anchor="middle" x="969" y="-318.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge22" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M799.94,-321C823.82,-321 855.35,-321 884.63,-321"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="884.88,-324.5 894.88,-321 884.88,-317.5 884.88,-324.5"/>
+</g>
+<!-- proc~v_resize_32~19 -->
+<g id="proc~~compute_time_vector~~CallsGraph_node29" class="node">
+<title>proc~v_resize_32~19</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node29"><a xlink:href="../proc/v_resize_32~19.html" xlink:title="ESMFTimeVector%v_resize_32">
+<polygon fill="#d9534f" stroke="#d9534f" points="846,-108 674,-108 674,-84 846,-84 846,-108"/>
+<text text-anchor="middle" x="760" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFTimeVector%v_resize_32</text>
+</a>
+</g>
+</g>
+<!-- none~resize~98&#45;&gt;proc~v_resize_32~19 -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge23" class="edge">
+<title>none~resize~98&#45;&gt;proc~v_resize_32~19</title>
+<path fill="none" stroke="#ffaa00" stroke-dasharray="5,2" d="M619.55,-89.59C633.66,-89.3 648.72,-89.2 663.53,-89.27"/>
+<polygon fill="#ffaa00" stroke="#ffaa00" points="663.7,-92.77 673.73,-89.35 663.75,-85.78 663.7,-92.77"/>
+</g>
+<!-- proc~get_attribute&#45;&gt;proc~mapl_return -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge26" class="edge">
+<title>proc~get_attribute&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#aaff00" d="M597.04,-268.97C630.44,-260.52 675.04,-249.24 708.98,-240.65"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="709.86,-244.04 718.7,-238.2 708.15,-237.25 709.86,-244.04"/>
+</g>
+<!-- proc~get_attribute&#45;&gt;interface~mapl_assert -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge24" class="edge">
+<title>proc~get_attribute&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#aaff00" d="M612.36,-293C643.73,-298.99 681.11,-306.13 710.27,-311.7"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="709.75,-315.16 720.23,-313.6 711.06,-308.28 709.75,-315.16"/>
+</g>
+<!-- proc~m_at~2 -->
+<g id="proc~~compute_time_vector~~CallsGraph_node24" class="node">
+<title>proc~m_at~2</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node24"><a xlink:href="../proc/m_at~2.html" xlink:title="StringAttributeMap%m_at">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="834,-291 686,-291 686,-267 834,-267 834,-291"/>
+<text text-anchor="middle" x="760" y="-276.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringAttributeMap%m_at</text>
+</a>
+</g>
+</g>
+<!-- proc~get_attribute&#45;&gt;proc~m_at~2 -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge25" class="edge">
+<title>proc~get_attribute&#45;&gt;proc~m_at~2</title>
+<path fill="none" stroke="#aaff00" d="M615.79,-280.37C634.86,-280.19 655.91,-279.98 675.87,-279.79"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="675.91,-283.29 685.87,-279.7 675.84,-276.29 675.91,-283.29"/>
+</g>
+<!-- at -->
+<g id="proc~~compute_time_vector~~CallsGraph_node21" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1308.5,-242 1254.5,-242 1254.5,-218 1308.5,-218 1308.5,-242"/>
+<text text-anchor="middle" x="1281.5" y="-227.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge27" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#00ff00" d="M1208.08,-241.79C1220.42,-239.78 1233.14,-237.71 1244.42,-235.87"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="1245.01,-239.32 1254.32,-234.26 1243.89,-232.41 1245.01,-239.32"/>
+</g>
+<!-- insert -->
+<g id="proc~~compute_time_vector~~CallsGraph_node22" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1308.5,-284 1254.5,-284 1254.5,-260 1308.5,-260 1308.5,-284"/>
+<text text-anchor="middle" x="1281.5" y="-269.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge28" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#00ff00" d="M1208.08,-260.21C1220.42,-262.22 1233.14,-264.29 1244.42,-266.13"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="1243.89,-269.59 1254.32,-267.74 1245.01,-262.68 1243.89,-269.59"/>
+</g>
+<!-- proc~get_value&#45;&gt;proc~mapl_return -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge29" class="edge">
+<title>proc~get_value&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ffa9" d="M626.02,-234.98C653.54,-233.54 683.86,-231.95 708.59,-230.65"/>
+<polygon fill="#00ffa9" stroke="#00ffa9" points="709.02,-234.13 718.82,-230.11 708.65,-227.14 709.02,-234.13"/>
+</g>
+<!-- proc~get_variable&#45;&gt;proc~mapl_return -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge31" class="edge">
+<title>proc~get_variable&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00a9ff" d="M627.21,-208.5C654.52,-212.54 684.46,-216.97 708.89,-220.59"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="708.59,-224.08 719,-222.08 709.62,-217.15 708.59,-224.08"/>
+</g>
+<!-- proc~m_at~9 -->
+<g id="proc~~compute_time_vector~~CallsGraph_node25" class="node">
+<title>proc~m_at~9</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node25"><a xlink:href="../proc/m_at~9.html" xlink:title="StringVariableMap%m_at">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="833,-190 687,-190 687,-166 833,-166 833,-190"/>
+<text text-anchor="middle" x="760" y="-175.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringVariableMap%m_at</text>
+</a>
+</g>
+</g>
+<!-- proc~get_variable&#45;&gt;proc~m_at~9 -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge30" class="edge">
+<title>proc~get_variable&#45;&gt;proc~m_at~9</title>
+<path fill="none" stroke="#00a9ff" d="M627.21,-189.95C643.41,-188.48 660.54,-186.93 676.89,-185.45"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="677.32,-188.92 686.96,-184.53 676.69,-181.95 677.32,-188.92"/>
+</g>
+<!-- proc~initialize~3 -->
+<g id="proc~~compute_time_vector~~CallsGraph_node23" class="node">
+<title>proc~initialize~3</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node23"><a xlink:href="../proc/initialize~3.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1310,-354 1253,-354 1253,-330 1310,-330 1310,-354"/>
+<text text-anchor="middle" x="1281.5" y="-339.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~3 -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge32" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~3</title>
+<path fill="none" stroke="#0000ff" d="M1217.13,-342C1225.88,-342 1234.59,-342 1242.63,-342"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="1242.77,-345.5 1252.77,-342 1242.77,-338.5 1242.77,-345.5"/>
+</g>
+<!-- proc~parse_time_string&#45;&gt;proc~mapl_verify -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge35" class="edge">
+<title>proc~parse_time_string&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#aa00ff" d="M602.1,-372.05C635.78,-379.12 679.13,-388.23 711.72,-395.07"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="711.4,-398.58 721.9,-397.21 712.83,-391.73 711.4,-398.58"/>
+</g>
+<!-- proc~parse_time_string&#45;&gt;interface~mapl_assert -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge34" class="edge">
+<title>proc~parse_time_string&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#aa00ff" d="M602.1,-350.96C635.23,-344.63 677.72,-336.52 710.13,-330.33"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="711.1,-333.71 720.27,-328.39 709.79,-326.83 711.1,-333.71"/>
+</g>
+<!-- ESMF_TimeSet -->
+<g id="proc~~compute_time_vector~~CallsGraph_node20" class="node">
+<title>ESMF_TimeSet</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node20"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeset.html" xlink:title="ESMF_TimeSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="805,-375 715,-375 715,-351 805,-351 805,-375"/>
+<text text-anchor="middle" x="760" y="-360.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeSet</text>
+</a>
+</g>
+</g>
+<!-- proc~parse_time_string&#45;&gt;ESMF_TimeSet -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge33" class="edge">
+<title>proc~parse_time_string&#45;&gt;ESMF_TimeSet</title>
+<path fill="none" stroke="#aa00ff" d="M602.1,-361.5C633.35,-361.8 672.92,-362.18 704.5,-362.48"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="704.85,-365.98 714.88,-362.58 704.92,-358.98 704.85,-365.98"/>
+</g>
+<!-- proc~v_capacity~19 -->
+<g id="proc~~compute_time_vector~~CallsGraph_node28" class="node">
+<title>proc~v_capacity~19</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node28"><a xlink:href="../proc/v_capacity~19.html" xlink:title="ESMFTimeVector%v_capacity">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="843.5,-66 676.5,-66 676.5,-42 843.5,-42 843.5,-66"/>
+<text text-anchor="middle" x="760" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFTimeVector%v_capacity</text>
+</a>
+</g>
+</g>
+<!-- proc~v_grow_to~19&#45;&gt;proc~v_capacity~19 -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge36" class="edge">
+<title>proc~v_grow_to~19&#45;&gt;proc~v_capacity~19</title>
+<path fill="none" stroke="#ff00aa" d="M630.2,-54C642,-54 654.22,-54 666.24,-54"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="666.26,-57.5 676.26,-54 666.26,-50.5 666.26,-57.5"/>
+</g>
+<!-- proc~v_set_capacity~19 -->
+<g id="proc~~compute_time_vector~~CallsGraph_node30" class="node">
+<title>proc~v_set_capacity~19</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node30"><a xlink:href="../proc/v_set_capacity~19.html" xlink:title="ESMFTimeVector%v_set_capacity">
+<polygon fill="#d9534f" stroke="#d9534f" points="854,-24 666,-24 666,0 854,0 854,-24"/>
+<text text-anchor="middle" x="760" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMFTimeVector%v_set_capacity</text>
+</a>
+</g>
+</g>
+<!-- proc~v_grow_to~19&#45;&gt;proc~v_set_capacity~19 -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge37" class="edge">
+<title>proc~v_grow_to~19&#45;&gt;proc~v_set_capacity~19</title>
+<path fill="none" stroke="#ff00aa" d="M609.53,-41.96C634.3,-37 663.17,-31.21 688.89,-26.05"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="689.84,-29.43 698.96,-24.04 688.46,-22.57 689.84,-29.43"/>
+</g>
+<!-- proc~m_find~2 -->
+<g id="proc~~compute_time_vector~~CallsGraph_node31" class="node">
+<title>proc~m_find~2</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node31"><a xlink:href="../proc/m_find~2.html" xlink:title="StringAttributeMap%m_find">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1048,-291 890,-291 890,-267 1048,-267 1048,-291"/>
+<text text-anchor="middle" x="969" y="-276.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringAttributeMap%m_find</text>
+</a>
+</g>
+</g>
+<!-- proc~m_at~2&#45;&gt;proc~m_find~2 -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge38" class="edge">
+<title>proc~m_at~2&#45;&gt;proc~m_find~2</title>
+<path fill="none" stroke="#00ff2e" d="M834.27,-279C848.92,-279 864.45,-279 879.55,-279"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="879.91,-282.5 889.91,-279 879.91,-275.5 879.91,-282.5"/>
+</g>
+<!-- proc~m_find~9 -->
+<g id="proc~~compute_time_vector~~CallsGraph_node32" class="node">
+<title>proc~m_find~9</title>
+<g id="a_proc~~compute_time_vector~~CallsGraph_node32"><a xlink:href="../proc/m_find~9.html" xlink:title="StringVariableMap%m_find">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1047,-173 891,-173 891,-149 1047,-149 1047,-173"/>
+<text text-anchor="middle" x="969" y="-158.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringVariableMap%m_find</text>
+</a>
+</g>
+</g>
+<!-- proc~m_at~9&#45;&gt;proc~m_find~9 -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge39" class="edge">
+<title>proc~m_at~9&#45;&gt;proc~m_find~9</title>
+<path fill="none" stroke="#00ffb9" d="M833.11,-172.08C848.42,-170.82 864.75,-169.48 880.56,-168.18"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="881.19,-171.64 890.87,-167.33 880.61,-164.67 881.19,-171.64"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge40" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00b9ff" d="M1036.07,-355.27C1048.38,-353.83 1061.32,-352.32 1073.89,-350.85"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="1074.34,-354.32 1083.86,-349.68 1073.53,-347.36 1074.34,-354.32"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge41" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#002eff" d="M1020.37,-308.92C1029.66,-306.28 1039.19,-303.28 1048,-300 1072.38,-290.92 1098.81,-278.06 1118.59,-267.79"/>
+<polygon fill="#002eff" stroke="#002eff" points="1120.23,-270.88 1127.45,-263.13 1116.97,-264.69 1120.23,-270.88"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge42" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#002eff" d="M1043.01,-329.54C1053.13,-330.73 1063.54,-331.94 1073.71,-333.13"/>
+<polygon fill="#002eff" stroke="#002eff" points="1073.44,-336.62 1083.78,-334.31 1074.25,-329.67 1073.44,-336.62"/>
+</g>
+<!-- proc~v_resize_32~19&#45;&gt;none~resize~98 -->
+<g id="proc~~compute_time_vector~~CallsGraph_edge43" class="edge">
+<title>proc~v_resize_32~19&#45;&gt;none~resize~98</title>
+<path fill="none" stroke="#e700ff" d="M673.73,-102.65C659.24,-102.8 644.23,-102.78 629.88,-102.58"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="629.61,-99.08 619.55,-102.41 629.49,-106.08 629.61,-99.08"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproccompute_time_vectorCallsGraph = svgPanZoom('#proccompute_time_vectorCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~compute_time_vector~~CalledByGraph Pages: 1 -->
+<svg id="proccompute_time_vectorCalledByGraph" width="641pt" height="106pt"
+ viewBox="0.00 0.00 641.00 106.27" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~compute_time_vector~~CalledByGraph" class="graph" transform="scale(0.67 0.67) rotate(0) translate(4 154)">
+<title>proc~~compute_time_vector~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 949,-154 949,4 -4,4"/>
+<!-- proc~compute_time_vector -->
+<g id="proc~~compute_time_vector~~CalledByGraph_node1" class="node">
+<title>proc~compute_time_vector</title>
+<polygon fill="none" stroke="black" points="945,-108 758,-108 758,-84 945,-84 945,-108"/>
+<text text-anchor="middle" x="851.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50">timeData%compute_time_vector</text>
+</g>
+<!-- proc~bundlepost -->
+<g id="proc~~compute_time_vector~~CalledByGraph_node2" class="node">
+<title>proc~bundlepost</title>
+<g id="a_proc~~compute_time_vector~~CalledByGraph_node2"><a xlink:href="../proc/bundlepost.html" xlink:title="MAPL_GriddedIO%bundlepost">
+<polygon fill="#d9534f" stroke="#d9534f" points="722,-108 553,-108 553,-84 722,-84 722,-108"/>
+<text text-anchor="middle" x="637.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GriddedIO%bundlepost</text>
+</a>
+</g>
+</g>
+<!-- proc~bundlepost&#45;&gt;proc~compute_time_vector -->
+<g id="proc~~compute_time_vector~~CalledByGraph_edge1" class="edge">
+<title>proc~bundlepost&#45;&gt;proc~compute_time_vector</title>
+<path fill="none" stroke="#ff0000" d="M722.29,-96C730.69,-96 739.29,-96 747.85,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="747.88,-99.5 757.88,-96 747.88,-92.5 747.88,-99.5"/>
+</g>
+<!-- proc~run -->
+<g id="proc~~compute_time_vector~~CalledByGraph_node3" class="node">
+<title>proc~run</title>
+<g id="a_proc~~compute_time_vector~~CalledByGraph_node3"><a xlink:href="../proc/run.html" xlink:title="Run">
+<polygon fill="#d9534f" stroke="#d9534f" points="453.5,-129 399.5,-129 399.5,-105 453.5,-105 453.5,-129"/>
+<text text-anchor="middle" x="426.5" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Run</text>
+</a>
+</g>
+</g>
+<!-- proc~run&#45;&gt;proc~bundlepost -->
+<g id="proc~~compute_time_vector~~CalledByGraph_edge2" class="edge">
+<title>proc~run&#45;&gt;proc~bundlepost</title>
+<path fill="none" stroke="#ff0000" d="M453.55,-114.38C476.06,-112.12 510.02,-108.71 542.59,-105.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="543.04,-108.91 552.64,-104.43 542.34,-101.94 543.04,-108.91"/>
+</g>
+<!-- proc~write_to_file -->
+<g id="proc~~compute_time_vector~~CalledByGraph_node4" class="node">
+<title>proc~write_to_file</title>
+<g id="a_proc~~compute_time_vector~~CalledByGraph_node4"><a xlink:href="../proc/write_to_file.html" xlink:title="FieldBundleWriter%write_to_file">
+<polygon fill="#d9534f" stroke="#d9534f" points="517,-87 336,-87 336,-63 517,-63 517,-87"/>
+<text text-anchor="middle" x="426.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleWriter%write_to_file</text>
+</a>
+</g>
+</g>
+<!-- proc~write_to_file&#45;&gt;proc~bundlepost -->
+<g id="proc~~compute_time_vector~~CalledByGraph_edge3" class="edge">
+<title>proc~write_to_file&#45;&gt;proc~bundlepost</title>
+<path fill="none" stroke="#ff0000" d="M517.04,-84C525.57,-84.85 534.22,-85.72 542.78,-86.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="542.47,-90.07 552.77,-87.59 543.17,-83.1 542.47,-90.07"/>
+</g>
+<!-- proc~main~2 -->
+<g id="proc~~compute_time_vector~~CalledByGraph_node5" class="node">
+<title>proc~main~2</title>
+<g id="a_proc~~compute_time_vector~~CalledByGraph_node5"><a xlink:href="../proc/main~2.html" xlink:title="main">
+<polygon fill="#d9534f" stroke="#d9534f" points="253.5,-150 199.5,-150 199.5,-126 253.5,-126 253.5,-150"/>
+<text text-anchor="middle" x="226.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
+</a>
+</g>
+</g>
+<!-- proc~main~2&#45;&gt;proc~write_to_file -->
+<g id="proc~~compute_time_vector~~CalledByGraph_edge4" class="edge">
+<title>proc~main~2&#45;&gt;proc~write_to_file</title>
+<path fill="none" stroke="#00ffff" d="M253.54,-132.11C267.59,-128.53 285.07,-123.4 300,-117 317.02,-109.7 318.79,-102.86 336,-96 341.51,-93.8 347.3,-91.8 353.19,-89.99"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="354.5,-93.25 363.13,-87.1 352.55,-86.53 354.5,-93.25"/>
+</g>
+<!-- proc~write_bundle_single_time -->
+<g id="proc~~compute_time_vector~~CalledByGraph_node6" class="node">
+<title>proc~write_bundle_single_time</title>
+<g id="a_proc~~compute_time_vector~~CalledByGraph_node6"><a xlink:href="../proc/write_bundle_single_time.html" xlink:title="write_bundle_single_time">
+<polygon fill="#d9534f" stroke="#d9534f" points="300,-108 153,-108 153,-84 300,-84 300,-108"/>
+<text text-anchor="middle" x="226.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">write_bundle_single_time</text>
+</a>
+</g>
+</g>
+<!-- proc~write_bundle_single_time&#45;&gt;proc~write_to_file -->
+<g id="proc~~compute_time_vector~~CalledByGraph_edge5" class="edge">
+<title>proc~write_bundle_single_time&#45;&gt;proc~write_to_file</title>
+<path fill="none" stroke="#00ffff" d="M300.1,-88.3C308.43,-87.42 317.03,-86.5 325.64,-85.59"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="326.16,-89.06 335.73,-84.52 325.42,-82.1 326.16,-89.06"/>
+</g>
+<!-- program~time_ave -->
+<g id="proc~~compute_time_vector~~CalledByGraph_node7" class="node">
+<title>program~time_ave</title>
+<g id="a_proc~~compute_time_vector~~CalledByGraph_node7"><a xlink:href="../program/time_ave.html" xlink:title="time_ave">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="257,-66 196,-66 196,-42 257,-42 257,-66"/>
+<text text-anchor="middle" x="226.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_ave</text>
+</a>
+</g>
+</g>
+<!-- program~time_ave&#45;&gt;proc~write_to_file -->
+<g id="proc~~compute_time_vector~~CalledByGraph_edge6" class="edge">
+<title>program~time_ave&#45;&gt;proc~write_to_file</title>
+<path fill="none" stroke="#00ffff" d="M257.14,-57.14C275.71,-59.11 300.83,-61.78 325.99,-64.45"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="325.68,-67.93 336,-65.51 326.42,-60.97 325.68,-67.93"/>
+</g>
+<!-- program~ut_regridding -->
+<g id="proc~~compute_time_vector~~CalledByGraph_node8" class="node">
+<title>program~ut_regridding</title>
+<g id="a_proc~~compute_time_vector~~CalledByGraph_node8"><a xlink:href="../program/ut_regridding.html" xlink:title="ut_ReGridding">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="270.5,-24 182.5,-24 182.5,0 270.5,0 270.5,-24"/>
+<text text-anchor="middle" x="226.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ut_ReGridding</text>
+</a>
+</g>
+</g>
+<!-- program~ut_regridding&#45;&gt;proc~write_to_file -->
+<g id="proc~~compute_time_vector~~CalledByGraph_edge7" class="edge">
+<title>program~ut_regridding&#45;&gt;proc~write_to_file</title>
+<path fill="none" stroke="#00ffff" d="M270.14,-24.04C279.97,-26.9 290.37,-29.99 300,-33 327.08,-41.45 357.24,-51.52 381.2,-59.68"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="380.14,-63.02 390.73,-62.94 382.4,-56.39 380.14,-63.02"/>
+</g>
+<!-- interface~mapl_write_bundle -->
+<g id="proc~~compute_time_vector~~CalledByGraph_node9" class="node">
+<title>interface~mapl_write_bundle</title>
+<g id="a_proc~~compute_time_vector~~CalledByGraph_node9"><a xlink:href="../interface/mapl_write_bundle.html" xlink:title="MAPL_Write_Bundle">
+<polygon fill="#a7506f" stroke="#a7506f" points="117,-108 0,-108 0,-84 117,-84 117,-108"/>
+<text text-anchor="middle" x="58.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Write_Bundle</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_write_bundle&#45;&gt;proc~write_bundle_single_time -->
+<g id="proc~~compute_time_vector~~CalledByGraph_edge9" class="edge">
+<title>interface~mapl_write_bundle&#45;&gt;proc~write_bundle_single_time</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M117.09,-96C125.37,-96 134.02,-96 142.67,-96"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="142.8,-99.5 152.8,-96 142.8,-92.5 142.8,-99.5"/>
+</g>
+<!-- program~regrid_util -->
+<g id="proc~~compute_time_vector~~CalledByGraph_node10" class="node">
+<title>program~regrid_util</title>
+<g id="a_proc~~compute_time_vector~~CalledByGraph_node10"><a xlink:href="../program/regrid_util.html" xlink:title="Regrid_Util">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="93.5,-150 23.5,-150 23.5,-126 93.5,-126 93.5,-150"/>
+<text text-anchor="middle" x="58.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util</text>
+</a>
+</g>
+</g>
+<!-- program~regrid_util&#45;&gt;proc~main~2 -->
+<g id="proc~~compute_time_vector~~CalledByGraph_edge8" class="edge">
+<title>program~regrid_util&#45;&gt;proc~main~2</title>
+<path fill="none" stroke="#ff0000" d="M93.9,-138C121.68,-138 160.7,-138 189.03,-138"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="189.31,-141.5 199.31,-138 189.31,-134.5 189.31,-141.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproccompute_time_vectorCalledByGraph = svgPanZoom('#proccompute_time_vectorCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">function </span><span class="n">compute_time_vector</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="n">metadata</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">times</span><span class="p">)</span>
+<span class="w">    </span><span class="k">class</span><span class="p">(</span><span class="n">timeData</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">FileMetadata</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">metadata</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">times</span><span class="p">(:)</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">currTime</span><span class="p">,</span><span class="n">startTime</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tint</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tint_s</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMFTimeVectorIterator</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iter</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tptr</span>
+<span class="w">    </span><span class="c">! for now return minutes, this should be optional argument in future</span>
+<span class="w">  </span>
+<span class="w">    </span><span class="n">this</span><span class="p">%</span><span class="n">tcount</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">tcount</span><span class="o">+</span><span class="mi">1</span><span class="w"> </span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_ClockGet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">clock</span><span class="p">,</span><span class="n">currTime</span><span class="o">=</span><span class="n">currTime</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="n">startTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_start_time</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="n">currTime</span><span class="o">=</span><span class="n">currTime</span><span class="o">-</span><span class="n">this</span><span class="p">%</span><span class="n">offSet</span>
+<span class="w">    </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">tvec</span><span class="p">%</span><span class="n">push_back</span><span class="p">(</span><span class="n">currTime</span><span class="p">)</span>
+<span class="w">    </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">tvec</span><span class="p">%</span><span class="n">begin</span><span class="p">()</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">times</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">tvec</span><span class="p">%</span><span class="n">size</span><span class="p">()))</span>
+<span class="w">    </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">    </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">tvec</span><span class="p">%</span><span class="k">end</span><span class="p">())</span>
+<span class="w">       </span><span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">       </span><span class="n">tptr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">iter</span><span class="p">%</span><span class="n">get</span><span class="p">()</span>
+<span class="w">       </span><span class="n">tint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tptr</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">startTime</span>
+<span class="w">       </span><span class="k">select case</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">funits</span><span class="p">))</span>
+<span class="w">       </span><span class="k">case</span><span class="p">(</span><span class="s1">&#39;seconds&#39;</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_TimeIntervalGet</span><span class="p">(</span><span class="n">tint</span><span class="p">,</span><span class="n">s_r8</span><span class="o">=</span><span class="n">tint_s</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="n">times</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">tint_s</span>
+<span class="w">       </span><span class="k">case</span><span class="p">(</span><span class="s1">&#39;minutes&#39;</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_TimeIntervalGet</span><span class="p">(</span><span class="n">tint</span><span class="p">,</span><span class="n">m_r8</span><span class="o">=</span><span class="n">tint_s</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="n">times</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">tint_s</span>
+<span class="w">       </span><span class="k">case</span><span class="p">(</span><span class="s1">&#39;hours&#39;</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_TimeIntervalGet</span><span class="p">(</span><span class="n">tint</span><span class="p">,</span><span class="n">h_r8</span><span class="o">=</span><span class="n">tint_s</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="n">times</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">tint_s</span>
+<span class="w">       </span><span class="k">case</span><span class="p">(</span><span class="s1">&#39;days&#39;</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_TimeIntervalGet</span><span class="p">(</span><span class="n">tint</span><span class="p">,</span><span class="n">d_r8</span><span class="o">=</span><span class="n">tint_s</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">          </span><span class="n">times</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">tint_s</span>
+<span class="w">       </span><span class="k">case </span><span class="n">default</span>
+<span class="w">       </span><span class="k">end select</span>
+<span class="k">       call </span><span class="n">iter</span><span class="p">%</span><span class="n">next</span><span class="p">()</span>
+<span class="w">    </span><span class="k">enddo</span>
+<span class="k">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"> </span>
+
+<span class="w">  </span><span class="k">end function </span><span class="n">compute_time_vector</span><span class="w"> </span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-12-03T14:32:23.557683+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
