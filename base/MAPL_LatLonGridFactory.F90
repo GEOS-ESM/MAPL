@@ -1871,6 +1871,7 @@ contains
       class (LatLonGridFactory), intent(inout) :: this
 
       character(len=:), allocatable :: vars
+      integer :: i
       _UNUSED_DUMMY(this)
 
       if (allocated(this%lon_bounds_name) .and. allocated(this%lat_bounds_name)) then

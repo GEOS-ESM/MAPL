@@ -48,8 +48,8 @@ module MAPL_ESMFFieldBundleRead
          type(StringVariableMap), pointer :: variables
          type(Variable), pointer :: this_variable
          type(StringVariableMapIterator) :: var_iter
-         character(len=:), pointer :: var_name,dim_name
-         character(len=:), allocatable :: lev_name
+         character(len=:), pointer :: var_name_ptr,dim_name
+         character(len=:), allocatable :: lev_name,var_name
          type(ESMF_Field) :: field
          type (StringVector), pointer :: dimensions
          type (StringVectorIterator) :: dim_iter
@@ -71,14 +71,15 @@ module MAPL_ESMFFieldBundleRead
          factory => get_factory(file_grid,rc=status)
          _VERIFY(status)
          grid_vars = factory%get_file_format_vars()
-         exclude_vars = grid_vars//",lev,time,lons,lats,time_bnds"
+         exclude_vars = ","//grid_vars//",lev,time,time_bnds,"
          if (has_vertical_level) lev_size = metadata%get_dimension(trim(lev_name))
 
          variables => metadata%get_variables()
          var_iter = variables%begin()
          do while (var_iter /= variables%end())
             var_has_levels = .false.
-            var_name => var_iter%key()
+            var_name_ptr => var_iter%key()
+            var_name = ","//var_name_ptr//","
             this_variable => var_iter%value()
 
             if (has_vertical_level) then
@@ -91,29 +92,20 @@ module MAPL_ESMFFieldBundleRead
                enddo
             end if
 
-            write(*,*)'bmaa exclude ',','//trim(exclude_vars)//','
-            write(*,*)'bmaa var_name ',trim(var_name)
-            write(*,*)'bmaa index(exclude_var,var_name) ',index(','//trim(exclude_vars)//',',','//trim(var_name)//',')
-            write(*,*)'bmaa hardcode string index comma vs no ',index(',lon,lat,lon_bnds,lat_bnds,lev,time,lons,lats,time_bnds,',",lat_bnds,"),index(',lon,lat,lon_bnds,lat_bnds,lev,time,lons,lats,time_bnds,',"lat_bnds")
-            write(*,*)'bmaa allocatable string index comma vs no ',index(exclude_vars,",lat_bnds,"),index(exclude_vars,"lat_bnds")
-            write(*,*)'bmaa allocatable string index comma vs no ',index(exclude_vars,",time_bnds,"),index(exclude_vars,"time_bnds")
-            write(*,*)'bmaa allocatable string index comma vs no ',index(exclude_vars,",time,"),index(exclude_vars,"time")
-            write(*,*)'bmaa allocatable string index comma vs no ',index(exclude_vars,",lat,"),index(exclude_vars,"lat")
-
-            if (index(','//trim(exclude_vars)//',',','//trim(var_name)//',') > 0) then
+            if (index(trim(exclude_vars),trim(var_name)) > 0) then
                call var_iter%next()
                   cycle
                end if
             create_variable = .true.
             if (present(only_vars)) then
-               if (index(','//trim(only_vars)//',',','//trim(var_name)//',') < 1) create_variable = .false.
+               if (index(','//trim(only_vars)//',',trim(var_name)) < 1) create_variable = .false.
             end if
             if (create_variable) then
                if(var_has_levels) then
                    if (grid_size(3) == lev_size) then
                       location=MAPL_VLocationCenter
                       dims = MAPL_DimsHorzVert
-                      field= ESMF_FieldCreate(grid,name=trim(var_name),typekind=ESMF_TYPEKIND_R4, &
+                      field= ESMF_FieldCreate(grid,name=trim(var_name_ptr),typekind=ESMF_TYPEKIND_R4, &
                         ungriddedUbound=[grid_size(3)],ungriddedLBound=[1], rc=status)
                         block
                            real, pointer :: ptr3d(:,:,:)
@@ -123,7 +115,7 @@ module MAPL_ESMFFieldBundleRead
                    else if (grid_size(3)+1 == lev_size) then
                       location=MAPL_VLocationEdge
                       dims = MAPL_DimsHorzVert
-                      field= ESMF_FieldCreate(grid,name=trim(var_name),typekind=ESMF_TYPEKIND_R4, &
+                      field= ESMF_FieldCreate(grid,name=trim(var_name_ptr),typekind=ESMF_TYPEKIND_R4, &
                         ungriddedUbound=[grid_size(3)],ungriddedLBound=[0], rc=status)
                         block
                            real, pointer :: ptr3d(:,:,:)
@@ -134,7 +126,7 @@ module MAPL_ESMFFieldBundleRead
                else
                    location=MAPL_VLocationNone
                    dims = MAPL_DimsHorzOnly
-                   field= ESMF_FieldCreate(grid,name=trim(var_name),typekind=ESMF_TYPEKIND_R4, &
+                   field= ESMF_FieldCreate(grid,name=trim(var_name_ptr),typekind=ESMF_TYPEKIND_R4, &
                       rc=status)
                         block
                            real, pointer :: ptr2d(:,:)
@@ -146,9 +138,8 @@ module MAPL_ESMFFieldBundleRead
                _VERIFY(status)
                call ESMF_AttributeSet(field,name='VLOCATION',value=location,rc=status)
                _VERIFY(status)
-               write(*,*)"bmaa getting units for ",trim(var_name)
-               units = metadata%get_var_attr_string(var_name,'units',_RC)
-               long_name = metadata%get_var_attr_string(var_name,'long_name',_RC)
+               units = metadata%get_var_attr_string(var_name_ptr,'units',_RC)
+               long_name = metadata%get_var_attr_string(var_name_ptr,'long_name',_RC)
                call ESMF_AttributeSet(field,name='UNITS',value=units,rc=status)
                _VERIFY(status)
                call ESMF_AttributeSet(field,name='LONG_NAME',value=long_name,rc=status)
