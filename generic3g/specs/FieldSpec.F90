@@ -188,6 +188,19 @@ module mapl3g_FieldSpec
       procedure :: new_UnitsAdapter
    end interface UnitsAdapter
 
+   type, extends(StateItemAdapter) :: AccumulatorAdapter
+      character(len=:), allocatable :: accumulation_type
+      !wdb fixme deleteme type(ESMF_Typekind_Flag) :: typekind
+      logical :: valid = .FALSE. 
+   contains
+      procedure :: adapt_one => adapt_accumulator
+      procedure :: match_one => adapter_match_accumulator
+   end type AccumulatorAdapter
+
+   interface AccumulatorAdapter
+      procedure :: new_AccumulatorAdapter
+   end interface AccumulatorAdapter
+
 contains
 
    function new_FieldSpec_geom(unusable, geom, vertical_grid, vertical_dim_spec, typekind, ungridded_dims, &
@@ -967,6 +980,53 @@ contains
       _RETURN(_SUCCESS)
    end function adapter_match_units
 
+   function new_AccumulatorAdapter(accumulation_type, typekind) result(acc_adapter)
+      type(AccumulatorAdapter) :: acc_adapter
+      character(len=:), allocatable, intent(in) :: accumulation_type
+      type(ESMF_TypeKind_Flag), intent(in) :: typekind
+
+      if(.not. allocated(accumulation_type)) return
+      if(.not. accumulation_type_is_valid(accumulation_type)) return
+      acc_adapter%accumulation_type = accumulation_type
+      acc_adapter%typekind = typekind
+      acc_adapter%valid = .TRUE.
+
+   end function new_AccumulatorAdapter
+
+   subroutine adapt_accumulator(this, spec, action, rc)
+      class(AccumulatorAdapter), intent(in) :: this
+      class(StateItemSpec), intent(inout) :: spec
+      class(ExtensionAction), allocatable, intent(out) :: action
+      integer, optional, intent(out) :: rc
+      
+      integer :: status
+
+      _ASSERT(this%valid, 'Invalid accumulation type')
+      select type(spec)
+      type is (FieldSpec)
+         call get_accumulator_action(this%accumulation_type, this%typekind, action, _RC)
+      end select
+      _RETURN(_SUCCESS)
+
+   end subroutine adapt_accumulator
+
+   logical function adapter_match_accumulator(this, spec, rc) result(match)
+      class(AccumulatorAdapter), intent(in) :: this
+      class(StateItemSpec), intent(in) :: spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      match = .false.
+      if(.not. this%valid) return
+      select type(spec)
+      type is (FieldSpec)
+         match = this%typekind == spec%typekind
+      end select
+      _RETURN(_SUCCESS)
+
+   end function adapter_match_accumulator
+
    recursive function make_adapters(this, goal_spec, rc) result(adapters)
       type(StateItemAdapterWrapper), allocatable :: adapters(:)
       class(FieldSpec), intent(in) :: this
@@ -978,7 +1038,7 @@ contains
 
       select type (goal_spec)
       type is (FieldSpec)
-         allocate(adapters(4))
+         allocate(adapters(5))
          allocate(adapters(1)%adapter, source=GeomAdapter(goal_spec%geom, goal_spec%regrid_param))
          vertical_grid_adapter = VerticalGridAdapter( &
               goal_spec%vertical_grid, &
@@ -990,6 +1050,7 @@ contains
          allocate(adapters(2)%adapter, source=vertical_grid_adapter)
          allocate(adapters(3)%adapter, source=TypeKindAdapter(goal_spec%typekind))
          allocate(adapters(4)%adapter, source=UnitsAdapter(goal_spec%units))
+         allocate(adapters(5)%adapter, source=AccumulatorAdapter(this%accumulation_type, this%typekind))
       type is (WildCardSpec)
          adapters = goal_spec%make_adapters(goal_spec, _RC)
       class default
