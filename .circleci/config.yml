@@ -16,7 +16,7 @@ parameters:
 
 # Anchors to prevent forgetting to update a version
 os_version: &os_version ubuntu20
-baselibs_version: &baselibs_version v7.25.0
+baselibs_version: &baselibs_version v7.27.0
 bcs_version: &bcs_version v11.6.0
 tag_build_arg_name: &tag_build_arg_name maplversion
 
@@ -161,7 +161,8 @@ workflows:
           fixture_branch: feature/mathomp4/mapldevelop
           checkout_mapl_branch: true
           mepodevelop: false
-          rebuild_procs: 1
+          rebuild_procs: 4
+          build_type: Release
 
   build-and-publish-docker:
     when:
