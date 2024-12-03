@@ -140,7 +140,7 @@ module MaskSamplerMod
      end function MaskSampler_from_config
 
      module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdata,global_attributes,reinitialize,rc)
-       class(MaskSampler), target, intent(inout) :: this
+       class(MaskSampler), intent(inout) :: this
        integer, intent(in) :: duration
        integer, intent(in) :: frequency
        type(GriddedIOitemVector), optional, intent(inout) :: items
@@ -155,18 +155,18 @@ module MaskSamplerMod
      module subroutine create_Geosat_grid_find_mask(this, rc)
        use pflogger, only: Logger, logging
        implicit none
-       class(MaskSampler), target, intent(inout) :: this
+       class(MaskSampler), intent(inout) :: this
        integer, optional, intent(out)          :: rc
      end subroutine create_Geosat_grid_find_mask
 
      module subroutine  create_metadata(this,global_attributes,rc)
-       class(MaskSampler), target, intent(inout) :: this
+       class(MaskSampler), intent(inout) :: this
        type(StringStringMap), target, intent(in) :: global_attributes
        integer, optional, intent(out)          :: rc
      end subroutine create_metadata
 
      module subroutine output_to_server(this,current_time,filename,oClients,rc)
-       class(MaskSampler), target, intent(inout)       :: this
+       class(MaskSampler), intent(inout)       :: this
        type(ESMF_Time), intent(inout)          :: current_time
        character(len=*), intent(in)            :: filename
        type (ClientManager), target, optional, intent(inout) :: oClients
@@ -175,7 +175,7 @@ module MaskSamplerMod
 
      module subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,&
           nbits_to_keep,regrid_method,itemOrder,write_collection_id,regrid_hints,rc)
-       class (MaskSampler), target, intent(inout) :: this
+       class (MaskSampler), intent(inout) :: this
        integer, optional, intent(in) :: deflation
        integer, optional, intent(in) :: quantize_algorithm
        integer, optional, intent(in) :: quantize_level
@@ -189,7 +189,7 @@ module MaskSamplerMod
      end subroutine set_param
 
      module subroutine stage2dlatlon(this,filename,oClients,rc)
-       class(MaskSampler), target, intent(inout) :: this
+       class(MaskSampler), intent(inout) :: this
        character(len=*), intent(in) :: fileName
        type (ClientManager), optional, target, intent(inout) :: oClients
        integer, optional, intent(out) :: rc
@@ -197,14 +197,14 @@ module MaskSamplerMod
 
      module function compute_time_for_current(this,current_time,rc) result(rtime)
        use  MAPL_NetCDF, only : convert_NetCDF_DateTime_to_ESMF
-       class(MaskSampler), target, intent(inout) :: this
+       class(MaskSampler), intent(inout) :: this
        type(ESMF_Time), intent(in) :: current_time
        integer, optional, intent(out) :: rc
        real(kind=ESMF_KIND_R8) :: rtime
      end function compute_time_for_current
 
     module subroutine modifyTime(this, oClients, rc)
-      class(MaskSampler), target, intent(inout) :: this
+      class(MaskSampler), intent(inout) :: this
       type (ClientManager), optional, intent(inout) :: oClients
       integer, optional, intent(out) :: rc
     end subroutine modifyTime

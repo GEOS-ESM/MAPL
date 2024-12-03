@@ -107,7 +107,7 @@ end function MaskSampler_from_config
    !-- integrate both initialize and reinitialize
    !
 module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdata,global_attributes,reinitialize,rc)
-   class(MaskSampler), target, intent(inout) :: this
+   class(MaskSampler), intent(inout) :: this
    integer, intent(in) :: duration
    integer, intent(in) :: frequency
    type(GriddedIOitemVector), optional, intent(inout) :: items
@@ -183,7 +183,7 @@ end subroutine initialize_
 
 module subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,&
      nbits_to_keep,regrid_method,itemOrder,write_collection_id,regrid_hints,rc)
-  class (MaskSampler), target, intent(inout) :: this
+  class (MaskSampler), intent(inout) :: this
   integer, optional, intent(in) :: deflation
   integer, optional, intent(in) :: quantize_algorithm
   integer, optional, intent(in) :: quantize_level
@@ -217,7 +217,7 @@ end subroutine set_param
 
 
 module subroutine  create_metadata(this,global_attributes,rc)
-    class(MaskSampler), target, intent(inout) :: this
+    class(MaskSampler), intent(inout) :: this
     type(StringStringMap), target, intent(in) :: global_attributes
     integer, optional, intent(out)          :: rc
 
@@ -351,7 +351,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
        use pflogger, only: Logger, logging
        implicit none
 
-       class(MaskSampler), target, intent(inout) :: this
+       class(MaskSampler), intent(inout) :: this
        integer, optional, intent(out)          :: rc
 
        type(Logger), pointer :: lgr
@@ -414,7 +414,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
        integer      :: Xdim_true, Ydim_true
        integer      :: Xdim_red, Ydim_red
        real(REAL64), allocatable :: lons(:), lats(:)
-       real(REAL64), allocatable :: lons_ds(:), lats_ds(:)
+       real(ESMF_KIND_R8), allocatable :: lons_ds(:), lats_ds(:)
        integer,      allocatable :: mask(:,:)
 
        real(ESMF_kind_R8), pointer :: lons_ptr(:,:), lats_ptr(:,:)
@@ -611,18 +611,22 @@ module subroutine  create_metadata(this,global_attributes,rc)
 
 !!       write(6,*)  'ip, size(lons_ds)=', mypet, size(lons_ds)
 
-       call ESMF_FieldDestroy(fieldA,nogarbage=.true.,_RC)
-       call ESMF_FieldDestroy(fieldB,nogarbage=.true.,_RC)
-       call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
-
        call MAPL_TimerOff(this%GENSTATE,"2_ABIgrid_LS")
 
        ! __ s3. find n.n. CS pts for LS_ds (halo)
        !
        call MAPL_TimerOn(this%GENSTATE,"3_CS_halo")
+!       allocate (obs_lons( size(lons_ds)), _STAT)
+!       allocate (obs_lats( size(lons_ds)), _STAT)
        obs_lons = lons_ds * MAPL_DEGREES_TO_RADIANS_R8
        obs_lats = lats_ds * MAPL_DEGREES_TO_RADIANS_R8
-       nx = size ( lons_ds )
+       nx = sizeof ( ptB ) / sizeof (ESMF_KIND_R8)
+
+       call ESMF_FieldDestroy(fieldA,nogarbage=.true.,_RC)
+       call ESMF_FieldDestroy(fieldB,nogarbage=.true.,_RC)
+       call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
+
+
        allocate ( II(nx), JJ(nx), _STAT )
        call MAPL_GetHorzIJIndex(nx,II,JJ,lonR8=obs_lons,latR8=obs_lats,grid=grid,_RC)
        call ESMF_VMBarrier (vm, _RC)
@@ -816,7 +820,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
  module subroutine output_to_server(this,current_time,filename,oClients,rc)
     implicit none
 
-    class(MaskSampler), target, intent(inout) :: this
+    class(MaskSampler), intent(inout) :: this
     type(ESMF_Time), intent(inout)          :: current_time
     character(len=*), intent(in) :: filename
     type (ClientManager), target, optional, intent(inout) :: oClients
@@ -886,24 +890,34 @@ module subroutine  create_metadata(this,global_attributes,rc)
     !   use griddedio logic
     !__ 1. stage data :  time variable, lat/lon
     !
+    allocate( this%times(1), _STAT )
+    this%times(1) = this%compute_time_for_current(current_time,_RC) ! rtimes: seconds since opening file
+    ref = ArrayReference(this%times)
+    call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
+    call this%stage2DLatLon(filename,oClients=oClients,_RC)
 
-    have_time = this%timeInfo%am_i_initialized()   
-    if (have_time) then
-       this%times = this%timeInfo%compute_time_vector(this%metadata,_RC)
-       ref = ArrayReference(this%times)
-       call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
-       tindex = size(this%times)
-       if (tindex==1) then
-          call this%stage2DLatLon(filename,oClients=oClients,_RC)
-       end if
-    else
-       tindex = -1
-       call this%stage2DLatLon(filename,oClients=oClients,_RC)
-    end if
-    if (mapl_am_i_root()) then
-       print*, 'tindex=', tindex
-    end if
+    return
 
+!!    delete this fancy times, this is a problem with intel compiler.  I think my metadata is not compatible with griddedIO
+!!    have_time = this%timeInfo%am_i_initialized()   
+!!    if (have_time) then
+!!       this%times = this%timeInfo%compute_time_vector(this%metadata,_RC)
+!!       tindex = size(this%times)
+!!       ref = ArrayReference(this%times)
+!!       call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
+!!       if (tindex==1) then
+!!          call this%stage2DLatLon(filename,oClients=oClients,_RC)
+!!       end if
+!!    else
+!!       tindex = -1
+!!       call this%stage2DLatLon(filename,oClients=oClients,_RC)
+!!    end if
+!!    if (mapl_am_i_root()) then
+!!       print*, 'tindex=', tindex
+!!    end if
+!!
+
+    
     !__ 2. put_var: ungridded_dim from src to dst [use index_mask]
     !
     count_scalar = 0
@@ -1037,7 +1051,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
 
   module function compute_time_for_current(this,current_time,rc) result(rtime)
     use  MAPL_NetCDF, only : convert_NetCDF_DateTime_to_ESMF
-    class(MaskSampler), target, intent(inout) :: this
+    class(MaskSampler), intent(inout) :: this
     type(ESMF_Time), intent(in) :: current_time
     integer, optional, intent(out) :: rc
     real(kind=ESMF_KIND_R8) :: rtime
@@ -1072,7 +1086,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
   module subroutine stage2dlatlon(this,filename,oClients,rc)
     implicit none
 
-    class(MaskSampler), target, intent(inout) :: this
+    class(MaskSampler), intent(inout) :: this
     character(len=*), intent(in) :: fileName
     type (ClientManager), optional, target, intent(inout) :: oClients
     integer, optional, intent(out) :: rc
@@ -1093,19 +1107,17 @@ module subroutine  create_metadata(this,global_attributes,rc)
        allocate(local_start,source=[1])
        allocate(global_start,source=[1])
        allocate(global_count,source=[this%npt_mask_tot])
-       ptr1dx => this%lons_deg
     else
        allocate(local_start,source=[0])
        allocate(global_start,source=[0])
        allocate(global_count,source=[0])
-       allocate(ptr1dx(0))
     end if
     
-    ref = ArrayReference(ptr1dx)
+    ref = ArrayReference(this%lons_deg)
     call oClients%collective_stage_data(this%write_collection_id,trim(filename),'longitude', &
          ref,start=local_start, global_start=global_start, global_count=global_count)
 
-!    ref = ArrayReference(this%lats_deg)
+    ref = ArrayReference(this%lats_deg)
     call oClients%collective_stage_data(this%write_collection_id,trim(filename),'latitude', &
          ref,start=local_start, global_start=global_start, global_count=global_count)
 
@@ -1114,7 +1126,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
 
 
      module subroutine modifyTime(this, oClients, rc)
-        class(MaskSampler), target, intent(inout) :: this
+        class(MaskSampler), intent(inout) :: this
         type (ClientManager), optional, intent(inout) :: oClients
         integer, optional, intent(out) :: rc
 
