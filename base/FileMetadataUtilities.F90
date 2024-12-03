@@ -124,7 +124,7 @@ module MAPL_FileMetadataUtilsMod
       var => this%get_variable(var_name,_RC)
       _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
       attr_real32 = var%get_attribute_real32(attr_name, rc=status)
-      _ASSERT(status /= _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
+      _ASSERT(status == _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
 
       _RETURN(_SUCCESS)
    end function get_var_attr_real32
@@ -144,7 +144,7 @@ module MAPL_FileMetadataUtilsMod
       var => this%get_variable(var_name,_RC)
       _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
       attr_real64 = var%get_attribute_real64(attr_name, rc=status)
-      _ASSERT(status /= _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
+      _ASSERT(status == _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
       _RETURN(_SUCCESS)
 
    end function get_var_attr_real64
@@ -164,7 +164,7 @@ module MAPL_FileMetadataUtilsMod
       var => this%get_variable(var_name,_RC)
       _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
       attr_int32 = var%get_attribute_int32(attr_name, rc=status)
-      _ASSERT(status /= _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
+      _ASSERT(status == _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
 
       _RETURN(_SUCCESS)
    end function get_var_attr_int32
@@ -184,7 +184,7 @@ module MAPL_FileMetadataUtilsMod
       var => this%get_variable(var_name,_RC)
       _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
       attr_int64 = var%get_attribute_int64(attr_name, rc=status)
-      _ASSERT(status /= _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
+      _ASSERT(status == _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
 
       _RETURN(_SUCCESS)
    end function get_var_attr_int64
@@ -204,7 +204,7 @@ module MAPL_FileMetadataUtilsMod
       var => this%get_variable(var_name,_RC)
       _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
       attr_string = var%get_attribute_string(attr_name, rc=status)
-      _ASSERT(status /= _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
+      _ASSERT(status == _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
 
       _RETURN(_SUCCESS)
    end function get_var_attr_string
