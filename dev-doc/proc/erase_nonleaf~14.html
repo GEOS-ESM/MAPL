@@ -1,0 +1,906 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>erase_nonleaf &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>erase_nonleaf
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">41 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExtDataDerived.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/extdataderived.f90.html'>ExtDataDerived.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_extdataderivedmap.html'>MAPL_ExtDataDerivedMap</a></li>
+            <li class="breadcrumb-item active" aria-current="page">erase_nonleaf</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine erase_nonleaf(this, pos, side)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/set2~18.html'>set2</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~3843"></span>
+              class(<a href='../type/set2~18.html'>set2</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pos~162"></span>
+              integer(kind=SIZE_KIND),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>pos</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-side~43"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>side</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~erase_nonleaf~14~~CallsGraph Pages: 1 -->
+<svg id="procerase_nonleaf14CallsGraph" width="641pt" height="363pt"
+ viewBox="0.00 0.00 641.00 363.49" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~erase_nonleaf~14~~CallsGraph" class="graph" transform="scale(0.65 0.65) rotate(0) translate(4 553.43)">
+<title>proc~~erase_nonleaf~14~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-553.43 979,-553.43 979,4 -4,4"/>
+<!-- proc~erase_nonleaf~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_node1" class="node">
+<title>proc~erase_nonleaf~14</title>
+<polygon fill="none" stroke="black" points="121,-126.06 0,-126.06 0,-102.06 121,-102.06 121,-126.06"/>
+<text text-anchor="middle" x="60.5" y="-111.66" font-family="Helvetica,sans-Serif" font-size="10.50">set2%erase_nonleaf</text>
+</g>
+<!-- none~at~208 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_node2" class="node">
+<title>none~at~208</title>
+<g id="a_proc~~erase_nonleaf~14~~CallsGraph_node2"><a xlink:href="../type/ivector~17.html#boundprocedure-at~208" xlink:title="iVector%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="657.5,-444.06 587.5,-444.06 587.5,-420.06 657.5,-420.06 657.5,-444.06"/>
+<text text-anchor="middle" x="622.5" y="-429.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iVector%at</text>
+</a>
+</g>
+</g>
+<!-- proc~erase_nonleaf~14&#45;&gt;none~at~208 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge1" class="edge">
+<title>proc~erase_nonleaf~14&#45;&gt;none~at~208</title>
+<path fill="none" stroke="#ff0000" d="M63.47,-126.27C70.35,-166.07 96.31,-294.38 157,-380.06 201.38,-442.71 223.34,-452.79 291,-489.06 389.99,-542.14 438.96,-573.02 541,-526.06 573.45,-511.13 597.7,-475.95 610.72,-453.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="613.88,-454.63 615.6,-444.18 607.74,-451.28 613.88,-454.63"/>
+</g>
+<!-- none~set~113 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_node3" class="node">
+<title>none~set~113</title>
+<g id="a_proc~~erase_nonleaf~14~~CallsGraph_node3"><a xlink:href="../type/ivector~17.html#boundprocedure-set~113" xlink:title="iVector%set">
+<polygon fill="#a7506f" stroke="#a7506f" points="791.5,-224.06 716.5,-224.06 716.5,-200.06 791.5,-200.06 791.5,-224.06"/>
+<text text-anchor="middle" x="754" y="-209.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iVector%set</text>
+</a>
+</g>
+</g>
+<!-- proc~erase_nonleaf~14&#45;&gt;none~set~113 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge2" class="edge">
+<title>proc~erase_nonleaf~14&#45;&gt;none~set~113</title>
+<path fill="none" stroke="#ff0000" d="M71.87,-101.94C88.09,-83.85 121.29,-50.1 157,-33.06 228.24,0.93 252.57,-0.06 331.5,-0.06 331.5,-0.06 331.5,-0.06 476.5,-0.06 601.47,-0.06 704.81,-138.13 740.04,-191.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="737.27,-193.57 745.64,-200.06 743.14,-189.76 737.27,-193.57"/>
+</g>
+<!-- proc~advpos~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_node4" class="node">
+<title>proc~advpos~14</title>
+<g id="a_proc~~erase_nonleaf~14~~CallsGraph_node4"><a xlink:href="../proc/advpos~14.html" xlink:title="set2%advpos">
+<polygon fill="#d9534f" stroke="#d9534f" points="374,-444.06 291,-444.06 291,-420.06 374,-420.06 374,-444.06"/>
+<text text-anchor="middle" x="332.5" y="-429.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%advpos</text>
+</a>
+</g>
+</g>
+<!-- proc~erase_nonleaf~14&#45;&gt;proc~advpos~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge3" class="edge">
+<title>proc~erase_nonleaf~14&#45;&gt;proc~advpos~14</title>
+<path fill="none" stroke="#ff0000" d="M63.97,-126.14C71.77,-161.66 98.89,-267.34 157,-332.06 192.91,-372.06 248.74,-400.12 287.54,-416.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="286.43,-419.45 297.02,-419.94 289.05,-412.96 286.43,-419.45"/>
+</g>
+<!-- proc~exists~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_node5" class="node">
+<title>proc~exists~14</title>
+<g id="a_proc~~erase_nonleaf~14~~CallsGraph_node5"><a xlink:href="../proc/exists~14.html" xlink:title="exists">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="649.5,-283.06 595.5,-283.06 595.5,-259.06 649.5,-259.06 649.5,-283.06"/>
+<text text-anchor="middle" x="622.5" y="-268.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">exists</text>
+</a>
+</g>
+</g>
+<!-- proc~erase_nonleaf~14&#45;&gt;proc~exists~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge4" class="edge">
+<title>proc~erase_nonleaf~14&#45;&gt;proc~exists~14</title>
+<path fill="none" stroke="#ff0000" d="M121.29,-103.19C217.09,-88.99 407.74,-74.32 541,-152.06 560.54,-163.46 592.8,-218.44 609.95,-249.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="607.09,-251.59 614.95,-258.69 613.23,-248.24 607.09,-251.59"/>
+</g>
+<!-- proc~rebalance~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_node6" class="node">
+<title>proc~rebalance~14</title>
+<g id="a_proc~~erase_nonleaf~14~~CallsGraph_node6"><a xlink:href="../proc/rebalance~14.html" xlink:title="set2%rebalance">
+<polygon fill="#d9534f" stroke="#d9534f" points="255,-323.06 157,-323.06 157,-299.06 255,-299.06 255,-323.06"/>
+<text text-anchor="middle" x="206" y="-308.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%rebalance</text>
+</a>
+</g>
+</g>
+<!-- proc~erase_nonleaf~14&#45;&gt;proc~rebalance~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge5" class="edge">
+<title>proc~erase_nonleaf~14&#45;&gt;proc~rebalance~14</title>
+<path fill="none" stroke="#ff0000" d="M70.26,-126.09C94.13,-158.85 160.5,-249.97 190.25,-290.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="187.45,-292.92 196.17,-298.94 193.11,-288.8 187.45,-292.92"/>
+</g>
+<!-- proc~set_child~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_node7" class="node">
+<title>proc~set_child~14</title>
+<g id="a_proc~~erase_nonleaf~14~~CallsGraph_node7"><a xlink:href="../proc/set_child~14.html" xlink:title="set2%set_child">
+<polygon fill="#d9534f" stroke="#d9534f" points="668,-184.06 577,-184.06 577,-160.06 668,-160.06 668,-184.06"/>
+<text text-anchor="middle" x="622.5" y="-169.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%set_child</text>
+</a>
+</g>
+</g>
+<!-- proc~erase_nonleaf~14&#45;&gt;proc~set_child~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge6" class="edge">
+<title>proc~erase_nonleaf~14&#45;&gt;proc~set_child~14</title>
+<path fill="none" stroke="#ff0000" d="M77.68,-101.93C95.87,-89.13 126.81,-69.75 157,-62.06 322.39,-19.95 388.8,15.16 541,-62.06 577.33,-80.49 601.2,-123.88 612.94,-150.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="609.86,-152.01 616.98,-159.86 616.3,-149.28 609.86,-152.01"/>
+</g>
+<!-- proc~set_parent_child~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_node8" class="node">
+<title>proc~set_parent_child~14</title>
+<g id="a_proc~~erase_nonleaf~14~~CallsGraph_node8"><a xlink:href="../proc/set_parent_child~14.html" xlink:title="set2%set_parent_child">
+<polygon fill="#d9534f" stroke="#d9534f" points="541,-204.06 410,-204.06 410,-180.06 541,-180.06 541,-204.06"/>
+<text text-anchor="middle" x="475.5" y="-189.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%set_parent_child</text>
+</a>
+</g>
+</g>
+<!-- proc~erase_nonleaf~14&#45;&gt;proc~set_parent_child~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge7" class="edge">
+<title>proc~erase_nonleaf~14&#45;&gt;proc~set_parent_child~14</title>
+<path fill="none" stroke="#ff0000" d="M121.11,-125.32C195.02,-139.28 320.97,-163.07 400.85,-178.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="400.36,-181.62 410.83,-180.04 401.66,-174.74 400.36,-181.62"/>
+</g>
+<!-- proc~ti_at_32~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_node12" class="node">
+<title>proc~ti_at_32~14</title>
+<g id="a_proc~~erase_nonleaf~14~~CallsGraph_node12"><a xlink:href="../proc/ti_at_32~14.html" xlink:title="iVector%ti_at_32">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="804,-444.06 704,-444.06 704,-420.06 804,-420.06 804,-444.06"/>
+<text text-anchor="middle" x="754" y="-429.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iVector%ti_at_32</text>
+</a>
+</g>
+</g>
+<!-- none~at~208&#45;&gt;proc~ti_at_32~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge8" class="edge">
+<title>none~at~208&#45;&gt;proc~ti_at_32~14</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M657.52,-432.06C668.53,-432.06 681.08,-432.06 693.38,-432.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="693.61,-435.56 703.61,-432.06 693.61,-428.56 693.61,-435.56"/>
+</g>
+<!-- proc~ti_set_32~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_node13" class="node">
+<title>proc~ti_set_32~14</title>
+<g id="a_proc~~erase_nonleaf~14~~CallsGraph_node13"><a xlink:href="../proc/ti_set_32~14.html" xlink:title="iVector%ti_set_32">
+<polygon fill="#d9534f" stroke="#d9534f" points="960.5,-224.06 854.5,-224.06 854.5,-200.06 960.5,-200.06 960.5,-224.06"/>
+<text text-anchor="middle" x="907.5" y="-209.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iVector%ti_set_32</text>
+</a>
+</g>
+</g>
+<!-- none~set~113&#45;&gt;proc~ti_set_32~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge9" class="edge">
+<title>none~set~113&#45;&gt;proc~ti_set_32~14</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M791.67,-206.18C807.41,-205.41 826.25,-205.15 844.07,-205.41"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="844.35,-208.91 854.42,-205.61 844.49,-201.91 844.35,-208.91"/>
+</g>
+<!-- proc~advpos~14&#45;&gt;none~at~208 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge10" class="edge">
+<title>proc~advpos~14&#45;&gt;none~at~208</title>
+<path fill="none" stroke="#48ff00" d="M345.43,-444.13C359.45,-457.37 384.12,-477.85 410,-486.06 465.49,-503.67 485.3,-503.01 541,-486.06 563.69,-479.16 585.79,-463.49 601.07,-450.81"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="603.53,-453.31 608.83,-444.14 598.96,-448 603.53,-453.31"/>
+</g>
+<!-- proc~advpos~14&#45;&gt;proc~exists~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge11" class="edge">
+<title>proc~advpos~14&#45;&gt;proc~exists~14</title>
+<path fill="none" stroke="#48ff00" d="M358.9,-444.16C400.6,-462.07 484.56,-489.81 541,-453.06 569.42,-434.56 601.59,-337.41 615.05,-293.11"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="618.47,-293.89 617.98,-283.31 611.76,-291.88 618.47,-293.89"/>
+</g>
+<!-- proc~get_child~15 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_node9" class="node">
+<title>proc~get_child~15</title>
+<g id="a_proc~~erase_nonleaf~14~~CallsGraph_node9"><a xlink:href="../proc/get_child~15.html" xlink:title="set2%get_child">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="522,-444.06 429,-444.06 429,-420.06 522,-420.06 522,-444.06"/>
+<text text-anchor="middle" x="475.5" y="-429.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%get_child</text>
+</a>
+</g>
+</g>
+<!-- proc~advpos~14&#45;&gt;proc~get_child~15 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge12" class="edge">
+<title>proc~advpos~14&#45;&gt;proc~get_child~15</title>
+<path fill="none" stroke="#48ff00" d="M374.28,-432.06C388.16,-432.06 403.92,-432.06 418.76,-432.06"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="418.86,-435.56 428.86,-432.06 418.86,-428.56 418.86,-435.56"/>
+</g>
+<!-- proc~opposite~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_node10" class="node">
+<title>proc~opposite~14</title>
+<g id="a_proc~~erase_nonleaf~14~~CallsGraph_node10"><a xlink:href="../proc/opposite~14.html" xlink:title="opposite">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="504.5,-402.06 446.5,-402.06 446.5,-378.06 504.5,-378.06 504.5,-402.06"/>
+<text text-anchor="middle" x="475.5" y="-387.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">opposite</text>
+</a>
+</g>
+</g>
+<!-- proc~advpos~14&#45;&gt;proc~opposite~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge13" class="edge">
+<title>proc~advpos~14&#45;&gt;proc~opposite~14</title>
+<path fill="none" stroke="#48ff00" d="M373.9,-420.03C393.59,-414.16 417.12,-407.15 436.47,-401.39"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="437.59,-404.71 446.17,-398.5 435.59,-398 437.59,-404.71"/>
+</g>
+<!-- proc~rebalance~14&#45;&gt;none~at~208 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge14" class="edge">
+<title>proc~rebalance~14&#45;&gt;none~at~208</title>
+<path fill="none" stroke="#0091ff" d="M211.31,-323.41C221.29,-350.37 248.44,-415.14 291,-453.06 334.23,-491.58 353.37,-494.02 410,-506.06 466.95,-518.17 486.75,-527.21 541,-506.06 568.51,-495.34 592.31,-470.33 606.75,-452.35"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="609.72,-454.23 613.06,-444.18 604.18,-449.95 609.72,-454.23"/>
+</g>
+<!-- proc~rebalance~14&#45;&gt;proc~exists~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge15" class="edge">
+<title>proc~rebalance~14&#45;&gt;proc~exists~14</title>
+<path fill="none" stroke="#0091ff" d="M218.8,-298.77C247.9,-269.49 326.8,-196.17 410,-171.06 465.74,-154.24 488.49,-145.92 541,-171.06 574.92,-187.3 599.1,-225.58 611.64,-249.79"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="608.58,-251.5 616.16,-258.9 614.85,-248.39 608.58,-251.5"/>
+</g>
+<!-- proc~rebalance~14&#45;&gt;proc~get_child~15 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge16" class="edge">
+<title>proc~rebalance~14&#45;&gt;proc~get_child~15</title>
+<path fill="none" stroke="#0091ff" d="M225.21,-323.25C241.92,-334.16 267.55,-350.21 291,-362.06 342.04,-387.87 356.32,-391.3 410,-411.06 415.18,-412.97 420.63,-414.88 426.07,-416.73"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="425.2,-420.13 435.79,-419.99 427.42,-413.5 425.2,-420.13"/>
+</g>
+<!-- proc~rebalance~14&#45;&gt;proc~opposite~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge17" class="edge">
+<title>proc~rebalance~14&#45;&gt;proc~opposite~14</title>
+<path fill="none" stroke="#0091ff" d="M247.92,-323.15C299.27,-338.31 386.63,-364.11 436.54,-378.85"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="435.72,-382.26 446.3,-381.73 437.7,-375.55 435.72,-382.26"/>
+</g>
+<!-- proc~rot~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_node11" class="node">
+<title>proc~rot~14</title>
+<g id="a_proc~~erase_nonleaf~14~~CallsGraph_node11"><a xlink:href="../proc/rot~14.html" xlink:title="set2%rot">
+<polygon fill="#d9534f" stroke="#d9534f" points="362,-283.06 303,-283.06 303,-259.06 362,-259.06 362,-283.06"/>
+<text text-anchor="middle" x="332.5" y="-268.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%rot</text>
+</a>
+</g>
+</g>
+<!-- proc~rebalance~14&#45;&gt;proc~rot~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge18" class="edge">
+<title>proc~rebalance~14&#45;&gt;proc~rot~14</title>
+<path fill="none" stroke="#0091ff" d="M244.35,-299.06C259.75,-294.11 277.57,-288.39 293.08,-283.41"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="294.43,-286.65 302.88,-280.26 292.29,-279.98 294.43,-286.65"/>
+</g>
+<!-- proc~update_height~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_node14" class="node">
+<title>proc~update_height~14</title>
+<g id="a_proc~~erase_nonleaf~14~~CallsGraph_node14"><a xlink:href="../proc/update_height~14.html" xlink:title="set2%update_height">
+<polygon fill="#d9534f" stroke="#d9534f" points="536,-322.06 415,-322.06 415,-298.06 536,-298.06 536,-322.06"/>
+<text text-anchor="middle" x="475.5" y="-307.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%update_height</text>
+</a>
+</g>
+</g>
+<!-- proc~rebalance~14&#45;&gt;proc~update_height~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge19" class="edge">
+<title>proc~rebalance~14&#45;&gt;proc~update_height~14</title>
+<path fill="none" stroke="#0091ff" d="M255.13,-310.88C296.75,-310.73 357.46,-310.5 404.46,-310.32"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="404.59,-313.82 414.57,-310.29 404.56,-306.82 404.59,-313.82"/>
+</g>
+<!-- proc~set_child~14&#45;&gt;none~set~113 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge20" class="edge">
+<title>proc~set_child~14&#45;&gt;none~set~113</title>
+<path fill="none" stroke="#4800ff" d="M662.35,-184.06C676.28,-188.36 692.11,-193.25 706.61,-197.73"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="705.8,-201.15 716.39,-200.75 707.87,-194.46 705.8,-201.15"/>
+</g>
+<!-- proc~set_parent_child~14&#45;&gt;none~at~208 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge21" class="edge">
+<title>proc~set_parent_child~14&#45;&gt;none~at~208</title>
+<path fill="none" stroke="#ff00da" d="M484.94,-204.12C497.55,-222.28 521.87,-257.85 541,-289.06 567.1,-331.65 595.21,-382.98 610.33,-411.1"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="607.31,-412.86 615.11,-420.02 613.48,-409.56 607.31,-412.86"/>
+</g>
+<!-- proc~set_parent_child~14&#45;&gt;proc~set_child~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge22" class="edge">
+<title>proc~set_parent_child~14&#45;&gt;proc~set_child~14</title>
+<path fill="none" stroke="#ff00da" d="M541.37,-183.11C549.84,-181.95 558.45,-180.76 566.73,-179.62"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="567.21,-183.08 576.64,-178.25 566.25,-176.15 567.21,-183.08"/>
+</g>
+<!-- proc~get_child~15&#45;&gt;none~at~208 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge23" class="edge">
+<title>proc~get_child~15&#45;&gt;none~at~208</title>
+<path fill="none" stroke="#ff0000" d="M522.38,-432.06C539.83,-432.06 559.67,-432.06 577,-432.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="577.41,-435.56 587.41,-432.06 577.41,-428.56 577.41,-435.56"/>
+</g>
+<!-- proc~rot~14&#45;&gt;none~at~208 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge24" class="edge">
+<title>proc~rot~14&#45;&gt;none~at~208</title>
+<path fill="none" stroke="#00ff00" d="M345.71,-283.11C360,-296.59 384.92,-318.2 410,-331.06 463.95,-358.72 487.04,-341.43 541,-369.06 563.73,-380.7 586.35,-399.16 601.79,-413.1"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="599.45,-415.71 609.18,-419.91 604.2,-410.56 599.45,-415.71"/>
+</g>
+<!-- proc~rot~14&#45;&gt;none~set~113 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge25" class="edge">
+<title>proc~rot~14&#45;&gt;none~set~113</title>
+<path fill="none" stroke="#00ff00" d="M362,-267.05C433.06,-257.06 618.63,-230.96 706.1,-218.66"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="706.85,-222.09 716.26,-217.23 705.87,-215.16 706.85,-222.09"/>
+</g>
+<!-- proc~rot~14&#45;&gt;proc~exists~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge26" class="edge">
+<title>proc~rot~14&#45;&gt;proc~exists~14</title>
+<path fill="none" stroke="#00ff00" d="M362.17,-271.06C414.94,-271.06 527.35,-271.06 585.3,-271.06"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="585.46,-274.56 595.46,-271.06 585.46,-267.56 585.46,-274.56"/>
+</g>
+<!-- proc~rot~14&#45;&gt;proc~set_child~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge29" class="edge">
+<title>proc~rot~14&#45;&gt;proc~set_child~14</title>
+<path fill="none" stroke="#00ff00" d="M338.4,-258.92C348.16,-236.61 372.37,-189.65 410,-171.06 458.87,-146.92 522.17,-151.11 566.74,-158.89"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="566.33,-162.38 576.8,-160.77 567.61,-155.5 566.33,-162.38"/>
+</g>
+<!-- proc~rot~14&#45;&gt;proc~set_parent_child~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge30" class="edge">
+<title>proc~rot~14&#45;&gt;proc~set_parent_child~14</title>
+<path fill="none" stroke="#00ff00" d="M348.67,-259.03C363.66,-247.53 387.53,-230.18 410,-218.06 416.58,-214.52 423.74,-211.17 430.83,-208.12"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="432.47,-211.23 440.38,-204.18 429.8,-204.76 432.47,-211.23"/>
+</g>
+<!-- proc~rot~14&#45;&gt;proc~get_child~15 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge27" class="edge">
+<title>proc~rot~14&#45;&gt;proc~get_child~15</title>
+<path fill="none" stroke="#00ff00" d="M336.76,-283.15C344.66,-310.13 367.37,-375.68 410,-411.06 412.94,-413.5 416.16,-415.66 419.56,-417.56"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="418.34,-420.86 428.86,-422.06 421.38,-414.56 418.34,-420.86"/>
+</g>
+<!-- proc~rot~14&#45;&gt;proc~opposite~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge28" class="edge">
+<title>proc~rot~14&#45;&gt;proc~opposite~14</title>
+<path fill="none" stroke="#00ff00" d="M340.69,-283.28C352.75,-302.81 378.81,-341.19 410,-364.06 418.02,-369.94 427.56,-374.73 436.81,-378.52"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="435.67,-381.84 446.26,-382.12 438.16,-375.29 435.67,-381.84"/>
+</g>
+<!-- proc~rot~14&#45;&gt;proc~update_height~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge31" class="edge">
+<title>proc~rot~14&#45;&gt;proc~update_height~14</title>
+<path fill="none" stroke="#00ff00" d="M362.03,-278.95C379.05,-283.66 401.18,-289.78 421.31,-295.35"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="420.43,-298.74 431,-298.03 422.3,-291.99 420.43,-298.74"/>
+</g>
+<!-- proc~ti_at_size_kind~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_node15" class="node">
+<title>proc~ti_at_size_kind~14</title>
+<g id="a_proc~~erase_nonleaf~14~~CallsGraph_node15"><a xlink:href="../proc/ti_at_size_kind~14.html" xlink:title="iVector%ti_at_size_kind">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="975,-444.06 840,-444.06 840,-420.06 975,-420.06 975,-444.06"/>
+<text text-anchor="middle" x="907.5" y="-429.66" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iVector%ti_at_size_kind</text>
+</a>
+</g>
+</g>
+<!-- proc~ti_at_32~14&#45;&gt;proc~ti_at_size_kind~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge32" class="edge">
+<title>proc~ti_at_32~14&#45;&gt;proc~ti_at_size_kind~14</title>
+<path fill="none" stroke="#00ffff" d="M804.19,-432.06C812.38,-432.06 821.06,-432.06 829.75,-432.06"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="829.93,-435.56 839.93,-432.06 829.93,-428.56 829.93,-435.56"/>
+</g>
+<!-- proc~ti_set_32~14&#45;&gt;none~set~113 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge33" class="edge">
+<title>proc~ti_set_32~14&#45;&gt;none~set~113</title>
+<path fill="none" stroke="#0000ff" d="M854.42,-218.51C837.31,-218.96 818.42,-218.91 801.74,-218.35"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="801.81,-214.85 791.67,-217.94 801.52,-221.85 801.81,-214.85"/>
+</g>
+<!-- proc~update_height~14&#45;&gt;none~at~208 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge34" class="edge">
+<title>proc~update_height~14&#45;&gt;none~at~208</title>
+<path fill="none" stroke="#ff00ff" d="M515.3,-322.12C524.19,-325.84 533.28,-330.46 541,-336.06 569.52,-356.77 594.18,-389.72 608.45,-411.12"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="605.69,-413.31 614.08,-419.79 611.56,-409.49 605.69,-413.31"/>
+</g>
+<!-- proc~update_height~14&#45;&gt;none~set~113 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge35" class="edge">
+<title>proc~update_height~14&#45;&gt;none~set~113</title>
+<path fill="none" stroke="#ff00ff" d="M536,-314.23C575.15,-314.67 626.61,-310.76 668,-292.06 697.31,-278.82 722.94,-251.25 738.2,-232.21"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="741.09,-234.19 744.45,-224.14 735.56,-229.9 741.09,-234.19"/>
+</g>
+<!-- proc~update_height~14&#45;&gt;proc~exists~14 -->
+<g id="proc~~erase_nonleaf~14~~CallsGraph_edge36" class="edge">
+<title>proc~update_height~14&#45;&gt;proc~exists~14</title>
+<path fill="none" stroke="#ff00ff" d="M521.19,-298.04C541.88,-292.48 566.13,-285.95 585.61,-280.72"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="586.56,-284.08 595.31,-278.11 584.75,-277.32 586.56,-284.08"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocerase_nonleaf14CallsGraph = svgPanZoom('#procerase_nonleaf14CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~erase_nonleaf~14~~CalledByGraph Pages: 1 -->
+<svg id="procerase_nonleaf14CalledByGraph" width="630pt" height="95pt"
+ viewBox="0.00 0.00 630.00 95.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~erase_nonleaf~14~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 91)">
+<title>proc~~erase_nonleaf~14~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-91 626,-91 626,4 -4,4"/>
+<!-- proc~erase_nonleaf~14 -->
+<g id="proc~~erase_nonleaf~14~~CalledByGraph_node1" class="node">
+<title>proc~erase_nonleaf~14</title>
+<polygon fill="none" stroke="black" points="622,-87 501,-87 501,-63 622,-63 622,-87"/>
+<text text-anchor="middle" x="561.5" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">set2%erase_nonleaf</text>
+</g>
+<!-- proc~s_erase_multi~14 -->
+<g id="proc~~erase_nonleaf~14~~CalledByGraph_node2" class="node">
+<title>proc~s_erase_multi~14</title>
+<g id="a_proc~~erase_nonleaf~14~~CalledByGraph_node2"><a xlink:href="../proc/s_erase_multi~14.html" xlink:title="set2%s_erase_multi">
+<polygon fill="#d9534f" stroke="#d9534f" points="465,-87 347,-87 347,-63 465,-63 465,-87"/>
+<text text-anchor="middle" x="406" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%s_erase_multi</text>
+</a>
+</g>
+</g>
+<!-- proc~s_erase_multi~14&#45;&gt;proc~erase_nonleaf~14 -->
+<g id="proc~~erase_nonleaf~14~~CalledByGraph_edge1" class="edge">
+<title>proc~s_erase_multi~14&#45;&gt;proc~erase_nonleaf~14</title>
+<path fill="none" stroke="#ff0000" d="M465.03,-75C473.45,-75 482.19,-75 490.82,-75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="490.85,-78.5 500.85,-75 490.85,-71.5 490.85,-78.5"/>
+</g>
+<!-- none~erase~53 -->
+<g id="proc~~erase_nonleaf~14~~CalledByGraph_node3" class="node">
+<title>none~erase~53</title>
+<g id="a_proc~~erase_nonleaf~14~~CalledByGraph_node3"><a xlink:href="../type/set2~18.html#boundprocedure-erase~53" xlink:title="set2%erase">
+<polygon fill="#a7506f" stroke="#a7506f" points="311,-45 236,-45 236,-21 311,-21 311,-45"/>
+<text text-anchor="middle" x="273.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%erase</text>
+</a>
+</g>
+</g>
+<!-- none~erase~53&#45;&gt;proc~s_erase_multi~14 -->
+<g id="proc~~erase_nonleaf~14~~CalledByGraph_edge2" class="edge">
+<title>none~erase~53&#45;&gt;proc~s_erase_multi~14</title>
+<path fill="none" stroke="#ff0000" d="M311.2,-44.81C325.67,-49.47 342.47,-54.88 357.83,-59.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="357.08,-63.25 367.67,-62.99 359.22,-56.59 357.08,-63.25"/>
+</g>
+<!-- proc~s_erase_one~14 -->
+<g id="proc~~erase_nonleaf~14~~CalledByGraph_node5" class="node">
+<title>proc~s_erase_one~14</title>
+<g id="a_proc~~erase_nonleaf~14~~CalledByGraph_node5"><a xlink:href="../proc/s_erase_one~14.html" xlink:title="set2%s_erase_one">
+<polygon fill="#d9534f" stroke="#d9534f" points="461.5,-45 350.5,-45 350.5,-21 461.5,-21 461.5,-45"/>
+<text text-anchor="middle" x="406" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%s_erase_one</text>
+</a>
+</g>
+</g>
+<!-- none~erase~53&#45;&gt;proc~s_erase_one~14 -->
+<g id="proc~~erase_nonleaf~14~~CalledByGraph_edge6" class="edge">
+<title>none~erase~53&#45;&gt;proc~s_erase_one~14</title>
+<path fill="none" stroke="#00ff00" d="M311.2,-26.86C320.15,-26.45 330,-26.25 339.84,-26.25"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="340.03,-29.75 350.06,-26.33 340.08,-22.75 340.03,-29.75"/>
+</g>
+<!-- proc~m_erase_one~14 -->
+<g id="proc~~erase_nonleaf~14~~CalledByGraph_node4" class="node">
+<title>proc~m_erase_one~14</title>
+<g id="a_proc~~erase_nonleaf~14~~CalledByGraph_node4"><a xlink:href="../proc/m_erase_one~14.html" xlink:title="ExtDataDerivedMap%m_erase_one">
+<polygon fill="#d9534f" stroke="#d9534f" points="200,-66 0,-66 0,-42 200,-42 200,-66"/>
+<text text-anchor="middle" x="100" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDerivedMap%m_erase_one</text>
+</a>
+</g>
+</g>
+<!-- proc~m_erase_one~14&#45;&gt;none~erase~53 -->
+<g id="proc~~erase_nonleaf~14~~CalledByGraph_edge3" class="edge">
+<title>proc~m_erase_one~14&#45;&gt;none~erase~53</title>
+<path fill="none" stroke="#ff0000" d="M199.27,-41.97C208.43,-40.85 217.39,-39.75 225.73,-38.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="226.42,-42.17 235.92,-37.48 225.57,-35.22 226.42,-42.17"/>
+</g>
+<!-- proc~s_erase_one~14&#45;&gt;none~erase~53 -->
+<g id="proc~~erase_nonleaf~14~~CalledByGraph_edge4" class="edge">
+<title>proc~s_erase_one~14&#45;&gt;none~erase~53</title>
+<path fill="none" stroke="#ff0000" d="M350.06,-39.67C340.53,-39.82 330.7,-39.76 321.41,-39.51"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="321.32,-36 311.2,-39.14 321.07,-43 321.32,-36"/>
+</g>
+<!-- proc~s_remove~14 -->
+<g id="proc~~erase_nonleaf~14~~CalledByGraph_node6" class="node">
+<title>proc~s_remove~14</title>
+<g id="a_proc~~erase_nonleaf~14~~CalledByGraph_node6"><a xlink:href="../proc/s_remove~14.html" xlink:title="set2%s_remove">
+<polygon fill="#d9534f" stroke="#d9534f" points="148,-24 52,-24 52,0 148,0 148,-24"/>
+<text text-anchor="middle" x="100" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set2%s_remove</text>
+</a>
+</g>
+</g>
+<!-- proc~s_remove~14&#45;&gt;none~erase~53 -->
+<g id="proc~~erase_nonleaf~14~~CalledByGraph_edge5" class="edge">
+<title>proc~s_remove~14&#45;&gt;none~erase~53</title>
+<path fill="none" stroke="#ff0000" d="M148.32,-17.79C172.52,-20.76 201.88,-24.35 225.97,-27.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="225.59,-30.78 235.94,-28.52 226.44,-23.83 225.59,-30.78"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-12-03T14:02:48.176341+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

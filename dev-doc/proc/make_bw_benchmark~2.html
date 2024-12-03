@@ -1,0 +1,693 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>make_BW_Benchmark &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>make_BW_Benchmark
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">19 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ComboSpec.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/combospec.f90.html'>ComboSpec.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_combospec.html'>mapl_ComboSpec</a></li>
+            <li class="breadcrumb-item active" aria-current="page">make_BW_Benchmark</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/make_bw_benchmark~2.html#src">make_BW_Benchmark</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  function make_BW_Benchmark(spec, comm, rc) result(benchmark)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-spec~34"></span>
+              type(<a href='../type/combospec.html'>ComboSpec</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>spec</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-comm~29"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>comm</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~840"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-benchmark~2"></span>
+          type(<a href='../type/bw_benchmark.html'>BW_Benchmark</a>)
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~make_bw_benchmark~2~~CallsGraph Pages: 1 -->
+<svg id="procmake_bw_benchmark2CallsGraph" width="641pt" height="130pt"
+ viewBox="0.00 0.00 641.00 129.76" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~make_bw_benchmark~2~~CallsGraph" class="graph" transform="scale(0.98 0.98) rotate(0) translate(4 129)">
+<title>proc~~make_bw_benchmark~2~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-129 653,-129 653,4 -4,4"/>
+<!-- proc~make_bw_benchmark~2 -->
+<g id="proc~~make_bw_benchmark~2~~CallsGraph_node1" class="node">
+<title>proc~make_bw_benchmark~2</title>
+<polygon fill="none" stroke="black" points="132,-65 0,-65 0,-41 132,-41 132,-65"/>
+<text text-anchor="middle" x="66" y="-50.6" font-family="Helvetica,sans-Serif" font-size="10.50">make_BW_Benchmark</text>
+</g>
+<!-- mpi_comm_rank -->
+<g id="proc~~make_bw_benchmark~2~~CallsGraph_node2" class="node">
+<title>mpi_comm_rank</title>
+<polygon fill="#777777" stroke="#777777" points="269,-125 168,-125 168,-101 269,-101 269,-125"/>
+<text text-anchor="middle" x="218.5" y="-110.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_rank</text>
+</g>
+<!-- proc~make_bw_benchmark~2&#45;&gt;mpi_comm_rank -->
+<g id="proc~~make_bw_benchmark~2~~CallsGraph_edge1" class="edge">
+<title>proc~make_bw_benchmark~2&#45;&gt;mpi_comm_rank</title>
+<path fill="none" stroke="#ff0000" d="M97.46,-65.14C120.58,-74.36 152.59,-87.12 177.73,-97.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="176.76,-100.53 187.35,-100.98 179.35,-94.02 176.76,-100.53"/>
+</g>
+<!-- proc~make_filename~2 -->
+<g id="proc~~make_bw_benchmark~2~~CallsGraph_node3" class="node">
+<title>proc~make_filename~2</title>
+<g id="a_proc~~make_bw_benchmark~2~~CallsGraph_node3"><a xlink:href="../proc/make_filename~2.html" xlink:title="make_filename">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="266,-45 171,-45 171,-21 266,-21 266,-45"/>
+<text text-anchor="middle" x="218.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_filename</text>
+</a>
+</g>
+</g>
+<!-- proc~make_bw_benchmark~2&#45;&gt;proc~make_filename~2 -->
+<g id="proc~~make_bw_benchmark~2~~CallsGraph_edge2" class="edge">
+<title>proc~make_bw_benchmark~2&#45;&gt;proc~make_filename~2</title>
+<path fill="none" stroke="#ff0000" d="M132.14,-44.34C141.7,-43.07 151.49,-41.77 160.87,-40.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="161.41,-43.99 170.86,-39.2 160.48,-37.05 161.41,-43.99"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~make_bw_benchmark~2~~CallsGraph_node4" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~make_bw_benchmark~2~~CallsGraph_node4"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="387,-66 305,-66 305,-42 387,-42 387,-66"/>
+<text text-anchor="middle" x="346" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~make_bw_benchmark~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~make_bw_benchmark~2~~CallsGraph_edge3" class="edge">
+<title>proc~make_bw_benchmark~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M132.2,-53.74C144.11,-53.85 156.43,-53.94 168,-54 210.79,-54.21 259.4,-54.19 294.84,-54.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="294.94,-57.63 304.93,-54.11 294.92,-50.63 294.94,-57.63"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~make_bw_benchmark~2~~CallsGraph_node5" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~make_bw_benchmark~2~~CallsGraph_node5"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="384,-24 308,-24 308,0 384,0 384,-24"/>
+<text text-anchor="middle" x="346" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~make_bw_benchmark~2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~make_bw_benchmark~2~~CallsGraph_edge4" class="edge">
+<title>proc~make_bw_benchmark~2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M89.49,-40.93C109.45,-30.93 139.77,-17.51 168,-12 211.37,-3.53 261.87,-4.58 297.8,-7.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="297.75,-10.63 307.99,-7.91 298.29,-3.65 297.75,-10.63"/>
+</g>
+<!-- proc~make_filename~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~make_bw_benchmark~2~~CallsGraph_edge5" class="edge">
+<title>proc~make_filename~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#7fff00" d="M266.23,-40.82C275.55,-42.38 285.37,-44.02 294.79,-45.6"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="294.38,-49.08 304.82,-47.28 295.54,-42.17 294.38,-49.08"/>
+</g>
+<!-- proc~make_filename~2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~make_bw_benchmark~2~~CallsGraph_edge6" class="edge">
+<title>proc~make_filename~2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#7fff00" d="M266.23,-25.18C276.48,-23.47 287.33,-21.65 297.6,-19.93"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="298.35,-23.36 307.63,-18.25 297.19,-16.45 298.35,-23.36"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~make_bw_benchmark~2~~CallsGraph_node6" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~make_bw_benchmark~2~~CallsGraph_node6"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="547,-66 432,-66 432,-42 547,-42 547,-66"/>
+<text text-anchor="middle" x="489.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~make_bw_benchmark~2~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ffff" d="M387.17,-54C397.91,-54 409.82,-54 421.59,-54"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="421.86,-57.5 431.86,-54 421.86,-50.5 421.86,-57.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~make_bw_benchmark~2~~CallsGraph_node7" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~make_bw_benchmark~2~~CallsGraph_node7"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="556,-24 423,-24 423,0 556,0 556,-24"/>
+<text text-anchor="middle" x="489.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~make_bw_benchmark~2~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ffff" d="M387.17,-42.08C403.02,-37.37 421.4,-31.92 438.12,-26.95"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="439.15,-30.3 447.74,-24.1 437.16,-23.59 439.15,-30.3"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~make_bw_benchmark~2~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7f00ff" d="M384.18,-12C392.99,-12 402.71,-12 412.56,-12"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="412.84,-15.5 422.84,-12 412.84,-8.5 412.84,-15.5"/>
+</g>
+<!-- at -->
+<g id="proc~~make_bw_benchmark~2~~CallsGraph_node8" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="647.5,-108 593.5,-108 593.5,-84 647.5,-84 647.5,-108"/>
+<text text-anchor="middle" x="620.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~make_bw_benchmark~2~~CallsGraph_edge10" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#ff0000" d="M527.47,-66.04C545.02,-71.75 565.92,-78.55 583.36,-84.23"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="582.59,-87.66 593.18,-87.43 584.75,-81.01 582.59,-87.66"/>
+</g>
+<!-- insert -->
+<g id="proc~~make_bw_benchmark~2~~CallsGraph_node9" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="647.5,-66 593.5,-66 593.5,-42 647.5,-42 647.5,-66"/>
+<text text-anchor="middle" x="620.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~make_bw_benchmark~2~~CallsGraph_edge11" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#ff0000" d="M547.08,-54C559.29,-54 571.89,-54 583.08,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="583.32,-57.5 593.32,-54 583.32,-50.5 583.32,-57.5"/>
+</g>
+<!-- proc~initialize -->
+<g id="proc~~make_bw_benchmark~2~~CallsGraph_node10" class="node">
+<title>proc~initialize</title>
+<g id="a_proc~~make_bw_benchmark~2~~CallsGraph_node10"><a xlink:href="../proc/initialize.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="649,-24 592,-24 592,0 649,0 649,-24"/>
+<text text-anchor="middle" x="620.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize -->
+<g id="proc~~make_bw_benchmark~2~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize</title>
+<path fill="none" stroke="#00ffff" d="M556.13,-12C564.88,-12 573.59,-12 581.63,-12"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="581.77,-15.5 591.77,-12 581.77,-8.5 581.77,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmake_bw_benchmark2CallsGraph = svgPanZoom('#procmake_bw_benchmark2CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~make_bw_benchmark~2~~CalledByGraph Pages: 1 -->
+<svg id="procmake_bw_benchmark2CalledByGraph" width="320pt" height="32pt"
+ viewBox="0.00 0.00 320.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~make_bw_benchmark~2~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~make_bw_benchmark~2~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 316,-28 316,4 -4,4"/>
+<!-- proc~make_bw_benchmark~2 -->
+<g id="proc~~make_bw_benchmark~2~~CalledByGraph_node1" class="node">
+<title>proc~make_bw_benchmark~2</title>
+<polygon fill="none" stroke="black" points="312,-24 180,-24 180,0 312,0 312,-24"/>
+<text text-anchor="middle" x="246" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">make_BW_Benchmark</text>
+</g>
+<!-- proc~run~18 -->
+<g id="proc~~make_bw_benchmark~2~~CalledByGraph_node2" class="node">
+<title>proc~run~18</title>
+<g id="a_proc~~make_bw_benchmark~2~~CalledByGraph_node2"><a xlink:href="../proc/run~18.html" xlink:title="run">
+<polygon fill="#d9534f" stroke="#d9534f" points="144,-24 90,-24 90,0 144,0 144,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">run</text>
+</a>
+</g>
+</g>
+<!-- proc~run~18&#45;&gt;proc~make_bw_benchmark~2 -->
+<g id="proc~~make_bw_benchmark~2~~CalledByGraph_edge1" class="edge">
+<title>proc~run~18&#45;&gt;proc~make_bw_benchmark~2</title>
+<path fill="none" stroke="#ff0000" d="M144.01,-12C151.73,-12 160.62,-12 169.84,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="169.94,-15.5 179.94,-12 169.94,-8.5 169.94,-15.5"/>
+</g>
+<!-- program~main~17 -->
+<g id="proc~~make_bw_benchmark~2~~CalledByGraph_node3" class="node">
+<title>program~main~17</title>
+<g id="a_proc~~make_bw_benchmark~2~~CalledByGraph_node3"><a xlink:href="../program/main~17.html" xlink:title="main">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
+</a>
+</g>
+</g>
+<!-- program~main~17&#45;&gt;proc~run~18 -->
+<g id="proc~~make_bw_benchmark~2~~CalledByGraph_edge2" class="edge">
+<title>program~main~17&#45;&gt;proc~run~18</title>
+<path fill="none" stroke="#ff0000" d="M54.4,-12C62.39,-12 71.31,-12 79.82,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="79.92,-15.5 89.92,-12 79.92,-8.5 79.92,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">function </span><span class="n">make_BW_Benchmark</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">benchmark</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">BW_Benchmark</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">benchmark</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ComboSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rank</span>
+
+<span class="w">      </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">packet_size</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">nx</span><span class="p">,</span><span class="nb">kind</span><span class="o">=</span><span class="n">INT64</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">6</span><span class="o">*</span><span class="w"> </span><span class="n">spec</span><span class="p">%</span><span class="n">n_levs</span><span class="o">/</span><span class="n">spec</span><span class="p">%</span><span class="n">n_writers</span><span class="p">)</span>
+<span class="w">        </span><span class="k">allocate</span><span class="p">(</span><span class="n">benchmark</span><span class="p">%</span><span class="n">buffer</span><span class="p">(</span><span class="n">packet_size</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">        </span><span class="k">call </span><span class="nb">random_number</span><span class="p">(</span><span class="n">benchmark</span><span class="p">%</span><span class="n">buffer</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end associate</span>
+
+<span class="k">      call </span><span class="n">MPI_Comm_rank</span><span class="p">(</span><span class="n">comm</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">IERROR</span><span class="p">)</span>
+<span class="w">      </span><span class="n">benchmark</span><span class="p">%</span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_filename</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="s1">&#39;scratch.&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="o">=</span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">width</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end function </span><span class="n">make_BW_Benchmark</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-12-03T14:02:48.176341+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

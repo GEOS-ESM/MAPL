@@ -1,0 +1,1293 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>initialize_from_config_with_prefix &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>initialize_from_config_with_prefix
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.2% of total for procedures.">326 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_SwathGridFactory.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_swathgridfactory.f90.html'>MAPL_SwathGridFactory.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_swathgridfactorymod.html'>MAPL_SwathGridFactoryMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">initialize_from_config_with_prefix</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/initialize_from_config_with_prefix~2.html#src">initialize_from_config_with_prefix</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine initialize_from_config_with_prefix(this, config, prefix, unusable, rc)  
+</h2>
+        <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm'>mpi</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~initialize_from_config_with_prefix~2~~UsesGraph Pages: 1 -->
+<svg id="procinitialize_from_config_with_prefix2UsesGraph" width="389pt" height="32pt"
+ viewBox="0.00 0.00 389.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~initialize_from_config_with_prefix~2~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~initialize_from_config_with_prefix~2~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 385,-28 385,4 -4,4"/>
+<!-- proc~initialize_from_config_with_prefix~2 -->
+<g id="proc~~initialize_from_config_with_prefix~2~~UsesGraph_node1" class="node">
+<title>proc~initialize_from_config_with_prefix~2</title>
+<polygon fill="none" stroke="black" points="381,-24 90,-24 90,0 381,0 381,-24"/>
+<text text-anchor="middle" x="235.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">SwathGridFactory%initialize_from_config_with_prefix</text>
+</g>
+<!-- mpi -->
+<g id="proc~~initialize_from_config_with_prefix~2~~UsesGraph_node2" class="node">
+<title>mpi</title>
+<g id="a_proc~~initialize_from_config_with_prefix~2~~UsesGraph_node2"><a xlink:href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm" xlink:title="mpi">
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_config_with_prefix~2&#45;&gt;mpi -->
+<g id="proc~~initialize_from_config_with_prefix~2~~UsesGraph_edge1" class="edge">
+<title>proc~initialize_from_config_with_prefix~2&#45;&gt;mpi</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M89.96,-12C80.73,-12 72.03,-12 64.23,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="64.18,-8.5 54.18,-12 64.18,-15.5 64.18,-8.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+
+    <p>write(6,&rsquo;(a)&rsquo;)  &lsquo;this%t_alongtrack(::50)=&rsquo;
+write(6,&rsquo;(5f20.2)&rsquo;)  this%t_alongtrack(::50)</p>
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/swathgridfactory.html'>SwathGridFactory</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~510"></span>
+              class(<a href='../type/swathgridfactory.html'>SwathGridFactory</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-config~8"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_config.html'>ESMF_Config</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>config</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-prefix~3"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>prefix</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~32"></span>
+              class(<a href='../type/keywordenforcer~58.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~236"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~initialize_from_config_with_prefix~2~~CallsGraph Pages: 1 -->
+<svg id="procinitialize_from_config_with_prefix2CallsGraph" width="594pt" height="956pt"
+ viewBox="0.00 0.00 594.00 956.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 952)">
+<title>proc~~initialize_from_config_with_prefix~2~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-952 590,-952 590,4 -4,4"/>
+<!-- proc~initialize_from_config_with_prefix~2 -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_node1" class="node">
+<title>proc~initialize_from_config_with_prefix~2</title>
+<polygon fill="none" stroke="black" points="291,-486 0,-486 0,-462 291,-462 291,-486"/>
+<text text-anchor="middle" x="145.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50">SwathGridFactory%initialize_from_config_with_prefix</text>
+</g>
+<!-- ESMF_ConfigFindLabel -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_node2" class="node">
+<title>ESMF_ConfigFindLabel</title>
+<g id="a_proc~~initialize_from_config_with_prefix~2~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_configfindlabel.html" xlink:title="ESMF_ConfigFindLabel">
+<polygon fill="#d9534f" stroke="#d9534f" points="522.5,-948 390.5,-948 390.5,-924 522.5,-924 522.5,-948"/>
+<text text-anchor="middle" x="456.5" y="-933.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ConfigFindLabel</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_config_with_prefix~2&#45;&gt;ESMF_ConfigFindLabel -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_edge1" class="edge">
+<title>proc~initialize_from_config_with_prefix~2&#45;&gt;ESMF_ConfigFindLabel</title>
+<path fill="none" stroke="#ff0000" d="M147.36,-486.34C152.17,-545.14 181.03,-798.84 327,-915 341.99,-926.93 361.15,-933.26 380.06,-936.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="379.83,-939.9 390.21,-937.79 380.78,-932.96 379.83,-939.9"/>
+</g>
+<!-- ESMF_ConfigGetAttribute -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_node3" class="node">
+<title>ESMF_ConfigGetAttribute</title>
+<g id="a_proc~~initialize_from_config_with_prefix~2~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_configgetattribute.html" xlink:title="ESMF_ConfigGetAttribute">
+<polygon fill="#a7506f" stroke="#a7506f" points="529,-906 384,-906 384,-882 529,-882 529,-906"/>
+<text text-anchor="middle" x="456.5" y="-891.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ConfigGetAttribute</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_config_with_prefix~2&#45;&gt;ESMF_ConfigGetAttribute -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_edge2" class="edge">
+<title>proc~initialize_from_config_with_prefix~2&#45;&gt;ESMF_ConfigGetAttribute</title>
+<path fill="none" stroke="#ff0000" d="M147.92,-486.29C155.01,-541.61 191.83,-769.39 327,-873 340.5,-883.35 357.16,-889.42 373.96,-892.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="373.39,-896.3 383.85,-894.57 374.6,-889.41 373.39,-896.3"/>
+</g>
+<!-- ESMF_TimeGet -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_node4" class="node">
+<title>ESMF_TimeGet</title>
+<g id="a_proc~~initialize_from_config_with_prefix~2~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_timeget.html" xlink:title="ESMF_TimeGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="502,-864 411,-864 411,-840 502,-840 502,-864"/>
+<text text-anchor="middle" x="456.5" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeGet</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_config_with_prefix~2&#45;&gt;ESMF_TimeGet -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_edge3" class="edge">
+<title>proc~initialize_from_config_with_prefix~2&#45;&gt;ESMF_TimeGet</title>
+<path fill="none" stroke="#ff0000" d="M148.56,-486.05C158.03,-537.42 202.35,-739.67 327,-831 347.98,-846.37 376.06,-852.17 400.62,-853.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="400.74,-857.4 410.9,-854.4 401.08,-850.41 400.74,-857.4"/>
+</g>
+<!-- ESMF_TimeIntervalSet -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_node5" class="node">
+<title>ESMF_TimeIntervalSet</title>
+<g id="a_proc~~initialize_from_config_with_prefix~2~~CallsGraph_node5"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeintervalset.html" xlink:title="ESMF_TimeIntervalSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="521.5,-822 391.5,-822 391.5,-798 521.5,-798 521.5,-822"/>
+<text text-anchor="middle" x="456.5" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeIntervalSet</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_config_with_prefix~2&#45;&gt;ESMF_TimeIntervalSet -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_edge4" class="edge">
+<title>proc~initialize_from_config_with_prefix~2&#45;&gt;ESMF_TimeIntervalSet</title>
+<path fill="none" stroke="#ff0000" d="M149.44,-486.25C161.65,-534.14 213.04,-709.99 327,-789 342.75,-799.92 362.15,-805.91 381.07,-809.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="380.81,-812.53 391.2,-810.46 381.78,-805.6 380.81,-812.53"/>
+</g>
+<!-- ESMF_TimeSet -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_node6" class="node">
+<title>ESMF_TimeSet</title>
+<g id="a_proc~~initialize_from_config_with_prefix~2~~CallsGraph_node6"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeset.html" xlink:title="ESMF_TimeSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="501.5,-780 411.5,-780 411.5,-756 501.5,-756 501.5,-780"/>
+<text text-anchor="middle" x="456.5" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeSet</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_config_with_prefix~2&#45;&gt;ESMF_TimeSet -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_edge5" class="edge">
+<title>proc~initialize_from_config_with_prefix~2&#45;&gt;ESMF_TimeSet</title>
+<path fill="none" stroke="#ff0000" d="M150.48,-486.11C165.5,-529.75 223.25,-679.87 327,-747 348.75,-761.08 376.79,-766.76 401.12,-768.74"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="401.09,-772.24 411.29,-769.38 401.53,-765.26 401.09,-772.24"/>
+</g>
+<!-- ESMF_VMGet -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_node7" class="node">
+<title>ESMF_VMGet</title>
+<g id="a_proc~~initialize_from_config_with_prefix~2~~CallsGraph_node7"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_vmget.html" xlink:title="ESMF_VMGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="497.5,-738 415.5,-738 415.5,-714 497.5,-714 497.5,-738"/>
+<text text-anchor="middle" x="456.5" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_VMGet</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_config_with_prefix~2&#45;&gt;ESMF_VMGet -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_edge6" class="edge">
+<title>proc~initialize_from_config_with_prefix~2&#45;&gt;ESMF_VMGet</title>
+<path fill="none" stroke="#ff0000" d="M151.91,-486.13C170.12,-525.37 233.29,-649.49 327,-705 350.42,-718.87 380.24,-724.34 405.25,-726.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="405.1,-729.74 415.29,-726.84 405.51,-722.75 405.1,-729.74"/>
+</g>
+<!-- ESMF_VMGetCurrent -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_node8" class="node">
+<title>ESMF_VMGetCurrent</title>
+<g id="a_proc~~initialize_from_config_with_prefix~2~~CallsGraph_node8"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_vmgetcurrent.html" xlink:title="ESMF_VMGetCurrent">
+<polygon fill="#d9534f" stroke="#d9534f" points="517,-696 396,-696 396,-672 517,-672 517,-696"/>
+<text text-anchor="middle" x="456.5" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_VMGetCurrent</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_config_with_prefix~2&#45;&gt;ESMF_VMGetCurrent -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_edge7" class="edge">
+<title>proc~initialize_from_config_with_prefix~2&#45;&gt;ESMF_VMGetCurrent</title>
+<path fill="none" stroke="#ff0000" d="M154.04,-486.3C175.89,-520.79 243.12,-618.77 327,-663 344.88,-672.42 365.94,-677.83 385.78,-680.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="385.33,-684.34 395.71,-682.22 386.27,-677.4 385.33,-684.34"/>
+</g>
+<!-- interface~bisect -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_node9" class="node">
+<title>interface~bisect</title>
+<g id="a_proc~~initialize_from_config_with_prefix~2~~CallsGraph_node9"><a xlink:href="../interface/bisect.html" xlink:title="bisect">
+<polygon fill="#a7506f" stroke="#a7506f" points="483.5,-654 429.5,-654 429.5,-630 483.5,-630 483.5,-654"/>
+<text text-anchor="middle" x="456.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bisect</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_config_with_prefix~2&#45;&gt;interface~bisect -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_edge8" class="edge">
+<title>proc~initialize_from_config_with_prefix~2&#45;&gt;interface~bisect</title>
+<path fill="none" stroke="#ff0000" d="M157.27,-486.39C183.21,-515.35 252.55,-587.51 327,-621 356.3,-634.18 392.68,-639.2 419.24,-641.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="419.07,-644.55 429.26,-641.64 419.48,-637.56 419.07,-644.55"/>
+</g>
+<!-- interface~hms_2_s -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_node10" class="node">
+<title>interface~hms_2_s</title>
+<g id="a_proc~~initialize_from_config_with_prefix~2~~CallsGraph_node10"><a xlink:href="../interface/hms_2_s.html" xlink:title="hms_2_s">
+<polygon fill="#a7506f" stroke="#a7506f" points="485.5,-612 427.5,-612 427.5,-588 485.5,-588 485.5,-612"/>
+<text text-anchor="middle" x="456.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">hms_2_s</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_config_with_prefix~2&#45;&gt;interface~hms_2_s -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_edge9" class="edge">
+<title>proc~initialize_from_config_with_prefix~2&#45;&gt;interface~hms_2_s</title>
+<path fill="none" stroke="#ff0000" d="M162.89,-486.35C193.43,-508.68 261.82,-555.62 327,-579 356.27,-589.5 391.18,-594.78 417.22,-597.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="417.16,-600.93 427.44,-598.36 417.81,-593.96 417.16,-600.93"/>
+</g>
+<!-- interface~mapl_am_i_root -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_node11" class="node">
+<title>interface~mapl_am_i_root</title>
+<g id="a_proc~~initialize_from_config_with_prefix~2~~CallsGraph_node11"><a xlink:href="../interface/mapl_am_i_root.html" xlink:title="MAPL_Am_I_Root">
+<polygon fill="#a7506f" stroke="#a7506f" points="507.5,-570 405.5,-570 405.5,-546 507.5,-546 507.5,-570"/>
+<text text-anchor="middle" x="456.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Am_I_Root</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_config_with_prefix~2&#45;&gt;interface~mapl_am_i_root -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_edge10" class="edge">
+<title>proc~initialize_from_config_with_prefix~2&#45;&gt;interface~mapl_am_i_root</title>
+<path fill="none" stroke="#ff0000" d="M176.03,-486.1C211.39,-500.15 272.64,-523.18 327,-537 349.03,-542.6 373.59,-547.04 395.28,-550.37"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="394.95,-553.86 405.35,-551.87 395.97,-546.93 394.95,-553.86"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_node12" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~initialize_from_config_with_prefix~2~~CallsGraph_node12"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="496,-528 417,-528 417,-504 496,-504 496,-528"/>
+<text text-anchor="middle" x="456.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_config_with_prefix~2&#45;&gt;interface~mapl_assert -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_edge11" class="edge">
+<title>proc~initialize_from_config_with_prefix~2&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M235.05,-486.04C290.92,-493.63 360.96,-503.15 406.91,-509.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="406.53,-512.88 416.91,-510.75 407.47,-505.94 406.53,-512.88"/>
+</g>
+<!-- interface~mapl_commsbcast -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_node13" class="node">
+<title>interface~mapl_commsbcast</title>
+<g id="a_proc~~initialize_from_config_with_prefix~2~~CallsGraph_node13"><a xlink:href="../interface/mapl_commsbcast.html" xlink:title="MAPL_CommsBcast">
+<polygon fill="#a7506f" stroke="#a7506f" points="514.5,-486 398.5,-486 398.5,-462 514.5,-462 514.5,-486"/>
+<text text-anchor="middle" x="456.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CommsBcast</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_config_with_prefix~2&#45;&gt;interface~mapl_commsbcast -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_edge12" class="edge">
+<title>proc~initialize_from_config_with_prefix~2&#45;&gt;interface~mapl_commsbcast</title>
+<path fill="none" stroke="#ff0000" d="M291.05,-474C324.9,-474 359.4,-474 387.99,-474"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="388.25,-477.5 398.25,-474 388.25,-470.5 388.25,-477.5"/>
+</g>
+<!-- mpi_bcast -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_node14" class="node">
+<title>mpi_bcast</title>
+<polygon fill="#777777" stroke="#777777" points="490,-444 423,-444 423,-420 490,-420 490,-444"/>
+<text text-anchor="middle" x="456.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_bcast</text>
+</g>
+<!-- proc~initialize_from_config_with_prefix~2&#45;&gt;mpi_bcast -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_edge13" class="edge">
+<title>proc~initialize_from_config_with_prefix~2&#45;&gt;mpi_bcast</title>
+<path fill="none" stroke="#ff0000" d="M235.05,-461.96C293.29,-454.05 366.92,-444.04 412.61,-437.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="413.32,-441.27 422.76,-436.45 412.38,-434.33 413.32,-441.27"/>
+</g>
+<!-- mpi_comm_rank -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_node15" class="node">
+<title>mpi_comm_rank</title>
+<polygon fill="#777777" stroke="#777777" points="507,-402 406,-402 406,-378 507,-378 507,-402"/>
+<text text-anchor="middle" x="456.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_comm_rank</text>
+</g>
+<!-- proc~initialize_from_config_with_prefix~2&#45;&gt;mpi_comm_rank -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_edge14" class="edge">
+<title>proc~initialize_from_config_with_prefix~2&#45;&gt;mpi_comm_rank</title>
+<path fill="none" stroke="#ff0000" d="M176.03,-461.9C211.39,-447.85 272.64,-424.82 327,-411 349.22,-405.35 374.01,-400.88 395.84,-397.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="396.59,-400.97 405.97,-396.04 395.56,-394.05 396.59,-400.97"/>
+</g>
+<!-- none~get_logger~5 -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_node16" class="node">
+<title>none~get_logger~5</title>
+<g id="a_proc~~initialize_from_config_with_prefix~2~~CallsGraph_node16"><a xlink:href="../type/loggermanager.html#boundprocedure-get_logger~5" xlink:title="LoggerManager%get_logger">
+<polygon fill="#a7506f" stroke="#a7506f" points="538.5,-360 374.5,-360 374.5,-336 538.5,-336 538.5,-360"/>
+<text text-anchor="middle" x="456.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LoggerManager%get_logger</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_config_with_prefix~2&#45;&gt;none~get_logger~5 -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_edge15" class="edge">
+<title>proc~initialize_from_config_with_prefix~2&#45;&gt;none~get_logger~5</title>
+<path fill="none" stroke="#ff0000" d="M162.89,-461.65C193.43,-439.32 261.82,-392.38 327,-369 338.84,-364.75 351.6,-361.36 364.32,-358.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="365.37,-362.01 374.5,-356.62 364.01,-355.15 365.37,-362.01"/>
+</g>
+<!-- proc~check_and_fill_consistency -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_node17" class="node">
+<title>proc~check_and_fill_consistency</title>
+<g id="a_proc~~initialize_from_config_with_prefix~2~~CallsGraph_node17"><a xlink:href="../proc/check_and_fill_consistency.html" xlink:title="SwathGridFactory%check_and_fill_consistency">
+<polygon fill="#d9534f" stroke="#d9534f" points="586,-318 327,-318 327,-294 586,-294 586,-318"/>
+<text text-anchor="middle" x="456.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SwathGridFactory%check_and_fill_consistency</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_config_with_prefix~2&#45;&gt;proc~check_and_fill_consistency -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_edge16" class="edge">
+<title>proc~initialize_from_config_with_prefix~2&#45;&gt;proc~check_and_fill_consistency</title>
+<path fill="none" stroke="#ff0000" d="M157.27,-461.61C183.21,-432.65 252.55,-360.49 327,-327 331.77,-324.85 336.74,-322.92 341.81,-321.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="343.2,-324.42 351.7,-318.08 341.11,-317.74 343.2,-324.42"/>
+</g>
+<!-- proc~convert_twostring_2_esmfinterval -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_node18" class="node">
+<title>proc~convert_twostring_2_esmfinterval</title>
+<g id="a_proc~~initialize_from_config_with_prefix~2~~CallsGraph_node18"><a xlink:href="../proc/convert_twostring_2_esmfinterval.html" xlink:title="convert_twostring_2_esmfinterval">
+<polygon fill="#d9534f" stroke="#d9534f" points="552,-276 361,-276 361,-252 552,-252 552,-276"/>
+<text text-anchor="middle" x="456.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">convert_twostring_2_esmfinterval</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_config_with_prefix~2&#45;&gt;proc~convert_twostring_2_esmfinterval -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_edge17" class="edge">
+<title>proc~initialize_from_config_with_prefix~2&#45;&gt;proc~convert_twostring_2_esmfinterval</title>
+<path fill="none" stroke="#ff0000" d="M154.04,-461.7C175.89,-427.21 243.12,-329.23 327,-285 334.63,-280.98 342.83,-277.69 351.28,-275"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="352.26,-278.36 360.9,-272.22 350.32,-271.64 352.26,-278.36"/>
+</g>
+<!-- proc~debug -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_node19" class="node">
+<title>proc~debug</title>
+<g id="a_proc~~initialize_from_config_with_prefix~2~~CallsGraph_node19"><a xlink:href="../proc/debug.html" xlink:title="Logger%debug">
+<polygon fill="#d9534f" stroke="#d9534f" points="503.5,-234 409.5,-234 409.5,-210 503.5,-210 503.5,-234"/>
+<text text-anchor="middle" x="456.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Logger%debug</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_config_with_prefix~2&#45;&gt;proc~debug -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_edge18" class="edge">
+<title>proc~initialize_from_config_with_prefix~2&#45;&gt;proc~debug</title>
+<path fill="none" stroke="#ff0000" d="M151.91,-461.87C170.12,-422.63 233.29,-298.51 327,-243 348.52,-230.26 375.43,-224.6 399.07,-222.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="399.62,-225.76 409.31,-221.48 399.07,-218.78 399.62,-225.76"/>
+</g>
+<!-- proc~find_m_files_for_currtime -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_node20" class="node">
+<title>proc~find_m_files_for_currtime</title>
+<g id="a_proc~~initialize_from_config_with_prefix~2~~CallsGraph_node20"><a xlink:href="../proc/find_m_files_for_currtime.html" xlink:title="Find_M_files_for_currTime">
+<polygon fill="#d9534f" stroke="#d9534f" points="531,-192 382,-192 382,-168 531,-168 531,-192"/>
+<text text-anchor="middle" x="456.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Find_M_files_for_currTime</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_config_with_prefix~2&#45;&gt;proc~find_m_files_for_currtime -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_edge19" class="edge">
+<title>proc~initialize_from_config_with_prefix~2&#45;&gt;proc~find_m_files_for_currtime</title>
+<path fill="none" stroke="#ff0000" d="M150.48,-461.89C165.5,-418.25 223.25,-268.13 327,-201 340.23,-192.44 355.79,-186.98 371.42,-183.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="372.52,-186.93 381.69,-181.62 371.21,-180.05 372.52,-186.93"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_node21" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~initialize_from_config_with_prefix~2~~CallsGraph_node21"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="497.5,-150 415.5,-150 415.5,-126 497.5,-126 497.5,-150"/>
+<text text-anchor="middle" x="456.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_config_with_prefix~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_edge20" class="edge">
+<title>proc~initialize_from_config_with_prefix~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M149.44,-461.75C161.65,-413.86 213.04,-238.01 327,-159 349.61,-143.32 379.78,-137.81 405.19,-136.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="405.54,-139.82 415.4,-135.94 405.27,-132.83 405.54,-139.82"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_node22" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~initialize_from_config_with_prefix~2~~CallsGraph_node22"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="494.5,-108 418.5,-108 418.5,-84 494.5,-84 494.5,-108"/>
+<text text-anchor="middle" x="456.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_config_with_prefix~2&#45;&gt;proc~mapl_verify -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_edge21" class="edge">
+<title>proc~initialize_from_config_with_prefix~2&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M148.56,-461.95C158.03,-410.58 202.35,-208.33 327,-117 350.18,-100.02 382.03,-94.72 408.21,-93.69"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="408.38,-97.19 418.31,-93.49 408.24,-90.19 408.38,-97.19"/>
+</g>
+<!-- proc~read_m_files_4_swath -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_node23" class="node">
+<title>proc~read_m_files_4_swath</title>
+<g id="a_proc~~initialize_from_config_with_prefix~2~~CallsGraph_node23"><a xlink:href="../proc/read_m_files_4_swath.html" xlink:title="read_M_files_4_swath">
+<polygon fill="#d9534f" stroke="#d9534f" points="519.5,-66 393.5,-66 393.5,-42 519.5,-42 519.5,-66"/>
+<text text-anchor="middle" x="456.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_M_files_4_swath</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_config_with_prefix~2&#45;&gt;proc~read_m_files_4_swath -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_edge22" class="edge">
+<title>proc~initialize_from_config_with_prefix~2&#45;&gt;proc~read_m_files_4_swath</title>
+<path fill="none" stroke="#ff0000" d="M147.92,-461.71C155.01,-406.39 191.83,-178.61 327,-75 343.04,-62.71 363.55,-56.44 383.44,-53.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="383.95,-56.95 393.45,-52.26 383.1,-50 383.95,-56.95"/>
+</g>
+<!-- proc~time_esmf_2_nc_int -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_node24" class="node">
+<title>proc~time_esmf_2_nc_int</title>
+<g id="a_proc~~initialize_from_config_with_prefix~2~~CallsGraph_node24"><a xlink:href="../proc/time_esmf_2_nc_int.html" xlink:title="time_esmf_2_nc_int">
+<polygon fill="#d9534f" stroke="#d9534f" points="515,-24 398,-24 398,0 515,0 515,-24"/>
+<text text-anchor="middle" x="456.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_esmf_2_nc_int</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_from_config_with_prefix~2&#45;&gt;proc~time_esmf_2_nc_int -->
+<g id="proc~~initialize_from_config_with_prefix~2~~CallsGraph_edge23" class="edge">
+<title>proc~initialize_from_config_with_prefix~2&#45;&gt;proc~time_esmf_2_nc_int</title>
+<path fill="none" stroke="#ff0000" d="M147.36,-461.66C152.17,-402.86 181.03,-149.16 327,-33 344.03,-19.45 366.42,-13.12 387.73,-10.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="388.14,-13.98 397.75,-9.52 387.45,-7.01 388.14,-13.98"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">initialize_from_config_with_prefix</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">prefix</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">use </span><span class="n">MPI</span>
+<span class="w">      </span><span class="k">implicit none</span>
+<span class="k">      class</span><span class="w"> </span><span class="p">(</span><span class="n">SwathGridFactory</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Config</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">prefix</span>
+<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">VM</span>
+<span class="w">      </span><span class="kt">integer</span><span class="kd">::</span><span class="w"> </span><span class="n">mpic</span>
+<span class="w">      </span><span class="kt">integer</span><span class="kd">::</span><span class="w"> </span><span class="n">irank</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nlon</span><span class="p">,</span><span class="w"> </span><span class="n">nlat</span><span class="p">,</span><span class="w"> </span><span class="n">tdim</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Xdim</span><span class="p">,</span><span class="w"> </span><span class="n">Ydim</span><span class="p">,</span><span class="w"> </span><span class="n">ntime</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nx</span><span class="p">,</span><span class="w"> </span><span class="n">ny</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">key_lon</span><span class="p">,</span><span class="w"> </span><span class="n">key_lat</span><span class="p">,</span><span class="w"> </span><span class="n">key_time</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tunit</span><span class="p">,</span><span class="w"> </span><span class="n">grp1</span><span class="p">,</span><span class="w"> </span><span class="n">grp2</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="n">STR1</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">symd</span><span class="p">,</span><span class="w"> </span><span class="n">shms</span>
+
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">scanTime</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lon_true</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lat_true</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">yy</span><span class="p">,</span><span class="w"> </span><span class="n">mm</span><span class="p">,</span><span class="w"> </span><span class="n">dd</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="n">sec</span><span class="p">,</span><span class="w"> </span><span class="nb">second</span>
+<span class="nb">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">L</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ncid</span><span class="p">,</span><span class="w"> </span><span class="n">ncid2</span><span class="p">,</span><span class="w"> </span><span class="n">varid</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fid_s</span><span class="p">,</span><span class="w"> </span><span class="n">fid_e</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">M_file</span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">currTime</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_KIND_I8</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">j0</span><span class="p">,</span><span class="w"> </span><span class="n">j1</span><span class="p">,</span><span class="w"> </span><span class="n">jt</span><span class="p">,</span><span class="w"> </span><span class="n">jt1</span><span class="p">,</span><span class="w"> </span><span class="n">jt2</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">jx0</span><span class="p">,</span><span class="w"> </span><span class="n">jx1</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x0</span><span class="p">,</span><span class="w"> </span><span class="n">x1</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">khi</span><span class="p">,</span><span class="w"> </span><span class="n">klo</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">nstart</span><span class="p">,</span><span class="w"> </span><span class="n">nend</span><span class="p">,</span><span class="w"> </span><span class="n">max_iter</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">Logger</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lgr</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ispresent</span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Toff</span><span class="p">,</span><span class="w"> </span><span class="n">obs_time_span</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<span class="w">      </span><span class="n">lgr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">logging</span><span class="p">%</span><span class="n">get_logger</span><span class="p">(</span><span class="s1">&#39;HISTORY.sampler&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_VmGetCurrent</span><span class="p">(</span><span class="n">VM</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">!   input :  config</span>
+<span class="w">      </span><span class="c">!   output:  this%epoch_index,  nx, ny</span>
+<span class="w">      </span><span class="c">!</span>
+<span class="w">      </span><span class="c">!   Read in specs, crop epoch_index based on scanTime</span>
+
+
+<span class="w">      </span><span class="c">!__ s1. read in file spec.</span>
+<span class="w">      </span><span class="c">!</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="n">prefix</span><span class="o">//</span><span class="s1">&#39;GRIDNAME:&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="n">MAPL_GRID_NAME_DEFAULT</span><span class="p">)</span>
+<span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">grid_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">nx</span><span class="p">,</span><span class="w">  </span><span class="n">label</span><span class="o">=</span><span class="n">prefix</span><span class="o">//</span><span class="s1">&#39;NX:&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="n">MAPL_UNDEFINED_INTEGER</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">ny</span><span class="p">,</span><span class="w">  </span><span class="n">label</span><span class="o">=</span><span class="n">prefix</span><span class="o">//</span><span class="s1">&#39;NY:&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="n">MAPL_UNDEFINED_INTEGER</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">lm</span><span class="p">,</span><span class="w">  </span><span class="n">label</span><span class="o">=</span><span class="n">prefix</span><span class="o">//</span><span class="s1">&#39;LM:&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="n">MAPL_UNDEFINED_INTEGER</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">input_template</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="n">prefix</span><span class="o">//</span><span class="s1">&#39;GRID_FILE:&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="s1">&#39;unknown.txt&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">epoch</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="n">prefix</span><span class="o">//</span><span class="s1">&#39;Epoch:&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">,</span><span class="w">      </span><span class="n">label</span><span class="o">=</span><span class="n">prefix</span><span class="o">//</span><span class="s1">&#39;Epoch_init:&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="s1">&#39;2006&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">lm</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MAPL_UNDEFINED_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;LM: is undefined in swath grid&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39; %a  %a&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;CurrTime =&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">tmp</span><span class="p">))</span>
+
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;T&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">currTime</span><span class="p">,</span><span class="w"> </span><span class="n">timeString</span><span class="o">=</span><span class="n">tmp</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         read</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span><span class="s1">&#39;(i4,5i2)&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">yy</span><span class="p">,</span><span class="n">mm</span><span class="p">,</span><span class="n">dd</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">s</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_Timeset</span><span class="p">(</span><span class="n">currTime</span><span class="p">,</span><span class="w"> </span><span class="n">yy</span><span class="o">=</span><span class="n">yy</span><span class="p">,</span><span class="w"> </span><span class="n">mm</span><span class="o">=</span><span class="n">mm</span><span class="p">,</span><span class="w"> </span><span class="n">dd</span><span class="o">=</span><span class="n">dd</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="o">=</span><span class="n">h</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="o">=</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">endif</span>
+<span class="k">      </span><span class="nb">second</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hms_2_s</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">Epoch</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">epoch_frequency</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="nb">second</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">STR1</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">label</span><span class="o">=</span><span class="w"> </span><span class="n">prefix</span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;obs_file_begin:&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">STR1</span><span class="p">)</span><span class="o">/=</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;obs_file_begin missing, critical for data with 5 min interval!&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">obsfile_start_time</span><span class="p">,</span><span class="w"> </span><span class="n">timestring</span><span class="o">=</span><span class="n">STR1</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mapl_am_I_root</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         write</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">105</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;obs_file_begin provided: &#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">STR1</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">STR1</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">label</span><span class="o">=</span><span class="n">prefix</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;obs_file_end:&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">STR1</span><span class="p">)</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">obs_time_span</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="n">this</span><span class="p">%</span><span class="n">obsfile_end_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">obsfile_start_time</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">obs_time_span</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">obsfile_end_time</span><span class="p">,</span><span class="w"> </span><span class="n">timestring</span><span class="o">=</span><span class="n">STR1</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mapl_am_I_root</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            write</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">105</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;obs_file_end   missing, default = begin+100D:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">STR1</span><span class="p">)</span>
+<span class="w">         </span><span class="k">endif</span>
+<span class="k">      else</span>
+<span class="k">         call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">obsfile_end_time</span><span class="p">,</span><span class="w"> </span><span class="n">timestring</span><span class="o">=</span><span class="n">STR1</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mapl_am_I_root</span><span class="p">())</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            write</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">105</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;obs_file_end provided:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">STR1</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
+<span class="k">      end if</span>
+
+<span class="k">      call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">STR1</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">label</span><span class="o">=</span><span class="w"> </span><span class="n">prefix</span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;obs_file_interval:&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">STR1</span><span class="o">/=</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;fatal error: obs_file_interval not provided in RC file&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mapl_am_I_root</span><span class="p">())</span><span class="w"> </span><span class="k">write</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">105</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;obs_file_interval:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">STR1</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mapl_am_I_root</span><span class="p">())</span><span class="w"> </span><span class="k">write</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">106</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;Epoch (second)   :&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">second</span>
+
+<span class="nb">      </span><span class="n">i</span><span class="o">=</span><span class="w"> </span><span class="nb">index</span><span class="p">(</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">STR1</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39; &#39;</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">symd</span><span class="o">=</span><span class="n">STR1</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">         </span><span class="n">shms</span><span class="o">=</span><span class="n">STR1</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:)</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">symd</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+<span class="w">         </span><span class="n">shms</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">STR1</span><span class="p">)</span>
+<span class="w">      </span><span class="k">endif</span>
+<span class="k">      call </span><span class="n">convert_twostring_2_esmfinterval</span><span class="w"> </span><span class="p">(</span><span class="n">symd</span><span class="p">,</span><span class="w"> </span><span class="n">shms</span><span class="p">,</span><span class="w">  </span><span class="n">this</span><span class="p">%</span><span class="n">obsfile_interval</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">index_name_lon</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">label</span><span class="o">=</span><span class="n">prefix</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;index_name_lon:&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">index_name_lat</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">label</span><span class="o">=</span><span class="n">prefix</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;index_name_lat:&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">var_name_lon</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">label</span><span class="o">=</span><span class="n">prefix</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;var_name_lon:&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">var_name_lat</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">label</span><span class="o">=</span><span class="n">prefix</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;var_name_lat:&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">var_name_time</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">label</span><span class="o">=</span><span class="n">prefix</span><span class="o">//</span><span class="s1">&#39;var_name_time:&#39;</span><span class="p">,</span><span class="w">  </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">tunit</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">label</span><span class="o">=</span><span class="n">prefix</span><span class="o">//</span><span class="s1">&#39;tunit:&#39;</span><span class="p">,</span><span class="w">  </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39; %a  %a&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;input_template =&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">input_template</span><span class="p">))</span>
+
+
+<span class="w">      </span><span class="c">!__ s2. find obsFile even if missing on disk and get array: this%t_alongtrack(:)</span>
+<span class="w">      </span><span class="c">!</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_VMGet</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">mpiCommunicator</span><span class="o">=</span><span class="n">mpic</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MPI_COMM_RANK</span><span class="p">(</span><span class="n">mpic</span><span class="p">,</span><span class="w"> </span><span class="n">irank</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">irank</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="k">write</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="s1">&#39;(10(2x,a20,2x,a40,/))&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="s1">&#39;index_name_lon:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">index_name_lon</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="s1">&#39;index_name_lat:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">index_name_lat</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="s1">&#39;var_name_lon:&#39;</span><span class="p">,</span><span class="w">   </span><span class="nb">trim</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">var_name_lon</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="s1">&#39;var_name_lat:&#39;</span><span class="p">,</span><span class="w">   </span><span class="nb">trim</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">var_name_lat</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="s1">&#39;var_name_time:&#39;</span><span class="p">,</span><span class="w">  </span><span class="nb">trim</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">var_name_time</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="s1">&#39;tunit:&#39;</span><span class="p">,</span><span class="w">          </span><span class="nb">trim</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">tunit</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">irank</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">Toff</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">Find_M_files_for_currTime</span><span class="w"> </span><span class="p">(</span><span class="n">currTime</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="n">this</span><span class="p">%</span><span class="n">obsfile_start_time</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">obsfile_end_time</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">obsfile_interval</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="n">this</span><span class="p">%</span><span class="n">epoch_frequency</span><span class="p">,</span><span class="w">  </span><span class="n">this</span><span class="p">%</span><span class="n">input_template</span><span class="p">,</span><span class="w"> </span><span class="n">M_file</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">filenames</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="n">T_offset_in_file_content</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Toff</span><span class="p">,</span><span class="w">  </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="n">this</span><span class="p">%</span><span class="n">M_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">M_file</span>
+<span class="w">         </span><span class="k">write</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="s1">&#39;(10(2x,a20,2x,i40))&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="s1">&#39;M_file:&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">M_file</span>
+<span class="w">         </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">M_file</span>
+<span class="w">            </span><span class="k">write</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="s1">&#39;(10(2x,a14,i4,a2,2x,a))&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="s1">&#39;filenames(&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;):&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">filenames</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<span class="w">         </span><span class="k">end do</span>
+
+<span class="w">         </span><span class="c">!------------------------------------------------------------</span>
+<span class="w">         </span><span class="c">!  QC for obs files:</span>
+<span class="w">         </span><span class="c">!</span>
+<span class="w">         </span><span class="c">!  1.  redefine nstart to skip un-defined time value</span>
+<span class="w">         </span><span class="c">!  2.  Scan_Start_Time =  -9999, -9999, -9999,</span>
+<span class="w">         </span><span class="c">!      ::  eliminate this row of data</span>
+<span class="w">         </span><span class="c">!------------------------------------------------------------</span>
+
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">lon_true</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">lat_true</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">scanTime</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+<span class="w">         </span><span class="k">call </span><span class="n">read_M_files_4_swath</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">filenames</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">M_file</span><span class="p">),</span><span class="w"> </span><span class="n">nx</span><span class="p">,</span><span class="w"> </span><span class="n">ny</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="n">this</span><span class="p">%</span><span class="n">index_name_lon</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">index_name_lat</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="n">var_name_lon</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">var_name_lon</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="n">var_name_lat</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">var_name_lat</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="n">var_name_time</span><span class="o">=</span><span class="n">this</span><span class="p">%</span><span class="n">var_name_time</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="n">lon</span><span class="o">=</span><span class="n">lon_true</span><span class="p">,</span><span class="w"> </span><span class="n">lat</span><span class="o">=</span><span class="n">lat_true</span><span class="p">,</span><span class="w"> </span><span class="nb">time</span><span class="o">=</span><span class="n">scanTime</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="n">Tfilter</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">         </span><span class="n">nlon</span><span class="o">=</span><span class="n">nx</span>
+<span class="w">         </span><span class="n">nlat</span><span class="o">=</span><span class="n">ny</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">t_alongtrack</span><span class="p">(</span><span class="n">nlat</span><span class="p">))</span>
+<span class="w">         </span><span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nlat</span>
+<span class="w">            </span><span class="n">this</span><span class="p">%</span><span class="n">t_alongtrack</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scanTime</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end do</span>
+
+<span class="w">         </span><span class="c">!!write(6,&#39;(a)&#39;)  &#39;this%t_alongtrack(::50)=&#39;</span>
+<span class="w">         </span><span class="c">!!write(6,&#39;(5f20.2)&#39;)  this%t_alongtrack(::50)</span>
+
+
+<span class="w">         </span><span class="n">nstart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">         </span><span class="c">!</span>
+<span class="w">         </span><span class="c">! If the t_alongtrack contains undefined values, use this code</span>
+<span class="w">         </span><span class="c">!</span>
+<span class="w">         </span><span class="n">x0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">t_alongtrack</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">         </span><span class="n">x1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.d16</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">x0</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">x1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">            </span><span class="c">!</span>
+<span class="w">            </span><span class="c">! bisect backward finding the first index arr[n] &lt; x1</span>
+<span class="w">            </span><span class="n">klo</span><span class="o">=</span><span class="mi">1</span>
+<span class="w">            </span><span class="n">khi</span><span class="o">=</span><span class="n">nlat</span>
+<span class="w">            </span><span class="n">max_iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="w"> </span><span class="nb">log</span><span class="p">(</span><span class="w"> </span><span class="kt">real</span><span class="p">(</span><span class="n">nlat</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">log</span><span class="p">(</span><span class="mf">2.d0</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">            </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">max_iter</span>
+<span class="w">               </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">klo</span><span class="o">+</span><span class="n">khi</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+<span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">t_alongtrack</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">x1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                  </span><span class="n">khi</span><span class="o">=</span><span class="n">k</span>
+<span class="w">               </span><span class="k">else</span>
+<span class="k">                  </span><span class="n">nstart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">khi</span>
+<span class="w">                  </span><span class="k">exit</span>
+<span class="k">               endif</span>
+<span class="k">            enddo</span>
+<span class="k">            call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;%a %i4&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;nstart&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">nstart</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;%a %i4&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;this%t_alongtrack(nstart)&#39;</span><span class="p">,</span><span class="w">  </span><span class="n">this</span><span class="p">%</span><span class="n">t_alongtrack</span><span class="p">(</span><span class="n">nstart</span><span class="p">))</span>
+<span class="w">         </span><span class="k">endif</span>
+
+<span class="k">         </span><span class="n">this</span><span class="p">%</span><span class="n">cell_across_swath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nlon</span>
+<span class="w">         </span><span class="n">this</span><span class="p">%</span><span class="n">cell_along_swath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nlat</span>
+<span class="w">         </span><span class="k">deallocate</span><span class="p">(</span><span class="n">scanTime</span><span class="p">)</span>
+
+
+
+<span class="w">         </span><span class="c">! P2.</span>
+<span class="w">         </span><span class="c">! determine im_world from Epoch</span>
+<span class="w">         </span><span class="c">! -----------------------------</span>
+<span class="w">         </span><span class="c">! t_axis = t_alongtrack = t_a</span>
+<span class="w">         </span><span class="c">! convert currTime to j0</span>
+<span class="w">         </span><span class="c">! use Epoch to find j1</span>
+<span class="w">         </span><span class="c">! search j0, j1 in t_a</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">time_esmf_2_nc_int</span><span class="w"> </span><span class="p">(</span><span class="n">currTime</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">tunit</span><span class="p">,</span><span class="w"> </span><span class="n">j0</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="n">sec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hms_2_s</span><span class="w"> </span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">Epoch</span><span class="p">)</span>
+<span class="w">         </span><span class="n">j1</span><span class="o">=</span><span class="w"> </span><span class="n">j0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">sec</span>
+<span class="w">         </span><span class="n">jx0</span><span class="o">=</span><span class="w"> </span><span class="n">j0</span>
+<span class="w">         </span><span class="n">jx1</span><span class="o">=</span><span class="w"> </span><span class="n">j1</span>
+
+<span class="w">         </span><span class="n">this</span><span class="p">%</span><span class="n">epoch_index</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">         </span><span class="n">this</span><span class="p">%</span><span class="n">epoch_index</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">cell_across_swath</span>
+<span class="w">         </span><span class="n">nend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">cell_along_swath</span>
+<span class="w">         </span><span class="k">call </span><span class="n">bisect</span><span class="p">(</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">t_alongtrack</span><span class="p">,</span><span class="w"> </span><span class="n">jx0</span><span class="p">,</span><span class="w"> </span><span class="n">jt1</span><span class="p">,</span><span class="w"> </span><span class="n">n_LB</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">nstart</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_KIND_I8</span><span class="p">),</span><span class="w"> </span><span class="n">n_UB</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">nend</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_KIND_I8</span><span class="p">),</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">bisect</span><span class="p">(</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">t_alongtrack</span><span class="p">,</span><span class="w"> </span><span class="n">jx1</span><span class="p">,</span><span class="w"> </span><span class="n">jt2</span><span class="p">,</span><span class="w"> </span><span class="n">n_LB</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">nstart</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_KIND_I8</span><span class="p">),</span><span class="w"> </span><span class="n">n_UB</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">nend</span><span class="p">,</span><span class="w"> </span><span class="n">ESMF_KIND_I8</span><span class="p">),</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;%a %i20 %i20&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;nstart, nend&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">nstart</span><span class="p">,</span><span class="w"> </span><span class="n">nend</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;%a %f20.1 %f20.1&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;j0[currT]    j1[T+Epoch]  w.r.t. timeunit &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">jx0</span><span class="p">,</span><span class="w"> </span><span class="n">jx1</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;%a %f20.1 %f20.1&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;x0[times(1)] xn[times(N)] w.r.t. timeunit &#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="n">this</span><span class="p">%</span><span class="n">t_alongtrack</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">t_alongtrack</span><span class="p">(</span><span class="n">nend</span><span class="p">))</span>
+<span class="w">         </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;%a %i20 %i20&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;jt1, jt2 [final intercepted position]&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">jt1</span><span class="p">,</span><span class="w"> </span><span class="n">jt2</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;%a %i20 %i20&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;nstart, nend&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">nstart</span><span class="p">,</span><span class="w"> </span><span class="n">nend</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;%a %f20.1 %f20.1&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;j0[currT]    j1[T+Epoch]  w.r.t. timeunit &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">jx0</span><span class="p">,</span><span class="w"> </span><span class="n">jx1</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;%a %f20.1 %f20.1&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;x0[times(1)] xn[times(N)] w.r.t. timeunit &#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="n">this</span><span class="p">%</span><span class="n">t_alongtrack</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">t_alongtrack</span><span class="p">(</span><span class="n">nend</span><span class="p">))</span>
+<span class="w">         </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;%a %i20 %i20&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;jt1, jt2 [final intercepted position]&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">jt1</span><span class="p">,</span><span class="w"> </span><span class="n">jt2</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">jt1</span><span class="o">==</span><span class="n">jt2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Epoch Time is too small, empty swath grid is generated, increase Epoch&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">endif</span>
+
+<span class="k">         </span><span class="n">jt1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">jt1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w">               </span><span class="c">! (x1,x2]  design</span>
+<span class="w">         </span><span class="n">this</span><span class="p">%</span><span class="n">epoch_index</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">=</span><span class="w"> </span><span class="n">jt1</span>
+<span class="w">         </span><span class="n">this</span><span class="p">%</span><span class="n">epoch_index</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">=</span><span class="w"> </span><span class="n">jt2</span>
+<span class="w">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="w"> </span><span class="n">jt1</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">jt2</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Swath grid fail : epoch_index(3) &gt; epoch_index(4)&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="n">Xdim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">cell_across_swath</span>
+<span class="w">         </span><span class="n">Ydim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">epoch_index</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">epoch_index</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;%a %i4 %i4&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;bisect for j0:  rc, jt&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">,</span><span class="w"> </span><span class="n">jt1</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;%a %i4 %i4&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;bisect for j1:  rc, jt&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">,</span><span class="w"> </span><span class="n">jt2</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;%a %i4 %i4&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Xdim, Ydim&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">Xdim</span><span class="p">,</span><span class="w"> </span><span class="n">Ydim</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;%a %i4 %i4 %i4 %i4&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;this%epoch_index(4)&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="n">this</span><span class="p">%</span><span class="n">epoch_index</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">epoch_index</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">              </span><span class="n">this</span><span class="p">%</span><span class="n">epoch_index</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">epoch_index</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+
+<span class="w">         </span><span class="n">this</span><span class="p">%</span><span class="n">im_world</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Xdim</span>
+<span class="w">         </span><span class="n">this</span><span class="p">%</span><span class="n">jm_world</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Ydim</span>
+<span class="w">      </span><span class="k">end if</span>
+
+
+<span class="k">      call </span><span class="n">MPI_bcast</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">M_file</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">mpic</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">M_file</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MPI_bcast</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">filenames</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">ESMF_MAXSTR</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_CHARACTER</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">mpic</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end do</span>
+<span class="k">      call </span><span class="n">MPI_bcast</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">epoch_index</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER8</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">mpic</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MPI_bcast</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">im_world</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">mpic</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MPI_bcast</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">jm_world</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">mpic</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MPI_bcast</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">cell_across_swath</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">mpic</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MPI_bcast</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">cell_along_swath</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_INTEGER</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">mpic</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">      </span><span class="c">! donot need to bcast this%along_track (root only)</span>
+
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="n">prefix</span><span class="o">//</span><span class="s1">&#39;IMS_FILE:&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="err">_</span><span class="n">SUCCESS</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">get_ims_from_file</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">ims</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">tmp</span><span class="p">),</span><span class="n">this</span><span class="p">%</span><span class="n">nx</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         call </span><span class="n">get_multi_integer</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">ims</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;IMS:&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">endif</span>
+<span class="k">      call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="n">prefix</span><span class="o">//</span><span class="s1">&#39;JMS_FILE:&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="err">_</span><span class="n">SUCCESS</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         call </span><span class="n">get_ims_from_file</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">jms</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">tmp</span><span class="p">),</span><span class="n">this</span><span class="p">%</span><span class="n">ny</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         call </span><span class="n">get_multi_integer</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">jms</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;JMS:&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">endif</span>
+<span class="w">      </span><span class="c">! ims is set at here</span>
+<span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">check_and_fill_consistency</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39; %a  %i5  %i5&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;nx, ny (check_and_fill_consistency) = &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">nx</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">ny</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+<span class="mi">105</span><span class="w">      </span><span class="k">format</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="n">x</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="mi">2</span><span class="n">x</span><span class="p">,</span><span class="n">a</span><span class="p">)</span>
+<span class="mi">106</span><span class="w">      </span><span class="k">format</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="n">x</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="mi">2</span><span class="n">x</span><span class="p">,</span><span class="mi">10</span><span class="n">i8</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">contains</span>
+
+<span class="k">      subroutine </span><span class="n">get_multi_integer</span><span class="p">(</span><span class="n">values</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">values</span><span class="p">(:)</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">label</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tmp</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">         </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">isPresent</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_ConfigFindLabel</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="n">prefix</span><span class="o">//</span><span class="n">label</span><span class="p">,</span><span class="w"> </span><span class="n">isPresent</span><span class="o">=</span><span class="n">isPresent</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">isPresent</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
+
+<span class="w">         </span><span class="c">! First pass:  count values</span>
+<span class="w">         </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">         </span><span class="k">do</span>
+<span class="k">            call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">status</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               exit</span>
+<span class="k">            else</span>
+<span class="k">               </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="k">end if</span>
+<span class="k">         end do</span>
+
+
+<span class="w">         </span><span class="c">! Second pass: allocate and fill</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">values</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="c">! no point in checking status</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_ConfigFindLabel</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="n">prefix</span><span class="o">//</span><span class="n">label</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">n</span>
+<span class="w">            </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">values</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">            </span><span class="k">write</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;values(i)=&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">values</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end do</span>
+
+<span class="k">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">get_multi_integer</span>
+
+<span class="w">      </span><span class="k">subroutine </span><span class="n">get_ims_from_file</span><span class="p">(</span><span class="n">values</span><span class="p">,</span><span class="w"> </span><span class="n">file_name</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">values</span><span class="p">(:)</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">file_name</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">         </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">FileExists</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">total</span><span class="p">,</span><span class="w"> </span><span class="n">unit</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">         </span><span class="k">inquire</span><span class="p">(</span><span class="k">FILE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">file_name</span><span class="p">),</span><span class="w"> </span><span class="n">EXIST</span><span class="o">=</span><span class="n">FileExists</span><span class="p">)</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">values</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="c">! no point in checking status</span>
+<span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">FileExists</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;File &lt;&quot;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span><span class="o">//</span><span class="s2">&quot;&gt; not found&quot;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_AM_I_Root</span><span class="p">(</span><span class="n">VM</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            open</span><span class="p">(</span><span class="n">newunit</span><span class="o">=</span><span class="n">UNIT</span><span class="p">,</span><span class="w"> </span><span class="k">file</span><span class="o">=</span><span class="nb">trim</span><span class="p">(</span><span class="n">file_name</span><span class="p">),</span><span class="w"> </span><span class="n">form</span><span class="o">=</span><span class="s2">&quot;formatted&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">iostat</span><span class="o">=</span><span class="n">status</span><span class="w"> </span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">            </span><span class="k">read</span><span class="p">(</span><span class="n">UNIT</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">total</span>
+<span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">total</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="s2">&quot; n is different from total&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="n">total</span>
+<span class="w">                </span><span class="k">read</span><span class="p">(</span><span class="n">UNIT</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">values</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">            </span><span class="k">enddo</span>
+<span class="k">            close</span><span class="p">(</span><span class="n">UNIT</span><span class="p">)</span>
+<span class="w">         </span><span class="k">endif</span>
+
+<span class="k">         call </span><span class="n">MAPL_CommsBcast</span><span class="p">(</span><span class="n">VM</span><span class="p">,</span><span class="w"> </span><span class="n">values</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="o">=</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="n">ROOT</span><span class="o">=</span><span class="n">MAPL_Root</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">get_ims_from_file</span>
+
+<span class="w">      </span><span class="k">subroutine </span><span class="n">get_range</span><span class="p">(</span><span class="nb">range</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">RealMinMax</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">range</span>
+<span class="nb">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">label</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">         </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">isPresent</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_ConfigFindLabel</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="o">=</span><span class="n">prefix</span><span class="o">//</span><span class="n">label</span><span class="p">,</span><span class="n">isPresent</span><span class="o">=</span><span class="n">isPresent</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">isPresent</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">            </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">         </span><span class="k">end if</span>
+
+<span class="w">         </span><span class="c">! Must be 2 values: min and max</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="nb">range</span><span class="p">%</span><span class="nb">min</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_ConfigGetAttribute</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="nb">range</span><span class="p">%</span><span class="nb">max</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">end subroutine </span><span class="n">get_range</span>
+
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">initialize_from_config_with_prefix</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-12-03T14:02:48.176341+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

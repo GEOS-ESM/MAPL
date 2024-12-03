@@ -1,0 +1,1093 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_CFIOReadField &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_CFIOReadField
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">34 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_CFIO.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_cfio.f90.html'>MAPL_CFIO.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_cfiomod.html'>MAPL_CFIOMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_CFIOReadField</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_cfioreadfield.html#src">MAPL_CFIOReadField</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine MAPL_CFIOReadField(VARN, FILETMPL, TIME, FIELD, RC, VERBOSE, FORCE_REGRID, TIME_IS_CYCLIC, TIME_INTERP, conservative, voting, ignoreCase, doParallel, getFrac)  
+</h2>
+    
+
+    <p>The subroutine <code>MAPL_CFIOReadField</code>
+ reads a variable from a file and stores it on an ESMF Field.
+ The file is open, read from, and closed on exit. The
+ arguments are:
+- <strong>VARN</strong> The variable name.
+- <strong>FILETMPL</strong> A GrADS-style file name template. In its simplest
+   form is the full path name for the file to be read. However, it
+   can contain the following tokens which will be expanded from
+   the current time in <em>TIME</em>:
+   - <strong>%y4</strong> 4 digits for year
+   - <strong>%m2</strong> 2 digits for month, to expand to 01, 02, .., 12
+   - <strong>%m3</strong> 3 digits for month, to expand to jan, feb, mar, &hellip;, dec
+   - <strong>%d2</strong> 2 digits for day
+   - <strong>%h2</strong> 2 digits for hour
+   - <strong>%n2</strong> 2 digits for minutes
+   Example: if FILETMPL = <code>'forecast.%y4-%m2-%d2_%h2z.nc4'</code>, and the clock
+   says it is 18Z on 05 February 2007, the template will expand in the
+   following file name: <code>forecast.2007-02-05_18Z.nc4'</code>
+- <strong>TIME</strong> The ESMF time to read from the file
+- <strong>[RC]</strong> Error return code; set to <code>ESMF_SUCCESS</code> if all is well.
+- <strong>[VERBOSE]</strong> If .TRUE., prints progress messages to STDOUT; useful
+   for debugging.
+- <strong>[FORCE_REGRID]</strong> Obsolete; kept for backward compatibility but
+   has no effect.
+- <strong>[TIME_IS_CYCLIC]</strong>  If .TRUE. it says that the input file is periodic
+   in time. Useful for reading climatological files. For example, if the
+   input file has 12 monthly means from January to December of 2001, setting
+   this option to .TRUE. allows one to read this data for any other year. See
+   note below regarding issues with reading monthly mean data.
+- <strong>[TIME_INTERP]</strong> If .TRUE., the input file does not have to coincide with the
+   actual times on file. In such cases, the data for the bracketing times are
+   read and the data is properly interpolated in time. The input time, though,
+   need to be within the range of times present on file
+   (unless <em>TIME_IS_CYCLIC</em> is specified).
+- <strong>[ONLY_VARS]</strong> A list of comma separated vafriables to be read from the
+   file. By default, all variables are read from the file. This option allows
+   one to read a subset of vafriables. Example: <code>ONLY\_VARS='u,v,ps'</code>.</p>
+<h4 id="design-issues">Design Issues</h4>
+<p>The input argument {\tt TIME} should be replaced with <em>CLOCK</em>
+ for consistency with the rest of the API. The input <em>GRID</em> is not necessary
+ as it can be found inside the field. One should also provide
+ an interface involving the MAPL CFIO object.</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-varn"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>VARN</strong></td>
+            <td>
+                <p>Variable name</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-filetmpl~3"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>FILETMPL</strong></td>
+            <td>
+                <p>File name</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-time~24"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>TIME</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-field~49"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>FIELD</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~446"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-verbose~5"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>VERBOSE</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-force_regrid~3"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>FORCE_REGRID</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-time_is_cyclic~3"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>TIME_IS_CYCLIC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-time_interp~3"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>TIME_INTERP</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-conservative~3"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>conservative</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-voting~5"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>voting</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ignorecase~4"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ignoreCase</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-doparallel~3"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>doParallel</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-getfrac~3"></span>
+              integer,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>getFrac</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_cfioreadfield~~CallsGraph Pages: 1 -->
+<svg id="procmapl_cfioreadfieldCallsGraph" width="310pt" height="326pt"
+ viewBox="0.00 0.00 310.00 326.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_cfioreadfield~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 322)">
+<title>proc~~mapl_cfioreadfield~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-322 306,-322 306,4 -4,4"/>
+<!-- proc~mapl_cfioreadfield -->
+<g id="proc~~mapl_cfioreadfield~~CallsGraph_node1" class="node">
+<title>proc~mapl_cfioreadfield</title>
+<polygon fill="none" stroke="black" points="123,-171 0,-171 0,-147 123,-147 123,-171"/>
+<text text-anchor="middle" x="61.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_CFIOReadField</text>
+</g>
+<!-- esmf_fieldbundlecreate -->
+<g id="proc~~mapl_cfioreadfield~~CallsGraph_node2" class="node">
+<title>esmf_fieldbundlecreate</title>
+<polygon fill="#777777" stroke="#777777" points="299.5,-318 161.5,-318 161.5,-294 299.5,-294 299.5,-318"/>
+<text text-anchor="middle" x="230.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldbundlecreate</text>
+</g>
+<!-- proc~mapl_cfioreadfield&#45;&gt;esmf_fieldbundlecreate -->
+<g id="proc~~mapl_cfioreadfield~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_cfioreadfield&#45;&gt;esmf_fieldbundlecreate</title>
+<path fill="none" stroke="#ff0000" d="M68.39,-171.09C81.25,-196.19 114.3,-254.2 159,-285 161.42,-286.66 163.96,-288.2 166.61,-289.61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="165.33,-292.88 175.87,-293.98 168.31,-286.55 165.33,-292.88"/>
+</g>
+<!-- esmf_fieldbundledestroy -->
+<g id="proc~~mapl_cfioreadfield~~CallsGraph_node3" class="node">
+<title>esmf_fieldbundledestroy</title>
+<polygon fill="#777777" stroke="#777777" points="302,-276 159,-276 159,-252 302,-252 302,-276"/>
+<text text-anchor="middle" x="230.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldbundledestroy</text>
+</g>
+<!-- proc~mapl_cfioreadfield&#45;&gt;esmf_fieldbundledestroy -->
+<g id="proc~~mapl_cfioreadfield~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_cfioreadfield&#45;&gt;esmf_fieldbundledestroy</title>
+<path fill="none" stroke="#ff0000" d="M73.15,-171.11C89.75,-189.28 123.58,-223.52 159,-243 162.43,-244.88 166.04,-246.62 169.75,-248.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="168.53,-251.49 179.12,-251.89 171.09,-244.98 168.53,-251.49"/>
+</g>
+<!-- esmf_fieldbundleset -->
+<g id="proc~~mapl_cfioreadfield~~CallsGraph_node4" class="node">
+<title>esmf_fieldbundleset</title>
+<polygon fill="#777777" stroke="#777777" points="290.5,-234 170.5,-234 170.5,-210 290.5,-210 290.5,-234"/>
+<text text-anchor="middle" x="230.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldbundleset</text>
+</g>
+<!-- proc~mapl_cfioreadfield&#45;&gt;esmf_fieldbundleset -->
+<g id="proc~~mapl_cfioreadfield~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_cfioreadfield&#45;&gt;esmf_fieldbundleset</title>
+<path fill="none" stroke="#ff0000" d="M87.96,-171.09C107.22,-179.99 134.46,-192.04 159,-201 164.53,-203.02 170.36,-204.99 176.2,-206.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="175.39,-210.29 185.98,-209.94 177.48,-203.61 175.39,-210.29"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~mapl_cfioreadfield~~CallsGraph_node5" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="273,-192 188,-192 188,-168 273,-168 273,-192"/>
+<text text-anchor="middle" x="230.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~mapl_cfioreadfield&#45;&gt;esmf_fieldget -->
+<g id="proc~~mapl_cfioreadfield~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_cfioreadfield&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ff0000" d="M123.26,-166.64C141.03,-168.87 160.28,-171.3 177.45,-173.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="177.48,-176.99 187.84,-174.76 178.35,-170.04 177.48,-176.99"/>
+</g>
+<!-- interface~mapl_fieldbundleadd -->
+<g id="proc~~mapl_cfioreadfield~~CallsGraph_node6" class="node">
+<title>interface~mapl_fieldbundleadd</title>
+<g id="a_proc~~mapl_cfioreadfield~~CallsGraph_node6"><a xlink:href="../interface/mapl_fieldbundleadd.html" xlink:title="MAPL_FieldBundleAdd">
+<polygon fill="#a7506f" stroke="#a7506f" points="295,-150 166,-150 166,-126 295,-126 295,-150"/>
+<text text-anchor="middle" x="230.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_FieldBundleAdd</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfioreadfield&#45;&gt;interface~mapl_fieldbundleadd -->
+<g id="proc~~mapl_cfioreadfield~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_cfioreadfield&#45;&gt;interface~mapl_fieldbundleadd</title>
+<path fill="none" stroke="#ff0000" d="M123.26,-151.36C133.9,-150.02 145.07,-148.62 156.01,-147.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="156.49,-150.71 165.97,-145.99 155.61,-143.76 156.49,-150.71"/>
+</g>
+<!-- proc~mapl_cfioreadbundle -->
+<g id="proc~~mapl_cfioreadfield~~CallsGraph_node7" class="node">
+<title>proc~mapl_cfioreadbundle</title>
+<g id="a_proc~~mapl_cfioreadfield~~CallsGraph_node7"><a xlink:href="../proc/mapl_cfioreadbundle.html" xlink:title="MAPL_CFIOReadBundle">
+<polygon fill="#d9534f" stroke="#d9534f" points="298.5,-108 162.5,-108 162.5,-84 298.5,-84 298.5,-108"/>
+<text text-anchor="middle" x="230.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOReadBundle</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfioreadfield&#45;&gt;proc~mapl_cfioreadbundle -->
+<g id="proc~~mapl_cfioreadfield~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_cfioreadfield&#45;&gt;proc~mapl_cfioreadbundle</title>
+<path fill="none" stroke="#ff0000" d="M87.96,-146.91C107.22,-138.01 134.46,-125.96 159,-117 164.53,-114.98 170.36,-113.01 176.2,-111.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="177.48,-114.39 185.98,-108.06 175.39,-107.71 177.48,-114.39"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_cfioreadfield~~CallsGraph_node8" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_cfioreadfield~~CallsGraph_node8"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="271.5,-66 189.5,-66 189.5,-42 271.5,-42 271.5,-66"/>
+<text text-anchor="middle" x="230.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfioreadfield&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_cfioreadfield~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_cfioreadfield&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M73.15,-146.89C89.75,-128.72 123.58,-94.48 159,-75 165.39,-71.49 172.43,-68.5 179.51,-65.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="180.74,-69.25 189.15,-62.81 178.56,-62.6 180.74,-69.25"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_cfioreadfield~~CallsGraph_node9" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_cfioreadfield~~CallsGraph_node9"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="268.5,-24 192.5,-24 192.5,0 268.5,0 268.5,-24"/>
+<text text-anchor="middle" x="230.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_cfioreadfield&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_cfioreadfield~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_cfioreadfield&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M68.39,-146.91C81.25,-121.81 114.3,-63.8 159,-33 166.1,-28.1 174.37,-24.33 182.69,-21.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="183.9,-24.71 192.41,-18.4 181.82,-18.03 183.9,-24.71"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_cfioreadfield~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_cfioreadfieldCalledByGraph" width="641pt" height="216pt"
+ viewBox="0.00 0.00 641.00 216.35" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph" class="graph" transform="scale(0.89 0.89) rotate(0) translate(4 238)">
+<title>proc~~mapl_cfioreadfield~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-238 713,-238 713,4 -4,4"/>
+<!-- proc~mapl_cfioreadfield -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_node1" class="node">
+<title>proc~mapl_cfioreadfield</title>
+<polygon fill="none" stroke="black" points="709,-150 586,-150 586,-126 709,-126 709,-150"/>
+<text text-anchor="middle" x="647.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_CFIOReadField</text>
+</g>
+<!-- interface~esmf_ioread -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_node2" class="node">
+<title>interface~esmf_ioread</title>
+<g id="a_proc~~mapl_cfioreadfield~~CalledByGraph_node2"><a xlink:href="../interface/esmf_ioread.html" xlink:title="ESMF_ioRead">
+<polygon fill="#a7506f" stroke="#a7506f" points="364.5,-192 281.5,-192 281.5,-168 364.5,-168 364.5,-192"/>
+<text text-anchor="middle" x="323" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_ioRead</text>
+</a>
+</g>
+</g>
+<!-- interface~esmf_ioread&#45;&gt;proc~mapl_cfioreadfield -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_edge3" class="edge">
+<title>interface~esmf_ioread&#45;&gt;proc~mapl_cfioreadfield</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M364.51,-184.92C410.14,-189.33 486.24,-193.27 550,-180 573.31,-175.15 597.88,-164.36 616.4,-154.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="618.27,-157.9 625.5,-150.16 615.02,-151.7 618.27,-157.9"/>
+</g>
+<!-- proc~mapl_cfioreadarray2d -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_node4" class="node">
+<title>proc~mapl_cfioreadarray2d</title>
+<g id="a_proc~~mapl_cfioreadfield~~CalledByGraph_node4"><a xlink:href="../proc/mapl_cfioreadarray2d.html" xlink:title="MAPL_CFIOReadArray2D">
+<polygon fill="#d9534f" stroke="#d9534f" points="550,-171 408,-171 408,-147 550,-147 550,-171"/>
+<text text-anchor="middle" x="479" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOReadArray2D</text>
+</a>
+</g>
+</g>
+<!-- interface~esmf_ioread&#45;&gt;proc~mapl_cfioreadarray2d -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_edge11" class="edge">
+<title>interface~esmf_ioread&#45;&gt;proc~mapl_cfioreadarray2d</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M364.86,-174.43C375.06,-173.04 386.36,-171.5 397.75,-169.94"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="398.32,-173.4 407.76,-168.58 397.38,-166.46 398.32,-173.4"/>
+</g>
+<!-- proc~mapl_cfioreadarray3d -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_node5" class="node">
+<title>proc~mapl_cfioreadarray3d</title>
+<g id="a_proc~~mapl_cfioreadfield~~CalledByGraph_node5"><a xlink:href="../proc/mapl_cfioreadarray3d.html" xlink:title="MAPL_CFIOReadArray3D">
+<polygon fill="#d9534f" stroke="#d9534f" points="550,-129 408,-129 408,-105 550,-105 550,-129"/>
+<text text-anchor="middle" x="479" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIOReadArray3D</text>
+</a>
+</g>
+</g>
+<!-- interface~esmf_ioread&#45;&gt;proc~mapl_cfioreadarray3d -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_edge13" class="edge">
+<title>interface~esmf_ioread&#45;&gt;proc~mapl_cfioreadarray3d</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M345.63,-167.89C362.32,-158.86 386.17,-146.66 408,-138 413.09,-135.98 418.45,-134.05 423.84,-132.23"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="425.11,-135.5 433.54,-129.08 422.95,-128.84 425.11,-135.5"/>
+</g>
+<!-- interface~mapl_cfioread -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_node3" class="node">
+<title>interface~mapl_cfioread</title>
+<g id="a_proc~~mapl_cfioreadfield~~CalledByGraph_node3"><a xlink:href="../interface/mapl_cfioread.html" xlink:title="MAPL_CFIORead">
+<polygon fill="#a7506f" stroke="#a7506f" points="372,-108 274,-108 274,-84 372,-84 372,-108"/>
+<text text-anchor="middle" x="323" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CFIORead</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_cfioread&#45;&gt;proc~mapl_cfioreadfield -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_edge4" class="edge">
+<title>interface~mapl_cfioread&#45;&gt;proc~mapl_cfioreadfield</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M372.2,-90.37C418.35,-86.29 489.69,-83.44 550,-96 573.31,-100.85 597.88,-111.64 616.4,-121.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="615.02,-124.3 625.5,-125.84 618.27,-118.1 615.02,-124.3"/>
+</g>
+<!-- interface~mapl_cfioread&#45;&gt;proc~mapl_cfioreadarray2d -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_edge12" class="edge">
+<title>interface~mapl_cfioread&#45;&gt;proc~mapl_cfioreadarray2d</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M345.63,-108.11C362.32,-117.14 386.17,-129.34 408,-138 413.09,-140.02 418.45,-141.95 423.84,-143.77"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="422.95,-147.16 433.54,-146.92 425.11,-140.5 422.95,-147.16"/>
+</g>
+<!-- interface~mapl_cfioread&#45;&gt;proc~mapl_cfioreadarray3d -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_edge14" class="edge">
+<title>interface~mapl_cfioread&#45;&gt;proc~mapl_cfioreadarray3d</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M372.3,-102.59C380.42,-103.69 389.03,-104.87 397.7,-106.05"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="397.49,-109.55 407.87,-107.44 398.44,-102.62 397.49,-109.55"/>
+</g>
+<!-- proc~mapl_cfioreadarray2d&#45;&gt;proc~mapl_cfioreadfield -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_edge1" class="edge">
+<title>proc~mapl_cfioreadarray2d&#45;&gt;proc~mapl_cfioreadfield</title>
+<path fill="none" stroke="#ff0000" d="M550.13,-150.15C558.69,-149.08 567.44,-147.97 576,-146.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="576.47,-150.36 585.95,-145.64 575.59,-143.42 576.47,-150.36"/>
+</g>
+<!-- proc~mapl_cfioreadarray3d&#45;&gt;proc~mapl_cfioreadfield -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_edge2" class="edge">
+<title>proc~mapl_cfioreadarray3d&#45;&gt;proc~mapl_cfioreadfield</title>
+<path fill="none" stroke="#ff0000" d="M550.13,-125.85C558.69,-126.92 567.44,-128.03 576,-129.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="575.59,-132.58 585.95,-130.36 576.47,-125.64 575.59,-132.58"/>
+</g>
+<!-- proc~initialize_~2 -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_node6" class="node">
+<title>proc~initialize_~2</title>
+<g id="a_proc~~mapl_cfioreadfield~~CalledByGraph_node6"><a xlink:href="../proc/initialize_~2.html" xlink:title="Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="195,-66 133,-66 133,-42 195,-42 195,-66"/>
+<text text-anchor="middle" x="164" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize_</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_~2&#45;&gt;interface~mapl_cfioread -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_edge7" class="edge">
+<title>proc~initialize_~2&#45;&gt;interface~mapl_cfioread</title>
+<path fill="none" stroke="#7fff00" d="M195.27,-62.1C215.63,-67.55 243.06,-74.88 267.2,-81.34"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="266.39,-84.75 276.96,-83.95 268.2,-77.98 266.39,-84.75"/>
+</g>
+<!-- proc~mapl_simplebundleread -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_node7" class="node">
+<title>proc~mapl_simplebundleread</title>
+<g id="a_proc~~mapl_cfioreadfield~~CalledByGraph_node7"><a xlink:href="../proc/mapl_simplebundleread.html" xlink:title="MAPL_SimpleBundleRead">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="238,-24 90,-24 90,0 238,0 238,-24"/>
+<text text-anchor="middle" x="164" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_SimpleBundleRead</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_simplebundleread&#45;&gt;interface~mapl_cfioread -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_edge8" class="edge">
+<title>proc~mapl_simplebundleread&#45;&gt;interface~mapl_cfioread</title>
+<path fill="none" stroke="#7fff00" d="M215.78,-24.01C223.4,-26.55 231.03,-29.53 238,-33 261.49,-44.69 285.11,-63.15 301.3,-77.07"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="299.22,-79.9 309.05,-83.87 303.84,-74.64 299.22,-79.9"/>
+</g>
+<!-- proc~test_main -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_node8" class="node">
+<title>proc~test_main</title>
+<g id="a_proc~~mapl_cfioreadfield~~CalledByGraph_node8"><a xlink:href="../proc/test_main.html" xlink:title="test_main">
+<polygon fill="#d9534f" stroke="#d9534f" points="196,-234 132,-234 132,-210 196,-210 196,-234"/>
+<text text-anchor="middle" x="164" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_main</text>
+</a>
+</g>
+</g>
+<!-- proc~test_main&#45;&gt;interface~esmf_ioread -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_edge5" class="edge">
+<title>proc~test_main&#45;&gt;interface~esmf_ioread</title>
+<path fill="none" stroke="#ff0000" d="M196.02,-213.7C217.46,-207.97 246.47,-200.2 271.25,-193.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="272.47,-196.87 281.22,-190.91 270.66,-190.11 272.47,-196.87"/>
+</g>
+<!-- proc~test_main~2 -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_node9" class="node">
+<title>proc~test_main~2</title>
+<g id="a_proc~~mapl_cfioreadfield~~CalledByGraph_node9"><a xlink:href="../proc/test_main~2.html" xlink:title="test_main">
+<polygon fill="#d9534f" stroke="#d9534f" points="196,-150 132,-150 132,-126 196,-126 196,-150"/>
+<text text-anchor="middle" x="164" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_main</text>
+</a>
+</g>
+</g>
+<!-- proc~test_main~2&#45;&gt;interface~mapl_cfioread -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_edge9" class="edge">
+<title>proc~test_main~2&#45;&gt;interface~mapl_cfioread</title>
+<path fill="none" stroke="#7fff00" d="M196.02,-129.7C216.36,-124.26 243.52,-117 267.41,-110.6"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="268.32,-113.98 277.07,-108.02 266.51,-107.22 268.32,-113.98"/>
+</g>
+<!-- proc~test_main~4 -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_node10" class="node">
+<title>proc~test_main~4</title>
+<g id="a_proc~~mapl_cfioreadfield~~CalledByGraph_node10"><a xlink:href="../proc/test_main~4.html" xlink:title="test_main">
+<polygon fill="#d9534f" stroke="#d9534f" points="196,-192 132,-192 132,-168 196,-168 196,-192"/>
+<text text-anchor="middle" x="164" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_main</text>
+</a>
+</g>
+</g>
+<!-- proc~test_main~4&#45;&gt;interface~esmf_ioread -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_edge6" class="edge">
+<title>proc~test_main~4&#45;&gt;interface~esmf_ioread</title>
+<path fill="none" stroke="#ff0000" d="M196.02,-180C217.37,-180 246.22,-180 270.92,-180"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="271.22,-183.5 281.22,-180 271.22,-176.5 271.22,-183.5"/>
+</g>
+<!-- proc~test_main~5 -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_node11" class="node">
+<title>proc~test_main~5</title>
+<g id="a_proc~~mapl_cfioreadfield~~CalledByGraph_node11"><a xlink:href="../proc/test_main~5.html" xlink:title="test_main">
+<polygon fill="#d9534f" stroke="#d9534f" points="196,-108 132,-108 132,-84 196,-84 196,-108"/>
+<text text-anchor="middle" x="164" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_main</text>
+</a>
+</g>
+</g>
+<!-- proc~test_main~5&#45;&gt;interface~mapl_cfioread -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_edge10" class="edge">
+<title>proc~test_main~5&#45;&gt;interface~mapl_cfioread</title>
+<path fill="none" stroke="#7fff00" d="M196.02,-96C215.32,-96 240.77,-96 263.73,-96"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="263.73,-99.5 273.73,-96 263.73,-92.5 263.73,-99.5"/>
+</g>
+<!-- program~utcfio -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_node12" class="node">
+<title>program~utcfio</title>
+<g id="a_proc~~mapl_cfioreadfield~~CalledByGraph_node12"><a xlink:href="../program/utcfio.html" xlink:title="utCFIO">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-234 0,-234 0,-210 54,-210 54,-234"/>
+<text text-anchor="middle" x="27" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">utCFIO</text>
+</a>
+</g>
+</g>
+<!-- program~utcfio&#45;&gt;proc~test_main -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_edge15" class="edge">
+<title>program~utcfio&#45;&gt;proc~test_main</title>
+<path fill="none" stroke="#00ff00" d="M54.03,-222C73.21,-222 99.69,-222 121.74,-222"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="121.84,-225.5 131.84,-222 121.84,-218.5 121.84,-225.5"/>
+</g>
+<!-- program~utcfio~2 -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_node13" class="node">
+<title>program~utcfio~2</title>
+<g id="a_proc~~mapl_cfioreadfield~~CalledByGraph_node13"><a xlink:href="../program/utcfio~2.html" xlink:title="utCFIO">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-192 0,-192 0,-168 54,-168 54,-192"/>
+<text text-anchor="middle" x="27" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">utCFIO</text>
+</a>
+</g>
+</g>
+<!-- program~utcfio~2&#45;&gt;proc~test_main~4 -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_edge16" class="edge">
+<title>program~utcfio~2&#45;&gt;proc~test_main~4</title>
+<path fill="none" stroke="#0000ff" d="M54.03,-180C73.21,-180 99.69,-180 121.74,-180"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="121.84,-183.5 131.84,-180 121.84,-176.5 121.84,-183.5"/>
+</g>
+<!-- program~utcfio~3 -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_node14" class="node">
+<title>program~utcfio~3</title>
+<g id="a_proc~~mapl_cfioreadfield~~CalledByGraph_node14"><a xlink:href="../program/utcfio~3.html" xlink:title="utCFIO">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-108 0,-108 0,-84 54,-84 54,-108"/>
+<text text-anchor="middle" x="27" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">utCFIO</text>
+</a>
+</g>
+</g>
+<!-- program~utcfio~3&#45;&gt;proc~test_main~5 -->
+<g id="proc~~mapl_cfioreadfield~~CalledByGraph_edge17" class="edge">
+<title>program~utcfio~3&#45;&gt;proc~test_main~5</title>
+<path fill="none" stroke="#ff00ff" d="M54.03,-96C73.21,-96 99.69,-96 121.74,-96"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="121.84,-99.5 131.84,-96 121.84,-92.5 121.84,-99.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_cfioreadfieldCalledByGraph = svgPanZoom('#procmapl_cfioreadfieldCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">MAPL_CFIOReadField</span><span class="w">     </span><span class="p">(</span><span class="w"> </span><span class="n">VARN</span><span class="p">,</span><span class="w"> </span><span class="n">FILETMPL</span><span class="p">,</span><span class="w"> </span><span class="nb">TIME</span><span class="p">,</span><span class="w">       </span><span class="n">FIELD</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                                      </span><span class="n">VERBOSE</span><span class="p">,</span><span class="w"> </span><span class="n">FORCE_REGRID</span><span class="p">,</span><span class="w"> </span><span class="n">TIME_IS_CYCLIC</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                                      </span><span class="n">TIME_INTERP</span><span class="p">,</span><span class="w">                           </span><span class="p">&amp;</span>
+<span class="w">                                      </span><span class="n">conservative</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="n">voting</span><span class="p">,</span><span class="w"> </span><span class="n">ignoreCase</span><span class="p">,</span><span class="w"> </span><span class="n">doParallel</span><span class="p">,</span><span class="w"> </span><span class="n">getFrac</span><span class="p">)</span>
+<span class="c">!</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w">            </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">VARN</span><span class="w">       </span><span class="c">!! Variable name</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w">            </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">FILETMPL</span><span class="w">   </span><span class="c">!! File name</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TIME</span><span class="p">),</span><span class="w">             </span><span class="k">intent</span><span class="p">(</span><span class="n">INout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">TIME</span>
+<span class="nb">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FIELD</span><span class="p">),</span><span class="w">            </span><span class="k">intent</span><span class="p">(</span><span class="n">INout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">FIELD</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
+<span class="w">    </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">IN</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">VERBOSE</span>
+<span class="w">    </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">FORCE_REGRID</span>
+<span class="w">    </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">TIME_IS_CYCLIC</span>
+<span class="w">    </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">TIME_INTERP</span>
+<span class="w">    </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">conservative</span>
+<span class="w">    </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">voting</span>
+<span class="w">    </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">ignoreCase</span>
+<span class="w">    </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">doParallel</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">           </span><span class="k">intent</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">getFrac</span>
+<span class="c">!</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">Iam</span><span class="o">=</span><span class="s2">&quot;MAPL_CFIOReadField&quot;</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                      </span><span class="kd">::</span><span class="w"> </span><span class="n">STATUS</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GRID</span><span class="p">)</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">GRID</span>
+
+<span class="c">! Locals</span>
+
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FIELDBUNDLE</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">BUNDLE</span>
+
+<span class="c">!   Create a temporary empty bundle</span>
+<span class="c">!   -------------------------------</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">Field</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="o">=</span><span class="n">Grid</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="n">BUNDLE</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">ESMF_FieldBundleCreate</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">Iam</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_FieldBundleSet</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="o">=</span><span class="n">GRID</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="c">!   Add the input field to the bundle</span>
+<span class="c">!   ---------------------------------</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_FieldBundleAdd</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">BUNDLE</span><span class="p">,</span><span class="w"> </span><span class="n">FIELD</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="c">!   Now, we read the variable into the bundle, which in turn will put</span>
+<span class="c">!    the data inside the input array</span>
+<span class="c">!   -----------------------------------------------------------------</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MAPL_CFIOReadBundle</span><span class="p">(</span><span class="w"> </span><span class="n">FILETMPL</span><span class="p">,</span><span class="w"> </span><span class="nb">TIME</span><span class="p">,</span><span class="w"> </span><span class="n">BUNDLE</span><span class="p">,</span><span class="w">                    </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">VERBOSE</span><span class="o">=</span><span class="n">VERBOSE</span><span class="p">,</span><span class="w">                           </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">FORCE_REGRID</span><span class="o">=</span><span class="n">FORCE_REGRID</span><span class="p">,</span><span class="w">                 </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">ONLY_VARS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">varn</span><span class="p">),</span><span class="w">                    </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">TIME_IS_CYCLIC</span><span class="o">=</span><span class="n">TIME_IS_CYCLIC</span><span class="p">,</span><span class="w">             </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">TIME_INTERP</span><span class="o">=</span><span class="n">TIME_INTERP</span><span class="p">,</span><span class="w">                   </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">conservative</span><span class="o">=</span><span class="n">conservative</span><span class="p">,</span><span class="w">                 </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">voting</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">voting</span><span class="p">,</span><span class="w"> </span><span class="n">ignoreCase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ignoreCase</span><span class="p">,</span><span class="w">  </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">doParallel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">doParallel</span><span class="p">,</span><span class="w"> </span><span class="n">getFrac</span><span class="o">=</span><span class="n">getFrac</span><span class="p">,</span><span class="w">  </span><span class="p">&amp;</span>
+<span class="w">                              </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+
+<span class="c">!   Destroy temporary bundle; field data will be preserved</span>
+<span class="c">!   ------------------------------------------------------</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_FieldBundleDestroy</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">BUNDLE</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_CFIOReadField</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-12-03T14:02:48.176341+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
