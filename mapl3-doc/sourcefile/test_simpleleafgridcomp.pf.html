@@ -1,0 +1,1096 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Test_SimpleLeafGridComp.pf &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Test_SimpleLeafGridComp.pf
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for source files.">154 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_SimpleLeafGridComp.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">Test_SimpleLeafGridComp.pf</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/test_simpleleafgridcomp.html">Test_SimpleLeafGridComp</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/test_simpleleafgridcomp.pf.html#src">Test_SimpleLeafGridComp.pf</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph Pages: 1 -->
+<svg id="sourcefiletest_simpleleafgridcomppfEfferentGraph" width="641pt" height="645pt"
+ viewBox="0.00 0.00 641.00 645.34" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph" class="graph" transform="scale(0.7 0.7) rotate(0) translate(4 923.24)">
+<title>sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-923.24 917,-923.24 917,4 -4,4"/>
+<!-- sourcefile~test_simpleleafgridcomp.pf -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node1" class="node">
+<title>sourcefile~test_simpleleafgridcomp.pf</title>
+<polygon fill="none" stroke="black" points="913,-506.08 747,-506.08 747,-482.08 913,-482.08 913,-506.08"/>
+<text text-anchor="middle" x="830" y="-491.68" font-family="Helvetica,sans-Serif" font-size="10.50">Test_SimpleLeafGridComp.pf</text>
+</g>
+<!-- sourcefile~basicverticalgrid.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node2" class="node">
+<title>sourcefile~basicverticalgrid.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node2"><a xlink:href="../sourcefile/basicverticalgrid.f90.html" xlink:title="BasicVerticalGrid.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="530,-843.08 404,-843.08 404,-819.08 530,-819.08 530,-843.08"/>
+<text text-anchor="middle" x="467" y="-828.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BasicVerticalGrid.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_simpleleafgridcomp.pf&#45;&gt;sourcefile~basicverticalgrid.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~test_simpleleafgridcomp.pf&#45;&gt;sourcefile~basicverticalgrid.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M825.21,-506.25C813.53,-542.05 774.98,-648.49 711,-713.08 658.49,-766.08 577.39,-798.78 523.52,-815.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="522.3,-812.65 513.79,-818.96 524.38,-819.34 522.3,-812.65"/>
+</g>
+<!-- sourcefile~genericgridcomp.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node3" class="node">
+<title>sourcefile~genericgridcomp.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node3"><a xlink:href="../sourcefile/genericgridcomp.f90.html" xlink:title="GenericGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="711,-704.08 580,-704.08 580,-680.08 711,-680.08 711,-704.08"/>
+<text text-anchor="middle" x="645.5" y="-689.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GenericGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_simpleleafgridcomp.pf&#45;&gt;sourcefile~genericgridcomp.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~test_simpleleafgridcomp.pf&#45;&gt;sourcefile~genericgridcomp.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M817.86,-506.16C787.31,-539.3 702.03,-631.83 664.56,-672.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="661.93,-670.17 657.73,-679.89 667.08,-674.91 661.93,-670.17"/>
+</g>
+<!-- sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node4" class="node">
+<title>sourcefile~mapl_generic.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node4"><a xlink:href="../sourcefile/mapl_generic.f90.html" xlink:title="MAPL_Generic.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="701,-384.08 590,-384.08 590,-360.08 701,-360.08 701,-384.08"/>
+<text text-anchor="middle" x="645.5" y="-369.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Generic.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_simpleleafgridcomp.pf&#45;&gt;sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~test_simpleleafgridcomp.pf&#45;&gt;sourcefile~mapl_generic.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M810.83,-481.93C778.45,-460.28 710.62,-414.94 673.02,-389.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="674.85,-386.82 664.59,-384.17 670.96,-392.64 674.85,-386.82"/>
+</g>
+<!-- sourcefile~outermetacomponent.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node5" class="node">
+<title>sourcefile~outermetacomponent.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node5"><a xlink:href="../sourcefile/outermetacomponent.f90.html" xlink:title="OuterMetaComponent.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="544,-607.08 390,-607.08 390,-583.08 544,-583.08 544,-607.08"/>
+<text text-anchor="middle" x="467" y="-592.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_simpleleafgridcomp.pf&#45;&gt;sourcefile~outermetacomponent.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~test_simpleleafgridcomp.pf&#45;&gt;sourcefile~outermetacomponent.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M786.04,-506.19C730.27,-521.91 629.9,-550.15 544,-574.08 536.76,-576.09 529.12,-578.21 521.6,-580.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="520.52,-576.96 511.81,-583 522.39,-583.71 520.52,-576.96"/>
+</g>
+<!-- sourcefile~scratchpad.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node6" class="node">
+<title>sourcefile~scratchpad.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node6"><a xlink:href="../sourcefile/scratchpad.f90.html" xlink:title="scratchpad.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="692.5,-342.08 598.5,-342.08 598.5,-318.08 692.5,-318.08 692.5,-342.08"/>
+<text text-anchor="middle" x="645.5" y="-327.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">scratchpad.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_simpleleafgridcomp.pf&#45;&gt;sourcefile~scratchpad.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~test_simpleleafgridcomp.pf&#45;&gt;sourcefile~scratchpad.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M822.17,-481.74C806.3,-454.21 764.21,-387.31 711,-351.08 708.14,-349.13 705.08,-347.35 701.92,-345.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="703.32,-342.52 692.77,-341.57 700.43,-348.89 703.32,-342.52"/>
+</g>
+<!-- sourcefile~usersetservices.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node7" class="node">
+<title>sourcefile~usersetservices.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node7"><a xlink:href="../sourcefile/usersetservices.f90.html" xlink:title="UserSetServices.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="316.5,-197.08 195.5,-197.08 195.5,-173.08 316.5,-173.08 316.5,-197.08"/>
+<text text-anchor="middle" x="256" y="-182.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UserSetServices.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_simpleleafgridcomp.pf&#45;&gt;sourcefile~usersetservices.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~test_simpleleafgridcomp.pf&#45;&gt;sourcefile~usersetservices.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M825.94,-481.96C809.75,-420.83 727.91,-145.29 544,-44.08 484.04,-11.07 452.85,-16.96 390,-44.08 332.91,-68.7 288.95,-131.23 268.9,-164.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="265.77,-162.54 263.68,-172.93 271.79,-166.11 265.77,-162.54"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node11" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node11"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="115.5,-746.08 6.5,-746.08 6.5,-722.08 115.5,-722.08 115.5,-746.08"/>
+<text text-anchor="middle" x="61" y="-731.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~basicverticalgrid.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~basicverticalgrid.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M450.45,-843.3C429.8,-858.67 391.55,-884.24 354,-894.08 269.73,-916.15 233.8,-936.99 158,-894.08 105.15,-864.15 78.22,-792.24 67.59,-755.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="70.96,-754.94 64.91,-746.24 64.21,-756.81 70.96,-754.94"/>
+</g>
+<!-- sourcefile~griddedcomponentdriver.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node14" class="node">
+<title>sourcefile~griddedcomponentdriver.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node14"><a xlink:href="../sourcefile/griddedcomponentdriver.f90.html" xlink:title="GriddedComponentDriver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="342,-729.08 170,-729.08 170,-705.08 342,-705.08 342,-729.08"/>
+<text text-anchor="middle" x="256" y="-714.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedComponentDriver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~basicverticalgrid.f90&#45;&gt;sourcefile~griddedcomponentdriver.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~basicverticalgrid.f90&#45;&gt;sourcefile~griddedcomponentdriver.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M443.63,-818.88C406.16,-798.43 330.61,-757.22 288.02,-733.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="289.66,-730.9 279.21,-729.19 286.31,-737.05 289.66,-730.9"/>
+</g>
+<!-- sourcefile~mirrorverticalgrid.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node21" class="node">
+<title>sourcefile~mirrorverticalgrid.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node21"><a xlink:href="../sourcefile/mirrorverticalgrid.f90.html" xlink:title="MirrorVerticalGrid.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="320.5,-885.08 191.5,-885.08 191.5,-861.08 320.5,-861.08 320.5,-885.08"/>
+<text text-anchor="middle" x="256" y="-870.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MirrorVerticalGrid.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~basicverticalgrid.f90&#45;&gt;sourcefile~mirrorverticalgrid.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~basicverticalgrid.f90&#45;&gt;sourcefile~mirrorverticalgrid.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M406.11,-843.11C381.4,-848.08 352.6,-853.86 326.94,-859.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="326.01,-855.64 316.9,-861.04 327.39,-862.5 326.01,-855.64"/>
+</g>
+<!-- sourcefile~verticaldimspec.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node30" class="node">
+<title>sourcefile~verticaldimspec.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node30"><a xlink:href="../sourcefile/verticaldimspec.f90.html" xlink:title="VerticalDimSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="317.5,-843.08 194.5,-843.08 194.5,-819.08 317.5,-819.08 317.5,-843.08"/>
+<text text-anchor="middle" x="256" y="-828.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalDimSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~basicverticalgrid.f90&#45;&gt;sourcefile~verticaldimspec.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~basicverticalgrid.f90&#45;&gt;sourcefile~verticaldimspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M403.86,-831.08C379.96,-831.08 352.5,-831.08 327.84,-831.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="327.82,-827.58 317.82,-831.08 327.82,-834.58 327.82,-827.58"/>
+</g>
+<!-- sourcefile~verticalgrid.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node31" class="node">
+<title>sourcefile~verticalgrid.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node31"><a xlink:href="../sourcefile/verticalgrid.f90.html" xlink:title="VerticalGrid.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="304.5,-649.08 207.5,-649.08 207.5,-625.08 304.5,-625.08 304.5,-649.08"/>
+<text text-anchor="middle" x="256" y="-634.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalGrid.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~basicverticalgrid.f90&#45;&gt;sourcefile~verticalgrid.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~basicverticalgrid.f90&#45;&gt;sourcefile~verticalgrid.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M445.43,-818.94C428.77,-808.28 405.58,-791.48 390,-772.08 366.6,-742.93 379.02,-723.84 354,-696.08 337.71,-678 314.58,-663.63 294.99,-653.61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="296.5,-650.45 285.99,-649.17 293.41,-656.73 296.5,-650.45"/>
+</g>
+<!-- sourcefile~genericgridcomp.f90&#45;&gt;sourcefile~outermetacomponent.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~genericgridcomp.f90&#45;&gt;sourcefile~outermetacomponent.f90</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M630.04,-679.83C611.24,-664.4 576.91,-637.89 544,-621.08 536.41,-617.2 528.12,-613.69 519.89,-610.6"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="520.89,-607.24 510.3,-607.16 518.53,-613.83 520.89,-607.24"/>
+</g>
+<!-- sourcefile~genericgridcomp.f90&#45;&gt;sourcefile~usersetservices.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~genericgridcomp.f90&#45;&gt;sourcefile~usersetservices.f90</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M641.44,-679.99C632.28,-645.93 601.98,-547.87 544,-490.08 489.94,-436.19 435.7,-475.21 390,-414.08 333.83,-338.93 418.94,-273.79 354,-206.08 346.47,-198.22 336.75,-192.96 326.38,-189.5"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="327.29,-186.12 316.71,-186.8 325.4,-192.86 327.29,-186.12"/>
+</g>
+<!-- sourcefile~genericgridcomp.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~genericgridcomp.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M587.64,-704.15C584.96,-705.61 582.39,-707.24 580,-709.08 554.42,-728.71 571.89,-755.89 544,-772.08 474.58,-812.36 239.92,-771.26 125.62,-747.88"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="126.11,-744.41 115.61,-745.81 124.7,-751.26 126.11,-744.41"/>
+</g>
+<!-- sourcefile~genericgridcomp.f90&#45;&gt;sourcefile~griddedcomponentdriver.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~genericgridcomp.f90&#45;&gt;sourcefile~griddedcomponentdriver.f90</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M579.68,-689.95C545.25,-691.03 502.94,-695.99 468,-711.08"/>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node19" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node19"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="318,-607.08 194,-607.08 194,-583.08 318,-583.08 318,-607.08"/>
+<text text-anchor="middle" x="256" y="-592.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~genericgridcomp.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~genericgridcomp.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M579.99,-691.2C526.61,-688.19 450.08,-678.45 390,-649.08 370.5,-639.54 373.28,-626.05 354,-616.08 345.91,-611.89 337.02,-608.53 328.01,-605.85"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="328.79,-602.43 318.22,-603.19 326.95,-609.19 328.79,-602.43"/>
+</g>
+<!-- sourcefile~multistate.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node22" class="node">
+<title>sourcefile~multistate.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node22"><a xlink:href="../sourcefile/multistate.f90.html" xlink:title="MultiState.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="511,-763.08 423,-763.08 423,-739.08 511,-739.08 511,-763.08"/>
+<text text-anchor="middle" x="467" y="-748.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiState.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~genericgridcomp.f90&#45;&gt;sourcefile~multistate.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~genericgridcomp.f90&#45;&gt;sourcefile~multistate.f90</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M608.36,-704.16C580.99,-713.3 543.21,-725.93 513.74,-735.78"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="512.47,-732.52 504.09,-739.01 514.69,-739.16 512.47,-732.52"/>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~outermetacomponent.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge27" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~outermetacomponent.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M639.99,-384.17C625.07,-423.6 576.42,-547.35 544,-574.08 542.24,-575.53 540.39,-576.88 538.46,-578.13"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="536.64,-575.14 529.61,-583.07 540.05,-581.26 536.64,-575.14"/>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~usersetservices.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge33" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~usersetservices.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M590.46,-359.92C586.55,-357.48 582.98,-354.57 580,-351.08 513.67,-273.39 621.68,-190.41 544,-124.08 467.12,-58.43 336.97,-131.22 282.33,-167.26"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="280.28,-164.42 273.93,-172.91 284.19,-170.23 280.28,-164.42"/>
+</g>
+<!-- sourcefile~componentspec.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node9" class="node">
+<title>sourcefile~componentspec.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node9"><a xlink:href="../sourcefile/componentspec.f90.html" xlink:title="ComponentSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="318,-323.08 194,-323.08 194,-299.08 318,-299.08 318,-323.08"/>
+<text text-anchor="middle" x="256" y="-308.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~componentspec.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~componentspec.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M466,-227.08C432.2,-218.7 419.41,-227.43 390,-246.08 368.66,-259.6 375.55,-276.89 354,-290.08 345.98,-294.98 336.98,-298.75 327.77,-301.64"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="326.81,-298.28 318.13,-304.35 328.71,-305.01 326.81,-298.28"/>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M466,-635.08C342.9,-700.8 291.95,-656.95 158,-696.08 137.68,-702.01 115.67,-710.56 97.86,-718.05"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="96.25,-714.93 88.43,-722.07 99,-721.36 96.25,-714.93"/>
+</g>
+<!-- sourcefile~esmf_interfaces.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node12" class="node">
+<title>sourcefile~esmf_interfaces.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node12"><a xlink:href="../sourcefile/esmf_interfaces.f90.html" xlink:title="ESMF_Interfaces.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="122,-218.08 0,-218.08 0,-194.08 122,-194.08 122,-218.08"/>
+<text text-anchor="middle" x="61" y="-203.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_Interfaces.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~esmf_interfaces.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~esmf_interfaces.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M590.31,-360.05C586.43,-357.59 582.91,-354.63 580,-351.08 536.47,-297.94 595.32,-89.73 544,-44.08 409.77,75.33 315.43,-77.52 158,-164.08 141.77,-173 138.82,-177.31 122,-185.08 117.94,-186.95 113.67,-188.75 109.35,-190.46"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="108,-187.23 99.89,-194.05 110.48,-193.78 108,-187.23"/>
+</g>
+<!-- sourcefile~extensionfamily.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node13" class="node">
+<title>sourcefile~extensionfamily.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node13"><a xlink:href="../sourcefile/extensionfamily.f90.html" xlink:title="ExtensionFamily.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="527,-199.08 407,-199.08 407,-175.08 527,-175.08 527,-199.08"/>
+<text text-anchor="middle" x="467" y="-184.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtensionFamily.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~extensionfamily.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~extensionfamily.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M591.44,-359.95C587.22,-357.52 583.31,-354.59 580,-351.08 536.53,-304.94 587.12,-259.53 544,-213.08 540.87,-209.71 537.29,-206.78 533.43,-204.22"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="535,-201.09 524.57,-199.22 531.56,-207.19 535,-201.09"/>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~griddedcomponentdriver.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~griddedcomponentdriver.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M643.27,-384.24C637.1,-437.76 604.15,-652.29 468,-711.08"/>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M466,-711.08C430.89,-726.23 389.29,-729.93 352.48,-729.04"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="352.35,-725.53 342.23,-728.67 352.1,-732.53 352.35,-725.53"/>
+</g>
+<!-- sourcefile~hconfig_get.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node16" class="node">
+<title>sourcefile~hconfig_get.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node16"><a xlink:href="../sourcefile/hconfig_get.f90.html" xlink:title="hconfig_get.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="515.5,-157.08 418.5,-157.08 418.5,-133.08 515.5,-133.08 515.5,-157.08"/>
+<text text-anchor="middle" x="467" y="-142.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">hconfig_get.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~hconfig_get.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~hconfig_get.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M590.9,-359.99C586.84,-357.54 583.12,-354.6 580,-351.08 524.51,-288.33 600.89,-227.55 544,-166.08 538.89,-160.55 532.46,-156.43 525.53,-153.36"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="526.42,-149.96 515.83,-149.81 524.01,-156.54 526.42,-149.96"/>
+</g>
+<!-- sourcefile~innermetacomponent.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node17" class="node">
+<title>sourcefile~innermetacomponent.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node17"><a xlink:href="../sourcefile/innermetacomponent.f90.html" xlink:title="InnerMetaComponent.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="331.5,-281.08 180.5,-281.08 180.5,-257.08 331.5,-257.08 331.5,-281.08"/>
+<text text-anchor="middle" x="256" y="-266.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">InnerMetaComponent.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~innermetacomponent.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~innermetacomponent.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M466,-227.08C462.45,-226.2 383.48,-242.44 323.66,-254.98"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="322.93,-251.56 313.86,-257.04 324.36,-258.41 322.93,-251.56"/>
+</g>
+<!-- sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node18" class="node">
+<title>sourcefile~internalconstants.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node18"><a xlink:href="../sourcefile/internalconstants.f90.html" xlink:title="InternalConstants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="531.5,-77.08 402.5,-77.08 402.5,-53.08 531.5,-53.08 531.5,-77.08"/>
+<text text-anchor="middle" x="467" y="-62.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">InternalConstants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~internalconstants.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M590.39,-359.98C586.49,-357.53 582.95,-354.6 580,-351.08 505.13,-261.61 618.2,-181.09 544,-91.08 541.38,-87.9 538.35,-85.11 535.05,-82.66"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="536.68,-79.55 526.34,-77.24 532.98,-85.49 536.68,-79.55"/>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge26" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M643.3,-384.17C638.67,-423.94 618.36,-551.83 544,-616.08 517.65,-638.84 498.71,-618.68 468,-635.08"/>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M466,-635.08C462.8,-636.79 384.67,-621.3 324.88,-609.1"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="325.58,-605.67 315.08,-607.1 324.17,-612.53 325.58,-605.67"/>
+</g>
+<!-- sourcefile~pflogger_stub.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node23" class="node">
+<title>sourcefile~pflogger_stub.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node23"><a xlink:href="../sourcefile/pflogger_stub.f90.html" xlink:title="pflogger_stub.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="310,-239.08 202,-239.08 202,-215.08 310,-215.08 310,-239.08"/>
+<text text-anchor="middle" x="256" y="-224.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pflogger_stub.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~pflogger_stub.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge28" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~pflogger_stub.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M592.34,-360.03C587.82,-357.58 583.61,-354.63 580,-351.08 544.85,-316.46 580.34,-279.44 544,-246.08 518.35,-222.53 501.8,-235.45 468,-227.08"/>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M466,-227.08C418.17,-215.23 362.27,-215.95 320.32,-219.24"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="319.91,-215.76 310.25,-220.1 320.51,-222.74 319.91,-215.76"/>
+</g>
+<!-- sourcefile~stateitemextension.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node24" class="node">
+<title>sourcefile~stateitemextension.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node24"><a xlink:href="../sourcefile/stateitemextension.f90.html" xlink:title="StateItemExtension.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="536.5,-565.08 397.5,-565.08 397.5,-541.08 536.5,-541.08 536.5,-565.08"/>
+<text text-anchor="middle" x="467" y="-550.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemExtension.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~stateitemextension.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge29" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~stateitemextension.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M640.39,-384.25C629.63,-414.24 597.68,-492.12 544,-532.08 541.93,-533.61 539.76,-535.04 537.51,-536.36"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="535.81,-533.3 528.48,-540.95 538.98,-539.54 535.81,-533.3"/>
+</g>
+<!-- sourcefile~stateitemspec.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node25" class="node">
+<title>sourcefile~stateitemspec.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node25"><a xlink:href="../sourcefile/stateitemspec.f90.html" xlink:title="StateItemSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="523.5,-523.08 410.5,-523.08 410.5,-499.08 523.5,-499.08 523.5,-523.08"/>
+<text text-anchor="middle" x="467" y="-508.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~stateitemspec.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge30" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~stateitemspec.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M636.9,-384.14C621.89,-407.04 586.2,-457.02 544,-485.08 538.23,-488.91 531.83,-492.24 525.27,-495.11"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="523.57,-492.03 515.59,-499 526.17,-498.52 523.57,-492.03"/>
+</g>
+<!-- sourcefile~stateregistry.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node26" class="node">
+<title>sourcefile~stateregistry.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node26"><a xlink:href="../sourcefile/stateregistry.f90.html" xlink:title="StateRegistry.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="308,-401.08 204,-401.08 204,-377.08 308,-377.08 308,-401.08"/>
+<text text-anchor="middle" x="256" y="-386.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateRegistry.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~stateregistry.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge31" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~stateregistry.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M622.56,-384.24C602.73,-394.49 572.37,-408.39 544,-414.08 464.89,-429.94 371.52,-415.88 313.28,-403.32"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="313.7,-399.82 303.18,-401.08 312.18,-406.66 313.7,-399.82"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node27" class="node">
+<title>sourcefile~ungriddeddims.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node27"><a xlink:href="../sourcefile/ungriddeddims.f90.html" xlink:title="UngriddedDims.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="526,-405.08 408,-405.08 408,-381.08 526,-381.08 526,-405.08"/>
+<text text-anchor="middle" x="467" y="-390.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDims.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge32" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M589.62,-378.6C572.79,-380.61 554.05,-382.84 536.43,-384.93"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="535.72,-381.49 526.21,-386.15 536.55,-388.44 535.72,-381.49"/>
+</g>
+<!-- sourcefile~validation.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node28" class="node">
+<title>sourcefile~validation.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node28"><a xlink:href="../sourcefile/validation.f90.html" xlink:title="Validation.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="511,-363.08 423,-363.08 423,-339.08 511,-339.08 511,-363.08"/>
+<text text-anchor="middle" x="467" y="-348.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Validation.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~validation.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge34" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~validation.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M589.62,-365.55C567.78,-362.95 542.74,-359.97 521.08,-357.39"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="521.42,-353.91 511.07,-356.2 520.59,-360.86 521.42,-353.91"/>
+</g>
+<!-- sourcefile~variablespec.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node29" class="node">
+<title>sourcefile~variablespec.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node29"><a xlink:href="../sourcefile/variablespec.f90.html" xlink:title="VariableSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="519.5,-321.08 414.5,-321.08 414.5,-297.08 519.5,-297.08 519.5,-321.08"/>
+<text text-anchor="middle" x="467" y="-306.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VariableSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~variablespec.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge35" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~variablespec.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M603.06,-360.03C595.28,-357.37 587.31,-354.35 580,-351.08 563.1,-343.5 561.07,-337.27 544,-330.08 539.03,-327.98 533.8,-326.04 528.49,-324.24"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="529.5,-320.89 518.91,-321.18 527.36,-327.56 529.5,-320.89"/>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~verticalgrid.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge36" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~verticalgrid.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M466,-635.08C419.67,-659.81 358.93,-657.22 314.88,-650.29"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="315.34,-646.82 304.9,-648.6 314.18,-653.72 315.34,-646.82"/>
+</g>
+<!-- sourcefile~virtualconnectionpt.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node32" class="node">
+<title>sourcefile~virtualconnectionpt.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node32"><a xlink:href="../sourcefile/virtualconnectionpt.f90.html" xlink:title="VirtualConnectionPt.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="537,-279.08 397,-279.08 397,-255.08 537,-255.08 537,-279.08"/>
+<text text-anchor="middle" x="467" y="-264.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VirtualConnectionPt.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~virtualconnectionpt.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge37" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~virtualconnectionpt.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M594.31,-359.93C589.18,-357.49 584.29,-354.57 580,-351.08 554.99,-330.72 569.46,-307.86 544,-288.08 542.16,-286.64 540.22,-285.31 538.21,-284.06"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="539.49,-280.78 529.02,-279.17 536.2,-286.96 539.49,-280.78"/>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~usersetservices.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge48" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~usersetservices.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M400.08,-582.9C396.33,-580.45 392.91,-577.53 390,-574.08 337.11,-511.2 408.65,-267.44 354,-206.08 346.67,-197.85 336.96,-192.42 326.5,-188.91"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="327.31,-185.5 316.74,-186.19 325.44,-192.24 327.31,-185.5"/>
+</g>
+<!-- sourcefile~componentdrivervector.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node8" class="node">
+<title>sourcefile~componentdrivervector.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node8"><a xlink:href="../sourcefile/componentdrivervector.f90.html" xlink:title="ComponentDriverVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="337.5,-565.08 174.5,-565.08 174.5,-541.08 337.5,-541.08 337.5,-565.08"/>
+<text text-anchor="middle" x="256" y="-550.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentDriverVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~componentdrivervector.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge38" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~componentdrivervector.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M406.11,-583.04C381.4,-578.07 352.6,-572.29 326.94,-567.13"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="327.39,-563.65 316.9,-565.11 326.01,-570.51 327.39,-563.65"/>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~componentspec.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge39" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~componentspec.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M400.72,-582.86C396.77,-580.42 393.13,-577.52 390,-574.08 327.53,-505.26 406.96,-444.45 354,-368.08 341.28,-349.73 320.58,-336.4 301.57,-327.27"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="302.96,-324.06 292.41,-323.12 300.07,-330.44 302.96,-324.06"/>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~esmf_interfaces.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge40" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~esmf_interfaces.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M401.84,-582.89C397.52,-580.45 393.5,-577.54 390,-574.08 348.64,-533.07 396.93,-487.43 354,-448.08 288.59,-388.11 228.03,-464.56 158,-410.08 98.18,-363.53 73.93,-270.68 65.66,-228.2"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="69.1,-227.53 63.86,-218.32 62.21,-228.79 69.1,-227.53"/>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~griddedcomponentdriver.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge41" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~griddedcomponentdriver.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M419.4,-607.15C409.29,-610.81 398.95,-615.41 390,-621.08 370.61,-633.35 371.94,-643.78 354,-658.08 333.77,-674.19 308.8,-689.29 289.25,-700.18"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="287.5,-697.14 280.42,-705.02 290.87,-703.28 287.5,-697.14"/>
+</g>
+<!-- sourcefile~griddedcomponentdrivermap.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node15" class="node">
+<title>sourcefile~griddedcomponentdrivermap.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node15"><a xlink:href="../sourcefile/griddedcomponentdrivermap.f90.html" xlink:title="GriddedComponentDriverMap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="354,-523.08 158,-523.08 158,-499.08 354,-499.08 354,-523.08"/>
+<text text-anchor="middle" x="256" y="-508.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GriddedComponentDriverMap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~griddedcomponentdrivermap.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge42" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~griddedcomponentdrivermap.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M408,-582.99C401.68,-580.54 395.55,-577.6 390,-574.08 369.25,-560.89 375.12,-544.67 354,-532.08 350.95,-530.25 347.76,-528.59 344.47,-527.07"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="345.57,-523.74 334.99,-523.16 342.9,-530.21 345.57,-523.74"/>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~innermetacomponent.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge43" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~innermetacomponent.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M400.54,-583.03C396.62,-580.55 393.05,-577.59 390,-574.08 306.71,-477.89 439.96,-383.87 354,-290.08 350.14,-285.87 345.66,-282.4 340.78,-279.54"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="342.13,-276.31 331.61,-275.05 339.05,-282.59 342.13,-276.31"/>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge44" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M389.95,-595.08C369.88,-595.08 348.28,-595.08 328.46,-595.08"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="328.27,-591.58 318.27,-595.08 328.27,-598.58 328.27,-591.58"/>
+</g>
+<!-- sourcefile~methodphasesmap.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node20" class="node">
+<title>sourcefile~methodphasesmap.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node20"><a xlink:href="../sourcefile/methodphasesmap.f90.html" xlink:title="MethodPhasesMap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="323,-481.08 189,-481.08 189,-457.08 323,-457.08 323,-481.08"/>
+<text text-anchor="middle" x="256" y="-466.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MethodPhasesMap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~methodphasesmap.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge45" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~methodphasesmap.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M403.42,-582.96C398.58,-580.51 394.02,-577.59 390,-574.08 359.4,-547.36 385.34,-515.92 354,-490.08 347.72,-484.89 340.44,-480.91 332.76,-477.86"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="333.83,-474.52 323.23,-474.58 331.55,-481.14 333.83,-474.52"/>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~pflogger_stub.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge46" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~pflogger_stub.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M400.13,-582.86C396.37,-580.41 392.93,-577.51 390,-574.08 295.47,-463.11 451.62,-356.33 354,-248.08 345.13,-238.24 332.83,-232.41 319.97,-229.08"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="320.58,-225.63 310.07,-226.99 319.14,-232.48 320.58,-225.63"/>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~stateregistry.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge47" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~stateregistry.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M401.27,-582.9C397.13,-580.45 393.31,-577.54 390,-574.08 339.98,-521.65 404.22,-467.3 354,-415.08 344.37,-405.06 331.34,-398.76 317.96,-394.84"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="318.75,-391.43 308.2,-392.38 317.04,-398.22 318.75,-391.43"/>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~verticalgrid.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge49" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~verticalgrid.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M406.11,-607.11C377.3,-612.9 342.92,-619.81 314.44,-625.53"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="313.74,-622.1 304.63,-627.5 315.12,-628.96 313.74,-622.1"/>
+</g>
+<!-- sourcefile~dso_utilities.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node10" class="node">
+<title>sourcefile~dso_utilities.f90</title>
+<g id="a_sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_node10"><a xlink:href="../sourcefile/dso_utilities.f90.html" xlink:title="DSO_Utilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="112.5,-176.08 9.5,-176.08 9.5,-152.08 112.5,-152.08 112.5,-176.08"/>
+<text text-anchor="middle" x="61" y="-161.68" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DSO_Utilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~usersetservices.f90&#45;&gt;sourcefile~dso_utilities.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge50" class="edge">
+<title>sourcefile~usersetservices.f90&#45;&gt;sourcefile~dso_utilities.f90</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M195.26,-178.57C172.21,-176.07 145.87,-173.2 122.73,-170.68"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="123.01,-167.19 112.69,-169.59 122.25,-174.15 123.01,-167.19"/>
+</g>
+<!-- sourcefile~usersetservices.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge51" class="edge">
+<title>sourcefile~usersetservices.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M195.35,-186.86C181.47,-190.04 167.88,-195.86 158,-206.08 86.34,-280.17 66.84,-620.64 62.86,-711.65"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="59.37,-711.56 62.45,-721.7 66.36,-711.85 59.37,-711.56"/>
+</g>
+<!-- sourcefile~usersetservices.f90&#45;&gt;sourcefile~esmf_interfaces.f90 -->
+<g id="sourcefile~~test_simpleleafgridcomp.pf~~EfferentGraph_edge52" class="edge">
+<title>sourcefile~usersetservices.f90&#45;&gt;sourcefile~esmf_interfaces.f90</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M195.26,-191.58C175.28,-193.75 152.83,-196.19 132.13,-198.44"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="131.69,-194.97 122.13,-199.53 132.45,-201.93 131.69,-194.97"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefiletest_simpleleafgridcomppfEfferentGraph = svgPanZoom('#sourcefiletest_simpleleafgridcomppfEfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_TestErr.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="k">module </span><span class="n">Test_SimpleLeafGridComp</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_Generic</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_GenericPhases</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_UserSetServices</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_GenericGridComp</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">create_grid_comp</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_GenericGridComp</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">setServices</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_OuterMetaComponent</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">OuterMetaComponent</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_OuterMetaComponent</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">get_outer_meta</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_BasicVerticalGrid</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">use </span><span class="n">esmf</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">use </span><span class="n">nuopc</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">use </span><span class="n">pFunit</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="k">use </span><span class="n">scratchpad</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="k">contains</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="k">   subroutine </span><span class="n">setup</span><span class="p">(</span><span class="n">outer_gc</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">outer_gc</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">      </span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">userRC</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">t</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dt</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">      </span><span class="n">clock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_ClockCreate</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">)</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="n">outer_gc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">create_grid_comp</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">user_setservices</span><span class="p">(</span><span class="s1">&#39;libsimple_leaf_gridcomp&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridCompSetServices</span><span class="p">(</span><span class="n">outer_gc</span><span class="p">,</span><span class="w"> </span><span class="n">setServices</span><span class="p">,</span><span class="w"> </span><span class="n">userRC</span><span class="o">=</span><span class="n">userRC</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">status</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="k">         </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">         </span><span class="k">return</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="k">      end if</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">userRC</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="k">         </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">userRC</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">         </span><span class="k">return</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="k">      end if</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="k">      call </span><span class="n">clear_log</span><span class="p">()</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">setup</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">tearDown</span><span class="p">(</span><span class="n">outer_gc</span><span class="p">,</span><span class="w"> </span><span class="n">hconfig</span><span class="p">)</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">outer_gc</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hconfig</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">      </span><span class="k">call </span><span class="n">clear_log</span><span class="p">()</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_HConfigDestroy</span><span class="p">(</span><span class="n">hconfig</span><span class="p">)</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">tearDown</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span><span class="p">(</span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_wasrun_1</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">userRC</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">outer_gc</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">      </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;{}&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">      </span><span class="k">call </span><span class="n">setup</span><span class="p">(</span><span class="n">outer_gc</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="s1">&#39;DSO problem&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridCompRun</span><span class="p">(</span><span class="n">outer_gc</span><span class="p">,</span><span class="w"> </span><span class="n">userRC</span><span class="o">=</span><span class="n">userRC</span><span class="p">,</span><span class="w"> </span><span class="n">phase</span><span class="o">=</span><span class="n">GENERIC_RUN_USER</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">userRC</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="s2">&quot;wasRun_A&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">log</span><span class="p">)</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">      </span><span class="k">call </span><span class="n">teardown</span><span class="p">(</span><span class="n">outer_gc</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="p">)</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">      </span><span class="k">if</span><span class="p">(.</span><span class="n">false</span><span class="p">.)</span><span class="w"> </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="nb">shape</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_wasrun_1</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a>
+<a id="ln-80" name="ln-80" href="#ln-80"></a>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">   </span><span class="c">! Verify that an optional run phase in the user comp can be</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">   </span><span class="c">! exercised.  Note at this level, we cannot use the phase_name to</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">   </span><span class="c">! specify the phase, so the unit test assumes the extra phase has</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">   </span><span class="c">! index=2.   In real use cases, `run_child()` will be applied in</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">   </span><span class="c">! which case the phase_name is available.</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">   </span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span><span class="p">(</span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_wasrun_extra</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">      </span><span class="k">use </span><span class="n">scratchpad</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">outer_gc</span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">      </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;{}&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">      </span><span class="k">call </span><span class="n">setup</span><span class="p">(</span><span class="n">outer_gc</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridCompRun</span><span class="p">(</span><span class="n">outer_gc</span><span class="p">,</span><span class="w"> </span><span class="n">phase</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="s2">&quot;wasRun_extra_A&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">log</span><span class="p">)</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">      </span><span class="k">call </span><span class="n">teardown</span><span class="p">(</span><span class="n">outer_gc</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="p">)</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">      </span><span class="k">if</span><span class="p">(.</span><span class="n">false</span><span class="p">.)</span><span class="w"> </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="nb">shape</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_wasrun_extra</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span><span class="p">(</span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_wasinit</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">      </span><span class="k">use </span><span class="n">scratchpad</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">outer_gc</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">      </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;{}&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">      </span><span class="k">call </span><span class="n">setup</span><span class="p">(</span><span class="n">outer_gc</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<a id="ln-120" name="ln-120" href="#ln-120"></a>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridCompInitialize</span><span class="p">(</span><span class="n">outer_gc</span><span class="p">,</span><span class="w"> </span><span class="n">phase</span><span class="o">=</span><span class="n">GENERIC_INIT_USER</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="s2">&quot;wasInit_A&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">log</span><span class="p">)</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">      </span><span class="k">call </span><span class="n">teardown</span><span class="p">(</span><span class="n">outer_gc</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="p">)</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="w">      </span><span class="k">if</span><span class="p">(.</span><span class="n">false</span><span class="p">.)</span><span class="w"> </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="nb">shape</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_wasinit</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">   </span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span><span class="p">(</span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_wasfinal</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="w">      </span><span class="k">use </span><span class="n">scratchpad</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">outer_gc</span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="w">      </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;{}&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">      </span><span class="k">call </span><span class="n">setup</span><span class="p">(</span><span class="n">outer_gc</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridCompFinalize</span><span class="p">(</span><span class="n">outer_gc</span><span class="p">,</span><span class="w"> </span><span class="n">phase</span><span class="o">=</span><span class="n">GENERIC_FINALIZE_USER</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="s2">&quot;wasFinal_A&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">log</span><span class="p">)</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a>
+<a id="ln-147" name="ln-147" href="#ln-147"></a>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">      </span><span class="c">! Note - do not need to call teardown, as we are</span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="w">      </span><span class="c">! finalizing ourselves.  But .. we do need to check that the</span>
+<a id="ln-150" name="ln-150" href="#ln-150"></a><span class="w">      </span><span class="c">! user_gc has been finalized, and that the various internal states</span>
+<a id="ln-151" name="ln-151" href="#ln-151"></a><span class="w">      </span><span class="c">! have been freed.</span>
+<a id="ln-152" name="ln-152" href="#ln-152"></a>
+<a id="ln-153" name="ln-153" href="#ln-153"></a><span class="w">      </span><span class="k">if</span><span class="p">(.</span><span class="n">false</span><span class="p">.)</span><span class="w"> </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="nb">shape</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-154" name="ln-154" href="#ln-154"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_wasfinal</span>
+<a id="ln-155" name="ln-155" href="#ln-155"></a>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="w">   </span><span class="err">@</span><span class="n">test</span><span class="p">(</span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_full_run_sequence</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="w">      </span><span class="k">use </span><span class="n">scratchpad</span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a><span class="w">      </span><span class="k">use </span><span class="n">iso_fortran_env</span>
+<a id="ln-160" name="ln-160" href="#ln-160"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_HConfig</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config</span>
+<a id="ln-162" name="ln-162" href="#ln-162"></a>
+<a id="ln-163" name="ln-163" href="#ln-163"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">userrc</span>
+<a id="ln-164" name="ln-164" href="#ln-164"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">outer_gc</span>
+<a id="ln-165" name="ln-165" href="#ln-165"></a>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">f</span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid</span>
+<a id="ln-171" name="ln-171" href="#ln-171"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">BasicVerticalGrid</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vertical_grid</span>
+<a id="ln-172" name="ln-172" href="#ln-172"></a>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="w">      </span><span class="k">call </span><span class="n">NUOPC_FieldDictionarySetup</span><span class="p">(</span><span class="s1">&#39;./scenarios/FieldDictionary.yml&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<a id="ln-175" name="ln-175" href="#ln-175"></a>
+<a id="ln-176" name="ln-176" href="#ln-176"></a><span class="w">      </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_HConfigCreate</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;./scenarios/leaf_A.yaml&#39;</span><span class="p">)</span>
+<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<a id="ln-178" name="ln-178" href="#ln-178"></a>
+<a id="ln-179" name="ln-179" href="#ln-179"></a><span class="w">      </span><span class="k">call </span><span class="n">setup</span><span class="p">(</span><span class="n">outer_gc</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
+<a id="ln-180" name="ln-180" href="#ln-180"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<a id="ln-181" name="ln-181" href="#ln-181"></a>
+<a id="ln-182" name="ln-182" href="#ln-182"></a><span class="w">      </span><span class="n">grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_GridCreateNoPeriDim</span><span class="p">(</span><span class="n">maxIndex</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;I_AM_GROOT&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-183" name="ln-183" href="#ln-183"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<a id="ln-184" name="ln-184" href="#ln-184"></a><span class="w">      </span><span class="n">vertical_grid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BasicVerticalGrid</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<a id="ln-185" name="ln-185" href="#ln-185"></a><span class="w">      </span><span class="k">call </span><span class="n">MAPL_GridCompSetGeom</span><span class="p">(</span><span class="n">outer_gc</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-186" name="ln-186" href="#ln-186"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<a id="ln-187" name="ln-187" href="#ln-187"></a><span class="w">      </span><span class="k">call </span><span class="n">MAPL_GridCompSetVerticalGrid</span><span class="p">(</span><span class="n">outer_gc</span><span class="p">,</span><span class="w"> </span><span class="n">vertical_grid</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-188" name="ln-188" href="#ln-188"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<a id="ln-189" name="ln-189" href="#ln-189"></a>
+<a id="ln-190" name="ln-190" href="#ln-190"></a><span class="w">      </span><span class="n">importState</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_StateCreate</span><span class="p">(</span><span class="n">stateIntent</span><span class="o">=</span><span class="n">ESMF_STATEINTENT_IMPORT</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-191" name="ln-191" href="#ln-191"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<a id="ln-192" name="ln-192" href="#ln-192"></a><span class="w">      </span><span class="n">exportState</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_StateCreate</span><span class="p">(</span><span class="n">stateIntent</span><span class="o">=</span><span class="n">ESMF_STATEINTENT_EXPORT</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-193" name="ln-193" href="#ln-193"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<a id="ln-194" name="ln-194" href="#ln-194"></a>
+<a id="ln-195" name="ln-195" href="#ln-195"></a><span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">GENERIC_INIT_PHASE_SEQUENCE</span><span class="p">)</span>
+<a id="ln-196" name="ln-196" href="#ln-196"></a><span class="w">         </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">phase</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">GENERIC_INIT_PHASE_SEQUENCE</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+<a id="ln-197" name="ln-197" href="#ln-197"></a><span class="w">           </span><span class="k">call </span><span class="n">ESMF_GridCompInitialize</span><span class="p">(</span><span class="n">outer_gc</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-198" name="ln-198" href="#ln-198"></a><span class="w">                </span><span class="n">importState</span><span class="o">=</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="o">=</span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="o">=</span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-199" name="ln-199" href="#ln-199"></a><span class="w">                </span><span class="n">phase</span><span class="o">=</span><span class="n">phase</span><span class="p">,</span><span class="w"> </span><span class="n">userRC</span><span class="o">=</span><span class="n">userRC</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-200" name="ln-200" href="#ln-200"></a><span class="w">         </span><span class="k">end associate</span>
+<a id="ln-201" name="ln-201" href="#ln-201"></a><span class="w">         </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">userRC</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<a id="ln-202" name="ln-202" href="#ln-202"></a><span class="w">         </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<a id="ln-203" name="ln-203" href="#ln-203"></a><span class="w">      </span><span class="k">end do</span>
+<a id="ln-204" name="ln-204" href="#ln-204"></a>
+<a id="ln-205" name="ln-205" href="#ln-205"></a><span class="k">      call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;I_1&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-206" name="ln-206" href="#ln-206"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<a id="ln-207" name="ln-207" href="#ln-207"></a>
+<a id="ln-208" name="ln-208" href="#ln-208"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;E_1&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<a id="ln-209" name="ln-209" href="#ln-209"></a><span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<a id="ln-210" name="ln-210" href="#ln-210"></a>
+<a id="ln-211" name="ln-211" href="#ln-211"></a><span class="w">      </span><span class="k">if</span><span class="p">(.</span><span class="n">false</span><span class="p">.)</span><span class="w"> </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="nb">shape</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-212" name="ln-212" href="#ln-212"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_full_run_sequence</span>
+<a id="ln-213" name="ln-213" href="#ln-213"></a>
+<a id="ln-214" name="ln-214" href="#ln-214"></a><span class="w">   </span>
+<a id="ln-215" name="ln-215" href="#ln-215"></a>
+<a id="ln-216" name="ln-216" href="#ln-216"></a><span class="k">end module </span><span class="n">Test_SimpleLeafGridComp</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-12-03T14:34:31.735011+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

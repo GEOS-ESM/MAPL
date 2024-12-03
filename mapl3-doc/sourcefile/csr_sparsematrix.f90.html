@@ -1,0 +1,1006 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>CSR_SparseMatrix.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>CSR_SparseMatrix.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for source files.">246 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/CSR_SparseMatrix.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">CSR_SparseMatrix.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_csr_sparsematrix.html">mapl3g_CSR_SparseMatrix</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/csr_sparsematrix.f90.html#src">CSR_SparseMatrix.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~csr_sparsematrix.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilecsr_sparsematrixf90EfferentGraph" width="300pt" height="32pt"
+ viewBox="0.00 0.00 300.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~csr_sparsematrix.f90~~EfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>sourcefile~~csr_sparsematrix.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 296,-28 296,4 -4,4"/>
+<!-- sourcefile~csr_sparsematrix.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~csr_sparsematrix.f90</title>
+<polygon fill="none" stroke="black" points="292,-24 160,-24 160,0 292,0 292,-24"/>
+<text text-anchor="middle" x="226" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">CSR_SparseMatrix.F90</text>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="124,-24 0,-24 0,0 124,0 124,-24"/>
+<text text-anchor="middle" x="62" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~csr_sparsematrix.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~csr_sparsematrix.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M159.58,-12C151.27,-12 142.74,-12 134.35,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="134.21,-8.5 124.21,-12 134.21,-15.5 134.21,-8.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~csr_sparsematrix.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilecsr_sparsematrixf90AfferentGraph" width="641pt" height="277pt"
+ viewBox="0.00 0.00 641.00 277.16" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph" class="graph" transform="scale(0.44 0.44) rotate(0) translate(4 622.1)">
+<title>sourcefile~~csr_sparsematrix.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-622.1 1444,-622.1 1444,4 -4,4"/>
+<!-- sourcefile~csr_sparsematrix.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~csr_sparsematrix.f90</title>
+<polygon fill="none" stroke="black" points="132,-298.1 0,-298.1 0,-274.1 132,-274.1 132,-298.1"/>
+<text text-anchor="middle" x="66" y="-283.7" font-family="Helvetica,sans-Serif" font-size="10.50">CSR_SparseMatrix.F90</text>
+</g>
+<!-- sourcefile~test_csr_sparsematrix.pf -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~test_csr_sparsematrix.pf</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/test_csr_sparsematrix.pf.html" xlink:title="Test_CSR_SparseMatrix.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="316,-358.1 168,-358.1 168,-334.1 316,-334.1 316,-358.1"/>
+<text text-anchor="middle" x="242" y="-343.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_CSR_SparseMatrix.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_csr_sparsematrix.pf&#45;&gt;sourcefile~csr_sparsematrix.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~test_csr_sparsematrix.pf&#45;&gt;sourcefile~csr_sparsematrix.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M205.79,-333.96C178.58,-324.57 140.74,-311.52 111.44,-301.42"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="112.46,-298.07 101.86,-298.12 110.17,-304.69 112.46,-298.07"/>
+</g>
+<!-- sourcefile~test_verticallinearmap.pf -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~test_verticallinearmap.pf</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/test_verticallinearmap.pf.html" xlink:title="Test_VerticalLinearMap.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="500,-308.1 352,-308.1 352,-284.1 500,-284.1 500,-308.1"/>
+<text text-anchor="middle" x="426" y="-293.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_VerticalLinearMap.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_verticallinearmap.pf&#45;&gt;sourcefile~csr_sparsematrix.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~test_verticallinearmap.pf&#45;&gt;sourcefile~csr_sparsematrix.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M351.69,-294.05C290.55,-292.34 203.79,-289.92 142.15,-288.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="142.19,-284.7 132.09,-287.92 141.99,-291.69 142.19,-284.7"/>
+</g>
+<!-- sourcefile~verticallinearmap.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~verticallinearmap.f90</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/verticallinearmap.f90.html" xlink:title="VerticalLinearMap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="307.5,-278.1 176.5,-278.1 176.5,-254.1 307.5,-254.1 307.5,-278.1"/>
+<text text-anchor="middle" x="242" y="-263.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalLinearMap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_verticallinearmap.pf&#45;&gt;sourcefile~verticallinearmap.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~test_verticallinearmap.pf&#45;&gt;sourcefile~verticallinearmap.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M352.02,-284.07C340.7,-282.2 328.99,-280.27 317.64,-278.4"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="318.2,-274.95 307.77,-276.77 317.06,-281.85 318.2,-274.95"/>
+</g>
+<!-- sourcefile~verticallinearmap.f90&#45;&gt;sourcefile~csr_sparsematrix.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~verticallinearmap.f90&#45;&gt;sourcefile~csr_sparsematrix.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M176.21,-273.54C165.19,-274.81 153.65,-276.14 142.39,-277.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="141.67,-273.99 132.14,-278.61 142.47,-280.95 141.67,-273.99"/>
+</g>
+<!-- sourcefile~verticalregridaction.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~verticalregridaction.f90</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/verticalregridaction.f90.html" xlink:title="VerticalRegridAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="497,-257.1 355,-257.1 355,-233.1 497,-233.1 497,-257.1"/>
+<text text-anchor="middle" x="426" y="-242.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalRegridAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~verticalregridaction.f90&#45;&gt;sourcefile~csr_sparsematrix.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~verticalregridaction.f90&#45;&gt;sourcefile~csr_sparsematrix.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M354.77,-237.89C302.71,-234.29 230.29,-232.94 168,-245.1 143.74,-249.83 117.94,-260.41 98.49,-269.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="96.94,-266.5 89.49,-274.02 100.01,-272.79 96.94,-266.5"/>
+</g>
+<!-- sourcefile~verticalregridaction.f90&#45;&gt;sourcefile~verticallinearmap.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~verticalregridaction.f90&#45;&gt;sourcefile~verticallinearmap.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M354.89,-253.19C342.77,-254.59 330.12,-256.05 317.87,-257.46"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="317.23,-254.01 307.7,-258.63 318.04,-260.96 317.23,-254.01"/>
+</g>
+<!-- sourcefile~couplermetacomponent.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~couplermetacomponent.f90</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/couplermetacomponent.f90.html" xlink:title="CouplerMetaComponent.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="702,-257.1 536,-257.1 536,-233.1 702,-233.1 702,-257.1"/>
+<text text-anchor="middle" x="619" y="-242.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CouplerMetaComponent.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~couplermetacomponent.f90&#45;&gt;sourcefile~verticalregridaction.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~couplermetacomponent.f90&#45;&gt;sourcefile~verticalregridaction.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M535.89,-245.1C526.39,-245.1 516.7,-245.1 507.22,-245.1"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="507.04,-241.6 497.04,-245.1 507.04,-248.6 507.04,-241.6"/>
+</g>
+<!-- sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~fieldspec.f90</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/fieldspec.f90.html" xlink:title="FieldSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="840,-136.1 754,-136.1 754,-112.1 840,-112.1 840,-136.1"/>
+<text text-anchor="middle" x="797" y="-121.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~verticalregridaction.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~verticalregridaction.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M759.27,-136.14C691.67,-158.31 547.68,-205.53 473.42,-229.88"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="472.27,-226.57 463.86,-233.01 474.45,-233.22 472.27,-226.57"/>
+</g>
+<!-- sourcefile~genericcoupler.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~genericcoupler.f90</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/genericcoupler.f90.html" xlink:title="GenericCoupler.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="856,-297.1 738,-297.1 738,-273.1 856,-273.1 856,-297.1"/>
+<text text-anchor="middle" x="797" y="-282.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">GenericCoupler.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~genericcoupler.f90&#45;&gt;sourcefile~verticalregridaction.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~genericcoupler.f90&#45;&gt;sourcefile~verticalregridaction.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M737.97,-282.81C685.15,-280.26 605.1,-275.25 536,-266.1 521.93,-264.23 506.94,-261.71 492.72,-259.05"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="493.01,-255.54 482.53,-257.1 491.69,-262.42 493.01,-255.54"/>
+</g>
+<!-- sourcefile~genericcoupler.f90&#45;&gt;sourcefile~couplermetacomponent.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~genericcoupler.f90&#45;&gt;sourcefile~couplermetacomponent.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M743.19,-273.1C724.22,-268.78 702.64,-263.88 682.9,-259.39"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="683.6,-255.96 673.07,-257.16 682.05,-262.79 683.6,-255.96"/>
+</g>
+<!-- sourcefile~bracketspec.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~bracketspec.f90</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/bracketspec.f90.html" xlink:title="BracketSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1013,-54.1 910,-54.1 910,-30.1 1013,-30.1 1013,-54.1"/>
+<text text-anchor="middle" x="961.5" y="-39.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BracketSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bracketspec.f90&#45;&gt;sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~bracketspec.f90&#45;&gt;sourcefile~fieldspec.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M914.88,-54.14C907.1,-56.74 899.21,-59.73 892,-63.1 866.7,-74.9 840.22,-92.64 821.84,-105.95"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="819.49,-103.34 813.51,-112.09 823.64,-108.98 819.49,-103.34"/>
+</g>
+<!-- sourcefile~make_itemspec.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~make_itemspec.f90</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/make_itemspec.f90.html" xlink:title="make_itemSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1220,-34.1 1099,-34.1 1099,-10.1 1220,-10.1 1220,-34.1"/>
+<text text-anchor="middle" x="1159.5" y="-19.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_itemSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~make_itemspec.f90&#45;&gt;sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~make_itemspec.f90&#45;&gt;sourcefile~fieldspec.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M1107.64,-10.08C1052.09,0.42 961.74,9.67 892,-21.1 854.09,-37.82 824.86,-78.22 809.64,-103.16"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="806.57,-101.49 804.51,-111.88 812.6,-105.04 806.57,-101.49"/>
+</g>
+<!-- sourcefile~make_itemspec.f90&#45;&gt;sourcefile~bracketspec.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~make_itemspec.f90&#45;&gt;sourcefile~bracketspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1098.9,-28.18C1074.95,-30.62 1047.37,-33.44 1023.3,-35.89"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1022.82,-32.42 1013.22,-36.92 1023.53,-39.39 1022.82,-32.42"/>
+</g>
+<!-- sourcefile~modelverticalgrid.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~modelverticalgrid.f90</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/modelverticalgrid.f90.html" xlink:title="ModelVerticalGrid.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1224.5,-118.1 1094.5,-118.1 1094.5,-94.1 1224.5,-94.1 1224.5,-118.1"/>
+<text text-anchor="middle" x="1159.5" y="-103.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ModelVerticalGrid.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~modelverticalgrid.f90&#45;&gt;sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~modelverticalgrid.f90&#45;&gt;sourcefile~fieldspec.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M1094.32,-118.11C1084.64,-121.64 1075.17,-126.2 1067,-132.1 1043.92,-148.77 1056.16,-171.77 1031,-185.1 976.41,-214.01 951.24,-202.63 892,-185.1 864.27,-176.89 837.04,-157.64 819.09,-142.94"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="820.96,-139.94 811.06,-136.16 816.44,-145.29 820.96,-139.94"/>
+</g>
+<!-- sourcefile~stateitemextension.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~stateitemextension.f90</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/stateitemextension.f90.html" xlink:title="StateItemExtension.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1031,-345.1 892,-345.1 892,-321.1 1031,-321.1 1031,-345.1"/>
+<text text-anchor="middle" x="961.5" y="-330.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemExtension.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~modelverticalgrid.f90&#45;&gt;sourcefile~stateitemextension.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge27" class="edge">
+<title>sourcefile~modelverticalgrid.f90&#45;&gt;sourcefile~stateitemextension.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M1094.17,-116.38C1084.28,-120.11 1074.78,-125.19 1067,-132.1 1036,-159.59 1049.65,-181.1 1031,-218.1 1013.81,-252.2 990.46,-289.92 975.94,-312.55"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="972.97,-310.7 970.48,-321 978.85,-314.5 972.97,-310.7"/>
+</g>
+<!-- sourcefile~stateitemextension.f90&#45;&gt;sourcefile~genericcoupler.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~stateitemextension.f90&#45;&gt;sourcefile~genericcoupler.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M919.49,-320.99C897.95,-314.62 871.37,-306.77 848.56,-300.03"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="849.29,-296.6 838.71,-297.12 847.31,-303.31 849.29,-296.6"/>
+</g>
+<!-- sourcefile~test_addfieldspec.pf -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~test_addfieldspec.pf</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/test_addfieldspec.pf.html" xlink:title="Test_AddFieldSpec.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1023,-176.1 900,-176.1 900,-152.1 1023,-152.1 1023,-176.1"/>
+<text text-anchor="middle" x="961.5" y="-161.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_AddFieldSpec.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_addfieldspec.pf&#45;&gt;sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~test_addfieldspec.pf&#45;&gt;sourcefile~fieldspec.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M911.74,-152.1C892.23,-147.29 869.72,-141.75 849.91,-136.87"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="850.67,-133.46 840.12,-134.47 848.99,-140.25 850.67,-133.46"/>
+</g>
+<!-- sourcefile~test_bracketspec.pf -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~test_bracketspec.pf</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/test_bracketspec.pf.html" xlink:title="Test_BracketSpec.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1219,-76.1 1100,-76.1 1100,-52.1 1219,-52.1 1219,-76.1"/>
+<text text-anchor="middle" x="1159.5" y="-61.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_BracketSpec.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_bracketspec.pf&#45;&gt;sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~test_bracketspec.pf&#45;&gt;sourcefile~fieldspec.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M1099.68,-75.02C1088.65,-77.78 1077.35,-81.13 1067,-85.1 1049.91,-91.65 1048.52,-99.79 1031,-105.1 970.93,-123.3 898.41,-126.44 850.4,-126.08"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="850.28,-122.58 840.24,-125.95 850.19,-129.58 850.28,-122.58"/>
+</g>
+<!-- sourcefile~test_bracketspec.pf&#45;&gt;sourcefile~bracketspec.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~test_bracketspec.pf&#45;&gt;sourcefile~bracketspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1099.96,-57.53C1075.78,-54.81 1047.75,-51.67 1023.33,-48.93"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1023.44,-45.42 1013.11,-47.78 1022.66,-52.37 1023.44,-45.42"/>
+</g>
+<!-- sourcefile~test_fieldspec.pf -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~test_fieldspec.pf</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node15"><a xlink:href="../sourcefile/test_fieldspec.pf.html" xlink:title="Test_FieldSpec.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1013,-96.1 910,-96.1 910,-72.1 1013,-72.1 1013,-96.1"/>
+<text text-anchor="middle" x="961.5" y="-81.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_FieldSpec.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_fieldspec.pf&#45;&gt;sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~test_fieldspec.pf&#45;&gt;sourcefile~fieldspec.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M911.74,-96.1C892.23,-100.9 869.72,-106.44 849.91,-111.32"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="848.99,-107.94 840.12,-113.73 850.67,-114.74 848.99,-107.94"/>
+</g>
+<!-- sourcefile~extensionfamily.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~extensionfamily.f90</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node16"><a xlink:href="../sourcefile/extensionfamily.f90.html" xlink:title="ExtensionFamily.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1219.5,-324.1 1099.5,-324.1 1099.5,-300.1 1219.5,-300.1 1219.5,-324.1"/>
+<text text-anchor="middle" x="1159.5" y="-309.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtensionFamily.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extensionfamily.f90&#45;&gt;sourcefile~stateitemextension.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge24" class="edge">
+<title>sourcefile~extensionfamily.f90&#45;&gt;sourcefile~stateitemextension.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M1099.43,-318.43C1081.09,-320.39 1060.59,-322.59 1041.15,-324.67"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="1040.66,-321.2 1031.09,-325.75 1041.41,-328.16 1040.66,-321.2"/>
+</g>
+<!-- sourcefile~initialize_advertise.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~initialize_advertise.f90</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node17"><a xlink:href="../sourcefile/initialize_advertise.f90.html" xlink:title="initialize_advertise.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1431,-34.1 1297,-34.1 1297,-10.1 1431,-10.1 1431,-34.1"/>
+<text text-anchor="middle" x="1364" y="-19.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_advertise.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~initialize_advertise.f90&#45;&gt;sourcefile~make_itemspec.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~initialize_advertise.f90&#45;&gt;sourcefile~make_itemspec.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M1296.97,-22.1C1275.65,-22.1 1251.95,-22.1 1230.36,-22.1"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="1230.28,-18.6 1220.28,-22.1 1230.28,-25.6 1230.28,-18.6"/>
+</g>
+<!-- sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~mapl_generic.f90</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node18"><a xlink:href="../sourcefile/mapl_generic.f90.html" xlink:title="MAPL_Generic.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1215,-282.1 1104,-282.1 1104,-258.1 1215,-258.1 1215,-282.1"/>
+<text text-anchor="middle" x="1159.5" y="-267.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Generic.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~stateitemextension.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge25" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~stateitemextension.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M1103.93,-281.15C1091.69,-284.03 1078.82,-287.39 1067,-291.1 1043.75,-298.39 1018.38,-308.53 998.45,-317.02"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="996.94,-313.87 989.14,-321.04 999.71,-320.29 996.94,-313.87"/>
+</g>
+<!-- sourcefile~matchconnection.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node19" class="node">
+<title>sourcefile~matchconnection.f90</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node19"><a xlink:href="../sourcefile/matchconnection.f90.html" xlink:title="MatchConnection.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1223.5,-240.1 1095.5,-240.1 1095.5,-216.1 1223.5,-216.1 1223.5,-240.1"/>
+<text text-anchor="middle" x="1159.5" y="-225.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MatchConnection.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~matchconnection.f90&#45;&gt;sourcefile~stateitemextension.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge26" class="edge">
+<title>sourcefile~matchconnection.f90&#45;&gt;sourcefile~stateitemextension.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M1095.2,-238.68C1085.5,-241.41 1075.8,-244.83 1067,-249.1 1033.16,-265.5 1000.41,-294.65 980.86,-313.93"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="978.36,-311.48 973.8,-321.03 983.33,-316.41 978.36,-311.48"/>
+</g>
+<!-- sourcefile~parse_geometry_spec.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node20" class="node">
+<title>sourcefile~parse_geometry_spec.f90</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node20"><a xlink:href="../sourcefile/parse_geometry_spec.f90.html" xlink:title="parse_geometry_spec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1440,-96.1 1288,-96.1 1288,-72.1 1440,-72.1 1440,-96.1"/>
+<text text-anchor="middle" x="1364" y="-81.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_geometry_spec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~parse_geometry_spec.f90&#45;&gt;sourcefile~modelverticalgrid.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~parse_geometry_spec.f90&#45;&gt;sourcefile~modelverticalgrid.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M1287.88,-92.26C1270.48,-94.15 1251.96,-96.16 1234.6,-98.05"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="1234.09,-94.58 1224.53,-99.14 1234.85,-101.54 1234.09,-94.58"/>
+</g>
+<!-- sourcefile~protoextdatagc.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node21" class="node">
+<title>sourcefile~protoextdatagc.f90</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node21"><a xlink:href="../sourcefile/protoextdatagc.f90.html" xlink:title="ProtoExtDataGC.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1219.5,-198.1 1099.5,-198.1 1099.5,-174.1 1219.5,-174.1 1219.5,-198.1"/>
+<text text-anchor="middle" x="1159.5" y="-183.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ProtoExtDataGC.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~protoextdatagc.f90&#45;&gt;sourcefile~stateitemextension.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge28" class="edge">
+<title>sourcefile~protoextdatagc.f90&#45;&gt;sourcefile~stateitemextension.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M1099.17,-193.77C1087.96,-196.83 1076.71,-201.11 1067,-207.1 1024.17,-233.47 990.61,-283.61 973.98,-312.04"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="970.91,-310.36 969,-320.78 976.99,-313.83 970.91,-310.36"/>
+</g>
+<!-- sourcefile~servicespec.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node22" class="node">
+<title>sourcefile~servicespec.f90</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node22"><a xlink:href="../sourcefile/servicespec.f90.html" xlink:title="ServiceSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1210,-618.1 1109,-618.1 1109,-594.1 1210,-594.1 1210,-618.1"/>
+<text text-anchor="middle" x="1159.5" y="-603.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServiceSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~servicespec.f90&#45;&gt;sourcefile~stateitemextension.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge29" class="edge">
+<title>sourcefile~servicespec.f90&#45;&gt;sourcefile~stateitemextension.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M1108.53,-603.3C1093.82,-600.33 1078.58,-594.88 1067,-585.1 994.69,-523.99 971.59,-404.68 964.94,-355.31"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="968.41,-354.85 963.7,-345.36 961.46,-355.72 968.41,-354.85"/>
+</g>
+<!-- sourcefile~simpleconnection.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node23" class="node">
+<title>sourcefile~simpleconnection.f90</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node23"><a xlink:href="../sourcefile/simpleconnection.f90.html" xlink:title="SimpleConnection.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1226,-576.1 1093,-576.1 1093,-552.1 1226,-552.1 1226,-576.1"/>
+<text text-anchor="middle" x="1159.5" y="-561.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SimpleConnection.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~simpleconnection.f90&#45;&gt;sourcefile~stateitemextension.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge30" class="edge">
+<title>sourcefile~simpleconnection.f90&#45;&gt;sourcefile~stateitemextension.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M1092.76,-556.5C1083.48,-553.37 1074.55,-549.05 1067,-543.1 1004.78,-494.07 976.78,-398.31 966.92,-355.14"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="970.34,-354.38 964.8,-345.35 963.5,-355.87 970.34,-354.38"/>
+</g>
+<!-- sourcefile~stateitemextensionptrvector.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node24" class="node">
+<title>sourcefile~stateitemextensionptrvector.f90</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node24"><a xlink:href="../sourcefile/stateitemextensionptrvector.f90.html" xlink:title="StateItemExtensionPtrVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1252,-534.1 1067,-534.1 1067,-510.1 1252,-510.1 1252,-534.1"/>
+<text text-anchor="middle" x="1159.5" y="-519.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemExtensionPtrVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~stateitemextensionptrvector.f90&#45;&gt;sourcefile~stateitemextension.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge31" class="edge">
+<title>sourcefile~stateitemextensionptrvector.f90&#45;&gt;sourcefile~stateitemextension.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M1082.96,-509.98C1077.31,-507.53 1071.91,-504.6 1067,-501.1 1014.58,-463.68 982.89,-390.96 969.68,-354.71"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="972.93,-353.39 966.31,-345.12 966.33,-355.71 972.93,-353.39"/>
+</g>
+<!-- sourcefile~stateitemextensionvector.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node25" class="node">
+<title>sourcefile~stateitemextensionvector.f90</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node25"><a xlink:href="../sourcefile/stateitemextensionvector.f90.html" xlink:title="StateItemExtensionVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1245,-492.1 1074,-492.1 1074,-468.1 1245,-468.1 1245,-492.1"/>
+<text text-anchor="middle" x="1159.5" y="-477.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateItemExtensionVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~stateitemextensionvector.f90&#45;&gt;sourcefile~stateitemextension.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge32" class="edge">
+<title>sourcefile~stateitemextensionvector.f90&#45;&gt;sourcefile~stateitemextension.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M1085.33,-467.96C1078.9,-465.52 1072.69,-462.6 1067,-459.1 1024.17,-432.72 990.61,-382.59 973.98,-354.16"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="976.99,-352.37 969,-345.41 970.91,-355.83 976.99,-352.37"/>
+</g>
+<!-- sourcefile~stateregistry.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node26" class="node">
+<title>sourcefile~stateregistry.f90</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node26"><a xlink:href="../sourcefile/stateregistry.f90.html" xlink:title="StateRegistry.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1211.5,-450.1 1107.5,-450.1 1107.5,-426.1 1211.5,-426.1 1211.5,-450.1"/>
+<text text-anchor="middle" x="1159.5" y="-435.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StateRegistry.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~stateregistry.f90&#45;&gt;sourcefile~stateitemextension.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge33" class="edge">
+<title>sourcefile~stateregistry.f90&#45;&gt;sourcefile~stateitemextension.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M1107.25,-430.59C1093.74,-427.49 1079.47,-423.14 1067,-417.1 1033.16,-400.7 1000.41,-371.54 980.86,-352.26"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="983.33,-349.78 973.8,-345.16 978.36,-354.72 983.33,-349.78"/>
+</g>
+<!-- sourcefile~test_extensionfamily.pf -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node27" class="node">
+<title>sourcefile~test_extensionfamily.pf</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node27"><a xlink:href="../sourcefile/test_extensionfamily.pf.html" xlink:title="Test_ExtensionFamily.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1227.5,-408.1 1091.5,-408.1 1091.5,-384.1 1227.5,-384.1 1227.5,-408.1"/>
+<text text-anchor="middle" x="1159.5" y="-393.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ExtensionFamily.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_extensionfamily.pf&#45;&gt;sourcefile~stateitemextension.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge34" class="edge">
+<title>sourcefile~test_extensionfamily.pf&#45;&gt;sourcefile~stateitemextension.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M1099.56,-384C1088.65,-381.36 1077.42,-378.36 1067,-375.1 1043.75,-367.81 1018.38,-357.66 998.45,-349.17"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="999.71,-345.9 989.14,-345.15 996.94,-352.33 999.71,-345.9"/>
+</g>
+<!-- sourcefile~test_modelverticalgrid.pf -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node28" class="node">
+<title>sourcefile~test_modelverticalgrid.pf</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node28"><a xlink:href="../sourcefile/test_modelverticalgrid.pf.html" xlink:title="Test_ModelVerticalGrid.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1437,-138.1 1291,-138.1 1291,-114.1 1437,-114.1 1437,-138.1"/>
+<text text-anchor="middle" x="1364" y="-123.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ModelVerticalGrid.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_modelverticalgrid.pf&#45;&gt;sourcefile~make_itemspec.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~test_modelverticalgrid.pf&#45;&gt;sourcefile~make_itemspec.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M1303.18,-114.07C1297.77,-111.61 1292.6,-108.66 1288,-105.1 1262.81,-85.59 1277.65,-62 1252,-43.1 1245.38,-38.22 1237.81,-34.44 1229.93,-31.53"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="1230.79,-28.13 1220.2,-28.39 1228.64,-34.79 1230.79,-28.13"/>
+</g>
+<!-- sourcefile~test_modelverticalgrid.pf&#45;&gt;sourcefile~modelverticalgrid.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~test_modelverticalgrid.pf&#45;&gt;sourcefile~modelverticalgrid.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M1290.75,-118.96C1272.54,-117.16 1252.97,-115.23 1234.66,-113.42"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="1234.94,-109.93 1224.65,-112.43 1234.25,-116.9 1234.94,-109.93"/>
+</g>
+<!-- sourcefile~test_modelverticalgrid.pf&#45;&gt;sourcefile~stateitemextension.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge35" class="edge">
+<title>sourcefile~test_modelverticalgrid.pf&#45;&gt;sourcefile~stateitemextension.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M1290.66,-128.61C1215.17,-132.45 1102.89,-141.96 1067,-165.1 1038.93,-183.2 993.21,-270.74 972.85,-311.78"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="969.62,-310.4 968.35,-320.92 975.9,-313.49 969.62,-310.4"/>
+</g>
+<!-- sourcefile~test_stateregistry.pf -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node29" class="node">
+<title>sourcefile~test_stateregistry.pf</title>
+<g id="a_sourcefile~~csr_sparsematrix.f90~~AfferentGraph_node29"><a xlink:href="../sourcefile/test_stateregistry.pf.html" xlink:title="Test_StateRegistry.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1220,-366.1 1099,-366.1 1099,-342.1 1220,-342.1 1220,-366.1"/>
+<text text-anchor="middle" x="1159.5" y="-351.7" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_StateRegistry.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_stateregistry.pf&#45;&gt;sourcefile~stateitemextension.f90 -->
+<g id="sourcefile~~csr_sparsematrix.f90~~AfferentGraph_edge36" class="edge">
+<title>sourcefile~test_stateregistry.pf&#45;&gt;sourcefile~stateitemextension.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M1098.9,-347.71C1080.67,-345.76 1060.35,-343.58 1041.07,-341.52"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="1041.41,-338.03 1031.1,-340.45 1040.67,-344.99 1041.41,-338.03"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilecsr_sparsematrixf90AfferentGraph = svgPanZoom('#sourcefilecsr_sparsematrixf90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_Generic.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="c">! When generic procedures are available, this package should be</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="c">! redesigned.</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="k">module </span><span class="n">mapl3g_CSR_SparseMatrix</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_KeywordEnforcer</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use</span><span class="p">,</span><span class="w"> </span><span class="k">intrinsic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iso_fortran_env</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">REAL32</span><span class="p">,</span><span class="w"> </span><span class="n">REAL64</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">implicit none</span><span class="w"> </span><span class="p">(</span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">external</span><span class="p">)</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">private</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="cp">#define IDENTITY(x) x</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="cp">#define CONCAT(a,b) IDENTITY(a)IDENTITY(b)</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="cp">#define CONCAT3(a,b,c) IDENTITY(a)IDENTITY(b)IDENTITY(c)</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="cp">#define T(kz) CONCAT(CSR_SparseMatrix_,kz)</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a>
+<a id="ln-16" name="ln-16" href="#ln-16"></a>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">T</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">T</span><span class="p">(</span><span class="n">dp</span><span class="p">)</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">matmul</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="nb">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">add_row</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">shape</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="nb">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">sp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">REAL32</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">REAL64</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="cp">#define CSR_SPARSEMATRIX(kz)                                    \</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">T</span><span class="p">(</span><span class="n">kz</span><span class="p">);</span><span class="w">                                               </span><span class="err">\</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">      </span><span class="k">private</span><span class="p">;</span><span class="w">                                                  </span><span class="err">\</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n_rows</span><span class="p">;</span><span class="w">                                        </span><span class="err">\</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n_columns</span><span class="p">;</span><span class="w">                                     </span><span class="err">\</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nnz</span><span class="p">;</span><span class="w">                                           </span><span class="err">\</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">                                                                </span><span class="err">\</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">row_offsets</span><span class="p">(:);</span><span class="w">                   </span><span class="err">\</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">run_starts</span><span class="p">(:);</span><span class="w">                    </span><span class="err">\</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">run_lengths</span><span class="p">(:);</span><span class="w">                   </span><span class="err">\</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">kz</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">v</span><span class="p">(:);</span><span class="w">                       </span><span class="err">\</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">   </span><span class="k">end type </span><span class="n">T</span><span class="p">(</span><span class="n">kz</span><span class="p">)</span><span class="w">                                              </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">   </span><span class="k">interface </span><span class="nb">matmul</span><span class="w">                                            </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">      </span><span class="k">procedure </span><span class="n">CONCAT3</span><span class="p">(</span><span class="n">matmul_vec_</span><span class="p">,</span><span class="n">kz</span><span class="p">,</span><span class="n">sp</span><span class="p">)</span><span class="w">                     </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">      </span><span class="k">procedure </span><span class="n">CONCAT3</span><span class="p">(</span><span class="n">matmul_vec_</span><span class="p">,</span><span class="n">kz</span><span class="p">,</span><span class="n">dp</span><span class="p">)</span><span class="w">                     </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">      </span><span class="k">procedure </span><span class="n">CONCAT3</span><span class="p">(</span><span class="n">matmul_multi_vec_</span><span class="p">,</span><span class="n">kz</span><span class="p">,</span><span class="n">sp</span><span class="p">)</span><span class="w">               </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="k">procedure </span><span class="n">CONCAT3</span><span class="p">(</span><span class="n">matmul_multi_vec_</span><span class="p">,</span><span class="n">kz</span><span class="p">,</span><span class="n">dp</span><span class="p">)</span><span class="w">               </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">   </span><span class="k">end interface </span><span class="nb">matmul</span><span class="w">                                        </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">   </span><span class="k">interface </span><span class="n">add_row</span><span class="w">                                           </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">      </span><span class="k">procedure </span><span class="n">CONCAT</span><span class="p">(</span><span class="n">add_row_</span><span class="p">,</span><span class="n">kz</span><span class="p">)</span><span class="w">                            </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">   </span><span class="k">end interface </span><span class="n">add_row</span><span class="w">                                       </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">   </span><span class="k">interface </span><span class="nb">shape</span><span class="w">                                             </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="k">procedure </span><span class="n">CONCAT</span><span class="p">(</span><span class="n">shape_</span><span class="p">,</span><span class="n">kz</span><span class="p">)</span><span class="w">                              </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">   </span><span class="k">end interface </span><span class="nb">shape</span><span class="w">                                         </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">   </span><span class="k">interface </span><span class="n">T</span><span class="p">(</span><span class="n">kz</span><span class="p">)</span><span class="w">                                             </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="k">procedure </span><span class="n">CONCAT</span><span class="p">(</span><span class="n">new_csr_matrix_</span><span class="p">,</span><span class="n">kz</span><span class="p">)</span><span class="w">                     </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">   </span><span class="k">end interface </span><span class="n">T</span><span class="p">(</span><span class="n">kz</span><span class="p">)</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="n">CSR_SPARSEMATRIX</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span><span class="w">   </span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="n">CSR_SPARSEMATRIX</span><span class="p">(</span><span class="n">dp</span><span class="p">)</span><span class="w">   </span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="k">contains</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="cp">#define NEW_CSR_MATRIX(kz)                                                        \</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">   </span><span class="k">function </span><span class="n">CONCAT</span><span class="p">(</span><span class="n">new_csr_matrix_</span><span class="p">,</span><span class="n">kz</span><span class="p">)(</span><span class="n">n_rows</span><span class="p">,</span><span class="w"> </span><span class="n">n_columns</span><span class="p">,</span><span class="w"> </span><span class="n">nnz</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span><span class="w">       </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">T</span><span class="p">(</span><span class="n">kz</span><span class="p">))</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mat</span><span class="w">                                                         </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n_rows</span><span class="w">                                              </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n_columns</span><span class="w">                                           </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nnz</span><span class="w">                                                 </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">      </span><span class="n">mat</span><span class="p">%</span><span class="n">n_rows</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n_rows</span><span class="w">                                                        </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">      </span><span class="n">mat</span><span class="p">%</span><span class="n">n_columns</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n_columns</span><span class="w">                                                  </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">      </span><span class="n">mat</span><span class="p">%</span><span class="n">nnz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nnz</span><span class="w">                                                              </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">mat</span><span class="p">%</span><span class="n">row_offsets</span><span class="p">(</span><span class="n">n_rows</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="w">                                        </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">mat</span><span class="p">%</span><span class="n">run_starts</span><span class="p">(</span><span class="n">n_rows</span><span class="p">))</span><span class="w">                                           </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">mat</span><span class="p">%</span><span class="n">run_lengths</span><span class="p">(</span><span class="n">n_rows</span><span class="p">))</span><span class="w">                                          </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">mat</span><span class="p">%</span><span class="n">v</span><span class="p">(</span><span class="n">nnz</span><span class="p">))</span><span class="w">                                                       </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">      </span><span class="n">mat</span><span class="p">%</span><span class="n">row_offsets</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w">                                                     </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">   </span><span class="k">end function</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a>
+<a id="ln-76" name="ln-76" href="#ln-76"></a>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="cp">#define ADD_ROW(kz)                                                  \</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">   </span><span class="k">pure subroutine </span><span class="n">CONCAT</span><span class="p">(</span><span class="n">add_row_</span><span class="p">,</span><span class="n">kz</span><span class="p">)(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">row</span><span class="p">,</span><span class="w"> </span><span class="n">start_column</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w">  </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">T</span><span class="p">(</span><span class="n">kz</span><span class="p">)),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span><span class="w">                            </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">row</span><span class="w">                                    </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">start_column</span><span class="w">                           </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">kz</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">v</span><span class="p">(:)</span><span class="w">                                  </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">                                                                     </span><span class="err">\</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">      </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">v</span><span class="p">),</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">row_offsets</span><span class="p">(</span><span class="n">row</span><span class="p">))</span><span class="w">     </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">                                                                     </span><span class="err">\</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">        </span><span class="n">this</span><span class="p">%</span><span class="n">run_lengths</span><span class="p">(</span><span class="n">row</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w">                                   </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="w">        </span><span class="n">this</span><span class="p">%</span><span class="n">run_starts</span><span class="p">(</span><span class="n">row</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">start_column</span><span class="w">                         </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">        </span><span class="n">this</span><span class="p">%</span><span class="n">v</span><span class="p">(</span><span class="n">offset</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">offset</span><span class="o">+</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">v</span><span class="w">                               </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">        </span><span class="n">this</span><span class="p">%</span><span class="n">row_offsets</span><span class="p">(</span><span class="n">row</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">n</span><span class="w">                        </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">                                                                     </span><span class="err">\</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">      </span><span class="k">end associate</span><span class="w">                                                 </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">                                                                     </span><span class="err">\</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">   </span><span class="k">end subroutine</span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="cp">#define SHAPE(kz)                                                    \</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">   </span><span class="k">pure function </span><span class="n">CONCAT</span><span class="p">(</span><span class="n">shape_</span><span class="p">,</span><span class="n">kz</span><span class="p">)(</span><span class="n">A</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="w">                    </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">T</span><span class="p">(</span><span class="n">kz</span><span class="p">)),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">A</span><span class="w">                                  </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">s</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w">                                               </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">                                                                     </span><span class="err">\</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">      </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">A</span><span class="p">%</span><span class="n">n_rows</span><span class="p">,</span><span class="w"> </span><span class="n">A</span><span class="p">%</span><span class="n">n_columns</span><span class="p">]</span><span class="w">                                   </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">   </span><span class="k">end function</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="cp">#define MATMUL_VEC(kz,kx)                                            \</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">   </span><span class="k">pure function </span><span class="n">CONCAT3</span><span class="p">(</span><span class="n">matmul_vec_</span><span class="p">,</span><span class="n">kz</span><span class="p">,</span><span class="n">kx</span><span class="p">)(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="w">          </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">T</span><span class="p">(</span><span class="n">kz</span><span class="p">)),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">A</span><span class="w">                                  </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">kx</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x</span><span class="p">(:)</span><span class="w">                                  </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">kx</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">y</span><span class="p">(</span><span class="n">A</span><span class="p">%</span><span class="n">n_rows</span><span class="p">)</span><span class="w">                                       </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">                                                                     </span><span class="err">\</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="w">                                               </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">                                                                     </span><span class="err">\</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">      </span><span class="k">do</span><span class="w"> </span><span class="k">concurrent</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">A</span><span class="p">%</span><span class="n">n_rows</span><span class="p">)</span><span class="w">                                </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">                                                                     </span><span class="err">\</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">         </span><span class="n">y</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w">                                                   </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">         </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">A</span><span class="p">%</span><span class="n">run_lengths</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w">                           </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span><span class="w">                                        </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">                                                                     </span><span class="err">\</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">           </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">j0</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">A</span><span class="p">%</span><span class="n">run_starts</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w">                        </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">             </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">j1</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">j0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w">                           </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a><span class="w">                                                                     </span><span class="err">\</span>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">               </span><span class="k">do </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j0</span><span class="p">,</span><span class="w"> </span><span class="n">j1</span><span class="w">                                        </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">                  </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">jj</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">A</span><span class="p">%</span><span class="n">row_offsets</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="o">-</span><span class="n">j0</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w">   </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="w">                    </span><span class="n">y</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">A</span><span class="p">%</span><span class="n">v</span><span class="p">(</span><span class="n">jj</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w">                    </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="w">                  </span><span class="k">end associate</span><span class="w">                                     </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">               </span><span class="k">end do</span><span class="w">                                               </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">                                                                     </span><span class="err">\</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="w">             </span><span class="k">end associate</span><span class="w">                                          </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="w">           </span><span class="k">end associate</span><span class="w">                                            </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">                                                                     </span><span class="err">\</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">         </span><span class="k">end associate</span><span class="w">                                              </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="w">      </span><span class="k">end do</span><span class="w">                                                        </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">                                                                     </span><span class="err">\</span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="w">   </span><span class="k">end function</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="cp">#define MATMUL_MULTI_VEC(kz,kx)                                      \</span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="w">   </span><span class="k">pure function </span><span class="n">CONCAT3</span><span class="p">(</span><span class="n">matmul_multi_vec_</span><span class="p">,</span><span class="n">kz</span><span class="p">,</span><span class="n">kx</span><span class="p">)(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">b</span><span class="p">)</span><span class="w">   </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">T</span><span class="p">(</span><span class="n">kz</span><span class="p">)),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">A</span><span class="p">(:)</span><span class="w">                               </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">kx</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x</span><span class="p">(:,:)</span><span class="w">                                </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">kx</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">b</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="n">A</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">n_rows</span><span class="p">)</span><span class="w">                          </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="w">                                                  </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">      </span><span class="k">do</span><span class="w"> </span><span class="k">concurrent</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">:</span><span class="n">size</span><span class="p">(</span><span class="n">A</span><span class="p">))</span><span class="w">                                   </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="w">         </span><span class="n">b</span><span class="p">(</span><span class="n">i</span><span class="p">,:)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">matmul</span><span class="p">(</span><span class="n">A</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">x</span><span class="p">(</span><span class="n">i</span><span class="p">,:))</span><span class="w">                              </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="w">      </span><span class="k">end do</span><span class="w">                                                        </span><span class="p">;</span><span class="err">\</span>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="w">   </span><span class="k">end function</span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="k">   </span><span class="n">NEW_CSR_MATRIX</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a><span class="w">   </span><span class="n">ADD_ROW</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="w">   </span><span class="nb">SHAPE</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">   </span><span class="n">MATMUL_VEC</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span><span class="n">sp</span><span class="p">)</span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="w">   </span><span class="n">MATMUL_VEC</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span><span class="n">dp</span><span class="p">)</span>
+<a id="ln-150" name="ln-150" href="#ln-150"></a><span class="w">   </span><span class="n">MATMUL_MULTI_VEC</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span><span class="n">sp</span><span class="p">)</span>
+<a id="ln-151" name="ln-151" href="#ln-151"></a><span class="w">   </span><span class="n">MATMUL_MULTI_VEC</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span><span class="n">dp</span><span class="p">)</span>
+<a id="ln-152" name="ln-152" href="#ln-152"></a>
+<a id="ln-153" name="ln-153" href="#ln-153"></a><span class="w">   </span><span class="n">NEW_CSR_MATRIX</span><span class="p">(</span><span class="n">dp</span><span class="p">)</span>
+<a id="ln-154" name="ln-154" href="#ln-154"></a><span class="w">   </span><span class="n">ADD_ROW</span><span class="p">(</span><span class="n">dp</span><span class="p">)</span>
+<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="w">   </span><span class="nb">SHAPE</span><span class="p">(</span><span class="n">dp</span><span class="p">)</span>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="w">   </span><span class="n">MATMUL_VEC</span><span class="p">(</span><span class="n">dp</span><span class="p">,</span><span class="n">sp</span><span class="p">)</span>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="w">   </span><span class="n">MATMUL_VEC</span><span class="p">(</span><span class="n">dp</span><span class="p">,</span><span class="n">dp</span><span class="p">)</span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="w">   </span><span class="n">MATMUL_MULTI_VEC</span><span class="p">(</span><span class="n">dp</span><span class="p">,</span><span class="n">sp</span><span class="p">)</span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a><span class="w">   </span><span class="n">MATMUL_MULTI_VEC</span><span class="p">(</span><span class="n">dp</span><span class="p">,</span><span class="n">dp</span><span class="p">)</span>
+<a id="ln-160" name="ln-160" href="#ln-160"></a>
+<a id="ln-161" name="ln-161" href="#ln-161"></a>
+<a id="ln-162" name="ln-162" href="#ln-162"></a><span class="k">end module </span><span class="n">mapl3g_CSR_SparseMatrix</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-12-03T14:34:31.735011+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

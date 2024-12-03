@@ -1,0 +1,1061 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MinCycleColumn.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MinCycleColumn.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">56 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MinCycleColumn.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">MinCycleColumn.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_mincyclecolumn.html">MAPL_MinCycleColumn</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/mincyclecolumn.f90.html#src">MinCycleColumn.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~mincyclecolumn.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilemincyclecolumnf90EfferentGraph" width="641pt" height="80pt"
+ viewBox="0.00 0.00 641.00 80.20" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph" class="graph" transform="scale(0.48 0.48) rotate(0) translate(4 163.91)">
+<title>sourcefile~~mincyclecolumn.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-163.91 1338,-163.91 1338,4 -4,4"/>
+<!-- sourcefile~mincyclecolumn.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~mincyclecolumn.f90</title>
+<polygon fill="none" stroke="black" points="1334,-92.28 1210,-92.28 1210,-68.28 1334,-68.28 1334,-92.28"/>
+<text text-anchor="middle" x="1272" y="-77.88" font-family="Helvetica,sans-Serif" font-size="10.50">MinCycleColumn.F90</text>
+</g>
+<!-- sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~abstractmeter.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/abstractmeter.f90.html" xlink:title="AbstractMeter.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="390,-91.28 281,-91.28 281,-67.28 390,-67.28 390,-91.28"/>
+<text text-anchor="middle" x="335.5" y="-76.88" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractMeter.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mincyclecolumn.f90&#45;&gt;sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~mincyclecolumn.f90&#45;&gt;sourcefile~abstractmeter.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M963.5,-158.28C818.18,-159.91 781.83,-158.47 636.5,-158.28"/>
+</g>
+<!-- sourcefile~abstractmeternode.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~abstractmeternode.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/abstractmeternode.f90.html" xlink:title="AbstractMeterNode.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="868,-130.28 730,-130.28 730,-106.28 868,-106.28 868,-130.28"/>
+<text text-anchor="middle" x="799" y="-115.88" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractMeterNode.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mincyclecolumn.f90&#45;&gt;sourcefile~abstractmeternode.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~mincyclecolumn.f90&#45;&gt;sourcefile~abstractmeternode.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1245.78,-92.36C1194.16,-115.83 1072.32,-164.71 965.5,-158.28"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M963.5,-158.28C920.2,-158.76 872.25,-145.29 839.54,-133.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="840.49,-130.47 829.9,-130.38 838.13,-137.06 840.49,-130.47"/>
+</g>
+<!-- sourcefile~advancedmeter.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~advancedmeter.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/advancedmeter.f90.html" xlink:title="AdvancedMeter.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="694,-72.28 577,-72.28 577,-48.28 694,-48.28 694,-72.28"/>
+<text text-anchor="middle" x="635.5" y="-57.88" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AdvancedMeter.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mincyclecolumn.f90&#45;&gt;sourcefile~advancedmeter.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~mincyclecolumn.f90&#45;&gt;sourcefile~advancedmeter.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1245.78,-68.24C1194.17,-44.88 1072.34,3.84 965.5,-2.28"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M963.5,-2.28C859.42,-1.13 831.09,4.53 730,-20.28 708.59,-25.53 685.82,-35.17 668.11,-43.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="666.25,-40.69 658.83,-48.25 669.35,-46.97 666.25,-40.69"/>
+</g>
+<!-- sourcefile~distributedmeter.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~distributedmeter.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/distributedmeter.f90.html" xlink:title="DistributedMeter.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="860.5,-53.28 737.5,-53.28 737.5,-29.28 860.5,-29.28 860.5,-53.28"/>
+<text text-anchor="middle" x="799" y="-38.88" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DistributedMeter.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mincyclecolumn.f90&#45;&gt;sourcefile~distributedmeter.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~mincyclecolumn.f90&#45;&gt;sourcefile~distributedmeter.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M963.5,-2.28C922.31,-4.63 876.75,-16.28 844.21,-26.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="843.05,-22.93 834.55,-29.26 845.14,-29.62 843.05,-22.93"/>
+</g>
+<!-- sourcefile~simplecolumn.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~simplecolumn.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/simplecolumn.f90.html" xlink:title="SimpleColumn.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1174,-92.28 1061,-92.28 1061,-68.28 1174,-68.28 1174,-92.28"/>
+<text text-anchor="middle" x="1117.5" y="-77.88" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SimpleColumn.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mincyclecolumn.f90&#45;&gt;sourcefile~simplecolumn.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~mincyclecolumn.f90&#45;&gt;sourcefile~simplecolumn.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1209.85,-80.28C1201.49,-80.28 1192.87,-80.28 1184.42,-80.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1184.23,-76.78 1174.23,-80.28 1184.23,-83.78 1184.23,-76.78"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="245,-52.28 136,-52.28 136,-28.28 245,-28.28 245,-52.28"/>
+<text text-anchor="middle" x="190.5" y="-37.88" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~abstractmeter.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~abstractmeter.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M290.43,-67.26C276.29,-63.4 260.47,-59.09 245.7,-55.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="246.24,-51.58 235.67,-52.32 244.4,-58.33 246.24,-51.58"/>
+</g>
+<!-- sourcefile~abstractmeternode.f90&#45;&gt;sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~abstractmeternode.f90&#45;&gt;sourcefile~abstractmeter.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M768.19,-130.3C736.18,-142.1 683.58,-158.34 636.5,-158.28"/>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M634.5,-158.28C567.3,-158.19 550.46,-152.14 484.5,-139.28"/>
+</g>
+<!-- sourcefile~advancedmeter.f90&#45;&gt;sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~advancedmeter.f90&#45;&gt;sourcefile~abstractmeter.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M576.69,-63.96C526.07,-67.19 452.64,-71.87 400.31,-75.21"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="399.9,-71.73 390.14,-75.86 400.34,-78.71 399.9,-71.73"/>
+</g>
+<!-- sourcefile~abstractgauge.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~abstractgauge.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/abstractgauge.f90.html" xlink:title="AbstractGauge.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="541,-111.28 426,-111.28 426,-87.28 541,-87.28 541,-111.28"/>
+<text text-anchor="middle" x="483.5" y="-96.88" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractGauge.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~advancedmeter.f90&#45;&gt;sourcefile~abstractgauge.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~advancedmeter.f90&#45;&gt;sourcefile~abstractgauge.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M588.27,-72.29C573.3,-76.19 556.53,-80.55 540.9,-84.61"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="539.63,-81.32 530.83,-87.23 541.39,-88.1 539.63,-81.32"/>
+</g>
+<!-- sourcefile~distributedmeter.f90&#45;&gt;sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~distributedmeter.f90&#45;&gt;sourcefile~abstractmeter.f90</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M634.5,-120.28C568.95,-135.06 550.46,-152.14 484.5,-139.28"/>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M482.5,-139.28C440.93,-131.17 396.35,-110.99 367.54,-96.26"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="368.88,-93.02 358.4,-91.5 365.65,-99.23 368.88,-93.02"/>
+</g>
+<!-- sourcefile~distributedmeter.f90&#45;&gt;sourcefile~advancedmeter.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~distributedmeter.f90&#45;&gt;sourcefile~advancedmeter.f90</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M737.4,-48.4C726.58,-49.68 715.23,-51.01 704.22,-52.31"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="703.75,-48.84 694.23,-53.48 704.57,-55.79 703.75,-48.84"/>
+</g>
+<!-- sourcefile~distributedmeter.f90&#45;&gt;sourcefile~abstractgauge.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~distributedmeter.f90&#45;&gt;sourcefile~abstractgauge.f90</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M780.16,-53.51C751.45,-72.36 692.53,-107.64 636.5,-120.28"/>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M634.5,-120.28C599.58,-128.15 559.39,-121.71 529.41,-113.96"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="530.22,-110.55 519.65,-111.3 528.38,-117.3 530.22,-110.55"/>
+</g>
+<!-- sourcefile~distributedmeter.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~distributedmeter.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M737.24,-39.91C723.05,-39.65 707.99,-39.41 694,-39.28 536.18,-37.76 350.47,-38.88 255.11,-39.68"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="255.02,-36.18 245.05,-39.76 255.08,-43.18 255.02,-36.18"/>
+</g>
+<!-- sourcefile~simplecolumn.f90&#45;&gt;sourcefile~abstractmeternode.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~simplecolumn.f90&#45;&gt;sourcefile~abstractmeternode.f90</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M1070.21,-92.32C1055.81,-95.68 1039.83,-99.03 1025,-101.28 976.59,-108.62 921.82,-112.84 878.44,-115.24"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="878.04,-111.76 868.24,-115.79 878.41,-118.75 878.04,-111.76"/>
+</g>
+<!-- sourcefile~simplecolumn.f90&#45;&gt;sourcefile~distributedmeter.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~simplecolumn.f90&#45;&gt;sourcefile~distributedmeter.f90</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M1070.2,-68.27C1055.81,-64.91 1039.82,-61.56 1025,-59.28 973.8,-51.39 915.47,-46.85 871.04,-44.3"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="871.1,-40.8 860.92,-43.74 870.71,-47.79 871.1,-40.8"/>
+</g>
+<!-- sourcefile~abstractcolumn.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~abstractcolumn.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/abstractcolumn.f90.html" xlink:title="AbstractColumn.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1025,-92.28 904,-92.28 904,-68.28 1025,-68.28 1025,-92.28"/>
+<text text-anchor="middle" x="964.5" y="-77.88" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractColumn.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~simplecolumn.f90&#45;&gt;sourcefile~abstractcolumn.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~simplecolumn.f90&#45;&gt;sourcefile~abstractcolumn.f90</title>
+<path fill="none" stroke="#cc00ff" stroke-dasharray="5,2" d="M1060.7,-80.28C1052.46,-80.28 1043.88,-80.28 1035.4,-80.28"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="1035.12,-76.78 1025.12,-80.28 1035.12,-83.78 1035.12,-76.78"/>
+</g>
+<!-- sourcefile~abstractcolumn.f90&#45;&gt;sourcefile~abstractmeternode.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~abstractcolumn.f90&#45;&gt;sourcefile~abstractmeternode.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M911.77,-92.3C895.89,-95.99 878.25,-100.09 861.76,-103.92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="860.62,-100.59 851.68,-106.26 862.21,-107.41 860.62,-100.59"/>
+</g>
+<!-- sourcefile~abstractcolumn.f90&#45;&gt;sourcefile~distributedmeter.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~abstractcolumn.f90&#45;&gt;sourcefile~distributedmeter.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M913.11,-68.26C896.48,-64.29 877.81,-59.84 860.51,-55.71"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="861.04,-52.24 850.5,-53.32 859.42,-59.05 861.04,-52.24"/>
+</g>
+<!-- sourcefile~abstractgauge.f90&#45;&gt;sourcefile~abstractmeter.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~abstractgauge.f90&#45;&gt;sourcefile~abstractmeter.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M425.63,-91.49C417.32,-90.35 408.72,-89.17 400.28,-88.01"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="400.49,-84.51 390.1,-86.62 399.54,-91.44 400.49,-84.51"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~EfferentGraph_node10"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="100,-52.28 0,-52.28 0,-28.28 100,-28.28 100,-52.28"/>
+<text text-anchor="middle" x="50" y="-37.88" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M135.95,-40.28C127.62,-40.28 118.96,-40.28 110.51,-40.28"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="110.33,-36.78 100.33,-40.28 110.33,-43.78 110.33,-36.78"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilemincyclecolumnf90EfferentGraph = svgPanZoom('#sourcefilemincyclecolumnf90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~mincyclecolumn.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilemincyclecolumnf90AfferentGraph" width="492pt" height="1124pt"
+ viewBox="0.00 0.00 492.00 1124.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 1120)">
+<title>sourcefile~~mincyclecolumn.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-1120 488,-1120 488,4 -4,4"/>
+<!-- sourcefile~mincyclecolumn.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~mincyclecolumn.f90</title>
+<polygon fill="none" stroke="black" points="124,-570 0,-570 0,-546 124,-546 124,-570"/>
+<text text-anchor="middle" x="62" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50">MinCycleColumn.F90</text>
+</g>
+<!-- sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~mapl_profiler.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/mapl_profiler.f90.html" xlink:title="MAPL_Profiler.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="265,-570 160,-570 160,-546 265,-546 265,-570"/>
+<text text-anchor="middle" x="212.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Profiler.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_profiler.f90&#45;&gt;sourcefile~mincyclecolumn.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~mapl_profiler.f90&#45;&gt;sourcefile~mincyclecolumn.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M159.98,-558C151.67,-558 142.94,-558 134.27,-558"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="134.14,-554.5 124.14,-558 134.14,-561.5 134.14,-554.5"/>
+</g>
+<!-- sourcefile~abstractserver.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~abstractserver.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/abstractserver.f90.html" xlink:title="AbstractServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="449,-1116 336,-1116 336,-1092 449,-1092 449,-1116"/>
+<text text-anchor="middle" x="392.5" y="-1101.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~abstractserver.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~abstractserver.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M335.93,-1101.56C322.9,-1098.4 310.16,-1092.76 301,-1083 231.09,-1008.55 216.67,-671.25 214.04,-580.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="217.53,-580.18 213.76,-570.28 210.53,-580.37 217.53,-580.18"/>
+</g>
+<!-- sourcefile~applicationsupport.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~applicationsupport.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/applicationsupport.f90.html" xlink:title="ApplicationSupport.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="461,-1074 324,-1074 324,-1050 461,-1050 461,-1074"/>
+<text text-anchor="middle" x="392.5" y="-1059.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ApplicationSupport.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~applicationsupport.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~applicationsupport.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M323.96,-1055.73C315.34,-1052.39 307.34,-1047.66 301,-1041 236.46,-973.23 218.26,-666.21 214.39,-580.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="217.88,-580.02 213.95,-570.18 210.88,-580.32 217.88,-580.02"/>
+</g>
+<!-- sourcefile~base_base_implementation.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~base_base_implementation.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/base_base_implementation.f90.html" xlink:title="Base_Base_implementation.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="484,-1032 301,-1032 301,-1008 484,-1008 484,-1032"/>
+<text text-anchor="middle" x="392.5" y="-1017.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Base_Base_implementation.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~base_base_implementation.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~base_base_implementation.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M312.31,-1007.92C308.19,-1005.43 304.37,-1002.48 301,-999 241.88,-937.95 220.03,-661.67 214.82,-580.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="218.3,-580.14 214.19,-570.38 211.31,-580.58 218.3,-580.14"/>
+</g>
+<!-- sourcefile~demo.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~demo.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/demo.f90.html" xlink:title="demo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="425,-990 360,-990 360,-966 425,-966 425,-990"/>
+<text text-anchor="middle" x="392.5" y="-975.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">demo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~demo.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~demo.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M359.78,-978.71C340.27,-977.41 316.19,-972.38 301,-957 247.31,-902.66 222.02,-657.2 215.35,-580.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="218.8,-580.07 214.47,-570.4 211.83,-580.66 218.8,-580.07"/>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~extdatadrivergridcomp.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/extdatadrivergridcomp.f90.html" xlink:title="ExtDataDriverGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="474.5,-948 310.5,-948 310.5,-924 474.5,-924 474.5,-948"/>
+<text text-anchor="middle" x="392.5" y="-933.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriverGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M312.9,-923.99C308.58,-921.48 304.56,-918.51 301,-915 252.52,-867.11 224.03,-650.65 215.92,-580.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="219.39,-579.76 214.79,-570.22 212.43,-580.55 219.39,-579.76"/>
+</g>
+<!-- sourcefile~mapl.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~mapl.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/mapl.f90.html" xlink:title="MAPL.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="424.5,-906 360.5,-906 360.5,-882 424.5,-882 424.5,-906"/>
+<text text-anchor="middle" x="392.5" y="-891.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~mapl.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M360.5,-894.46C341.03,-893.08 316.72,-888.06 301,-873 257.8,-831.62 226.41,-644.79 216.68,-580.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="220.13,-579.55 215.21,-570.17 213.21,-580.58 220.13,-579.55"/>
+</g>
+<!-- sourcefile~mapl_bundleio_test.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~mapl_bundleio_test.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/mapl_bundleio_test.f90.html" xlink:title="mapl_bundleio_test.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="462,-864 323,-864 323,-840 462,-840 462,-864"/>
+<text text-anchor="middle" x="392.5" y="-849.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_bundleio_test.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_bundleio_test.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~mapl_bundleio_test.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M322.89,-844.25C314.85,-841.08 307.29,-836.79 301,-831 227.16,-762.99 215.36,-632.68 213.67,-580.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="217.17,-580.2 213.45,-570.28 210.17,-580.35 217.17,-580.2"/>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~mapl_capgridcomp.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/mapl_capgridcomp.f90.html" xlink:title="MAPL_CapGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="464.5,-822 320.5,-822 320.5,-798 464.5,-798 464.5,-822"/>
+<text text-anchor="middle" x="392.5" y="-807.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M320.44,-800.84C313.37,-797.85 306.71,-793.99 301,-789 237.32,-733.33 219.82,-626.32 215.15,-580.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="218.62,-579.65 214.23,-570 211.65,-580.28 218.62,-579.65"/>
+</g>
+<!-- sourcefile~mapl_generic.f90~2 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~mapl_generic.f90~2</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/mapl_generic.f90~2.html" xlink:title="MAPL_Generic.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="448,-780 337,-780 337,-756 448,-756 448,-780"/>
+<text text-anchor="middle" x="392.5" y="-765.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Generic.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90~2&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~mapl_generic.f90~2&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M336.66,-763.53C323.92,-760.37 311.14,-755.24 301,-747 247.66,-703.63 225.29,-620.44 217.3,-580.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="220.7,-579.62 215.42,-570.44 213.82,-580.91 220.7,-579.62"/>
+</g>
+<!-- sourcefile~mapl_nuopcwrappermod.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~mapl_nuopcwrappermod.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/mapl_nuopcwrappermod.f90.html" xlink:title="MAPL_NUOPCWrapperMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="479.5,-738 305.5,-738 305.5,-714 479.5,-714 479.5,-738"/>
+<text text-anchor="middle" x="392.5" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_NUOPCWrapperMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_nuopcwrappermod.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~mapl_nuopcwrappermod.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M316.7,-713.92C311.14,-711.46 305.82,-708.52 301,-705 257.48,-673.2 231.69,-612.61 220.36,-580.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="223.55,-578.52 217.07,-570.14 216.91,-580.73 223.55,-578.52"/>
+</g>
+<!-- sourcefile~mapl_verticalmethods.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~mapl_verticalmethods.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/mapl_verticalmethods.f90.html" xlink:title="MAPL_VerticalMethods.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="469.5,-696 315.5,-696 315.5,-672 469.5,-672 469.5,-696"/>
+<text text-anchor="middle" x="392.5" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_VerticalMethods.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_verticalmethods.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~mapl_verticalmethods.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M319.6,-671.96C313.08,-669.5 306.77,-666.55 301,-663 266.93,-642.02 239.78,-603.12 225.22,-579.02"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="228.17,-577.13 220.09,-570.27 222.13,-580.67 228.17,-577.13"/>
+</g>
+<!-- sourcefile~maplframework.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~maplframework.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/maplframework.f90.html" xlink:title="MaplFramework.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="452.5,-654 332.5,-654 332.5,-630 452.5,-630 452.5,-654"/>
+<text text-anchor="middle" x="392.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaplFramework.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~maplframework.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~maplframework.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M332.44,-631.86C321.73,-629.03 310.84,-625.47 301,-621 276.1,-609.7 251.12,-590.78 234.27,-576.62"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="236.55,-573.96 226.68,-570.1 231.98,-579.27 236.55,-573.96"/>
+</g>
+<!-- sourcefile~mpi_demo.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~mpi_demo.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node15"><a xlink:href="../sourcefile/mpi_demo.f90.html" xlink:title="mpi_demo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="438,-612 347,-612 347,-588 438,-588 438,-612"/>
+<text text-anchor="middle" x="392.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_demo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mpi_demo.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~mpi_demo.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M346.83,-589.71C332.22,-586.32 315.91,-582.52 301,-579 292.07,-576.89 282.63,-574.65 273.38,-572.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="274,-568.98 263.46,-570.06 272.37,-575.79 274,-568.98"/>
+</g>
+<!-- sourcefile~mpiserver.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~mpiserver.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node16"><a xlink:href="../sourcefile/mpiserver.f90.html" xlink:title="MpiServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="436.5,-570 348.5,-570 348.5,-546 436.5,-546 436.5,-570"/>
+<text text-anchor="middle" x="392.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MpiServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mpiserver.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~mpiserver.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M348.41,-558C326.44,-558 299.34,-558 275.2,-558"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="275.06,-554.5 265.06,-558 275.06,-561.5 275.06,-554.5"/>
+</g>
+<!-- sourcefile~multigroupserver.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~multigroupserver.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node17"><a xlink:href="../sourcefile/multigroupserver.f90.html" xlink:title="MultiGroupServer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="456,-528 329,-528 329,-504 456,-504 456,-528"/>
+<text text-anchor="middle" x="392.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiGroupServer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~multigroupserver.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~multigroupserver.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M339.32,-528.04C326.77,-530.95 313.4,-534.07 301,-537 292.07,-539.11 282.63,-541.35 273.38,-543.57"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="272.37,-540.21 263.46,-545.94 274,-547.02 272.37,-540.21"/>
+</g>
+<!-- sourcefile~regrid_util.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~regrid_util.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node18"><a xlink:href="../sourcefile/regrid_util.f90.html" xlink:title="Regrid_Util.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="438.5,-486 346.5,-486 346.5,-462 438.5,-462 438.5,-486"/>
+<text text-anchor="middle" x="392.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~regrid_util.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~regrid_util.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M346.16,-480.86C331.35,-484.05 315.1,-488.6 301,-495 276.1,-506.3 251.12,-525.22 234.27,-539.38"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="231.98,-536.73 226.68,-545.9 236.55,-542.04 231.98,-536.73"/>
+</g>
+<!-- sourcefile~serverthread.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node19" class="node">
+<title>sourcefile~serverthread.f90</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node19"><a xlink:href="../sourcefile/serverthread.f90.html" xlink:title="ServerThread.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="446.5,-444 338.5,-444 338.5,-420 446.5,-420 446.5,-444"/>
+<text text-anchor="middle" x="392.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ServerThread.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~serverthread.f90&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~serverthread.f90&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M338.04,-438.42C325.27,-441.53 312.12,-446.15 301,-453 266.93,-473.98 239.78,-512.88 225.22,-536.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="222.13,-535.33 220.09,-545.73 228.17,-538.87 222.13,-535.33"/>
+</g>
+<!-- sourcefile~test_advancedmeter.pf -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node20" class="node">
+<title>sourcefile~test_advancedmeter.pf</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node20"><a xlink:href="../sourcefile/test_advancedmeter.pf.html" xlink:title="test_AdvancedMeter.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="459,-402 326,-402 326,-378 459,-378 459,-402"/>
+<text text-anchor="middle" x="392.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_AdvancedMeter.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_advancedmeter.pf&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~test_advancedmeter.pf&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M325.92,-398.51C317.03,-401.53 308.42,-405.58 301,-411 257.48,-442.8 231.69,-503.39 220.36,-535.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="216.91,-535.27 217.07,-545.86 223.55,-537.48 216.91,-535.27"/>
+</g>
+<!-- sourcefile~test_column.pf -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node21" class="node">
+<title>sourcefile~test_column.pf</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node21"><a xlink:href="../sourcefile/test_column.pf.html" xlink:title="test_Column.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="438.5,-360 346.5,-360 346.5,-336 438.5,-336 438.5,-360"/>
+<text text-anchor="middle" x="392.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_Column.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_column.pf&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~test_column.pf&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M346.05,-350.47C330.39,-353.29 313.64,-358.72 301,-369 247.66,-412.37 225.29,-495.56 217.3,-535.51"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="213.82,-535.09 215.42,-545.56 220.7,-536.38 213.82,-535.09"/>
+</g>
+<!-- sourcefile~test_distributedmeter.pf -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node22" class="node">
+<title>sourcefile~test_distributedmeter.pf</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node22"><a xlink:href="../sourcefile/test_distributedmeter.pf.html" xlink:title="test_DistributedMeter.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="462,-318 323,-318 323,-294 462,-294 462,-318"/>
+<text text-anchor="middle" x="392.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_DistributedMeter.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_distributedmeter.pf&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~test_distributedmeter.pf&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M322.71,-314.24C314.8,-317.34 307.31,-321.48 301,-327 237.32,-382.67 219.82,-489.68 215.15,-535.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="211.65,-535.72 214.23,-546 218.62,-536.35 211.65,-535.72"/>
+</g>
+<!-- sourcefile~test_exclusivecolumn.pf -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node23" class="node">
+<title>sourcefile~test_exclusivecolumn.pf</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node23"><a xlink:href="../sourcefile/test_exclusivecolumn.pf.html" xlink:title="test_ExclusiveColumn.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="463.5,-276 321.5,-276 321.5,-252 463.5,-252 463.5,-276"/>
+<text text-anchor="middle" x="392.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_ExclusiveColumn.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_exclusivecolumn.pf&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~test_exclusivecolumn.pf&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M321.08,-272.48C313.72,-275.57 306.81,-279.65 301,-285 227.16,-353.01 215.36,-483.32 213.67,-535.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="210.17,-535.65 213.45,-545.72 217.17,-535.8 210.17,-535.65"/>
+</g>
+<!-- sourcefile~test_meternode.pf -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node24" class="node">
+<title>sourcefile~test_meternode.pf</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node24"><a xlink:href="../sourcefile/test_meternode.pf.html" xlink:title="test_MeterNode.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="447,-234 338,-234 338,-210 447,-210 447,-234"/>
+<text text-anchor="middle" x="392.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_MeterNode.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_meternode.pf&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~test_meternode.pf&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M337.56,-224.9C324.2,-228.01 310.9,-233.52 301,-243 257.8,-284.38 226.41,-471.21 216.68,-535.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="213.21,-535.42 215.21,-545.83 220.13,-536.45 213.21,-535.42"/>
+</g>
+<!-- sourcefile~test_meternodeiterator.pf -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node25" class="node">
+<title>sourcefile~test_meternodeiterator.pf</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node25"><a xlink:href="../sourcefile/test_meternodeiterator.pf.html" xlink:title="test_MeterNodeIterator.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="466.5,-192 318.5,-192 318.5,-168 466.5,-168 466.5,-192"/>
+<text text-anchor="middle" x="392.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_MeterNodeIterator.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_meternodeiterator.pf&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge24" class="edge">
+<title>sourcefile~test_meternodeiterator.pf&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M318.49,-189.09C312.04,-192.12 306.05,-196.01 301,-201 252.52,-248.89 224.03,-465.35 215.92,-535.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="212.43,-535.45 214.79,-545.78 219.39,-536.24 212.43,-535.45"/>
+</g>
+<!-- sourcefile~test_namecolumn.pf -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node26" class="node">
+<title>sourcefile~test_namecolumn.pf</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node26"><a xlink:href="../sourcefile/test_namecolumn.pf.html" xlink:title="test_NameColumn.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="454.5,-150 330.5,-150 330.5,-126 454.5,-126 454.5,-150"/>
+<text text-anchor="middle" x="392.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_NameColumn.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_namecolumn.pf&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge25" class="edge">
+<title>sourcefile~test_namecolumn.pf&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M330.17,-142.43C319.3,-145.76 308.94,-150.97 301,-159 247.31,-213.34 222.02,-458.8 215.35,-535.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="211.83,-535.34 214.47,-545.6 218.8,-535.93 211.83,-535.34"/>
+</g>
+<!-- sourcefile~test_percentagecolumn.pf -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node27" class="node">
+<title>sourcefile~test_percentagecolumn.pf</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node27"><a xlink:href="../sourcefile/test_percentagecolumn.pf.html" xlink:title="test_PercentageColumn.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="468.5,-108 316.5,-108 316.5,-84 468.5,-84 468.5,-108"/>
+<text text-anchor="middle" x="392.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_PercentageColumn.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_percentagecolumn.pf&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge26" class="edge">
+<title>sourcefile~test_percentagecolumn.pf&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M316.09,-105.95C310.52,-108.85 305.38,-112.48 301,-117 241.88,-178.05 220.03,-454.33 214.82,-535.5"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="211.31,-535.42 214.19,-545.62 218.3,-535.86 211.31,-535.42"/>
+</g>
+<!-- sourcefile~test_profilereporter.pf -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node28" class="node">
+<title>sourcefile~test_profilereporter.pf</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node28"><a xlink:href="../sourcefile/test_profilereporter.pf.html" xlink:title="test_ProfileReporter.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="457,-66 328,-66 328,-42 457,-42 457,-66"/>
+<text text-anchor="middle" x="392.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_ProfileReporter.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_profilereporter.pf&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge27" class="edge">
+<title>sourcefile~test_profilereporter.pf&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M327.61,-58.95C317.62,-62.32 308.23,-67.41 301,-75 236.46,-142.77 218.26,-449.79 214.39,-535.64"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="210.88,-535.68 213.95,-545.82 217.88,-535.98 210.88,-535.68"/>
+</g>
+<!-- sourcefile~test_timeprofiler.pf -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_node29" class="node">
+<title>sourcefile~test_timeprofiler.pf</title>
+<g id="a_sourcefile~~mincyclecolumn.f90~~AfferentGraph_node29"><a xlink:href="../sourcefile/test_timeprofiler.pf.html" xlink:title="test_TimeProfiler.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="449,-24 336,-24 336,0 449,0 449,-24"/>
+<text text-anchor="middle" x="392.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_TimeProfiler.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_timeprofiler.pf&#45;&gt;sourcefile~mapl_profiler.f90 -->
+<g id="sourcefile~~mincyclecolumn.f90~~AfferentGraph_edge28" class="edge">
+<title>sourcefile~test_timeprofiler.pf&#45;&gt;sourcefile~mapl_profiler.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M335.93,-14.44C322.9,-17.6 310.16,-23.24 301,-33 231.09,-107.45 216.67,-444.75 214.04,-535.47"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="210.53,-535.63 213.76,-545.72 217.53,-535.82 210.53,-535.63"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="k">module </span><span class="n">MAPL_MinCycleColumn</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_SimpleColumn</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_AbstractMeterNode</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_AbstractMeter</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_AdvancedMeter</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">Mapl_DistributedMeter</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="k">   private</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MinCycleColumn</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">extends</span><span class="p">(</span><span class="n">SimpleColumn</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MinCycleColumn</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">      </span><span class="k">private</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="k">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">option</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_row</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">get_row_dist</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">   </span><span class="k">end type </span><span class="n">MinCycleColumn</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">   </span><span class="k">interface </span><span class="n">MinCycleColumn</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">      </span><span class="k">module procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_MinCycleColumn</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">   </span><span class="k">end interface </span><span class="n">MinCycleColumn</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a>
+<a id="ln-24" name="ln-24" href="#ln-24"></a>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="k">contains</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a>
+<a id="ln-27" name="ln-27" href="#ln-27"></a>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="k">   function </span><span class="n">new_MinCycleColumn</span><span class="p">(</span><span class="n">option</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MinCycleColumn</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">column</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">option</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="n">column</span><span class="p">%</span><span class="n">option</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">option</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">   </span><span class="k">end function </span><span class="n">new_MinCycleColumn</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a>
+<a id="ln-34" name="ln-34" href="#ln-34"></a>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">   </span><span class="k">function </span><span class="n">get_row</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">node</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">row</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">MinCycleColumn</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractMeterNode</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">node</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractMeter</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tmr</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">      </span><span class="n">tmr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">node</span><span class="p">%</span><span class="n">get_meter</span><span class="p">()</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">tmr</span><span class="p">)</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">      </span><span class="k">class is</span><span class="w"> </span><span class="p">(</span><span class="n">AdvancedMeter</span><span class="p">)</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="nb">allocated</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="k">            allocate</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="n">tmr</span><span class="p">%</span><span class="n">get_min_cycle</span><span class="p">())</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">         </span><span class="k">else</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="k">            call </span><span class="n">this</span><span class="p">%</span><span class="n">get_row_dist</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="n">row</span><span class="p">)</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">         </span><span class="k">end if</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="k">      end select</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="k">   end function </span><span class="n">get_row</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a>
+<a id="ln-53" name="ln-53" href="#ln-53"></a>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">get_row_dist</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="n">row</span><span class="p">)</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">MinCycleColumn</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">AbstractMeterNode</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">node</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">row</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractMeter</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">m</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">DistributedStatistics</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">stats</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">DistributedReal64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">min_cycle</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="n">m</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">node</span><span class="p">%</span><span class="n">get_meter</span><span class="p">()</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">      </span><span class="k">class is</span><span class="w"> </span><span class="p">(</span><span class="n">DistributedMeter</span><span class="p">)</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">         </span><span class="n">stats</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="p">%</span><span class="n">get_statistics</span><span class="p">()</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">         </span><span class="n">min_cycle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stats</span><span class="p">%</span><span class="n">min_cycle</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">         </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">fill_row</span><span class="p">(</span><span class="n">min_cycle</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">row</span><span class="p">)</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="k">   end subroutine </span><span class="n">get_row_dist</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="k">end module </span><span class="n">MAPL_MinCycleColumn</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-12-03T14:34:31.735011+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

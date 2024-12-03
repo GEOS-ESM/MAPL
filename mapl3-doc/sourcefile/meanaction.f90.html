@@ -1,0 +1,1230 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MeanAction.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MeanAction.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">143 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MeanAction.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">MeanAction.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_meanaction.html">mapl3g_MeanAction</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/meanaction.f90.html#src">MeanAction.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~meanaction.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilemeanactionf90EfferentGraph" width="641pt" height="210pt"
+ viewBox="0.00 0.00 641.00 209.71" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~meanaction.f90~~EfferentGraph" class="graph" transform="scale(0.37 0.37) rotate(0) translate(4 565.91)">
+<title>sourcefile~~meanaction.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-565.91 1738,-565.91 1738,4 -4,4"/>
+<!-- sourcefile~meanaction.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~meanaction.f90</title>
+<polygon fill="none" stroke="black" points="1734,-450.76 1637,-450.76 1637,-426.76 1734,-426.76 1734,-450.76"/>
+<text text-anchor="middle" x="1685.5" y="-436.36" font-family="Helvetica,sans-Serif" font-size="10.50">MeanAction.F90</text>
+</g>
+<!-- sourcefile~accumulatoraction.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~accumulatoraction.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/accumulatoraction.f90.html" xlink:title="AccumulatorAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1601,-450.76 1465,-450.76 1465,-426.76 1601,-426.76 1601,-450.76"/>
+<text text-anchor="middle" x="1533" y="-436.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AccumulatorAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~meanaction.f90&#45;&gt;sourcefile~accumulatoraction.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~meanaction.f90&#45;&gt;sourcefile~accumulatoraction.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1636.88,-438.76C1628.71,-438.76 1620.04,-438.76 1611.32,-438.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1611.11,-435.26 1601.11,-438.76 1611.11,-442.26 1611.11,-435.26"/>
+</g>
+<!-- sourcefile~fieldcreate.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~fieldcreate.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/fieldcreate.f90.html" xlink:title="FieldCreate.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1412,-366.76 1317,-366.76 1317,-342.76 1412,-342.76 1412,-366.76"/>
+<text text-anchor="middle" x="1364.5" y="-352.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldCreate.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~meanaction.f90&#45;&gt;sourcefile~fieldcreate.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~meanaction.f90&#45;&gt;sourcefile~fieldcreate.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1532,-396.76C1494.9,-388.11 1453.35,-377.63 1421.04,-369.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1421.89,-365.91 1411.33,-366.79 1420.13,-372.68 1421.89,-365.91"/>
+</g>
+<!-- sourcefile~fieldget.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~fieldget.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/fieldget.f90.html" xlink:title="FieldGet.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1404,-279.76 1325,-279.76 1325,-255.76 1404,-255.76 1404,-279.76"/>
+<text text-anchor="middle" x="1364.5" y="-265.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldGet.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~meanaction.f90&#45;&gt;sourcefile~fieldget.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~meanaction.f90&#45;&gt;sourcefile~fieldget.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1644.82,-426.67C1614.61,-417.72 1571.91,-405.59 1534,-396.76"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1532,-396.76C1498.06,-388.85 1422.37,-321.22 1385.91,-287.17"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1388.03,-284.36 1378.35,-280.06 1383.24,-289.46 1388.03,-284.36"/>
+</g>
+<!-- sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~fieldpointerutilities.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/fieldpointerutilities.f90.html" xlink:title="FieldPointerUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1264,-530.76 1128,-530.76 1128,-506.76 1264,-506.76 1264,-530.76"/>
+<text text-anchor="middle" x="1196" y="-516.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldPointerUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~meanaction.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~meanaction.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1667.69,-450.83C1621.52,-482.66 1488.07,-566 1365.5,-558.76"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1363.5,-558.76C1318.37,-561.1 1268.14,-546.56 1234.77,-534.36"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1235.99,-531.08 1225.4,-530.83 1233.53,-537.63 1235.99,-531.08"/>
+</g>
+<!-- sourcefile~fieldutilities.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~fieldutilities.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/fieldutilities.f90.html" xlink:title="FieldUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1414,-450.76 1315,-450.76 1315,-426.76 1414,-426.76 1414,-450.76"/>
+<text text-anchor="middle" x="1364.5" y="-436.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~meanaction.f90&#45;&gt;sourcefile~fieldutilities.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~meanaction.f90&#45;&gt;sourcefile~fieldutilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1532,-396.76C1520.53,-394.08 1459.76,-410.72 1414.94,-423.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1413.67,-420.56 1405.07,-426.75 1415.65,-427.28 1413.67,-420.56"/>
+</g>
+<!-- sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~internalconstants.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/internalconstants.f90.html" xlink:title="InternalConstants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1429,-408.76 1300,-408.76 1300,-384.76 1429,-384.76 1429,-408.76"/>
+<text text-anchor="middle" x="1364.5" y="-394.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">InternalConstants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~meanaction.f90&#45;&gt;sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~meanaction.f90&#45;&gt;sourcefile~internalconstants.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1532,-396.76C1502.16,-389.8 1468.48,-388.61 1439.26,-389.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1438.97,-386.1 1429.13,-390.03 1439.27,-393.1 1438.97,-386.1"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~mapl_exceptionhandling.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/mapl_exceptionhandling.f90.html" xlink:title="MAPL_ExceptionHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1092,-530.76 923,-530.76 923,-506.76 1092,-506.76 1092,-530.76"/>
+<text text-anchor="middle" x="1007.5" y="-516.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~meanaction.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~meanaction.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1363.5,-558.76C1262.4,-564 1145.91,-546.3 1074.75,-532.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1075.07,-529.27 1064.59,-530.81 1073.74,-536.15 1075.07,-529.27"/>
+</g>
+<!-- sourcefile~accumulatoraction.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~accumulatoraction.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1363.5,-478.76C1325.43,-485.51 1283.08,-495.73 1250.61,-504.14"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1249.66,-500.77 1240.87,-506.69 1251.43,-507.54 1249.66,-500.77"/>
+</g>
+<!-- sourcefile~accumulatoraction.f90&#45;&gt;sourcefile~fieldutilities.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~accumulatoraction.f90&#45;&gt;sourcefile~fieldutilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1464.76,-438.76C1451.37,-438.76 1437.41,-438.76 1424.33,-438.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1424.05,-435.26 1414.05,-438.76 1424.05,-442.26 1424.05,-435.26"/>
+</g>
+<!-- sourcefile~accumulatoraction.f90&#45;&gt;sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~accumulatoraction.f90&#45;&gt;sourcefile~internalconstants.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1484.29,-426.72C1465.22,-421.91 1443.08,-416.33 1423.12,-411.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1423.77,-407.85 1413.22,-408.79 1422.06,-414.63 1423.77,-407.85"/>
+</g>
+<!-- sourcefile~accumulatoraction.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~accumulatoraction.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1195,-478.76C1147.54,-481.27 1094.69,-493.53 1057.4,-503.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1055.99,-500.59 1047.31,-506.67 1057.88,-507.33 1055.99,-500.59"/>
+</g>
+<!-- sourcefile~extensionaction.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~extensionaction.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~EfferentGraph_node10"><a xlink:href="../sourcefile/extensionaction.f90.html" xlink:title="ExtensionAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="874.5,-492.76 754.5,-492.76 754.5,-468.76 874.5,-468.76 874.5,-492.76"/>
+<text text-anchor="middle" x="814.5" y="-478.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtensionAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~accumulatoraction.f90&#45;&gt;sourcefile~extensionaction.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~accumulatoraction.f90&#45;&gt;sourcefile~extensionaction.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1488.13,-450.82C1454.73,-459.64 1407.5,-471.3 1365.5,-478.76"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1363.5,-478.76C1290.64,-491.68 1270.9,-474.85 1197,-478.76"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1195,-478.76C1086.92,-484.47 961.28,-483.68 885.12,-482.37"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="884.77,-478.87 874.71,-482.19 884.65,-485.86 884.77,-478.87"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="245,-280.76 136,-280.76 136,-256.76 245,-256.76 245,-280.76"/>
+<text text-anchor="middle" x="190.5" y="-266.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M1195,-401.76C1110.38,-404.96 1093.06,-436.28 1008.5,-440.76"/>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M1006.5,-440.76C888.81,-446.98 858.55,-442.23 742,-459.76 700.95,-465.93 692.38,-484.06 651,-480.76"/>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M649,-480.76C512.27,-467.36 487.03,-423.44 355.5,-383.76"/>
+</g>
+<!-- sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_node11" class="node">
+<title>sourcefile~fieldinfo.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~EfferentGraph_node11"><a xlink:href="../sourcefile/fieldinfo.f90.html" xlink:title="FieldInfo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1235.5,-259.76 1156.5,-259.76 1156.5,-235.76 1235.5,-235.76 1235.5,-259.76"/>
+<text text-anchor="middle" x="1196" y="-245.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldInfo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~fieldinfo.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M1344.72,-342.69C1315.29,-323.78 1258.16,-287.06 1224.21,-265.25"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="1226.01,-262.24 1215.71,-259.78 1222.23,-268.13 1226.01,-262.24"/>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_node13" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~EfferentGraph_node13"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="416.5,-262.76 292.5,-262.76 292.5,-238.76 416.5,-238.76 416.5,-262.76"/>
+<text text-anchor="middle" x="354.5" y="-248.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M1195,-401.76C1112.17,-404.89 1091.3,-406.7 1008.5,-402.76"/>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M1006.5,-402.76C886.01,-397.02 572.05,-437.39 464,-383.76 415.59,-359.73 381.31,-302.99 365.44,-271.95"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="368.51,-270.26 360.94,-262.85 362.24,-273.36 368.51,-270.26"/>
+</g>
+<!-- sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_node14" class="node">
+<title>sourcefile~lu_bound.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~EfferentGraph_node14"><a xlink:href="../sourcefile/lu_bound.f90.html" xlink:title="LU_Bound.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="555,-374.76 467,-374.76 467,-350.76 555,-350.76 555,-374.76"/>
+<text text-anchor="middle" x="511" y="-360.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LU_Bound.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M1195,-401.76C1143.93,-403.07 1141.74,-362.4 1092,-350.76 972.19,-322.72 938.4,-358.72 815.5,-364.76"/>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M813.5,-364.76C741.3,-366.53 723.15,-361.56 651,-364.76"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_node16" class="node">
+<title>sourcefile~ungriddeddims.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~EfferentGraph_node16"><a xlink:href="../sourcefile/ungriddeddims.f90.html" xlink:title="UngriddedDims.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1066.5,-279.76 948.5,-279.76 948.5,-255.76 1066.5,-255.76 1066.5,-279.76"/>
+<text text-anchor="middle" x="1007.5" y="-265.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDims.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M1324.47,-366.87C1279.4,-380.69 1209.8,-401.43 1197,-401.76"/>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M1195,-401.76C1134.52,-403.31 1141.81,-347.09 1092,-312.76 1076.73,-302.23 1058.73,-292.26 1043.37,-284.39"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="1044.69,-281.14 1034.19,-279.77 1041.55,-287.39 1044.69,-281.14"/>
+</g>
+<!-- sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_node17" class="node">
+<title>sourcefile~verticalstaggerloc.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~EfferentGraph_node17"><a xlink:href="../sourcefile/verticalstaggerloc.f90.html" xlink:title="VerticalStaggerLoc.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1075.5,-68.76 939.5,-68.76 939.5,-44.76 1075.5,-44.76 1075.5,-68.76"/>
+<text text-anchor="middle" x="1007.5" y="-54.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalStaggerLoc.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M1349.87,-342.44C1336.29,-329.77 1315.32,-309.07 1300,-288.76 1280.82,-263.31 1284.53,-251.13 1264,-226.76 1199.78,-150.5 1179.52,-130.51 1092,-82.76 1084.53,-78.68 1076.32,-75.14 1068.07,-72.1"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="1068.99,-68.72 1058.39,-68.76 1066.7,-75.33 1068.99,-68.72"/>
+</g>
+<!-- sourcefile~fieldget.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~fieldget.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M1360.33,-255.7C1348.18,-212.41 1300.05,-64.89 1197,-16.76"/>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M1195,-16.76C1119.9,18.32 1091.27,-12.27 1008.5,-16.76"/>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M1006.5,-16.76C921.73,-21.35 900.38,-17.37 815.5,-18.76"/>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M813.5,-18.76C739.34,-19.97 725.13,-59.23 651,-56.76"/>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M649,-56.76C480.4,-51.13 420.1,-54.31 281,-149.76 243.98,-175.16 216,-220.86 201.83,-247.63"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="198.7,-246.07 197.24,-256.56 204.92,-249.27 198.7,-246.07"/>
+</g>
+<!-- sourcefile~fieldget.f90&#45;&gt;sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~fieldget.f90&#45;&gt;sourcefile~fieldinfo.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M1324.88,-263.12C1301.33,-260.29 1271,-256.65 1245.79,-253.62"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="1246.04,-250.12 1235.7,-252.4 1245.21,-257.07 1246.04,-250.12"/>
+</g>
+<!-- sourcefile~fieldget.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~fieldget.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M1006.5,-16.76C989.93,-17.66 863.52,-41.09 512,-132.76"/>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M510,-132.76C494.83,-137.71 417.7,-199.79 378.47,-231.85"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="375.79,-229.53 370.27,-238.58 380.22,-234.95 375.79,-229.53"/>
+</g>
+<!-- sourcefile~fieldget.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~fieldget.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M1324.75,-268.24C1306.35,-268.44 1284.04,-268.66 1264,-268.76 1203.56,-269.06 1188.44,-269.01 1128,-268.76 1111.42,-268.69 1093.55,-268.56 1076.8,-268.43"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="1076.57,-264.92 1066.55,-268.34 1076.52,-271.92 1076.57,-264.92"/>
+</g>
+<!-- sourcefile~fieldget.f90&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~fieldget.f90&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M1195,-16.76C1182.9,-11.11 1112.05,-28.44 1061.26,-42.05"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="1060.14,-38.73 1051.39,-44.72 1061.96,-45.49 1060.14,-38.73"/>
+</g>
+<!-- sourcefile~fieldpointerutilities.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~fieldpointerutilities.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M1127.93,-518.76C1119.6,-518.76 1110.97,-518.76 1102.32,-518.76"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="1102.2,-515.26 1092.2,-518.76 1102.2,-522.26 1102.2,-515.26"/>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge27" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M1329.07,-450.87C1319.41,-454.79 1309.07,-459.5 1300,-464.76 1282.46,-474.91 1281.63,-482.76 1264,-492.76 1257.51,-496.44 1250.39,-499.82 1243.3,-502.83"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="1241.65,-499.72 1233.7,-506.72 1244.28,-506.21 1241.65,-499.72"/>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M1195,-439.76C1113.4,-425.2 1091.1,-433.81 1008.5,-440.76"/>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge26" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~fieldinfo.f90</title>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M1314.82,-426.72C1309.52,-424.26 1304.45,-421.3 1300,-417.76 1249.64,-377.64 1217.98,-305.69 1204.5,-269.63"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="1207.74,-268.28 1201.05,-260.06 1201.15,-270.65 1207.74,-268.28"/>
+</g>
+<!-- sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_node12" class="node">
+<title>sourcefile~infoutilities.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~EfferentGraph_node12"><a xlink:href="../sourcefile/infoutilities.f90.html" xlink:title="InfoUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="558,-222.76 464,-222.76 464,-198.76 558,-198.76 558,-222.76"/>
+<text text-anchor="middle" x="511" y="-208.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">InfoUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge28" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~infoutilities.f90</title>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M1195,-439.76C1163.86,-434.2 1155.85,-430.75 1128,-415.76 1110.39,-406.28 1109.91,-397.67 1092,-388.76 1057.43,-371.56 1046.02,-373.88 1008.5,-364.76"/>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M1006.5,-364.76C823.69,-320.33 765.39,-347.33 594,-269.76 571.49,-259.57 548.91,-242.72 533.17,-229.63"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="535.05,-226.63 525.17,-222.81 530.51,-231.96 535.05,-226.63"/>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge29" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M1195,-439.76C1111.81,-424.91 1092.96,-405.47 1008.5,-402.76"/>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge30" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M1006.5,-364.76C924.01,-344.71 900.36,-362.67 815.5,-364.76"/>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge31" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M1314.65,-443.69C1281.26,-445.93 1236.13,-446.74 1197,-439.76"/>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M1195,-439.76C1163.86,-434.2 1152.1,-436.24 1128,-415.76 1102.84,-394.37 1111.91,-377.1 1092,-350.76 1073.73,-326.57 1048.61,-302.56 1030.7,-286.63"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="1032.86,-283.87 1023.03,-279.91 1028.25,-289.13 1032.86,-283.87"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge32" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M950.55,-530.78C835.42,-552.99 565.24,-592.03 355.5,-520.76"/>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M353.5,-520.76C257.23,-476.79 211.65,-343.51 197,-290.67"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="200.37,-289.71 194.41,-280.95 193.61,-291.52 200.37,-289.71"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_node15" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~EfferentGraph_node15"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="100,-320.76 0,-320.76 0,-296.76 100,-296.76 100,-320.76"/>
+<text text-anchor="middle" x="50" y="-306.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge33" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M353.5,-520.76C237.38,-467.73 118.96,-369 72.01,-327.69"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="74.15,-324.91 64.35,-320.89 69.51,-330.15 74.15,-324.91"/>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge34" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M147.95,-280.76C133.7,-284.87 117.57,-289.53 102.63,-293.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="101.64,-290.49 93,-296.63 103.58,-297.21 101.64,-290.49"/>
+</g>
+<!-- sourcefile~extensionaction.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge35" class="edge">
+<title>sourcefile~extensionaction.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ffaa00" stroke-dasharray="5,2" d="M754.36,-483.01C723.51,-483.62 685.17,-483.48 651,-480.76"/>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge36" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M1182.02,-235.56C1146.65,-202.61 1048.58,-113.2 1008.5,-96.76"/>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M1006.5,-96.76C971.29,-82.31 958.58,-91.27 923,-77.76 872.05,-58.41 869.99,-17.87 815.5,-18.76"/>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge37" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~infoutilities.f90</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M649,-170.76C613.25,-170.88 574.28,-183.57 547.08,-194.63"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="545.48,-191.5 537.61,-198.6 548.19,-197.95 545.48,-191.5"/>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge38" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M1006.5,-96.76C968.5,-83.19 691.35,-170.61 651,-170.76"/>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M649,-170.76C586.25,-178.14 573.14,-116.81 512,-132.76"/>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge40" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M1156.36,-251.9C1133.37,-254.37 1103.54,-257.56 1076.7,-260.44"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="1076.15,-256.98 1066.59,-261.53 1076.9,-263.94 1076.15,-256.98"/>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge41" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M1184.93,-235.6C1171.12,-218.6 1145.96,-186.47 1128,-156.76 1109.08,-125.46 1119.74,-106.6 1092,-82.76 1087.75,-79.11 1083,-75.97 1077.97,-73.27"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="1079.21,-69.99 1068.67,-68.88 1076.21,-76.31 1079.21,-69.99"/>
+</g>
+<!-- sourcefile~mapl_esmf_infokeys.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_node18" class="node">
+<title>sourcefile~mapl_esmf_infokeys.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~EfferentGraph_node18"><a xlink:href="../sourcefile/mapl_esmf_infokeys.f90.html" xlink:title="MAPL_ESMF_InfoKeys.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="428,-182.76 281,-182.76 281,-158.76 428,-158.76 428,-182.76"/>
+<text text-anchor="middle" x="354.5" y="-168.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMF_InfoKeys.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge39" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90</title>
+<path fill="none" stroke="#aaff00" stroke-dasharray="5,2" d="M1006.5,-96.76C894.26,-52.49 581.09,-89.64 464,-118.76 435.04,-125.96 404.61,-141.32 383.38,-153.48"/>
+<polygon fill="#aaff00" stroke="#aaff00" points="381.44,-150.56 374.59,-158.64 384.98,-156.6 381.44,-150.56"/>
+</g>
+<!-- sourcefile~infoutilities.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge42" class="edge">
+<title>sourcefile~infoutilities.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M463.65,-210.19C416.87,-210.64 342.89,-214.16 281,-229.76 260.94,-234.81 239.67,-243.91 222.89,-252.05"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="220.97,-249.1 213.58,-256.69 224.09,-255.36 220.97,-249.1"/>
+</g>
+<!-- sourcefile~infoutilities.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge43" class="edge">
+<title>sourcefile~infoutilities.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M463.64,-222.76C447.37,-226.97 428.91,-231.75 411.91,-236.15"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="410.89,-232.8 402.09,-238.69 412.65,-239.58 410.89,-232.8"/>
+</g>
+<!-- sourcefile~infoutilities.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge44" class="edge">
+<title>sourcefile~infoutilities.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M463.64,-198.76C447.37,-194.54 428.91,-189.76 411.91,-185.36"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="412.65,-181.94 402.09,-182.82 410.89,-188.71 412.65,-181.94"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge45" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M995.37,-255.48C954.49,-211.76 806.84,-65.73 651,-56.76"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge46" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~infoutilities.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M649,-208.76C622.52,-207.05 593.1,-207.21 568.33,-207.93"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="567.9,-204.45 558.02,-208.28 568.13,-211.44 567.9,-204.45"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge47" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M975.29,-279.93C914.21,-302.92 774.09,-351.62 651,-364.76"/>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M649,-364.76C621.43,-365.98 590.71,-365.68 565.36,-364.99"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="565.31,-361.49 555.21,-364.69 565.1,-368.49 565.31,-361.49"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge48" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M980.03,-255.64C943.81,-239.99 876.35,-214.12 815.5,-208.76"/>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M813.5,-208.76C741.56,-202.42 723.07,-213.4 651,-208.76"/>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M649,-208.76C607.77,-206.1 598.85,-195.92 558,-189.76 518.9,-183.86 475.27,-179.49 438.54,-176.43"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="438.63,-172.93 428.38,-175.61 438.06,-179.9 438.63,-172.93"/>
+</g>
+<!-- sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_node19" class="node">
+<title>sourcefile~ungriddeddim.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~EfferentGraph_node19"><a xlink:href="../sourcefile/ungriddeddim.f90.html" xlink:title="UngriddedDim.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="706,-260.76 594,-260.76 594,-236.76 706,-236.76 706,-260.76"/>
+<text text-anchor="middle" x="650" y="-246.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDim.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge49" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddim.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M813.5,-208.76C769.04,-204.84 719.43,-220.03 686.86,-232.8"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="685.27,-229.66 677.32,-236.66 687.9,-236.15 685.27,-229.66"/>
+</g>
+<!-- sourcefile~ungriddeddimvector.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_node20" class="node">
+<title>sourcefile~ungriddeddimvector.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~EfferentGraph_node20"><a xlink:href="../sourcefile/ungriddeddimvector.f90.html" xlink:title="UngriddedDimVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="887,-260.76 742,-260.76 742,-236.76 887,-236.76 887,-260.76"/>
+<text text-anchor="middle" x="814.5" y="-246.36" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDimVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddimvector.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge50" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddimvector.f90</title>
+<path fill="none" stroke="#aa00ff" stroke-dasharray="5,2" d="M948.42,-261.98C932.27,-260.37 914.43,-258.6 897.2,-256.88"/>
+<polygon fill="#aa00ff" stroke="#aa00ff" points="897.44,-253.39 887.14,-255.88 896.74,-260.36 897.44,-253.39"/>
+</g>
+<!-- sourcefile~mapl_esmf_infokeys.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge51" class="edge">
+<title>sourcefile~mapl_esmf_infokeys.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M312.56,-182.76C301.97,-186.58 290.8,-191.26 281,-196.76 254.99,-211.34 228.83,-233.45 211.57,-249.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="208.75,-247.16 203.85,-256.55 213.54,-252.27 208.75,-247.16"/>
+</g>
+<!-- sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge52" class="edge">
+<title>sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M624.86,-260.93C557.16,-294.92 369.53,-388.09 355.5,-383.76"/>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M353.5,-383.76C294.04,-365.82 238.07,-316.22 210.11,-288.37"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="212.49,-285.81 202.98,-281.14 207.51,-290.72 212.49,-285.81"/>
+</g>
+<!-- sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge53" class="edge">
+<title>sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~infoutilities.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M605.65,-236.73C592.91,-233.2 578.82,-229.29 565.52,-225.6"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="566.11,-222.13 555.54,-222.83 564.24,-228.88 566.11,-222.13"/>
+</g>
+<!-- sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge54" class="edge">
+<title>sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M638.35,-260.86C622.16,-278.82 589.87,-312.95 558,-336.76 553.88,-339.83 549.36,-342.81 544.81,-345.58"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="543.01,-342.58 536.12,-350.63 546.53,-348.63 543.01,-342.58"/>
+</g>
+<!-- sourcefile~ungriddeddimvector.f90&#45;&gt;sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~meanaction.f90~~EfferentGraph_edge55" class="edge">
+<title>sourcefile~ungriddeddimvector.f90&#45;&gt;sourcefile~ungriddeddim.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M741.75,-248.76C733.29,-248.76 724.69,-248.76 716.32,-248.76"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="716.26,-245.26 706.26,-248.76 716.26,-252.26 716.26,-245.26"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilemeanactionf90EfferentGraph = svgPanZoom('#sourcefilemeanactionf90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~meanaction.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilemeanactionf90AfferentGraph" width="641pt" height="119pt"
+ viewBox="0.00 0.00 641.00 118.58" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~meanaction.f90~~AfferentGraph" class="graph" transform="scale(0.67 0.67) rotate(0) translate(4 173.59)">
+<title>sourcefile~~meanaction.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-173.59 956,-173.59 956,4 -4,4"/>
+<!-- sourcefile~meanaction.f90 -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~meanaction.f90</title>
+<polygon fill="none" stroke="black" points="97,-85 0,-85 0,-61 97,-61 97,-85"/>
+<text text-anchor="middle" x="48.5" y="-70.6" font-family="Helvetica,sans-Serif" font-size="10.50">MeanAction.F90</text>
+</g>
+<!-- sourcefile~accumulatoractioninterface.f90 -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~accumulatoractioninterface.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/accumulatoractioninterface.f90.html" xlink:title="AccumulatorActionInterface.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="317,-106 133,-106 133,-82 317,-82 317,-106"/>
+<text text-anchor="middle" x="225" y="-91.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AccumulatorActionInterface.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~accumulatoractioninterface.f90&#45;&gt;sourcefile~meanaction.f90 -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~accumulatoractioninterface.f90&#45;&gt;sourcefile~meanaction.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M132.92,-83.04C124.1,-81.98 115.34,-80.92 107,-79.92"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="107.39,-76.44 97.04,-78.72 106.55,-83.39 107.39,-76.44"/>
+</g>
+<!-- sourcefile~test_meanaction.pf -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~test_meanaction.pf</title>
+<g id="a_sourcefile~~meanaction.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/test_meanaction.pf.html" xlink:title="Test_MeanAction.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="282,-64 168,-64 168,-40 282,-40 282,-64"/>
+<text text-anchor="middle" x="225" y="-49.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_MeanAction.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_meanaction.pf&#45;&gt;sourcefile~meanaction.f90 -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~test_meanaction.pf&#45;&gt;sourcefile~meanaction.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M167.83,-58.76C148.4,-61.1 126.6,-63.72 107.06,-66.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="106.59,-62.6 97.08,-67.27 107.42,-69.55 106.59,-62.6"/>
+</g>
+<!-- sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~fieldspec.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/fieldspec.f90.html" xlink:title="FieldSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="439,-106 353,-106 353,-82 439,-82 439,-106"/>
+<text text-anchor="middle" x="396" y="-91.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldspec.f90&#45;&gt;sourcefile~accumulatoractioninterface.f90 -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~fieldspec.f90&#45;&gt;sourcefile~accumulatoractioninterface.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M352.79,-94C344.83,-94 336.2,-94 327.32,-94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="327.19,-90.5 317.19,-94 327.19,-97.5 327.19,-90.5"/>
+</g>
+<!-- sourcefile~bracketspec.f90 -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~bracketspec.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/bracketspec.f90.html" xlink:title="BracketSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="588,-146 485,-146 485,-122 588,-122 588,-146"/>
+<text text-anchor="middle" x="536.5" y="-131.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BracketSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~bracketspec.f90&#45;&gt;sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~bracketspec.f90&#45;&gt;sourcefile~fieldspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M493.95,-122C479.7,-117.88 463.57,-113.23 448.63,-108.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="449.58,-105.54 439,-106.13 447.64,-112.27 449.58,-105.54"/>
+</g>
+<!-- sourcefile~make_itemspec.f90 -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~make_itemspec.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/make_itemspec.f90.html" xlink:title="make_itemSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="759.5,-167 638.5,-167 638.5,-143 759.5,-143 759.5,-167"/>
+<text text-anchor="middle" x="699" y="-152.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_itemSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~make_itemspec.f90&#45;&gt;sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~make_itemspec.f90&#45;&gt;sourcefile~fieldspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M638.04,-165.37C592.12,-170.88 527.89,-173.23 475,-155 451.28,-146.82 429.25,-128.14 414.69,-113.59"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="416.87,-110.8 407.41,-106.02 411.83,-115.66 416.87,-110.8"/>
+</g>
+<!-- sourcefile~make_itemspec.f90&#45;&gt;sourcefile~bracketspec.f90 -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~make_itemspec.f90&#45;&gt;sourcefile~bracketspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M638.24,-147.18C625.23,-145.48 611.45,-143.68 598.39,-141.97"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="598.48,-138.45 588.11,-140.62 597.57,-145.39 598.48,-138.45"/>
+</g>
+<!-- sourcefile~modelverticalgrid.f90 -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~modelverticalgrid.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/modelverticalgrid.f90.html" xlink:title="ModelVerticalGrid.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="764,-83 634,-83 634,-59 764,-59 764,-83"/>
+<text text-anchor="middle" x="699" y="-68.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ModelVerticalGrid.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~modelverticalgrid.f90&#45;&gt;sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~modelverticalgrid.f90&#45;&gt;sourcefile~fieldspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M641.09,-83C610.53,-88.47 572.12,-93.79 537.5,-94"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M535.5,-94C506.95,-94.18 475.09,-94.19 449.13,-94.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="449.13,-90.65 439.13,-94.13 449.12,-97.65 449.13,-90.65"/>
+</g>
+<!-- sourcefile~test_addfieldspec.pf -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~test_addfieldspec.pf</title>
+<g id="a_sourcefile~~meanaction.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/test_addfieldspec.pf.html" xlink:title="Test_AddFieldSpec.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="598,-66 475,-66 475,-42 598,-42 598,-66"/>
+<text text-anchor="middle" x="536.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_AddFieldSpec.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_addfieldspec.pf&#45;&gt;sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~test_addfieldspec.pf&#45;&gt;sourcefile~fieldspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M493.95,-66C479.7,-70.12 463.57,-74.77 448.63,-79.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="447.64,-75.73 439,-81.87 449.58,-82.46 447.64,-75.73"/>
+</g>
+<!-- sourcefile~test_bracketspec.pf -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~test_bracketspec.pf</title>
+<g id="a_sourcefile~~meanaction.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/test_bracketspec.pf.html" xlink:title="Test_BracketSpec.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="758.5,-125 639.5,-125 639.5,-101 758.5,-101 758.5,-125"/>
+<text text-anchor="middle" x="699" y="-110.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_BracketSpec.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_bracketspec.pf&#45;&gt;sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~test_bracketspec.pf&#45;&gt;sourcefile~fieldspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M639.5,-102.55C609.16,-98.02 571.45,-93.79 537.5,-94"/>
+</g>
+<!-- sourcefile~test_bracketspec.pf&#45;&gt;sourcefile~bracketspec.f90 -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~test_bracketspec.pf&#45;&gt;sourcefile~bracketspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M639.15,-120.7C625.82,-122.44 611.63,-124.3 598.23,-126.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="597.61,-122.6 588.15,-127.37 598.52,-129.55 597.61,-122.6"/>
+</g>
+<!-- sourcefile~test_fieldspec.pf -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~test_fieldspec.pf</title>
+<g id="a_sourcefile~~meanaction.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/test_fieldspec.pf.html" xlink:title="Test_FieldSpec.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="588,-24 485,-24 485,0 588,0 588,-24"/>
+<text text-anchor="middle" x="536.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_FieldSpec.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_fieldspec.pf&#45;&gt;sourcefile~fieldspec.f90 -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~test_fieldspec.pf&#45;&gt;sourcefile~fieldspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M494.68,-24.1C487.94,-26.67 481.15,-29.65 475,-33 453.73,-44.59 432.24,-61.9 417.22,-75.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="414.68,-72.7 409.59,-81.99 419.36,-77.91 414.68,-72.7"/>
+</g>
+<!-- sourcefile~initialize_advertise.f90 -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~initialize_advertise.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/initialize_advertise.f90.html" xlink:title="initialize_advertise.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="943,-167 809,-167 809,-143 943,-143 943,-167"/>
+<text text-anchor="middle" x="876" y="-152.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_advertise.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~initialize_advertise.f90&#45;&gt;sourcefile~make_itemspec.f90 -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~initialize_advertise.f90&#45;&gt;sourcefile~make_itemspec.f90</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M808.84,-155C796.09,-155 782.69,-155 769.82,-155"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="769.64,-151.5 759.64,-155 769.64,-158.5 769.64,-151.5"/>
+</g>
+<!-- sourcefile~parse_geometry_spec.f90 -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~parse_geometry_spec.f90</title>
+<g id="a_sourcefile~~meanaction.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/parse_geometry_spec.f90.html" xlink:title="parse_geometry_spec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="952,-83 800,-83 800,-59 952,-59 952,-83"/>
+<text text-anchor="middle" x="876" y="-68.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_geometry_spec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~parse_geometry_spec.f90&#45;&gt;sourcefile~modelverticalgrid.f90 -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~parse_geometry_spec.f90&#45;&gt;sourcefile~modelverticalgrid.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M799.77,-71C791.34,-71 782.75,-71 774.33,-71"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="774.17,-67.5 764.17,-71 774.17,-74.5 774.17,-67.5"/>
+</g>
+<!-- sourcefile~test_modelverticalgrid.pf -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~test_modelverticalgrid.pf</title>
+<g id="a_sourcefile~~meanaction.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/test_modelverticalgrid.pf.html" xlink:title="Test_ModelVerticalGrid.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="949,-125 803,-125 803,-101 949,-101 949,-125"/>
+<text text-anchor="middle" x="876" y="-110.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ModelVerticalGrid.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_modelverticalgrid.pf&#45;&gt;sourcefile~make_itemspec.f90 -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~test_modelverticalgrid.pf&#45;&gt;sourcefile~make_itemspec.f90</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M824.85,-125.04C804.62,-129.89 781.12,-135.53 759.99,-140.6"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="759.06,-137.23 750.16,-142.96 760.7,-144.03 759.06,-137.23"/>
+</g>
+<!-- sourcefile~test_modelverticalgrid.pf&#45;&gt;sourcefile~modelverticalgrid.f90 -->
+<g id="sourcefile~~meanaction.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~test_modelverticalgrid.pf&#45;&gt;sourcefile~modelverticalgrid.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M824.85,-100.96C804.62,-96.11 781.12,-90.47 759.99,-85.4"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="760.7,-81.97 750.16,-83.04 759.06,-88.77 760.7,-81.97"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilemeanactionf90AfferentGraph = svgPanZoom('#sourcefilemeanactionf90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_Generic.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="k">module </span><span class="n">mapl3g_MeanAction</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_AccumulatorAction</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_InternalConstantsMod</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">MAPL_UNDEFINED_REAL</span><span class="p">,</span><span class="w"> </span><span class="n">MAPL_UNDEFINED_REAL64</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_ExceptionHandling</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_FieldPointerUtilities</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">assign_fptr</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_FieldCreate</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">MAPL_FieldCreate</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_FieldGet</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">MAPL_FieldGet</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_FieldUtilities</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">FieldSet</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">use </span><span class="n">ESMF</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="k">   private</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MeanAction</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">construct_MeanAction</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">   </span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">extends</span><span class="p">(</span><span class="n">AccumulatorAction</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MeanAction</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">counter_field</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clear</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">clear_mean</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">create_fields</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">create_fields_mean</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">update_result</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">update_result_mean</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">calculate_mean</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">calculate_mean_R4</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">accumulate_R4</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">   </span><span class="k">end type </span><span class="n">MeanAction</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">   </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TypeKind_Flag</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">COUNTER_TYPEKIND</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_I4</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">   </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">COUNTER_KIND</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_KIND_I4</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="k">contains</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="k">   function </span><span class="n">construct_MeanAction</span><span class="p">(</span><span class="n">typekind</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">acc</span><span class="p">)</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MeanAction</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">acc</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TypeKind_Flag</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">typekind</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="n">acc</span><span class="p">%</span><span class="n">typekind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">typekind</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">   </span><span class="k">end function </span><span class="n">construct_MeanAction</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">create_fields_mean</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">import_field</span><span class="p">,</span><span class="w"> </span><span class="n">export_field</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MeanAction</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">import_field</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">export_field</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gmap</span><span class="p">(:)</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ndims</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN_IF</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">initialized</span><span class="p">)</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">AccumulatorAction</span><span class="p">%</span><span class="n">create_fields</span><span class="p">(</span><span class="n">import_field</span><span class="p">,</span><span class="w"> </span><span class="n">export_field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">      </span><span class="k">associate</span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">accumulation_field</span><span class="p">)</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">         </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">dimCount</span><span class="o">=</span><span class="n">ndims</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">gmap</span><span class="p">(</span><span class="n">ndims</span><span class="p">))</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">         </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">gridToFieldMap</span><span class="o">=</span><span class="n">gmap</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">         </span><span class="n">this</span><span class="p">%</span><span class="n">counter_field</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">MAPL_FieldCreate</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_I4</span><span class="p">,</span><span class="w"> </span><span class="n">gridToFieldMap</span><span class="o">=</span><span class="n">gmap</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">      </span><span class="k">end associate</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">create_fields_mean</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">clear_mean</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MeanAction</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">      </span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="n">COUNTER_KIND</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">counter</span><span class="p">(:)</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">AccumulatorAction</span><span class="p">%</span><span class="n">clear</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">      </span><span class="n">counter</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">      </span><span class="k">call </span><span class="n">assign_fptr</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">counter_field</span><span class="p">,</span><span class="w"> </span><span class="n">counter</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">      </span><span class="n">counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0_COUNTER_KIND</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">clear_mean</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">calculate_mean</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MeanAction</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">typekind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="k">         call </span><span class="n">this</span><span class="p">%</span><span class="n">calculate_mean_R4</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">      </span><span class="k">else</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="k">         </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Unsupported typekind&#39;</span><span class="p">)</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">      </span><span class="k">end if</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">calculate_mean</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a>
+<a id="ln-93" name="ln-93" href="#ln-93"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">update_result_mean</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MeanAction</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">calculate_mean</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">AccumulatorAction</span><span class="p">%</span><span class="n">update_result</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">update_result_mean</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">calculate_mean_R4</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MeanAction</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">current_ptr</span><span class="p">(:)</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">COUNTER_KIND</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">counter</span><span class="p">(:)</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">UNDEF</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_UNDEFINED_REAL</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">      </span><span class="n">current_ptr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">      </span><span class="n">counter</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">      </span><span class="k">call </span><span class="n">assign_fptr</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">accumulation_field</span><span class="p">,</span><span class="w"> </span><span class="n">current_ptr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">      </span><span class="k">call </span><span class="n">assign_fptr</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">counter_field</span><span class="p">,</span><span class="w"> </span><span class="n">counter</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">      </span><span class="k">where</span><span class="p">(</span><span class="n">counter</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a><span class="w">         </span><span class="n">current_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_ptr</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">counter</span>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">      </span><span class="n">elsewhere</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">         </span><span class="n">current_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UNDEF</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="w">      </span><span class="k">end where</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">calculate_mean_R4</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">accumulate_R4</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">update_field</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MeanAction</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">update_field</span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">current</span><span class="p">(:)</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">latest</span><span class="p">(:)</span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="w">      </span><span class="kt">integer</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">COUNTER_KIND</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">counter</span><span class="p">(:)</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">UNDEF</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_UNDEFINED_REAL</span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="w">      </span><span class="n">current</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="w">      </span><span class="n">latest</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">      </span><span class="n">counter</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">null</span><span class="p">()</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="w">      </span><span class="k">call </span><span class="n">assign_fptr</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">accumulation_field</span><span class="p">,</span><span class="w"> </span><span class="n">current</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="w">      </span><span class="k">call </span><span class="n">assign_fptr</span><span class="p">(</span><span class="n">update_field</span><span class="p">,</span><span class="w"> </span><span class="n">latest</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="w">      </span><span class="k">call </span><span class="n">assign_fptr</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">counter_field</span><span class="p">,</span><span class="w"> </span><span class="n">counter</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="w">      </span><span class="k">where</span><span class="p">(</span><span class="n">latest</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">UNDEF</span><span class="p">)</span>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="w">        </span><span class="n">current</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">latest</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a><span class="w">        </span><span class="n">counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">counter</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1_COUNTER_KIND</span>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="w">      </span><span class="k">end where</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="k">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a>
+<a id="ln-150" name="ln-150" href="#ln-150"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">accumulate_R4</span>
+<a id="ln-151" name="ln-151" href="#ln-151"></a>
+<a id="ln-152" name="ln-152" href="#ln-152"></a><span class="k">end module </span><span class="n">mapl3g_MeanAction</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-12-03T14:34:31.735011+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

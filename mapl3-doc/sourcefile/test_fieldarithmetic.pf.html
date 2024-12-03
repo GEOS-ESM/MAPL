@@ -1,0 +1,907 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Test_FieldArithmetic.pf &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Test_FieldArithmetic.pf
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for source files.">202 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_FieldArithmetic.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">Test_FieldArithmetic.pf</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/test_fieldarithmetic.html">Test_FieldArithmetic</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/test_fieldarithmetic.pf.html#src">Test_FieldArithmetic.pf</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~test_fieldarithmetic.pf~~EfferentGraph Pages: 1 -->
+<svg id="sourcefiletest_fieldarithmeticpfEfferentGraph" width="641pt" height="196pt"
+ viewBox="0.00 0.00 641.00 195.57" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph" class="graph" transform="scale(0.39 0.39) rotate(0) translate(4 493.02)">
+<title>sourcefile~~test_fieldarithmetic.pf~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-493.02 1625,-493.02 1625,4 -4,4"/>
+<!-- sourcefile~test_fieldarithmetic.pf -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node1" class="node">
+<title>sourcefile~test_fieldarithmetic.pf</title>
+<polygon fill="none" stroke="black" points="1621,-365.75 1489,-365.75 1489,-341.75 1621,-341.75 1621,-365.75"/>
+<text text-anchor="middle" x="1555" y="-351.35" font-family="Helvetica,sans-Serif" font-size="10.50">Test_FieldArithmetic.pf</text>
+</g>
+<!-- sourcefile~field_utils_setup.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node2" class="node">
+<title>sourcefile~field_utils_setup.f90</title>
+<g id="a_sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node2"><a xlink:href="../sourcefile/field_utils_setup.f90.html" xlink:title="field_utils_setup.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1256,-445.75 1136,-445.75 1136,-421.75 1256,-421.75 1256,-445.75"/>
+<text text-anchor="middle" x="1196" y="-431.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">field_utils_setup.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_fieldarithmetic.pf&#45;&gt;sourcefile~field_utils_setup.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~test_fieldarithmetic.pf&#45;&gt;sourcefile~field_utils_setup.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1542.69,-365.93C1516.71,-392.78 1449.47,-456.08 1377.5,-473.75"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1375.5,-473.75C1350.77,-479.82 1286.97,-462.59 1242.76,-448.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1243.68,-445.49 1233.09,-445.82 1241.58,-452.16 1243.68,-445.49"/>
+</g>
+<!-- sourcefile~fieldbinaryoperations.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node3" class="node">
+<title>sourcefile~fieldbinaryoperations.f90</title>
+<g id="a_sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node3"><a xlink:href="../sourcefile/fieldbinaryoperations.f90.html" xlink:title="FieldBinaryOperations.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1453,-405.75 1300,-405.75 1300,-381.75 1453,-381.75 1453,-405.75"/>
+<text text-anchor="middle" x="1376.5" y="-391.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBinaryOperations.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_fieldarithmetic.pf&#45;&gt;sourcefile~fieldbinaryoperations.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~test_fieldarithmetic.pf&#45;&gt;sourcefile~fieldbinaryoperations.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1501.04,-365.75C1482.02,-370.06 1460.38,-374.97 1440.58,-379.45"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1439.7,-376.06 1430.72,-381.69 1441.25,-382.89 1439.7,-376.06"/>
+</g>
+<!-- sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node4" class="node">
+<title>sourcefile~fieldpointerutilities.f90</title>
+<g id="a_sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node4"><a xlink:href="../sourcefile/fieldpointerutilities.f90.html" xlink:title="FieldPointerUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1264,-365.75 1128,-365.75 1128,-341.75 1264,-341.75 1264,-365.75"/>
+<text text-anchor="middle" x="1196" y="-351.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldPointerUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_fieldarithmetic.pf&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~test_fieldarithmetic.pf&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1488.94,-353.75C1428.42,-353.75 1338.2,-353.75 1274.1,-353.75"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1274.04,-350.25 1264.04,-353.75 1274.04,-357.25 1274.04,-350.25"/>
+</g>
+<!-- sourcefile~fieldunaryfunctions.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node5" class="node">
+<title>sourcefile~fieldunaryfunctions.f90</title>
+<g id="a_sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node5"><a xlink:href="../sourcefile/fieldunaryfunctions.f90.html" xlink:title="FieldUnaryFunctions.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1447.5,-325.75 1305.5,-325.75 1305.5,-301.75 1447.5,-301.75 1447.5,-325.75"/>
+<text text-anchor="middle" x="1376.5" y="-311.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldUnaryFunctions.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_fieldarithmetic.pf&#45;&gt;sourcefile~fieldunaryfunctions.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~test_fieldarithmetic.pf&#45;&gt;sourcefile~fieldunaryfunctions.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1501.04,-341.75C1482.02,-337.44 1460.38,-332.53 1440.58,-328.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1441.25,-324.61 1430.72,-325.81 1439.7,-331.43 1441.25,-324.61"/>
+</g>
+<!-- sourcefile~fieldutilities.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node6" class="node">
+<title>sourcefile~fieldutilities.f90</title>
+<g id="a_sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node6"><a xlink:href="../sourcefile/fieldutilities.f90.html" xlink:title="FieldUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1426,-283.75 1327,-283.75 1327,-259.75 1426,-259.75 1426,-283.75"/>
+<text text-anchor="middle" x="1376.5" y="-269.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_fieldarithmetic.pf&#45;&gt;sourcefile~fieldutilities.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~test_fieldarithmetic.pf&#45;&gt;sourcefile~fieldutilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1537.26,-341.67C1517.82,-328.13 1484.41,-306.3 1453,-292.75 1447.56,-290.4 1441.78,-288.24 1435.94,-286.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1436.7,-282.85 1426.11,-283.16 1434.58,-289.52 1436.7,-282.85"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node7" class="node">
+<title>sourcefile~mapl_exceptionhandling.f90</title>
+<g id="a_sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node7"><a xlink:href="../sourcefile/mapl_exceptionhandling.f90.html" xlink:title="MAPL_ExceptionHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1092,-385.75 923,-385.75 923,-361.75 1092,-361.75 1092,-385.75"/>
+<text text-anchor="middle" x="1007.5" y="-371.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_fieldarithmetic.pf&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~test_fieldarithmetic.pf&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1375.5,-473.75C1268.36,-500.05 1232.15,-491.14 1128,-454.75 1089.23,-441.2 1051.13,-411.81 1028.72,-392.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1031.02,-389.76 1021.21,-385.76 1026.38,-395 1031.02,-389.76"/>
+</g>
+<!-- sourcefile~field_utils_setup.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~field_utils_setup.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1157.26,-421.61C1127.97,-412.18 1087.18,-399.06 1055.73,-388.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1056.46,-385.5 1045.87,-385.77 1054.31,-392.16 1056.46,-385.5"/>
+</g>
+<!-- sourcefile~fieldbinaryoperations.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~fieldbinaryoperations.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M1321.94,-381.75C1302.71,-377.44 1280.82,-372.53 1260.79,-368.04"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="1261.35,-364.58 1250.83,-365.81 1259.82,-371.41 1261.35,-364.58"/>
+</g>
+<!-- sourcefile~fieldbinaryoperations.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~fieldbinaryoperations.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M1299.9,-389.63C1242.66,-386.51 1163.68,-382.21 1102.39,-378.87"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="1102.5,-375.37 1092.32,-378.32 1102.12,-382.36 1102.5,-375.37"/>
+</g>
+<!-- sourcefile~fieldpointerutilities.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~fieldpointerutilities.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M1127.93,-360.94C1119.6,-361.83 1110.97,-362.76 1102.32,-363.69"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="1101.76,-360.23 1092.2,-364.77 1102.51,-367.19 1101.76,-360.23"/>
+</g>
+<!-- sourcefile~fieldunaryfunctions.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~fieldunaryfunctions.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1321.94,-325.75C1302.71,-330.06 1280.82,-334.97 1260.79,-339.45"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="1259.82,-336.09 1250.83,-341.69 1261.35,-342.92 1259.82,-336.09"/>
+</g>
+<!-- sourcefile~fieldunaryfunctions.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~fieldunaryfunctions.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1305.5,-314.4C1255.57,-316.01 1187.09,-320.55 1128,-332.75 1099.99,-338.53 1069.52,-349.06 1046.36,-358"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="1044.93,-354.8 1036.9,-361.71 1047.49,-361.31 1044.93,-354.8"/>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M1326.92,-283.22C1317.83,-285.94 1308.51,-289.12 1300,-292.75 1272.19,-304.61 1242.73,-322.68 1222.47,-336.09"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="1220.47,-333.21 1214.11,-341.69 1224.37,-339.03 1220.47,-333.21"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node8" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node8"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="245,-286.75 136,-286.75 136,-262.75 245,-262.75 245,-286.75"/>
+<text text-anchor="middle" x="190.5" y="-272.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M649,-275.75C588.25,-271.69 572.15,-266.3 512,-275.75"/>
+</g>
+<!-- sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node9" class="node">
+<title>sourcefile~fieldinfo.f90</title>
+<g id="a_sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node9"><a xlink:href="../sourcefile/fieldinfo.f90.html" xlink:title="FieldInfo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1235.5,-228.75 1156.5,-228.75 1156.5,-204.75 1235.5,-204.75 1235.5,-228.75"/>
+<text text-anchor="middle" x="1196" y="-214.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldInfo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~fieldinfo.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M1336.33,-259.68C1309.61,-251.45 1274.05,-240.49 1245.54,-231.7"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="1246.36,-228.3 1235.77,-228.7 1244.3,-234.99 1246.36,-228.3"/>
+</g>
+<!-- sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node10" class="node">
+<title>sourcefile~infoutilities.f90</title>
+<g id="a_sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node10"><a xlink:href="../sourcefile/infoutilities.f90.html" xlink:title="InfoUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="558,-171.75 464,-171.75 464,-147.75 558,-147.75 558,-171.75"/>
+<text text-anchor="middle" x="511" y="-157.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">InfoUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~infoutilities.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M1195,-137.75C1187.82,-134.68 730.65,-151.53 568.37,-157.62"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="567.98,-154.13 558.12,-158.01 568.24,-161.13 567.98,-154.13"/>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node11" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node11"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="416.5,-211.75 292.5,-211.75 292.5,-187.75 416.5,-187.75 416.5,-211.75"/>
+<text text-anchor="middle" x="354.5" y="-197.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M1326.66,-274.49C1209.79,-280.5 904.81,-293.02 651,-275.75"/>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M649,-275.75C556.99,-267.8 453.22,-235.05 397.05,-215.22"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="398.05,-211.86 387.45,-211.8 395.7,-218.46 398.05,-211.86"/>
+</g>
+<!-- sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node12" class="node">
+<title>sourcefile~lu_bound.f90</title>
+<g id="a_sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node12"><a xlink:href="../sourcefile/lu_bound.f90.html" xlink:title="LU_Bound.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="555,-53.75 467,-53.75 467,-29.75 555,-29.75 555,-53.75"/>
+<text text-anchor="middle" x="511" y="-39.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LU_Bound.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M1363.37,-259.43C1336.24,-232.66 1267.48,-169.05 1197,-137.75"/>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M1195,-137.75C1062.15,-78.75 1030.45,-51.24 887,-27.75 823.4,-17.33 806.26,-22.84 742,-27.75 701.2,-30.87 691.85,-39.4 651,-41.75"/>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M649,-41.75C621.41,-42.42 590.69,-42.48 565.35,-42.35"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="565.22,-38.85 555.2,-42.29 565.18,-45.85 565.22,-38.85"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node14" class="node">
+<title>sourcefile~ungriddeddims.f90</title>
+<g id="a_sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node14"><a xlink:href="../sourcefile/ungriddeddims.f90.html" xlink:title="UngriddedDims.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1066.5,-129.75 948.5,-129.75 948.5,-105.75 1066.5,-105.75 1066.5,-129.75"/>
+<text text-anchor="middle" x="1007.5" y="-115.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDims.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M1195,-137.75C1157.92,-121.89 1113.06,-116.69 1076.64,-115.55"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="1076.67,-112.05 1066.6,-115.34 1076.52,-119.05 1076.67,-112.05"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M922.87,-364.57C799.07,-351.34 559.68,-327.15 355.5,-314.75"/>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M353.5,-314.75C313.24,-311.01 268.73,-299.46 236.57,-289.73"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="237.59,-286.38 227,-286.77 235.53,-293.07 237.59,-286.38"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node13" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node13"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="100,-306.75 0,-306.75 0,-282.75 100,-282.75 100,-306.75"/>
+<text text-anchor="middle" x="50" y="-292.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#ff00ff" stroke-dasharray="5,2" d="M353.5,-314.75C269.16,-306.92 171.31,-301.03 110.27,-297.73"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="110.22,-294.23 100.05,-297.19 109.85,-301.22 110.22,-294.23"/>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M135.95,-282.48C127.53,-283.7 118.77,-284.96 110.23,-286.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="109.72,-282.73 100.33,-287.63 110.72,-289.66 109.72,-282.73"/>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M649,-199.75C579.45,-203.17 581.01,-266.49 512,-275.75"/>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M510,-275.75C422.21,-287.53 319.59,-284.18 255.06,-280.02"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="255.26,-276.52 245.04,-279.34 254.79,-283.51 255.26,-276.52"/>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~infoutilities.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M1156.4,-213.49C1067.32,-206.43 840.49,-191.01 651,-199.75"/>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M649,-199.75C612.41,-201.55 572.39,-187.93 545.11,-176.1"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="546.22,-172.76 535.66,-171.85 543.35,-179.15 546.22,-172.76"/>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M510,-199.75C482.95,-197.94 453.17,-197.56 427.04,-197.76"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="426.8,-194.27 416.84,-197.87 426.88,-201.27 426.8,-194.27"/>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge27" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M1172.13,-204.61C1139.04,-187.05 1077.69,-154.48 1040.24,-134.6"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="1041.74,-131.43 1031.26,-129.83 1038.46,-137.61 1041.74,-131.43"/>
+</g>
+<!-- sourcefile~mapl_esmf_infokeys.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node15" class="node">
+<title>sourcefile~mapl_esmf_infokeys.f90</title>
+<g id="a_sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node15"><a xlink:href="../sourcefile/mapl_esmf_infokeys.f90.html" xlink:title="MAPL_ESMF_InfoKeys.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="428,-169.75 281,-169.75 281,-145.75 428,-145.75 428,-169.75"/>
+<text text-anchor="middle" x="354.5" y="-155.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMF_InfoKeys.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge26" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M649,-199.75C588.18,-202.74 572.75,-203.81 512,-199.75"/>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M510,-199.75C504.69,-199.39 450.49,-184.45 407.77,-172.49"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="408.59,-169.08 398.02,-169.75 406.7,-175.82 408.59,-169.08"/>
+</g>
+<!-- sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node18" class="node">
+<title>sourcefile~verticalstaggerloc.f90</title>
+<g id="a_sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node18"><a xlink:href="../sourcefile/verticalstaggerloc.f90.html" xlink:title="VerticalStaggerLoc.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1075.5,-247.75 939.5,-247.75 939.5,-223.75 1075.5,-223.75 1075.5,-247.75"/>
+<text text-anchor="middle" x="1007.5" y="-233.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalStaggerLoc.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge28" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M1156.36,-220.69C1135.91,-222.77 1110.07,-225.4 1085.72,-227.88"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="1085.35,-224.4 1075.76,-228.9 1086.06,-231.37 1085.35,-224.4"/>
+</g>
+<!-- sourcefile~infoutilities.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge29" class="edge">
+<title>sourcefile~infoutilities.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M499.62,-147.38C474.91,-119.51 410.53,-56.15 355.5,-81.75"/>
+</g>
+<!-- sourcefile~infoutilities.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge30" class="edge">
+<title>sourcefile~infoutilities.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M463.64,-171.75C447.37,-175.96 428.91,-180.74 411.91,-185.15"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="410.89,-181.79 402.09,-187.69 412.65,-188.57 410.89,-181.79"/>
+</g>
+<!-- sourcefile~infoutilities.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge31" class="edge">
+<title>sourcefile~infoutilities.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M463.64,-159.15C455.6,-159.04 447.01,-158.93 438.33,-158.82"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="438.17,-155.32 428.12,-158.69 438.08,-162.32 438.17,-155.32"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge32" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M984.13,-105.54C960.52,-93.01 921.95,-73.6 887,-60.75 856.14,-49.4 847.39,-49.77 815.5,-41.75"/>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M813.5,-41.75C662.59,-3.77 614.54,18.67 464,-20.75 410.48,-34.76 405.41,-57.89 355.5,-81.75"/>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M353.5,-81.75C275.98,-117.71 222.44,-211.16 201.42,-253.43"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="198.21,-252.03 197,-262.56 204.51,-255.08 198.21,-252.03"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge33" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~infoutilities.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M649,-121.75C615.11,-123.93 578.07,-134.75 551.06,-144.29"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="549.79,-141.02 541.58,-147.72 552.18,-147.6 549.79,-141.02"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge34" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M813.5,-41.75C743.46,-24.12 723.1,-37.6 651,-41.75"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge35" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M813.5,-121.75C741.37,-118.13 723.07,-117.1 651,-121.75"/>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M649,-121.75C566.6,-127.06 545.84,-127.84 464,-138.75 452.71,-140.25 440.8,-142.09 429.17,-144.01"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="428.33,-140.61 419.05,-145.73 429.49,-147.51 428.33,-140.61"/>
+</g>
+<!-- sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node16" class="node">
+<title>sourcefile~ungriddeddim.f90</title>
+<g id="a_sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node16"><a xlink:href="../sourcefile/ungriddeddim.f90.html" xlink:title="UngriddedDim.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="706,-93.75 594,-93.75 594,-69.75 706,-69.75 706,-93.75"/>
+<text text-anchor="middle" x="650" y="-79.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDim.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge36" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddim.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M948.38,-121.11C910.51,-122.77 860.05,-123.98 815.5,-121.75"/>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M813.5,-121.75C771.95,-119.66 726.04,-107.4 693.65,-96.99"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="694.65,-93.63 684.05,-93.84 692.46,-100.28 694.65,-93.63"/>
+</g>
+<!-- sourcefile~ungriddeddimvector.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node17" class="node">
+<title>sourcefile~ungriddeddimvector.f90</title>
+<g id="a_sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_node17"><a xlink:href="../sourcefile/ungriddeddimvector.f90.html" xlink:title="UngriddedDimVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="887,-93.75 742,-93.75 742,-69.75 887,-69.75 887,-93.75"/>
+<text text-anchor="middle" x="814.5" y="-79.35" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDimVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddimvector.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge37" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddimvector.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M948.42,-106.8C929.73,-103.28 908.78,-99.33 889.13,-95.63"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="889.78,-92.19 879.3,-93.77 888.48,-99.07 889.78,-92.19"/>
+</g>
+<!-- sourcefile~mapl_esmf_infokeys.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge38" class="edge">
+<title>sourcefile~mapl_esmf_infokeys.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M299.44,-169.85C293,-172.31 286.69,-175.25 281,-178.75 249.1,-198.36 221.27,-232.36 205.43,-254.19"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="202.51,-252.26 199.59,-262.45 208.22,-256.31 202.51,-252.26"/>
+</g>
+<!-- sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge39" class="edge">
+<title>sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M593.77,-76.29C520.69,-69.99 396.33,-62.76 355.5,-81.75"/>
+</g>
+<!-- sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge40" class="edge">
+<title>sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~infoutilities.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M621.81,-93.79C612.84,-97.98 602.88,-102.86 594,-107.75 574.87,-118.29 554.1,-131.48 538.25,-141.94"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="535.92,-139.28 529.53,-147.74 539.8,-145.11 535.92,-139.28"/>
+</g>
+<!-- sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge41" class="edge">
+<title>sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M607.9,-69.75C593.94,-65.67 578.16,-61.07 563.49,-56.78"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="564.13,-53.32 553.55,-53.88 562.17,-60.04 564.13,-53.32"/>
+</g>
+<!-- sourcefile~ungriddeddimvector.f90&#45;&gt;sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~test_fieldarithmetic.pf~~EfferentGraph_edge42" class="edge">
+<title>sourcefile~ungriddeddimvector.f90&#45;&gt;sourcefile~ungriddeddim.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M741.75,-81.75C733.29,-81.75 724.69,-81.75 716.32,-81.75"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="716.26,-78.25 706.26,-81.75 716.26,-85.25 716.26,-78.25"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefiletest_fieldarithmeticpfEfferentGraph = svgPanZoom('#sourcefiletest_fieldarithmeticpfEfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_Generic.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">module </span><span class="n">Test_FieldArithmetic</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">field_utils_setup</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_FieldUnaryFunctions</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_FieldBinaryOperations</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_FieldUtilities</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_FieldPointerUtilities</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">use </span><span class="n">ESMF</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">use </span><span class="n">pfunit</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_ExceptionHandling</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="k">   </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ADD_R4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="mf">0.0</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">   </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ADD_R8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="mf">0.0</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="k">contains</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span><span class="c">! Making the fields should be done in the tests themselves so because</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">   </span><span class="c">! of the npes argument.</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">   </span><span class="err">@</span><span class="n">Before</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">set_up_data</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ADD_R4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="mf">0.0</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ADD_R8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="mf">0.0</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">y4array</span><span class="p">(:,:)</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">y8array</span><span class="p">(:,:)</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Info</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">infoh</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">y4array</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="n">R4_ARRAY_DEFAULT</span><span class="p">)</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">y8array</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="n">R8_ARRAY_DEFAULT</span><span class="p">)</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">      </span><span class="n">y4array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y4array</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ADD_R4</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">      </span><span class="n">y8array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y8array</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ADD_R8</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">      </span><span class="n">XR4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mk_field</span><span class="p">(</span><span class="n">R4_ARRAY_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;XR4&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">      </span><span class="n">YR4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mk_field</span><span class="p">(</span><span class="n">y4array</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;YR4&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="n">XR8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mk_field</span><span class="p">(</span><span class="n">R8_ARRAY_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;XR8&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">      </span><span class="n">YR8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mk_field</span><span class="p">(</span><span class="n">y8array</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;YR8&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_InfoGetFromHost</span><span class="p">(</span><span class="n">xr4</span><span class="p">,</span><span class="n">infoh</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_InfoSet</span><span class="p">(</span><span class="n">infoh</span><span class="p">,</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;missing_value&quot;</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">undef</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_InfoGetFromHost</span><span class="p">(</span><span class="n">xr8</span><span class="p">,</span><span class="n">infoh</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_InfoSet</span><span class="p">(</span><span class="n">infoh</span><span class="p">,</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;missing_value&quot;</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">undef</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_InfoGetFromHost</span><span class="p">(</span><span class="n">yr4</span><span class="p">,</span><span class="n">infoh</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_InfoSet</span><span class="p">(</span><span class="n">infoh</span><span class="p">,</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;missing_value&quot;</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">undef</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_InfoGetFromHost</span><span class="p">(</span><span class="n">yr8</span><span class="p">,</span><span class="n">infoh</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_InfoSet</span><span class="p">(</span><span class="n">infoh</span><span class="p">,</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;missing_value&quot;</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">undef</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">set_up_data</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">   </span><span class="err">@</span><span class="n">after</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">teardown</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">teardown</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">   </span><span class="err">@</span><span class="n">Test</span><span class="p">(</span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_FieldAddR4</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">y</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x_ptr</span><span class="p">(:,:),</span><span class="w"> </span><span class="n">y_ptr</span><span class="p">(:,:)</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">result_array</span><span class="p">(:,:)</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">y4array</span><span class="p">(:,:)</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">y4array</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="n">R4_ARRAY_DEFAULT</span><span class="p">)</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="w">      </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mk_r4field</span><span class="p">(</span><span class="n">R4_ARRAY_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;XR4&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">      </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mk_r4field</span><span class="p">(</span><span class="n">y4array</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;YR4&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x_ptr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y_ptr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">      </span><span class="n">x_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">      </span><span class="n">y_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.0</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">      </span><span class="n">result_array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x_ptr</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">      </span><span class="n">result_array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">5.0</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">      </span><span class="k">call </span><span class="n">FieldAdd</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">y_ptr</span><span class="p">,</span><span class="w"> </span><span class="n">result_array</span><span class="p">)</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_FieldAddR4</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">   </span><span class="err">@</span><span class="n">Test</span><span class="p">(</span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_FieldAddR4_missing</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">y</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x_ptr</span><span class="p">(:,:),</span><span class="w"> </span><span class="n">y_ptr</span><span class="p">(:,:)</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">result_array</span><span class="p">(:,:)</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">      </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">XR4</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">      </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">YR4</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x_ptr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y_ptr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">      </span><span class="n">x_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">reshape</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="p">[</span><span class="mf">2.0</span><span class="p">,</span><span class="mf">2.0</span><span class="p">,</span><span class="mf">2.0</span><span class="p">,</span><span class="n">undef</span><span class="p">],</span><span class="nb">shape</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">      </span><span class="n">y_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">reshape</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="p">[</span><span class="n">undef</span><span class="p">,</span><span class="mf">3.0</span><span class="p">,</span><span class="mf">3.0</span><span class="p">,</span><span class="n">undef</span><span class="p">],</span><span class="nb">shape</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">      </span><span class="n">result_array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x_ptr</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="w">      </span><span class="n">result_array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">reshape</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="p">[</span><span class="n">undef</span><span class="p">,</span><span class="mf">5.0</span><span class="p">,</span><span class="mf">5.0</span><span class="p">,</span><span class="n">undef</span><span class="p">],</span><span class="nb">shape</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">      </span><span class="k">call </span><span class="n">FieldAdd</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">y_ptr</span><span class="p">,</span><span class="w"> </span><span class="n">result_array</span><span class="p">)</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_FieldAddR4_missing</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="w">   </span><span class="err">@</span><span class="n">Test</span><span class="p">(</span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_FieldAddR8</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">y</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x_ptr</span><span class="p">(:,:),</span><span class="w"> </span><span class="n">y_ptr</span><span class="p">(:,:)</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">result_array</span><span class="p">(:,:)</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">y8array</span><span class="p">(:,:)</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">y8array</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="n">R8_ARRAY_DEFAULT</span><span class="p">)</span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">      </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mk_r8field</span><span class="p">(</span><span class="n">R8_ARRAY_DEFAULT</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;XR8&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a><span class="w">      </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mk_r8field</span><span class="p">(</span><span class="n">y8array</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;YR8&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x_ptr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y_ptr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="w">      </span><span class="n">x_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.d0</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a><span class="w">      </span><span class="n">y_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.d0</span>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">      </span><span class="n">result_array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x_ptr</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="w">      </span><span class="n">result_array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">5.d0</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="w">      </span><span class="k">call </span><span class="n">FieldAdd</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">y_ptr</span><span class="p">,</span><span class="w"> </span><span class="n">result_array</span><span class="p">)</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_FieldAddR8</span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">   </span><span class="err">@</span><span class="n">Test</span><span class="p">(</span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_FieldPowR4</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x</span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x_ptr</span><span class="p">(:,:)</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">result_array</span><span class="p">(:,:)</span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a><span class="w">      </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">expo</span>
+<a id="ln-139" name="ln-139" href="#ln-139"></a>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">      </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">XR4</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x_ptr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="w">      </span><span class="n">x_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0</span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a><span class="w">      </span><span class="n">expo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">4.0</span>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="w">      </span><span class="n">result_array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x_ptr</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a><span class="w">      </span><span class="n">result_array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0</span><span class="o">**</span><span class="n">expo</span>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="w">      </span><span class="k">call </span><span class="n">FieldPow</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">expo</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">x_ptr</span><span class="p">,</span><span class="w"> </span><span class="n">result_array</span><span class="p">)</span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_FieldPowR4</span>
+<a id="ln-150" name="ln-150" href="#ln-150"></a>
+<a id="ln-151" name="ln-151" href="#ln-151"></a><span class="w">   </span><span class="err">@</span><span class="n">Test</span><span class="p">(</span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+<a id="ln-152" name="ln-152" href="#ln-152"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_FieldPowR8</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-153" name="ln-153" href="#ln-153"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-154" name="ln-154" href="#ln-154"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x</span>
+<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x_ptr</span><span class="p">(:,:)</span>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">result_array</span><span class="p">(:,:)</span>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="w">      </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">expo</span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a>
+<a id="ln-160" name="ln-160" href="#ln-160"></a><span class="w">      </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">XR8</span>
+<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x_ptr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-162" name="ln-162" href="#ln-162"></a>
+<a id="ln-163" name="ln-163" href="#ln-163"></a><span class="w">      </span><span class="n">x_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.d0</span>
+<a id="ln-164" name="ln-164" href="#ln-164"></a><span class="w">      </span><span class="n">expo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">4.0</span>
+<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="w">      </span><span class="n">result_array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x_ptr</span>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="w">      </span><span class="n">result_array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.d0</span><span class="o">**</span><span class="n">expo</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a><span class="w">      </span><span class="k">call </span><span class="n">FieldPow</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">expo</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">x_ptr</span><span class="p">,</span><span class="w"> </span><span class="n">result_array</span><span class="p">)</span>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_FieldPowR8</span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a>
+<a id="ln-171" name="ln-171" href="#ln-171"></a><span class="w">   </span><span class="err">@</span><span class="n">Test</span><span class="p">(</span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_FieldSinR4</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x</span>
+<a id="ln-175" name="ln-175" href="#ln-175"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x_ptr</span><span class="p">(:,:)</span>
+<a id="ln-176" name="ln-176" href="#ln-176"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">result_array</span><span class="p">(:,:)</span>
+<a id="ln-177" name="ln-177" href="#ln-177"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-178" name="ln-178" href="#ln-178"></a>
+<a id="ln-179" name="ln-179" href="#ln-179"></a><span class="w">      </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">XR4</span>
+<a id="ln-180" name="ln-180" href="#ln-180"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x_ptr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-181" name="ln-181" href="#ln-181"></a>
+<a id="ln-182" name="ln-182" href="#ln-182"></a><span class="w">      </span><span class="n">x_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0</span>
+<a id="ln-183" name="ln-183" href="#ln-183"></a><span class="w">      </span><span class="n">result_array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x_ptr</span>
+<a id="ln-184" name="ln-184" href="#ln-184"></a><span class="w">      </span><span class="n">result_array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">sin</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+<a id="ln-185" name="ln-185" href="#ln-185"></a><span class="w">      </span><span class="k">call </span><span class="n">FieldSin</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-186" name="ln-186" href="#ln-186"></a><span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">x_ptr</span><span class="p">,</span><span class="w"> </span><span class="n">result_array</span><span class="p">)</span>
+<a id="ln-187" name="ln-187" href="#ln-187"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_FieldSinR4</span>
+<a id="ln-188" name="ln-188" href="#ln-188"></a>
+<a id="ln-189" name="ln-189" href="#ln-189"></a><span class="w">   </span><span class="err">@</span><span class="n">Test</span><span class="p">(</span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+<a id="ln-190" name="ln-190" href="#ln-190"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_FieldNegR4</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-191" name="ln-191" href="#ln-191"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">MpiTestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-192" name="ln-192" href="#ln-192"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x</span>
+<a id="ln-193" name="ln-193" href="#ln-193"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x_ptr</span><span class="p">(:,:)</span>
+<a id="ln-194" name="ln-194" href="#ln-194"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">result_array</span><span class="p">(:,:)</span>
+<a id="ln-195" name="ln-195" href="#ln-195"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-196" name="ln-196" href="#ln-196"></a>
+<a id="ln-197" name="ln-197" href="#ln-197"></a><span class="w">      </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">XR4</span>
+<a id="ln-198" name="ln-198" href="#ln-198"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x_ptr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-199" name="ln-199" href="#ln-199"></a>
+<a id="ln-200" name="ln-200" href="#ln-200"></a><span class="w">      </span><span class="n">x_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0</span>
+<a id="ln-201" name="ln-201" href="#ln-201"></a><span class="w">      </span><span class="n">result_array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x_ptr</span>
+<a id="ln-202" name="ln-202" href="#ln-202"></a><span class="w">      </span><span class="n">result_array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mf">2.0</span>
+<a id="ln-203" name="ln-203" href="#ln-203"></a><span class="w">      </span><span class="k">call </span><span class="n">FieldNegate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-204" name="ln-204" href="#ln-204"></a><span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">x_ptr</span><span class="p">,</span><span class="w"> </span><span class="n">result_array</span><span class="p">)</span>
+<a id="ln-205" name="ln-205" href="#ln-205"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_FieldNegR4</span>
+<a id="ln-206" name="ln-206" href="#ln-206"></a>
+<a id="ln-207" name="ln-207" href="#ln-207"></a><span class="k">end module </span><span class="n">Test_FieldArithmetic</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-12-03T14:34:31.735011+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

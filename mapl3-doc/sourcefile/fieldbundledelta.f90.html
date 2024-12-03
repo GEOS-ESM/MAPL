@@ -1,0 +1,1367 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>FieldBundleDelta.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>FieldBundleDelta.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for source files.">239 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/FieldBundleDelta.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">FieldBundleDelta.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_fieldbundledelta.html">mapl3g_FieldBundleDelta</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/fieldbundledelta.f90.html#src">FieldBundleDelta.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~fieldbundledelta.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilefieldbundledeltaf90EfferentGraph" width="641pt" height="372pt"
+ viewBox="0.00 0.00 641.00 371.69" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph" class="graph" transform="scale(0.34 0.34) rotate(0) translate(4 1077.43)">
+<title>sourcefile~~fieldbundledelta.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-1077.43 1861,-1077.43 1861,4 -4,4"/>
+<!-- sourcefile~fieldbundledelta.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~fieldbundledelta.f90</title>
+<polygon fill="none" stroke="black" points="1857,-717 1731,-717 1731,-693 1857,-693 1857,-717"/>
+<text text-anchor="middle" x="1794" y="-702.6" font-family="Helvetica,sans-Serif" font-size="10.50">FieldBundleDelta.F90</text>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~fieldbundledelta.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="245,-126 136,-126 136,-102 245,-102 245,-126"/>
+<text text-anchor="middle" x="190.5" y="-111.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1012,-1068C934.61,-1062.98 915.06,-1068.19 837.5,-1068"/>
+</g>
+<!-- sourcefile~fieldbundleget.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~fieldbundleget.f90</title>
+<g id="a_sourcefile~~fieldbundledelta.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/fieldbundleget.f90.html" xlink:title="FieldBundleGet.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1695,-717 1579,-717 1579,-693 1695,-693 1695,-717"/>
+<text text-anchor="middle" x="1637" y="-702.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleGet.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~fieldbundleget.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~fieldbundleget.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1730.85,-705C1722.47,-705 1713.83,-705 1705.37,-705"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1705.15,-701.5 1695.15,-705 1705.15,-708.5 1705.15,-701.5"/>
+</g>
+<!-- sourcefile~fieldbundletype_flag.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~fieldbundletype_flag.f90</title>
+<g id="a_sourcefile~~fieldbundledelta.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/fieldbundletype_flag.f90.html" xlink:title="FieldBundleType_Flag.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1266,-850 1117,-850 1117,-826 1266,-826 1266,-850"/>
+<text text-anchor="middle" x="1191.5" y="-835.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleType_Flag.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~fieldbundletype_flag.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~fieldbundletype_flag.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1792,-717.21C1787.05,-768.18 1760.32,-964.45 1638,-1030"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1636,-1030C1557.16,-1072.25 1301.97,-910.91 1218.9,-855.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1220.78,-852.87 1210.52,-850.24 1216.9,-858.7 1220.78,-852.87"/>
+</g>
+<!-- sourcefile~fieldcreate.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~fieldcreate.f90</title>
+<g id="a_sourcefile~~fieldbundledelta.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/fieldcreate.f90.html" xlink:title="FieldCreate.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1408,-546 1313,-546 1313,-522 1408,-522 1408,-546"/>
+<text text-anchor="middle" x="1360.5" y="-531.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldCreate.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~fieldcreate.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~fieldcreate.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1498,-378C1430.59,-383.15 1469.62,-463.18 1419,-508 1415.1,-511.45 1410.67,-514.52 1406.03,-517.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1404.19,-514.24 1396.96,-521.99 1407.44,-520.44 1404.19,-514.24"/>
+</g>
+<!-- sourcefile~fielddelta.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~fielddelta.f90</title>
+<g id="a_sourcefile~~fieldbundledelta.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/fielddelta.f90.html" xlink:title="FieldDelta.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1543,-350 1455,-350 1455,-326 1543,-326 1543,-350"/>
+<text text-anchor="middle" x="1499" y="-335.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldDelta.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~fielddelta.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~fielddelta.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1636,-358C1614.48,-337.14 1581.35,-331.93 1553.17,-332.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1552.96,-328.55 1543.05,-332.3 1553.14,-335.54 1552.96,-328.55"/>
+</g>
+<!-- sourcefile~fieldget.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~fieldget.f90</title>
+<g id="a_sourcefile~~fieldbundledelta.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/fieldget.f90.html" xlink:title="FieldGet.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1400,-390 1321,-390 1321,-366 1400,-366 1400,-390"/>
+<text text-anchor="middle" x="1360.5" y="-375.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldGet.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~fieldget.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~fieldget.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1498,-378C1468.9,-380.22 1436.21,-380.31 1410.12,-379.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1410.18,-376.3 1400.1,-379.57 1410.01,-383.3 1410.18,-376.3"/>
+</g>
+<!-- sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~fieldinfo.f90</title>
+<g id="a_sourcefile~~fieldbundledelta.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/fieldinfo.f90.html" xlink:title="FieldInfo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1231,-352 1152,-352 1152,-328 1231,-328 1231,-352"/>
+<text text-anchor="middle" x="1191.5" y="-337.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldInfo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~fieldinfo.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1498,-378C1482.24,-379.2 1376.8,-341.95 1361.5,-338"/>
+</g>
+<!-- sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_node9" class="node">
+<title>sourcefile~fieldpointerutilities.f90</title>
+<g id="a_sourcefile~~fieldbundledelta.f90~~EfferentGraph_node9"><a xlink:href="../sourcefile/fieldpointerutilities.f90.html" xlink:title="FieldPointerUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1259.5,-86 1123.5,-86 1123.5,-62 1259.5,-62 1259.5,-86"/>
+<text text-anchor="middle" x="1191.5" y="-71.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldPointerUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1359.5,-74C1331.78,-62.31 1299.09,-60.1 1270.02,-61.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1269.65,-58.12 1259.9,-62.28 1270.11,-65.11 1269.65,-58.12"/>
+</g>
+<!-- sourcefile~fieldutilities.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_node10" class="node">
+<title>sourcefile~fieldutilities.f90</title>
+<g id="a_sourcefile~~fieldbundledelta.f90~~EfferentGraph_node10"><a xlink:href="../sourcefile/fieldutilities.f90.html" xlink:title="FieldUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1410,-240 1311,-240 1311,-216 1410,-216 1410,-240"/>
+<text text-anchor="middle" x="1360.5" y="-225.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~fieldutilities.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~fieldutilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1636,-358C1592.13,-315.48 1560.92,-373.34 1500,-378"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1498,-378C1477.17,-379.59 1471.2,-372.19 1455,-359 1416.82,-327.91 1386.9,-277.55 1371.96,-249.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1374.99,-247.42 1367.31,-240.13 1368.77,-250.62 1374.99,-247.42"/>
+</g>
+<!-- sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_node11" class="node">
+<title>sourcefile~infoutilities.f90</title>
+<g id="a_sourcefile~~fieldbundledelta.f90~~EfferentGraph_node11"><a xlink:href="../sourcefile/infoutilities.f90.html" xlink:title="InfoUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="580,-314 486,-314 486,-290 580,-290 580,-314"/>
+<text text-anchor="middle" x="533" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">InfoUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~infoutilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1790.91,-692.67C1781.96,-643.52 1742.46,-459.26 1638,-358"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1636,-358C1509.95,-235.82 1523.26,-142.18 1361.5,-74"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1359.5,-74C1189.51,-2.79 1122.83,-13.59 945,-62 785.99,-105.29 752.99,-141.39 616,-233 593.61,-247.97 570.32,-268.08 554.31,-282.72"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="551.6,-280.46 546.64,-289.82 556.36,-285.59 551.6,-280.46"/>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_node12" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~fieldbundledelta.f90~~EfferentGraph_node12"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="427.5,-430 303.5,-430 303.5,-406 427.5,-406 427.5,-430"/>
+<text text-anchor="middle" x="365.5" y="-415.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1498,-1068C1282.89,-1068.1 1228.8,-1079.53 1014,-1068"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1012,-1068C932.79,-1062.86 916.32,-1039.33 837.5,-1030"/>
+</g>
+<!-- sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_node13" class="node">
+<title>sourcefile~lu_bound.f90</title>
+<g id="a_sourcefile~~fieldbundledelta.f90~~EfferentGraph_node13"><a xlink:href="../sourcefile/lu_bound.f90.html" xlink:title="LU_Bound.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="577,-717 489,-717 489,-693 577,-693 577,-717"/>
+<text text-anchor="middle" x="533" y="-702.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LU_Bound.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1359.5,-992C1255.02,-951.15 1223.67,-956.73 1117,-922 891.73,-848.66 836.36,-826.98 616,-740 601.03,-734.09 584.69,-727.21 570.56,-721.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="571.75,-717.81 561.18,-717.04 568.96,-724.23 571.75,-717.81"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_node14" class="node">
+<title>sourcefile~ungriddeddims.f90</title>
+<g id="a_sourcefile~~fieldbundledelta.f90~~EfferentGraph_node14"><a xlink:href="../sourcefile/ungriddeddims.f90.html" xlink:title="UngriddedDims.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1072,-468 954,-468 954,-444 1072,-444 1072,-468"/>
+<text text-anchor="middle" x="1013" y="-453.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDims.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1498,-378C1461.78,-380.77 1454.8,-392.79 1419,-399 1319.47,-416.27 1293.34,-424.1 1192.5,-418"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1190.5,-418C1143.42,-415.78 1090.76,-429.28 1055.31,-440.8"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1054.16,-437.49 1045.79,-443.98 1056.38,-444.13 1054.16,-437.49"/>
+</g>
+<!-- sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_node15" class="node">
+<title>sourcefile~verticalstaggerloc.f90</title>
+<g id="a_sourcefile~~fieldbundledelta.f90~~EfferentGraph_node15"><a xlink:href="../sourcefile/verticalstaggerloc.f90.html" xlink:title="VerticalStaggerLoc.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1081,-621 945,-621 945,-597 1081,-597 1081,-621"/>
+<text text-anchor="middle" x="1013" y="-606.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalStaggerLoc.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~fieldbundledelta.f90&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1636,-1030C1583.83,-1064.88 1562.76,-1067.97 1500,-1068"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1498,-1068C1428.56,-1068.03 1426.45,-1016.56 1361.5,-992"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1359.5,-992C1244.52,-948.52 1195.63,-953.49 1117,-859 1084.37,-819.78 1099.99,-797.35 1081,-750 1063.57,-706.54 1039.15,-657.51 1025.11,-630.23"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1028.15,-628.49 1020.44,-621.22 1021.93,-631.71 1028.15,-628.49"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_node20" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~fieldbundledelta.f90~~EfferentGraph_node20"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="100,-106 0,-106 0,-82 100,-82 100,-106"/>
+<text text-anchor="middle" x="50" y="-91.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M135.95,-106.27C127.53,-105.05 118.77,-103.79 110.23,-102.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="110.72,-99.09 100.33,-101.12 109.72,-106.02 110.72,-99.09"/>
+</g>
+<!-- sourcefile~fieldbundleget.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~fieldbundleget.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff6d00" stroke-dasharray="5,2" d="M1632.45,-717.34C1614.55,-776.71 1528.42,-1030 1361.5,-1030 1361.5,-1030 1361.5,-1030 1190.5,-1030 1080.87,-1030 1053.93,-1041.59 945,-1054 897.13,-1059.46 885.59,-1070.88 837.5,-1068"/>
+<path fill="none" stroke="#ff6d00" stroke-dasharray="5,2" d="M835.5,-1068C700.87,-1057.26 663.15,-1069.53 534,-1030"/>
+</g>
+<!-- sourcefile~fieldbundleget.f90&#45;&gt;sourcefile~fieldbundletype_flag.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~fieldbundleget.f90&#45;&gt;sourcefile~fieldbundletype_flag.f90</title>
+<path fill="none" stroke="#ff6d00" stroke-dasharray="5,2" d="M1498,-878C1440.85,-898.35 1422.06,-881.57 1361.5,-878"/>
+<path fill="none" stroke="#ff6d00" stroke-dasharray="5,2" d="M1359.5,-878C1317.16,-875.5 1270.29,-863.43 1237.02,-853.19"/>
+<polygon fill="#ff6d00" stroke="#ff6d00" points="1237.73,-849.75 1227.15,-850.08 1235.63,-856.42 1237.73,-849.75"/>
+</g>
+<!-- sourcefile~fieldbundleget.f90&#45;&gt;sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~fieldbundleget.f90&#45;&gt;sourcefile~infoutilities.f90</title>
+<path fill="none" stroke="#ff6d00" stroke-dasharray="5,2" d="M1634.49,-692.88C1629.36,-657.53 1609.06,-554.4 1543,-513 1317.73,-371.81 1201.47,-457.94 945,-528 927.74,-532.71 926.41,-541.89 909,-546 846.28,-560.81 823.17,-571.54 764,-546 655.52,-499.18 574.47,-373.22 545.55,-323.05"/>
+<polygon fill="#ff6d00" stroke="#ff6d00" points="548.44,-321.05 540.47,-314.07 542.35,-324.49 548.44,-321.05"/>
+</g>
+<!-- sourcefile~fieldbundleget.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~fieldbundleget.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff6d00" stroke-dasharray="5,2" d="M1498,-878C1461.96,-888.92 874.91,-1034.26 837.5,-1030"/>
+<path fill="none" stroke="#ff6d00" stroke-dasharray="5,2" d="M835.5,-1030C661.17,-1009.38 596.28,-982.58 486,-846 383.17,-718.63 368.7,-508.37 366.77,-440.13"/>
+<polygon fill="#ff6d00" stroke="#ff6d00" points="370.26,-440.01 366.55,-430.09 363.27,-440.16 370.26,-440.01"/>
+</g>
+<!-- sourcefile~fieldbundleget.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~fieldbundleget.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#ff6d00" stroke-dasharray="5,2" d="M1359.5,-878C1251.58,-871.64 1223.27,-878.85 1117,-859 914.5,-821.19 878.97,-729.6 673,-726"/>
+</g>
+<!-- sourcefile~fieldbundleget.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~fieldbundleget.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#ff6d00" stroke-dasharray="5,2" d="M1631.73,-717.14C1618.68,-751.91 1575.58,-851.09 1500,-878"/>
+<path fill="none" stroke="#ff6d00" stroke-dasharray="5,2" d="M1498,-878C1496.77,-878.44 1267.01,-584.82 1266,-584 1201.32,-531.01 1111.1,-491.85 1057.99,-471.59"/>
+<polygon fill="#ff6d00" stroke="#ff6d00" points="1059.12,-468.27 1048.52,-468.03 1056.65,-474.83 1059.12,-468.27"/>
+</g>
+<!-- sourcefile~api.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_node16" class="node">
+<title>sourcefile~api.f90</title>
+<g id="a_sourcefile~~fieldbundledelta.f90~~EfferentGraph_node16"><a xlink:href="../sourcefile/api.f90.html" xlink:title="API.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1526,-546 1472,-546 1472,-522 1526,-522 1526,-546"/>
+<text text-anchor="middle" x="1499" y="-531.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">API.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundleget.f90&#45;&gt;sourcefile~api.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~fieldbundleget.f90&#45;&gt;sourcefile~api.f90</title>
+<path fill="none" stroke="#ff6d00" stroke-dasharray="5,2" d="M1626.44,-692.98C1603.38,-663.98 1544.5,-589.96 1515.98,-554.09"/>
+<polygon fill="#ff6d00" stroke="#ff6d00" points="1518.7,-551.89 1509.73,-546.24 1513.22,-556.25 1518.7,-551.89"/>
+</g>
+<!-- sourcefile~fieldbundleinfo.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_node17" class="node">
+<title>sourcefile~fieldbundleinfo.f90</title>
+<g id="a_sourcefile~~fieldbundledelta.f90~~EfferentGraph_node17"><a xlink:href="../sourcefile/fieldbundleinfo.f90.html" xlink:title="FieldBundleInfo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1419,-812 1302,-812 1302,-788 1419,-788 1419,-812"/>
+<text text-anchor="middle" x="1360.5" y="-797.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBundleInfo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldbundleget.f90&#45;&gt;sourcefile~fieldbundleinfo.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~fieldbundleget.f90&#45;&gt;sourcefile~fieldbundleinfo.f90</title>
+<path fill="none" stroke="#ff6d00" stroke-dasharray="5,2" d="M1498,-878C1451.19,-894.67 1401.94,-848.19 1377.38,-819.95"/>
+<polygon fill="#ff6d00" stroke="#ff6d00" points="1379.97,-817.59 1370.86,-812.19 1374.62,-822.1 1379.97,-817.59"/>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#b6ff00" stroke-dasharray="5,2" d="M1357.68,-546.03C1351.7,-581.24 1329.24,-684.83 1266,-736 1218.41,-774.51 458.28,-939.96 366.5,-878"/>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~fieldinfo.f90</title>
+<path fill="none" stroke="#b6ff00" stroke-dasharray="5,2" d="M1356.07,-521.91C1346.78,-491.32 1318.27,-410.16 1266,-366 1258.63,-359.78 1249.67,-355 1240.58,-351.35"/>
+<polygon fill="#b6ff00" stroke="#b6ff00" points="1241.71,-348.04 1231.11,-347.95 1239.34,-354.63 1241.71,-348.04"/>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge26" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#b6ff00" stroke-dasharray="5,2" d="M1312.96,-526.7C1230.36,-516.4 1056.35,-506.99 945,-588 914.78,-609.99 936.01,-638.17 909,-664 845.94,-724.3 813.53,-722.77 728,-740 622.39,-761.27 571.51,-791.54 486,-726 392.11,-654.03 371.94,-498.11 367.65,-440.22"/>
+<polygon fill="#b6ff00" stroke="#b6ff00" points="371.13,-439.76 366.98,-430.01 364.14,-440.21 371.13,-439.76"/>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge27" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#b6ff00" stroke-dasharray="5,2" d="M1190.5,-684C1113.5,-700.8 907.85,-614.47 837.5,-650"/>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge28" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#b6ff00" stroke-dasharray="5,2" d="M1350.19,-521.7C1327.13,-492.73 1264.03,-422.33 1192.5,-418"/>
+</g>
+<!-- sourcefile~fieldcreate.f90&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge29" class="edge">
+<title>sourcefile~fieldcreate.f90&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
+<path fill="none" stroke="#b6ff00" stroke-dasharray="5,2" d="M1352.44,-546.02C1332.45,-578.5 1271.7,-666.72 1192.5,-684"/>
+<path fill="none" stroke="#b6ff00" stroke-dasharray="5,2" d="M1190.5,-684C1138.58,-695.33 1128,-660.8 1081,-636 1073.43,-632 1065.13,-628.22 1057.03,-624.82"/>
+<polygon fill="#b6ff00" stroke="#b6ff00" points="1058.25,-621.53 1047.67,-621.01 1055.61,-628.02 1058.25,-621.53"/>
+</g>
+<!-- sourcefile~fielddelta.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge30" class="edge">
+<title>sourcefile~fielddelta.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M1012,-76C860.55,-69.05 824.57,-110.62 673,-114"/>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M671,-114C535.74,-109.48 497.43,-148.23 366.5,-114"/>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M364.5,-114C329.18,-104.38 288.27,-103.92 255.11,-106.08"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="254.79,-102.6 245.08,-106.83 255.31,-109.58 254.79,-102.6"/>
+</g>
+<!-- sourcefile~fielddelta.f90&#45;&gt;sourcefile~fieldget.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge31" class="edge">
+<title>sourcefile~fielddelta.f90&#45;&gt;sourcefile~fieldget.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M1457.05,-350C1442.23,-354.34 1425.36,-359.29 1409.96,-363.8"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="1408.7,-360.52 1400.09,-366.69 1410.67,-367.24 1408.7,-360.52"/>
+</g>
+<!-- sourcefile~fielddelta.f90&#45;&gt;sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge32" class="edge">
+<title>sourcefile~fielddelta.f90&#45;&gt;sourcefile~fieldinfo.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M1454.88,-343.45C1427.67,-345.56 1392.02,-345.87 1361.5,-338"/>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M1359.5,-338C1320.7,-327.99 1275.12,-329.37 1241.39,-332.76"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="1240.88,-329.3 1231.32,-333.87 1241.65,-336.26 1240.88,-329.3"/>
+</g>
+<!-- sourcefile~fielddelta.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge33" class="edge">
+<title>sourcefile~fielddelta.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M1493.17,-325.77C1478.94,-291.5 1433.55,-194.2 1361.5,-151"/>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M1359.5,-151C1318.9,-126.66 1309.23,-119.29 1266,-100 1257.65,-96.27 1248.59,-92.7 1239.77,-89.47"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="1240.94,-86.17 1230.34,-86.09 1238.58,-92.76 1240.94,-86.17"/>
+</g>
+<!-- sourcefile~fielddelta.f90&#45;&gt;sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge34" class="edge">
+<title>sourcefile~fielddelta.f90&#45;&gt;sourcefile~infoutilities.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M1359.5,-151C1224.22,-69.89 727.23,-234.01 577.18,-286.55"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="575.67,-283.37 567.4,-289.99 577.99,-289.98 575.67,-283.37"/>
+</g>
+<!-- sourcefile~fielddelta.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge35" class="edge">
+<title>sourcefile~fielddelta.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M1359.5,-151C1343.2,-140.04 1033.62,-77.01 1014,-76"/>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M1012,-76C927.5,-72.12 920.87,-137.69 837.5,-152"/>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M835.5,-152C672.31,-180 621.91,-186.43 486,-281 465.82,-295.04 466.12,-304.43 450,-323 427.33,-349.12 400.95,-379.06 384,-398.23"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="381.36,-395.94 377.36,-405.75 386.6,-400.57 381.36,-395.94"/>
+</g>
+<!-- sourcefile~fielddelta.f90&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge36" class="edge">
+<title>sourcefile~fielddelta.f90&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M1475.93,-350.04C1469.01,-354.15 1461.49,-358.99 1455,-364 1437.34,-377.64 1436.26,-384.86 1419,-399 1355.2,-451.27 1338.45,-464.6 1266,-504 1196.37,-541.87 1110.18,-575.07 1058.78,-593.54"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="1057.53,-590.27 1049.29,-596.92 1059.88,-596.86 1057.53,-590.27"/>
+</g>
+<!-- sourcefile~fieldget.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge37" class="edge">
+<title>sourcefile~fieldget.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00ff24" stroke-dasharray="5,2" d="M1012,-416C981.86,-423.05 974.07,-424.36 945,-435 794.26,-490.16 753.98,-501.98 616,-584 576.73,-607.35 572.41,-621.26 534,-646"/>
+<path fill="none" stroke="#00ff24" stroke-dasharray="5,2" d="M532,-646C510,-660.81 503.41,-664 486,-684 419.51,-760.39 450.43,-934.67 366.5,-878"/>
+<path fill="none" stroke="#00ff24" stroke-dasharray="5,2" d="M364.5,-878C236.06,-791.28 199.2,-253.43 192.65,-136.44"/>
+<polygon fill="#00ff24" stroke="#00ff24" points="196.13,-135.99 192.1,-126.19 189.14,-136.36 196.13,-135.99"/>
+</g>
+<!-- sourcefile~fieldget.f90&#45;&gt;sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge38" class="edge">
+<title>sourcefile~fieldget.f90&#45;&gt;sourcefile~fieldinfo.f90</title>
+<path fill="none" stroke="#00ff24" stroke-dasharray="5,2" d="M1320.77,-369.19C1296.95,-363.77 1266.23,-356.78 1240.83,-351"/>
+<polygon fill="#00ff24" stroke="#00ff24" points="1241.55,-347.57 1231.02,-348.77 1240,-354.4 1241.55,-347.57"/>
+</g>
+<!-- sourcefile~fieldget.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge39" class="edge">
+<title>sourcefile~fieldget.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#00ff24" stroke-dasharray="5,2" d="M1320.76,-375.29C1286.74,-373.66 1236.02,-373.07 1192.5,-380"/>
+<path fill="none" stroke="#00ff24" stroke-dasharray="5,2" d="M1190.5,-380C1111.44,-392.59 1093.05,-403.35 1014,-416"/>
+<path fill="none" stroke="#00ff24" stroke-dasharray="5,2" d="M1012,-416C805.55,-449.04 557.19,-434.99 437.64,-424.93"/>
+<polygon fill="#00ff24" stroke="#00ff24" points="437.79,-421.43 427.52,-424.06 437.19,-428.41 437.79,-421.43"/>
+</g>
+<!-- sourcefile~fieldget.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge40" class="edge">
+<title>sourcefile~fieldget.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#00ff24" stroke-dasharray="5,2" d="M1190.5,-380C1156.56,-385.4 1147.63,-388.42 1117,-404 1099.41,-412.95 1098.34,-420.58 1081,-430 1074.37,-433.6 1067.13,-436.96 1059.94,-439.98"/>
+<polygon fill="#00ff24" stroke="#00ff24" points="1058.2,-436.9 1050.23,-443.88 1060.81,-443.4 1058.2,-436.9"/>
+</g>
+<!-- sourcefile~fieldget.f90&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge41" class="edge">
+<title>sourcefile~fieldget.f90&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
+<path fill="none" stroke="#00ff24" stroke-dasharray="5,2" d="M1341.41,-390.09C1284.41,-428.21 1108.29,-545.96 1040.75,-591.12"/>
+<polygon fill="#00ff24" stroke="#00ff24" points="1038.69,-588.28 1032.33,-596.75 1042.59,-594.1 1038.69,-588.28"/>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge42" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M1168.78,-327.94C1084.8,-281.7 780.64,-118.14 673,-114"/>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge43" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~infoutilities.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M1012,-342C862.09,-326.89 823.28,-352.76 673,-342"/>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M671,-342C636.32,-339.73 598.51,-327.94 571.42,-317.74"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="572.53,-314.42 561.94,-314.08 570.01,-320.95 572.53,-314.42"/>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge44" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M671,-342C570.98,-335.45 457.48,-377.56 401.51,-401.77"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="399.81,-398.7 392.07,-405.93 402.63,-405.11 399.81,-398.7"/>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge46" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M1151.91,-347.97C1139.77,-351.89 1126.94,-357.64 1117,-366 1092.02,-387 1105.66,-408.62 1081,-430 1076.82,-433.63 1072.07,-436.78 1067.08,-439.51"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="1065.36,-436.45 1057.91,-443.98 1068.43,-442.74 1065.36,-436.45"/>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge47" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M1151.64,-346.63C1139.2,-350.46 1126.25,-356.5 1117,-366 1080.81,-403.15 1100.8,-429.06 1081,-477 1064.3,-517.44 1040.18,-562.47 1025.89,-588.1"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="1022.78,-586.49 1020.94,-596.93 1028.89,-589.92 1022.78,-586.49"/>
+</g>
+<!-- sourcefile~mapl_esmf_infokeys.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_node18" class="node">
+<title>sourcefile~mapl_esmf_infokeys.f90</title>
+<g id="a_sourcefile~~fieldbundledelta.f90~~EfferentGraph_node18"><a xlink:href="../sourcefile/mapl_esmf_infokeys.f90.html" xlink:title="MAPL_ESMF_InfoKeys.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="439,-314 292,-314 292,-290 439,-290 439,-314"/>
+<text text-anchor="middle" x="365.5" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMF_InfoKeys.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge45" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M1151.82,-342.97C1115.98,-345.13 1061.25,-346.89 1014,-342"/>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M1012,-342C777.91,-317.77 720.45,-260.56 486,-281 468.72,-282.51 450.19,-285.22 433.01,-288.2"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="432.29,-284.77 423.07,-289.98 433.53,-291.66 432.29,-284.77"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_node19" class="node">
+<title>sourcefile~mapl_exceptionhandling.f90</title>
+<g id="a_sourcefile~~fieldbundledelta.f90~~EfferentGraph_node19"><a xlink:href="../sourcefile/mapl_exceptionhandling.f90.html" xlink:title="MAPL_ExceptionHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="450,-86 281,-86 281,-62 450,-62 450,-86"/>
+<text text-anchor="middle" x="365.5" y="-71.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldpointerutilities.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge48" class="edge">
+<title>sourcefile~fieldpointerutilities.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1156.43,-61.95C1094.01,-40.98 956.79,0 837.5,0 837.5,0 837.5,0 671,0 573.03,0 462.22,-36.62 405.11,-58.34"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="403.82,-55.08 395.75,-61.95 406.34,-61.61 403.82,-55.08"/>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge49" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M1323.03,-215.86C1270.26,-198.8 1169.27,-168.03 1081,-152 901.81,-119.46 855.06,-109.21 673,-114"/>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge50" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~fieldinfo.f90</title>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M1341.31,-240.2C1311.74,-260.03 1253.13,-299.34 1218.95,-322.26"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="1216.77,-319.51 1210.41,-327.99 1220.67,-325.32 1216.77,-319.51"/>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge51" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M1347.28,-215.86C1329.61,-198.39 1295.75,-165.24 1266,-138 1248.94,-122.38 1229.15,-105.2 1214.4,-92.57"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="1216.65,-89.89 1206.77,-86.06 1212.11,-95.22 1216.65,-89.89"/>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge52" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~infoutilities.f90</title>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M1190.5,-228C969.6,-262.41 704.5,-287.32 590.57,-297.25"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="590,-293.78 580.34,-298.13 590.61,-300.76 590,-293.78"/>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge53" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M1310.92,-223.79C1277.41,-221.91 1231.96,-221.39 1192.5,-228"/>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M1190.5,-228C1032.22,-254.5 994.13,-117.05 837.5,-152"/>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge54" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M1190.5,-228C1161.47,-232.97 969.88,-312.24 945,-328 900.21,-356.37 631.23,-612.14 554.45,-685.45"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="551.65,-683.28 546.84,-692.71 556.49,-688.34 551.65,-683.28"/>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge55" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#0091ff" stroke-dasharray="5,2" d="M1190.5,-228C1139.13,-236 1141.77,-273.29 1117,-319 1092.29,-364.6 1116.62,-392.31 1081,-430 1077.83,-433.36 1074.18,-436.28 1070.24,-438.84"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="1068.29,-435.92 1061.28,-443.86 1071.71,-442.03 1068.29,-435.92"/>
+</g>
+<!-- sourcefile~infoutilities.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge56" class="edge">
+<title>sourcefile~infoutilities.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#0024ff" stroke-dasharray="5,2" d="M527.15,-289.85C511.17,-252.02 456.11,-137.43 366.5,-114"/>
+</g>
+<!-- sourcefile~infoutilities.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge57" class="edge">
+<title>sourcefile~infoutilities.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#0024ff" stroke-dasharray="5,2" d="M509.19,-314.12C501.68,-318.31 493.37,-323.17 486,-328 450.98,-350.94 412.68,-380.68 389.12,-399.56"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="386.73,-396.99 381.14,-405.99 391.12,-402.44 386.73,-396.99"/>
+</g>
+<!-- sourcefile~infoutilities.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge58" class="edge">
+<title>sourcefile~infoutilities.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90</title>
+<path fill="none" stroke="#0024ff" stroke-dasharray="5,2" d="M485.9,-302C474.43,-302 461.78,-302 449.13,-302"/>
+<polygon fill="#0024ff" stroke="#0024ff" points="449.02,-298.5 439.02,-302 449.02,-305.5 449.02,-298.5"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge59" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M835.5,-532C787.74,-555.15 777.29,-564.32 728,-584 643.94,-617.57 612.74,-601.35 534,-646"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge60" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~infoutilities.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M953.95,-447.6C874.96,-434.78 730.37,-406.37 616,-356 594.81,-346.67 573.02,-332.03 557.23,-320.35"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="559.21,-317.46 549.12,-314.22 554.99,-323.04 559.21,-317.46"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge61" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M1001.45,-468.16C987.32,-484.87 962.04,-516.25 945,-546 924.6,-581.6 939.98,-604.1 909,-631 884.17,-652.56 866.85,-635.18 837.5,-650"/>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M835.5,-650C764.33,-685.94 752.72,-727.39 673,-726"/>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M671,-726C643.19,-725.51 612.57,-721.19 587.34,-716.59"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="587.72,-713.09 577.24,-714.68 586.42,-719.97 587.72,-713.09"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge62" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M988.91,-468.15C963.56,-481.39 924.43,-501.55 909,-508 878.07,-520.92 868.09,-518.29 837.5,-532"/>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M835.5,-532C655.78,-612.55 443.46,-390.91 383.19,-321.83"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="385.79,-319.48 376.61,-314.19 380.49,-324.05 385.79,-319.48"/>
+</g>
+<!-- sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_node21" class="node">
+<title>sourcefile~ungriddeddim.f90</title>
+<g id="a_sourcefile~~fieldbundledelta.f90~~EfferentGraph_node21"><a xlink:href="../sourcefile/ungriddeddim.f90.html" xlink:title="UngriddedDim.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="728,-698 616,-698 616,-674 728,-674 728,-698"/>
+<text text-anchor="middle" x="672" y="-683.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDim.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge63" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddim.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M835.5,-532C798.41,-548.62 789.67,-557.49 764,-589 741.66,-616.43 753.36,-635.33 728,-660 724.54,-663.37 720.56,-666.36 716.36,-669.01"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="714.53,-666.02 707.52,-673.96 717.95,-672.13 714.53,-666.02"/>
+</g>
+<!-- sourcefile~ungriddeddimvector.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_node22" class="node">
+<title>sourcefile~ungriddeddimvector.f90</title>
+<g id="a_sourcefile~~fieldbundledelta.f90~~EfferentGraph_node22"><a xlink:href="../sourcefile/ungriddeddimvector.f90.html" xlink:title="UngriddedDimVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="909,-622 764,-622 764,-598 909,-598 909,-622"/>
+<text text-anchor="middle" x="836.5" y="-607.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDimVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddimvector.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge64" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddimvector.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M998.31,-468.08C967.98,-494.85 894.97,-559.28 858.7,-591.29"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="856.31,-588.73 851.13,-597.97 860.94,-593.98 856.31,-588.73"/>
+</g>
+<!-- sourcefile~api.f90&#45;&gt;sourcefile~fieldcreate.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge65" class="edge">
+<title>sourcefile~api.f90&#45;&gt;sourcefile~fieldcreate.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1471.68,-534C1456.52,-534 1436.84,-534 1418.32,-534"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1418.19,-530.5 1408.19,-534 1418.19,-537.5 1418.19,-530.5"/>
+</g>
+<!-- sourcefile~api.f90&#45;&gt;sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge66" class="edge">
+<title>sourcefile~api.f90&#45;&gt;sourcefile~fieldinfo.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1496.02,-521.7C1490.24,-489.77 1470.42,-403.49 1419,-357 1399.04,-338.95 1387.56,-344.72 1361.5,-338"/>
+</g>
+<!-- sourcefile~api.f90&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge67" class="edge">
+<title>sourcefile~api.f90&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1489.79,-546.22C1455.52,-595.58 1319.79,-775.16 1192.5,-722"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1190.5,-722C1158,-710.84 1146.92,-714.9 1117,-698 1083.57,-679.12 1051.1,-648.37 1031.82,-628.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1034.3,-625.93 1024.87,-621.09 1029.22,-630.75 1034.3,-625.93"/>
+</g>
+<!-- sourcefile~fieldbundleinfo.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge68" class="edge">
+<title>sourcefile~fieldbundleinfo.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M1190.5,-798C1157.05,-802.4 1147.93,-803.53 1117,-817 1099.59,-824.58 1098.08,-831.72 1081,-840 1052.05,-854.03 565.29,-1037.49 534,-1030"/>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M532,-1030C436.5,-1000.77 448.78,-934.61 366.5,-878"/>
+</g>
+<!-- sourcefile~fieldbundleinfo.f90&#45;&gt;sourcefile~fieldbundletype_flag.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge69" class="edge">
+<title>sourcefile~fieldbundleinfo.f90&#45;&gt;sourcefile~fieldbundletype_flag.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M1306.66,-812.02C1290.28,-815.75 1272.08,-819.89 1255.11,-823.75"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="1254.26,-820.36 1245.28,-825.99 1255.81,-827.18 1254.26,-820.36"/>
+</g>
+<!-- sourcefile~fieldbundleinfo.f90&#45;&gt;sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge70" class="edge">
+<title>sourcefile~fieldbundleinfo.f90&#45;&gt;sourcefile~fieldinfo.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M1356.44,-787.8C1347.55,-752.12 1321.07,-644.75 1302,-555 1284.23,-471.36 1321.71,-430.88 1266,-366 1259.39,-358.3 1250.34,-352.88 1240.85,-349.06"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="1241.89,-345.72 1231.29,-345.76 1239.6,-352.33 1241.89,-345.72"/>
+</g>
+<!-- sourcefile~fieldbundleinfo.f90&#45;&gt;sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge71" class="edge">
+<title>sourcefile~fieldbundleinfo.f90&#45;&gt;sourcefile~infoutilities.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M1301.63,-794.94C1269.36,-793.21 1228.52,-792.83 1192.5,-798"/>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M1190.5,-798C1111.43,-809.36 1093.02,-775.76 1014,-764"/>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M1012,-764C813.28,-734.43 743.39,-701.35 616,-546 560.24,-478 541.75,-370.38 536.18,-324.22"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="539.64,-323.66 535.05,-314.11 532.69,-324.44 539.64,-323.66"/>
+</g>
+<!-- sourcefile~fieldbundleinfo.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge72" class="edge">
+<title>sourcefile~fieldbundleinfo.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M1190.5,-798C1034.11,-820.47 995.5,-840 837.5,-840 837.5,-840 837.5,-840 671,-840 588.09,-840 549.2,-869.67 486,-816 426.51,-765.48 382.22,-516.07 369.93,-440.04"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="373.38,-439.45 368.35,-430.12 366.47,-440.55 373.38,-439.45"/>
+</g>
+<!-- sourcefile~fieldbundleinfo.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge74" class="edge">
+<title>sourcefile~fieldbundleinfo.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M1321.03,-787.89C1314,-784.3 1307.24,-779.75 1302,-774 1269.03,-737.87 1297.15,-707.72 1266,-670 1217.31,-611.04 1175.07,-633.74 1117,-584 1079.21,-551.63 1045.1,-503.95 1027.2,-476.84"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="1029.95,-474.65 1021.56,-468.18 1024.08,-478.47 1029.95,-474.65"/>
+</g>
+<!-- sourcefile~fieldbundleinfo.f90&#45;&gt;sourcefile~verticalstaggerloc.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge75" class="edge">
+<title>sourcefile~fieldbundleinfo.f90&#45;&gt;sourcefile~verticalstaggerloc.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M1332.54,-787.93C1322.89,-783.58 1311.94,-778.61 1302,-774 1253.12,-751.34 1242.21,-742.76 1192.5,-722"/>
+</g>
+<!-- sourcefile~fieldbundleinfo.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge73" class="edge">
+<title>sourcefile~fieldbundleinfo.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90</title>
+<path fill="none" stroke="#ffda00" stroke-dasharray="5,2" d="M1012,-764C778.95,-739 651.88,-891.59 486,-726 433.95,-674.04 479.66,-464.3 450,-397 436.46,-366.27 409.3,-338.35 389.62,-320.85"/>
+<polygon fill="#ffda00" stroke="#ffda00" points="391.82,-318.13 381.97,-314.23 387.24,-323.42 391.82,-318.13"/>
+</g>
+<!-- sourcefile~mapl_esmf_infokeys.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge76" class="edge">
+<title>sourcefile~mapl_esmf_infokeys.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M353.41,-289.95C324.31,-258.33 245.51,-172.69 209.68,-133.75"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="212.06,-131.18 202.72,-126.19 206.91,-135.92 212.06,-131.18"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge77" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M312.59,-86C294.03,-90.29 272.93,-95.17 253.59,-99.64"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="252.62,-96.28 243.67,-101.94 254.2,-103.1 252.62,-96.28"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge78" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#00ff91" stroke-dasharray="5,2" d="M280.9,-79.33C227.16,-82.76 158.64,-87.13 110.43,-90.21"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="109.92,-86.73 100.16,-90.86 110.37,-93.72 109.92,-86.73"/>
+</g>
+<!-- sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge79" class="edge">
+<title>sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#4800ff" stroke-dasharray="5,2" d="M645.65,-673.96C611.59,-658.58 553.13,-635.15 534,-646"/>
+</g>
+<!-- sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge80" class="edge">
+<title>sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~infoutilities.f90</title>
+<path fill="none" stroke="#4800ff" stroke-dasharray="5,2" d="M657.21,-673.61C644.67,-661.6 626.56,-642.27 616,-622 562.18,-518.73 542.15,-377.96 536.17,-324.15"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="539.63,-323.61 535.09,-314.03 532.67,-324.34 539.63,-323.61"/>
+</g>
+<!-- sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge81" class="edge">
+<title>sourcefile~ungriddeddim.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#4800ff" stroke-dasharray="5,2" d="M615.67,-693.67C606.29,-694.97 596.57,-696.32 587.24,-697.62"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="586.74,-694.15 577.32,-698.99 587.7,-701.09 586.74,-694.15"/>
+</g>
+<!-- sourcefile~ungriddeddimvector.f90&#45;&gt;sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~EfferentGraph_edge82" class="edge">
+<title>sourcefile~ungriddeddimvector.f90&#45;&gt;sourcefile~ungriddeddim.f90</title>
+<path fill="none" stroke="#ff00da" stroke-dasharray="5,2" d="M796.94,-622.12C786.06,-626.04 774.37,-630.75 764,-636 746.84,-644.68 744.74,-650.53 728,-660 722.27,-663.24 716.07,-666.45 709.96,-669.44"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="708.05,-666.48 700.54,-673.95 711.07,-672.79 708.05,-666.48"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilefieldbundledeltaf90EfferentGraph = svgPanZoom('#sourcefilefieldbundledeltaf90EfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~fieldbundledelta.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilefieldbundledeltaf90AfferentGraph" width="312pt" height="32pt"
+ viewBox="0.00 0.00 312.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~fieldbundledelta.f90~~AfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>sourcefile~~fieldbundledelta.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 308,-28 308,4 -4,4"/>
+<!-- sourcefile~fieldbundledelta.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~fieldbundledelta.f90</title>
+<polygon fill="none" stroke="black" points="126,-24 0,-24 0,0 126,0 126,-24"/>
+<text text-anchor="middle" x="63" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">FieldBundleDelta.F90</text>
+</g>
+<!-- sourcefile~test_fieldbundledelta.pf -->
+<g id="sourcefile~~fieldbundledelta.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~test_fieldbundledelta.pf</title>
+<g id="a_sourcefile~~fieldbundledelta.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/test_fieldbundledelta.pf.html" xlink:title="Test_FieldBundleDelta.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="304,-24 162,-24 162,0 304,0 304,-24"/>
+<text text-anchor="middle" x="233" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_FieldBundleDelta.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_fieldbundledelta.pf&#45;&gt;sourcefile~fieldbundledelta.f90 -->
+<g id="sourcefile~~fieldbundledelta.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~test_fieldbundledelta.pf&#45;&gt;sourcefile~fieldbundledelta.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M161.73,-12C153.35,-12 144.79,-12 136.39,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="136.24,-8.5 126.24,-12 136.24,-15.5 136.24,-8.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="c">! This class is to support propagation of time-dependent Field</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="c">! attributes across couplers as well as to provide guidance to the</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="c">! containt Action objects on when to recompute internal items.</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="cp">#include &quot;MAPL_Exceptions.h&quot;</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="k">module </span><span class="n">mapl3g_FieldBundleDelta</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_FieldBundleGet</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_FieldBundleType_Flag</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_LU_Bound</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_FieldDelta</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_InfoUtilities</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_VerticalStaggerLoc</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_FieldCreate</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_FieldGet</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_FieldInfo</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_FieldUtilities</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_UngriddedDims</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_FieldPointerUtilities</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_ErrorHandling</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_KeywordEnforcer</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">   </span><span class="k">use </span><span class="n">esmf</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">   </span><span class="k">implicit none</span><span class="p">(</span><span class="k">type</span><span class="p">,</span><span class="w"> </span><span class="k">external</span><span class="p">)</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">   </span><span class="k">private</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">FieldBundleDelta</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">   </span><span class="c">! Note fieldCount can be derivedy from weights</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">FieldBundleDelta</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">      </span><span class="k">private</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="k">      type</span><span class="p">(</span><span class="n">FieldDelta</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field_delta</span><span class="w"> </span><span class="c">! constant across bundle</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">interpolation_weights</span><span class="p">(:)</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">initialize_bundle_delta</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="k">generic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">initialize</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">initialize_bundle_delta</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">update_bundle</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="k">procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">reallocate_bundle</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">   </span><span class="k">end type </span><span class="n">FieldBundleDelta</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a>
+<a id="ln-39" name="ln-39" href="#ln-39"></a>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">   </span><span class="k">interface </span><span class="n">FieldBundleDelta</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">      </span><span class="k">procedure </span><span class="n">new_FieldBundleDelta</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="k">procedure </span><span class="n">new_FieldBundleDelta_field_delta</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">   </span><span class="k">end interface </span><span class="n">FieldBundleDelta</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="k">contains</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="k">   function </span><span class="n">new_FieldBundleDelta</span><span class="p">(</span><span class="n">fieldCount</span><span class="p">,</span><span class="w"> </span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="p">,</span><span class="w"> </span><span class="n">num_levels</span><span class="p">,</span><span class="w"> </span><span class="n">units</span><span class="p">,</span><span class="w"> </span><span class="n">interpolation_weights</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">bundle_delta</span><span class="p">)</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldBundleDelta</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle_delta</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fieldCount</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TypeKind_Flag</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">typekind</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">num_levels</span>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">units</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">interpolation_weights</span><span class="p">(:)</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a>
+<a id="ln-56" name="ln-56" href="#ln-56"></a><span class="w">      </span><span class="k">associate</span><span class="w"> </span><span class="p">(</span><span class="n">field_delta</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">FieldDelta</span><span class="p">(</span><span class="n">geom</span><span class="o">=</span><span class="n">geom</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="o">=</span><span class="n">typekind</span><span class="p">,</span><span class="w"> </span><span class="n">num_levels</span><span class="o">=</span><span class="n">num_levels</span><span class="p">,</span><span class="w"> </span><span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">))</span>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">        </span><span class="n">bundle_delta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldBundleDelta</span><span class="p">(</span><span class="n">field_delta</span><span class="p">,</span><span class="w"> </span><span class="n">fieldCount</span><span class="p">,</span><span class="w"> </span><span class="n">interpolation_weights</span><span class="p">)</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">      </span><span class="k">end associate</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="k">   end function </span><span class="n">new_FieldBundleDelta</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">   </span><span class="k">function </span><span class="n">new_FieldBundleDelta_field_delta</span><span class="p">(</span><span class="n">field_delta</span><span class="p">,</span><span class="w"> </span><span class="n">fieldCount</span><span class="p">,</span><span class="w"> </span><span class="n">interpolation_weights</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">bundle_delta</span><span class="p">)</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldBundleDelta</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle_delta</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldDelta</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field_delta</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fieldCount</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">interpolation_weights</span><span class="p">(:)</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">      </span><span class="n">bundle_delta</span><span class="p">%</span><span class="n">field_delta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">field_delta</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">interpolation_weights</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a><span class="k">         </span><span class="n">bundle_delta</span><span class="p">%</span><span class="n">interpolation_weights</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">interpolation_weights</span>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">      </span><span class="k">end if</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="k">   end function </span><span class="n">new_FieldBundleDelta_field_delta</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a>
+<a id="ln-76" name="ln-76" href="#ln-76"></a>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">   </span><span class="c">! delta = bundle_b - bundle_a</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">initialize_bundle_delta</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">bundle_a</span><span class="p">,</span><span class="w"> </span><span class="n">bundle_b</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">FieldBundleDelta</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle_a</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle_b</span>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">      </span><span class="k">call </span><span class="n">compute_interpolation_weights_delta</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">interpolation_weights</span><span class="p">,</span><span class="w"> </span><span class="n">bundle_a</span><span class="p">,</span><span class="w"> </span><span class="n">bundle_b</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="w">      </span><span class="k">call </span><span class="n">compute_field_delta</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">field_delta</span><span class="p">,</span><span class="w"> </span><span class="n">bundle_a</span><span class="p">,</span><span class="w"> </span><span class="n">bundle_b</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a>
+<a id="ln-91" name="ln-91" href="#ln-91"></a>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="k">      subroutine </span><span class="n">compute_interpolation_weights_delta</span><span class="p">(</span><span class="n">interpolation_weights</span><span class="p">,</span><span class="w"> </span><span class="n">bundle_a</span><span class="p">,</span><span class="w"> </span><span class="n">bundle_b</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">         </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">interpolation_weights</span><span class="p">(:)</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle_a</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle_b</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a><span class="w">         </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">weights_a</span><span class="p">(:),</span><span class="w"> </span><span class="n">weights_b</span><span class="p">(:)</span>
+<a id="ln-102" name="ln-102" href="#ln-102"></a>
+<a id="ln-103" name="ln-103" href="#ln-103"></a><span class="w">         </span><span class="k">call </span><span class="n">MAPL_FieldBundleGet</span><span class="p">(</span><span class="n">bundle_a</span><span class="p">,</span><span class="w"> </span><span class="n">interpolation_weights</span><span class="o">=</span><span class="n">weights_a</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="w">         </span><span class="k">call </span><span class="n">MAPL_FieldBundleGet</span><span class="p">(</span><span class="n">bundle_b</span><span class="p">,</span><span class="w"> </span><span class="n">interpolation_weights</span><span class="o">=</span><span class="n">weights_b</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="n">weights_a</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">weights_b</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="k">            </span><span class="n">interpolation_weights</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">weights_b</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">         </span><span class="k">end if</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="k">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a>
+<a id="ln-112" name="ln-112" href="#ln-112"></a><span class="w">      </span><span class="k">end subroutine </span><span class="n">compute_interpolation_weights_delta</span>
+<a id="ln-113" name="ln-113" href="#ln-113"></a>
+<a id="ln-114" name="ln-114" href="#ln-114"></a><span class="w">      </span><span class="k">subroutine </span><span class="n">compute_field_delta</span><span class="p">(</span><span class="n">field_delta</span><span class="p">,</span><span class="w"> </span><span class="n">bundle_a</span><span class="p">,</span><span class="w"> </span><span class="n">bundle_b</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">FieldDelta</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field_delta</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle_a</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle_b</span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a>
+<a id="ln-120" name="ln-120" href="#ln-120"></a><span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-121" name="ln-121" href="#ln-121"></a><span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fieldCount_a</span><span class="p">,</span><span class="w"> </span><span class="n">fieldCount_b</span>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fieldList_a</span><span class="p">(:),</span><span class="w"> </span><span class="n">fieldList_b</span><span class="p">(:)</span>
+<a id="ln-123" name="ln-123" href="#ln-123"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">FieldBundleType_Flag</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fieldBundleType_a</span><span class="p">,</span><span class="w"> </span><span class="n">fieldBundleType_b</span>
+<a id="ln-124" name="ln-124" href="#ln-124"></a>
+<a id="ln-125" name="ln-125" href="#ln-125"></a><span class="w">         </span><span class="k">call </span><span class="n">MAPL_FieldBundleGet</span><span class="p">(</span><span class="n">bundle_a</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-126" name="ln-126" href="#ln-126"></a><span class="w">              </span><span class="n">fieldCount</span><span class="o">=</span><span class="n">fieldCount_a</span><span class="p">,</span><span class="w"> </span><span class="n">fieldBundleType</span><span class="o">=</span><span class="n">fieldBundleType_a</span><span class="p">,</span><span class="w"> </span><span class="n">fieldList</span><span class="o">=</span><span class="n">fieldList_a</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-127" name="ln-127" href="#ln-127"></a><span class="w">         </span><span class="k">call </span><span class="n">MAPL_FieldBundleGet</span><span class="p">(</span><span class="n">bundle_b</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-128" name="ln-128" href="#ln-128"></a><span class="w">              </span><span class="n">fieldCount</span><span class="o">=</span><span class="n">fieldCount_b</span><span class="p">,</span><span class="w"> </span><span class="n">fieldBundleType</span><span class="o">=</span><span class="n">fieldBundleType_b</span><span class="p">,</span><span class="w"> </span><span class="n">fieldList</span><span class="o">=</span><span class="n">fieldList_b</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-129" name="ln-129" href="#ln-129"></a><span class="w">         </span>
+<a id="ln-130" name="ln-130" href="#ln-130"></a><span class="w">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">fieldBundleType_a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FIELDBUNDLETYPE_BRACKET</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;incorrect type of FieldBundle&#39;</span><span class="p">)</span>
+<a id="ln-131" name="ln-131" href="#ln-131"></a><span class="w">         </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">fieldBundleType_b</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FIELDBUNDLETYPE_BRACKET</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;incorrect type of FieldBundle&#39;</span><span class="p">)</span>
+<a id="ln-132" name="ln-132" href="#ln-132"></a>
+<a id="ln-133" name="ln-133" href="#ln-133"></a><span class="w">         </span><span class="c">! TODO: add check thta name of 1st field is &quot;bracket-prototype&quot; or similar.</span>
+<a id="ln-134" name="ln-134" href="#ln-134"></a><span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fieldCount_a</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">fieldCount_b</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-135" name="ln-135" href="#ln-135"></a><span class="k">            call </span><span class="n">field_delta</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="n">fieldList_a</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">fieldList_b</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-136" name="ln-136" href="#ln-136"></a><span class="w">            </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-137" name="ln-137" href="#ln-137"></a><span class="w">         </span><span class="k">end if</span>
+<a id="ln-138" name="ln-138" href="#ln-138"></a>
+<a id="ln-139" name="ln-139" href="#ln-139"></a><span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">fieldCount_b</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-140" name="ln-140" href="#ln-140"></a><span class="w">            </span><span class="c">! full FieldDelta</span>
+<a id="ln-141" name="ln-141" href="#ln-141"></a><span class="w">            </span><span class="k">call </span><span class="n">field_delta</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="n">fieldList_b</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-142" name="ln-142" href="#ln-142"></a><span class="w">            </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-143" name="ln-143" href="#ln-143"></a><span class="w">         </span><span class="k">end if</span>
+<a id="ln-144" name="ln-144" href="#ln-144"></a>
+<a id="ln-145" name="ln-145" href="#ln-145"></a><span class="w">         </span><span class="c">! Otherwise nothing to do. Fields are either going away</span>
+<a id="ln-146" name="ln-146" href="#ln-146"></a><span class="w">         </span><span class="c">! (n_fields_b = 0) or there are no fields on either side</span>
+<a id="ln-147" name="ln-147" href="#ln-147"></a><span class="w">         </span><span class="c">! (n_fields_a = 0 and n_fields_b = 0).</span>
+<a id="ln-148" name="ln-148" href="#ln-148"></a><span class="w">            </span>
+<a id="ln-149" name="ln-149" href="#ln-149"></a><span class="w">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-150" name="ln-150" href="#ln-150"></a><span class="w">      </span><span class="k">end subroutine </span><span class="n">compute_field_delta</span>
+<a id="ln-151" name="ln-151" href="#ln-151"></a><span class="w">      </span>
+<a id="ln-152" name="ln-152" href="#ln-152"></a>
+<a id="ln-153" name="ln-153" href="#ln-153"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">initialize_bundle_delta</span>
+<a id="ln-154" name="ln-154" href="#ln-154"></a>
+<a id="ln-155" name="ln-155" href="#ln-155"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">update_bundle</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">ignore</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-156" name="ln-156" href="#ln-156"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">FieldBundleDelta</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-157" name="ln-157" href="#ln-157"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle</span>
+<a id="ln-158" name="ln-158" href="#ln-158"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ignore</span>
+<a id="ln-159" name="ln-159" href="#ln-159"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-160" name="ln-160" href="#ln-160"></a>
+<a id="ln-161" name="ln-161" href="#ln-161"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-162" name="ln-162" href="#ln-162"></a><span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ignore_</span>
+<a id="ln-163" name="ln-163" href="#ln-163"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fieldList</span><span class="p">(:)</span>
+<a id="ln-164" name="ln-164" href="#ln-164"></a>
+<a id="ln-165" name="ln-165" href="#ln-165"></a><span class="w">      </span><span class="n">ignore_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
+<a id="ln-166" name="ln-166" href="#ln-166"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">ignore</span><span class="p">))</span><span class="w"> </span><span class="n">ignore_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ignore</span>
+<a id="ln-167" name="ln-167" href="#ln-167"></a>
+<a id="ln-168" name="ln-168" href="#ln-168"></a><span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">reallocate_bundle</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">ignore</span><span class="o">=</span><span class="n">ignore_</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-169" name="ln-169" href="#ln-169"></a><span class="w">      </span><span class="k">call </span><span class="n">MAPL_FieldBundleGet</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">fieldList</span><span class="o">=</span><span class="n">fieldList</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-170" name="ln-170" href="#ln-170"></a><span class="w">      </span><span class="k">call </span><span class="n">this</span><span class="p">%</span><span class="n">field_delta</span><span class="p">%</span><span class="n">update_fields</span><span class="p">(</span><span class="n">fieldList</span><span class="p">,</span><span class="w"> </span><span class="n">ignore</span><span class="o">=</span><span class="n">ignore_</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-171" name="ln-171" href="#ln-171"></a>
+<a id="ln-172" name="ln-172" href="#ln-172"></a><span class="w">      </span><span class="c">! unique attribute in bundle</span>
+<a id="ln-173" name="ln-173" href="#ln-173"></a><span class="w">      </span><span class="k">call </span><span class="n">update_interpolation_weights</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">interpolation_weights</span><span class="p">,</span><span class="w"> </span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">ignore</span><span class="o">=</span><span class="n">ignore_</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-174" name="ln-174" href="#ln-174"></a>
+<a id="ln-175" name="ln-175" href="#ln-175"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-176" name="ln-176" href="#ln-176"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-177" name="ln-177" href="#ln-177"></a>
+<a id="ln-178" name="ln-178" href="#ln-178"></a>
+<a id="ln-179" name="ln-179" href="#ln-179"></a><span class="k">      subroutine </span><span class="n">update_interpolation_weights</span><span class="p">(</span><span class="n">interpolation_weights</span><span class="p">,</span><span class="w"> </span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">ignore</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-180" name="ln-180" href="#ln-180"></a><span class="w">         </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">interpolation_weights</span><span class="p">(:)</span>
+<a id="ln-181" name="ln-181" href="#ln-181"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle</span>
+<a id="ln-182" name="ln-182" href="#ln-182"></a><span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ignore</span>
+<a id="ln-183" name="ln-183" href="#ln-183"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-184" name="ln-184" href="#ln-184"></a>
+<a id="ln-185" name="ln-185" href="#ln-185"></a><span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-186" name="ln-186" href="#ln-186"></a>
+<a id="ln-187" name="ln-187" href="#ln-187"></a><span class="w">         </span><span class="err">_</span><span class="n">RETURN_UNLESS</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">interpolation_weights</span><span class="p">))</span>
+<a id="ln-188" name="ln-188" href="#ln-188"></a><span class="w">         </span><span class="err">_</span><span class="n">RETURN_IF</span><span class="p">(</span><span class="n">ignore</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;interpolation_weights&#39;</span><span class="p">)</span>
+<a id="ln-189" name="ln-189" href="#ln-189"></a>
+<a id="ln-190" name="ln-190" href="#ln-190"></a><span class="w">         </span><span class="k">call </span><span class="n">MAPL_FieldBundleSet</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">interpolation_weights</span><span class="o">=</span><span class="n">interpolation_weights</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-191" name="ln-191" href="#ln-191"></a>
+<a id="ln-192" name="ln-192" href="#ln-192"></a><span class="w">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-193" name="ln-193" href="#ln-193"></a><span class="w">      </span><span class="k">end subroutine </span><span class="n">update_interpolation_weights</span>
+<a id="ln-194" name="ln-194" href="#ln-194"></a>
+<a id="ln-195" name="ln-195" href="#ln-195"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">update_bundle</span>
+<a id="ln-196" name="ln-196" href="#ln-196"></a>
+<a id="ln-197" name="ln-197" href="#ln-197"></a>
+<a id="ln-198" name="ln-198" href="#ln-198"></a><span class="w">   </span><span class="c">! If the size of the bundle is not changing, then any reallocation is</span>
+<a id="ln-199" name="ln-199" href="#ln-199"></a><span class="w">   </span><span class="c">! relegated to fields through the FieldDelta component.</span>
+<a id="ln-200" name="ln-200" href="#ln-200"></a><span class="w">   </span><span class="c">! Otherwise we need to create or destroy fields in the bundle.</span>
+<a id="ln-201" name="ln-201" href="#ln-201"></a><span class="w">   </span>
+<a id="ln-202" name="ln-202" href="#ln-202"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">reallocate_bundle</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">ignore</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-203" name="ln-203" href="#ln-203"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">FieldBundleDelta</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-204" name="ln-204" href="#ln-204"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldBundle</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle</span>
+<a id="ln-205" name="ln-205" href="#ln-205"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ignore</span>
+<a id="ln-206" name="ln-206" href="#ln-206"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<a id="ln-207" name="ln-207" href="#ln-207"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-208" name="ln-208" href="#ln-208"></a>
+<a id="ln-209" name="ln-209" href="#ln-209"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-210" name="ln-210" href="#ln-210"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fieldList</span><span class="p">(:)</span>
+<a id="ln-211" name="ln-211" href="#ln-211"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bundle_geom</span>
+<a id="ln-212" name="ln-212" href="#ln-212"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<a id="ln-213" name="ln-213" href="#ln-213"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">LU_Bound</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bounds</span><span class="p">(:)</span>
+<a id="ln-214" name="ln-214" href="#ln-214"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">LU_Bound</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vertical_bounds</span>
+<a id="ln-215" name="ln-215" href="#ln-215"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TypeKind_Flag</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">typekind</span>
+<a id="ln-216" name="ln-216" href="#ln-216"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ungriddedLbound</span><span class="p">(:),</span><span class="w"> </span><span class="n">ungriddedUbound</span><span class="p">(:)</span>
+<a id="ln-217" name="ln-217" href="#ln-217"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">old_field_count</span><span class="p">,</span><span class="w"> </span><span class="n">new_field_count</span>
+<a id="ln-218" name="ln-218" href="#ln-218"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">num_levels</span>
+<a id="ln-219" name="ln-219" href="#ln-219"></a><span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">units</span><span class="p">,</span><span class="w"> </span><span class="n">vert_staggerloc_str</span>
+<a id="ln-220" name="ln-220" href="#ln-220"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">VerticalStaggerLoc</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vert_staggerloc</span>
+<a id="ln-221" name="ln-221" href="#ln-221"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="n">ESMF_MAXSTR</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fieldNameList</span><span class="p">(:)</span>
+<a id="ln-222" name="ln-222" href="#ln-222"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">UngriddedDims</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ungridded_dims</span>
+<a id="ln-223" name="ln-223" href="#ln-223"></a>
+<a id="ln-224" name="ln-224" href="#ln-224"></a><span class="w">      </span><span class="c">! Easy case 1: field count unchanged</span>
+<a id="ln-225" name="ln-225" href="#ln-225"></a><span class="w">      </span><span class="k">call </span><span class="n">MAPL_FieldBundleGet</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">fieldList</span><span class="o">=</span><span class="n">fieldList</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-226" name="ln-226" href="#ln-226"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN_UNLESS</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">interpolation_weights</span><span class="p">))</span>
+<a id="ln-227" name="ln-227" href="#ln-227"></a><span class="w">      </span><span class="c">! The number of weights is always one larger than the number of fields to support a constant</span>
+<a id="ln-228" name="ln-228" href="#ln-228"></a><span class="w">      </span><span class="c">! offset.  (&quot;Weights&quot; is a funny term in that case.)</span>
+<a id="ln-229" name="ln-229" href="#ln-229"></a><span class="w">      </span><span class="n">new_field_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">interpolation_weights</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-230" name="ln-230" href="#ln-230"></a><span class="w">      </span><span class="n">old_field_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">fieldList</span><span class="p">)</span>
+<a id="ln-231" name="ln-231" href="#ln-231"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN_IF</span><span class="p">(</span><span class="n">new_field_count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">old_field_count</span><span class="p">)</span>
+<a id="ln-232" name="ln-232" href="#ln-232"></a>
+<a id="ln-233" name="ln-233" href="#ln-233"></a><span class="w">      </span><span class="c">! Easy case 2: field count changing to zero</span>
+<a id="ln-234" name="ln-234" href="#ln-234"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">new_field_count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="c">! &quot;/dev/null&quot; case</span>
+<a id="ln-235" name="ln-235" href="#ln-235"></a><span class="w">         </span><span class="k">call </span><span class="n">destroy_fields</span><span class="p">(</span><span class="n">fieldList</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-236" name="ln-236" href="#ln-236"></a><span class="w">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-237" name="ln-237" href="#ln-237"></a><span class="w">      </span><span class="k">end if</span>
+<a id="ln-238" name="ln-238" href="#ln-238"></a>
+<a id="ln-239" name="ln-239" href="#ln-239"></a><span class="w">      </span><span class="c">! Hard case: need to create new fields?</span>
+<a id="ln-240" name="ln-240" href="#ln-240"></a><span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">fieldList</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;fieldCount should only change to or from zero.  ExtData use case.&#39;</span><span class="p">)</span>
+<a id="ln-241" name="ln-241" href="#ln-241"></a><span class="w">      </span><span class="k">deallocate</span><span class="p">(</span><span class="n">fieldList</span><span class="p">)</span>
+<a id="ln-242" name="ln-242" href="#ln-242"></a><span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">fieldList</span><span class="p">(</span><span class="n">new_field_count</span><span class="p">))</span>
+<a id="ln-243" name="ln-243" href="#ln-243"></a>
+<a id="ln-244" name="ln-244" href="#ln-244"></a><span class="w">      </span><span class="c">! Need geom, typekind, and bounds to allocate fields before </span>
+<a id="ln-245" name="ln-245" href="#ln-245"></a><span class="w">      </span><span class="k">call </span><span class="n">MAPL_FieldBundleGet</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">geom</span><span class="o">=</span><span class="n">bundle_geom</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-246" name="ln-246" href="#ln-246"></a><span class="w">           </span><span class="n">typekind</span><span class="o">=</span><span class="n">typekind</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-247" name="ln-247" href="#ln-247"></a><span class="w">           </span><span class="n">ungridded_dims</span><span class="o">=</span><span class="n">ungridded_dims</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-248" name="ln-248" href="#ln-248"></a><span class="w">           </span><span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-249" name="ln-249" href="#ln-249"></a><span class="w">           </span><span class="n">vert_staggerloc</span><span class="o">=</span><span class="n">vert_staggerloc</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-250" name="ln-250" href="#ln-250"></a><span class="w">           </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-251" name="ln-251" href="#ln-251"></a>
+<a id="ln-252" name="ln-252" href="#ln-252"></a><span class="w">      </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">vert_staggerloc</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">VERTICAL_STAGGER_INVALID</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Vert stagger is INVALID.&#39;</span><span class="p">)</span>
+<a id="ln-253" name="ln-253" href="#ln-253"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">vert_staggerloc</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">VERTICAL_STAGGER_NONE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-254" name="ln-254" href="#ln-254"></a><span class="w">         </span><span class="c">! Allocate num_levels so that it is PRESENT() int FieldEmptyComplete() below.</span>
+<a id="ln-255" name="ln-255" href="#ln-255"></a><span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">num_levels</span><span class="p">)</span>
+<a id="ln-256" name="ln-256" href="#ln-256"></a><span class="w">         </span><span class="k">call </span><span class="n">MAPL_FieldBundleGet</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">num_levels</span><span class="o">=</span><span class="n">num_levels</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-257" name="ln-257" href="#ln-257"></a><span class="w">      </span><span class="k">end if</span>
+<a id="ln-258" name="ln-258" href="#ln-258"></a>
+<a id="ln-259" name="ln-259" href="#ln-259"></a><span class="k">      do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">new_field_count</span>
+<a id="ln-260" name="ln-260" href="#ln-260"></a><span class="w">         </span><span class="n">fieldList</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldEmptyCreate</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-261" name="ln-261" href="#ln-261"></a><span class="w">         </span><span class="k">call </span><span class="n">ESMF_FieldEmptySet</span><span class="p">(</span><span class="n">fieldList</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">geom</span><span class="o">=</span><span class="n">bundle_geom</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-262" name="ln-262" href="#ln-262"></a><span class="w">         </span><span class="k">call </span><span class="n">MAPL_FieldEmptyComplete</span><span class="p">(</span><span class="n">fieldList</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">typekind</span><span class="o">=</span><span class="n">typekind</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-263" name="ln-263" href="#ln-263"></a><span class="w">              </span><span class="n">ungridded_dims</span><span class="o">=</span><span class="n">ungridded_dims</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-264" name="ln-264" href="#ln-264"></a><span class="w">              </span><span class="n">num_levels</span><span class="o">=</span><span class="n">num_levels</span><span class="p">,</span><span class="w"> </span><span class="n">vert_staggerLoc</span><span class="o">=</span><span class="n">vert_staggerLoc</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="ln-265" name="ln-265" href="#ln-265"></a><span class="w">              </span><span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-266" name="ln-266" href="#ln-266"></a><span class="w">      </span><span class="k">end do</span>
+<a id="ln-267" name="ln-267" href="#ln-267"></a>
+<a id="ln-268" name="ln-268" href="#ln-268"></a><span class="k">      allocate</span><span class="p">(</span><span class="n">fieldNameList</span><span class="p">(</span><span class="n">old_field_count</span><span class="p">))</span>
+<a id="ln-269" name="ln-269" href="#ln-269"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldBundleGet</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">fieldNameList</span><span class="o">=</span><span class="n">fieldNameList</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-270" name="ln-270" href="#ln-270"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldBundleRemove</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">fieldNameList</span><span class="p">,</span><span class="w"> </span><span class="n">multiflag</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-271" name="ln-271" href="#ln-271"></a>
+<a id="ln-272" name="ln-272" href="#ln-272"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldBundleAdd</span><span class="p">(</span><span class="n">bundle</span><span class="p">,</span><span class="w"> </span><span class="n">fieldList</span><span class="p">,</span><span class="w"> </span><span class="n">multiFlag</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="n">relaxedFlag</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-273" name="ln-273" href="#ln-273"></a>
+<a id="ln-274" name="ln-274" href="#ln-274"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-275" name="ln-275" href="#ln-275"></a>
+<a id="ln-276" name="ln-276" href="#ln-276"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-277" name="ln-277" href="#ln-277"></a>
+<a id="ln-278" name="ln-278" href="#ln-278"></a><span class="k">      subroutine </span><span class="n">destroy_fields</span><span class="p">(</span><span class="n">fieldList</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<a id="ln-279" name="ln-279" href="#ln-279"></a><span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fieldList</span><span class="p">(:)</span>
+<a id="ln-280" name="ln-280" href="#ln-280"></a><span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-281" name="ln-281" href="#ln-281"></a>
+<a id="ln-282" name="ln-282" href="#ln-282"></a><span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-283" name="ln-283" href="#ln-283"></a><span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<a id="ln-284" name="ln-284" href="#ln-284"></a>
+<a id="ln-285" name="ln-285" href="#ln-285"></a><span class="w">         </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">fieldList</span><span class="p">)</span>
+<a id="ln-286" name="ln-286" href="#ln-286"></a><span class="w">            </span><span class="k">call </span><span class="n">ESMF_FieldDestroy</span><span class="p">(</span><span class="n">fieldList</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-287" name="ln-287" href="#ln-287"></a><span class="w">         </span><span class="k">end do</span>
+<a id="ln-288" name="ln-288" href="#ln-288"></a>
+<a id="ln-289" name="ln-289" href="#ln-289"></a><span class="k">         </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-290" name="ln-290" href="#ln-290"></a><span class="w">      </span><span class="k">end subroutine </span><span class="n">destroy_fields</span>
+<a id="ln-291" name="ln-291" href="#ln-291"></a><span class="w">      </span>
+<a id="ln-292" name="ln-292" href="#ln-292"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">reallocate_bundle</span>
+<a id="ln-293" name="ln-293" href="#ln-293"></a>
+<a id="ln-294" name="ln-294" href="#ln-294"></a><span class="k">end module </span><span class="n">mapl3g_FieldBundleDelta</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-12-03T14:34:31.735011+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

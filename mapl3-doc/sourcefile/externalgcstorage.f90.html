@@ -1,0 +1,609 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>ExternalGCStorage.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>ExternalGCStorage.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">11 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ExternalGCStorage.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">ExternalGCStorage.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_externalgcstorage.html">MAPL_ExternalGCStorage</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/externalgcstorage.f90.html#src">ExternalGCStorage.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~externalgcstorage.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefileexternalgcstoragef90AfferentGraph" width="641pt" height="157pt"
+ viewBox="0.00 0.00 641.00 157.19" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph" class="graph" transform="scale(0.44 0.44) rotate(0) translate(4 356)">
+<title>sourcefile~~externalgcstorage.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-356 1464,-356 1464,4 -4,4"/>
+<!-- sourcefile~externalgcstorage.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~externalgcstorage.f90</title>
+<polygon fill="none" stroke="black" points="137,-271 0,-271 0,-247 137,-247 137,-271"/>
+<text text-anchor="middle" x="68.5" y="-256.6" font-family="Helvetica,sans-Serif" font-size="10.50">ExternalGCStorage.F90</text>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~mapl_capgridcomp.f90</title>
+<g id="a_sourcefile~~externalgcstorage.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/mapl_capgridcomp.f90.html" xlink:title="MAPL_CapGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="317,-292 173,-292 173,-268 317,-268 317,-292"/>
+<text text-anchor="middle" x="245" y="-277.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_CapGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~externalgcstorage.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~mapl_capgridcomp.f90&#45;&gt;sourcefile~externalgcstorage.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M172.77,-271.43C164.31,-270.41 155.63,-269.37 147.08,-268.34"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="147.47,-264.86 137.12,-267.14 146.63,-271.81 147.47,-264.86"/>
+</g>
+<!-- sourcefile~mapl_gridcomps.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~mapl_gridcomps.f90</title>
+<g id="a_sourcefile~~externalgcstorage.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/mapl_gridcomps.f90.html" xlink:title="MAPL_GridComps.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="630,-250 502,-250 502,-226 630,-226 630,-250"/>
+<text text-anchor="middle" x="566" y="-235.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridComps.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_gridcomps.f90&#45;&gt;sourcefile~externalgcstorage.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~mapl_gridcomps.f90&#45;&gt;sourcefile~externalgcstorage.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M501.99,-240.67C411.62,-244.5 245.3,-251.55 147.35,-255.7"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="147.05,-252.21 137.21,-256.13 147.35,-259.2 147.05,-252.21"/>
+</g>
+<!-- sourcefile~mapl_cap.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~mapl_cap.f90</title>
+<g id="a_sourcefile~~externalgcstorage.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/mapl_cap.f90.html" xlink:title="MAPL_Cap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="443,-292 353,-292 353,-268 443,-268 443,-292"/>
+<text text-anchor="middle" x="398" y="-277.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Cap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_gridcomps.f90&#45;&gt;sourcefile~mapl_cap.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~mapl_gridcomps.f90&#45;&gt;sourcefile~mapl_cap.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M514.94,-250.07C503.14,-252.96 490.62,-256.06 479,-259 470.7,-261.1 461.92,-263.37 453.34,-265.6"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="452.19,-262.29 443.4,-268.2 453.96,-269.06 452.19,-262.29"/>
+</g>
+<!-- sourcefile~comp_testing_driver.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~comp_testing_driver.f90</title>
+<g id="a_sourcefile~~externalgcstorage.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/comp_testing_driver.f90.html" xlink:title="Comp_Testing_Driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="940,-352 795,-352 795,-328 940,-328 940,-352"/>
+<text text-anchor="middle" x="867.5" y="-337.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Comp_Testing_Driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M794.78,-337.23C695.26,-332.77 509.81,-322.27 353,-301 339.26,-299.14 324.63,-296.62 310.74,-293.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="311.26,-290.52 300.78,-292.04 309.92,-297.39 311.26,-290.52"/>
+</g>
+<!-- sourcefile~mapl.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~mapl.f90</title>
+<g id="a_sourcefile~~externalgcstorage.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/mapl.f90.html" xlink:title="MAPL.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="753,-210 689,-210 689,-186 753,-186 753,-210"/>
+<text text-anchor="middle" x="721" y="-195.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M803.84,-327.9C798.54,-325.46 793.5,-322.53 789,-319 756.3,-293.37 737.2,-247.11 728.25,-219.81"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="731.52,-218.55 725.21,-210.04 724.84,-220.63 731.52,-218.55"/>
+</g>
+<!-- sourcefile~mapl.f90&#45;&gt;sourcefile~mapl_gridcomps.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~mapl.f90&#45;&gt;sourcefile~mapl_gridcomps.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M688.67,-206.19C669.79,-211.13 645.2,-217.56 623.06,-223.34"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="621.89,-220.03 613.1,-225.95 623.66,-226.81 621.89,-220.03"/>
+</g>
+<!-- sourcefile~mapl_cap.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~mapl_cap.f90&#45;&gt;sourcefile~mapl_capgridcomp.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M352.92,-280C344.76,-280 336,-280 327.15,-280"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="327.13,-276.5 317.13,-280 327.13,-283.5 327.13,-276.5"/>
+</g>
+<!-- sourcefile~capdriver.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~capdriver.f90</title>
+<g id="a_sourcefile~~externalgcstorage.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/capdriver.f90.html" xlink:title="CapDriver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1292.5,-270 1204.5,-270 1204.5,-246 1292.5,-246 1292.5,-270"/>
+<text text-anchor="middle" x="1248.5" y="-255.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CapDriver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~capdriver.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~capdriver.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M1204.27,-263.28C1121.52,-271.85 935.92,-283.69 789,-239 773.15,-234.18 757.25,-224.7 744.92,-216.07"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="746.77,-213.08 736.63,-210.01 742.64,-218.73 746.77,-213.08"/>
+</g>
+<!-- sourcefile~extdataroot_gridcomp.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~extdataroot_gridcomp.f90</title>
+<g id="a_sourcefile~~externalgcstorage.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/extdataroot_gridcomp.f90.html" xlink:title="ExtDataRoot_GridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1144,-230 984,-230 984,-206 1144,-206 1144,-230"/>
+<text text-anchor="middle" x="1064" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataRoot_GridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~capdriver.f90&#45;&gt;sourcefile~extdataroot_gridcomp.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~capdriver.f90&#45;&gt;sourcefile~extdataroot_gridcomp.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M1204.25,-248.52C1182.11,-243.67 1154.7,-237.66 1130.07,-232.26"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="1130.58,-228.79 1120.06,-230.07 1129.08,-235.63 1130.58,-228.79"/>
+</g>
+<!-- sourcefile~extdatadriver.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~extdatadriver.f90</title>
+<g id="a_sourcefile~~externalgcstorage.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/extdatadriver.f90.html" xlink:title="ExtDataDriver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1460,-190 1351,-190 1351,-166 1460,-166 1460,-190"/>
+<text text-anchor="middle" x="1405.5" y="-175.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M1388.93,-165.93C1362.23,-146.2 1305.2,-108.23 1249.5,-98"/>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M1247.5,-98C1131.14,-76.63 1087.64,-63.76 982,-117 960.04,-128.06 966.94,-146.12 946,-159 915.79,-177.58 903.7,-173.65 868.5,-178"/>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M866.5,-178C831.69,-182.28 792.25,-187.78 763.38,-191.93"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="762.65,-188.5 753.25,-193.39 763.65,-195.43 762.65,-188.5"/>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~extdatadrivergridcomp.f90</title>
+<g id="a_sourcefile~~externalgcstorage.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/extdatadrivergridcomp.f90.html" xlink:title="ExtDataDriverGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1146,-150 982,-150 982,-126 1146,-126 1146,-150"/>
+<text text-anchor="middle" x="1064" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriverGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M1247.5,-98C1222.22,-93.36 1158.27,-109.8 1113.24,-123"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="1111.96,-119.72 1103.37,-125.92 1113.95,-126.43 1111.96,-119.72"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~extdatadrivermod.f90</title>
+<g id="a_sourcefile~~externalgcstorage.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/extdatadrivermod.f90.html" xlink:title="ExtDataDriverMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1315,-190 1182,-190 1182,-166 1315,-166 1315,-190"/>
+<text text-anchor="middle" x="1248.5" y="-175.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriverMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivermod.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivermod.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M1350.72,-178C1342.49,-178 1333.86,-178 1325.26,-178"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="1325.21,-174.5 1315.21,-178 1325.21,-181.5 1325.21,-174.5"/>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdataroot_gridcomp.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge24" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdataroot_gridcomp.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M1359.24,-190.05C1345.15,-193.42 1329.51,-196.76 1315,-199 1261.99,-207.18 1202.08,-211.89 1154.2,-214.57"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="1153.97,-211.08 1144.17,-215.12 1154.35,-218.07 1153.97,-211.08"/>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M1015.8,-150.03C976.64,-159.46 919.33,-171.94 868.5,-178"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M1181.83,-173.31C1106.03,-168.98 977.78,-164.98 868.5,-178"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90</title>
+<path fill="none" stroke="#ffff00" stroke-dasharray="5,2" d="M1192.74,-166C1172.98,-161.67 1150.49,-156.74 1129.94,-152.23"/>
+<polygon fill="#ffff00" stroke="#ffff00" points="1130.55,-148.78 1120.03,-150.06 1129.05,-155.62 1130.55,-148.78"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdataroot_gridcomp.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge25" class="edge">
+<title>sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdataroot_gridcomp.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M1192.74,-190C1172.98,-194.33 1150.49,-199.26 1129.94,-203.77"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="1129.05,-200.38 1120.03,-205.94 1130.55,-207.22 1129.05,-200.38"/>
+</g>
+<!-- sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M1020.47,-205.97C972.48,-192.98 897.34,-174.56 868.5,-178"/>
+</g>
+<!-- sourcefile~varspecdescription.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~varspecdescription.f90</title>
+<g id="a_sourcefile~~externalgcstorage.f90~~AfferentGraph_node18"><a xlink:href="../sourcefile/varspecdescription.f90.html" xlink:title="VarspecDescription.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="936.5,-230 798.5,-230 798.5,-206 936.5,-206 936.5,-230"/>
+<text text-anchor="middle" x="867.5" y="-215.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarspecDescription.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~varspecdescription.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge26" class="edge">
+<title>sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~varspecdescription.f90</title>
+<path fill="none" stroke="#ff007f" stroke-dasharray="5,2" d="M983.89,-218C971.65,-218 959.01,-218 946.78,-218"/>
+<polygon fill="#ff007f" stroke="#ff007f" points="946.63,-214.5 936.63,-218 946.63,-221.5 946.63,-214.5"/>
+</g>
+<!-- sourcefile~fakedyngridcomp.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~fakedyngridcomp.f90</title>
+<g id="a_sourcefile~~externalgcstorage.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/fakedyngridcomp.f90.html" xlink:title="FakeDynGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="935,-150 800,-150 800,-126 935,-126 935,-150"/>
+<text text-anchor="middle" x="867.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FakeDynGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fakedyngridcomp.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~fakedyngridcomp.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M826.66,-150.13C814.44,-154.18 801.04,-158.96 789,-164 776.87,-169.08 763.91,-175.43 752.65,-181.26"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="750.87,-178.24 743.65,-186 754.13,-184.44 750.87,-178.24"/>
+</g>
+<!-- sourcefile~mapl_demo_fargparse.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~mapl_demo_fargparse.f90</title>
+<g id="a_sourcefile~~externalgcstorage.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/mapl_demo_fargparse.f90.html" xlink:title="MAPL_demo_fargparse.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="946,-108 789,-108 789,-84 946,-84 946,-108"/>
+<text text-anchor="middle" x="867.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_demo_fargparse.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_demo_fargparse.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~mapl_demo_fargparse.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M806.89,-108.04C800.61,-110.5 794.51,-113.45 789,-117 765.24,-132.3 745.71,-158.72 733.99,-177.22"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="730.96,-175.46 728.73,-185.82 736.93,-179.11 730.96,-175.46"/>
+</g>
+<!-- sourcefile~mapl_nuopcwrappermod.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~mapl_nuopcwrappermod.f90</title>
+<g id="a_sourcefile~~externalgcstorage.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/mapl_nuopcwrappermod.f90.html" xlink:title="MAPL_NUOPCWrapperMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="653,-292 479,-292 479,-268 653,-268 653,-292"/>
+<text text-anchor="middle" x="566" y="-277.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_NUOPCWrapperMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_nuopcwrappermod.f90&#45;&gt;sourcefile~mapl_cap.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~mapl_nuopcwrappermod.f90&#45;&gt;sourcefile~mapl_cap.f90</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M478.6,-280C469.96,-280 461.36,-280 453.2,-280"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="453.11,-276.5 443.11,-280 453.11,-283.5 453.11,-276.5"/>
+</g>
+<!-- sourcefile~pfio_mapl_demo.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~pfio_mapl_demo.f90</title>
+<g id="a_sourcefile~~externalgcstorage.f90~~AfferentGraph_node15"><a xlink:href="../sourcefile/pfio_mapl_demo.f90.html" xlink:title="pfio_MAPL_demo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="929.5,-66 805.5,-66 805.5,-42 929.5,-42 929.5,-66"/>
+<text text-anchor="middle" x="867.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pfio_MAPL_demo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~pfio_mapl_demo.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~pfio_mapl_demo.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M805.38,-65.36C799.51,-67.94 793.92,-71.11 789,-75 755.98,-101.07 736.99,-148.09 728.14,-175.83"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="724.69,-175.18 725.15,-185.76 731.39,-177.2 724.69,-175.18"/>
+</g>
+<!-- sourcefile~regrid_util.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~regrid_util.f90</title>
+<g id="a_sourcefile~~externalgcstorage.f90~~AfferentGraph_node16"><a xlink:href="../sourcefile/regrid_util.f90.html" xlink:title="Regrid_Util.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="913.5,-24 821.5,-24 821.5,0 913.5,0 913.5,-24"/>
+<text text-anchor="middle" x="867.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~regrid_util.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~regrid_util.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M821.24,-16.97C809.67,-20.07 797.97,-25.05 789,-33 746.19,-70.92 730.26,-140.19 724.72,-175.7"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="721.21,-175.57 723.27,-185.97 728.14,-176.56 721.21,-175.57"/>
+</g>
+<!-- sourcefile~time_ave_util.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~time_ave_util.f90</title>
+<g id="a_sourcefile~~externalgcstorage.f90~~AfferentGraph_node17"><a xlink:href="../sourcefile/time_ave_util.f90.html" xlink:title="time_ave_util.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="920.5,-310 814.5,-310 814.5,-286 920.5,-286 920.5,-310"/>
+<text text-anchor="middle" x="867.5" y="-295.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_ave_util.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~time_ave_util.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~time_ave_util.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M818.01,-285.98C807.97,-282.35 797.79,-277.75 789,-272 767.46,-257.91 748.37,-235.27 736.13,-218.73"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="738.73,-216.36 730.06,-210.27 733.04,-220.44 738.73,-216.36"/>
+</g>
+<!-- sourcefile~varspecdescription.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~externalgcstorage.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~varspecdescription.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M798.48,-208.59C786.5,-206.93 774.36,-205.25 763.39,-203.73"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="763.66,-200.23 753.28,-202.33 762.7,-207.17 763.66,-200.23"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefileexternalgcstoragef90AfferentGraph = svgPanZoom('#sourcefileexternalgcstoragef90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="k">module </span><span class="n">MAPL_ExternalGCStorage</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="k">use </span><span class="n">esmf</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">implicit none</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="k">type </span><span class="n">t_extdata_state</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">expState</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gc</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="k">end type </span><span class="n">t_extdata_state</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="k">type </span><span class="n">extdata_wrap</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">  </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">t_extdata_state</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">PTR</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a><span class="k">end type </span><span class="n">extdata_wrap</span>
+<a id="ln-13" name="ln-13" href="#ln-13"></a>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="k">end module </span><span class="n">MAPL_ExternalGCStorage</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-12-03T14:34:31.735011+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

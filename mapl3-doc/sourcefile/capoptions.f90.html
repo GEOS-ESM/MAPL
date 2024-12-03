@@ -1,0 +1,827 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>CapOptions.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>CapOptions.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">69 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/CapOptions.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">CapOptions.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl_capoptionsmod.html">mapl_CapOptionsMod</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/capoptions.f90.html#src">CapOptions.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~capoptions.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilecapoptionsf90EfferentGraph" width="591pt" height="74pt"
+ viewBox="0.00 0.00 591.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~capoptions.f90~~EfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>sourcefile~~capoptions.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 587,-70 587,4 -4,4"/>
+<!-- sourcefile~capoptions.f90 -->
+<g id="sourcefile~~capoptions.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~capoptions.f90</title>
+<polygon fill="none" stroke="black" points="583,-45 486,-45 486,-21 583,-21 583,-45"/>
+<text text-anchor="middle" x="534.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">CapOptions.F90</text>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~capoptions.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~capoptions.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="427.5,-66 303.5,-66 303.5,-42 427.5,-42 427.5,-66"/>
+<text text-anchor="middle" x="365.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~capoptions.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~capoptions.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~capoptions.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M485.64,-39.02C470.72,-40.89 453.92,-43.01 437.75,-45.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="437.27,-41.57 427.79,-46.29 438.15,-48.52 437.27,-41.57"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~capoptions.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~mapl_exceptionhandling.f90</title>
+<g id="a_sourcefile~~capoptions.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/mapl_exceptionhandling.f90.html" xlink:title="MAPL_ExceptionHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="450,-24 281,-24 281,0 450,0 450,-24"/>
+<text text-anchor="middle" x="365.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~capoptions.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~capoptions.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~capoptions.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M485.64,-26.98C477.52,-25.96 468.84,-24.87 460.01,-23.76"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="460.36,-20.28 450,-22.5 459.49,-27.22 460.36,-20.28"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~capoptions.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~capoptions.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="245,-44 136,-44 136,-20 245,-20 245,-44"/>
+<text text-anchor="middle" x="190.5" y="-29.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~capoptions.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M280.79,-21.68C272.2,-22.67 263.58,-23.67 255.26,-24.63"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="254.82,-21.16 245.29,-25.78 255.62,-28.11 254.82,-21.16"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~capoptions.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~capoptions.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="100,-24 0,-24 0,0 100,0 100,-24"/>
+<text text-anchor="middle" x="50" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~capoptions.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M280.93,-11.21C268.87,-11.12 256.62,-11.05 245,-11 196.56,-10.8 184.44,-10.72 136,-11 127.82,-11.05 119.19,-11.12 110.7,-11.21"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="110.4,-7.71 100.44,-11.32 110.48,-14.71 110.4,-7.71"/>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~capoptions.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M135.95,-24.27C127.53,-23.05 118.77,-21.79 110.23,-20.55"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="110.72,-17.09 100.33,-19.12 109.72,-24.02 110.72,-17.09"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~capoptions.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilecapoptionsf90AfferentGraph" width="641pt" height="196pt"
+ viewBox="0.00 0.00 641.00 196.28" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~capoptions.f90~~AfferentGraph" class="graph" transform="scale(0.51 0.51) rotate(0) translate(4 382.75)">
+<title>sourcefile~~capoptions.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-382.75 1259,-382.75 1259,4 -4,4"/>
+<!-- sourcefile~capoptions.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~capoptions.f90</title>
+<polygon fill="none" stroke="black" points="97,-182 0,-182 0,-158 97,-158 97,-182"/>
+<text text-anchor="middle" x="48.5" y="-167.6" font-family="Helvetica,sans-Serif" font-size="10.50">CapOptions.F90</text>
+</g>
+<!-- sourcefile~fargparsecli.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~fargparsecli.f90</title>
+<g id="a_sourcefile~~capoptions.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/fargparsecli.f90.html" xlink:title="FargparseCLI.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="238,-242 133,-242 133,-218 238,-218 238,-242"/>
+<text text-anchor="middle" x="185.5" y="-227.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FargparseCLI.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fargparsecli.f90&#45;&gt;sourcefile~capoptions.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~fargparsecli.f90&#45;&gt;sourcefile~capoptions.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M157.18,-217.86C136.69,-208.75 108.42,-196.19 85.99,-186.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="87.34,-182.99 76.78,-182.12 84.5,-189.38 87.34,-182.99"/>
+</g>
+<!-- sourcefile~mapl_cap.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~mapl_cap.f90</title>
+<g id="a_sourcefile~~capoptions.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/mapl_cap.f90.html" xlink:title="MAPL_Cap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="230.5,-162 140.5,-162 140.5,-138 230.5,-138 230.5,-162"/>
+<text text-anchor="middle" x="185.5" y="-147.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Cap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_cap.f90&#45;&gt;sourcefile~capoptions.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~mapl_cap.f90&#45;&gt;sourcefile~capoptions.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M140.3,-156.55C129.7,-158.12 118.23,-159.82 107.12,-161.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="106.44,-158.03 97.06,-162.95 107.47,-164.95 106.44,-158.03"/>
+</g>
+<!-- sourcefile~mapl_gridcomps.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~mapl_gridcomps.f90</title>
+<g id="a_sourcefile~~capoptions.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/mapl_gridcomps.f90.html" xlink:title="MAPL_GridComps.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="425,-192 297,-192 297,-168 425,-168 425,-192"/>
+<text text-anchor="middle" x="361" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridComps.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_gridcomps.f90&#45;&gt;sourcefile~capoptions.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~mapl_gridcomps.f90&#45;&gt;sourcefile~capoptions.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M296.79,-177.96C241.32,-176.18 161.31,-173.6 107.46,-171.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="107.5,-168.37 97.39,-171.54 107.27,-175.36 107.5,-168.37"/>
+</g>
+<!-- sourcefile~mapl_gridcomps.f90&#45;&gt;sourcefile~mapl_cap.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~mapl_gridcomps.f90&#45;&gt;sourcefile~mapl_cap.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M296.87,-169.08C278.49,-165.91 258.57,-162.46 240.78,-159.39"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="241.03,-155.88 230.58,-157.62 239.84,-162.77 241.03,-155.88"/>
+</g>
+<!-- sourcefile~mapl_nuopcwrappermod.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~mapl_nuopcwrappermod.f90</title>
+<g id="a_sourcefile~~capoptions.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/mapl_nuopcwrappermod.f90.html" xlink:title="MAPL_NUOPCWrapperMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="448,-141 274,-141 274,-117 448,-117 448,-141"/>
+<text text-anchor="middle" x="361" y="-126.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_NUOPCWrapperMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_nuopcwrappermod.f90&#45;&gt;sourcefile~capoptions.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~mapl_nuopcwrappermod.f90&#45;&gt;sourcefile~capoptions.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M273.8,-119.88C230.94,-117.64 178.68,-118.39 133,-129 113.01,-133.64 92.29,-143.78 76.5,-152.81"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="74.63,-149.84 67.81,-157.95 78.2,-155.87 74.63,-149.84"/>
+</g>
+<!-- sourcefile~mapl_nuopcwrappermod.f90&#45;&gt;sourcefile~mapl_cap.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~mapl_nuopcwrappermod.f90&#45;&gt;sourcefile~mapl_cap.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M273.76,-139.44C262.53,-140.8 251.29,-142.16 240.8,-143.43"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="240.08,-139.99 230.58,-144.67 240.92,-146.94 240.08,-139.99"/>
+</g>
+<!-- sourcefile~mapl.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~mapl.f90</title>
+<g id="a_sourcefile~~capoptions.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/mapl.f90.html" xlink:title="MAPL.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="548,-192 484,-192 484,-168 548,-168 548,-192"/>
+<text text-anchor="middle" x="516" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl.f90&#45;&gt;sourcefile~mapl_gridcomps.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~mapl.f90&#45;&gt;sourcefile~mapl_gridcomps.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M483.67,-180C469.56,-180 452.27,-180 435.19,-180"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="435.19,-176.5 425.19,-180 435.19,-183.5 435.19,-176.5"/>
+</g>
+<!-- sourcefile~capdriver.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~capdriver.f90</title>
+<g id="a_sourcefile~~capoptions.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/capdriver.f90.html" xlink:title="CapDriver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1087.5,-354 999.5,-354 999.5,-330 1087.5,-330 1087.5,-354"/>
+<text text-anchor="middle" x="1043.5" y="-339.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CapDriver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~capdriver.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~capdriver.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M999.17,-353.85C912.18,-374.94 713.51,-409.16 584,-323 542.57,-295.44 526.21,-235.09 520.2,-202.29"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="523.63,-201.6 518.53,-192.31 516.72,-202.75 523.63,-201.6"/>
+</g>
+<!-- sourcefile~extdataroot_gridcomp.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~extdataroot_gridcomp.f90</title>
+<g id="a_sourcefile~~capoptions.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/extdataroot_gridcomp.f90.html" xlink:title="ExtDataRoot_GridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="939,-314 779,-314 779,-290 939,-290 939,-314"/>
+<text text-anchor="middle" x="859" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataRoot_GridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~capdriver.f90&#45;&gt;sourcefile~extdataroot_gridcomp.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~capdriver.f90&#45;&gt;sourcefile~extdataroot_gridcomp.f90</title>
+<path fill="none" stroke="#00ff7f" stroke-dasharray="5,2" d="M999.25,-332.52C977.11,-327.67 949.7,-321.66 925.07,-316.26"/>
+<polygon fill="#00ff7f" stroke="#00ff7f" points="925.58,-312.79 915.06,-314.07 924.08,-319.63 925.58,-312.79"/>
+</g>
+<!-- sourcefile~comp_testing_driver.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~comp_testing_driver.f90</title>
+<g id="a_sourcefile~~capoptions.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/comp_testing_driver.f90.html" xlink:title="Comp_Testing_Driver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="735,-234 590,-234 590,-210 735,-210 735,-234"/>
+<text text-anchor="middle" x="662.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Comp_Testing_Driver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~comp_testing_driver.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M615.93,-209.97C605.42,-207.11 594.3,-204.01 584,-201 575.59,-198.54 566.62,-195.81 558.07,-193.15"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="558.87,-189.73 548.28,-190.08 556.78,-196.41 558.87,-189.73"/>
+</g>
+<!-- sourcefile~extdatadriver.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~extdatadriver.f90</title>
+<g id="a_sourcefile~~capoptions.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/extdatadriver.f90.html" xlink:title="ExtDataDriver.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1255,-274 1146,-274 1146,-250 1255,-250 1255,-274"/>
+<text text-anchor="middle" x="1200.5" y="-259.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriver.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1183.93,-249.93C1157.23,-230.2 1100.2,-192.23 1044.5,-182"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1042.5,-182C926.14,-160.63 882.64,-147.76 777,-201 755.04,-212.06 761.94,-230.12 741,-243 710.79,-261.58 698.17,-269.48 663.5,-262"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M661.5,-262C626.83,-254.52 615.16,-259.93 584,-243 564.06,-232.17 545.61,-213.95 533.14,-199.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="535.69,-197.48 526.53,-192.17 530.38,-202.04 535.69,-197.48"/>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~extdatadrivergridcomp.f90</title>
+<g id="a_sourcefile~~capoptions.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/extdatadrivergridcomp.f90.html" xlink:title="ExtDataDriverGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="941,-234 777,-234 777,-210 941,-210 941,-234"/>
+<text text-anchor="middle" x="859" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriverGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M1042.5,-182C1017.22,-177.36 953.27,-193.8 908.24,-207"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="906.96,-203.72 898.37,-209.92 908.95,-210.43 906.96,-203.72"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~extdatadrivermod.f90</title>
+<g id="a_sourcefile~~capoptions.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/extdatadrivermod.f90.html" xlink:title="ExtDataDriverMod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1110,-274 977,-274 977,-250 1110,-250 1110,-274"/>
+<text text-anchor="middle" x="1043.5" y="-259.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataDriverMod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivermod.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdatadrivermod.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M1145.72,-262C1137.49,-262 1128.86,-262 1120.26,-262"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="1120.21,-258.5 1110.21,-262 1120.21,-265.5 1120.21,-258.5"/>
+</g>
+<!-- sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdataroot_gridcomp.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge24" class="edge">
+<title>sourcefile~extdatadriver.f90&#45;&gt;sourcefile~extdataroot_gridcomp.f90</title>
+<path fill="none" stroke="#00ff7f" stroke-dasharray="5,2" d="M1154.24,-274.05C1140.15,-277.42 1124.51,-280.76 1110,-283 1056.99,-291.18 997.08,-295.89 949.2,-298.57"/>
+<polygon fill="#00ff7f" stroke="#00ff7f" points="948.97,-295.08 939.17,-299.12 949.35,-302.07 948.97,-295.08"/>
+</g>
+<!-- sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~extdatadrivergridcomp.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M818.3,-234.04C770.35,-247.89 692.53,-268.02 663.5,-262"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M976.97,-269.99C900.75,-277.45 771.58,-284.41 663.5,-262"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdatadrivergridcomp.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M987.74,-250C967.98,-245.67 945.49,-240.74 924.94,-236.23"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="925.55,-232.78 915.03,-234.06 924.05,-239.62 925.55,-232.78"/>
+</g>
+<!-- sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdataroot_gridcomp.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge25" class="edge">
+<title>sourcefile~extdatadrivermod.f90&#45;&gt;sourcefile~extdataroot_gridcomp.f90</title>
+<path fill="none" stroke="#00ff7f" stroke-dasharray="5,2" d="M987.74,-274C967.98,-278.33 945.49,-283.26 924.94,-287.77"/>
+<polygon fill="#00ff7f" stroke="#00ff7f" points="924.05,-284.38 915.03,-289.94 925.55,-291.22 924.05,-284.38"/>
+</g>
+<!-- sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M799.26,-289.97C760.67,-282.05 709.07,-271.45 663.5,-262"/>
+</g>
+<!-- sourcefile~varspecdescription.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_node18" class="node">
+<title>sourcefile~varspecdescription.f90</title>
+<g id="a_sourcefile~~capoptions.f90~~AfferentGraph_node18"><a xlink:href="../sourcefile/varspecdescription.f90.html" xlink:title="VarspecDescription.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="731.5,-314 593.5,-314 593.5,-290 731.5,-290 731.5,-314"/>
+<text text-anchor="middle" x="662.5" y="-299.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VarspecDescription.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~varspecdescription.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge26" class="edge">
+<title>sourcefile~extdataroot_gridcomp.f90&#45;&gt;sourcefile~varspecdescription.f90</title>
+<path fill="none" stroke="#ff007f" stroke-dasharray="5,2" d="M778.89,-302C766.65,-302 754.01,-302 741.78,-302"/>
+<polygon fill="#ff007f" stroke="#ff007f" points="741.63,-298.5 731.63,-302 741.63,-305.5 741.63,-298.5"/>
+</g>
+<!-- sourcefile~fakedyngridcomp.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~fakedyngridcomp.f90</title>
+<g id="a_sourcefile~~capoptions.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/fakedyngridcomp.f90.html" xlink:title="FakeDynGridComp.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="730,-192 595,-192 595,-168 730,-168 730,-192"/>
+<text text-anchor="middle" x="662.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FakeDynGridComp.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fakedyngridcomp.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~fakedyngridcomp.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M594.75,-180C582.29,-180 569.62,-180 558.22,-180"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="558.15,-176.5 548.15,-180 558.15,-183.5 558.15,-176.5"/>
+</g>
+<!-- sourcefile~mapl_demo_fargparse.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~mapl_demo_fargparse.f90</title>
+<g id="a_sourcefile~~capoptions.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/mapl_demo_fargparse.f90.html" xlink:title="MAPL_demo_fargparse.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="741,-150 584,-150 584,-126 741,-126 741,-150"/>
+<text text-anchor="middle" x="662.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_demo_fargparse.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_demo_fargparse.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~mapl_demo_fargparse.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M615.93,-150.03C605.42,-152.89 594.3,-155.99 584,-159 575.59,-161.46 566.62,-164.19 558.07,-166.85"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="556.78,-163.59 548.28,-169.92 558.87,-170.27 556.78,-163.59"/>
+</g>
+<!-- sourcefile~pfio_mapl_demo.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~pfio_mapl_demo.f90</title>
+<g id="a_sourcefile~~capoptions.f90~~AfferentGraph_node15"><a xlink:href="../sourcefile/pfio_mapl_demo.f90.html" xlink:title="pfio_MAPL_demo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="724.5,-108 600.5,-108 600.5,-84 724.5,-84 724.5,-108"/>
+<text text-anchor="middle" x="662.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">pfio_MAPL_demo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~pfio_mapl_demo.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~pfio_mapl_demo.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M604.35,-108.02C597.28,-110.5 590.33,-113.46 584,-117 564.19,-128.07 545.73,-146.26 533.22,-160.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="530.48,-158.08 526.58,-167.93 535.77,-162.66 530.48,-158.08"/>
+</g>
+<!-- sourcefile~regrid_util.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~regrid_util.f90</title>
+<g id="a_sourcefile~~capoptions.f90~~AfferentGraph_node16"><a xlink:href="../sourcefile/regrid_util.f90.html" xlink:title="Regrid_Util.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="708.5,-66 616.5,-66 616.5,-42 708.5,-42 708.5,-66"/>
+<text text-anchor="middle" x="662.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~regrid_util.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~regrid_util.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M616.34,-60.31C605.02,-63.42 593.44,-68.07 584,-75 554.88,-96.4 535.22,-134.61 525.09,-158.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="521.83,-157.28 521.33,-167.86 528.32,-159.9 521.83,-157.28"/>
+</g>
+<!-- sourcefile~time_ave_util.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~time_ave_util.f90</title>
+<g id="a_sourcefile~~capoptions.f90~~AfferentGraph_node17"><a xlink:href="../sourcefile/time_ave_util.f90.html" xlink:title="time_ave_util.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="715.5,-24 609.5,-24 609.5,0 715.5,0 715.5,-24"/>
+<text text-anchor="middle" x="662.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_ave_util.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~time_ave_util.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~time_ave_util.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M609.19,-19.42C600.08,-22.51 591.23,-26.87 584,-33 545.39,-65.78 527.91,-125.46 520.97,-157.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="517.53,-157.12 519,-167.61 524.39,-158.49 517.53,-157.12"/>
+</g>
+<!-- sourcefile~varspecdescription.f90&#45;&gt;sourcefile~mapl.f90 -->
+<g id="sourcefile~~capoptions.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~varspecdescription.f90&#45;&gt;sourcefile~mapl.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M610,-289.89C600.82,-286.33 591.73,-281.78 584,-276 557.61,-256.25 537.77,-223 526.77,-201.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="529.87,-199.66 522.35,-192.2 523.58,-202.72 529.87,-199.66"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilecapoptionsf90AfferentGraph = svgPanZoom('#sourcefilecapoptionsf90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_ErrLog.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="cp">#include &quot;unused_dummy.H&quot;</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="k">module </span><span class="n">mapl_CapOptionsMod</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">ESMF</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_KeywordEnforcerMod</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_ExceptionHandling</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="k">   private</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MAPL_CapOptions</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">MAPL_CapOptions</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">use_comm_world</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">egress_file</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cap_rc_file</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">root_dso</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_LogKind_Flag</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">esmf_logging_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_LOGKIND_NONE</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">npes_model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">      </span><span class="c">! only one of the next two options can have nonzero values</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">npes_input_server</span><span class="p">(:)</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nodes_input_server</span><span class="p">(:)</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">      </span><span class="c">! only one of the next two options can have nonzero values</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">npes_output_server</span><span class="p">(:)</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nodes_output_server</span><span class="p">(:)</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">      </span><span class="c">! whether or not the nodes are padding with idle when mod(model total npes , each node npes) /=0</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">      </span><span class="kt">logical</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">isolate_nodes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="c">! whether or not copy the data before isend to the oserver</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="c">! it is faster but demands more memory if it is true</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="kt">logical</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">fast_oclient</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">      </span><span class="c">! whether or not turn on the io profiler</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="kt">logical</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">with_io_profiler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="c">! whether or not to use MOAB in ESMF</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="kt">logical</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">with_esmf_moab</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="c">! server groups</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n_iserver_group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n_oserver_group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">      </span><span class="c">! ensemble options</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">n_members</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ensemble_subdir_prefix</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">      </span><span class="c">! logging options</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">logging_config</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">oserver_type</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">npes_backend_pernode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a>
+<a id="ln-48" name="ln-48" href="#ln-48"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">enable_global_timeprof</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">enable_global_memprof</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">   </span><span class="k">end type </span><span class="n">MAPL_CapOptions</span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">   </span><span class="k">interface </span><span class="n">MAPL_CapOptions</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">      </span><span class="k">module procedure </span><span class="n">new_CapOptions</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">   </span><span class="k">end interface </span><span class="n">MAPL_CapOptions</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="k">contains</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="k">   function </span><span class="n">new_CapOptions</span><span class="p">(</span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">cap_rc_file</span><span class="p">,</span><span class="w"> </span><span class="n">egress_file</span><span class="p">,</span><span class="w"> </span><span class="n">ensemble_subdir_prefix</span><span class="p">,</span><span class="w"> </span><span class="n">esmf_logging_mode</span><span class="p">,</span><span class="w"> </span><span class="n">enable_global_timeprof</span><span class="p">,</span><span class="w"> </span><span class="n">enable_global_memprof</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="w"> </span><span class="p">(</span><span class="n">cap_options</span><span class="p">)</span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_CapOptions</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cap_options</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cap_rc_file</span>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">egress_file</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ensemble_subdir_prefix</span>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_LogKind_Flag</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">esmf_logging_mode</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">enable_global_timeprof</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">enable_global_memprof</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<a id="ln-69" name="ln-69" href="#ln-69"></a>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="w">      </span><span class="n">cap_options</span><span class="p">%</span><span class="n">cap_rc_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;CAP.rc&#39;</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a><span class="w">      </span><span class="n">cap_options</span><span class="p">%</span><span class="n">egress_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;EGRESS&#39;</span>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">      </span><span class="n">cap_options</span><span class="p">%</span><span class="n">oserver_type</span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;single&#39;</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a><span class="w">      </span><span class="n">cap_options</span><span class="p">%</span><span class="n">ensemble_subdir_prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;mem&#39;</span>
+<a id="ln-76" name="ln-76" href="#ln-76"></a>
+<a id="ln-77" name="ln-77" href="#ln-77"></a><span class="w">      </span><span class="n">cap_options</span><span class="p">%</span><span class="n">npes_input_server</span><span class="w">  </span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">      </span><span class="n">cap_options</span><span class="p">%</span><span class="n">nodes_input_server</span><span class="w"> </span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">      </span><span class="n">cap_options</span><span class="p">%</span><span class="n">npes_output_server</span><span class="w"> </span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">      </span><span class="n">cap_options</span><span class="p">%</span><span class="n">nodes_output_server</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">cap_rc_file</span><span class="p">))</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">cap_rc_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cap_rc_file</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">egress_file</span><span class="p">))</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">egress_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">egress_file</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">ensemble_subdir_prefix</span><span class="p">))</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">ensemble_subdir_prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ensemble_subdir_prefix</span>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">esmf_logging_mode</span><span class="p">))</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">esmf_logging_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">esmf_logging_mode</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">enable_global_timeprof</span><span class="p">))</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">enable_global_timeprof</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">enable_global_timeprof</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">enable_global_memprof</span><span class="p">))</span><span class="w"> </span><span class="n">cap_options</span><span class="p">%</span><span class="n">enable_global_memprof</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">enable_global_memprof</span>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">   </span><span class="k">end function </span><span class="n">new_CapOptions</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="k">end module </span><span class="n">MAPL_CapOptionsMod</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-12-03T14:34:31.735011+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

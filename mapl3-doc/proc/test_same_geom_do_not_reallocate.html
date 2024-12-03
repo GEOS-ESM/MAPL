@@ -1,0 +1,731 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>test_same_geom_do_not_reallocate &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>test_same_geom_do_not_reallocate
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">77 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_FieldDelta.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_fielddelta.pf.html'>Test_FieldDelta.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_fielddelta.html'>Test_FieldDelta</a></li>
+            <li class="breadcrumb-item active" aria-current="page">test_same_geom_do_not_reallocate</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/test_same_geom_do_not_reallocate.html#src">test_same_geom_do_not_reallocate</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine test_same_geom_do_not_reallocate(this)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~2161"></span>
+              class(<a href='../type/esmf_testmethod.html'>ESMF_TestMethod</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~test_same_geom_do_not_reallocate~~CallsGraph Pages: 1 -->
+<svg id="proctest_same_geom_do_not_reallocateCallsGraph" width="641pt" height="530pt"
+ viewBox="0.00 0.00 641.00 529.59" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph" class="graph" transform="scale(0.83 0.83) rotate(0) translate(4 633)">
+<title>proc~~test_same_geom_do_not_reallocate~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-633 767,-633 767,4 -4,4"/>
+<!-- proc~test_same_geom_do_not_reallocate -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node1" class="node">
+<title>proc~test_same_geom_do_not_reallocate</title>
+<polygon fill="none" stroke="black" points="202,-377 0,-377 0,-353 202,-353 202,-377"/>
+<text text-anchor="middle" x="101" y="-362.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_same_geom_do_not_reallocate</text>
+</g>
+<!-- ESMF_GeomCreate -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node2" class="node">
+<title>ESMF_GeomCreate</title>
+<g id="a_proc~~test_same_geom_do_not_reallocate~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_geomcreate.html" xlink:title="ESMF_GeomCreate">
+<polygon fill="#a7506f" stroke="#a7506f" points="375,-629 261,-629 261,-605 375,-605 375,-629"/>
+<text text-anchor="middle" x="318" y="-614.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GeomCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~test_same_geom_do_not_reallocate&#45;&gt;ESMF_GeomCreate -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge1" class="edge">
+<title>proc~test_same_geom_do_not_reallocate&#45;&gt;ESMF_GeomCreate</title>
+<path fill="none" stroke="#ff0000" d="M105.46,-377.02C117.13,-415.39 158.86,-535.93 238,-596 242.13,-599.14 246.7,-601.81 251.48,-604.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="250.33,-607.39 260.91,-607.97 253.01,-600.92 250.33,-607.39"/>
+</g>
+<!-- ESMF_GeomDestroy -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node3" class="node">
+<title>ESMF_GeomDestroy</title>
+<g id="a_proc~~test_same_geom_do_not_reallocate~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_geomdestroy.html" xlink:title="ESMF_GeomDestroy">
+<polygon fill="#d9534f" stroke="#d9534f" points="377.5,-587 258.5,-587 258.5,-563 377.5,-563 377.5,-587"/>
+<text text-anchor="middle" x="318" y="-572.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GeomDestroy</text>
+</a>
+</g>
+</g>
+<!-- proc~test_same_geom_do_not_reallocate&#45;&gt;ESMF_GeomDestroy -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge2" class="edge">
+<title>proc~test_same_geom_do_not_reallocate&#45;&gt;ESMF_GeomDestroy</title>
+<path fill="none" stroke="#ff0000" d="M107.25,-377.41C122.26,-411.34 168.77,-506.29 238,-554 241.48,-556.4 245.23,-558.53 249.12,-560.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="247.87,-563.68 258.44,-564.38 250.61,-557.24 247.87,-563.68"/>
+</g>
+<!-- ESMF_GridCreateNoPeriDim -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node4" class="node">
+<title>ESMF_GridCreateNoPeriDim</title>
+<g id="a_proc~~test_same_geom_do_not_reallocate~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridcreatenoperidim.html" xlink:title="ESMF_GridCreateNoPeriDim">
+<polygon fill="#a7506f" stroke="#a7506f" points="398,-545 238,-545 238,-521 398,-521 398,-545"/>
+<text text-anchor="middle" x="318" y="-530.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridCreateNoPeriDim</text>
+</a>
+</g>
+</g>
+<!-- proc~test_same_geom_do_not_reallocate&#45;&gt;ESMF_GridCreateNoPeriDim -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge3" class="edge">
+<title>proc~test_same_geom_do_not_reallocate&#45;&gt;ESMF_GridCreateNoPeriDim</title>
+<path fill="none" stroke="#ff0000" d="M109.57,-377.03C127.94,-405.19 177.84,-475.77 238,-512 241.01,-513.81 244.17,-515.47 247.44,-516.99"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="246.27,-520.29 256.85,-520.9 248.96,-513.83 246.27,-520.29"/>
+</g>
+<!-- ESMF_GridDestroy -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node5" class="node">
+<title>ESMF_GridDestroy</title>
+<g id="a_proc~~test_same_geom_do_not_reallocate~~CallsGraph_node5"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_griddestroy.html" xlink:title="ESMF_GridDestroy">
+<polygon fill="#d9534f" stroke="#d9534f" points="372.5,-503 263.5,-503 263.5,-479 372.5,-479 372.5,-503"/>
+<text text-anchor="middle" x="318" y="-488.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridDestroy</text>
+</a>
+</g>
+</g>
+<!-- proc~test_same_geom_do_not_reallocate&#45;&gt;ESMF_GridDestroy -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge4" class="edge">
+<title>proc~test_same_geom_do_not_reallocate&#45;&gt;ESMF_GridDestroy</title>
+<path fill="none" stroke="#ff0000" d="M114.32,-377.34C136.88,-399.22 187.18,-444.91 238,-470 242.93,-472.43 248.18,-474.61 253.54,-476.56"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="252.66,-479.95 263.25,-479.81 254.88,-473.32 252.66,-479.95"/>
+</g>
+<!-- anyexceptions -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node6" class="node">
+<title>anyexceptions</title>
+<polygon fill="#777777" stroke="#777777" points="362.5,-461 273.5,-461 273.5,-437 362.5,-437 362.5,-461"/>
+<text text-anchor="middle" x="318" y="-446.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">anyexceptions</text>
+</g>
+<!-- proc~test_same_geom_do_not_reallocate&#45;&gt;anyexceptions -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge5" class="edge">
+<title>proc~test_same_geom_do_not_reallocate&#45;&gt;anyexceptions</title>
+<path fill="none" stroke="#ff0000" d="M125.06,-377.19C151.71,-390.92 197.13,-413.23 238,-428 246.06,-430.91 254.71,-433.62 263.23,-436.06"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="262.55,-439.5 273.12,-438.79 264.41,-432.75 262.55,-439.5"/>
+</g>
+<!-- assert_that -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node7" class="node">
+<title>assert_that</title>
+<polygon fill="#777777" stroke="#777777" points="353.5,-419 282.5,-419 282.5,-395 353.5,-395 353.5,-419"/>
+<text text-anchor="middle" x="318" y="-404.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assert_that</text>
+</g>
+<!-- proc~test_same_geom_do_not_reallocate&#45;&gt;assert_that -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge6" class="edge">
+<title>proc~test_same_geom_do_not_reallocate&#45;&gt;assert_that</title>
+<path fill="none" stroke="#ff0000" d="M163.61,-377.04C198.28,-383.81 240.79,-392.11 272.26,-398.26"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="272,-401.77 282.48,-400.26 273.34,-394.9 272,-401.77"/>
+</g>
+<!-- esmf_fieldcreate -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node8" class="node">
+<title>esmf_fieldcreate</title>
+<polygon fill="#777777" stroke="#777777" points="368.5,-377 267.5,-377 267.5,-353 368.5,-353 368.5,-377"/>
+<text text-anchor="middle" x="318" y="-362.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldcreate</text>
+</g>
+<!-- proc~test_same_geom_do_not_reallocate&#45;&gt;esmf_fieldcreate -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge7" class="edge">
+<title>proc~test_same_geom_do_not_reallocate&#45;&gt;esmf_fieldcreate</title>
+<path fill="none" stroke="#ff0000" d="M202.26,-365C221.03,-365 240.09,-365 257.15,-365"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="257.49,-368.5 267.49,-365 257.49,-361.5 257.49,-368.5"/>
+</g>
+<!-- esmf_fielddestroy -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node9" class="node">
+<title>esmf_fielddestroy</title>
+<polygon fill="#777777" stroke="#777777" points="371,-335 265,-335 265,-311 371,-311 371,-335"/>
+<text text-anchor="middle" x="318" y="-320.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fielddestroy</text>
+</g>
+<!-- proc~test_same_geom_do_not_reallocate&#45;&gt;esmf_fielddestroy -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge8" class="edge">
+<title>proc~test_same_geom_do_not_reallocate&#45;&gt;esmf_fielddestroy</title>
+<path fill="none" stroke="#ff0000" d="M163.61,-352.96C192.25,-347.37 226.23,-340.73 254.93,-335.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="255.7,-338.54 264.84,-333.19 254.36,-331.67 255.7,-338.54"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node10" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="556.5,-360 471.5,-360 471.5,-336 556.5,-336 556.5,-360"/>
+<text text-anchor="middle" x="514" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~test_same_geom_do_not_reallocate&#45;&gt;esmf_fieldget -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge9" class="edge">
+<title>proc~test_same_geom_do_not_reallocate&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ff0000" d="M121.31,-352.75C146.85,-337.35 193.78,-311.74 238,-302 307.44,-286.7 330.14,-280.75 398,-302 416.59,-307.82 416.32,-318.82 434,-327 442.7,-331.03 452.31,-334.39 461.74,-337.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="460.89,-340.55 471.46,-339.83 462.74,-333.81 460.89,-340.55"/>
+</g>
+<!-- interface~mapl_fieldset -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node11" class="node">
+<title>interface~mapl_fieldset</title>
+<g id="a_proc~~test_same_geom_do_not_reallocate~~CallsGraph_node11"><a xlink:href="../interface/mapl_fieldset.html" xlink:title="MAPL_FieldSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="362,-255 274,-255 274,-231 362,-231 362,-255"/>
+<text text-anchor="middle" x="318" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_FieldSet</text>
+</a>
+</g>
+</g>
+<!-- proc~test_same_geom_do_not_reallocate&#45;&gt;interface~mapl_fieldset -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge10" class="edge">
+<title>proc~test_same_geom_do_not_reallocate&#45;&gt;interface~mapl_fieldset</title>
+<path fill="none" stroke="#ff0000" d="M116.17,-352.81C139.95,-332.89 189.98,-293.17 238,-269 246.24,-264.85 255.29,-261.16 264.23,-257.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="265.52,-261.2 273.84,-254.65 263.25,-254.58 265.52,-261.2"/>
+</g>
+<!-- none~reallocate_field -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node12" class="node">
+<title>none~reallocate_field</title>
+<g id="a_proc~~test_same_geom_do_not_reallocate~~CallsGraph_node12"><a xlink:href="../type/fielddelta.html#boundprocedure-reallocate_field" xlink:title="FieldDelta%reallocate_field">
+<polygon fill="#a7506f" stroke="#a7506f" points="396.5,-213 239.5,-213 239.5,-189 396.5,-189 396.5,-213"/>
+<text text-anchor="middle" x="318" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldDelta%reallocate_field</text>
+</a>
+</g>
+</g>
+<!-- proc~test_same_geom_do_not_reallocate&#45;&gt;none~reallocate_field -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge11" class="edge">
+<title>proc~test_same_geom_do_not_reallocate&#45;&gt;none~reallocate_field</title>
+<path fill="none" stroke="#ff0000" d="M109.93,-352.9C128.71,-325.25 178.76,-257.12 238,-222 241.18,-220.12 244.53,-218.4 247.98,-216.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="249.37,-220.04 257.31,-213.03 246.73,-213.56 249.37,-220.04"/>
+</g>
+<!-- sourcelocation -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node13" class="node">
+<title>sourcelocation</title>
+<polygon fill="#777777" stroke="#777777" points="363.5,-171 272.5,-171 272.5,-147 363.5,-147 363.5,-171"/>
+<text text-anchor="middle" x="318" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sourcelocation</text>
+</g>
+<!-- proc~test_same_geom_do_not_reallocate&#45;&gt;sourcelocation -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge12" class="edge">
+<title>proc~test_same_geom_do_not_reallocate&#45;&gt;sourcelocation</title>
+<path fill="none" stroke="#ff0000" d="M107.33,-352.85C122.53,-319.64 169.49,-226.7 238,-180 245.33,-175.01 253.78,-171.2 262.38,-168.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="263.52,-171.61 272.1,-165.39 261.51,-164.9 263.52,-171.61"/>
+</g>
+<!-- true -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node14" class="node">
+<title>true</title>
+<polygon fill="#777777" stroke="#777777" points="345,-129 291,-129 291,-105 345,-105 345,-129"/>
+<text text-anchor="middle" x="318" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">true</text>
+</g>
+<!-- proc~test_same_geom_do_not_reallocate&#45;&gt;true -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge13" class="edge">
+<title>proc~test_same_geom_do_not_reallocate&#45;&gt;true</title>
+<path fill="none" stroke="#ff0000" d="M105.61,-352.92C117.59,-314.92 159.83,-196.86 238,-138 250.32,-128.73 266.4,-123.54 280.85,-120.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="281.72,-124.05 290.99,-118.92 280.55,-117.15 281.72,-124.05"/>
+</g>
+<!-- none~reallocate_field&#45;&gt;esmf_fieldget -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge17" class="edge">
+<title>none~reallocate_field&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#9c00ff" stroke-dasharray="5,2" d="M385.47,-213.15C390.01,-215.6 394.26,-218.52 398,-222 434.09,-255.63 397.91,-293.37 434,-327 441.71,-334.19 451.6,-338.97 461.75,-342.14"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="460.93,-345.55 471.49,-344.71 462.72,-338.78 460.93,-345.55"/>
+</g>
+<!-- esmf_arraydestroy -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node15" class="node">
+<title>esmf_arraydestroy</title>
+<polygon fill="#777777" stroke="#777777" points="570,-318 458,-318 458,-294 570,-294 570,-318"/>
+<text text-anchor="middle" x="514" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_arraydestroy</text>
+</g>
+<!-- none~reallocate_field&#45;&gt;esmf_arraydestroy -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge14" class="edge">
+<title>none~reallocate_field&#45;&gt;esmf_arraydestroy</title>
+<path fill="none" stroke="#9c00ff" stroke-dasharray="5,2" d="M382.81,-213.05C388.23,-215.5 393.39,-218.45 398,-222 423.56,-241.66 408.44,-265.34 434,-285 438.36,-288.35 443.21,-291.17 448.3,-293.54"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="447.09,-296.83 457.67,-297.34 449.72,-290.34 447.09,-296.83"/>
+</g>
+<!-- esmf_fieldemptycomplete -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node16" class="node">
+<title>esmf_fieldemptycomplete</title>
+<polygon fill="#777777" stroke="#777777" points="589.5,-276 438.5,-276 438.5,-252 589.5,-252 589.5,-276"/>
+<text text-anchor="middle" x="514" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldemptycomplete</text>
+</g>
+<!-- none~reallocate_field&#45;&gt;esmf_fieldemptycomplete -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge15" class="edge">
+<title>none~reallocate_field&#45;&gt;esmf_fieldemptycomplete</title>
+<path fill="none" stroke="#9c00ff" stroke-dasharray="5,2" d="M372.35,-213.08C381.05,-215.65 389.88,-218.62 398,-222 415.1,-229.11 416.9,-235.89 434,-243 439.08,-245.11 444.43,-247.06 449.85,-248.86"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="449.07,-252.28 459.65,-251.92 451.15,-245.6 449.07,-252.28"/>
+</g>
+<!-- esmf_fieldemptyset -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node17" class="node">
+<title>esmf_fieldemptyset</title>
+<polygon fill="#777777" stroke="#777777" points="572.5,-234 455.5,-234 455.5,-210 572.5,-210 572.5,-234"/>
+<text text-anchor="middle" x="514" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldemptyset</text>
+</g>
+<!-- none~reallocate_field&#45;&gt;esmf_fieldemptyset -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge16" class="edge">
+<title>none~reallocate_field&#45;&gt;esmf_fieldemptyset</title>
+<path fill="none" stroke="#9c00ff" stroke-dasharray="5,2" d="M396.51,-209.39C412.61,-211.13 429.46,-212.96 445.19,-214.66"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="445.02,-218.16 455.34,-215.76 445.77,-211.2 445.02,-218.16"/>
+</g>
+<!-- interface~fieldgetlocalelementcount -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node18" class="node">
+<title>interface~fieldgetlocalelementcount</title>
+<g id="a_proc~~test_same_geom_do_not_reallocate~~CallsGraph_node18"><a xlink:href="../interface/fieldgetlocalelementcount.html" xlink:title="FieldGetLocalElementCount">
+<polygon fill="#a7506f" stroke="#a7506f" points="594,-192 434,-192 434,-168 594,-168 594,-192"/>
+<text text-anchor="middle" x="514" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldGetLocalElementCount</text>
+</a>
+</g>
+</g>
+<!-- none~reallocate_field&#45;&gt;interface~fieldgetlocalelementcount -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge18" class="edge">
+<title>none~reallocate_field&#45;&gt;interface~fieldgetlocalelementcount</title>
+<path fill="none" stroke="#9c00ff" stroke-dasharray="5,2" d="M396.51,-192.61C405.41,-191.65 414.53,-190.66 423.56,-189.68"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="424.14,-193.14 433.71,-188.58 423.39,-186.18 424.14,-193.14"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node19" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~test_same_geom_do_not_reallocate~~CallsGraph_node19"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="553.5,-150 474.5,-150 474.5,-126 553.5,-126 553.5,-150"/>
+<text text-anchor="middle" x="514" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- none~reallocate_field&#45;&gt;interface~mapl_assert -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge19" class="edge">
+<title>none~reallocate_field&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#9c00ff" stroke-dasharray="5,2" d="M372.35,-188.92C381.05,-186.35 389.88,-183.38 398,-180 415.1,-172.89 416.9,-166.11 434,-159 443.53,-155.04 454.03,-151.63 464.17,-148.78"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="465.38,-152.08 474.14,-146.13 463.58,-145.32 465.38,-152.08"/>
+</g>
+<!-- interface~mapl_fieldget -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node20" class="node">
+<title>interface~mapl_fieldget</title>
+<g id="a_proc~~test_same_geom_do_not_reallocate~~CallsGraph_node20"><a xlink:href="../interface/mapl_fieldget.html" xlink:title="MAPL_FieldGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="559,-108 469,-108 469,-84 559,-84 559,-108"/>
+<text text-anchor="middle" x="514" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_FieldGet</text>
+</a>
+</g>
+</g>
+<!-- none~reallocate_field&#45;&gt;interface~mapl_fieldget -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge20" class="edge">
+<title>none~reallocate_field&#45;&gt;interface~mapl_fieldget</title>
+<path fill="none" stroke="#9c00ff" stroke-dasharray="5,2" d="M382.81,-188.95C388.23,-186.5 393.39,-183.55 398,-180 423.56,-160.34 408.44,-136.66 434,-117 441.35,-111.34 450.1,-107.21 459.05,-104.18"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="460.18,-107.5 468.79,-101.32 458.21,-100.78 460.18,-107.5"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node21" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~test_same_geom_do_not_reallocate~~CallsGraph_node21"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="555,-66 473,-66 473,-42 555,-42 555,-66"/>
+<text text-anchor="middle" x="514" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- none~reallocate_field&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge21" class="edge">
+<title>none~reallocate_field&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#9c00ff" stroke-dasharray="5,2" d="M385.47,-188.85C390.01,-186.4 394.26,-183.48 398,-180 434.09,-146.37 397.91,-108.63 434,-75 442.03,-67.52 452.41,-62.64 463,-59.48"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="463.88,-62.86 472.72,-57.03 462.17,-56.08 463.88,-62.86"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node22" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~test_same_geom_do_not_reallocate~~CallsGraph_node22"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="552,-24 476,-24 476,0 552,0 552,-24"/>
+<text text-anchor="middle" x="514" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- none~reallocate_field&#45;&gt;proc~mapl_verify -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge22" class="edge">
+<title>none~reallocate_field&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#9c00ff" stroke-dasharray="5,2" d="M386.2,-189C390.52,-186.52 394.52,-183.55 398,-180 445.09,-131.97 386.91,-81.03 434,-33 442.54,-24.29 454.25,-19.06 466.03,-15.96"/>
+<polygon fill="#9c00ff" stroke="#9c00ff" points="466.86,-19.36 475.89,-13.82 465.37,-12.52 466.86,-19.36"/>
+</g>
+<!-- at -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node23" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="723.5,-108 669.5,-108 669.5,-84 723.5,-84 723.5,-108"/>
+<text text-anchor="middle" x="696.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;at -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#7f00ff" d="M555.06,-63.32C586.28,-70.58 629.24,-80.58 659.4,-87.6"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="658.96,-91.09 669.49,-89.95 660.55,-84.27 658.96,-91.09"/>
+</g>
+<!-- insert -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node24" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="723.5,-66 669.5,-66 669.5,-42 723.5,-42 723.5,-66"/>
+<text text-anchor="middle" x="696.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge24" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#7f00ff" d="M555.06,-54C586.28,-54 629.24,-54 659.4,-54"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="659.49,-57.5 669.49,-54 659.49,-50.5 659.49,-57.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_node25" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~test_same_geom_do_not_reallocate~~CallsGraph_node25"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="763,-24 630,-24 630,0 763,0 763,-24"/>
+<text text-anchor="middle" x="696.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge25" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7f00ff" d="M555.06,-44.68C578.27,-39.28 607.97,-32.37 634.07,-26.29"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="634.94,-29.69 643.88,-24.01 633.35,-22.87 634.94,-29.69"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~test_same_geom_do_not_reallocate~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00bf" d="M552.4,-12C571.83,-12 596.3,-12 619.49,-12"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="619.68,-15.5 629.68,-12 619.68,-8.5 619.68,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproctest_same_geom_do_not_reallocateCallsGraph = svgPanZoom('#proctest_same_geom_do_not_reallocateCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_same_geom_do_not_reallocate</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">f</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid1</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom1</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Geom</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">geom2</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_FieldStatus_Flag</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">field_status</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TypeKind_Flag</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">typekind</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x</span><span class="p">(:,:)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FieldDelta</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">delta</span>
+
+<span class="w">      </span><span class="n">grid1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_GridCreateNoPeriDim</span><span class="p">(</span><span class="n">maxIndex</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;I_AM_GROOT&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">geom1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_GeomCreate</span><span class="p">(</span><span class="n">grid1</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">geom1</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;in&#39;</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_FieldSet</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">num_levels</span><span class="o">=</span><span class="n">ORIG_VGRID_LEVELS</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">vert_staggerloc</span><span class="o">=</span><span class="n">VERTICAL_STAGGER_EDGE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">fArrayPtr</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FILL_VALUE</span>
+
+<span class="w">      </span><span class="n">geom2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">geom1</span>
+<span class="w">      </span><span class="n">delta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldDelta</span><span class="p">(</span><span class="n">geom</span><span class="o">=</span><span class="n">geom2</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">delta</span><span class="p">%</span><span class="n">reallocate_field</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="o">=</span><span class="n">field_status</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="o">=</span><span class="n">typekind</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">field_status</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_FIELDSTATUS_COMPLETE</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="n">typekind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">,</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">fArrayPtr</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assert_that</span><span class="p">(</span><span class="k">all</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">FILL_VALUE</span><span class="p">),</span><span class="w"> </span><span class="k">is</span><span class="p">(</span><span class="n">true</span><span class="p">()))</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldDestroy</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridDestroy</span><span class="p">(</span><span class="n">grid1</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_GeomDestroy</span><span class="p">(</span><span class="n">geom2</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_same_geom_do_not_reallocate</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-12-03T14:34:31.735011+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
