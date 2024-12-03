@@ -61,6 +61,7 @@ module mapl3g_ComponentSpecParser
    character(*), parameter :: KEY_UNGRIDDED_DIM_EXTENT = 'extent'
    character(*), parameter :: KEY_UNGRIDDED_DIM_COORDINATES = 'coordinates'
    character(*), parameter :: KEY_VERTICAL_DIM_SPEC = 'vertical_dim_spec'
+   character(*), parameter :: KEY_ACCUMULATION_TYPE = 'accumulation_type'
 
    !>
    ! Submodule declarations

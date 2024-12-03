@@ -79,20 +79,20 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.1% of total for procedures.">37 statements</a>
+                 title=" 0.1% of total for procedures.">40 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/restart_simulator.F90"> Source File</a>
+              <a href="../src/checkpoint_simulator.F90"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/restart_simulator.f90.html'>restart_simulator.F90</a></li>
-                <li class="breadcrumb-item"><a href='../module/mapl_restart_support_mod.html'>mapl_restart_support_mod</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/checkpoint_simulator.f90.html'>checkpoint_simulator.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_checkpoint_support_mod.html'>mapl_checkpoint_support_mod</a></li>
             <li class="breadcrumb-item active" aria-current="page">get_cli_options</li>
           </ol>
         </nav>
@@ -163,7 +163,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-options~10"></span>
+              <span class="anchor" id="variable-options~5"></span>
               type(StringUnlimitedMap),
             </td>
 <td>intent(in)</td>
@@ -179,7 +179,7 @@
         <tr>
             <td>
               <span class="anchor" id="variable-cli"></span>
-              type(<a href='../type/cli_options~2.html'>cli_options</a>),
+              type(<a href='../type/cli_options.html'>cli_options</a>),
             </td>
 <td>intent(out)</td>
               <td></td>            <td>
@@ -479,8 +479,8 @@ large graphs.</div>
 <span class="w">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s2">&quot;lm&quot;</span><span class="p">)</span>
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">cli</span><span class="p">%</span><span class="n">lm</span><span class="p">)</span>
 
-<span class="w">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s2">&quot;num_readers&quot;</span><span class="p">)</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">cli</span><span class="p">%</span><span class="n">num_readers</span><span class="p">)</span>
+<span class="w">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s2">&quot;num_writers&quot;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">cli</span><span class="p">%</span><span class="n">num_writers</span><span class="p">)</span>
 
 <span class="w">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s2">&quot;num_arrays&quot;</span><span class="p">)</span>
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">cli</span><span class="p">%</span><span class="n">num_arrays</span><span class="p">)</span>
@@ -491,23 +491,27 @@ large graphs.</div>
 <span class="w">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s2">&quot;split_file&quot;</span><span class="p">)</span>
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">cli</span><span class="p">%</span><span class="n">split_file</span><span class="p">)</span>
 
-<span class="w">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s2">&quot;scatter_3d&quot;</span><span class="p">)</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">cli</span><span class="p">%</span><span class="n">scatter_3d</span><span class="p">)</span>
+<span class="w">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s2">&quot;gather_3d&quot;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">cli</span><span class="p">%</span><span class="n">gather_3d</span><span class="p">)</span>
 
-<span class="w">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s2">&quot;read_barrier&quot;</span><span class="p">)</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">cli</span><span class="p">%</span><span class="n">read_barrier</span><span class="p">)</span>
+<span class="w">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s2">&quot;write_barrier&quot;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">cli</span><span class="p">%</span><span class="n">write_barrier</span><span class="p">)</span>
 
-<span class="w">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s2">&quot;no_random_data&quot;</span><span class="p">)</span>
+<span class="w">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s2">&quot;static_data&quot;</span><span class="p">)</span>
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">)</span>
 <span class="w">      </span><span class="n">cli</span><span class="p">%</span><span class="n">random_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">tmp</span>
 
-<span class="w">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s2">&quot;do_no_reads&quot;</span><span class="p">)</span>
+<span class="w">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s2">&quot;suppress_writes&quot;</span><span class="p">)</span>
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">)</span>
-<span class="w">      </span><span class="n">cli</span><span class="p">%</span><span class="n">do_reads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">tmp</span>
+<span class="w">      </span><span class="n">cli</span><span class="p">%</span><span class="n">do_writes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">tmp</span>
 
-<span class="w">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s2">&quot;no_netcdf_reads&quot;</span><span class="p">)</span>
+<span class="w">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s2">&quot;write_binary&quot;</span><span class="p">)</span>
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">)</span>
-<span class="w">      </span><span class="n">cli</span><span class="p">%</span><span class="n">netcdf_reads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">tmp</span>
+<span class="w">      </span><span class="n">cli</span><span class="p">%</span><span class="n">netcdf_writes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">tmp</span>
+
+<span class="w">      </span><span class="n">option</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">options</span><span class="p">%</span><span class="n">at</span><span class="p">(</span><span class="s2">&quot;no_chunking&quot;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">option</span><span class="p">))</span><span class="w"> </span><span class="k">call </span><span class="n">cast</span><span class="p">(</span><span class="n">option</span><span class="p">,</span><span class="w"> </span><span class="n">tmp</span><span class="p">)</span>
+<span class="w">      </span><span class="n">cli</span><span class="p">%</span><span class="n">do_chunking</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">tmp</span>
 
 <span class="w">   </span><span class="k">end subroutine </span><span class="n">get_cli_options</span>
 </pre></div>
@@ -533,7 +537,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-12-03T14:34:31.735011+0000             </p>
+ on 2024-12-03T16:44:01.538749+0000             </p>
           </div>
         </div>
         <br>

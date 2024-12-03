@@ -44,6 +44,7 @@ module mapl3g_VariableSpec
       real, allocatable :: default_value
       type(StringVector) :: attributes
       integer, allocatable :: bracket_size
+      character(len=:), allocatable :: accumulation_type
 
       ! Geometry
       type(ESMF_Geom), allocatable :: geom
@@ -69,7 +70,8 @@ contains
         units, substate, itemtype, typekind, vertical_dim_spec, ungridded_dims, default_value, &
         service_items, attributes, &
         bracket_size, &
-        dependencies, regrid_param) result(var_spec)
+        dependencies, regrid_param, &
+        accumulation_type) result(var_spec)
 
       type(VariableSpec) :: var_spec
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
@@ -90,6 +92,7 @@ contains
       integer, optional, intent(in) :: bracket_size
       type(StringVector), optional, intent(in) :: dependencies
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
+      character(len=*), optional, intent(in) :: accumulation_type
 
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
       integer :: status
@@ -115,6 +118,7 @@ contains
       _SET_OPTIONAL(attributes)
       _SET_OPTIONAL(bracket_size)
       _SET_OPTIONAL(dependencies)
+      _SET_OPTIONAL(accumulation_type)
 
       call var_spec%set_regrid_param_(regrid_param)
 
