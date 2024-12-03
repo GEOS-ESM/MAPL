@@ -50,6 +50,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.50.3] - 2024-12-02
+
+### Fixed
+
+- Fixed bug where c null character is not removed from end of string when reading netcdf attribute in NetCDF4\_FileFormatter.F90
+
 ## [2.50.2] - 2024-10-30
 
 ### Fixed
