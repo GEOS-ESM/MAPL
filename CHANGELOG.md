@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow update offsets of &#177;timestep in ExtData2G
 - Minor revision (and generalization) of grid-def for GSI purposes
 - Trajectory sampler: fix a bug when group_name does not exist in netCDF file and a bug that omitted the first time point
+- Allow lat-lon grid factory to detect and use CF compliant lat-lon bounds in a file when making a grid
 - PFIO/Variable class, new procedures to retrieve string/reals/int attributes from a variable
 
 ### Changed
@@ -46,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed issue of some Baselibs builds appearing to support zstandard. This is not possible due to Baselibs building HDF5 and netCDF as static libraries
 - Updates to support llvm-flang
+- Fixed a bug where the periodicity around the earth of the lat-lon grid was not being set properly when grid did not span from pole to pole
 
 ### Removed
 
