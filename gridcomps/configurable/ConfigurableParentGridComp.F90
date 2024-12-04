@@ -1,10 +1,12 @@
 #include "MAPL_Generic.h"
 
 module ConfigurableParentGridComp
+
    use generic3g
    use mapl_ErrorHandling
    use pFlogger, only: logger
    use esmf
+
    implicit none
    private
 
@@ -34,7 +36,6 @@ contains
       vertical_grid = BasicVerticalGrid(4)
       call outer_meta%set_vertical_grid(vertical_grid)
 
-
       _RETURN(_SUCCESS)
    end subroutine setServices
 
@@ -60,9 +61,11 @@ contains
 
       integer :: status
       character(len=ESMF_MAXSTR) :: gc_name
+
       call ESMF_GridCompGet(gridcomp, name=gc_name, _RC)
       print*,'running ',trim(gc_name)
       call MAPL_RunChildren(gridcomp, phase_name='run', _RC)
+
       _RETURN(_SUCCESS)
    end subroutine run
 
@@ -79,6 +82,5 @@ subroutine setServices(gridcomp,rc)
 
    call ConfigurableParent_setServices(gridcomp,_RC)
    _RETURN(_SUCCESS)
-
-end subroutine
+end subroutine setServices
 

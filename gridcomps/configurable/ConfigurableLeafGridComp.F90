@@ -1,10 +1,12 @@
 #include "MAPL_Generic.h"
 
 module ConfigurableLeafGridComp
+
    use generic3g
    use mapl_ErrorHandling
    use pFlogger, only: logger
    use esmf
+
    implicit none
    private
 
@@ -33,7 +35,6 @@ contains
       outer_meta => get_outer_meta_from_inner_gc(gridcomp,_RC)
       vertical_grid = BasicVerticalGrid(4)
       call outer_meta%set_vertical_grid(vertical_grid)
-
 
       _RETURN(_SUCCESS)
    end subroutine setServices
@@ -78,7 +79,6 @@ subroutine setServices(gridcomp,rc)
    integer :: status
 
    call ConfigurableLeaf_setServices(gridcomp,_RC)
+
    _RETURN(_SUCCESS)
-
-end subroutine
-
+end subroutine setServices
