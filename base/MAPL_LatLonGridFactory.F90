@@ -1874,14 +1874,12 @@ contains
       integer :: i
       _UNUSED_DUMMY(this)
 
-      if (allocated(this%lon_bounds_name) .and. allocated(this%lat_bounds_name)) then
-         vars = 'lon,lat,'//this%lon_bounds_name//','//this%lat_bounds_name
-      else if (allocated(this%lon_bounds_name) .and. (.not. allocated(this%lat_bounds_name))) then
-         vars = 'lon,lat,'//this%lon_bounds_name
-      else if (allocated(this%lat_bounds_name) .and. (.not. allocated(this%lon_bounds_name))) then
-         vars = 'lon,lat,'//this%lat_bounds_name
-      else if ((.not.allocated(this%lat_bounds_name)) .and. (.not. allocated(this%lon_bounds_name))) then
-         vars = 'lon,lat'
+      vars = 'lon,lat'
+      if (allocated(this%lon_bounds_name)) then
+         vars = vars // ',' // this%lon_bounds_name
+      end if
+      if (allocated(this%lat_bounds_name)) then
+         vars = vars // ',' // this%lat_bounds_name
       end if
 
    end function get_file_format_vars
