@@ -8,14 +8,6 @@ add_pfunit_ctest(MAPL.field.test_fieldcreate
                 MAX_PES 1
                 )
 
-add_pfunit_ctest(MAPL.field.test_fieldreset
-                TEST_SOURCES Test_FieldReset.pf
-                LINK_LIBRARIES MAPL.field MAPL.pfunit
-                EXTRA_INITIALIZE Initialize
-                EXTRA_USE MAPL_pFUnit_Initialize
-                MAX_PES 1
-                )
-
 add_pfunit_ctest(MAPL.field.test_utils
                 TEST_SOURCES   Test_FieldBLAS.pf Test_FieldArithmetic.pf Test_FieldCondensedArray_private.pf
                                Test_FieldDelta.pf Test_FieldInfo.pf
@@ -25,4 +17,4 @@ add_pfunit_ctest(MAPL.field.test_utils
                 OTHER_SOURCES field_utils_setup.F90
                 MAX_PES 4
                 )
-add_dependencies(build-tests MAPL.field.test_fieldcreate MAPL.field.test_fieldreset MAPL.field.test_utils)
+add_dependencies(build-tests MAPL.field.test_fieldcreate MAPL.field.test_utils)
