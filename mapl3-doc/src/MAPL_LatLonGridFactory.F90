@@ -56,6 +56,8 @@ module MAPL_LatLonGridFactoryMod
       integer :: px, py
       logical :: is_halo_initialized = .false.
       logical :: periodic = .true.
+      character(len=:), allocatable :: lon_bounds_name
+      character(len=:), allocatable :: lat_bounds_name
    contains
       procedure :: make_new_grid
       procedure :: create_basic_grid
@@ -219,10 +221,16 @@ contains
 
       type(ESMF_Info) :: infoh
       integer :: status
+      type(ESMF_PoleKind_Flag) :: polekindflag(2)
 
       _UNUSED_DUMMY(unusable)
 
       if (this%periodic) then
+         if (this%pole == "XY") then 
+            polekindflag = ESMF_POLEKIND_NONE
+         else
+            polekindflag = ESMF_POLEKIND_MONOPOLE
+         end if
          grid = ESMF_GridCreate1PeriDim( &
               & name = this%grid_name, &
               & countsPerDEDim1=this%ims, &
@@ -233,6 +241,7 @@ contains
               & coordDep1=[1,2], &
               & coordDep2=[1,2], &
               & coordSys=ESMF_COORDSYS_SPH_RAD, &
+              & polekindflag=polekindflag, &
               & rc=status)
          _VERIFY(status)
       else
@@ -675,7 +684,7 @@ contains
 
       integer :: i_min, i_max
       real(kind=REAL64) :: d_lat, d_lat_temp, extrap_lat
-      logical :: is_valid, use_file_coords, compute_lons, compute_lats
+      logical :: is_valid, use_file_coords, compute_lons, compute_lats, has_bnds
 
       _UNUSED_DUMMY(unusable)
 
@@ -761,6 +770,11 @@ contains
            where(this%lon_centers > 180) this%lon_centers=this%lon_centers-360
         end if
 
+        has_bnds = coordinate_has_bounds(file_metadata, lon_name, _RC)
+        if (has_bnds) then
+           this%lon_bounds_name = get_coordinate_bounds_name(file_metadata, lon_name, _RC)
+           this%lon_corners = get_coordinate_bounds(file_metadata, lon_name, _RC)
+        end if
 
         v => file_metadata%get_coordinate_variable(lat_name, rc=status)
         _VERIFY(status)
@@ -774,6 +788,12 @@ contains
         class default
            _FAIL('unsupported type of data; must be REAL32 or REAL64')
         end select
+
+        has_bnds = coordinate_has_bounds(file_metadata, lat_name, _RC)
+        if (has_bnds) then
+           this%lat_bounds_name = get_coordinate_bounds_name(file_metadata, lat_name, _RC)
+           this%lat_corners = get_coordinate_bounds(file_metadata, lat_name, _RC)
+        end if
 
 
         ! Check: is this a "mis-specified" pole-centered grid?
@@ -806,14 +826,14 @@ contains
            end if
         end if
 
-
          ! Corners are the midpoints of centers (and extrapolated at the
          ! poles for lats.)
-         allocate(this%lon_corners(im+1), this%lat_corners(jm+1))
-
-         this%lon_corners(1) = (this%lon_centers(im) + this%lon_centers(1))/2 - 180
-         this%lon_corners(2:im) = (this%lon_centers(1:im-1) + this%lon_centers(2:im))/2
-         this%lon_corners(im+1) = (this%lon_centers(im) + this%lon_centers(1))/2 + 180
+         if (.not. allocated(this%lon_corners)) then
+            allocate(this%lon_corners(im+1))
+            this%lon_corners(1) = (this%lon_centers(im) + this%lon_centers(1))/2 - 180
+            this%lon_corners(2:im) = (this%lon_centers(1:im-1) + this%lon_centers(2:im))/2
+            this%lon_corners(im+1) = (this%lon_centers(im) + this%lon_centers(1))/2 + 180
+         end if
 
          ! This section about pole/dateline is probably not needed in file data case.
          if (abs(this%lon_centers(1) + 180) < 1000*epsilon(1.0)) then
@@ -828,10 +848,13 @@ contains
             this%dateline = 'XY'
             this%lon_range = RealMinMax(this%lon_centers(1), this%lon_centers(jm))
          end if
-
-         this%lat_corners(1) = this%lat_centers(1) - (this%lat_centers(2)-this%lat_centers(1))/2
-         this%lat_corners(2:jm) = (this%lat_centers(1:jm-1) + this%lat_centers(2:jm))/2
-         this%lat_corners(jm+1) = this%lat_centers(jm) - (this%lat_centers(jm-1)-this%lat_centers(jm))/2
+         
+         if (.not. allocated(this%lat_corners)) then
+            allocate(this%lat_corners(jm+1))
+            this%lat_corners(1) = this%lat_centers(1) - (this%lat_centers(2)-this%lat_centers(1))/2
+            this%lat_corners(2:jm) = (this%lat_centers(1:jm-1) + this%lat_centers(2:jm))/2
+            this%lat_corners(jm+1) = this%lat_centers(jm) - (this%lat_centers(jm-1)-this%lat_centers(jm))/2
+         end if
 
          if (abs(this%lat_centers(1) + 90) < 1000*epsilon(1.0)) then
             this%pole = 'PC'
@@ -1141,7 +1164,6 @@ contains
 
       ! Check regional vs global
       if (this%pole == 'XY') then ! regional
-         this%periodic = .false.
          _ASSERT(this%lat_range%min /= MAPL_UNDEFINED_REAL, 'uninitialized min for lat_range')
          _ASSERT(this%lat_range%max /= MAPL_UNDEFINED_REAL, 'uninitialized min for lat_range')
       else ! global
@@ -1851,9 +1873,16 @@ contains
       class (LatLonGridFactory), intent(inout) :: this
 
       character(len=:), allocatable :: vars
+      integer :: i
       _UNUSED_DUMMY(this)
 
       vars = 'lon,lat'
+      if (allocated(this%lon_bounds_name)) then
+         vars = vars // ',' // this%lon_bounds_name
+      end if
+      if (allocated(this%lat_bounds_name)) then
+         vars = vars // ',' // this%lat_bounds_name
+      end if
 
    end function get_file_format_vars
 
@@ -1930,5 +1959,85 @@ contains
       _UNUSED_DUMMY(metaData)
    end function generate_file_reference3D
 
+   function coordinate_has_bounds(metadata, coord_name, rc) result(has_bounds)
+      logical :: has_bounds
+      type(FileMetadata), intent(in) :: metadata
+      character(len=*), intent(in) :: coord_name
+      integer, optional, intent(out) :: rc
+      
+      type(Variable), pointer :: var
+      integer :: status
+
+      var => metadata%get_variable(coord_name, _RC)
+      has_bounds = var%is_attribute_present("bounds")
+
+      _RETURN(_SUCCESS)
+   end function
+
+   function get_coordinate_bounds_name(metadata, coord_name, rc) result(coord_bounds_name)
+      character(len=:), allocatable :: coord_bounds_name
+      type(FileMetadata), intent(in) :: metadata
+      character(len=*), intent(in) :: coord_name
+      integer, optional, intent(out) :: rc
+      
+      type(Variable), pointer :: var
+      type(Attribute), pointer :: attr
+      integer :: status
+      class(*), pointer :: attr_val
+
+      var => metadata%get_variable(coord_name, _RC)
+      attr => var%get_attribute("bounds", _RC)
+      attr_val => attr%get_value()
+      select type(attr_val)
+      type is(character(*))
+         coord_bounds_name = attr_val
+      class default
+         _FAIL('coordinate bounds must be a string')
+      end select
+      _RETURN(_SUCCESS)
+   end function
+
+   function get_coordinate_bounds(metadata, coord_name, rc) result(coord_bounds)
+      real(kind=REAL64), allocatable :: coord_bounds(:)
+      type(FileMetadata), intent(in) :: metadata
+      character(len=*), intent(in) :: coord_name
+      integer, optional, intent(out) :: rc
+      
+      type(Variable), pointer :: var
+      type(Attribute), pointer :: attr
+      integer :: status, im, i
+      class(*), pointer :: attr_val
+      character(len=:), allocatable :: bnds_name, source_file
+      real(kind=REAL64), allocatable :: file_bounds(:,:)
+      type(NetCDF4_FileFormatter) :: file_formatter
+      
+
+      var => metadata%get_variable(coord_name, _RC)
+      attr => var%get_attribute("bounds", _RC)
+      attr_val => attr%get_value()
+      select type(attr_val)
+      type is(character(*))
+         bnds_name = attr_val
+      class default
+         _FAIL('coordinate bounds must be a string')
+      end select
+      im = metadata%get_dimension(coord_name, _RC)
+      allocate(coord_bounds(im+1), _STAT)
+      allocate(file_bounds(2,im), _STAT)
+      source_file = metadata%get_source_file() 
+
+      call file_formatter%open(source_file, PFIO_READ, _RC)
+      call file_formatter%get_var(bnds_name, file_bounds, _RC)
+      call file_formatter%close(_RC)
+      do i=1,im-1
+         _ASSERT(file_bounds(2,i)==file_bounds(1,i+1), "Bounds are not contiguous in file")
+      enddo
+      do i=1,im
+         coord_bounds(i) = file_bounds(1,i)
+         coord_bounds(i+1) = file_bounds(2,i)
+      enddo
+
+      _RETURN(_SUCCESS)
+   end function
 
 end module MAPL_LatLonGridFactoryMod
