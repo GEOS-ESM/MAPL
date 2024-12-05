@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added macro _RETURN(_SUCCESS) to fetch_data
 - Allow update offsets of &#177;timestep in ExtData2G
 - Minor revision (and generalization) of grid-def for GSI purposes
 - Add ability to use an `ESMF_CONFIG_FILE` environment variable to specify name of file to pass in pre-`ESMF_Initialize` options to ESMF (see [ESMF Docs](https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node4.html#SECTION04024000000000000000) for allowed flags.
@@ -43,6 +44,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Use v7.27.0 Baselibs
   - Use GCC 14 for GNU tests
   - Add pFUnit-less build test
+- Improve some writes to be more informative
+  - In `base/MAPL_CFIO.F90`, added `Iam` to a print statement so that when a read fails we know which routine failed
+  - In `gridcomps/ExtData2G/ExtDataConfig.F90`, print out the name of the duplicate collection that causes model to fail
 
 ### Fixed
 
