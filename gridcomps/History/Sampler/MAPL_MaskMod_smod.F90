@@ -114,7 +114,7 @@ module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdat
    type(ESMF_FieldBundle), optional, intent(inout)   :: bundle
    type(TimeData), optional, intent(inout)           :: timeInfo
    type(VerticalData), optional, intent(inout)       :: vdata
-   type(StringStringMap), target, intent(in), optional :: global_attributes   
+   type(StringStringMap), target, intent(in), optional :: global_attributes
    logical, optional, intent(in)           :: reinitialize
    integer, optional, intent(out)          :: rc
 
@@ -139,7 +139,7 @@ module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdat
    end if
    _ASSERT(present(global_attributes), 'PFIO needs global_attributes')
 
-  
+
 !   this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
 !   if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
 
@@ -175,7 +175,7 @@ module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdat
    !
    ! __ note thse large arrays should be deallocated in the future
    !
-   
+
    _RETURN(_SUCCESS)
 
 end subroutine initialize_
@@ -198,7 +198,7 @@ module subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chu
 
 
   if (present(write_collection_id)) this%write_collection_id=write_collection_id
-  if (present(itemOrder)) this%itemOrderAlphabetical = itemOrder  
+  if (present(itemOrder)) this%itemOrderAlphabetical = itemOrder
 !!  add later on
 !!        if (present(regrid_method)) this%regrid_method=regrid_method
 !!        if (present(nbits_to_keep)) this%nbits_to_keep=nbits_to_keep
@@ -242,7 +242,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
     integer :: metadataVarsSize
     character(len=:), pointer :: attr_name, attr_val
 
-    
+
     !__ 1. metadata add_dimension,
     !     add_variable for time, mask_points, latlon,
     !
@@ -257,7 +257,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
     call v%add_attribute('unit','degree_east')
     call this%metadata%add_variable('longitude',v)
 
-    v = Variable(type=pFIO_REAL32, dimensions='mask_index')    
+    v = Variable(type=pFIO_REAL32, dimensions='mask_index')
     call v%add_attribute('long_name','latitude')
     call v%add_attribute('unit','degree_north')
     call this%metadata%add_variable('latitude',v)
@@ -284,8 +284,8 @@ module subroutine  create_metadata(this,global_attributes,rc)
     order = this%metadata%get_order(rc=status)
     _VERIFY(status)
     metadataVarsSize = order%size()
-        
-    
+
+
     !__ 2. filemetadata: extract field from bundle, add_variable to metadata
     !
     call ESMF_FieldBundleGet(this%bundle, fieldCount=fieldCount, _RC)
@@ -340,7 +340,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
        call s_iter%next()
     enddo
 
-        
+
     _RETURN(_SUCCESS)
   end subroutine create_metadata
 
@@ -412,7 +412,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
        integer      :: Xdim_true, Ydim_true
        integer      :: Xdim_red, Ydim_red
        real(REAL64), allocatable :: lons(:), lats(:)
-       real(ESMF_KIND_R8), allocatable :: lons_ds(:), lats_ds(:)
+       real(REAL64), allocatable :: lons_ds(:), lats_ds(:)
        integer,      allocatable :: mask(:,:)
 
        real(ESMF_kind_R8), pointer :: lons_ptr(:,:), lats_ptr(:,:)
@@ -445,6 +445,12 @@ module subroutine  create_metadata(this,global_attributes,rc)
        iroot = 0
        ip = mypet    ! 0 to M-1
        M = petCount
+
+       if (ip==0) then
+          write(6,*) 'ESMF_kind_R8, real32, real64'
+          write(6,*) ESMF_kind_R8, real32, real64
+       end if
+
 
        call MAPL_TimerOn(this%GENSTATE,"1_genABIgrid")
        if (mapl_am_i_root()) then
@@ -621,8 +627,9 @@ module subroutine  create_metadata(this,global_attributes,rc)
 
 !! ygyu debug
 !!       nx = sizeof ( ptB ) / sizeof (ESMF_KIND_R8)
-       nx = size (ptB, 1) 
-       
+!!       nx = size (ptB, 1)
+       nx = size ( lons_ds )
+
        call ESMF_FieldDestroy(fieldA,nogarbage=.true.,_RC)
        call ESMF_FieldDestroy(fieldB,nogarbage=.true.,_RC)
        call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
@@ -787,10 +794,10 @@ module subroutine  create_metadata(this,global_attributes,rc)
           this%lons_deg = this%lons * MAPL_RADIANS_TO_DEGREES
           this%lats_deg = this%lats * MAPL_RADIANS_TO_DEGREES
        else
-          allocate (this%lons_deg(0), this%lats_deg(0), _STAT)          
+          allocate (this%lons_deg(0), this%lats_deg(0), _STAT)
        end if
 !!       write(6,'(2x,a,2x,i5,2x,1000f12.2)') 'ip, lons_deg', ip, this%lons_deg
-!!       write(6,'(2x,a,2x,i5,2x,1000f12.2)') 'ip, lats_deg', ip, this%lats_deg       
+!!       write(6,'(2x,a,2x,i5,2x,1000f12.2)') 'ip, lats_deg', ip, this%lats_deg
 
 !!       call MAPL_CommsBcast(vm, DATA=, N=1, ROOT=MAPL_Root, _RC)
        allocate (sendcounts_loc(petcount))
@@ -833,12 +840,12 @@ module subroutine  create_metadata(this,global_attributes,rc)
     type(ESMF_Field) :: src_field,dst_field
     real, pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
     real, allocatable :: times_loc(:)
-    
+
     real, allocatable :: p_dst_3d_full(:),p_dst_2d_full(:)
     real, allocatable :: arr(:,:)
     character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
     character(len=ESMF_MAXSTR) :: xname
-    real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
+    real(kind=ESMF_KIND_R8) :: time_r8
     integer :: i, j, k, rank
     integer :: nx, nz
     integer :: ix, iy, m
@@ -857,13 +864,13 @@ module subroutine  create_metadata(this,global_attributes,rc)
     integer, allocatable :: gridLocalStart(:)
     integer, allocatable :: gridGlobalStart(:)
     integer, allocatable :: gridGlobalCount(:)
-    
+
     logical :: have_time
     integer :: tindex, nset
     integer :: count_scalar, count_vector
 
     integer :: jj, kk
-    
+
     ! __ s1. find local_start, global_start, etc.
     this%obs_written=1
 
@@ -890,32 +897,13 @@ module subroutine  create_metadata(this,global_attributes,rc)
     !__ 1. stage data :  time variable, lat/lon
     !
     allocate( this%times(1), _STAT )
-    this%times(1) = this%compute_time_for_current(current_time,_RC) ! rtimes: seconds since opening file
+    time_r8 = this%compute_time_for_current(current_time,_RC) ! rtimes: seconds since opening file
+    this%times(1) = time_r8
     ref = ArrayReference(this%times)
     call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
     call this%stage2DLatLon(trim(filename),oClients=oClients,_RC)
 
-    
-!!    delete this fancy times, this is a problem with intel compiler.  I think my metadata is not compatible with griddedIO
-!!    have_time = this%timeInfo%am_i_initialized()   
-!!    if (have_time) then
-!!       this%times = this%timeInfo%compute_time_vector(this%metadata,_RC)
-!!       tindex = size(this%times)
-!!       ref = ArrayReference(this%times)
-!!       call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
-!!       if (tindex==1) then
-!!          call this%stage2DLatLon(filename,oClients=oClients,_RC)
-!!       end if
-!!    else
-!!       tindex = -1
-!!       call this%stage2DLatLon(filename,oClients=oClients,_RC)
-!!    end if
-!!    if (mapl_am_i_root()) then
-!!       print*, 'tindex=', tindex
-!!    end if
-!!
 
-    
     !__ 2. put_var: ungridded_dim from src to dst [use index_mask]
     !
     count_scalar = 0
@@ -923,6 +911,11 @@ module subroutine  create_metadata(this,global_attributes,rc)
     iter = this%items%begin()
     do while (iter /= this%items%end())
        item => iter%get()
+
+       if (mypet==0) then
+          write(6,*) 'item%xname: ', trim(item%xname)
+       end if
+
        if (item%itemType == ItemTypeScalar) then
           count_scalar = count_scalar + 1
           call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
@@ -934,13 +927,13 @@ module subroutine  create_metadata(this,global_attributes,rc)
                 iy = this%index_mask(2,j)
                 this%array_scalar_1d(j) = (mypet+11)
              end do
-             ref = ArrayReference(this%array_scalar_1d)             
+             ref = ArrayReference(this%array_scalar_1d)
 
              if (mapl_am_I_root()) then
                 write(6,*) ' count_scalar=',  count_scalar
              end if
 
-             !  proc    1  2  3  4  5  6 
+             !  proc    1  2  3  4  5  6
              !  nx      19 0  0  0  0  46  def arry(nx)
              !  i1      1              20
              !  in      19             65
@@ -959,7 +952,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
                    allocate(global_start,source=[1])
                    allocate(global_count,source=[this%npt_mask_tot])
                 case(2)
-                   ! choice-2                
+                   ! choice-2
                    allocate(local_start,source=[1])
                    allocate(global_start,source=[this%i1])
                    allocate(global_count,source=[this%npt_mask_tot])
@@ -976,12 +969,12 @@ module subroutine  create_metadata(this,global_attributes,rc)
                    allocate(global_start,source=[1])
                    allocate(global_count,source=[this%npt_mask_tot])
                 case(2)
-                   ! choice-2                
+                   ! choice-2
                    allocate(local_start,source=[0])
                    allocate(global_start,source=[0])
                    allocate(global_count,source=[this%npt_mask_tot])
                 case(3)
-                   ! choice-3                
+                   ! choice-3
                    allocate(local_start,source=[0])
                    allocate(global_start,source=[0])
                    allocate(global_count,source=[0])
@@ -1100,7 +1093,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
        allocate(global_start,source=[0])
        allocate(global_count,source=[0])
     end if
-    
+
     ref = ArrayReference(this%lons_deg)
     call oClients%collective_stage_data(this%write_collection_id,trim(filename),'longitude', &
          ref,start=local_start, global_start=global_start, global_count=global_count)
@@ -1190,7 +1183,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
 
      _RETURN(_SUCCESS)
 
-  end subroutine alphabatize_variables     
+  end subroutine alphabatize_variables
 
 
    end submodule MaskSampler_implement
