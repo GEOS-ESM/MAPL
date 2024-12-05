@@ -301,11 +301,12 @@ contains
       ! Step two: get the length of the environment variable
       call get_environment_variable('ESMF_CONFIG_FILE', length=esmfConfigFileLen, status=status)
       ! Step three: if the environment variable exists, get the value of the environment variable
-      if (status == 0) then
+      if (status == 0) then ! variable exists
          ! We need to deallocate so we can reallocate
          deallocate(esmfConfigFile)
          allocate(character(len = esmfConfigFileLen) :: esmfConfigFile)
          call get_environment_variable('ESMF_CONFIG_FILE', value=esmfConfigFile, status=status)
+         _VERIFY(status)
       end if
 
       if (rank == 0) then
