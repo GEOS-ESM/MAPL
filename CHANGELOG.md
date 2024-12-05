@@ -9,11 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added macro _RETURN(_SUCCESS) to fetch_data
+- Added macro `_RETURN(_SUCCESS)` to fetch_data
 - Allow update offsets of &#177;timestep in ExtData2G
 - Minor revision (and generalization) of grid-def for GSI purposes
 - Add ability to use an `ESMF_CONFIG_FILE` environment variable to specify name of file to pass in pre-`ESMF_Initialize` options to ESMF (see [ESMF Docs](https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node4.html#SECTION04024000000000000000) for allowed flags.
-- Trajectory sampler: fix a bug when group_name does not exist in netCDF file and a bug that omitted the first time point
 - Allow lat-lon grid factory to detect and use CF compliant lat-lon bounds in a file when making a grid
 - PFIO/Variable class, new procedures to retrieve string/reals/int attributes from a variable
 
@@ -51,11 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed issue of some Baselibs builds appearing to support zstandard. This is not possible due to Baselibs building HDF5 and netCDF as static libraries
-<<<<<<< HEAD
 - Trajectory sampler: fix a bug when group_name does not exist in netCDF file and a bug that omitted the first time point
-=======
 - Fixed a bug where the periodicity around the earth of the lat-lon grid was not being set properly when grid did not span from pole to pole
->>>>>>> develop
 
 ### Removed
 
