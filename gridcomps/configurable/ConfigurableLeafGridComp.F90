@@ -16,21 +16,21 @@ module ConfigurableLeafGridComp
 contains
 
    subroutine setServices(gridcomp, rc)
-      use mapl3g_BasicVerticalGrid
+      ! use mapl3g_BasicVerticalGrid
       type(ESMF_GridComp) :: gridcomp
       integer, intent(out) :: rc
 
-      type(OuterMetaComponent), pointer :: outer_meta
-      type(BasicVerticalGrid) :: vertical_grid
+      ! type(OuterMetaComponent), pointer :: outer_meta
+      ! type(BasicVerticalGrid) :: vertical_grid
       integer :: status
 
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name="run", _RC)
 
-      ! TODO: DO WE NEED THIS? -pchakrab
-      outer_meta => get_outer_meta_from_inner_gc(gridcomp,_RC)
-      vertical_grid = BasicVerticalGrid(4)
-      call outer_meta%set_vertical_grid(vertical_grid)
+      ! ! TODO: DO WE NEED THIS? -pchakrab
+      ! outer_meta => get_outer_meta_from_inner_gc(gridcomp,_RC)
+      ! vertical_grid = BasicVerticalGrid(4)
+      ! call outer_meta%set_vertical_grid(vertical_grid)
 
       _RETURN(_SUCCESS)
    end subroutine setServices
