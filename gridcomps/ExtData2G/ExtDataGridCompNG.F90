@@ -434,14 +434,9 @@ CONTAINS
       
       do j=1,self%primary%number_of_rules%at(i)
          item => self%primary%item_vec%at(i_start+j-1)
-         !rules_with_ps = item%havePressure
-         rules_with_ps = .true.
-         item%havePressure = .true. !bmaa
-         !if (rules_with_ps) exit
+         rules_with_ps = item%havePressure
+         if (rules_with_ps) exit
       enddo
-      if (rules_with_ps .and. mapl_am_i_root()) then
-         import_name => self%primary%import_names%at(i)
-      end if
    
       if (.not.rules_with_ps) cycle 
 
@@ -454,7 +449,6 @@ CONTAINS
          call self%primary%item_vec%push_back(new_item)
          ! make a new name ps_importname, if that's not already in import names
          call create_ps_field(new_item, self%ExtDataState, item, time, _RC)
-         !item%havePressure=.false. !bmaa remove this
       enddo
 
       num_rules = self%primary%number_of_rules%of(i)
@@ -855,8 +849,6 @@ CONTAINS
         metadata => collection%find(filename,_RC)
         item%file_metadata = metadata
 
-        positive=>null()
-        var => null()
         if (item%vartype == MAPL_VectorField) then
            var=>item%file_metadata%get_variable(trim(item%fcomp1))
            _ASSERT(associated(var),"Variable "//TRIM(item%fcomp1)//" not found in file "//TRIM(item%file_template))
@@ -868,42 +860,48 @@ CONTAINS
            _ASSERT(associated(var),"Variable "//TRIM(item%var)//" not found in file "//TRIM(item%file_template))
         end if
 
-        call vcoord%detect_verticalCoordinate(metadata, item%var, _RC)
-        levName = item%file_metadata%get_level_name(_RC)
-        if (trim(levName) /='') then
+        item%lm = 0
+        vcoord = verticalCoordinate(metadata, item%var, _RC)
+        if (levName /= '') then
            call item%file_metadata%get_coordinate_info(levName,coordSize=item%lm,coordUnits=tLevUnits,coords=levFile,_RC)
-           levUnits=MAPL_TrimString(tlevUnits)
-           ! check if pressure
-           item%levUnit = ESMF_UtilStringLowerCase(levUnits)
-           if (trim(item%levUnit) == 'hpa' .or. trim(item%levUnit)=='pa') then
-              item%havePressure = .true.
-           end if
-           if (item%havePressure) then
-              if (levFile(1)>levFile(size(levFile))) item%fileVDir="up"
-           else
-              positive => item%file_metadata%get_variable_attribute(levName,'positive',_RC)
-              if (associated(positive)) then
-                 if (MAPL_TrimString(positive)=='up') item%fileVDir="up"
-              end if
-           end if
-
-           if (.not.allocated(item%levs)) allocate(item%levs(item%lm),__STAT__)
-           item%levs=levFile
-           if (trim(item%fileVDir)/=trim(item%importVDir)) then
-              do i=1,size(levFile)
-                 item%levs(i)=levFile(size(levFile)-i+1)
-              enddo
-           end if
-           if (trim(item%levunit)=='hpa') item%levs=item%levs*100.0
-           if (item%vartype == MAPL_VectorField) then
-              item%units = item%file_metadata%get_variable_attribute(trim(item%fcomp1),"units",_RC)
-           else
-              item%units = item%file_metadata%get_variable_attribute(trim(item%var),"units",_RC)
-           end if
-
-        else
-           item%LM=0
         end if
+        !levName = item%file_metadata%get_level_name(_RC)
+        !if (trim(levName) /='') then
+           !call item%file_metadata%get_coordinate_info(levName,coordSize=item%lm,coordUnits=tLevUnits,coords=levFile,_RC)
+           !levUnits=MAPL_TrimString(tlevUnits)
+           !! check if pressure
+           !item%levUnit = ESMF_UtilStringLowerCase(levUnits)
+           !if (trim(item%levUnit) == 'hpa' .or. trim(item%levUnit)=='pa') then
+              !item%havePressure = .true.
+           !end if
+           !if (item%havePressure) then
+              !if (levFile(1)>levFile(size(levFile))) item%fileVDir="up"
+           !else
+              !positive => item%file_metadata%get_variable_attribute(levName,'positive',_RC)
+              !if (associated(positive)) then
+                 !if (MAPL_TrimString(positive)=='up') item%fileVDir="up"
+              !end if
+           !end if
+
+           !if (.not.allocated(item%levs)) allocate(item%levs(item%lm),__STAT__)
+           !item%levs=levFile
+           !if (trim(item%fileVDir)/=trim(item%importVDir)) then
+              !do i=1,size(levFile)
+                 !item%levs(i)=levFile(size(levFile)-i+1)
+              !enddo
+           !end if
+           !if (trim(item%levunit)=='hpa') item%levs=item%levs*100.0
+           !if (item%vartype == MAPL_VectorField) then
+              !item%units = item%file_metadata%get_variable_attribute(trim(item%fcomp1),"units",_RC)
+           !else
+              !item%units = item%file_metadata%get_variable_attribute(trim(item%var),"units",_RC)
+           !end if
+
+        !else
+           !item%LM=0
+        !end if
+        !write(*,*)'bmaa ',item%havePressure
+        !item%havePressure = .false.
 
         _RETURN(ESMF_SUCCESS)
 
