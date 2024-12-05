@@ -38,6 +38,7 @@ module mapl3g_ComponentSpecParser
    public :: parse_child
    public :: parse_SetServices
    public :: parse_geometry_spec
+   public :: parse_run_dt
 
 !!$   public :: parse_ChildSpecMap
 !!$   public :: parse_ChildSpec
