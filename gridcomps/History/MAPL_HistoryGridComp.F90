@@ -3603,7 +3603,8 @@ ENDDO PARSER
                      _ASSERT(.not.file_exists,trim(filename(n))//" being created for History output already exists")
                   end if
                   !!if (mapl_am_i_root()) write(6,*) 'this line for mask %modifyTime'
-                  call list(n)%mask_sampler%modifyTime(oClients=o_Clients,_RC)
+                  !! ygyu
+!!                  call list(n)%mask_sampler%modifyTime(oClients=o_Clients,_RC)
                   list(n)%currentFile = filename(n)
                   list(n)%unit = -1
                else
@@ -3754,6 +3755,8 @@ ENDDO PARSER
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
             call MAPL_TimerOn(GENSTATE,"Mask_append")
             if (list(n)%unit < 0) then    ! CFIO
+               print*, __LINE__
+               print*, 'list(n)%currentFile',list(n)%currentFile
                call list(n)%mask_sampler%output_to_server(current_time,&
                     list(n)%currentFile,oClients=o_Clients,_RC)
                if (mapl_am_i_root()) write(6,*) 'af list(n)%mask_sampler%output_to_server'

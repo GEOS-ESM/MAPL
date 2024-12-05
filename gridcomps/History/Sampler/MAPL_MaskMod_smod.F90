@@ -252,14 +252,12 @@ module subroutine  create_metadata(this,global_attributes,rc)
 
     call this%metadata%add_dimension('mask_index', this%npt_mask_tot)
 
-    !    v = Variable(type=pFIO_REAL64, dimensions='mask_index')
-    v = Variable(type=REAL32, dimensions='mask_index')    
+    v = Variable(type=pFIO_REAL32, dimensions='mask_index')
     call v%add_attribute('long_name','longitude')
     call v%add_attribute('unit','degree_east')
     call this%metadata%add_variable('longitude',v)
 
-    v = Variable(type=REAL32, dimensions='mask_index')
-!    v = Variable(type=pFIO_REAL64, dimensions='mask_index')    
+    v = Variable(type=pFIO_REAL32, dimensions='mask_index')    
     call v%add_attribute('long_name','latitude')
     call v%add_attribute('unit','degree_north')
     call this%metadata%add_variable('latitude',v)
@@ -312,10 +310,10 @@ module subroutine  create_metadata(this,global_attributes,rc)
 
        if (field_rank==2) then
           vdims = "mask_index"
-          v = variable(type=REAL32,dimensions=trim(vdims))
+          v = variable(type=pfio_REAL32,dimensions=trim(vdims))
        else if (field_rank==3) then
           vdims = "mask_index,lev"
-          v = variable(type=REAL32,dimensions=trim(vdims))
+          v = variable(type=pfio_REAL32,dimensions=trim(vdims))
        end if
 
        call v%add_attribute('units',         trim(units))
@@ -620,8 +618,11 @@ module subroutine  create_metadata(this,global_attributes,rc)
 !       allocate (obs_lats( size(lons_ds)), _STAT)
        obs_lons = lons_ds * MAPL_DEGREES_TO_RADIANS_R8
        obs_lats = lats_ds * MAPL_DEGREES_TO_RADIANS_R8
-       nx = sizeof ( ptB ) / sizeof (ESMF_KIND_R8)
 
+!! ygyu debug
+!!       nx = sizeof ( ptB ) / sizeof (ESMF_KIND_R8)
+       nx = size (ptB, 1) 
+       
        call ESMF_FieldDestroy(fieldA,nogarbage=.true.,_RC)
        call ESMF_FieldDestroy(fieldB,nogarbage=.true.,_RC)
        call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
@@ -831,8 +832,6 @@ module subroutine  create_metadata(this,global_attributes,rc)
     integer :: ub(1), lb(1)
     type(ESMF_Field) :: src_field,dst_field
     real, pointer :: p_src_3d(:,:,:),p_src_2d(:,:)
-    real, pointer :: ptr1d(:) => null()
-    real, pointer :: ptr2d(:,:) => null()
     real, allocatable :: times_loc(:)
     
     real, allocatable :: p_dst_3d_full(:),p_dst_2d_full(:)
@@ -894,10 +893,9 @@ module subroutine  create_metadata(this,global_attributes,rc)
     this%times(1) = this%compute_time_for_current(current_time,_RC) ! rtimes: seconds since opening file
     ref = ArrayReference(this%times)
     call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
-    call this%stage2DLatLon(filename,oClients=oClients,_RC)
+    call this%stage2DLatLon(trim(filename),oClients=oClients,_RC)
 
-    return
-
+    
 !!    delete this fancy times, this is a problem with intel compiler.  I think my metadata is not compatible with griddedIO
 !!    have_time = this%timeInfo%am_i_initialized()   
 !!    if (have_time) then
@@ -936,14 +934,6 @@ module subroutine  create_metadata(this,global_attributes,rc)
                 iy = this%index_mask(2,j)
                 this%array_scalar_1d(j) = (mypet+11)
              end do
-             if (nx>0) then
-                ptr1d => this%array_scalar_1d    !  allocate(arr(nx))  arr(nx_tot) ??
-             else
-                allocate (ptr1d(0))
-
-             end if
-             !!             ref = ArrayReference(ptr1d)
-
              ref = ArrayReference(this%array_scalar_1d)             
 
              if (mapl_am_I_root()) then
@@ -957,7 +947,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
              !  nx_tot  65
              write(6,*) 'ip, nx, this%npt_mask_tot, i1, in=', &
                   mypet, nx, this%npt_mask_tot, this%i1, this%in
-             write(6,*) 'ip, this%p1d', mypet, ptr1d
+             write(6,*) 'ip, this%p1d', mypet, this%array_scalar_1d
 
              if (nx>0) then
                 !! jj=1 is correct
@@ -999,9 +989,9 @@ module subroutine  create_metadata(this,global_attributes,rc)
              end if
              print*, 'ck ip, this%npt_mask_tot = ', mypet, this%npt_mask_tot
 
+             call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(item%xname), &
+                  ref,start=local_start, global_start=global_start, global_count=global_count)
 
-!             call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(item%xname), &
-!                  ref,start=local_start, global_start=global_start, global_count=global_count)
              deallocate (local_start, global_start, global_count)
 
 
@@ -1095,8 +1085,6 @@ module subroutine  create_metadata(this,global_attributes,rc)
     integer, allocatable :: global_start(:)
     integer, allocatable :: global_count(:)
     integer :: n
-    real(kind=REAL32), pointer :: ptr1dx(:) => null()
-    real(kind=REAL32), pointer :: ptr1dy(:) => null()
     type(ArrayReference), target :: ref
     integer :: status
 

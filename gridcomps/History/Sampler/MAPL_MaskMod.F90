@@ -80,10 +80,8 @@ module MaskSamplerMod
      integer(kind=ESMF_KIND_I8)     :: epoch_index(2)
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
-!     real(kind=pFIO_REAL64), allocatable :: lons_deg(:)
-!     real(kind=pFIO_REAL64), allocatable :: lats_deg(:)
-     real, allocatable :: lons_deg(:)
-     real, allocatable :: lats_deg(:)
+     real(kind=REAL32), allocatable :: lons_deg(:)
+     real(kind=REAL32), allocatable :: lats_deg(:)
 
      real, allocatable :: times(:)
      integer, allocatable :: recvcounts(:)
