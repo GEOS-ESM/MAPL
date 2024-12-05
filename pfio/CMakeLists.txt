@@ -2,8 +2,8 @@ esma_set_this (OVERRIDE MAPL.pfio)
 
 # This is a workaround for a current ifx bug
 # Technically, this bug is only due to a bug between
-# ifx and ArrayReference.F90, but in CMake land, it
-# is hard to remove OpenMP flags for a single file.
+# ifx, OpenMP, and ArrayReference.F90, but in CMake land, it
+# is hard to remove OpenMP flags for a *single* file.
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "IntelLLVM")
   set_source_files_properties(ArrayReference.F90 PROPERTIES COMPILE_DEFINITIONS ODD_IFX_BUG)
 endif ()
