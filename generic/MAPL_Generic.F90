@@ -447,10 +447,8 @@ module MAPL_GenericMod
       integer                        , pointer :: phase_record(:)   => null()
       integer                        , pointer :: phase_coldstart(:)=> null()
       integer                        , pointer :: phase_refresh(:)=> null()
-      procedure(), public, nopass    , pointer :: customRefresh => null()
+      procedure(i_run), public, nopass, pointer :: customRefresh => null()
       
-!      procedure(), pointer, nopass :: run_entry_point => null()
-
       ! Make accessors?
       type(ESMF_GridComp)                      :: RootGC
       type(ESMF_GridComp)            , pointer :: parentGC         => null()
