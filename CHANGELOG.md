@@ -78,6 +78,8 @@ _ Add run_dt to ComponentSpec and ComponentSpecParser
 - Add ability to use an `ESMF_CONFIG_FILE` environment variable to specify name of file to pass in pre-`ESMF_Initialize` options to ESMF (see [ESMF Docs](https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node4.html#SECTION04024000000000000000) for allowed flags.
 - Allow lat-lon grid factory to detect and use CF compliant lat-lon bounds in a file when making a grid
 - PFIO/Variable class, new procedures to retrieve string/reals/int attributes from a variable
+- Added a call in GenericRefresh to allow GC's refresh method to be called; in support 
+  of CICE6 rewind
 
 ### Changed
 
