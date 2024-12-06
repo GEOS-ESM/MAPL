@@ -1,0 +1,203 @@
+module test_AdvancedMeter
+   use, intrinsic :: iso_fortran_env, only: REAL64
+   use funit
+   use MAPL_Profiler
+   implicit none
+   
+contains
+
+
+   @test
+   subroutine test_is_active()
+      type (AdvancedMeter) :: t
+
+      t = AdvancedMeter(MpiTimerGauge())
+
+      ! Initial state is
+      @assertFalse(t%is_active())
+
+      call t%start()
+      @assertTrue(t%is_active())
+
+      call t%stop()
+      @assertFalse(t%is_active())
+
+   end subroutine test_is_active
+
+
+   @test
+   subroutine test_fail_on_double_start()
+      type (AdvancedMeter) :: t
+
+      t = AdvancedMeter(MpiTimerGauge())
+
+      @assertEqual(MAPL_METER_IS_VALID, t%get_status())
+      call t%start()
+      @assertEqual(MAPL_METER_IS_VALID, t%get_status())
+      call t%start()
+      @assertEqual(MAPL_METER_START_ACTIVE, t%get_status())
+      
+   end subroutine test_fail_on_double_start
+
+
+   @test
+   subroutine test_fail_on_double_stop()
+      type (AdvancedMeter) :: t
+
+      t = AdvancedMeter(MpiTimerGauge())
+      call t%stop()
+      @assertEqual(MAPL_METER_STOP_INACTIVE, t%get_status())
+      
+   end subroutine test_fail_on_double_stop
+
+
+   @test
+   subroutine test_get_num_cycles()
+      type (AdvancedMeter) :: t
+
+      t = AdvancedMeter(MpiTimerGauge())
+      @assertEqual(0, t%get_num_cycles())
+      call t%start()
+      @assertEqual(0, t%get_num_cycles())
+      call t%stop()
+      @assertEqual(1, t%get_num_cycles())
+      call t%start()
+      @assertEqual(1, t%get_num_cycles())
+      call t%stop()
+      @assertEqual(2, t%get_num_cycles())
+      
+   end subroutine test_get_num_cycles
+
+
+   @test
+   subroutine test_add_cycle()
+      type (AdvancedMeter) :: t
+
+      t = AdvancedMeter(MpiTimerGauge())
+      call t%add_cycle(increment=1.0_REAL64)
+      @assertEqual(1.0, t%get_total())
+      call t%add_cycle(increment=2.0_REAL64)
+      @assertEqual(3.0, t%get_total())
+
+      @assertEqual(2, t%get_num_cycles())
+      @assertFalse(t%is_active())
+      
+   end subroutine test_add_cycle
+
+   @test
+   subroutine test_reset()
+      type (AdvancedMeter) :: t
+
+      t = AdvancedMeter(MpiTimerGauge())
+      call t%start()
+      call t%add_cycle(increment=1._REAL64)
+      call t%reset()
+
+      @assertEqual(0, t%get_num_cycles())
+      @assertFalse(t%is_active())
+      @assertEqual(0, t%get_total())
+
+   end subroutine test_reset
+
+
+   @test
+   subroutine test_get_min_cycle()
+      type (AdvancedMeter) :: t
+
+      t = AdvancedMeter(MpiTimerGauge())
+      call t%add_cycle(increment=1._REAL64)
+      call t%add_cycle(increment=3._REAL64)
+      @assertEqual(1., t%get_min_cycle())
+
+      call t%reset()
+      call t%add_cycle(increment=2._REAL64)
+      call t%add_cycle(increment=4._REAL64)
+      @assertEqual(2., t%get_min_cycle())
+
+   end subroutine test_get_min_cycle
+
+   @test
+   subroutine test_get_max_cycle()
+      type (AdvancedMeter) :: t
+
+      t = AdvancedMeter(MpiTimerGauge())
+      call t%add_cycle(increment=2._REAL64)
+      call t%add_cycle(increment=4._REAL64)
+      @assertEqual(4., t%get_max_cycle())
+
+      call t%reset()
+      call t%add_cycle(increment=1._REAL64)
+      call t%add_cycle(increment=3._REAL64)
+      @assertEqual(3., t%get_max_cycle())
+
+   end subroutine test_get_max_cycle
+
+
+   @test
+   subroutine test_get_mean_cycle()
+      type (AdvancedMeter) :: t
+
+      t = AdvancedMeter(MpiTimerGauge())
+      call t%add_cycle(increment=1._REAL64)
+      call t%add_cycle(increment=3._REAL64)
+      @assertEqual(2., t%get_mean_cycle())
+
+      call t%reset()
+      call t%add_cycle(increment=3._REAL64)
+      call t%add_cycle(increment=5._REAL64)
+      @assertEqual(4., t%get_mean_cycle())
+
+   end subroutine test_get_mean_cycle
+
+
+   @test
+   subroutine test_get_standard_deviation()
+      type (AdvancedMeter) :: t
+
+      t = AdvancedMeter(MpiTimerGauge())
+      call t%add_cycle(increment=1._REAL64)
+      call t%add_cycle(increment=3._REAL64)
+      @assertEqual(1., t%get_standard_deviation())
+
+      call t%reset()
+      call t%add_cycle(increment=1._REAL64)
+      call t%add_cycle(increment=3._REAL64)
+      @assertEqual(1., t%get_standard_deviation())
+
+      call t%reset()
+      call t%add_cycle(increment=7._REAL64 - 2)
+      call t%add_cycle(increment=7._REAL64 - 1)
+      call t%add_cycle(increment=7._REAL64 + 3)
+
+      @assertEqual(sqrt(14._REAL64/3), t%get_standard_deviation())
+      
+   end subroutine test_get_standard_deviation
+
+
+   subroutine test_accumulate()
+      type (AdvancedMeter) :: t, lap
+
+      t = AdvancedMeter(MpiTimerGauge())
+      lap = t
+
+      call lap%add_cycle(increment=1._REAL64)
+      call lap%add_cycle(increment=3._REAL64)
+
+      ! Copy lap and verify state is as expected
+      t = lap
+      call lap%reset()
+      @assertEqual(4., t%get_total())
+      @assertEqual(1., t%get_standard_deviation())
+
+      ! Use lap again and accumulate
+      call lap%add_cycle(increment=2._REAL64)
+      call lap%add_cycle(increment=4._REAL64)
+
+      call t%accumulate(lap)
+      @assertEqual(9., t%get_total())
+      @assertEqual(4, t%get_num_cycles())
+
+   end subroutine test_accumulate
+
+
+end module test_AdvancedMeter
