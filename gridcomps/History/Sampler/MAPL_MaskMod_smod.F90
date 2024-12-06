@@ -604,35 +604,27 @@ module subroutine  create_metadata(this,global_attributes,rc)
        _VERIFY(ierr)
        call ESMF_FieldRedist      (fieldA, fieldB, RH, _RC)
        lons_ds = ptB
-
+       
        ptA(:) = lats_chunk(:)
        call MPI_Barrier(mpic,ierr)
        _VERIFY(ierr)
        call ESMF_FieldRedist      (fieldA, fieldB, RH, _RC)
        lats_ds = ptB
 
-!!       write(6,*)  'ip, size(lons_ds)=', mypet, size(lons_ds)
+       !!       write(6,*)  'ip, size(lons_ds)=', mypet, size(lons_ds)
+
+       call ESMF_FieldDestroy(fieldA,nogarbage=.true.,_RC)
+       call ESMF_FieldDestroy(fieldB,nogarbage=.true.,_RC)
+       call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
 
        call MAPL_TimerOff(this%GENSTATE,"2_ABIgrid_LS")
 
        ! __ s3. find n.n. CS pts for LS_ds (halo)
        !
        call MAPL_TimerOn(this%GENSTATE,"3_CS_halo")
-!       allocate (obs_lons( size(lons_ds)), _STAT)
-!       allocate (obs_lats( size(lons_ds)), _STAT)
        obs_lons = lons_ds * MAPL_DEGREES_TO_RADIANS_R8
        obs_lats = lats_ds * MAPL_DEGREES_TO_RADIANS_R8
-
-!! ygyu debug
-!!       nx = sizeof ( ptB ) / sizeof (ESMF_KIND_R8)
-!!       nx = size (ptB, 1)
        nx = size ( lons_ds )
-
-       call ESMF_FieldDestroy(fieldA,nogarbage=.true.,_RC)
-       call ESMF_FieldDestroy(fieldB,nogarbage=.true.,_RC)
-       call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
-
-
        allocate ( II(nx), JJ(nx), _STAT )
        call MAPL_GetHorzIJIndex(nx,II,JJ,lonR8=obs_lons,latR8=obs_lats,grid=grid,_RC)
        call ESMF_VMBarrier (vm, _RC)
