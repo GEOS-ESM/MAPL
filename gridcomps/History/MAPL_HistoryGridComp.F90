@@ -5633,12 +5633,12 @@ ENDDO PARSER
           call split_string_by_space (line, length_mx, mxseg, &
                nplatform, str_piece, status)
 
-          !! to do: add debug
-          !write(6,*) 'line for obsplatforms=', trim(line)
-          !write(6,*) 'split string,  nplatform=', nplatform
-          !write(6,*) 'nplf=', nplf
-          !write(6,*) 'str_piece=', str_piece(1:nplatform)
-
+          call lgr%debug('%a %a', 'line for obsplatforms=', trim(line))
+          call lgr%debug('%a %i6', 'split string,  nplatform=', nplatform)
+          call lgr%debug('%a %i6', 'nplf=', nplf)
+          if (mapl_am_i_root()) then
+             write(6,*)  '     str_piece=', str_piece(1:nplatform)
+          end if
 
           !
           !   a) union the platform
@@ -5654,7 +5654,10 @@ ENDDO PARSER
              end do
           end do
           deallocate(str_piece)
-          !! write(6,*) 'collection n=',n, 'map(:)=', map(:)
+          if (mapl_am_i_root()) then
+             write(6,*) 'collection n=',n, 'map(:)=', map(:)
+          end if
+
 
           ! __ write common nc_index,time,lon,lat
           k=map(1)   ! plat form # 1
