@@ -352,16 +352,15 @@ module MAPL_GenericMod
    end interface
 
    interface
-      subroutine i_Run(gc, import_state, export_state, clock, unusable, rc)
+      subroutine i_Run(gc, import_state, export_state, clock, rc)
          use mapl_KeywordEnforcerMod
          use ESMF
          implicit none
-         type(ESMF_GridComp), intent(inout) :: gc
-         type(ESMF_State), intent(inout) :: import_state
-         type(ESMF_State), intent(inout) :: export_state
-         type(ESMF_Clock), intent(inout) :: clock
-         class(KeywordEnforcer), optional, intent(in) :: unusable
-         integer, optional, intent(out) :: rc
+         type(ESMF_GridComp) :: gc
+         type(ESMF_State):: import_state
+         type(ESMF_State) :: export_state
+         type(ESMF_Clock) :: clock
+         integer, intent(out) :: rc
       end subroutine i_Run
    end interface
 
