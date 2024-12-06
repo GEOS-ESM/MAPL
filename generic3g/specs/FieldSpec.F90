@@ -97,6 +97,7 @@ module mapl3g_FieldSpec
 !#      type(VariableSpec) :: variable_spec
 
       logical :: is_created = .false.
+      type(ESMF_TimeInterval), allocatable :: run_dt
 
    contains
 
@@ -192,7 +193,7 @@ contains
 
    function new_FieldSpec_geom(unusable, geom, vertical_grid, vertical_dim_spec, typekind, ungridded_dims, &
         standard_name, long_name, units, &
-        attributes, regrid_param, default_value, accumulation_type) result(field_spec)
+        attributes, regrid_param, default_value, accumulation_type, run_dt) result(field_spec)
       type(FieldSpec) :: field_spec
 
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -210,6 +211,7 @@ contains
       ! optional args last
       real, optional, intent(in) :: default_value
       character(*), optional, intent(in) :: accumulation_type
+      type(ESMF_TimeInterval), optional, intent(in) :: run_dt
 
       integer :: status
 
@@ -231,6 +233,7 @@ contains
       if (present(default_value)) field_spec%default_value = default_value
       field_spec%accumulation_type = NO_ACCUMULATION
       if (present(accumulation_type)) field_spec%accumulation_type = trim(accumulation_type)
+      if (present(run_dt)) field_spec%run_dt = run_dt
    end function new_FieldSpec_geom
 
    function new_FieldSpec_varspec(variable_spec) result(field_spec)
@@ -251,6 +254,7 @@ contains
       field_spec%long_name = 'unknown'
       field_spec%accumulation_type = NO_ACCUMULATION
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, accumulation_type)
+      _SET_ALLOCATED_FIELD(field_spec, variable_spec, run_dt)
 
    end function new_FieldSpec_varspec
 
