@@ -1,12 +1,12 @@
 esma_set_this (OVERRIDE MAPL.pfio)
 
-if(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
-  if(CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 20)
-    if(CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER 17)
-      add_definitions(-D__ifort_18)
-    endif()
-  endif()
-endif()
+# This is a workaround for a current ifx bug
+# Technically, this bug is only due to a bug between
+# ifx, OpenMP, and ArrayReference.F90, but in CMake land, it
+# is hard to remove OpenMP flags for a *single* file.
+if (CMAKE_Fortran_COMPILER_ID STREQUAL "IntelLLVM")
+  set_source_files_properties(ArrayReference.F90 PROPERTIES COMPILE_DEFINITIONS ODD_IFX_BUG)
+endif ()
 
 set (srcs
   # pFIO Files
@@ -91,29 +91,6 @@ set (srcs
   StringVectorUtil.F90
   )
 
-###############################################################
-# Check to see if quantize capability is present in netcdf-c. #
-###############################################################
-
-include(CheckCSourceCompiles)
-set(CMAKE_REQUIRED_INCLUDES ${NETCDF_INCLUDE_DIRS})
-check_c_source_compiles("
-  #include <netcdf_meta.h>
-  #if !NC_HAS_QUANTIZE
-  choke me
-  #endif
-  int main(void) {
-    return 0;
-  }
-  "
-  NETCDF_HAS_QUANTIZE)
-if (NETCDF_HAS_QUANTIZE)
-  message(STATUS "netCDF has quantize capability")
-  add_definitions(-DNF_HAS_QUANTIZE)
-else ()
-  message(STATUS "netCDF does not have quantize capability")
-endif ()
-
 if (BUILD_WITH_PFLOGGER)
   find_package (PFLOGGER REQUIRED)
 endif ()
@@ -132,6 +109,60 @@ endforeach()
 
 if (SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
   target_compile_definitions(${this} PRIVATE SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
+endif ()
+
+###############################################################
+# Check to see if quantize capability is present in netcdf-c. #
+###############################################################
+
+include(CheckCSourceCompiles)
+set(CMAKE_REQUIRED_INCLUDES ${NETCDF_INCLUDE_DIRS})
+check_c_source_compiles("
+  #include <netcdf_meta.h>
+  #if !NC_HAS_QUANTIZE
+  choke me
+  #endif
+  int main(void) {
+    return 0;
+  }
+  "
+  NETCDF_HAS_QUANTIZE)
+if (NETCDF_HAS_QUANTIZE)
+  message(STATUS "netCDF has quantize capability")
+  target_compile_definitions(${this} PRIVATE NF_HAS_QUANTIZE)
+else ()
+  message(STATUS "netCDF does not have quantize capability")
+endif ()
+
+################################################################
+# Check to see if zstandard capability is present in netcdf-c. #
+################################################################
+
+check_c_source_compiles("
+  #include <netcdf_meta.h>
+  #if !NC_HAS_ZSTD
+  choke me
+  #endif
+  int main(void) {
+    return 0;
+  }
+  "
+  NETCDF_HAS_ZSTD)
+
+# NOTE: Even if the check above succeeds, zstandard is *not*
+# possible with Baselibs (builds HDF5, netCDF as static)
+# so we want to check for Baselibs first.
+
+if (Baselibs_FOUND)
+  message(STATUS "Baselibs found, zstandard capability not possible")
+  set(NETCDF_HAS_ZSTD FALSE CACHE BOOL "netCDF has zstandard capability" FORCE)
+endif ()
+
+if (NETCDF_HAS_ZSTD)
+  message(STATUS "netCDF has zstandard capability")
+  target_compile_definitions(${this} PRIVATE NF_HAS_ZSTD)
+else ()
+  message(STATUS "netCDF does not have zstandard capability")
 endif ()
 
 ecbuild_add_executable (

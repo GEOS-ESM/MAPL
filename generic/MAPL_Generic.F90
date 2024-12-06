@@ -9848,8 +9848,10 @@ contains
                if (io_rank == 0) then
                   print *,'Using parallel IO for reading file: ',trim(DATAFILE)
 
-#ifdef __NAG_COMPILER_RELEASE
+#if defined( __NAG_COMPILER_RELEASE)
                   _FAIL('NAG does not provide ftell. Convert to stream I/O')
+#elif defined(__flang__)
+                  _FAIL('flang does not provide ftell. Convert to stream I/O')
 #else
                   offset = _FTELL(UNIT)+4
 #endif

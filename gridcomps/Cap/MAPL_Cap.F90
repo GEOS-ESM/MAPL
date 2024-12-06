@@ -274,9 +274,10 @@ contains
       integer :: rank, ierror
       integer :: status
       class(Logger), pointer :: lgr
-      logical :: file_exists
+      logical :: esmfConfigFileExists
       type (ESMF_VM) :: vm
-      character(len=:), allocatable :: esmfComm
+      character(len=:), allocatable :: esmfComm, esmfConfigFile
+      integer :: esmfConfigFileLen
 
       _UNUSED_DUMMY(unusable)
 
@@ -288,16 +289,41 @@ contains
       call MPI_COMM_RANK(comm, rank, status)
       _VERIFY(status)
 
-      if (rank == 0) then
-         inquire(file='ESMF.rc', exist=file_exists)
+      ! We look to see if the user has set an environment variable for the
+      ! name of the ESMF configuration file. If they have, we use that. If not,
+      ! we use the default of "ESMF.rc" for backward compatibility
+
+      ! Step one: default to ESMF.rc
+
+      esmfConfigFile = 'ESMF.rc'
+      esmfConfigFileLen = len(esmfConfigFile)
+
+      ! Step two: get the length of the environment variable
+      call get_environment_variable('ESMF_CONFIG_FILE', length=esmfConfigFileLen, status=status)
+      ! Step three: if the environment variable exists, get the value of the environment variable
+      if (status == 0) then ! variable exists
+         ! We need to deallocate so we can reallocate
+         deallocate(esmfConfigFile)
+         allocate(character(len = esmfConfigFileLen) :: esmfConfigFile)
+         call get_environment_variable('ESMF_CONFIG_FILE', value=esmfConfigFile, status=status)
+         _VERIFY(status)
       end if
-      call MPI_BCAST(file_exists, 1, MPI_LOGICAL, 0, comm, status)
+
+      if (rank == 0) then
+         inquire(file=esmfConfigFile, exist=esmfConfigFileExists)
+      end if
+      call MPI_BCAST(esmfConfigFileExists, 1, MPI_LOGICAL, 0, comm, status)
       _VERIFY(status)
+      call MPI_BCAST(esmfConfigFile, esmfConfigFileLen, MPI_CHARACTER, 0, comm, status)
+      _VERIFY(status)
+
+      lgr => logging%get_logger('MAPL')
 
       ! If the file exists, we pass it into ESMF_Initialize, else, we
       ! use the one from the command line arguments
-      if (file_exists) then
-         call ESMF_Initialize (configFileName='ESMF.rc', mpiCommunicator=comm, vm=vm, _RC)
+      if (esmfConfigFileExists) then
+         call lgr%info("Using ESMF configuration file: %a", esmfConfigFile)
+         call ESMF_Initialize (configFileName=esmfConfigFile, mpiCommunicator=comm, vm=vm, _RC)
       else
          call ESMF_Initialize (logKindFlag=this%cap_options%esmf_logging_mode, mpiCommunicator=comm, vm=vm, _RC)
       end if
@@ -312,7 +338,6 @@ contains
       call ESMF_MeshSetMOAB(this%cap_options%with_esmf_moab, rc=status)
       _VERIFY(status)
 
-      lgr => logging%get_logger('MAPL')
       call lgr%info("Running with MOAB library for ESMF Mesh: %l1", this%cap_options%with_esmf_moab)
 
       call this%initialize_cap_gc(rc=status)

@@ -86,9 +86,10 @@ module pFIO_AbstractServerMod
          integer, optional, intent(out) :: rc
       end subroutine start
 
-      subroutine clear_RequestHandle(this)
+      subroutine clear_RequestHandle(this, rc)
          import AbstractServer
          class(AbstractServer),target,intent(inout) :: this
+         integer, optional, intent(out) :: rc
       end subroutine clear_RequestHandle
 
       subroutine set_collective_request(this, request, have_done)
@@ -204,7 +205,10 @@ contains
 
       !$omp critical (counter_status)
       this%status = status
+      ! llvm-flang has an issue with omp flush of complex data structures
+#if !defined(__flang__)
       !$omp flush (this)
+#endif
       !$omp end critical (counter_status)
    end subroutine  set_status
 
@@ -216,7 +220,10 @@ contains
       !$omp critical (counter_status)
       this%status = this%status -1
       status = this%status
+      ! llvm-flang has an issue with omp flush of complex data structures
+#if !defined(__flang__)
       !$omp flush (this)
+#endif
       !$omp end critical (counter_status)
       if (status /= 0) then
         _RETURN(_SUCCESS)
@@ -224,7 +231,7 @@ contains
       ! status ==0, means the last server thread in the backlog
 
       call this%clear_DataReference()
-      call this%clear_RequestHandle()
+      call this%clear_RequestHandle(_RC)
       call this%set_status(UNALLOCATED)
       call this%set_AllBacklogIsEmpty(.true.)
 
@@ -248,11 +255,12 @@ contains
       class(AbstractServer), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
       type(StringInteger64MapIterator) :: iter
+      integer :: status
 
       if (associated(ioserver_profiler)) call ioserver_profiler%start("clean_up")
 
       call this%clear_DataReference()
-      call this%clear_RequestHandle()
+      Call this%clear_RequestHandle(_RC)
       call this%set_AllBacklogIsEmpty(.true.)
       this%serverthread_done_msgs(:) = .false.
 
@@ -288,7 +296,10 @@ contains
 
       !$omp critical (backlog_status)
       this%all_backlog_is_empty = status
+      ! llvm-flang has an issue with omp flush of complex data structures
+#if !defined(__flang__)
       !$omp flush (this)
+#endif
       !$omp end critical (backlog_status)
    end subroutine set_AllBacklogIsEmpty
 

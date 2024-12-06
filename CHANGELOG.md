@@ -9,18 +9,143 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-### Changed
-
+- Added macro `_RETURN(_SUCCESS)` to fetch_data
+- Allow update offsets of &#177;timestep in ExtData2G
+- Minor revision (and generalization) of grid-def for GSI purposes
+- Add ability to use an `ESMF_CONFIG_FILE` environment variable to specify name of file to pass in pre-`ESMF_Initialize` options to ESMF (see [ESMF Docs](https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node4.html#SECTION04024000000000000000) for allowed flags.
+- Allow lat-lon grid factory to detect and use CF compliant lat-lon bounds in a file when making a grid
+- PFIO/Variable class, new procedures to retrieve string/reals/int attributes from a variable
 - Added a call in GenericRefresh to allow GC's refresh method to be called; in support 
   of CICE6 rewind
+
+### Changed
+
+- Change minimum CMake version to 3.24
+  - This is needed for f2py and meson support
+- Refactored tableEnd check
+- Added commandline options to `checkpoint_benchmark.x` and `restart_benchmark.x` to allow for easier testing of different configurations. Note that the old configuration file style of input is allowed via the `--config_file` option (which overrides any other command line options)
+- Update ESMF version for Baselibs to match that of Spack for consistency
+- Update `components.yaml`
+  - ESMA_env v4.32.0
+    - Baselibs 7.27.0
+      - ESMF 8.7.0
+      - curl 8.10.1
+      - NCO 5.2.8
+      - CDO 2.4.4
+      - GSL 2.8
+      - jpeg 9f
+      - Various build fixes
+  - ESMA_cmake v3.55.0
+    - Fixes for using MAPL as a library in spack builds of GEOSgcm
+    - Various backports from v4
+    - Code for capturing `mepo status` output
+    - Fixes for f2py and meson (NOTE: Requires CMake minimum version of 3.24 in project for complete functionality)
+    - Fixes for `MPI_STACK` code run multiple times
+- Updates to CI
+  - Use v7.27.0 Baselibs
+  - Use GCC 14 for GNU tests
+  - Add pFUnit-less build test
+  - Enable ifx tests
+- Improve some writes to be more informative
+  - In `base/MAPL_CFIO.F90`, added `Iam` to a print statement so that when a read fails we know which routine failed
+  - In `gridcomps/ExtData2G/ExtDataConfig.F90`, print out the name of the duplicate collection that causes model to fail
+
+### Fixed
+
+- Fixed issue of some Baselibs builds appearing to support zstandard. This is not possible due to Baselibs building HDF5 and netCDF as static libraries
+- Workaround ifx bug in `pfio/ArrayReference.F90` (NOTE: This currently targets all versions of ifx, but will need to be qualified or removed in the future)
+- Updates to support llvm-flang
+- Trajectory sampler: fix a bug when group_name does not exist in netCDF file and a bug that omitted the first time point
+- Fixed a bug where the periodicity around the earth of the lat-lon grid was not being set properly when grid did not span from pole to pole
+
+### Removed
+
+### Deprecated
+
+## [2.50.3] - 2024-12-02
+
+### Fixed
+
+- Fixed bug where c null character is not removed from end of string when reading netcdf attribute in NetCDF4\_FileFormatter.F90
+
+## [2.50.2] - 2024-10-30
+
+### Fixed
+
+- Fixed bug with cycle placement in coupler loop in History
+
+## [2.50.1] - 2024-10-18
+
+### Fixed
+
+- Fixed unitialized variable bug in ExtData exposed by gfortran
+
+## [2.50.0] - 2024-10-10
+
+### Added
+
+- Added `MAPL_Reverse_Schmidt` to reverse the stretched grid for indices computation
+
+### Changed
+
+- Propagated the error message from `MAPL_HorzIJIndex` subroutine
+- Updated minimum CMake version to 3.23
+
+### Fixed
+
+- Trapped more errors from Extdata's i-server
+
+## [2.49.1] - 2024-10-07
+
+### Fixed
+
+- Removed erroneous asserts that blocked some use cases in creating route handles
+
+## [2.49.0] - 2024-10-04
+
+### Added
+
+- Added zstandard compression support
+  - Note this requires netCDF-C to have been compiled with zstandard support. We have a CMake test to check for this
+    and enabling zstandard output in History will fail if the library does not support it
+
+### Changed
+
+- ExtDataDriver.x now uses ExtData2G by default
+- Update `components.yaml`
+  - ecbuild geos/v1.4.0
+    - Fixes bug between GCC, macOS, and the `-pipe` flag
+
+### Fixed
+
+- Workaround for NVHPC 24.9 involving `use` statement in `block` construct
+
+## [2.48.0] - 2024-09-24
+
+### Added
+
+- Added 5 new ExtData tests to test compression, bit-shaving, and quantization
+
+### Changed
+
+- Rename all single-digit ExtData tests to have a leading zero (i.e., `case1` -> `case01`)
+- Add restart benchmark code `restart_simulator.x` in benchmark directory
+- Start implementing changes for vertical regridding in ExtData
+- Made the POSITIVE field attribute defaults to "down" in case it is not found
+- VLOCATION is not querried in MAPL_VerticalMethods.F90 for rank 2 fields
+- Fixed time print in Cap GC (from slashes to colons)
+- Added ability to read the attribute with explicit type "string" of a netcdf variable.
+- Add ability to connect export of the MAPL hierachy to ExtData via CAP.rc file
 - Added new driver, CapDriver.x, to excerise the MAPL_Cap with the configuratable component also used by ExtDataDriver.x
 - Added Fortran interface to UDUNITS2
   - NOTE: This now means MAPL depends on UDUNITS2 (and transitively, expat)
 - Improve mask sampler by adding an MPI step and a LS_chunk (intermediate step)
-- Update Baselibs in CI to 7.25.0
-  - NOTE: The docker image also updates to Intel 2024.2 and Intel MPI 2021.13
+- CI Updates
+  - Update Baselibs in CI to 7.25.0
+  - Update to circleci-tools orb v4
+    - This adds the ability to do an `ifx` test along with the `ifort` test (though `ifx` is not yet enabled)
 - Update `components.yaml`
-  - ESMA_env v4.30.0
+  - ESMA_env v4.30.1
     - Update to Baselibs 7.25.0
       - ESMF 8.6.1
       - GFE v1.16.0
@@ -35,11 +160,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Move to use Intel ifort 2021.13 at NCCS SLES15, NAS, and GMAO Desktops
     - Move to use Intel MPI at NCCS SLES15 and GMAO Desktops
     - Move to GEOSpyD Min24.4.4 Python 3.11
-  - ESMA_cmake v3.50.0
+    - Fix for csh at NAS
+  - ESMA_cmake v3.51.0
     - Update `esma_add_fortran_submodules` function
     - Move MPI detection out of FindBaselibs
     - Add SMOD to submodule generator
     - NAG OpenMP Workaround
+    - Support for Jemalloc and LLVM Flang
 - Add support for preliminary CF Conventions quantization properties
   - Add new quantization keyword `granular_bitround` to History. This will be the preferred keyword for quantization in the future
     replacing `GranularBR`
@@ -48,8 +175,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix profiler PercentageColumn test for GCC 14
 - Fix bug in ExtData Tests. CMake was overwriting the `EXTDATA2G_SMALL_TESTS` LABEL with `ESSENTIAL`
-
-### Removed
 
 ### Deprecated
 
