@@ -87,7 +87,7 @@ contains
       reference%shape = shape(array)
 
       _RETURN(_SUCCESS)
-      
+
    end function new_ArrayReference_1d
 
    function new_ArrayReference_2d(array, rc) result(reference)
@@ -151,7 +151,7 @@ contains
       reference%shape = shape(array)
 
       _RETURN(_SUCCESS)
-      
+
    end function new_ArrayReference_3d
 
 
@@ -167,16 +167,32 @@ contains
 
       select type (array)
       type is (real(kind=REAL32))
+#if defined(ODD_IFX_BUG)
+         if (has_address)   reference%base_address = c_loc(array(1,1,1,1))
+#else
          if (has_address)   reference%base_address = c_loc(array)
+#endif
          reference%type_kind = pFIO_REAL32
       type is (real(kind=REAL64))
+#if defined(ODD_IFX_BUG)
+         if (has_address)   reference%base_address = c_loc(array(1,1,1,1))
+#else
          if (has_address)   reference%base_address = c_loc(array)
+#endif
          reference%type_kind = pFIO_REAL64
       type is (integer(kind=INT32))
+#if defined(ODD_IFX_BUG)
+         if (has_address)   reference%base_address = c_loc(array(1,1,1,1))
+#else
          if (has_address)   reference%base_address = c_loc(array)
+#endif
          reference%type_kind = pFIO_INT32
       type is (integer(kind=INT64))
+#if defined(ODD_IFX_BUG)
+         if (has_address)   reference%base_address = c_loc(array(1,1,1,1))
+#else
          if (has_address)   reference%base_address = c_loc(array)
+#endif
          reference%type_kind = pFIO_INT64
       class default
          _FAIL( "ArrayRef does not support this type")
@@ -184,7 +200,7 @@ contains
       reference%shape = shape(array)
 
       _RETURN(_SUCCESS)
-      
+
    end function new_ArrayReference_4d
 
    function new_ArrayReference_5d(array, rc) result(reference)
@@ -199,16 +215,32 @@ contains
 
       select type (array)
       type is (real(kind=REAL32))
+#if defined(ODD_IFX_BUG)
+         if (has_address)   reference%base_address = c_loc(array(1,1,1,1,1))
+#else
          if (has_address)   reference%base_address = c_loc(array)
+#endif
          reference%type_kind = pFIO_REAL32
       type is (real(kind=REAL64))
+#if defined(ODD_IFX_BUG)
+         if (has_address)   reference%base_address = c_loc(array(1,1,1,1,1))
+#else
          if (has_address)   reference%base_address = c_loc(array)
+#endif
          reference%type_kind = pFIO_REAL64
       type is (integer(kind=INT32))
+#if defined(ODD_IFX_BUG)
+         if (has_address)   reference%base_address = c_loc(array(1,1,1,1,1))
+#else
          if (has_address)   reference%base_address = c_loc(array)
+#endif
          reference%type_kind = pFIO_INT32
       type is (integer(kind=INT64))
+#if defined(ODD_IFX_BUG)
+         if (has_address)   reference%base_address = c_loc(array(1,1,1,1,1))
+#else
          if (has_address)   reference%base_address = c_loc(array)
+#endif
          reference%type_kind = pFIO_INT64
       class default
          _FAIL( "ArrayRef does not support this type")
@@ -217,7 +249,7 @@ contains
       reference%shape = shape(array)
 
       _RETURN(_SUCCESS)
-      
+
    end function new_ArrayReference_5d
 
    integer function type_kind(element, rc)

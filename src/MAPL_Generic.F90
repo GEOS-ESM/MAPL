@@ -351,10 +351,31 @@ module MAPL_GenericMod
       module procedure MAPL_AddAttributeToFields_I4
    end interface
 
+   interface
+      subroutine i_Run(gc, import_state, export_state, clock, rc)
+         use mapl_KeywordEnforcerMod
+         use ESMF
+         implicit none
+         type(ESMF_GridComp) :: gc
+         type(ESMF_State):: import_state
+         type(ESMF_State) :: export_state
+         type(ESMF_Clock) :: clock
+         integer, intent(out) :: rc
+      end subroutine i_Run
+   end interface
+
    ! =======================================================================
 
 
    integer, parameter :: LAST_ALARM = 99
+
+   ! The next variable is the lesser of two evils: we need a flag the represents MAPL_CustomRefresh
+   ! In PR 28xx the assuption was that we could use ESMF_ReadRestart, which has other issues
+   ! Here we intention us ESMF_Method_None, since it is very unlikely someone in the GEOS/MAPL
+   ! community will use that flag
+
+   type (ESMF_Method_Flag), public :: MAPL_Method_Refresh = ESMF_Method_None
+   integer, parameter, public :: MAPL_CustomRefreshPhase = 99
 
    type MAPL_GenericWrap
       type(MAPL_MetaComp       ), pointer :: MAPLOBJ
@@ -425,7 +446,9 @@ module MAPL_GenericMod
       integer                        , pointer :: phase_final(:)    => null()
       integer                        , pointer :: phase_record(:)   => null()
       integer                        , pointer :: phase_coldstart(:)=> null()
-
+      integer                        , pointer :: phase_refresh(:)=> null()
+      procedure(i_run), public, nopass, pointer :: customRefresh => null()
+      
       ! Make accessors?
       type(ESMF_GridComp)                      :: RootGC
       type(ESMF_GridComp)            , pointer :: parentGC         => null()
@@ -2753,6 +2776,7 @@ contains
       character(len=ESMF_MAXSTR)                  :: CHILD_NAME
       character(len=14)                           :: datestamp ! YYYYMMDD_HHMMz
       integer                                     :: status
+      integer                                     :: UserRC
       integer                                     :: I
       type (MAPL_MetaComp), pointer               :: STATE
       character(len=1)                            :: separator
@@ -2857,6 +2881,16 @@ contains
          ! call the actual record method
          call MAPL_StateRefresh (GC, IMPORT, EXPORT, CLOCK, RC=status )
          _VERIFY(status)
+
+! I_Run
+         if (associated(STATE%customRefresh)) then
+            call ESMF_GridCompInitialize(GC, importState=import, &
+                    exportState=export, clock=CLOCK, &
+                    phase=MAPL_CustomRefreshPhase, &
+                    userRC=userRC, _RC)
+            _VERIFY(userRC)
+         endif
+
       endif
       call MAPL_TimerOff(STATE,"GenRefreshMine",_RC)
       call MAPL_TimerOff(STATE,"GenRefreshTot",_RC)
@@ -3982,6 +4016,12 @@ contains
          phase = MAPL_AddMethod(META%phase_record, RC=status)
       else if (registeredMethod == ESMF_METHOD_READRESTART) then
          phase = MAPL_AddMethod(META%phase_coldstart, RC=status)
+      else if (registeredMethod == MAPL_METHOD_REFRESH) then
+         phase = MAPL_AddMethod(META%phase_refresh, RC=status)
+         meta%customRefresh => usersRoutine
+         call ESMF_GridCompSetEntryPoint(GC, ESMF_METHOD_INITIALIZE, &
+              usersRoutine, phase=MAPL_CustomRefreshPhase, _RC)
+         _RETURN(ESMF_SUCCESS)
       else
          _RETURN(ESMF_FAILURE)
       endif
@@ -9805,8 +9845,10 @@ contains
                if (io_rank == 0) then
                   print *,'Using parallel IO for reading file: ',trim(DATAFILE)
 
-#ifdef __NAG_COMPILER_RELEASE
+#if defined( __NAG_COMPILER_RELEASE)
                   _FAIL('NAG does not provide ftell. Convert to stream I/O')
+#elif defined(__flang__)
+                  _FAIL('flang does not provide ftell. Convert to stream I/O')
 #else
                   offset = _FTELL(UNIT)+4
 #endif
