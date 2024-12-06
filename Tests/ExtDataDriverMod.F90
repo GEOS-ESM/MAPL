@@ -171,6 +171,7 @@ contains
 
      _UNUSED_DUMMY(unusable)
 
+     print*, __LINE__, 'this%cap_options%oserver_type,', this%cap_options%oserver_type
      call this%cap_server%initialize(comm, &
          application_size=this%cap_options%npes_model, &
          nodes_input_server=this%cap_options%nodes_input_server, &

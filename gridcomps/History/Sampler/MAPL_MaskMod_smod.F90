@@ -169,6 +169,10 @@ module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdat
    allocate ( this%array_scalar_1d (this%npt_mask))
    allocate ( this%array_scalar_2d (this%npt_mask, nitem_scalar ) )
    allocate ( this%array_scalar_3d (this%npt_mask, this%vdata%lm, nitem_scalar) )
+   this%array_scalar_1d(:) = 900.0
+!   this%array_scalar_2d(:) = 0.0
+!   this%array_scalar_3d(:) = 0.0
+
    if (mapl_am_I_root()) then
       write(6,*) 'ck count_scalar=',  nitem_scalar
    end if
@@ -242,7 +246,6 @@ module subroutine  create_metadata(this,global_attributes,rc)
     integer :: metadataVarsSize
     character(len=:), pointer :: attr_name, attr_val
 
-
     !__ 1. metadata add_dimension,
     !     add_variable for time, mask_points, latlon,
     !
@@ -251,7 +254,9 @@ module subroutine  create_metadata(this,global_attributes,rc)
     allocate(this%metadata)
 
     call this%metadata%add_dimension('mask_index', this%npt_mask_tot)
-
+    !- add time dimension to metadata
+    call this%timeinfo%add_time_to_metadata(this%metadata,_RC)
+    
     v = Variable(type=pFIO_REAL32, dimensions='mask_index')
     call v%add_attribute('long_name','longitude')
     call v%add_attribute('unit','degree_east')
@@ -262,29 +267,11 @@ module subroutine  create_metadata(this,global_attributes,rc)
     call v%add_attribute('unit','degree_north')
     call this%metadata%add_variable('latitude',v)
 
-    ! To be added when values are available
-    !v = Variable(type=pFIO_INT32, dimensions='mask_index')
-    !call v%add_attribute('long_name','The Cubed Sphere Global Face ID')
-    !call this%metadata%add_variable('mask_CS_Face_ID',v)
-    !
-    !v = Variable(type=pFIO_INT32, dimensions='mask_index')
-    !call v%add_attribute('long_name','The Cubed Sphere Global Index I')
-    !call this%metadata%add_variable('mask_CS_global_index_I',v)
-    !
-    !v = Variable(type=pFIO_INT32, dimensions='mask_index')
-    !call v%add_attribute('long_name','The Cubed Sphere Global Index J')
-    !call this%metadata%add_variable('mask_CS_global_index_J',v)
-
-
     call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC) ! specify lev in fmd
-
-    !- add time dimension to metadata
-    call this%timeinfo%add_time_to_metadata(this%metadata,_RC)
 
     order = this%metadata%get_order(rc=status)
     _VERIFY(status)
     metadataVarsSize = order%size()
-
 
     !__ 2. filemetadata: extract field from bundle, add_variable to metadata
     !
@@ -331,7 +318,6 @@ module subroutine  create_metadata(this,global_attributes,rc)
        _VERIFY(status)
     end if
 
-
     s_iter = global_attributes%begin()
     do while(s_iter /= global_attributes%end())
        attr_name => s_iter%key()
@@ -339,7 +325,19 @@ module subroutine  create_metadata(this,global_attributes,rc)
        call this%metadata%add_attribute(attr_name,attr_val,_RC)
        call s_iter%next()
     enddo
-
+    ! To be added when values are available
+    !v = Variable(type=pFIO_INT32, dimensions='mask_index')
+    !call v%add_attribute('long_name','The Cubed Sphere Global Face ID')
+    !call this%metadata%add_variable('mask_CS_Face_ID',v)
+    !
+    !v = Variable(type=pFIO_INT32, dimensions='mask_index')
+    !call v%add_attribute('long_name','The Cubed Sphere Global Index I')
+    !call this%metadata%add_variable('mask_CS_global_index_I',v)
+    !
+    !v = Variable(type=pFIO_INT32, dimensions='mask_index')
+    !call v%add_attribute('long_name','The Cubed Sphere Global Index J')
+    !call this%metadata%add_variable('mask_CS_global_index_J',v)
+    
 
     _RETURN(_SUCCESS)
   end subroutine create_metadata
@@ -896,6 +894,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
     !   use griddedio logic
     !__ 1. stage data :  time variable, lat/lon
     !
+    if (allocated (this%times))   deallocate(this%times)
     allocate( this%times(1), _STAT )
     time_r8 = this%compute_time_for_current(current_time,_RC) ! rtimes: seconds since opening file
     this%times(1) = time_r8
@@ -925,7 +924,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
              do j=1, nx
                 ix = this%index_mask(1,j)
                 iy = this%index_mask(2,j)
-                this%array_scalar_1d(j) = (mypet+11)
+                this%array_scalar_1d(j) = (mypet+11)*1.0
              end do
              ref = ArrayReference(this%array_scalar_1d)
 
@@ -1094,6 +1093,8 @@ module subroutine  create_metadata(this,global_attributes,rc)
        allocate(global_count,source=[0])
     end if
 
+    print*, __LINE__, 'this%lons_deg(:) on root'
+    write(6,'(100f6.1,2x)')  this%lons_deg(:)
     ref = ArrayReference(this%lons_deg)
     call oClients%collective_stage_data(this%write_collection_id,trim(filename),'longitude', &
          ref,start=local_start, global_start=global_start, global_count=global_count)
