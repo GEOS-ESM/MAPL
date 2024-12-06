@@ -33,7 +33,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort]
+              compiler: [gfortran, ifort, ifx]
               cmake_generator: ['Unix Makefiles','Ninja']
           baselibs_version: *baselibs_version
           repo: MAPL
@@ -49,7 +49,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort]
+              compiler: [gfortran, ifort, ifx]
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
@@ -60,6 +60,21 @@ workflows:
           # ExtData1G tests were removed from ESSENTIAL, so we run them separately here as UFS might still use 1G?
           ctest_options: "-L 'ESSENTIAL|EXTDATA1G_SMALL_TESTS' --output-on-failure"
 
+      # Builds MAPL without pFUnit support
+      - ci/build:
+          name: build-MAPL-without-pFUnit-on-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              compiler: [ifort, ifx]
+          baselibs_version: *baselibs_version
+          repo: MAPL
+          mepodevelop: false
+          remove_pfunit: true
+          run_unit_tests: true
+          ctest_options: "-L 'ESSENTIAL' --output-on-failure"
+
       # Run MAPL Tutorials
       - ci/run_mapl_tutorial:
           name: run-<< matrix.tutorial_name >>-Tutorial-with-<< matrix.compiler >>
@@ -67,7 +82,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort]
+              compiler: [gfortran, ifort, ifx]
               tutorial_name:
                 - hello_world
                 - parent_no_children
@@ -89,7 +104,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort]
+              compiler: [gfortran, ifort, ifx]
           baselibs_version: *baselibs_version
           repo: GEOSgcm
           checkout_fixture: true
@@ -104,7 +119,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort]
+              compiler: [gfortran, ifort, ifx]
           requires:
             - build-GEOSgcm-on-<< matrix.compiler >>
           repo: GEOSgcm
@@ -185,23 +200,23 @@ workflows:
           compiler_version: "2021.13"
           image_name: geos-env
           tag_build_arg_name: *tag_build_arg_name
-      #- ci/publish_docker:
-          #filters:
-            #tags:
-              #only: /^v.*$/
-          #name: publish-ifx-docker-image
-          #context:
-            #- docker-hub-creds
-            #- ghcr-creds
-          #os_version: *os_version
-          #baselibs_version: *baselibs_version
-          #container_name: mapl
-          #mpi_name: intelmpi
-          #mpi_version: "2021.13"
-          #compiler_name: ifx
-          #compiler_version: "2024.2"
-          #image_name: geos-env
-          #tag_build_arg_name: *tag_build_arg_name
+      - ci/publish_docker:
+          filters:
+            tags:
+              only: /^v.*$/
+          name: publish-ifx-docker-image
+          context:
+            - docker-hub-creds
+            - ghcr-creds
+          os_version: *os_version
+          baselibs_version: *baselibs_version
+          container_name: mapl
+          mpi_name: intelmpi
+          mpi_version: "2021.14"
+          compiler_name: ifx
+          compiler_version: "2025.0"
+          image_name: geos-env
+          tag_build_arg_name: *tag_build_arg_name
       - ci/publish_docker:
           filters:
             tags:
@@ -214,8 +229,8 @@ workflows:
           baselibs_version: *baselibs_version
           container_name: mapl
           mpi_name: openmpi
-          mpi_version: 5.0.2
+          mpi_version: 5.0.5
           compiler_name: gcc
-          compiler_version: 13.2.0
+          compiler_version: 14.2.0
           image_name: geos-env-mkl
           tag_build_arg_name: *tag_build_arg_name
