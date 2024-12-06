@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Added public interface MAPL_GridCompGetVarSpecs
 - Change minimum CMake version to 3.24
   - This is needed for f2py and meson support
 - Refactored tableEnd check

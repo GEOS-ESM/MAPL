@@ -166,6 +166,7 @@ module MAPL_GenericMod
    !public MAPL_StateSetSpecAttrib
    !public MAPL_StateGetVarSpecs
    !public MAPL_StatePrintSpec
+   public MAPL_GridCompGetVarSpecs
    public MAPL_StatePrintSpecCSV
 
    ! MAPL_Connect
