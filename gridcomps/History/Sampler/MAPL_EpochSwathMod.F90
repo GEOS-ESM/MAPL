@@ -19,6 +19,7 @@ module MAPL_EpochSwathMod
   use MAPL_GriddedIOItemMod
   use MAPL_ExceptionHandling
   use pFIO_ClientManagerMod
+  use pFIO_FileMetadataMod
   use MAPL_DataCollectionMod
   use MAPL_DataCollectionManagerMod
   use gFTL2_StringVector
