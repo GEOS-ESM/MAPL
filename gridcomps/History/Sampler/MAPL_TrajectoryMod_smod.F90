@@ -194,6 +194,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   STR1=trim(word(1))
                else
                   ! 3-item     :  var1 , 'root', var1_alias case
+                  ! 3-item     :  var1 , 'root', 'TOTEXTTAU470;TOTEXTTAU550;TOTEXTTAU870',
+                  ! 3-item     :  there is a problem of 'u;v' vector interpolation
                   STR1=trim(word(3))
                end if
                deallocate(word, _STAT)
@@ -223,6 +225,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             enddo
          end if
 
+         if (mapl_am_i_root()) then
+            print*, 'traj%obs(nobs)%ngeoval= ', jvar
+         end if
 
          do k=1, traj%nobs_type
             allocate (traj%obs(k)%metadata, _STAT)
@@ -436,6 +441,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
         iter = this%items%begin()
         do while (iter /= this%items%end())
            item => iter%get()
+
+           if (mapl_am_I_root()) print*, 'create new bundle, this%items%xname= ', trim(item%xname)
+
            if (item%itemType == ItemTypeScalar) then
               call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
               call ESMF_FieldGet(src_field,rank=rank,_RC)
@@ -1056,6 +1064,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          iter = this%items%begin()
          do while (iter /= this%items%end())
             item => iter%get()
+            if (mapl_am_I_root())  print*, 'item%xname= ', trim(item%xname)
+
             if (item%itemType == ItemTypeScalar) then
                call ESMF_FieldBundleGet(this%acc_bundle,trim(item%xname),field=acc_field,_RC)
                call ESMF_FieldGet(acc_field,rank=rank,_RC)
@@ -1067,6 +1077,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                        p_acc_rt_2d, recvcount, displs, MPI_REAL,&
                        iroot, mpic, ierr )
                   _VERIFY(ierr)
+                  print*, 'rank == 1'
 
                   if (mapl_am_i_root()) then
                      !
@@ -1100,6 +1111,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         nx = this%obs(k)%nobs_epoch
                         if (nx>0) then
                            do ig = 1, this%obs(k)%ngeoval
+                              print*, 'this%obs(k)%ngeoval= ', this%obs(k)%geoval_xname(ig)
+
                               if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
                                  call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p2d(1:nx), &
                                       start=[is],count=[nx])
@@ -1112,6 +1125,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                      enddo
                   end if
                else if (rank==2) then
+
+                  print*, 'rank == 2'
 
                   call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_3d, _RC)
                   dst_field=ESMF_FieldCreate(this%LS_chunk,typekind=ESMF_TYPEKIND_R4, &
@@ -1190,6 +1205,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_FieldDestroy(acc_field_2d_chunk, noGarbage=.true., _RC)
          call ESMF_FieldDestroy(acc_field_3d_chunk, noGarbage=.true., _RC)
          call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
+
+         stop 'nail 1'
 
          _RETURN(_SUCCESS)
        end procedure append_file
