@@ -36,3 +36,7 @@ set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${t
 if (CMAKE_Fortran_COMPILER_ID MATCHES Intel AND CMAKE_BUILD_TYPE MATCHES Release)
   set_source_files_properties(ExtDataGridCompNG.F90 PROPERTIES COMPILE_OPTIONS ${FOPT1})
 endif ()
+
+if(PFUNIT_FOUND)
+  add_subdirectory(tests EXCLUDE_FROM_ALL)
+endif()
