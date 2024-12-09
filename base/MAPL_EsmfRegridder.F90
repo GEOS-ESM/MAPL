@@ -1594,7 +1594,7 @@ contains
               call lgr%info('Writing weight file: %a', trim(rh_file))
               call ESMF_RouteHandleWrite(route_handle,rh_file,_RC)
               if (compute_transpose) then
-                 call lgr%info('Writing transpose weight file: %a', trim(rg_trans_file))
+                 call lgr%info('Writing transpose weight file: %a', trim(rh_trans_file))
                  call ESMF_RouteHandleWrite(transpose_route_handle,rh_trans_file,_RC)
               end if
            end if
