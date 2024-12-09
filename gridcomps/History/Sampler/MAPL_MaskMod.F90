@@ -15,8 +15,8 @@ module MaskSamplerMod
   use MAPL_SortMod
   use MAPL_NetCDF
   use MAPL_StringTemplate
-  use gFTL_StringVector
-  use gFTL_StringStringMap
+!  use gFTL_StringVector
+!  use gFTL_StringStringMap
   use Plain_netCDF_Time
   use MAPL_ObsUtilMod
   use MPI
@@ -28,7 +28,8 @@ module MaskSamplerMod
   use, intrinsic :: iso_fortran_env, only: REAL64
   use pflogger, only: Logger, logging
   implicit none
-
+  intrinsic :: size
+  
   private
 
   public :: MaskSampler
@@ -137,7 +138,8 @@ module MaskSamplerMod
        integer, optional, intent(out)          :: rc
      end function MaskSampler_from_config
 
-     module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdata,global_attributes,reinitialize,rc)
+     !!     module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdata,global_attributes,reinitialize,rc)
+     module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdata,reinitialize,rc)     
        class(MaskSampler), intent(inout) :: this
        integer, intent(in) :: duration
        integer, intent(in) :: frequency
@@ -145,7 +147,7 @@ module MaskSamplerMod
        type(ESMF_FieldBundle), optional, intent(inout)   :: bundle
        type(TimeData), optional, intent(inout)           :: timeInfo
        type(VerticalData), optional, intent(inout)       :: vdata
-       type(StringStringMap), target, intent(in), optional :: global_attributes
+       !!type(StringStringMap), target, intent(in), optional :: global_attributes
        logical, optional, intent(in)           :: reinitialize
        integer, optional, intent(out)          :: rc
      end subroutine initialize_
@@ -157,9 +159,10 @@ module MaskSamplerMod
        integer, optional, intent(out)          :: rc
      end subroutine create_Geosat_grid_find_mask
 
-     module subroutine  create_metadata(this,global_attributes,rc)
+     !!     module subroutine  create_metadata(this,global_attributes,rc)
+     module subroutine  create_metadata(this,rc)     
        class(MaskSampler), intent(inout) :: this
-       type(StringStringMap), target, intent(in) :: global_attributes
+!!       type(StringStringMap), target, intent(in) :: global_attributes
        integer, optional, intent(out)          :: rc
      end subroutine create_metadata
 

@@ -2456,11 +2456,16 @@ ENDDO PARSER
              global_attributes = list(n)%global_atts%define_collection_attributes(_RC)             
              list(n)%mask_sampler = MaskSampler(cfg,string,clock,genstate=GENSTATE,_RC)
              ! initialize + create metadata
-             call list(n)%mask_sampler%set_param(itemOrder=intState%fileOrderAlphabetical,_RC)
+             !! call list(n)%mask_sampler%set_param(itemOrder=intState%fileOrderAlphabetical,_RC)
+
+!             call list(n)%mask_sampler%initialize(list(n)%duration,list(n)%frequency,items=list(n)%items,&
+!                  bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
              call list(n)%mask_sampler%initialize(list(n)%duration,list(n)%frequency,items=list(n)%items,&
-                  bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+                  bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
+
              collection_id = o_Clients%add_hist_collection(list(n)%mask_sampler%metadata, mode = create_mode)
              call list(n)%mask_sampler%set_param(write_collection_id=collection_id)
+             
              call MAPL_TimerOff(GENSTATE,"mask_init")
           elseif (list(n)%sampler_spec == 'station') then
              list(n)%station_sampler = StationSampler (list(n)%bundle, trim(list(n)%stationIdFile), nskip_line=list(n)%stationSkipLine, genstate=GENSTATE, _RC)

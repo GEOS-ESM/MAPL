@@ -106,7 +106,8 @@ end function MaskSampler_from_config
    !
    !-- integrate both initialize and reinitialize
    !
-module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdata,global_attributes,reinitialize,rc)
+!!module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdata,global_attributes,reinitialize,rc)
+module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdata,reinitialize,rc)  
    class(MaskSampler), intent(inout) :: this
    integer, intent(in) :: duration
    integer, intent(in) :: frequency
@@ -114,7 +115,7 @@ module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdat
    type(ESMF_FieldBundle), optional, intent(inout)   :: bundle
    type(TimeData), optional, intent(inout)           :: timeInfo
    type(VerticalData), optional, intent(inout)       :: vdata
-   type(StringStringMap), target, intent(in), optional :: global_attributes
+!!   type(StringStringMap), target, intent(in), optional :: global_attributes
    logical, optional, intent(in)           :: reinitialize
    integer, optional, intent(out)          :: rc
 
@@ -137,7 +138,7 @@ module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdat
          this%vdata=VerticalData(_RC)
       end if
    end if
-   _ASSERT(present(global_attributes), 'PFIO needs global_attributes')
+!!   _ASSERT(present(global_attributes), 'PFIO needs global_attributes')
 
 
 !   this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
@@ -145,7 +146,8 @@ module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdat
 
    this%obs_written = 0
    call this%create_Geosat_grid_find_mask(_RC)
-   call this%create_metadata(global_attributes,_RC)
+   !!   call this%create_metadata(global_attributes,_RC)
+   call this%create_metadata(_RC)   
 
    nitem_scalar = 0
    nitem_vector = 0
@@ -220,9 +222,10 @@ module subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chu
 end subroutine set_param
 
 
-module subroutine  create_metadata(this,global_attributes,rc)
+!!module subroutine  create_metadata(this,global_attributes,rc)
+module subroutine  create_metadata(this,rc)
     class(MaskSampler), intent(inout) :: this
-    type(StringStringMap), target, intent(in) :: global_attributes
+!!    type(StringStringMap), target, intent(in) :: global_attributes
     integer, optional, intent(out)          :: rc
 
     type(variable)   :: v
@@ -241,8 +244,8 @@ module subroutine  create_metadata(this,global_attributes,rc)
     character(len=ESMF_MAXSTR) :: var_name, long_name, units, vdims
     character(len=40) :: datetime_units
 
-    type(StringStringMapIterator) :: s_iter
-    type(stringVector) :: order
+!    type(StringStringMapIterator) :: s_iter
+!    type(stringVector) :: order
     integer :: metadataVarsSize
     character(len=:), pointer :: attr_name, attr_val
 
@@ -269,9 +272,9 @@ module subroutine  create_metadata(this,global_attributes,rc)
 
     call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC) ! specify lev in fmd
 
-    order = this%metadata%get_order(rc=status)
-    _VERIFY(status)
-    metadataVarsSize = order%size()
+!    order = this%metadata%get_order(rc=status)
+!    _VERIFY(status)
+!    metadataVarsSize = order%size()
 
     !__ 2. filemetadata: extract field from bundle, add_variable to metadata
     !
@@ -313,18 +316,20 @@ module subroutine  create_metadata(this,global_attributes,rc)
     deallocate (fieldNameList, _STAT)
 
 
-    if (this%itemOrderAlphabetical) then
-       call this%alphabatize_variables(metadataVarsSize,rc=status)
-       _VERIFY(status)
-    end if
+!    if (this%itemOrderAlphabetical) then
+!       call this%alphabatize_variables(metadataVarsSize,rc=status)
+!       _VERIFY(status)
+!    end if
 
-    s_iter = global_attributes%begin()
-    do while(s_iter /= global_attributes%end())
-       attr_name => s_iter%key()
-       attr_val => s_iter%value()
-       call this%metadata%add_attribute(attr_name,attr_val,_RC)
-       call s_iter%next()
-    enddo
+    
+!!    s_iter = global_attributes%begin()
+!!    do while(s_iter /= global_attributes%end())
+!!       attr_name => s_iter%key()
+!!       attr_val => s_iter%value()
+!!       call this%metadata%add_attribute(attr_name,attr_val,_RC)
+!!       call s_iter%next()
+!!    enddo
+
     ! To be added when values are available
     !v = Variable(type=pFIO_INT32, dimensions='mask_index')
     !call v%add_attribute('long_name','The Cubed Sphere Global Face ID')
@@ -541,13 +546,13 @@ module subroutine  create_metadata(this,global_attributes,rc)
             iroot, mpic, ierr )
        _VERIFY(ierr)
 
-       write(6,*) 'ip, nx2, this%recvcounts, recvcounts_loc, displs_loc'
-       write(6,'(200i5)')  ip, nx2
-       write(6,'(200i5)')  this%recvcounts
-       write(6,'(200i5)')  recvcounts_loc
-       write(6,'(200i5)')  displs_loc
-       call MPI_Barrier(mpic,ierr)
-       _VERIFY(ierr)
+!!       write(6,*) 'ip, nx2, this%recvcounts, recvcounts_loc, displs_loc'
+!!       write(6,'(200i5)')  ip, nx2
+!!       write(6,'(200i5)')  this%recvcounts
+!!       write(6,'(200i5)')  recvcounts_loc
+!!       write(6,'(200i5)')  displs_loc
+!!       call MPI_Barrier(mpic,ierr)
+!!       _VERIFY(ierr)
 
 
        if (.not. mapl_am_i_root()) then
@@ -598,12 +603,24 @@ module subroutine  create_metadata(this,global_attributes,rc)
        call ESMF_FieldGet( fieldA, localDE=0, farrayPtr=ptA)
        call ESMF_FieldGet( fieldB, localDE=0, farrayPtr=ptB)
 
+!       ptA=0.0
+!       ptB=0.0
+       print*, 'pet, shape(ptA)' , ip, shape(ptA)
+       print*, 'pet, shape(ptB)' , ip, shape(ptB)
+
+!!     
+       
        ptA(:) = lons_chunk(:)
        call ESMF_FieldRedistStore (fieldA, fieldB, RH, _RC)
        call MPI_Barrier(mpic,ierr)
        _VERIFY(ierr)
        call ESMF_FieldRedist      (fieldA, fieldB, RH, _RC)
        lons_ds = ptB
+
+       nx = size (ptB)
+       _HERE, 'nx from ptB', nx
+       nx = size(lons_ds)
+       _HERE, 'nx from lons_ds', nx       
        
        ptA(:) = lats_chunk(:)
        call MPI_Barrier(mpic,ierr)
@@ -624,7 +641,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
        call MAPL_TimerOn(this%GENSTATE,"3_CS_halo")
        obs_lons = lons_ds * MAPL_DEGREES_TO_RADIANS_R8
        obs_lats = lats_ds * MAPL_DEGREES_TO_RADIANS_R8
-       nx = size ( lons_ds )
+       !! nx = size(lons_ds)
        allocate ( II(nx), JJ(nx), _STAT )
        call MAPL_GetHorzIJIndex(nx,II,JJ,lonR8=obs_lons,latR8=obs_lats,grid=grid,_RC)
        call ESMF_VMBarrier (vm, _RC)
@@ -768,48 +785,49 @@ module subroutine  create_metadata(this,global_attributes,rc)
 
        call MAPL_TimerOff(this%GENSTATE,"4_gatherV")
 
-
-       ! __ s4.4  find (i1,in) for masked array
-       write(6,*) 'ip, this%npt_mask, this%recvcounts, this%displs'
-       write(6,'(200i10)')  ip, this%npt_mask
-       write(6,'(200i10)')  this%recvcounts
-       write(6,'(200i10)')  this%displs
-       call MPI_Barrier(mpic,ierr)
-       _VERIFY(ierr)
-
-
-       if (mapl_am_i_root()) then
-          print*, 'this%npt_mask_tot=', this%npt_mask_tot
-          allocate (this%lons_deg(this%npt_mask_tot), this%lats_deg(this%npt_mask_tot), _STAT)
-          this%lons_deg = this%lons * MAPL_RADIANS_TO_DEGREES
-          this%lats_deg = this%lats * MAPL_RADIANS_TO_DEGREES
-       else
-          allocate (this%lons_deg(0), this%lats_deg(0), _STAT)
-       end if
-!!       write(6,'(2x,a,2x,i5,2x,1000f12.2)') 'ip, lons_deg', ip, this%lons_deg
-!!       write(6,'(2x,a,2x,i5,2x,1000f12.2)') 'ip, lats_deg', ip, this%lats_deg
-
-!!       call MAPL_CommsBcast(vm, DATA=, N=1, ROOT=MAPL_Root, _RC)
-       allocate (sendcounts_loc(petcount))
-       do i=1, petcount
-          displs_loc(i)=i-1
-          sendcounts_loc(i)=1
-       enddo
-
-       call  MPI_Scatterv( this%displs, sendcounts_loc, displs_loc, MPI_INTEGER, &
-            this%i1, 1, MPI_INTEGER, iroot, mpic, ierr)
-       if (this%npt_mask > 0) then
-          this%i1 = this%i1 + 1       ! shift from 0 to 1
-          this%in =  this%i1 + this%npt_mask - 1
-       else
-          this%i1 = 0
-          this%in = 0
-       end if
-
-       write(6,'(2x,a,2x,200i10)')  'ip, this%npt_mask, this%i1, in:', &
-            ip, this%npt_mask, this%i1, this%in
-       call MPI_Barrier(mpic,ierr)
-
+!! ygyu debug       
+!!
+!!       ! __ s4.4  find (i1,in) for masked array
+!!       write(6,*) 'ip, this%npt_mask, this%recvcounts, this%displs'
+!!       write(6,'(200i10)')  ip, this%npt_mask
+!!       write(6,'(200i10)')  this%recvcounts
+!!       write(6,'(200i10)')  this%displs
+!!       call MPI_Barrier(mpic,ierr)
+!!       _VERIFY(ierr)
+!!
+!!
+!!       if (mapl_am_i_root()) then
+!!          print*, 'this%npt_mask_tot=', this%npt_mask_tot
+!!          allocate (this%lons_deg(this%npt_mask_tot), this%lats_deg(this%npt_mask_tot), _STAT)
+!!          this%lons_deg = this%lons * MAPL_RADIANS_TO_DEGREES
+!!          this%lats_deg = this%lats * MAPL_RADIANS_TO_DEGREES
+!!       else
+!!          allocate (this%lons_deg(0), this%lats_deg(0), _STAT)
+!!       end if
+!!!!       write(6,'(2x,a,2x,i5,2x,1000f12.2)') 'ip, lons_deg', ip, this%lons_deg
+!!!!       write(6,'(2x,a,2x,i5,2x,1000f12.2)') 'ip, lats_deg', ip, this%lats_deg
+!!
+!!!!       call MAPL_CommsBcast(vm, DATA=, N=1, ROOT=MAPL_Root, _RC)
+!!       allocate (sendcounts_loc(petcount))
+!!       do i=1, petcount
+!!          displs_loc(i)=i-1
+!!          sendcounts_loc(i)=1
+!!       enddo
+!!
+!!       call  MPI_Scatterv( this%displs, sendcounts_loc, displs_loc, MPI_INTEGER, &
+!!            this%i1, 1, MPI_INTEGER, iroot, mpic, ierr)
+!!       if (this%npt_mask > 0) then
+!!          this%i1 = this%i1 + 1       ! shift from 0 to 1
+!!          this%in =  this%i1 + this%npt_mask - 1
+!!       else
+!!          this%i1 = 0
+!!          this%in = 0
+!!       end if
+!!
+!!       write(6,'(2x,a,2x,200i10)')  'ip, this%npt_mask, this%i1, in:', &
+!!            ip, this%npt_mask, this%i1, this%in
+!!       call MPI_Barrier(mpic,ierr)
+!!
        _RETURN(_SUCCESS)
      end subroutine create_Geosat_grid_find_mask
 
@@ -1126,57 +1144,57 @@ module subroutine  create_metadata(this,global_attributes,rc)
 
 
 
-   module subroutine alphabatize_variables(this,nfixedVars,rc)
-     class (masksampler), intent(inout) :: this
-     integer, intent(in) :: nFixedVars
-     integer, optional, intent(out) :: rc
-
-     type(StringVector) :: order
-     type(StringVector) :: newOrder
-     character(len=:), pointer :: v1
-     character(len=ESMF_MAXSTR) :: c1,c2
-     character(len=ESMF_MAXSTR), allocatable :: temp(:)
-     logical :: swapped
-     integer :: n,i
-     integer :: status
-
-     order = this%metadata%get_order(rc=status)
-     _VERIFY(status)
-     n = Order%size()
-     allocate(temp(nFixedVars+1:n))
-     do i=1,n
-        v1 => order%at(i)
-        if ( i > nFixedVars) temp(i)=trim(v1)
-     enddo
-
-     swapped = .true.
-     do while(swapped)
-        swapped = .false.
-        do i=nFixedVars+1,n-1
-           c1 = temp(i)
-           c2 = temp(i+1)
-           if (c1 > c2) then
-              temp(i+1)=c1
-              temp(i)=c2
-              swapped =.true.
-           end if
-        enddo
-     enddo
-
-     do i=1,nFixedVars
-        v1 => Order%at(i)
-        call newOrder%push_back(v1)
-     enddo
-     do i=nFixedVars+1,n
-        call newOrder%push_back(trim(temp(i)))
-     enddo
-     call this%metadata%set_order(newOrder,rc=status)
-     _VERIFY(status)
-     deallocate(temp)
-
-     _RETURN(_SUCCESS)
-
-  end subroutine alphabatize_variables
+!   module subroutine alphabatize_variables(this,nfixedVars,rc)
+!     class (masksampler), intent(inout) :: this
+!     integer, intent(in) :: nFixedVars
+!     integer, optional, intent(out) :: rc
+!
+!     type(StringVector) :: order
+!     type(StringVector) :: newOrder
+!     character(len=:), pointer :: v1
+!     character(len=ESMF_MAXSTR) :: c1,c2
+!     character(len=ESMF_MAXSTR), allocatable :: temp(:)
+!     logical :: swapped
+!     integer :: n,i
+!     integer :: status
+!
+!     order = this%metadata%get_order(rc=status)
+!     _VERIFY(status)
+!     n = Order%size()
+!     allocate(temp(nFixedVars+1:n))
+!     do i=1,n
+!        v1 => order%at(i)
+!        if ( i > nFixedVars) temp(i)=trim(v1)
+!     enddo
+!
+!     swapped = .true.
+!     do while(swapped)
+!        swapped = .false.
+!        do i=nFixedVars+1,n-1
+!           c1 = temp(i)
+!           c2 = temp(i+1)
+!           if (c1 > c2) then
+!              temp(i+1)=c1
+!              temp(i)=c2
+!              swapped =.true.
+!           end if
+!        enddo
+!     enddo
+!
+!     do i=1,nFixedVars
+!        v1 => Order%at(i)
+!        call newOrder%push_back(v1)
+!     enddo
+!     do i=nFixedVars+1,n
+!        call newOrder%push_back(trim(temp(i)))
+!     enddo
+!     call this%metadata%set_order(newOrder,rc=status)
+!     _VERIFY(status)
+!     deallocate(temp)
+!
+!     _RETURN(_SUCCESS)
+!
+!  end subroutine alphabatize_variables
 
 
    end submodule MaskSampler_implement
