@@ -28,7 +28,8 @@ module MaskSamplerMod
   use, intrinsic :: iso_fortran_env, only: REAL64
   use pflogger, only: Logger, logging
   implicit none
-
+  intrinsic :: size
+  
   private
 
   public :: MaskSampler
