@@ -1,15 +1,11 @@
 set(MODULE_DIRECTORY "${esma_include}/MAPL.generic3g/tests")
 
-add_library(scratchpad SHARED scratchpad.F90)
-
 add_subdirectory(gridcomps)
 
 set (test_srcs
   Test_VirtualConnectionPt.pf
 
-  Test_SimpleLeafGridComp.pf
-  Test_SimpleParentGridComp.pf
-  Test_RunChild.pf
+  Test_ConfigurableGridComp.pf
 
   Test_AddFieldSpec.pf
   Test_ComponentSpecParser.pf
@@ -44,7 +40,7 @@ set (test_srcs
 add_pfunit_ctest(
   MAPL.generic3g.tests
   TEST_SOURCES ${test_srcs}
-  LINK_LIBRARIES MAPL.generic3g MAPL.shared MAPL.pfunit configurable_gridcomp scratchpad
+  LINK_LIBRARIES MAPL.generic3g MAPL.shared MAPL.pfunit configurable_gridcomp
   EXTRA_INITIALIZE Initialize
   EXTRA_USE MAPL_pFUnit_Initialize
   OTHER_SOURCES MockUserGridComp.F90 MockItemSpec.F90 accumulator_action_test_common.F90
