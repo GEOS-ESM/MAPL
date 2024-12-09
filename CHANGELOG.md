@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added loggers when writing or reading weight files
+
 ### Changed
 
 ### Fixed

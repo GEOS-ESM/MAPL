@@ -14,6 +14,7 @@ module MAPL_EsmfRegridderMod
    use MAPL_RegridderSpecRouteHandleMap
    use MAPL_MAPLGrid
    use MAPL_ConstantsMod
+   use pFlogger, only: logging, Logger
    implicit none
    private
 
@@ -1442,6 +1443,9 @@ contains
      character(len=ESMF_MAXPATHLEN) :: rh_file,rh_trans_file
      logical :: rh_file_exists, file_weights, compute_transpose
 
+     type(Logger), pointer :: lgr
+     lgr => logging%get_logger('MAPL')
+
      if (kind == ESMF_TYPEKIND_R4) then
         route_handles => route_handles_r4
         transpose_route_handles => transpose_route_handles_r4
@@ -1468,6 +1472,7 @@ contains
            rh_file_exists = .false.
         end if
         if (rh_file_exists) then
+           call lgr%info('Reading weight file: %a', trim(rh_file))
            route_handle = ESMF_RouteHandleCreate(rh_file,_RC)
            call route_handles%insert(spec, route_handle)
            if (compute_transpose) then
@@ -1586,8 +1591,10 @@ contains
            call ESMF_FieldDestroy(dst_field, rc=status)
            _VERIFY(status)
            if (file_weights) then
+              call lgr%info('Writing weight file: %a', trim(rh_file))
               call ESMF_RouteHandleWrite(route_handle,rh_file,_RC)
               if (compute_transpose) then
+                 call lgr%info('Writing transpose weight file: %a', trim(rh_trans_file))
                  call ESMF_RouteHandleWrite(transpose_route_handle,rh_trans_file,_RC)
               end if
            end if
