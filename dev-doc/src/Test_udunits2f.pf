@@ -1,0 +1,167 @@
+module Test_udunits2f
+
+   use funit
+   use ud2f_UDSystem, finalize_udunits_system => finalize, initialize_udunits_system => initialize
+   use udunits2f
+   use iso_c_binding, only: c_ptr, c_associated, c_char, c_null_char
+
+   implicit none
+
+   integer(ut_encoding), parameter :: ENCODING = UT_ASCII
+   character(len=*), parameter :: KM = 'km'
+   character(len=*), parameter :: M = 'm'
+   character(len=*), parameter :: S = 's'
+
+contains
+
+   @Test
+   subroutine test_construct_system_no_path()
+      type(UDSystem) :: wrapper
+      
+      wrapper = UDSystem()
+      @assertFalse(wrapper%is_free(), 'ut_system is not set')
+      call ut_free_system(wrapper%get_cptr())
+
+   end subroutine test_construct_system_no_path
+
+   @Test
+   subroutine test_cptr_wrapper()
+      type(UDSystem) :: wrapper
+      type(c_ptr) :: cptr
+      logical :: cassoc
+
+      wrapper = UDSystem()
+      cptr = wrapper%get_cptr()
+      cassoc = c_associated(cptr)
+      @assertTrue(cassoc, 'Did not get c_ptr')
+      if(cassoc) then
+         @assertFalse(wrapper%is_free(), 'c_ptr should be set.')
+         call wrapper%free()
+         cptr = wrapper%get_cptr()
+         @assertFalse(c_associated(cptr), 'c_ptr should not be associated')
+         @assertTrue(wrapper%is_free(), 'c_ptr should not be set')
+      end if
+      if(c_associated(cptr)) call ut_free_system(cptr)
+
+   end subroutine test_cptr_wrapper
+
+   @Test
+   subroutine test_construct_unit()
+      type(UDUnit) :: unit1
+      integer(ut_status) :: status
+         
+      call initialize_udunits_system(rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
+      unit1 = UDUnit(KM)
+      @assertFalse(unit1%is_free(), 'ut_unit is not set (default encoding)')
+
+      call unit1%free()
+      call finalize_udunits_system()
+      
+   end subroutine test_construct_unit
+
+   @Test
+   subroutine test_construct_converter()
+      type(UDUnit) :: unit1
+      type(UDUnit) :: unit2
+      type(Converter) :: conv
+      integer(ut_status) :: status
+      
+      call initialize_udunits_system(rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
+      unit1 = UDUnit(KM)
+      unit2 = UDUnit(M)
+      conv = Converter(unit1, unit2) 
+      @assertFalse(conv%is_free(), 'cv_converter is not set')
+      
+      call unit1%free()
+      call unit2%free()
+      call conv%free()
+      call finalize_udunits_system()
+
+   end subroutine test_construct_converter
+
+   @Test
+   subroutine test_read_xml_nopath()
+      integer :: status
+      type(c_ptr) :: utsystem
+
+      call read_xml(utsystem=utsystem, status=status)
+      if(.not. c_associated(utsystem)) then
+         @assertFalse(status == UT_OS, 'Operating system error')
+         @assertFalse(status == UT_PARSE_ERROR, 'Database file could not be parsed.')
+         @assertFalse(status == UT_OPEN_ARG, 'Non-null path could not be opened.')
+         @assertFalse(status == UT_OPEN_ENV, 'Environment variable is set but could not open.')
+         @assertFalse(status == UT_OPEN_DEFAULT, 'Default database could not be opened.')
+      end if
+
+      call ut_free_system(utsystem)
+
+   end subroutine test_read_xml_nopath
+
+   @Test
+   subroutine test_cstring()
+      character(len=*), parameter :: fs = 'FOO_BAR'
+      character(kind=c_char, len=80) :: cchs
+      character(kind=kind(cchs)) :: cc
+      integer :: n
+
+      cchs = cstring(fs)
+      @assertEqual(kind((cchs)), c_char, 'Wrong kind')
+      n = len_trim(cchs)
+      @assertEqual(n, len(fs)+1, 'cstring is incorrect length.')
+      cc = cchs(n:n)
+      @assertEqual(cc, c_null_char, 'Final character is not null.')
+      @assertEqual(cchs(1:(n-1)), fs, 'Initial characters do not match.')
+
+   end subroutine test_cstring
+
+   @Test
+   subroutine test_are_convertible()
+      type(UDUnit) :: unit1
+      type(UDUnit) :: unit2
+      integer(ut_status) :: status
+      logical :: convertible
+
+      call initialize_udunits_system(rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
+      unit1 = UDUnit(KM)
+      unit2 = UDUnit(M)
+      convertible = are_convertible(unit1, unit2, rc=status)
+      if(.not. convertible) then
+         @assertFalse(status == UT_BAD_ARG, 'One of the units is null.')
+         @assertFalse(status == UT_NOT_SAME_SYSTEM, 'Units belong to different systems.')
+      end if
+
+      call unit1%free()
+      call unit2%free()
+      call finalize_udunits_system()
+
+   end subroutine test_are_convertible
+
+   @Test
+   subroutine test_are_not_convertible()
+      type(UDUnit) :: unit1
+      type(UDUnit) :: unit2
+      integer(ut_status) :: status
+      logical :: convertible
+
+      call initialize_udunits_system(rc=status)
+      @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
+      unit1 = UDUnit(KM)
+      unit2 = UDUnit(S)
+      convertible = are_convertible(unit1, unit2, rc=status)
+      @assertFalse(convertible, 'Units are not convertible.')
+      if(.not. convertible) then
+         @assertFalse(status == UT_BAD_ARG, 'One of the units is null.')
+         @assertFalse(status == UT_NOT_SAME_SYSTEM, 'Units belong to different systems.')
+         @assertTrue(status == UT_SUCCESS, 'Units are not convertible.')
+      end if
+
+      call unit1%free()
+      call unit2%free()
+      call finalize_udunits_system()
+
+   end subroutine test_are_not_convertible
+
+end module Test_udunits2f
