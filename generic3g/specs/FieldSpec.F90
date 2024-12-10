@@ -870,7 +870,8 @@ contains
               v_out_coord, v_out_coupler, & ! output
               'ignore', this%geom, this%typekind, this%units, this%vertical_dim_spec, _RC)
          action = VerticalRegridAction(v_in_coord, v_out_coupler, v_out_coord, v_out_coupler, this%regrid_method)
-         spec%vertical_grid = this%vertical_grid
+         if (allocated(spec%vertical_grid)) deallocate(spec%vertical_grid)
+         allocate(spec%vertical_grid, source=this%vertical_grid)
          spec%vertical_dim_spec = this%vertical_dim_spec
       end select
 

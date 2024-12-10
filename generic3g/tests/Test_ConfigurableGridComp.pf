@@ -1,5 +1,7 @@
 #include "MAPL_TestErr.h"
-module Test_SimpleParentGridComp
+
+module Test_ConfigurableGridComp
+
    use mapl3g_GenericPhases
    use mapl3g_Generic
    use mapl3g_UserSetServices
@@ -25,7 +27,7 @@ contains
       type(ESMF_GridComp), intent(inout) :: outer_gc
       type(MultiState), intent(out) :: states
       integer, intent(out) :: rc
-      
+
       integer :: status, userRC
       type(ESMF_Grid) :: grid
       type(ESMF_HConfig) :: config
@@ -44,7 +46,7 @@ contains
       call ESMF_TimeIntervalSet(dt, h=1)
       clock = ESMF_ClockCreate(dt, t)
 
-     outer_gc = create_grid_comp('P', user_setservices('libsimple_parent_gridcomp'), config, clock, _RC)
+      outer_gc = create_grid_comp('P', user_setservices('libconfigurable_gridcomp'), config, clock, _RC)
       call ESMF_GridCompSetServices(outer_gc, setServices, userRC=userRC, _RC)
       _VERIFY(userRC)
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
@@ -55,7 +57,6 @@ contains
       associate (import => states%importState, export => states%exportState)
         import = ESMF_StateCreate(_RC)
         export = ESMF_StateCreate(_RC)
-
         do i = 1, size(GENERIC_INIT_PHASE_SEQUENCE)
            associate (phase => GENERIC_INIT_PHASE_SEQUENCE(i))
              call ESMF_GridCompInitialize(outer_gc, &
@@ -64,21 +65,18 @@ contains
              _VERIFY(userRC)
            end associate
         end do
-
       end associate
-
       rc = 0
 
    end subroutine setup
-
 
    subroutine tearDown(outer_gc)
       type(ESMF_GridComp), intent(inout) :: outer_gc
    end subroutine tearDown
 
-
    @test(npes=[0])
    subroutine test_child_user_items_created(this)
+
       class(MpiTestMethod), intent(inout) :: this
 
       integer :: status
@@ -120,13 +118,13 @@ contains
 
          status = 1
 
-          child_comp = outer_meta%get_child(child_name, rc=status)
+         child_comp = outer_meta%get_child(child_name, rc=status)
          if (status /= 0) then
             status = 2
             return
          end if
-         
-          child_gc = child_comp%get_gridcomp()
+
+         child_gc = child_comp%get_gridcomp()
          child_meta => get_outer_meta(child_gc)
          user_component => child_meta%get_user_gc_driver()
          states = user_component%get_states()
@@ -145,14 +143,13 @@ contains
          end do
 
          status = 0
-
       end function check
 
    end subroutine test_child_user_items_created
 
-
    @test(npes=[0])
    subroutine test_child_outer_items_created(this)
+
       class(MpiTestMethod), intent(inout) :: this
 
       integer :: status
@@ -176,8 +173,8 @@ contains
       call get_field(f, states, state_intent='export', field_name='E_A1', rc=status)
       @assert_that(status, is(0))
       call get_field(f, states, state_intent='internal', field_name='Z_A1', rc=status)
-     @assert_that(status, is(0))
-      
+      @assert_that(status, is(0))
+
       call get_child_user_states(states, outer_meta, 'child_B', rc=status)
       @assert_that(status, is(0))
 
@@ -187,11 +184,6 @@ contains
       @assert_that(status, is(0))
       call get_field(f, states, state_intent='internal', field_name='Z_B1', rc=status)
       @assert_that(status, is(0))
-
-!!$      @assert_that('import', check('child_B', 'import', ['I_B1']), is(0))
-!!$      @assert_that('export', check('child_B', 'export', ['E_B1']), is(0))
-!!$      @assert_that('internal', check('child_B', 'internal', ['Z_B1']), is(0))
-
 
    contains
 
@@ -215,7 +207,7 @@ contains
             status = 2
             return
          end if
-         
+
          child_gc = child_comp%get_gridcomp()
          child_meta => get_outer_meta(child_gc)
          user_component => child_meta%get_user_gc_driver()
@@ -226,7 +218,7 @@ contains
             status = 3
             return
          end if
-         
+
          do i = 1, size(expected_items)
             call ESMF_StateGet(state, trim(expected_items(i)), f, rc=status)
             if (status /= 0) then
@@ -236,13 +228,13 @@ contains
          end do
 
          status = 0
-
       end function check
 
    end subroutine test_child_outer_items_created
 
    @test(npes=[0])
    subroutine test_parent_user_items_created(this)
+
       class(MpiTestMethod), intent(inout) :: this
 
       integer :: status
@@ -296,10 +288,12 @@ contains
          end if
          status = 0
       end function check
+
    end subroutine test_parent_user_items_created
 
    @test(npes=[0])
    subroutine test_parent_outer_items_created(this)
+
       class(MpiTestMethod), intent(inout) :: this
 
       integer :: status
@@ -316,7 +310,6 @@ contains
       @assert_that(check(states, 'export', field_name='child_A/Z_A1'), is(0))
       @assert_that(check(states, 'export', field_name='child_B/E_B1'), is(0))
       @assert_that(check(states, 'export', field_name='child_B/Z_B1'), is(5))
-
 
    contains
 
@@ -369,7 +362,6 @@ contains
          end if
 
          status = 0
-
       end function check
 
    end subroutine test_parent_outer_items_created
@@ -393,14 +385,13 @@ contains
          rc = +2
          return
       end if
-         
+
       child_gc = child_comp%get_gridcomp()
       child_meta => get_outer_meta(child_gc, rc=status)
       user_component => child_meta%get_user_gc_driver()
       states = user_component%get_states()
 
       rc = 0
-
    end subroutine get_child_user_states
 
    subroutine get_field(field, states, state_intent, unusable, field_name, substate_name, rc)
@@ -439,11 +430,11 @@ contains
       end if
 
       rc = 0
-         
    end subroutine get_field
 
    @test(npes=[0])
    subroutine test_state_items_complete(this)
+
       class(MpiTestMethod), intent(inout) :: this
 
       integer :: status
@@ -470,6 +461,7 @@ contains
       @assert_that(status, is(0))
 
       if(.false.) print*,shape(this)
+
    contains
 
       subroutine check(child_name, state_intent, item, expected_status, rc)
@@ -492,7 +484,7 @@ contains
 
          call states%get_state(state, state_intent, rc=status)
          @assert_that(status, is(0))
-         
+
          call ESMF_StateGet(state, item, f, rc=status)
          @assert_that('Item <'//item//'> not found in child <'//child_name//'>.', status, is(0))
 
@@ -503,9 +495,8 @@ contains
 
          rc = 0
       end subroutine check
-      
-   end subroutine test_state_items_complete
 
+   end subroutine test_state_items_complete
 
    @test(npes=[0])
    subroutine test_propagate_imports(this)
@@ -524,7 +515,6 @@ contains
       ! Child A import is unsatisfied, so it should propagate up
       call ESMF_StateGet(states%importState, 'I_A1(1)', f, rc=status)
       @assert_that('Expected unsatisfied import in parent.', status, is(0))
-      
    end subroutine test_propagate_imports
 
-end module Test_SimpleParentGridComp
+end module Test_ConfigurableGridComp

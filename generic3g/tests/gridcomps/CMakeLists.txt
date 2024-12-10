@@ -1,16 +1,10 @@
 esma_set_this ()
 
-add_library(simple_leaf_gridcomp SHARED SimpleLeafGridComp.F90)
-target_link_libraries(simple_leaf_gridcomp scratchpad)
-
-add_library(simple_parent_gridcomp SHARED SimpleParentGridComp.F90)
-target_link_libraries(simple_parent_gridcomp scratchpad)
-
 add_library(proto_extdata_gc SHARED ProtoExtDataGC.F90)
 
 add_library(fakedyn_gridcomp SHARED FakeDynGridComp.F90)
 
-set (comps simple_parent_gridcomp simple_leaf_gridcomp proto_extdata_gc fakedyn_gridcomp)
+set (comps proto_extdata_gc fakedyn_gridcomp)
 foreach (comp ${comps})
   target_link_libraries(${comp} MAPL.generic3g)
   target_include_directories(${comp} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/..)
