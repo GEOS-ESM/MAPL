@@ -70,7 +70,8 @@ contains
         units, substate, itemtype, typekind, vertical_dim_spec, ungridded_dims, default_value, &
         service_items, attributes, &
         bracket_size, &
-        dependencies, regrid_param, accumulation_type) result(var_spec)
+        dependencies, regrid_param, &
+        accumulation_type) result(var_spec)
 
       type(VariableSpec) :: var_spec
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
