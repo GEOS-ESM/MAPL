@@ -4,7 +4,6 @@ module ConfigurableGridComp
 
    use mapl_ErrorHandling
    use mapl3g_Generic, only: MAPL_GridCompSetEntryPoint, MAPL_RunChildren
-   use pFlogger, only: logger
    use esmf
 
    implicit none
@@ -15,10 +14,6 @@ module ConfigurableGridComp
 contains
 
    subroutine setServices(gridcomp, rc)
-      use mapl3g_OuterMetaComponent, only: OuterMetaComponent
-      use mapl3g_Generic, only: get_outer_meta_from_inner_gc
-      use mapl3g_VerticalGrid
-      use mapl3g_BasicVerticalGrid
       type(ESMF_GridComp) :: gridcomp
       integer, intent(out) :: rc
 
