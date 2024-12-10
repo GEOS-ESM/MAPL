@@ -72,6 +72,8 @@ _ Add run_dt to ComponentSpec and ComponentSpecParser
 
 ### Added
 
+- Added loggers when writing or reading weight files
+
 ### Changed
 
 ### Fixed
@@ -79,6 +81,12 @@ _ Add run_dt to ComponentSpec and ComponentSpecParser
 ### Removed
 
 ### Deprecated
+
+## [2.51.1] - 2024-12-10
+
+### Fixed
+
+- Properly nullified the pointers to the per-grid-cell counters
 
 ## [2.51.0] - 2024-12-06
 
