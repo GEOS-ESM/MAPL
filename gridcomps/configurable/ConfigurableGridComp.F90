@@ -22,19 +22,11 @@ contains
       type(ESMF_GridComp) :: gridcomp
       integer, intent(out) :: rc
 
-      type(OuterMetaComponent), pointer :: outer_meta
-      class(VerticalGrid), allocatable :: vertical_grid
       integer :: status
 
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, _RC)
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run, phase_name="run", _RC)
 
-      outer_meta => get_outer_meta_from_inner_gc(gridcomp, _RC)
-      vertical_grid = outer_meta%get_vertical_grid()
-      if (.not. allocated(vertical_grid)) then
-         vertical_grid = BasicVerticalGrid(5)
-         call outer_meta%set_vertical_grid(vertical_grid)
-      end if
       _RETURN(_SUCCESS)
    end subroutine setServices
 
