@@ -80,6 +80,12 @@ _ Add run_dt to ComponentSpec and ComponentSpecParser
 
 ### Deprecated
 
+## [2.51.1] - 2024-12-10
+
+### Fixed
+
+- Properly nullified the pointers to the per-grid-cell counters
+
 ## [2.51.0] - 2024-12-06
 
 ### Added
