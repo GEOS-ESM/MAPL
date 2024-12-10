@@ -1,0 +1,34 @@
+module test_DSO_Utilities
+   use mapl_DSO_Utilities
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_is_supported_dso_extension()
+      @assert_that(is_supported_dso_extension('.a'), is(false()))
+      @assert_that(is_supported_dso_extension('.so'), is(true()))
+      @assert_that(is_supported_dso_extension('.dylib'), is(true()))
+      @assert_that(is_supported_dso_extension('.dll'), is(true()))
+      @assert_that(is_supported_dso_extension(''), is(true()))
+   end subroutine test_is_supported_dso_extension
+
+   @test
+   subroutine test_is_valid_dso_extension
+      @assert_that(is_valid_dso_extension(''), is(true()))
+      select case (SYSTEM_DSO_EXTENSION)
+      case ('.so')
+         @assert_that(is_valid_dso_extension(''), is(true()))
+         @assert_that(is_valid_dso_extension('.so'), is(true()))
+         @assert_that(is_valid_dso_extension('.dylib'),is(false()))
+         @assert_that(is_valid_dso_extension('.dll'),is(false()))
+      case ('.dylib')
+         @assert_that(is_valid_dso_extension(''), is(true()))
+         @assert_that(is_valid_dso_extension('.so'), is(false()))
+         @assert_that(is_valid_dso_extension('.dylib'),is(true()))
+         @assert_that(is_valid_dso_extension('.dll'),is(false()))
+      end select
+   end subroutine test_is_valid_dso_extension
+
+end module test_DSO_Utilities
