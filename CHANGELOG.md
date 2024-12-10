@@ -72,6 +72,8 @@ _ Add run_dt to ComponentSpec and ComponentSpecParser
 
 ### Added
 
+- Added loggers when writing or reading weight files
+
 ### Changed
 
 ### Fixed
