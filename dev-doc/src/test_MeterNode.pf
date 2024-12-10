@@ -1,0 +1,141 @@
+module test_MeterNode
+   use, intrinsic :: iso_fortran_env, only: REAL64
+   use funit
+   use MAPL_Profiler
+   implicit none
+
+
+contains
+
+
+   @test
+   subroutine test_get_inclusive()
+      type (MeterNode), target:: node
+      class (AbstractMeter), pointer :: root_meter
+      class (AbstractMeter), pointer :: submeter
+      class (AbstractMeterNode), pointer :: child
+
+      node = MeterNode('all', AdvancedMeter(MpiTimerGauge()))
+
+      call node%add_child('sub1', AdvancedMeter(MpiTimerGauge()))
+
+      root_meter => node%get_meter()
+      child => node%get_child('sub1')
+      submeter => child%get_meter()
+
+      call submeter%add_cycle(1.0_REAL64)
+      call root_meter%add_cycle(3.0_REAL64)
+      @assertEqual(3.0, node%get_inclusive())
+
+   end subroutine test_get_inclusive
+
+
+   @test
+   subroutine test_get_exclusive()
+      type (MeterNode), target:: node
+      class (AbstractMeter), pointer :: root_meter
+      class (AbstractMeter), pointer :: submeter
+      class (AbstractMeterNode), pointer :: child
+
+      node = MeterNode('all', AdvancedMeter(MpiTimerGauge()))
+      call node%add_child('sub1', AdvancedMeter(MpiTimerGauge()))
+
+      root_meter => node%get_meter()
+      child => node%get_child('sub1')
+      submeter => child%get_meter()
+
+      call submeter%add_cycle(1.0_REAL64)
+      call root_meter%add_cycle(3.0_REAL64)
+      @assertEqual(2.0, node%get_exclusive())
+
+   end subroutine test_get_exclusive
+
+
+   @test
+   subroutine test_get_num_nodes()
+      type (MeterNode) :: node
+      class (AbstractMeterNode), pointer :: child
+
+      @assertEqual(1, node%get_num_nodes())
+
+      call node%add_child('a', AdvancedMeter(MpiTimerGauge()))
+      @assertEqual(2, node%get_num_nodes())
+
+      call node%add_child('b', AdvancedMeter(MpiTimerGauge()))
+      @assertEqual(3, node%get_num_nodes())
+
+      child => node%get_child('a')
+      call child%add_child('cat', AdvancedMeter(MpiTimerGauge()))
+      call child%add_child('dog', AdvancedMeter(MpiTimerGauge()))
+      call child%add_child('fish', AdvancedMeter(MpiTimerGauge()))
+
+      @assertEqual(6, node%get_num_nodes())
+      
+      
+   end subroutine test_get_num_nodes
+   
+   @test
+   subroutine test_get_num_nodes_2()
+      type (MeterNode) :: node
+      class (AbstractMeterNode), pointer :: child
+
+      @assertEqual(1, node%get_num_nodes())
+
+      call node%add_child('a', AdvancedMeter(MpiTimerGauge()))
+      child => node%get_child('a')
+      call child%add_child('1', AdvancedMeter(MpiTimerGauge()))
+      call child%add_child('2', AdvancedMeter(MpiTimerGauge()))
+
+      call node%add_child('b', AdvancedMeter(MpiTimerGauge()))
+      child => node%get_child('b')
+      call child%add_child('1', AdvancedMeter(MpiTimerGauge()))
+      call child%add_child('2', AdvancedMeter(MpiTimerGauge()))
+
+      @assertEqual(7, node%get_num_nodes())
+      call node%add_child('a', AdvancedMeter(MpiTimerGauge())) ! should already exist
+      
+      @assertEqual(7, node%get_num_nodes())
+      
+      
+   end subroutine test_get_num_nodes_2
+   
+
+   @test
+   subroutine test_node_reset()
+      type (MeterNode) :: node
+
+      class (AbstractMeter), pointer :: root_meter
+      class (AbstractMeter), pointer :: submeter
+      class (AbstractMeterNode), pointer :: child, grandchild
+
+      node = MeterNode('all', AdvancedMeter(MpiTimerGauge()))
+      call node%add_child('A', AdvancedMeter(MpiTimerGauge()))
+
+      root_meter => node%get_meter()
+      child => node%get_child('A')
+      submeter => child%get_meter()
+
+      call submeter%add_cycle(10.0_REAL64)
+      
+      call child%add_child('A1', AdvancedMeter(MpiTimerGauge()))
+      call child%add_child('A2', AdvancedMeter(MpiTimerGauge()))
+
+      grandchild => child%get_child('A1')
+      submeter => grandchild%get_meter()
+      call submeter%add_cycle(2.0_REAL64)
+
+      grandchild => child%get_child('A2')
+      submeter => grandchild%get_meter()
+      call submeter%add_cycle(3.0_REAL64)
+      
+      call node%reset()
+
+      @assertEqual(0, node%get_inclusive())
+      @assertEqual(0, child%get_inclusive())
+      @assertEqual(0, grandchild%get_inclusive())
+
+   end subroutine test_node_reset
+
+   
+
+end module test_MeterNode
