@@ -242,6 +242,7 @@ contains
 
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
 
+      field_spec%accumulation_type = NO_ACCUMULATION
       _SET_FIELD(field_spec, variable_spec, vertical_dim_spec)
       _SET_FIELD(field_spec, variable_spec, typekind)
       _SET_FIELD(field_spec, variable_spec, ungridded_dims)
@@ -250,11 +251,9 @@ contains
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, standard_name)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, units)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, default_value)
+      _SET_ALLOCATED_FIELD(field_spec, variable_spec, accumulation_type)
 
       field_spec%long_name = 'unknown'
-      field_spec%accumulation_type = NO_ACCUMULATION
-      _SET_ALLOCATED_FIELD(field_spec, variable_spec, accumulation_type)
-      _SET_ALLOCATED_FIELD(field_spec, variable_spec, run_dt)
 
    end function new_FieldSpec_varspec
 

@@ -43,14 +43,6 @@ contains
       if (present(var_specs)) spec%var_specs = var_specs
       if (present(connections)) spec%connections = connections
       if (present(run_dt)) spec%run_dt = run_dt
-      ! wdb deleteme:
-      ! If spec%run_dt is set (allocated) and run_dt is set (allocated)
-      ! for some of the spec%var_specs, should they be validated against
-      ! spec%run_dt, should they be set to spec%run_dt, or should they
-      ! be set only if they are already set? If so, those actions can occur here
-      ! and this subroutine should be called after spec%var_specs are set.
-      ! These questions also arise if a VariableSpec is later added.
-      ! end deleteme
 
    end function new_ComponentSpec
 

@@ -45,7 +45,6 @@ module mapl3g_VariableSpec
       type(StringVector) :: attributes
       integer, allocatable :: bracket_size
       character(len=:), allocatable :: accumulation_type
-      type(ESMF_TimeInterval), allocatable :: run_dt
 
       ! Geometry
       type(ESMF_Geom), allocatable :: geom
@@ -71,8 +70,7 @@ contains
         units, substate, itemtype, typekind, vertical_dim_spec, ungridded_dims, default_value, &
         service_items, attributes, &
         bracket_size, &
-        dependencies, regrid_param, &
-        accumulation_type, run_dt) result(var_spec)
+        dependencies, regrid_param, accumulation_type) result(var_spec)
 
       type(VariableSpec) :: var_spec
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
@@ -94,7 +92,6 @@ contains
       type(StringVector), optional, intent(in) :: dependencies
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
       character(len=*), optional, intent(in) :: accumulation_type
-      type(ESMF_TimeInterval), optional, intent(in) :: run_dt
 
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
       integer :: status
@@ -121,7 +118,6 @@ contains
       _SET_OPTIONAL(bracket_size)
       _SET_OPTIONAL(dependencies)
       _SET_OPTIONAL(accumulation_type)
-      _SET_OPTIONAL(run_dt)
 
       call var_spec%set_regrid_param_(regrid_param)
 
