@@ -1,16 +1,11 @@
 set(MODULE_DIRECTORY "${esma_include}/MAPL.generic3g/tests")
 
-add_library(scratchpad SHARED scratchpad.F90)
-
 add_subdirectory(gridcomps)
 
 set (test_srcs
-
   Test_VirtualConnectionPt.pf
 
-  Test_SimpleLeafGridComp.pf
-  Test_SimpleParentGridComp.pf
-  Test_RunChild.pf
+  Test_ConfigurableGridComp.pf
 
   Test_AddFieldSpec.pf
   Test_ComponentSpecParser.pf
@@ -40,18 +35,18 @@ set (test_srcs
   Test_MeanAction.pf
   Test_MaxAction.pf
   Test_MinAction.pf
-  )
+)
 
-
-add_pfunit_ctest(MAPL.generic3g.tests
-                TEST_SOURCES ${test_srcs}
-                LINK_LIBRARIES MAPL.generic3g MAPL.shared MAPL.pfunit scratchpad
-                EXTRA_INITIALIZE Initialize
-                EXTRA_USE MAPL_pFUnit_Initialize
-                OTHER_SOURCES MockUserGridComp.F90 MockItemSpec.F90 accumulator_action_test_common.F90
-                WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                MAX_PES 4
-                )
+add_pfunit_ctest(
+  MAPL.generic3g.tests
+  TEST_SOURCES ${test_srcs}
+  LINK_LIBRARIES MAPL.generic3g MAPL.shared MAPL.pfunit configurable_gridcomp
+  EXTRA_INITIALIZE Initialize
+  EXTRA_USE MAPL_pFUnit_Initialize
+  OTHER_SOURCES MockUserGridComp.F90 MockItemSpec.F90 accumulator_action_test_common.F90
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  MAX_PES 4
+)
 set_target_properties(MAPL.generic3g.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 set_tests_properties(MAPL.generic3g.tests PROPERTIES LABELS "ESSENTIAL")
 
@@ -64,9 +59,10 @@ endif ()
 # This test also requires UDUNITS2_XML_PATH to be set to the location of the udunits2.xml file
 # This is found by Findudunits.cmake and stored in the variable udunits_XML_PATH
 
-set_tests_properties(MAPL.generic3g.tests
-  PROPERTIES ENVIRONMENT "${LD_PATH}=${CMAKE_CURRENT_BINARY_DIR}/gridcomps:$ENV{${LD_PATH}};UDUNITS2_XML_PATH=${udunits_XML_PATH}"
-  )
+set_tests_properties(
+  MAPL.generic3g.tests
+  PROPERTIES ENVIRONMENT "${LD_PATH}=${CMAKE_CURRENT_BINARY_DIR}/gridcomps:${CMAKE_BINARY_DIR}/lib:$ENV{${LD_PATH}};UDUNITS2_XML_PATH=${udunits_XML_PATH}"
+)
 
 add_dependencies(build-tests MAPL.generic3g.tests)
 
