@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.51.1] - 2024-12-10
+
+### Fixed
+
+- Properly nullified the pointers to the per-grid-cell counters
+
 ## [2.51.0] - 2024-12-06
 
 ### Added
