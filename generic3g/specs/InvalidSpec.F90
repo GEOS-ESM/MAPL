@@ -17,6 +17,7 @@ module mapl3g_InvalidSpec
    use esmf, only: ESMF_Geom
    use esmf, only: ESMF_State
    use esmf, only: ESMF_SUCCESS
+   use esmf, only: ESMF_TimeInterval
 
    implicit none
    private

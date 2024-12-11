@@ -21,7 +21,7 @@ module mapl3g_StateRegistry
    use mapl3g_GriddedComponentDriver
    use mapl3g_VerticalGrid
    use mapl_ErrorHandling
-   use esmf, only: ESMF_Geom
+   use esmf, only: ESMF_Geom, ESMF_TimeInterval
 
    implicit none
    private
