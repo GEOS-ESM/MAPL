@@ -257,16 +257,18 @@ contains
 
    end function new_FieldSpec_varspec
 
-   subroutine set_geometry(this, geom, vertical_grid, rc)
+   subroutine set_geometry(this, geom, vertical_grid, run_dt, rc)
       class(FieldSpec), intent(inout) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
+      type(ESMF_TimeInterval), optional, intent(in) :: run_dt
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
 
       if (present(geom)) this%geom = geom
       if (present(vertical_grid)) this%vertical_grid = vertical_grid
+      if (present(run_dt)) this%run_dt = run_dt
 
       _RETURN(_SUCCESS)
    end subroutine set_geometry

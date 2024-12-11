@@ -157,6 +157,7 @@ module mapl3g_StateItemSpec
          class(StateItemSpec), intent(inout) :: this
          type(ESMF_Geom), optional, intent(in) :: geom
          class(VerticalGrid), optional, intent(in) :: vertical_grid
+         type(ESMF_TimeInterval), optional, intent(in) :: run_dt
          integer, optional, intent(out) :: rc
       end subroutine I_set_geometry
 
