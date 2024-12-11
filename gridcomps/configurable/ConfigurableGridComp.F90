@@ -35,6 +35,10 @@ contains
       integer :: status
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(gridcomp)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
    end subroutine init
 
    recursive subroutine run(gridcomp, importState, exportState, clock, rc)
@@ -45,12 +49,13 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
-      character(len=ESMF_MAXSTR) :: gc_name
 
-      call ESMF_GridCompGet(gridcomp, name=gc_name, _RC)
       call MAPL_RunChildren(gridcomp, phase_name="run", _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(importState)
+      _UNUSED_DUMMY(exportState)
+      _UNUSED_DUMMY(clock)
    end subroutine run
 
 end module ConfigurableGridComp
@@ -64,6 +69,7 @@ subroutine setServices(gridcomp, rc)
 
    integer :: status
 
-   call Configurable_setServices(gridcomp,_RC)
+   call Configurable_setServices(gridcomp, _RC)
+
    _RETURN(_SUCCESS)
 end subroutine setServices
