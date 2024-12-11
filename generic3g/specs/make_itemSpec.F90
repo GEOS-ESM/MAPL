@@ -11,19 +11,20 @@ module mapl3g_make_itemSpec
    use mapl3g_InvalidSpec, only: InvalidSpec
    use mapl3g_StateRegistry, only: StateRegistry
    use mapl_ErrorHandling
-   use esmf, only: ESMF_STATEINTENT_INTERNAL, operator(==)
+   use esmf, only: ESMF_STATEINTENT_INTERNAL, operator(==), ESMF_TimeInterval
    implicit none
    private
    public :: make_ItemSpec
 
 contains
 
-   function make_itemSpec(variable_spec, registry, rc) result(item_spec)
+   function make_itemSpec(variable_spec, registry, run_dt, rc) result(item_spec)
       use mapl3g_VariableSpec, only: VariableSpec
       use mapl3g_ActualPtVector, only: ActualPtVector
       class(StateItemSpec), allocatable :: item_spec
       class(VariableSpec), intent(in) :: variable_spec
       type(StateRegistry), pointer, intent(in) :: registry
+      type(ESMF_TimeInterval), optional, intent(in) :: run_dt
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -34,6 +35,12 @@ contains
       case (MAPL_STATEITEM_FIELD%ot)
          allocate(FieldSpec :: item_spec)
          item_spec = FieldSpec(variable_spec)
+         if(present(run_dt)) then
+            select type(item_spec)
+            type is (FieldSpec)
+               item_spec%run_dt = run_dt
+            end select
+         end if
       case (MAPL_STATEITEM_SERVICE%ot)
          allocate(ServiceSpec :: item_spec)
          item_spec = ServiceSpec(variable_spec, registry)

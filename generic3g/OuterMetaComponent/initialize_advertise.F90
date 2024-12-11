@@ -83,7 +83,7 @@ contains
            iter = this%component_spec%var_specs%begin()
            do while (iter /= e)
               var_spec => iter%of()
-              call advertise_variable (var_spec, this%registry,  _RC)
+              call advertise_variable (var_spec, this%registry, run_dt=this%component_spec%run_dt,  _RC)
               call iter%next()
            end do
          end associate
@@ -93,10 +93,11 @@ contains
       end subroutine self_advertise
 
 
-      subroutine advertise_variable(var_spec, registry, unusable, rc)
+      subroutine advertise_variable(var_spec, registry, unusable, run_dt, rc)
          type(VariableSpec), intent(in) :: var_spec
          type(StateRegistry), target, intent(inout) :: registry
          class(KE), optional, intent(in) :: unusable
+         type(ESMF_TimeInterval), optional, intent(in) :: run_dt
          integer, optional, intent(out) :: rc
 
          integer :: status
@@ -105,7 +106,7 @@ contains
 
          _ASSERT(var_spec%itemtype /= MAPL_STATEITEM_UNKNOWN, 'Invalid type id in variable spec <'//var_spec%short_name//'>.')
 
-         allocate(item_spec, source=make_ItemSpec(var_spec, registry, rc=status))
+         allocate(item_spec, source=make_ItemSpec(var_spec, registry, run_dt, rc=status))
          _VERIFY(status)
          call item_spec%create(_RC)
 
