@@ -92,10 +92,11 @@ contains
 
    end function new_MockItemSpec
 
-   subroutine set_geometry(this, geom, vertical_grid, rc)
+   subroutine set_geometry(this, geom, vertical_grid, run_dt, rc)
       class(MockItemSpec), intent(inout) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
+      type(ESMF_TimeInterval), optional, intent(in) :: run_dt
       integer, optional, intent(out) :: rc
 
       _RETURN(_SUCCESS)

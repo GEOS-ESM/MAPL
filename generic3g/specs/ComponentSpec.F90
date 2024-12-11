@@ -43,6 +43,7 @@ contains
       if (present(var_specs)) spec%var_specs = var_specs
       if (present(connections)) spec%connections = connections
       if (present(run_dt)) spec%run_dt = run_dt
+
    end function new_ComponentSpec
 
    logical function has_geom_hconfig(this)
@@ -62,9 +63,6 @@ contains
       class(Connection), intent(in) :: conn
       call this%connections%push_back(conn)
    end subroutine add_connection
-
-
-
 
 end module mapl3g_ComponentSpec
 
