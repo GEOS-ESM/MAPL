@@ -868,7 +868,10 @@ module subroutine  create_metadata(this,global_attributes,rc)
     integer :: count_scalar, count_vector
 
     integer :: jj, kk
-
+    real, pointer, dimension(:)        :: array_1d
+    integer, allocatable :: displ(:), nx_all(:)
+    type (LocalMemReference) :: lMemRef
+ 
     ! __ s1. find local_start, global_start, etc.
     this%obs_written=1
 
@@ -900,7 +903,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
     this%times(1) = time_r8
     ref = ArrayReference(this%times)
     call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
-    call this%stage2DLatLon(trim(filename),oClients=oClients,_RC)
+    call this%stage1DLatLon(trim(filename),oClients=oClients,_RC)
 
 
     !__ 2. put_var: ungridded_dim from src to dst [use index_mask]
@@ -908,6 +911,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
     count_scalar = 0
     count_vector = 0
     iter = this%items%begin()
+    allocate(displ(petcount), nx_all(petcount))
     do while (iter /= this%items%end())
        item => iter%get()
 
@@ -926,20 +930,40 @@ module subroutine  create_metadata(this,global_attributes,rc)
                 iy = this%index_mask(2,j)
                 this%array_scalar_1d(j) = (mypet+11)*1.0
              end do
-             ref = ArrayReference(this%array_scalar_1d)
 
+             nx_all = 0
+             call MPI_Gather(nx, 1, MPI_INTEGER, nx_all, 1, MPI_INTEGER, 0, mpic, status)
+             if(mypet==0) then
+                lMemRef = LocalMemReference(pFIO_REAl32,[sum(nx_all)])
+                call c_f_pointer(lMemRef%base_address, array_1d, shape=[sum(nx_all)])
+             else
+                lMemRef = LocalMemReference(pFIO_REAL32,[0])
+                call c_f_pointer(lMemRef%base_address, array_1d, shape=[0])
+             endif
+
+             displ = 0
+             do j = 2, petcount
+                 displ(j) = displ(j-1)+nx_all(j-1)
+             enddo
+
+             call MPI_GatherV(this%array_scalar_1d, nx, MPI_REAL, array_1d,  nx_all, displ, MPI_REAL, 0, mpic, status)
+             
+
+            ! ref = ArrayReference(this%array_scalar_1d)
+
+             write(6,*) 'imypet,  nx=', mypet,  nx
              if (mapl_am_I_root()) then
                 write(6,*) ' count_scalar=',  count_scalar
+                print*, "sum(nx_all), this%this%npt_mask_tot:", sum(nx_all), this%npt_mask_tot
+                print*, "array_1d:", size(array_1d), array_1d
              end if
+             print*, "this%array_scalar_1d", this%array_scalar_1d
 
              !  proc    1  2  3  4  5  6
              !  nx      19 0  0  0  0  46  def arry(nx)
              !  i1      1              20
              !  in      19             65
              !  nx_tot  65
-             write(6,*) 'ip, nx, this%npt_mask_tot, i1, in=', &
-                  mypet, nx, this%npt_mask_tot, this%i1, this%in
-             write(6,*) 'ip, this%p1d', mypet, this%array_scalar_1d
 
              if (nx>0) then
                 !! jj=1 is correct
@@ -979,10 +1003,9 @@ module subroutine  create_metadata(this,global_attributes,rc)
                    allocate(global_count,source=[0])
                 end select
              end if
-             print*, 'ck ip, this%npt_mask_tot = ', mypet, this%npt_mask_tot
 
              call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(item%xname), &
-                  ref,start=local_start, global_start=global_start, global_count=global_count)
+                  lMemref,start=[1], global_start=[1], global_count=[this%npt_mask_tot])
 
              deallocate (local_start, global_start, global_count)
 
@@ -1065,7 +1088,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
     _RETURN(_SUCCESS)
   end function compute_time_for_current
 
-  module subroutine stage2dlatlon(this,filename,oClients,rc)
+  module subroutine stage1DLatlon(this,filename,oClients,rc)
     implicit none
 
     class(MaskSampler), intent(inout) :: this
@@ -1093,8 +1116,6 @@ module subroutine  create_metadata(this,global_attributes,rc)
        allocate(global_count,source=[0])
     end if
 
-    print*, __LINE__, 'this%lons_deg(:) on root'
-    write(6,'(100f6.1,2x)')  this%lons_deg(:)
     ref = ArrayReference(this%lons_deg)
     call oClients%collective_stage_data(this%write_collection_id,trim(filename),'longitude', &
          ref,start=local_start, global_start=global_start, global_count=global_count)
@@ -1104,7 +1125,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
          ref,start=local_start, global_start=global_start, global_count=global_count)
 
     _RETURN(_SUCCESS)
- end subroutine stage2dlatlon
+ end subroutine stage1DLatlon
 
 
      module subroutine modifyTime(this, oClients, rc)
