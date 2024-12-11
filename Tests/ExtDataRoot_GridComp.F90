@@ -138,6 +138,12 @@ MODULE ExtDataUtRoot_GridCompMod
                units = 'na', &
                dims = MAPL_DimsHorzVert, &
                vlocation = MAPL_VLocationCenter, _RC)
+         call MAPL_AddInternalSpec(GC,&
+               short_name='PLE', &
+               long_name='PLE' , &
+               units = 'Pa', &
+               dims = MAPL_DimsHorzVert, &
+               vlocation = MAPL_VLocationEdge, _RC)
          call MAPL_AddExportSpec(GC, &
                short_name='test_bundle', &
                long_name='test', &
@@ -305,14 +311,14 @@ MODULE ExtDataUtRoot_GridCompMod
 
          case(RunModeGenerateExports)
 
-            call FillState(internal,export,currTime,grid,synth,_RC)
+            call FillState(internal,export,currTime,grid,synth,cf,_RC)
 
          case(RunModeGenerateImports)
 
-            call FillState(internal,import,currTime,grid,synth,_RC)
+            call FillState(internal,import,currTime,grid,synth,cf,_RC)
 
          case(runModecompareImports)
-            call FillState(internal,export,currTime,grid,synth,_RC)
+            call FillState(internal,export,currTime,grid,synth,cf,_RC)
             call CompareState(import,export,0.001,_RC)
 
          case(runModeFillImport)
@@ -545,13 +551,14 @@ MODULE ExtDataUtRoot_GridCompMod
 
    end subroutine CopyState
 
-   subroutine FillState(inState,outState,time,grid,Synth,rc)
+   subroutine FillState(inState,outState,time,grid,Synth,cf,rc)
 
       type(ESMF_State), intent(inout) :: inState
       type(ESMF_State), intent(inout) :: outState
       type(ESMF_Time),  intent(Inout) :: time
       type(ESMF_Grid),  intent(inout) :: grid
       type(SyntheticFieldSupport) :: synth
+      type(ESMF_Config), intent(inout) :: cf
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -602,6 +609,8 @@ MODULE ExtDataUtRoot_GridCompMod
          do i=1,size(exPtr3,3)
             exPtr3(:,:,i)=i
          enddo
+         call MAPL_GetPointer(inState,exPtr3,'PLE',_RC)
+         call Fill_PLE(exPtr3, cf, _RC)
       end if
 
       if (synth%on_tiles) then
@@ -646,6 +655,38 @@ MODULE ExtDataUtRoot_GridCompMod
       enddo
 
       _RETURN(ESMF_SUCCESS)
+
+      contains 
+     
+      subroutine fill_ple(ple_ptr, cf, rc)
+         real, pointer, intent(out) :: ple_ptr(:,:,:)
+         type(ESMF_Config), intent(inout) :: cf
+         integer, intent(out), optional :: rc
+
+         integer :: status
+
+         type(ESMF_HConfig) :: hconfig, akbk
+         character(len=3) :: km_str
+         integer :: km, i
+         character(len=ESMF_MAXPATHLEN), allocatable :: akbk_file
+         real, allocatable :: ak(:), bk(:)
+         real :: ps_val
+
+         call ESMF_ConfigGetAttribute(cf,label="akbk_file:",value=akbk_file,_RC)
+         call ESMF_ConfigGetAttribute(cf,label="ps_val:",value=ps_val,_RC)
+         hconfig = ESMF_HConfigCreate(filename=trim(akbk_file), _RC)
+         km = size(ple_ptr,3)
+         write(km_str,'(i3.3)') km
+         akbk = ESMF_HConfigCreateAt(hconfig, keyString='L'//trim(km_str), _RC) 
+         ak = ESMF_HConfigAsR4Seq(akbk, keyString='ak', _RC)
+         bk = ESMF_HConfigAsR4Seq(akbk, keyString='ak', _RC)
+     
+         do i=1,km 
+            ple_ptr(:,:,i) = ak(i)+ps_val*bk(i)
+         enddo
+          
+         _RETURN(_SUCCESS)
+      end subroutine fill_ple
 
    end subroutine FillState
 

@@ -8,6 +8,7 @@ module MAPL_ExtDataTypeDef
    use MAPL_FileMetadataUtilsMod
    use MAPL_NewArthParserMod
    use MAPL_ExtDataMask
+   use VerticalCoordinateMod
    implicit none
 
    public PrimaryExport
@@ -56,14 +57,15 @@ module MAPL_ExtDataTypeDef
      logical                      :: do_VertInterp = .false.
      logical                      :: do_Fill = .false.
      type(FileMetadataUtils)      :: file_metadata
-     integer                      :: LM
-     real, allocatable            :: levs(:)
-     character(len=4)             :: importVDir = "down"
-     character(len=4)             :: fileVDir = "down"
-     character(len=ESMF_MAXSTR)   :: levUnit
-     logical                      :: havePressure = .false.
-     logical                      :: allow_vert_regrid = .false.
+     !integer                      :: LM
+     !real, allocatable            :: levs(:)
+     !character(len=4)             :: importVDir = "down"
+     !character(len=4)             :: fileVDir = "down"
+     !character(len=ESMF_MAXSTR)   :: levUnit
+     !logical                      :: havePressure = .false.
+     !logical                      :: allow_vert_regrid = .false.
      type(ExtDataPointerUpdate) :: update_freq
+     type(VerticalCoordinate)           :: vcoord
 
      ! new stuff
      logical                      :: cycling
@@ -78,23 +80,6 @@ module MAPL_ExtDataTypeDef
      ! needed for final after time interp if no vertical interp, same field as import
      type(ESMF_Field) :: t_interp_field 
 
-     ! vertical description, abstract type and extensions or just 2 types?
-     ! type(model_sigma)
-     !   integer :: item_with_ps
-     !   integer :: num_levels
-     !   real, allocatable :: ak(:),bk(:)
-     !   character(len=:), allocatable :: positive
-     !   character(len=:), allocatable :: level_center_name
-     !   character(len=:), allocatable :: level_edge_name
-     ! type(basic_level)
-     !   integer :: num_levels
-     !   character(len=:), allocatable :: positive
-     !   character(len=:), allocatable :: level_center_name
-     ! type(fixed_level)
-     !   integer :: num_levels
-     !   character(len=:), allocatable :: positive
-     !   character(len=:), allocatable :: level_center_name
-     !   real, allocatable :: levels(:)
   end type PrimaryExport
   
   type DerivedExport
@@ -116,14 +101,17 @@ module MAPL_ExtDataTypeDef
          character(len=:), allocatable :: new_name
 
          p2 = p1
-         p2%var='PS'
-         new_name = "PS_"//trim(p1%name)
-         p2%name=new_name
-         p2%fileVars%xname = 'PS'
-         p2%fcomp1 = 'PS'
-         p2%vcomp1=new_name
-         if (.not.p1%havePressure) p2%file_template = "/dev/null"
-         if (.not.p1%havePressure) p2%isConst = .true.
+         if (allocated(p1%vcoord%surf_name)) then
+            p2%var=p1%vcoord%surf_name
+            new_name = p1%vcoord%surf_name//"_"//trim(p1%name)
+            p2%name=new_name
+            p2%fileVars%xname = p1%vcoord%surf_name
+            p2%fcomp1 = p1%vcoord%surf_name
+            p2%vcomp1=new_name
+         else
+            p2%file_template = "/dev/null"
+            p2%isConst = .true.
+         end if
 
       end subroutine
          

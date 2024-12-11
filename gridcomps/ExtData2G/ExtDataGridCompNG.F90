@@ -434,10 +434,12 @@ CONTAINS
       
       do j=1,self%primary%number_of_rules%at(i)
          item => self%primary%item_vec%at(i_start+j-1)
-         rules_with_ps = item%havePressure
+         rules_with_ps = allocated(item%vcoord%surf_name)
+         _HERE, item%vcoord%surf_name
          if (rules_with_ps) exit
       enddo
-   
+
+      _HERE,rules_with_ps 
       if (.not.rules_with_ps) cycle 
 
       import_name => self%primary%import_names%at(i)
@@ -828,10 +830,10 @@ CONTAINS
 
         integer :: status
 
-        real, allocatable          :: levFile(:)
-        character(len=ESMF_MAXSTR) :: levunits,tlevunits
-        character(len=:), allocatable :: levname
-        character(len=:), pointer :: positive
+        !real, allocatable          :: levFile(:)
+        !character(len=ESMF_MAXSTR) :: levunits,tlevunits
+        !character(len=:), allocatable :: levname
+        !character(len=:), pointer :: positive
         type(Variable), pointer :: var
 
         integer :: i
@@ -839,7 +841,6 @@ CONTAINS
         type(FileMetadataUtils), pointer :: metadata
         type(MAPLDataCollection), pointer :: collection
         character(len=:), allocatable :: filename
-        type(VerticalCoordinate) :: vcoord
 
         if (trim(item%file_template) == "/dev/null") then
            _RETURN(_SUCCESS)
@@ -860,11 +861,63 @@ CONTAINS
            _ASSERT(associated(var),"Variable "//TRIM(item%var)//" not found in file "//TRIM(item%file_template))
         end if
 
-        item%lm = 0
-        vcoord = verticalCoordinate(metadata, item%var, _RC)
-        if (levName /= '') then
-           call item%file_metadata%get_coordinate_info(levName,coordSize=item%lm,coordUnits=tLevUnits,coords=levFile,_RC)
-        end if
+        !item%lm = 0
+        item%vcoord = verticalCoordinate(metadata, item%var, _RC)
+        _HERE, allocated(item%vcoord%surf_name)
+
+        _RETURN(ESMF_SUCCESS)
+
+        contains
+ 
+        function create_string_vec_commasep(input_string) result(string_vec)
+           type(StringVector) :: string_vec
+           character(len=*), intent(in) :: input_string
+
+           character(len=:), allocatable :: temp_string
+           integer :: i
+           i = index(input_string,",")
+           if (i == 0) then 
+              call string_vec%push_back(input_string)
+              return
+           end if
+           temp_string = input_string
+           do while (i /= 0)
+              call string_vec%push_back(temp_string(1:i-1))
+              temp_string = temp_string(i+1:)
+              i = index(temp_string,",")
+           enddo
+        end function
+
+     end subroutine new_GetLevs
+
+
+     !subroutine GetLevs(item, rc)
+
+        !type(PrimaryExport)      , intent(inout) :: item
+        !integer, optional        , intent(out  ) :: rc
+
+        !integer :: status
+
+        !real, allocatable          :: levFile(:)
+        !character(len=ESMF_MAXSTR) :: levunits,tlevunits
+        !character(len=:), allocatable :: levname
+        !character(len=:), pointer :: positive
+        !type(Variable), pointer :: var
+        !integer :: i
+
+        !positive=>null()
+        !var => null()
+        !if (item%vartype == MAPL_VectorField) then
+           !var=>item%file_metadata%get_variable(trim(item%fcomp1))
+           !_ASSERT(associated(var),"Variable "//TRIM(item%fcomp1)//" not found in file "//TRIM(item%file_template))
+           !var => null()
+           !var=>item%file_metadata%get_variable(trim(item%fcomp2))
+           !_ASSERT(associated(var),"Variable "//TRIM(item%fcomp2)//" not found in file "//TRIM(item%file_template))
+        !else
+           !var=>item%file_metadata%get_variable(trim(item%var))
+           !_ASSERT(associated(var),"Variable "//TRIM(item%var)//" not found in file "//TRIM(item%file_template))
+        !end if
+
         !levName = item%file_metadata%get_level_name(_RC)
         !if (trim(levName) /='') then
            !call item%file_metadata%get_coordinate_info(levName,coordSize=item%lm,coordUnits=tLevUnits,coords=levFile,_RC)
@@ -900,101 +953,10 @@ CONTAINS
         !else
            !item%LM=0
         !end if
-        !write(*,*)'bmaa ',item%havePressure
-        !item%havePressure = .false.
 
-        _RETURN(ESMF_SUCCESS)
+        !_RETURN(ESMF_SUCCESS)
 
-        contains
- 
-        function create_string_vec_commasep(input_string) result(string_vec)
-           type(StringVector) :: string_vec
-           character(len=*), intent(in) :: input_string
-
-           character(len=:), allocatable :: temp_string
-           integer :: i
-           i = index(input_string,",")
-           if (i == 0) then 
-              call string_vec%push_back(input_string)
-              return
-           end if
-           temp_string = input_string
-           do while (i /= 0)
-              call string_vec%push_back(temp_string(1:i-1))
-              temp_string = temp_string(i+1:)
-              i = index(temp_string,",")
-           enddo
-        end function
-
-     end subroutine new_GetLevs
-
-
-     subroutine GetLevs(item, rc)
-
-        type(PrimaryExport)      , intent(inout) :: item
-        integer, optional        , intent(out  ) :: rc
-
-        integer :: status
-
-        real, allocatable          :: levFile(:)
-        character(len=ESMF_MAXSTR) :: levunits,tlevunits
-        character(len=:), allocatable :: levname
-        character(len=:), pointer :: positive
-        type(Variable), pointer :: var
-        integer :: i
-
-        positive=>null()
-        var => null()
-        if (item%vartype == MAPL_VectorField) then
-           var=>item%file_metadata%get_variable(trim(item%fcomp1))
-           _ASSERT(associated(var),"Variable "//TRIM(item%fcomp1)//" not found in file "//TRIM(item%file_template))
-           var => null()
-           var=>item%file_metadata%get_variable(trim(item%fcomp2))
-           _ASSERT(associated(var),"Variable "//TRIM(item%fcomp2)//" not found in file "//TRIM(item%file_template))
-        else
-           var=>item%file_metadata%get_variable(trim(item%var))
-           _ASSERT(associated(var),"Variable "//TRIM(item%var)//" not found in file "//TRIM(item%file_template))
-        end if
-
-        levName = item%file_metadata%get_level_name(_RC)
-        if (trim(levName) /='') then
-           call item%file_metadata%get_coordinate_info(levName,coordSize=item%lm,coordUnits=tLevUnits,coords=levFile,_RC)
-           levUnits=MAPL_TrimString(tlevUnits)
-           ! check if pressure
-           item%levUnit = ESMF_UtilStringLowerCase(levUnits)
-           if (trim(item%levUnit) == 'hpa' .or. trim(item%levUnit)=='pa') then
-              item%havePressure = .true.
-           end if
-           if (item%havePressure) then
-              if (levFile(1)>levFile(size(levFile))) item%fileVDir="up"
-           else
-              positive => item%file_metadata%get_variable_attribute(levName,'positive',_RC)
-              if (associated(positive)) then
-                 if (MAPL_TrimString(positive)=='up') item%fileVDir="up"
-              end if
-           end if
-
-           if (.not.allocated(item%levs)) allocate(item%levs(item%lm),__STAT__)
-           item%levs=levFile
-           if (trim(item%fileVDir)/=trim(item%importVDir)) then
-              do i=1,size(levFile)
-                 item%levs(i)=levFile(size(levFile)-i+1)
-              enddo
-           end if
-           if (trim(item%levunit)=='hpa') item%levs=item%levs*100.0
-           if (item%vartype == MAPL_VectorField) then
-              item%units = item%file_metadata%get_variable_attribute(trim(item%fcomp1),"units",_RC)
-           else
-              item%units = item%file_metadata%get_variable_attribute(trim(item%var),"units",_RC)
-           end if
-
-        else
-           item%LM=0
-        end if
-
-        _RETURN(ESMF_SUCCESS)
-
-     end subroutine GetLevs
+     !end subroutine GetLevs
 
   subroutine MAPL_ExtDataInterpField(item,state,time,rc)
      type(PrimaryExport), intent(inout) :: item
@@ -1023,8 +985,8 @@ CONTAINS
 
      integer :: status
      integer :: id_ps
-     type(ESMF_Field) :: field, newfield,psF
-     type(PrimaryExport), pointer      :: ps_item
+     type(ESMF_Field) :: field!, newfield,psF
+     !type(PrimaryExport), pointer      :: ps_item
 
      integer :: fieldRank, src_lm, dst_lm
      real, pointer :: dst_ptr3d(:,:,:), src_ptr3d(:,:,:)
@@ -1037,12 +999,11 @@ CONTAINS
         call ESMF_FieldGet(item%t_interp_field,farrayPtr=src_ptr3d,_RC)
         src_lm = size(src_ptr3d,3)
         if (src_lm /= dst_lm) then
+           _HERE,src_lm, dst_lm
            dst_lm = 0.0
            dst_ptr3d(:,:,1:src_lm) = src_ptr3d
         end if
      end if
-
-
 
      !if (item%do_VertInterp) then
         !if (trim(item%importVDir)/=trim(item%fileVDir)) then
@@ -1227,36 +1188,36 @@ CONTAINS
 
   integer :: status
 
-  real, pointer :: ptrF(:,:,:),ptrR(:,:,:)
-  integer :: lm_in,lm_out,i
+  !real, pointer :: ptrF(:,:,:),ptrR(:,:,:)
+  !integer :: lm_in,lm_out,i
 
-  call ESMF_FieldGet(FieldF,0,farrayPtr=ptrF,_RC)
-  call ESMF_FieldGet(FieldR,0,farrayPtr=ptrR,_RC)
-  ptrF = 0.0
-  lm_in= size(ptrR,3)
-  lm_out = size(ptrF,3)
-  if (trim(item%importVDir)=="down") then
+  !call ESMF_FieldGet(FieldF,0,farrayPtr=ptrF,_RC)
+  !call ESMF_FieldGet(FieldR,0,farrayPtr=ptrR,_RC)
+  !ptrF = 0.0
+  !lm_in= size(ptrR,3)
+  !lm_out = size(ptrF,3)
+  !if (trim(item%importVDir)=="down") then
 
-     if (trim(item%fileVDir)=="down") then
-        do i=1,lm_in
-           ptrF(:,:,lm_out-lm_in+i)=ptrR(:,:,i)
-        enddo
-     else if (trim(item%fileVDir)=="up") then
-        do i=1,lm_in
-           ptrF(:,:,lm_out-i+1)=ptrR(:,:,i)
-        enddo
-     end if
-  else if (trim(item%importVDir)=="up") then
-     if (trim(item%fileVDir)=="down") then
-        do i=1,lm_in
-           ptrF(:,:,lm_in-i+1)=ptrR(:,:,i)
-        enddo
-     else if (trim(item%fileVDir)=="up") then
-        do i=1,lm_in
-           ptrF(:,:,i)=ptrR(:,:,i)
-        enddo
-     end if
-  end if
+     !if (trim(item%fileVDir)=="down") then
+        !do i=1,lm_in
+           !ptrF(:,:,lm_out-lm_in+i)=ptrR(:,:,i)
+        !enddo
+     !else if (trim(item%fileVDir)=="up") then
+        !do i=1,lm_in
+           !ptrF(:,:,lm_out-i+1)=ptrR(:,:,i)
+        !enddo
+     !end if
+  !else if (trim(item%importVDir)=="up") then
+     !if (trim(item%fileVDir)=="down") then
+        !do i=1,lm_in
+           !ptrF(:,:,lm_in-i+1)=ptrR(:,:,i)
+        !enddo
+     !else if (trim(item%fileVDir)=="up") then
+        !do i=1,lm_in
+           !ptrF(:,:,i)=ptrR(:,:,i)
+        !enddo
+     !end if
+  !end if
 
   _RETURN(ESMF_SUCCESS)
 
@@ -1548,18 +1509,18 @@ CONTAINS
               call ESMF_FieldGet(field,0,farrayPtr=ptr3d,_RC)
               lm = size(ptr3d,3)
            end if
-           if (item%lm /= lm .and. lm /= 0 .and. item%havePressure) then
+           if (item%vcoord%num_levels /= lm .and. lm /= 0 .and. (item%vcoord%vertical_type == model_pressure)) then
               item%do_VertInterp = .true.
-           else if (item%lm /= lm .and. lm /= 0 .and. item%lm /= 0) then
+           else if (item%vcoord%num_levels /= lm .and. lm /= 0 .and. item%vcoord%num_levels /= 0) then
               item%do_Fill = .true.
            end if
 !!!!!!!!!!!!!
-     bracket_grid = MAPL_ExtDataGridChangeLev(grid,cf,item%lm,_RC)
-     left_field = MAPL_FieldCreate(field,bracket_grid,lm=item%lm,newName=trim(item%fcomp1),_RC)
-     right_field = MAPL_FieldCreate(field,bracket_grid,lm=item%lm,newName=trim(item%fcomp1),_RC)
+     bracket_grid = MAPL_ExtDataGridChangeLev(grid,cf,item%vcoord%num_levels,_RC)
+     left_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
+     right_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
 
-     if (item%lm /= lm) then
-        item%t_interp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%lm,newName=trim(item%vcomp1),_RC)
+     if (item%vcoord%num_levels /= lm) then
+        item%t_interp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%vcomp1),_RC)
      else
         item%t_interp_field = field
      end if
@@ -1586,9 +1547,9 @@ CONTAINS
               call ESMF_FieldGet(field,0,farrayPtr=ptr3d,_RC)
               lm = size(ptr3d,3)
            end if
-           if (item%lm /= lm .and. item%havePressure) then
+           if (item%vcoord%num_levels /= lm .and. lm /= 0 .and. (item%vcoord%vertical_type == model_pressure)) then
               item%do_VertInterp = .true.
-           else if (item%lm /= lm .and. lm /= 0) then
+           else if (item%vcoord%num_levels /= lm .and. lm /= 0 .and. item%vcoord%num_levels /= 0) then
               item%do_Fill = .true.
            end if
 
@@ -1701,12 +1662,12 @@ CONTAINS
 
      !call GetLevs(item,_RC)
      if (item%vartype == MAPL_FieldItem) then
-        field = create_simple_field(item%name,grid,item%lm,_RC)
+        field = create_simple_field(item%name,grid,item%vcoord%num_levels,_RC)
         call MAPL_StateAdd(ExtDataState,field,_RC)
      else if (item%vartype == MAPL_VectorField) then
-        field = create_simple_field(item%vcomp1,grid,item%lm,_RC)
+        field = create_simple_field(item%vcomp1,grid,item%vcoord%num_levels,_RC)
         call MAPL_StateAdd(ExtDataState,field,_RC)
-        field = create_simple_field(item%vcomp2,grid,item%lm,_RC)
+        field = create_simple_field(item%vcomp2,grid,item%vcoord%num_levels,_RC)
         call MAPL_StateAdd(ExtDataState,field,_RC)
      end if
 
