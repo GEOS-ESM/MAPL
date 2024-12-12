@@ -41,7 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add tests for time accumulation
 - Add variable to FieldSpec for accumulation type
 - Add accumulation type variable to VariableSpec and ComponentSpecParser
-_ Add run_dt to ComponentSpec and ComponentSpecParser
+- Add run_dt to ComponentSpec and ComponentSpecParser
+- Add run_dt to FieldSpec
 
 ### Changed
 
@@ -72,7 +73,11 @@ _ Add run_dt to ComponentSpec and ComponentSpecParser
 
 ### Added
 
+- Added loggers when writing or reading weight files
+
 ### Changed
+
+- Increased formatting width of time index in ExtData2G diagnostic print
 
 ### Fixed
 
