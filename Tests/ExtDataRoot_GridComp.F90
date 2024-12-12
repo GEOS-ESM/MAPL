@@ -179,6 +179,7 @@ MODULE ExtDataUtRoot_GridCompMod
          character(len=ESMF_MaxStr) :: key, keyVal
          type(MAPL_MetaComp), pointer :: MAPL
          logical :: isPresent, fill_bundle
+         type(ESMF_State) :: internal
 
          call ESMF_GridCompGet( GC, name=comp_name, config=CF, _RC )
          call MAPL_GetObjectFromGC ( GC, MAPL, _RC )
@@ -223,9 +224,25 @@ MODULE ExtDataUtRoot_GridCompMod
             call FillBundle(Export,_RC)
          end if
 
+         call MAPL_Get ( MAPL, internal_esmf_state=internal, cf=cf, _RC )
+         call copy_ple(export, internal, _RC)
+
          _RETURN(ESMF_SUCCESS)
       contains
+ 
+            subroutine copy_ple(export, internal, rc)
+               type(ESMF_State), intent(inout) :: export
+               type(ESMF_State), intent(in) :: internal
+               integer, optional, intent(out) :: rc
 
+               integer :: status
+               type(ESMF_Field) :: internal_ple
+ 
+               call ESMF_StateGet(internal, 'PLE', internal_ple, _RC)
+               call MAPL_StateAdd(export, internal_ple, _RC)
+               _RETURN(_SUCCESS)
+            end subroutine   
+           
             subroutine set_locstream(rc)
 
             integer, optional, intent(out) :: rc
@@ -647,7 +664,7 @@ MODULE ExtDataUtRoot_GridCompMod
       call ESMF_StateAdd(pstate,farray,_RC)
 
       do i=1,itemCount
-         if (item_type(i) == ESMF_STATEITEM_FIELD) then
+         if (item_type(i) == ESMF_STATEITEM_FIELD .and. trim(outNameList(i)) /= 'PLE') then
             call ESMF_StateGet(outState,trim(outNameList(i)),expf,_RC)
             fexpr => synth%fillDefs%at(trim(outNameList(i)))
             call MAPL_StateEval(pstate,fexpr,expf,_RC)
@@ -659,7 +676,7 @@ MODULE ExtDataUtRoot_GridCompMod
       contains 
      
       subroutine fill_ple(ple_ptr, cf, rc)
-         real, pointer, intent(out) :: ple_ptr(:,:,:)
+         real, pointer, intent(in) :: ple_ptr(:,:,:)
          type(ESMF_Config), intent(inout) :: cf
          integer, intent(out), optional :: rc
 
@@ -668,7 +685,7 @@ MODULE ExtDataUtRoot_GridCompMod
          type(ESMF_HConfig) :: hconfig, akbk
          character(len=3) :: km_str
          integer :: km, i
-         character(len=ESMF_MAXPATHLEN), allocatable :: akbk_file
+         character(len=ESMF_MAXPATHLEN) :: akbk_file
          real, allocatable :: ak(:), bk(:)
          real :: ps_val
 
@@ -676,13 +693,13 @@ MODULE ExtDataUtRoot_GridCompMod
          call ESMF_ConfigGetAttribute(cf,label="ps_val:",value=ps_val,_RC)
          hconfig = ESMF_HConfigCreate(filename=trim(akbk_file), _RC)
          km = size(ple_ptr,3)
-         write(km_str,'(i3.3)') km
+         write(km_str,'(i3.3)') km-1
          akbk = ESMF_HConfigCreateAt(hconfig, keyString='L'//trim(km_str), _RC) 
          ak = ESMF_HConfigAsR4Seq(akbk, keyString='ak', _RC)
-         bk = ESMF_HConfigAsR4Seq(akbk, keyString='ak', _RC)
-     
-         do i=1,km 
-            ple_ptr(:,:,i) = ak(i)+ps_val*bk(i)
+         bk = ESMF_HConfigAsR4Seq(akbk, keyString='bk', _RC)
+   
+         do i=1,km
+            ple_ptr(:,:,i-1) = ak(i)+ps_val*bk(i)
          enddo
           
          _RETURN(_SUCCESS)
@@ -748,6 +765,7 @@ MODULE ExtDataUtRoot_GridCompMod
          _VERIFY(status)
          call ESMF_StateGet(State1,itemNameList=NameList,_RC)
          do i=1,itemCount
+            if (trim(nameList(i)) == 'PLE') cycle
             call ESMF_StateGet(State1,trim(nameList(i)),field1,_RC)
             call ESMF_StateGet(State2,trim(nameList(i)),field2,_RC)
             call ESMF_FieldGet(field1,rank=rank1,_RC)

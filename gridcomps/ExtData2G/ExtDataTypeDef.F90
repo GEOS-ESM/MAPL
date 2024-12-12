@@ -57,15 +57,9 @@ module MAPL_ExtDataTypeDef
      logical                      :: do_VertInterp = .false.
      logical                      :: do_Fill = .false.
      type(FileMetadataUtils)      :: file_metadata
-     !integer                      :: LM
-     !real, allocatable            :: levs(:)
-     !character(len=4)             :: importVDir = "down"
-     !character(len=4)             :: fileVDir = "down"
-     !character(len=ESMF_MAXSTR)   :: levUnit
-     !logical                      :: havePressure = .false.
-     !logical                      :: allow_vert_regrid = .false.
-     type(ExtDataPointerUpdate) :: update_freq
-     type(VerticalCoordinate)           :: vcoord
+     type(ExtDataPointerUpdate)   :: update_freq
+     type(VerticalCoordinate)     :: vcoord
+     logical                      :: delivered_item = .true. 
 
      ! new stuff
      logical                      :: cycling
@@ -112,6 +106,7 @@ module MAPL_ExtDataTypeDef
             p2%file_template = "/dev/null"
             p2%isConst = .true.
          end if
+         p2%delivered_item = .false.
 
       end subroutine
          

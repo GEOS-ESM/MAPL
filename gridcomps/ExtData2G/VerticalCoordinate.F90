@@ -38,8 +38,6 @@ module VerticalCoordinateMod
       character(len=:), allocatable :: level_units
       integer :: stagger
       integer :: vertical_type
-      !contains 
-         !procedure detect_verticalCoordinate
    end type
 
    interface VerticalCoordinate

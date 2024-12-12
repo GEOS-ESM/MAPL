@@ -403,6 +403,9 @@ contains
              _VERIFY(status)
           end if
        END DO
+       ! now add PS from Root if available
+       call ESMF_StateGet(cap%exports(cap%root_id), 'PLE', field, _RC)
+       call MAPL_StateAdd(cap%imports(cap%extdata_id), field, _RC)
        deallocate(itemtypes)
        deallocate(itemnames)
 

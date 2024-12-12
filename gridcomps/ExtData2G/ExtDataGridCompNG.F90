@@ -439,7 +439,6 @@ CONTAINS
          if (rules_with_ps) exit
       enddo
 
-      _HERE,rules_with_ps 
       if (.not.rules_with_ps) cycle 
 
       import_name => self%primary%import_names%at(i)
@@ -651,7 +650,7 @@ CONTAINS
       !bracket_side = io_bundle%bracket_side
       !entry_num = io_bundle%entry_index
       !item => self%primary%item_vec%at(entry_num)
-      !call MAPL_ExtDataVerticalInterpolate(self,item,bracket_side,current_time,_RC)
+      !call MAPL_ExtDataVerticalInterpolate(self,item,import_RC)
       !call bundle_iter%next()
    !enddo
    call MAPL_ExtDataDestroyCFIO(IOBundles,_RC)
@@ -674,7 +673,7 @@ CONTAINS
               & trim(current_base_name), trim(item%file_template))
 
          call MAPL_ExtDataInterpField(item,self%ExtDataState,useTime(i),_RC)
-         call MAPL_ExtDataVerticalInterpolate(self,item,bracket_side,current_time,_RC)
+         call MAPL_ExtDataVerticalInterpolate(self,item,import,_RC)
 
       endif
 
@@ -830,10 +829,6 @@ CONTAINS
 
         integer :: status
 
-        !real, allocatable          :: levFile(:)
-        !character(len=ESMF_MAXSTR) :: levunits,tlevunits
-        !character(len=:), allocatable :: levname
-        !character(len=:), pointer :: positive
         type(Variable), pointer :: var
 
         integer :: i
@@ -861,32 +856,9 @@ CONTAINS
            _ASSERT(associated(var),"Variable "//TRIM(item%var)//" not found in file "//TRIM(item%file_template))
         end if
 
-        !item%lm = 0
         item%vcoord = verticalCoordinate(metadata, item%var, _RC)
-        _HERE, allocated(item%vcoord%surf_name)
 
         _RETURN(ESMF_SUCCESS)
-
-        contains
- 
-        function create_string_vec_commasep(input_string) result(string_vec)
-           type(StringVector) :: string_vec
-           character(len=*), intent(in) :: input_string
-
-           character(len=:), allocatable :: temp_string
-           integer :: i
-           i = index(input_string,",")
-           if (i == 0) then 
-              call string_vec%push_back(input_string)
-              return
-           end if
-           temp_string = input_string
-           do while (i /= 0)
-              call string_vec%push_back(temp_string(1:i-1))
-              temp_string = temp_string(i+1:)
-              i = index(temp_string,",")
-           enddo
-        end function
 
      end subroutine new_GetLevs
 
@@ -976,21 +948,28 @@ CONTAINS
      _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_ExtDataInterpField
 
-  subroutine MAPL_ExtDataVerticalInterpolate(MAPLExtState,item,filec,current_time,rc)
+  subroutine MAPL_ExtDataVerticalInterpolate(MAPLExtState,item,import,rc)
      type(MAPL_ExtData_State), intent(inout) :: MAPLExtState
      type(PrimaryExport), intent(inout)     :: item
-     integer,             intent(in   )     :: filec
-     type(ESMF_Time),     intent(in   )     :: current_time
+     type(ESMF_State), intent(in)           :: import
      integer, optional,   intent(out  )     :: rc
 
      integer :: status
      integer :: id_ps
-     type(ESMF_Field) :: field!, newfield,psF
+     type(ESMF_Field) :: field, src_ps, dst_ple !, newfield,psF
+     character(len=:), allocatable :: src_ps_name
      !type(PrimaryExport), pointer      :: ps_item
 
      integer :: fieldRank, src_lm, dst_lm
      real, pointer :: dst_ptr3d(:,:,:), src_ptr3d(:,:,:)
 
+     if (.not. item%delivered_item) then
+        _RETURN(_SUCCESS)
+     end if
+     call ESMF_StateGet(import, "PLE", dst_ple, _RC)
+     src_ps_name = item%vcoord%surf_name//"_"//trim(item%vcomp1)
+     _HERE, src_ps_name
+     call ESMF_StateGet(MAPLExtState%ExtDataState, src_ps_name, src_ps, _RC)
      call ESMF_StateGet(MAPLExtState%ExtDataState,trim(item%vcomp1),field,_RC)
      call ESMF_FieldGet(field,rank=fieldRank,_RC)
      if (fieldRank==3) then
