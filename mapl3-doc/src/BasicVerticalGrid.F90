@@ -87,7 +87,7 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      _RETURN(_SUCCESS)
+      _FAIL("BasicVerticalGrid::can_connect_to - NOT implemented yet")
    end function can_connect_to
 
    logical function is_identical_to(this, that, rc)

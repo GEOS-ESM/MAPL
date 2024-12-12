@@ -6,18 +6,20 @@
 !     NASA/GSFC, Global Modeling and Assimilation Office, Code 610.1     !
 !-------------------------------------------------------------------------
 
-module MAPL_ExtData_IOBundleMod
+module MAPL_ExtDataNG_IOBundleMod
   use ESMF
   use MAPL_BaseMod
   use MAPL_GriddedIOMod
+  use MAPL_TileIOMod
   use MAPL_ExceptionHandling
   use MAPL_GriddedIOItemMod
   use MAPL_GriddedIOItemVectorMod
 
-  public :: ExtData_IoBundle
+  public :: ExtDataNG_IOBundle
 
-  type ExtData_IoBundle
-     type (MAPL_GriddedIO) :: cfio
+  type ExtDataNG_IOBundle
+     type (MAPL_GriddedIO) :: grid_io
+     type (MAPL_TileIO) :: tile_io
      type (ESMF_FieldBundle) :: pbundle
      character(:), allocatable :: template
      integer :: regrid_method
@@ -30,24 +32,25 @@ module MAPL_ExtData_IOBundleMod
      integer :: metadata_coll_id
      integer :: server_coll_id
      type(GriddedIOItemVector) :: items
+     logical :: on_tiles
      
    contains
      
      procedure :: clean
-     procedure :: make_cfio
+     procedure :: make_io
      procedure :: assign
      generic :: assignment(=) => assign
-  end type ExtData_IoBundle
+  end type ExtDataNG_IOBundle
   
 
-  interface ExtData_IoBundle
-     module procedure new_ExtData_IoBundle
-  end interface ExtData_IoBundle
+  interface ExtDataNG_IOBundle
+     module procedure new_ExtDataNG_IOBundle
+  end interface ExtDataNG_IOBundle
 
 contains
 
-  function new_ExtData_IoBundle(bracket_side, entry_index, file_name, time_index, regrid_method, fraction, template, metadata_coll_id,server_coll_id,items,rc) result(io_bundle)
-    type (ExtData_IoBundle) :: io_bundle
+  function new_ExtDataNG_IOBundle(bracket_side, entry_index, file_name, time_index, regrid_method, fraction, template, metadata_coll_id,server_coll_id,items, on_tiles, rc) result(io_bundle)
+    type (ExtDataNG_IOBundle) :: io_bundle
 
     integer, intent(in) :: bracket_side
     integer, intent(in) :: entry_index
@@ -58,7 +61,8 @@ contains
     character(len=*), intent(in) :: template
     integer, intent(in) :: metadata_coll_id
     integer, intent(in) :: server_coll_id
-    type(GriddedIOItemVector) :: items
+    type(GriddedIOItemVector), target :: items
+    logical, intent(in) :: on_tiles
     integer, optional, intent(out) :: rc
 
     io_bundle%bracket_side = bracket_side
@@ -72,13 +76,14 @@ contains
     io_bundle%metadata_coll_id=metadata_coll_id
     io_bundle%server_coll_id=server_coll_id
     io_bundle%items=items
+    io_bundle%on_tiles = on_tiles
 
     _RETURN(ESMF_SUCCESS)
-  end function new_ExtData_IoBundle
+  end function new_ExtDataNG_IOBundle
 
 
   subroutine clean(this, rc)
-    class (ExtData_IoBundle), intent(inout) :: this
+    class (ExtDataNG_IOBundle), intent(inout) :: this
     integer, optional, intent(out) :: rc
 
     integer :: status
@@ -90,22 +95,25 @@ contains
   end subroutine clean
 
 
-  subroutine make_cfio(this, rc)
-    class (ExtData_IoBundle), intent(inout) :: this
+  subroutine make_io(this, rc)
+    class (ExtDataNG_IOBundle), target, intent(inout) :: this
     integer, optional, intent(out) :: rc
 
-     this%cfio = MAPL_GriddedIO(output_bundle=this%pbundle,regrid_method=this%regrid_method, &
-                        read_collection_id=this%server_coll_id, &
-                        metadata_collection_id = this%metadata_coll_id, fraction = this%fraction, &
-                        items=this%items)
+     if (this%on_tiles) then
+        this%tile_io = MAPL_TileIO(this%pbundle,this%server_coll_id)
+     else
+        this%grid_io = MAPL_GriddedIO(output_bundle=this%pbundle,regrid_method=this%regrid_method, &
+                           read_collection_id=this%server_coll_id, &
+                           metadata_collection_id = this%metadata_coll_id, fraction = this%fraction, &
+                           items=this%items)
+     end if
 
      _RETURN(ESMF_SUCCESS)
-
-   end subroutine make_cfio
+   end subroutine make_io
 
    subroutine assign(to,from)
-      class(ExtData_IOBundle), intent(out) :: to
-      type(ExtData_IOBundle), intent(in) :: from
+      class(ExtDataNG_IOBundle), intent(out) :: to
+      type(ExtDataNG_IOBundle), intent(in) :: from
     
     to%bracket_side = from%bracket_side
     to%entry_index = from%entry_index
@@ -119,9 +127,11 @@ contains
     to%server_coll_id=from%server_coll_id
     to%items=from%items 
     to%pbundle=from%pbundle 
-    to%CFIO=from%CFIO 
+    to%grid_io=from%grid_io 
+    to%tile_io=from%tile_io
+    to%on_tiles=from%on_tiles
  
    end subroutine assign
 
-end module MAPL_ExtData_IOBundleMod
+end module MAPL_ExtDataNG_IOBundleMod
 
