@@ -190,9 +190,10 @@ module mapl3g_FieldSpec
    end interface UnitsAdapter
 
    type, extends(StateItemAdapter) :: AccumulatorAdapter
-      character(len=:), allocatable :: accumulation_type
-      !wdb fixme deleteme type(ESMF_Typekind_Flag) :: typekind
-      logical :: valid = .FALSE. 
+      character(len=:) :: accumulation_type = NO_ACCUMULATION
+      type(ESMF_TimeInterval) :: run_dt
+      type(ESMF_TypeKind_Flag) :: typekind
+      logical :: do_accumulation = .FALSE. 
    contains
       procedure :: adapt_one => adapt_accumulator
       procedure :: match_one => adapter_match_accumulator
@@ -225,7 +226,7 @@ contains
       real, optional, intent(in) :: default_value
       character(*), optional, intent(in) :: accumulation_type
       type(ESMF_TimeInterval), optional, intent(in) :: run_dt
-
+   
       integer :: status
 
       if (present(geom)) field_spec%geom = geom
@@ -242,11 +243,13 @@ contains
       ! regrid_param
       field_spec%regrid_param = EsmfRegridderParam() ! use default regrid method
       if (present(regrid_param)) field_spec%regrid_param = regrid_param
-
       if (present(default_value)) field_spec%default_value = default_value
       field_spec%accumulation_type = NO_ACCUMULATION
       if (present(accumulation_type)) field_spec%accumulation_type = trim(accumulation_type)
-      if (present(run_dt)) field_spec%run_dt = run_dt
+      status = ESMF_FAILURE
+      if(present(run_dt)) call ESMF_TimeIntervalValidate(run_dt, rc=status)
+      if(status==ESMF_SUCCESS) field_spec%run_dt = run_dt
+
    end function new_FieldSpec_geom
 
    function new_FieldSpec_varspec(variable_spec) result(field_spec)
@@ -986,16 +989,22 @@ contains
       _RETURN(_SUCCESS)
    end function adapter_match_units
 
-   function new_AccumulatorAdapter(accumulation_type, typekind) result(acc_adapter)
+   function new_AccumulatorAdapter(accumulation_type, run_dt, typekind) result(acc_adapter)
       type(AccumulatorAdapter) :: acc_adapter
-      character(len=:), allocatable, intent(in) :: accumulation_type
-      type(ESMF_TypeKind_Flag), intent(in) :: typekind
+      character(len=:), optional, intent(in) :: accumulation_type
+      type(ESMF_TimeInterval), optional, intent(inout) :: run_dt
 
-      if(.not. allocated(accumulation_type)) return
-      if(.not. accumulation_type_is_valid(accumulation_type)) return
-      acc_adapter%accumulation_type = accumulation_type
-      acc_adapter%typekind = typekind
-      acc_adapter%valid = .TRUE.
+      associate(atype => acc_adapter%accumulation_type, dt => acc_adapter%run_dt, &
+            & do_accumulation => acc_adapter%do_accumulation)
+         atype = NO_ACCUMULATION
+         call ESMF_TimeIntervalSet(dt, s=0)
+         do_accumulation = (present(accumulation_type) .and. present(run_dt))
+         if(.not. do_accumulation) return
+         atype = accumulation_type
+         dt = run_dt
+         acc_adapter%typekind = typekind
+         do_accumulation = accumulation_type_is_valid(accumulation_type)
+      end associate
 
    end function new_AccumulatorAdapter
 
@@ -1007,7 +1016,7 @@ contains
       
       integer :: status
 
-      _ASSERT(this%valid, 'Invalid accumulation type')
+      _ASSERT(this%do_accumulation, 'Invalid accumulation type')
       select type(spec)
       type is (FieldSpec)
          call get_accumulator_action(this%accumulation_type, this%typekind, action, _RC)
@@ -1023,13 +1032,38 @@ contains
 
       integer :: status
 
-      match = .false.
-      if(.not. this%valid) return
+      match = .not. this%do_accumulation
+      if(match) return
+
       select type(spec)
       type is (FieldSpec)
-         match = this%typekind == spec%typekind
+         _ASSERT(allocated(spec%run_dt), 'run_dt is not set for FieldSpec.')
+         _ASSERT(is_factorized_by(this%run_dt, spec%run_dt, 'FieldSpec run_dt must divide Adapter run_dt evenly.')
+         match = this%run_dt == spec%run_dt
+      case default
+         match = .TRUE.
       end select
       _RETURN(_SUCCESS)
+
+   contains
+
+      logical function interval_is_zero(ti) result(lval)
+         type(ESMF_TimeInterval), intent(in) :: ti
+         type(ESMF_TimeInterval), save :: ZERO
+
+         call ESMF_TimeIntervalSet(ZERO, s=0)
+         lval = (ti == ZERO)
+
+      end function interval_is_zero
+
+      logical function is_factorized_by(base, factor) result(lval)
+         type(ESMF_TimeInterval), intent(in) :: base
+         type(ESMF_TimeInterval), intent(in) :: factor
+
+         lval = .not. (interval_is_zero(base) .or. interval_is_zero(multiple))
+         if(lval) lval = interval_is_zero(mod(base, factor))
+
+      end function is_factorized_by
 
    end function adapter_match_accumulator
 
@@ -1041,9 +1075,11 @@ contains
 
       type(VerticalGridAdapter) :: vertical_grid_adapter
       integer :: status
+      character(len=:), allocatable :: accumulation_type
 
       select type (goal_spec)
       type is (FieldSpec)
+         accumulation_type = this%accumulation_type
          allocate(adapters(5))
          allocate(adapters(1)%adapter, source=GeomAdapter(goal_spec%geom, goal_spec%regrid_param))
          vertical_grid_adapter = VerticalGridAdapter( &
@@ -1056,7 +1092,7 @@ contains
          allocate(adapters(2)%adapter, source=vertical_grid_adapter)
          allocate(adapters(3)%adapter, source=TypeKindAdapter(goal_spec%typekind))
          allocate(adapters(4)%adapter, source=UnitsAdapter(goal_spec%units))
-         allocate(adapters(5)%adapter, source=AccumulatorAdapter(this%accumulation_type, this%typekind))
+         allocate(adapters(5)%adapter, source=AccumulatorAdapter(accumulation_type, goal_spec%run_dt, typekind=goal_spec%typekind))
       type is (WildCardSpec)
          adapters = goal_spec%make_adapters(goal_spec, _RC)
       class default

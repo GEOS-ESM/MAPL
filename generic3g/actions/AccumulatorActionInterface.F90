@@ -32,11 +32,10 @@ module mapl3g_AccumulatorActionInterface
 
 contains
 
-   logical function accumulation_type_is_valid(acctype) result(lval)
-      character(len=*), optional, intent(in) :: acctype
+   logical function accumulation_type_is_valid(acctype)
+      character(len=*), intent(in) :: acctype
 
-      lval = present(acctype)
-      if(lval) lval = any(ACCUMULATION_TYPES == acctype)
+      accumulation_type_is_valid = any(ACCUMULATION_TYPES == acctype)
 
    end function accumulation_type_is_valid
 
