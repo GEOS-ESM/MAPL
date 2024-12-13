@@ -17,6 +17,7 @@ module mapl3g_InvalidSpec
    use esmf, only: ESMF_Geom
    use esmf, only: ESMF_State
    use esmf, only: ESMF_SUCCESS
+   use esmf, only: ESMF_TimeInterval
 
    implicit none
    private
@@ -132,16 +133,18 @@ contains
       _UNUSED_DUMMY(bundle)
    end subroutine add_to_bundle
 
-   subroutine set_geometry(this, geom, vertical_grid, rc)
+   subroutine set_geometry(this, geom, vertical_grid, run_dt, rc)
       class(InvalidSpec), intent(inout) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
+      type(ESMF_TimeInterval), optional, intent(in) :: run_dt
       integer, optional, intent(out) :: rc
 
       _FAIL('Attempt to initialize item of type InvalidSpec')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(geom)
       _UNUSED_DUMMY(vertical_grid)
+      _UNUSED_DUMMY(run_dt)
    end subroutine set_geometry
 
    subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)

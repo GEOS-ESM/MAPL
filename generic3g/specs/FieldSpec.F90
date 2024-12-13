@@ -97,6 +97,7 @@ module mapl3g_FieldSpec
 !#      type(VariableSpec) :: variable_spec
 
       logical :: is_created = .false.
+      type(ESMF_TimeInterval), allocatable :: run_dt
 
    contains
 
@@ -205,7 +206,7 @@ contains
 
    function new_FieldSpec_geom(unusable, geom, vertical_grid, vertical_dim_spec, typekind, ungridded_dims, &
         standard_name, long_name, units, &
-        attributes, regrid_param, default_value, accumulation_type) result(field_spec)
+        attributes, regrid_param, default_value, accumulation_type, run_dt) result(field_spec)
       type(FieldSpec) :: field_spec
 
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -223,6 +224,7 @@ contains
       ! optional args last
       real, optional, intent(in) :: default_value
       character(*), optional, intent(in) :: accumulation_type
+      type(ESMF_TimeInterval), optional, intent(in) :: run_dt
 
       integer :: status
 
@@ -244,6 +246,7 @@ contains
       if (present(default_value)) field_spec%default_value = default_value
       field_spec%accumulation_type = NO_ACCUMULATION
       if (present(accumulation_type)) field_spec%accumulation_type = trim(accumulation_type)
+      if (present(run_dt)) field_spec%run_dt = run_dt
    end function new_FieldSpec_geom
 
    function new_FieldSpec_varspec(variable_spec) result(field_spec)
@@ -252,6 +255,7 @@ contains
 
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
 
+      field_spec%accumulation_type = NO_ACCUMULATION
       _SET_FIELD(field_spec, variable_spec, vertical_dim_spec)
       _SET_FIELD(field_spec, variable_spec, typekind)
       _SET_FIELD(field_spec, variable_spec, ungridded_dims)
@@ -260,23 +264,24 @@ contains
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, standard_name)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, units)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, default_value)
+      _SET_ALLOCATED_FIELD(field_spec, variable_spec, accumulation_type)
 
       field_spec%long_name = 'unknown'
-      field_spec%accumulation_type = NO_ACCUMULATION
-      _SET_ALLOCATED_FIELD(field_spec, variable_spec, accumulation_type)
 
    end function new_FieldSpec_varspec
 
-   subroutine set_geometry(this, geom, vertical_grid, rc)
+   subroutine set_geometry(this, geom, vertical_grid, run_dt, rc)
       class(FieldSpec), intent(inout) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
+      type(ESMF_TimeInterval), optional, intent(in) :: run_dt
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
 
       if (present(geom)) this%geom = geom
       if (present(vertical_grid)) this%vertical_grid = vertical_grid
+      if (present(run_dt)) this%run_dt = run_dt
 
       _RETURN(_SUCCESS)
    end subroutine set_geometry
@@ -883,7 +888,8 @@ contains
               v_out_coord, v_out_coupler, & ! output
               'ignore', this%geom, this%typekind, this%units, this%vertical_dim_spec, _RC)
          action = VerticalRegridAction(v_in_coord, v_out_coupler, v_out_coord, v_out_coupler, this%regrid_method)
-         spec%vertical_grid = this%vertical_grid
+         if (allocated(spec%vertical_grid)) deallocate(spec%vertical_grid)
+         allocate(spec%vertical_grid, source=this%vertical_grid)
          spec%vertical_dim_spec = this%vertical_dim_spec
       end select
 

@@ -21,7 +21,7 @@ module mapl3g_StateRegistry
    use mapl3g_GriddedComponentDriver
    use mapl3g_VerticalGrid
    use mapl_ErrorHandling
-   use esmf, only: ESMF_Geom
+   use esmf, only: ESMF_Geom, ESMF_TimeInterval
 
    implicit none
    private
@@ -627,10 +627,11 @@ contains
       _RETURN(_SUCCESS)
    end subroutine allocate
 
-   subroutine set_blanket_geometry(this, geom, vertical_grid, rc)
+   subroutine set_blanket_geometry(this, geom, vertical_grid, run_dt, rc)
       class(StateRegistry), target, intent(inout) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
+      type(ESMF_TimeInterval), optional, intent(in) :: run_dt
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -645,7 +646,7 @@ contains
            extension => iter%of()
            spec => extension%get_spec()
            if (spec%is_active()) then
-              call spec%set_geometry(geom, vertical_grid, _RC)
+              call spec%set_geometry(geom, vertical_grid, run_dt, _RC)
            end if
         end do
       end associate

@@ -82,6 +82,11 @@ contains
       class(VerticalGrid), intent(in) :: dst
       integer, optional, intent(out) :: rc
 
+      if (this%same_id(dst)) then
+         can_connect_to = .true.
+         _RETURN(_SUCCESS)
+      end if
+
       _FAIL("BasicVerticalGrid::can_connect_to - NOT implemented yet")
    end function can_connect_to
 

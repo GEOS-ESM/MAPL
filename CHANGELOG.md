@@ -41,6 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add tests for time accumulation
 - Add variable to FieldSpec for accumulation type
 - Add accumulation type variable to VariableSpec and ComponentSpecParser
+- Add run_dt to ComponentSpec and ComponentSpecParser
+- Add run_dt to FieldSpec
 
 ### Changed
 
@@ -71,9 +73,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added loggers when writing or reading weight files
+
+### Changed
+
+- Increased formatting width of time index in ExtData2G diagnostic print
+
+### Fixed
+
+### Removed
+
+### Deprecated
+
+## [2.51.1] - 2024-12-10
+
+### Fixed
+
+- Properly nullified the pointers to the per-grid-cell counters
+
+## [2.51.0] - 2024-12-06
+
+### Added
+
+- Added macro `_RETURN(_SUCCESS)` to fetch_data
 - Allow update offsets of &#177;timestep in ExtData2G
 - Minor revision (and generalization) of grid-def for GSI purposes
-- Trajectory sampler: fix a bug when group_name does not exist in netCDF file and a bug that omitted the first time point
+- Add ability to use an `ESMF_CONFIG_FILE` environment variable to specify name of file to pass in pre-`ESMF_Initialize` options to ESMF (see [ESMF Docs](https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node4.html#SECTION04024000000000000000) for allowed flags.
+- Allow lat-lon grid factory to detect and use CF compliant lat-lon bounds in a file when making a grid
+- PFIO/Variable class, new procedures to retrieve string/reals/int attributes from a variable
+- Added a call in GenericRefresh to allow GC's refresh method to be called; in support
+  of CICE6 rewind
 
 ### Changed
 
@@ -102,14 +131,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Use v7.27.0 Baselibs
   - Use GCC 14 for GNU tests
   - Add pFUnit-less build test
+  - Enable ifx tests
+- Improve some writes to be more informative
+  - In `base/MAPL_CFIO.F90`, added `Iam` to a print statement so that when a read fails we know which routine failed
+  - In `gridcomps/ExtData2G/ExtDataConfig.F90`, print out the name of the duplicate collection that causes model to fail
 
 ### Fixed
 
 - Fixed issue of some Baselibs builds appearing to support zstandard. This is not possible due to Baselibs building HDF5 and netCDF as static libraries
-
-### Removed
-
-### Deprecated
+- Workaround ifx bug in `pfio/ArrayReference.F90` (NOTE: This currently targets all versions of ifx, but will need to be qualified or removed in the future)
+- Updates to support llvm-flang
+- Trajectory sampler: fix a bug when group_name does not exist in netCDF file and a bug that omitted the first time point
+- Fixed a bug where the periodicity around the earth of the lat-lon grid was not being set properly when grid did not span from pole to pole
 
 ## [2.50.3] - 2024-12-02
 
