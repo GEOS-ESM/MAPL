@@ -465,6 +465,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            end if
            call iter%next()
         enddo
+!        _FAIL('nail 1')
         _RETURN(_SUCCESS)
 
       end procedure create_new_bundle
@@ -1064,7 +1065,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          iter = this%items%begin()
          do while (iter /= this%items%end())
             item => iter%get()
-            if (mapl_am_I_root())  print*, 'item%xname= ', trim(item%xname)
+            if (mapl_am_I_root())  print*, 'regrid: item%xname= ', trim(item%xname)
 
             if (item%itemType == ItemTypeScalar) then
                call ESMF_FieldBundleGet(this%acc_bundle,trim(item%xname),field=acc_field,_RC)
@@ -1077,7 +1078,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                        p_acc_rt_2d, recvcount, displs, MPI_REAL,&
                        iroot, mpic, ierr )
                   _VERIFY(ierr)
-                  print*, 'rank == 1'
 
                   if (mapl_am_i_root()) then
                      !
@@ -1111,7 +1111,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         nx = this%obs(k)%nobs_epoch
                         if (nx>0) then
                            do ig = 1, this%obs(k)%ngeoval
-                              print*, 'this%obs(k)%ngeoval= ', this%obs(k)%geoval_xname(ig)
+                              print*, 'this%obs(k)%geoval_xname(ig)= ', this%obs(k)%geoval_xname(ig)
 
                               if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
                                  call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p2d(1:nx), &
@@ -1124,6 +1124,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         deallocate (this%obs(k)%p2d, _STAT)
                      enddo
                   end if
+                  _FAIL('nail 1')
+                  
                else if (rank==2) then
 
                   print*, 'rank == 2'

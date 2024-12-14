@@ -950,6 +950,7 @@ contains
     if (lenmax < slen) then
        if (MAPL_AM_I_ROOT())  write(6,*) 'pathlen vs filename_max_char_len: ', slen, lenmax
        _FAIL ('PATHLEN is greater than filename_max_char_len')
+       stop 'm1'
     end if
     if (slen>0) filename(1:slen)=c_filename(1:slen)
 
