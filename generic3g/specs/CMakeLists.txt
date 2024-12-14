@@ -1,4 +1,10 @@
 target_sources(MAPL.generic3g PRIVATE
+  StateItemAspect.F90
+  AspectMap.F90
+  GeomAspect.F90
+  UngriddedDimsAspect.F90
+  UnitsAspect.F90
+
   VariableSpec.F90
   StateItem.F90
   VariableSpecVector.F90

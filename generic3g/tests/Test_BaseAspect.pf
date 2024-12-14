@@ -1,0 +1,84 @@
+#include "MAPL_TestErr.h"
+
+module Test_BaseAspect
+   use MockAspect_mod
+   use mapl3g_StateItemAspect
+   use funit, expectation_shadow => expectation
+   implicit none
+
+   logical, parameter, private :: T = .true., F = .false.
+
+   type :: Expectation
+      ! input
+      logical :: src_mirror, dst_mirror
+      logical :: src_time_dependent, dst_time_dependent
+      integer ::src_value, dst_value
+      logical :: src_supports_conversion
+      ! output
+      logical :: can_connect_to, needs_extension_for
+   end type Expectation
+
+   type(Expectation), parameter :: EXPECTATIONS(*) = [ &
+        !           M  M
+        Expectation(F, F, F, F, 1, 1, F,    T, F), & ! simple matching values
+        Expectation(F, F, F, F, 1, 2, F,    F, T), & ! needs extension but conversion not supported
+        Expectation(F, F, F, F, 1, 2, T,    T, T), & ! needs extension and can supports conversion
+ 
+        Expectation(F, T, F, F, 1, 1, F,    T, F), & ! import is mirror - always can connect
+        Expectation(F, T, F, F, 1, 2, F,    T, F), &
+        Expectation(T, F, F, F, 1, 1, F,    T, F), & ! export is mirror - always can connect (but ...)
+        Expectation(T, F, F, F, 1, 2, F,    T, F), &
+
+        Expectation(F, F, T, F, 1, 1, F,    F, T), & ! time dependent export - always needs extension even for exact match
+        Expectation(F, F, T, F, 1, 2, F,    F, T), & 
+        Expectation(F, F, T, F, 1, 1, T,    T, T), & ! time dependent export with conversion
+        Expectation(F, F, T, F, 1, 2, T,    T, T), & 
+
+        Expectation(F, F, F, T, 1, 1, F,    F, T), & ! time dependent import - always needs extension even for exact match
+        Expectation(F, F, F, T, 1, 2, F,    F, T), & 
+        Expectation(F, F, F, T, 1, 1, T,    T, T), & ! time dependent import with conversion
+        Expectation(F, F, F, T, 1, 2, T,    T, T) & 
+
+
+        ]
+
+
+contains
+
+   @test
+   subroutine test_can_connect_to()
+      integer :: i
+      character(4) :: buf
+
+      do i = 1, size(EXPECTATIONS)
+         write(buf, '(i0)') i
+         associate (expect => EXPECTATIONS(i))
+           associate (src => MockAspect(expect%src_mirror, expect%src_time_dependent, expect%src_value, expect%src_supports_conversion))
+             associate (dst => MockAspect(expect%dst_mirror, expect%dst_time_dependent, expect%dst_value, .true.)) ! last is unused
+               @assert_that('case: '//trim(buf), src%can_connect_to(dst), is(expect%can_connect_to))
+             end associate
+           end associate
+         end associate
+      end do
+      
+   end subroutine test_can_connect_to
+
+   @test
+   subroutine test_needs_extension_for()
+      integer :: i
+      character(4) :: buf
+
+      do i = 1, size(EXPECTATIONS)
+         write(buf, '(i0)') i
+         associate (expect => EXPECTATIONS(i))
+           associate (src => MockAspect(expect%src_mirror, expect%src_time_dependent, expect%src_value, expect%src_supports_conversion))
+             associate (dst => MockAspect(expect%dst_mirror, expect%dst_time_dependent, expect%dst_value, .true.)) ! last is unused
+               @assert_that('case: '//trim(buf), src%needs_extension_for(dst), is(expect%needs_extension_for))
+             end associate
+           end associate
+         end associate
+      end do
+      
+   end subroutine test_needs_extension_for
+   
+end module Test_BaseAspect
