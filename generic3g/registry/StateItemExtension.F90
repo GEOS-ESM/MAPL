@@ -8,8 +8,10 @@ module mapl3g_StateItemExtension
    use mapl3g_ComponentDriverPtrVector
    use mapl3g_ExtensionAction
    use mapl3g_GenericCoupler
+   use mapl3g_StateItemAspect
    use mapl3g_MultiState
    use mapl_ErrorHandling
+   use gftl2_StringVector
    use esmf
    implicit none
    private
@@ -118,10 +120,39 @@ contains
       type(StateItemAdapterWrapper), allocatable :: adapters(:)
       type(ESMF_Clock) :: fake_clock
       logical :: match
+      type(StringVector), target :: aspect_names
+      character(:), pointer :: aspect_name
+      class(StateItemAspect), pointer :: src_aspect, dst_aspect
+      type(AspectExtension) :: aspect_extension
 
       call this%spec%set_active()
 
       new_spec = this%spec
+
+      aspect_names = this%spec%get_aspect_order(goal)
+      do i = 1, aspect_names%size()
+         aspect_name => aspect_names%of(i)
+         src_aspect => new_spec%get_aspect(aspect_name, _RC)
+         dst_aspect => goal%get_aspect(aspect_name, _RC)
+         _ASSERT(src_aspect%can_connect_to(dst_aspect), 'cannoct connect aspect ' // aspect_name)
+         if (.not. src_aspect%needs_extension_for(dst_aspect)) cycle
+         aspect_extension = src_aspect%make_extension(dst_aspect, _RC)
+         call new_spec%set_aspect(aspect_name, aspect_extension%aspect)
+         exit
+      end do
+
+      if (allocated(aspect_extension%action)) then
+         call new_spec%create(_RC)
+         call new_spec%set_active()
+         coupler_gridcomp = make_coupler(aspect_extension%action, _RC)
+         producer = GriddedComponentDriver(coupler_gridcomp, fake_clock, MultiState())
+         extension = StateItemExtension(new_spec, producer)
+         _RETURN(_SUCCESS)
+      end if
+
+
+      ! The logic belowe should be removed once Aspects have fully
+      ! replaced Adapters.
       adapters = this%spec%make_adapters(goal, _RC)
       do i = 1, size(adapters)
          match = adapters(i)%adapter%match(new_spec, _RC)

@@ -182,14 +182,15 @@ contains
 
    @test
    subroutine test_parse_run_dt()
-      integer(kind=ESMF_KIND_R4) :: d(6)
+      integer(kind=ESMF_KIND_I4) :: d(6)
       type(ESMF_TimeInterval) :: expected
       character(len=:), allocatable :: iso_duration
       character(len=:), allocatable :: content
       type(ESMF_HConfig) :: hconfig
       type(ESMF_TimeInterval) :: actual
       integer :: rc, status
-      character(len=:), allocatable :: expected_timestring, actual_timestring, msg
+      character(len=:), allocatable :: msg
+      character(len=ESMF_MAXSTR) :: expected_timestring, actual_timestring
 
       ! Test with correct key for run_dt
       d = [10, 3, 7, 13, 57, 32]
@@ -200,7 +201,7 @@ contains
       actual = parse_run_dt(hconfig, _RC)
       call ESMF_TimeIntervalGet(expected, timeString=expected_timestring, _RC)
       call ESMF_TimeIntervalGet(actual, timeString=actual_timestring, _RC)
-      msg = actual_timestring // ' /= ' // expected_timestring
+      msg = trim(actual_timestring) // ' /= ' // trim(expected_timestring)
       @assertTrue(actual == expected, msg)
       call ESMF_HConfigDestroy(hconfig, _RC)
       
