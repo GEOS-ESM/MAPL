@@ -39,13 +39,11 @@
 
 
 module mapl3g_StateItemAspect
-   use mapl3g_ExtensionAction
    use mapl_ErrorHandling
    implicit none
    private
 
    public :: StateItemAspect
-
 
    type, abstract :: StateItemAspect
       private

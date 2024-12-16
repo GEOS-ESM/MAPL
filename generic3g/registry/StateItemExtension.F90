@@ -139,7 +139,6 @@ contains
             call new_spec%set_aspect(dst_aspect, _RC)
             exit
          end if
-
       end do
 
       if (allocated(action)) then
