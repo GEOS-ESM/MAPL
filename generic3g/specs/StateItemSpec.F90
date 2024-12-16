@@ -1,13 +1,12 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_StateItemSpec
-
-   use mapl_ErrorHandling
    use mapl3g_ActualPtVector
    use mapl3g_ExtensionAction
    use mapl3g_StateItemAspect
    use mapl3g_AspectCollection
    use gftl2_stringvector
+   use mapl_ErrorHandling
    implicit none
    private
 
@@ -55,6 +54,8 @@ module mapl3g_StateItemSpec
       procedure :: get_aspect_order ! as string vector
 !#      procedure(I_get_aspect_priorities), deferred :: get_aspect_priorities ! as colon-separated string
       procedure :: get_aspect_priorities ! default implementation as aid to refactoring
+!#      procedure(I_make_extension), deferred :: make_extension
+      procedure :: make_extension
 
       procedure(I_add_to_state), deferred :: add_to_state
       procedure(I_add_to_bundle), deferred :: add_to_bundle
@@ -204,6 +205,15 @@ module mapl3g_StateItemSpec
          class(StateItemSpec), intent(in) :: dst_spec
       end function I_get_aspect_priorities
 
+!#      function I_make_extension(this, aspect_name, aspect, rc) result(new_spec)
+!#         import StateItemSpec
+!#         class(StateItemSpec), allocatable :: new_spec
+!#         class(StateItemSpec), intent(in) :: this
+!#         character(*), intent(in) :: aspect_name
+!#         class(StateItemAspect), intent(in) :: aspect
+!#         integer, optional, intent(out) :: rc
+!#      end function I_make_extension
+
    end interface
 
 contains
@@ -339,4 +349,17 @@ contains
       order = ''
    end function get_aspect_priorities
 
+   function make_extension(this, aspect_name, aspect, rc) result(new_spec)
+      class(StateItemSpec), allocatable :: new_spec
+      class(StateItemSpec), intent(in) :: this
+      character(*), intent(in) :: aspect_name
+      class(StateItemAspect), intent(in) :: aspect
+      integer, optional, intent(out) :: rc
+
+      new_spec = this
+      call new_spec%set_aspect(aspect_name, aspect)
+      
+      _RETURN(_SUCCESS)
+   end function make_extension
+   
 end module mapl3g_StateItemSpec
