@@ -7,9 +7,11 @@
 
 module mapl3g_ExtensionFamily
    use mapl3g_StateItemSpec
+   use mapl3g_StateItemAspect
    use mapl3g_StateItemExtension
    use mapl3g_StateItemExtensionPtrVector
    use mapl_ErrorHandling
+   use gFTL2_StringVector
    implicit none
    private
 
@@ -123,11 +125,40 @@ contains
       type(StateItemExtension), pointer :: primary
       class(StateItemSpec), pointer :: spec
       logical :: match
-      
+      type(StringVector), target :: aspect_names
+      character(:), pointer :: aspect_name
+      class(StateItemAspect), pointer :: src_aspect, dst_aspect
+
       closest_extension => null()
       subgroup = family%get_extensions()
       primary => family%get_primary()  ! archetype defines the rules
       archetype => primary%get_spec()
+
+      ! new
+      aspect_names = archetype%get_aspect_order(goal_spec)
+      do i = 1, aspect_names%size()
+         aspect_name => aspect_names%of(i)
+         dst_aspect => goal_spec%get_aspect(aspect_name, _RC)
+
+         ! Find subset that match current aspect
+         new_subgroup = StateItemExtensionPtrVector()
+         do j = 1, subgroup%size()
+            extension_ptr = subgroup%of(j)
+            spec => extension_ptr%ptr%get_spec()
+            src_aspect => spec%get_aspect(aspect_name, _RC)
+            
+            if (src_aspect%matches(dst_aspect)) then
+               call new_subgroup%push_back(extension_ptr)
+            end if
+         end do
+         
+         if (new_subgroup%size() == 0) exit
+         subgroup = new_subgroup
+         
+      end do
+      
+      ! old
+
       adapters = archetype%make_adapters(goal_spec, _RC)
 
       do i = 1, size(adapters)

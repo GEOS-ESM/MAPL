@@ -5,6 +5,8 @@ module mapl3g_StateItemSpec
    use mapl_ErrorHandling
    use mapl3g_ActualPtVector
    use mapl3g_ExtensionAction
+   use mapl3g_StateItemAspect
+   use mapl3g_AspectMap
    use gftl2_stringvector
    implicit none
    private
@@ -39,6 +41,8 @@ module mapl3g_StateItemSpec
       type(StringVector) :: raw_dependencies
       type(ActualPtVector) :: dependencies
 
+      type(AspectMap) :: aspects
+
    contains
 
       procedure(I_create), deferred :: create
@@ -48,6 +52,10 @@ module mapl3g_StateItemSpec
       procedure(I_connect), deferred :: connect_to
       procedure(I_can_connect), deferred :: can_connect_to
       procedure(I_make_adapters), deferred :: make_adapters
+
+      procedure :: get_aspect_order ! as string vector
+!#      procedure(I_get_aspect_priorities), deferred :: get_aspect_priorities ! as colon-separated string
+      procedure :: get_aspect_priorities ! default implementation as aid to refactoring
 
       procedure(I_add_to_state), deferred :: add_to_state
       procedure(I_add_to_bundle), deferred :: add_to_bundle
@@ -62,6 +70,9 @@ module mapl3g_StateItemSpec
       procedure, non_overridable :: is_allocated
       procedure, non_overridable :: is_active
       procedure, non_overridable :: set_active
+      procedure, non_overridable :: get_aspect
+      procedure, non_overridable :: get_aspects
+      procedure, non_overridable :: set_aspect
 
       procedure :: get_dependencies
       procedure :: get_raw_dependencies
@@ -187,6 +198,13 @@ module mapl3g_StateItemSpec
          integer, optional, intent(out) :: rc
       end function I_make_adapters
 
+      function I_get_aspect_priorities(src_spec, dst_spec) result(aspect_order)
+         import StateItemSpec
+         character(:), allocatable :: order
+         class(StateItemSpec), intent(in) :: src_spec
+         class(StateItemSpec), intent(in) :: dst_spec
+      end function I_get_aspect_priorities
+
    end interface
 
 contains
@@ -254,5 +272,72 @@ contains
       type(StringVector), intent(in):: raw_dependencies
       this%raw_dependencies = raw_dependencies
    end subroutine set_raw_dependencies
+
+   function get_aspect(this, name, rc) result(aspect)
+      class(StateItemAspect), pointer :: aspect
+      character(*), intent(in) :: name
+      class(StateItemSpec), target, intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      aspect => null()
+      _ASSERT(this%aspects%count(name) == 1, 'Aspect ' // name // ' not found.')
+      
+      aspect => this%aspects%at(name)
+
+      _RETURN(_SUCCESS)
+   end function get_aspect
+
+   function get_aspects(this) result(aspects)
+      type(AspectMap), pointer :: aspects
+      class(StateItemSpec), target, intent(in) :: this
+      aspects => this%aspects
+   end function get_aspects
+
+   subroutine set_aspect(this, name, aspect)
+      class(StateItemSpec), target, intent(inout) :: this
+      character(*), intent(in) :: name
+      class(StateItemAspect), intent(in) :: aspect
+
+      call this%aspects%insert(name, aspect)
+
+   end subroutine set_aspect
+
+   function get_aspect_order(src_spec, dst_spec) result(names)
+      type(StringVector) :: names
+      class(StateItemSpec), intent(in) :: src_spec
+      class(StateItemSpec), intent(in) :: dst_spec
+
+      character(:), allocatable :: str
+      character(*), parameter :: SEPARATOR = '::'
+      integer :: idx
+
+      str = src_spec%get_aspect_priorities(dst_spec)
+      if (len(str) == 0) then ! empty list
+         return
+      end if
+
+      do
+         idx = index(str, SEPARATOR)
+         if (idx == 0) then
+            call names%push_back(str)
+            exit
+         end if
+         call names%push_back(str(1:idx-1))
+         str = str(idx+len(SEPARATOR):)
+      end do
+   end function get_aspect_order
+
+
+   ! This procedure should be deleted once extant subclasses of
+   ! StateItemSpec have been updated and implement their own.
+   function get_aspect_priorities(src_spec, dst_spec) result(order)
+      character(:), allocatable :: order
+      class(StateItemSpec), intent(in) :: src_spec
+      class(StateItemSpec), intent(in) :: dst_spec
+
+      order = ''
+   end function get_aspect_priorities
 
 end module mapl3g_StateItemSpec

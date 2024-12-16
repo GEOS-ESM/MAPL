@@ -1,0 +1,215 @@
+#include "MAPL_Generic.h"
+!-------------------------------------------------
+! Table of allowed connections between (like) StateItemAspects
+!-------------------------------------------------
+!
+! SRC^4   |  DST^4  | ALLOW   |  REQUIRE COUPLER
+!---------|---------|---------|-------------------
+! simple  | simple  |   Y     |   if (.not. match)
+! simple  | mirror  |   Y     |   never
+! simple  | timedep |   Y     |   always^2
+!
+! mirror  | simple  |   ?^1   |   never
+! mirror  | mirror  |   N     |   N/A
+! mirror  | timedep |   ?^1,3 |   never
+!
+! timedep | simple  |   Y     |   always^2
+! timedep | mirror  |   Y     |   never
+! timedep | timedep |   Y     |   always^2
+!-------------------------------------------------
+!
+! Commments
+!
+! ^1: Cannot simultaneously mirror an export aspect to different
+!     import aspects.  But would be useful for default values and
+!     expressions (geom) Possibly becomes "not mirror" after first
+!     connection, and subsequent ...
+!
+! ^2: Even if coincidental match at first.
+!
+! ^3: If we allow, then export must become time-dependent for
+!     subsequent connections.  Otherwise, some other import might "agree" initially and
+!     miss the need for a coupler in the general case.
+!
+! ^4: Neither SRC nor DST is permitted to be in INVALID status when
+!     connecting.  However, a state item can still be connected so
+!     long as the given invalid aspect is not in the coupling
+!     order.
+!-------------------------------------------------
+
+
+module mapl3g_StateItemAspect
+   use mapl3g_ExtensionAction
+   use mapl_ErrorHandling
+   implicit none
+   private
+
+   public :: StateItemAspect
+   public :: AspectExtension
+
+
+   type, abstract :: StateItemAspect
+      private
+      logical :: mirror = .false.
+      logical :: time_dependent = .false.
+   contains
+      ! Subclass must define these
+      procedure(I_matches), deferred :: matches
+      procedure(I_make_action), deferred :: make_action
+      procedure(I_supports_conversion_general), deferred :: supports_conversion_general
+      procedure(I_supports_conversion_specific), deferred :: supports_conversion_specific
+      generic :: supports_conversion => supports_conversion_general, supports_conversion_specific
+
+      procedure, non_overridable :: can_connect_to
+      procedure, non_overridable :: make_extension
+      procedure, non_overridable :: needs_extension_for
+
+      procedure, non_overridable :: is_mirror
+      procedure, non_overridable :: set_mirror
+      procedure, non_overridable :: is_time_dependent
+      procedure, non_overridable :: set_time_dependent
+   end type StateItemAspect
+
+   ! Simple tuple for aggregating aspect and action
+   type :: AspectExtension
+      class(StateItemAspect), allocatable :: aspect
+      class(ExtensionAction), allocatable :: action
+   end type AspectExtension
+
+   abstract interface
+
+      logical function I_matches(src, dst) result(matches)
+         import :: StateItemAspect
+         class(StateItemAspect), intent(in) :: src, dst
+      end function I_matches
+
+      logical function I_supports_conversion_general(src) result(supports_conversion)
+         import :: StateItemAspect
+         class(StateItemAspect), intent(in) :: src
+      end function I_supports_conversion_general
+
+      logical function I_supports_conversion_specific(src, dst) result(supports_conversion)
+         import :: StateItemAspect
+         class(StateItemAspect), intent(in) :: src
+         class(StateItemAspect), intent(in) :: dst
+      end function I_supports_conversion_specific
+
+      function I_make_action(src, dst, rc) result(action)
+         use mapl3g_ExtensionAction
+         import :: StateItemAspect
+         class(ExtensionAction), allocatable :: action
+         class(StateItemAspect), intent(in) :: src, dst
+         integer, optional, intent(out) :: rc
+      end function I_make_action
+
+   end interface
+
+contains
+
+   !-------------------------------------------
+   ! Two aspects cann connect if and only if:
+   ! (1) Same subclass
+   ! (2) At least one is not mirror
+   ! (3) Exact match or supports conversion
+   !-------------------------------------------
+   logical function can_connect_to(src, dst)
+      class(StateItemAspect), intent(in) :: src, dst
+
+      can_connect_to = same_type_as(src, dst) ! maybe extends type of?
+      if (.not. can_connect_to) return
+
+      associate (num_mirror => count([src%is_mirror(), dst%is_mirror()]))
+        select case (num_mirror)
+        case (0)
+           if (either_is_time_dependent(src, dst)) then
+              ! Must expect to convert to unknown aspect value in the future.
+              can_connect_to = src%supports_conversion()
+              return
+           end if
+           can_connect_to = src%supports_conversion(dst) .or. src%matches(dst)
+        case (1)
+           can_connect_to = .true.
+        case (2)
+           can_connect_to = .false. ! double mirror
+        end select ! no need for default clause
+      end associate
+
+   end function can_connect_to
+
+   logical function either_is_time_dependent(src, dst)
+      class(StateItemAspect), intent(in) :: src, dst
+      either_is_time_dependent = src%is_time_dependent() .or. dst%is_time_dependent()
+   end function either_is_time_dependent
+
+   logical function either_is_mirror(src, dst)
+      class(StateItemAspect), intent(in) :: src, dst
+      either_is_mirror = src%is_mirror() .or. dst%is_mirror()
+   end function either_is_mirror
+
+   !-------------------------------------------
+   ! Note that if src is mirror - we do not "extend"
+   ! rather the src aspect is actually modified (elsewhere)
+   ! to be the dst aspect.
+   !--------------------------------------------
+   logical function needs_extension_for(src, dst)
+      class(StateItemAspect), intent(in) :: src, dst
+
+      if (either_is_mirror(src, dst)) then
+         needs_extension_for = .false.
+         return
+      end if
+
+      if (either_is_time_dependent(src, dst)) then
+         needs_extension_for = .true.
+         return
+      end if
+
+      ! Simple case
+      needs_extension_for = .not. src%matches(dst)
+
+   end function needs_extension_for
+
+   function make_extension(src, dst, rc) result(extension)
+      type(AspectExtension) :: extension
+      class(StateItemAspect), intent(in) :: src
+      class(StateItemAspect), intent(in) :: dst
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _ASSERT(src%can_connect_to(dst), 'cannot connect')
+      _ASSERT(src%needs_extension_for(dst), 'extension not needed')
+
+      extension%aspect = dst
+      extension%action = src%make_action(dst)
+
+   end function make_extension
+
+
+   logical function is_mirror(this)
+      class(StateItemAspect), intent(in) :: this
+      is_mirror = this%mirror
+   end function is_mirror
+
+   subroutine set_mirror(this, mirror)
+      class(StateItemAspect), intent(inout) :: this
+      logical, intent(in) :: mirror
+      this%mirror = mirror
+   end subroutine set_mirror
+
+   logical function is_time_dependent(this)
+      class(StateItemAspect), intent(in) :: this
+      is_time_dependent = this%time_dependent
+   end function is_time_dependent
+
+   subroutine set_time_dependent(this, time_dependent)
+      class(StateItemAspect), intent(inout) :: this
+      logical, intent(in) :: time_dependent
+      this%time_dependent = time_dependent
+   end subroutine set_time_dependent
+
+end module mapl3g_StateItemAspect
+
+
+
+

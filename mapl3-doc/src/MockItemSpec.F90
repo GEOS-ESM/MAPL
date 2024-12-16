@@ -38,6 +38,8 @@ module MockItemSpecMod
       procedure :: add_to_state
       procedure :: add_to_bundle
       procedure :: write_formatted
+
+      procedure :: get_aspect_priorities
    end type MockItemSpec
 
    type, extends(ExtensionAction) :: MockAction
@@ -369,4 +371,19 @@ contains
      end if
    end function new_NameAdapter
      
+   function get_aspect_priorities(src_spec, dst_spec) result(order)
+      character(:), allocatable :: order
+      class(MockItemSpec), intent(in) :: src_spec
+      class(StateItemSpec), intent(in) :: dst_spec
+
+      select case (src_spec%name)
+      case ('1')
+         order = 'a1'
+      case ('3')
+         order = 'a1::b2::c3'
+      case default
+         order = ''
+      end select
+   end function get_aspect_priorities
+
 end module MockItemSpecMod

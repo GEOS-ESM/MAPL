@@ -216,7 +216,7 @@ contains
       integer, allocatable :: ivar(:,:)
       integer, allocatable :: ivar2(:,:,:)
 
-      real(REAL64), allocatable :: temp_coords(:)
+      real(ESMF_KIND_R8), allocatable :: temp_coords(:)
 
       integer :: status, i
       integer, parameter :: ncontact = 4
