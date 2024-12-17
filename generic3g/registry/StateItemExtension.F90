@@ -123,7 +123,6 @@ contains
       type(StringVector), target :: aspect_names
       character(:), pointer :: aspect_name
       class(StateItemAspect), pointer :: src_aspect, dst_aspect
-      type(AspectExtension) :: aspect_extension
 
       call this%spec%set_active()
 
@@ -135,16 +134,18 @@ contains
          src_aspect => new_spec%get_aspect(aspect_name, _RC)
          dst_aspect => goal%get_aspect(aspect_name, _RC)
          _ASSERT(src_aspect%can_connect_to(dst_aspect), 'cannoct connect aspect ' // aspect_name)
-         if (.not. src_aspect%needs_extension_for(dst_aspect)) cycle
-         aspect_extension = src_aspect%make_extension(dst_aspect, _RC)
-         call new_spec%set_aspect(aspect_name, aspect_extension%aspect)
-         exit
+         if (src_aspect%needs_extension_for(dst_aspect)) then
+            action = src_aspect%make_action(dst_aspect)
+            call new_spec%set_aspect(aspect_name, dst_aspect)
+            exit
+         end if
+
       end do
 
-      if (allocated(aspect_extension%action)) then
+      if (allocated(action)) then
          call new_spec%create(_RC)
          call new_spec%set_active()
-         coupler_gridcomp = make_coupler(aspect_extension%action, _RC)
+         coupler_gridcomp = make_coupler(action, _RC)
          producer = GriddedComponentDriver(coupler_gridcomp, fake_clock, MultiState())
          extension = StateItemExtension(new_spec, producer)
          _RETURN(_SUCCESS)

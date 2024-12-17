@@ -45,7 +45,6 @@ module mapl3g_StateItemAspect
    private
 
    public :: StateItemAspect
-   public :: AspectExtension
 
 
    type, abstract :: StateItemAspect
@@ -61,7 +60,6 @@ module mapl3g_StateItemAspect
       generic :: supports_conversion => supports_conversion_general, supports_conversion_specific
 
       procedure, non_overridable :: can_connect_to
-      procedure, non_overridable :: make_extension
       procedure, non_overridable :: needs_extension_for
 
       procedure, non_overridable :: is_mirror
@@ -70,11 +68,6 @@ module mapl3g_StateItemAspect
       procedure, non_overridable :: set_time_dependent
    end type StateItemAspect
 
-   ! Simple tuple for aggregating aspect and action
-   type :: AspectExtension
-      class(StateItemAspect), allocatable :: aspect
-      class(ExtensionAction), allocatable :: action
-   end type AspectExtension
 
    abstract interface
 
@@ -168,23 +161,6 @@ contains
       needs_extension_for = .not. src%matches(dst)
 
    end function needs_extension_for
-
-   function make_extension(src, dst, rc) result(extension)
-      type(AspectExtension) :: extension
-      class(StateItemAspect), intent(in) :: src
-      class(StateItemAspect), intent(in) :: dst
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      _ASSERT(src%can_connect_to(dst), 'cannot connect')
-      _ASSERT(src%needs_extension_for(dst), 'extension not needed')
-
-      extension%aspect = dst
-      extension%action = src%make_action(dst)
-
-   end function make_extension
-
 
    logical function is_mirror(this)
       class(StateItemAspect), intent(in) :: this
