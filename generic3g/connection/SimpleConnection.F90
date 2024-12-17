@@ -123,7 +123,7 @@ contains
         
       _ASSERT(associated(src_registry), 'Unknown source registry')
       _ASSERT(associated(dst_registry), 'Unknown destination registry')
-        
+
       call this%connect_sibling(dst_registry, src_registry, _RC)
         
       _RETURN(_SUCCESS)

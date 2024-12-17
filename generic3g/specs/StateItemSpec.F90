@@ -70,9 +70,12 @@ module mapl3g_StateItemSpec
       procedure, non_overridable :: is_allocated
       procedure, non_overridable :: is_active
       procedure, non_overridable :: set_active
-      procedure, non_overridable :: get_aspect
-      procedure, non_overridable :: get_aspects
-      procedure, non_overridable :: set_aspect
+!#      procedure, non_overridable :: get_aspect
+!#      procedure, non_overridable :: get_aspects
+!#      procedure, non_overridable :: set_aspect
+      procedure :: get_aspect
+      procedure :: get_aspects
+      procedure :: set_aspect
 
       procedure :: get_dependencies
       procedure :: get_raw_dependencies
@@ -361,5 +364,5 @@ contains
       
       _RETURN(_SUCCESS)
    end function make_extension
-   
+
 end module mapl3g_StateItemSpec
