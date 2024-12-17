@@ -30,6 +30,7 @@ module mapl3g_ExtensionFamily
       procedure :: get_extension
       procedure :: add_extension
       procedure :: num_variants
+      procedure :: merge
 
       procedure :: find_closest_extension
    end type ExtensionFamily
@@ -133,7 +134,6 @@ contains
       subgroup = family%get_extensions()
       primary => family%get_primary()  ! archetype defines the rules
       archetype => primary%get_spec()
-
       ! new
       aspect_names = archetype%get_aspect_order(goal_spec)
       do i = 1, aspect_names%size()
@@ -145,18 +145,19 @@ contains
          do j = 1, subgroup%size()
             extension_ptr = subgroup%of(j)
             spec => extension_ptr%ptr%get_spec()
+
             src_aspect => spec%get_aspect(aspect_name, _RC)
-            
-            if (.not. src_aspect%needs_extension_for(dst_aspect)) then
-               call new_subgroup%push_back(extension_ptr)
-            end if
+            _ASSERT(associated(src_aspect),'aspect '// aspect_name// ' not found')
+
+            if (src_aspect%needs_extension_for(dst_aspect)) cycle
+            call new_subgroup%push_back(extension_ptr)
+
          end do
-         
          if (new_subgroup%size() == 0) exit
          subgroup = new_subgroup
          
       end do
-      
+
       ! old
 
       adapters = archetype%make_adapters(goal_spec, _RC)
@@ -184,6 +185,26 @@ contains
       _RETURN(_SUCCESS)
    end function find_closest_extension
 
+   subroutine merge(this, other)
+      class(ExtensionFamily), target, intent(inout) :: this
+      type(ExtensionFamily), target, intent(in) :: other
+
+      integer :: i, j
+      type(StateItemExtensionPtr) :: extension, other_extension
+
+      outer: do i = 1, other%num_variants()
+         other_extension = other%extensions%of(i)
+
+         do j = 1, this%num_variants()
+            extension = this%extensions%of(j)
+            if (associated(extension%ptr, other_extension%ptr)) cycle outer
+         end do
+         call this%extensions%push_back(other_extension)
+         
+      end do outer
+      this%has_primary_ = other%has_primary_
+
+   end subroutine merge
    
 end module mapl3g_ExtensionFamily
 

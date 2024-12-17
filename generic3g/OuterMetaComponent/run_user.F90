@@ -36,8 +36,8 @@ contains
          call drvr%ptr%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
       end do
 
-
       call this%user_gc_driver%run(phase_idx=phase, _RC)
+
 
       export_couplers = this%registry%get_export_couplers()
       do i = 1, export_couplers%size()

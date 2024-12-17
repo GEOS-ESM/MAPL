@@ -30,8 +30,10 @@ module mapl3g_StateItemExtension
    contains
       procedure :: get_spec
       procedure :: get_producer
+      procedure :: set_producer
       procedure :: get_consumers
       procedure :: has_producer
+      procedure :: has_consumers
       procedure :: add_consumer
       procedure :: make_extension
    end type StateItemExtension
@@ -72,18 +74,31 @@ contains
       has_producer = allocated(this%producer)
    end function has_producer
 
+   logical function has_consumers(this)
+      class(StateItemExtension), target, intent(in) :: this
+      has_consumers = this%consumers%size() > 0
+   end function has_consumers
+
    function get_producer(this) result(producer)
       class(StateItemExtension), target, intent(in) :: this
       type(GriddedComponentDriver), pointer :: producer
 
-      if (.not. allocated(this%producer)) then
-         producer => null()
-         return
-      end if
-      
+      producer => null()
+      if (.not. allocated(this%producer)) return
       producer => this%producer
 
    end function get_producer
+
+   subroutine set_producer(this, producer, rc)
+      class(StateItemExtension), intent(inout) :: this
+      type(GriddedComponentDriver), intent(in) :: producer
+      integer, optional, intent(out) :: rc
+
+      _ASSERT(.not. this%has_producer(), 'cannot set producer for extension that already has one')
+      this%producer = producer
+
+      _RETURN(_SUCCESS)
+   end subroutine set_producer
 
    function get_consumers(this) result(consumers)
       class(StateItemExtension), target, intent(in) :: this
@@ -123,7 +138,6 @@ contains
       type(StringVector), target :: aspect_names
       character(:), pointer :: aspect_name
       class(StateItemAspect), pointer :: src_aspect, dst_aspect
-      type(AspectExtension) :: aspect_extension
 
       call this%spec%set_active()
 
@@ -135,23 +149,25 @@ contains
          src_aspect => new_spec%get_aspect(aspect_name, _RC)
          dst_aspect => goal%get_aspect(aspect_name, _RC)
          _ASSERT(src_aspect%can_connect_to(dst_aspect), 'cannoct connect aspect ' // aspect_name)
-         if (.not. src_aspect%needs_extension_for(dst_aspect)) cycle
-         aspect_extension = src_aspect%make_extension(dst_aspect, _RC)
-         call new_spec%set_aspect(aspect_name, aspect_extension%aspect)
-         exit
+
+         if (src_aspect%needs_extension_for(dst_aspect)) then
+            action = src_aspect%make_action(dst_aspect)
+            call new_spec%set_aspect(dst_aspect, _RC)
+            exit
+         end if
+
       end do
 
-      if (allocated(aspect_extension%action)) then
+      if (allocated(action)) then
          call new_spec%create(_RC)
          call new_spec%set_active()
-         coupler_gridcomp = make_coupler(aspect_extension%action, _RC)
+         coupler_gridcomp = make_coupler(action, this%get_producer(), _RC)
          producer = GriddedComponentDriver(coupler_gridcomp, fake_clock, MultiState())
          extension = StateItemExtension(new_spec, producer)
          _RETURN(_SUCCESS)
       end if
 
-
-      ! The logic belowe should be removed once Aspects have fully
+      ! The logic below should be removed once Aspects have fully
       ! replaced Adapters.
       adapters = this%spec%make_adapters(goal, _RC)
       do i = 1, size(adapters)
@@ -169,7 +185,7 @@ contains
       call new_spec%create(_RC)
       call new_spec%set_active()
 
-      coupler_gridcomp = make_coupler(action, _RC)
+     coupler_gridcomp = make_coupler(action, this%get_producer(), _RC)
       producer = GriddedComponentDriver(coupler_gridcomp, fake_clock, MultiState())
       extension = StateItemExtension(new_spec, producer)
 
