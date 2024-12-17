@@ -147,7 +147,7 @@ contains
             spec => extension_ptr%ptr%get_spec()
             src_aspect => spec%get_aspect(aspect_name, _RC)
             
-            if (src_aspect%matches(dst_aspect)) then
+            if (.not. src_aspect%needs_extension_for(dst_aspect)) then
                call new_subgroup%push_back(extension_ptr)
             end if
          end do
