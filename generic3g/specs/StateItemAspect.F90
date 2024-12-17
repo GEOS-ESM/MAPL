@@ -167,8 +167,8 @@ contains
 
    subroutine set_mirror(this, mirror)
       class(StateItemAspect), intent(inout) :: this
-      logical, intent(in) :: mirror
-      this%mirror = mirror
+      logical, optional, intent(in) :: mirror
+      if (present(mirror)) this%mirror = mirror
    end subroutine set_mirror
 
    logical function is_time_dependent(this)
@@ -178,8 +178,8 @@ contains
 
    subroutine set_time_dependent(this, time_dependent)
       class(StateItemAspect), intent(inout) :: this
-      logical, intent(in) :: time_dependent
-      this%time_dependent = time_dependent
+      logical, optional, intent(in) :: time_dependent
+      if (present(time_dependent)) this%time_dependent = time_dependent
    end subroutine set_time_dependent
 
 end module mapl3g_StateItemAspect

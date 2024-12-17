@@ -134,11 +134,13 @@ contains
          src_aspect => new_spec%get_aspect(aspect_name, _RC)
          dst_aspect => goal%get_aspect(aspect_name, _RC)
          _ASSERT(src_aspect%can_connect_to(dst_aspect), 'cannoct connect aspect ' // aspect_name)
+
          if (src_aspect%needs_extension_for(dst_aspect)) then
             action = src_aspect%make_action(dst_aspect)
             call new_spec%set_aspect(dst_aspect, _RC)
             exit
          end if
+
       end do
 
       if (allocated(action)) then

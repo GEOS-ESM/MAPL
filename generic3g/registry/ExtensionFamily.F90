@@ -133,7 +133,6 @@ contains
       subgroup = family%get_extensions()
       primary => family%get_primary()  ! archetype defines the rules
       archetype => primary%get_spec()
-
       ! new
       aspect_names = archetype%get_aspect_order(goal_spec)
       do i = 1, aspect_names%size()
@@ -149,16 +148,14 @@ contains
             src_aspect => spec%get_aspect(aspect_name, _RC)
 
             if (src_aspect%needs_extension_for(dst_aspect)) cycle
-
             call new_subgroup%push_back(extension_ptr)
 
          end do
-         
          if (new_subgroup%size() == 0) exit
          subgroup = new_subgroup
          
       end do
-      
+
       ! old
 
       adapters = archetype%make_adapters(goal_spec, _RC)
