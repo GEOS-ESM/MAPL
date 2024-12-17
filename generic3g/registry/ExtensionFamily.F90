@@ -145,11 +145,13 @@ contains
          do j = 1, subgroup%size()
             extension_ptr = subgroup%of(j)
             spec => extension_ptr%ptr%get_spec()
+
             src_aspect => spec%get_aspect(aspect_name, _RC)
-            
-            if (.not. src_aspect%needs_extension_for(dst_aspect)) then
-               call new_subgroup%push_back(extension_ptr)
-            end if
+
+            if (src_aspect%needs_extension_for(dst_aspect)) cycle
+
+            call new_subgroup%push_back(extension_ptr)
+
          end do
          
          if (new_subgroup%size() == 0) exit
