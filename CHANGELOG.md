@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Increased formatting width of time index in ExtData2G diagnostic print
-- Update CI to use Ubuntu24 images
+- Update CI to use Ubuntu 24 images
 
 ### Fixed
 
