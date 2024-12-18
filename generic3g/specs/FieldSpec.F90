@@ -12,6 +12,7 @@
 
 module mapl3g_FieldSpec
    use mapl3g_StateItemAspect
+   use mapl3g_AspectCollection
    use mapl3g_GeomAspect
    use mapl3g_VerticalStaggerLoc
    use mapl3g_StateItemSpec
@@ -196,7 +197,7 @@ contains
    function new_FieldSpec_geom(unusable, geom, vertical_grid, vertical_dim_spec, typekind, ungridded_dims, &
         standard_name, long_name, units, &
         attributes, regrid_param, default_value, accumulation_type, run_dt) result(field_spec)
-      type(FieldSpec) :: field_spec
+      type(FieldSpec), target :: field_spec
 
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
@@ -216,9 +217,11 @@ contains
       type(ESMF_TimeInterval), optional, intent(in) :: run_dt
 
       integer :: status
+      type(AspectCollection), pointer :: aspects
 
 !#      if (present(geom)) field_spec%geom = geom
-      call field_spec%set_aspect('GEOM', GeomAspect(geom, regrid_param))
+      aspects => field_spec%get_aspects()
+      call aspects%set_geom_aspect(GeomAspect(geom, regrid_param))
 
       if (present(vertical_grid)) field_spec%vertical_grid = vertical_grid
       field_spec%vertical_dim_spec = vertical_dim_spec
@@ -270,11 +273,7 @@ contains
       integer :: status
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
 
-      if (present(geom)) then
-         call this%set_aspect('GEOM', GeomAspect(geom, this%regrid_param))
-      else
-         call this%set_aspect('GEOM', GeomAspect()) ! no geom => mirrora
-      end if
+      call this%set_aspect(GeomAspect(geom, this%regrid_param), _RC)
 
       if (present(vertical_grid)) this%vertical_grid = vertical_grid
       if (present(run_dt)) this%run_dt = run_dt
@@ -473,7 +472,7 @@ contains
          this%payload = src_spec%payload
 
          geom_aspect => src_spec%get_aspect('GEOM', _RC)
-         call this%set_aspect('GEOM', geom_aspect)
+         call this%set_aspect(geom_aspect, _RC)
          
 !#         call mirror(dst=this%geom, src=src_spec%geom)
          call mirror(dst=this%vertical_grid, src=src_spec%vertical_grid)
