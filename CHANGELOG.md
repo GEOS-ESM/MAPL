@@ -78,8 +78,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Increased formatting width of time index in ExtData2G diagnostic print
+- Update CI to use Ubuntu24 images
 
 ### Fixed
+
+- Fix profiler ExclusiveColumn test for GCC 14
 
 ### Removed
 
