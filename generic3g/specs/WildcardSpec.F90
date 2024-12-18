@@ -4,7 +4,7 @@ module mapl3g_WildcardSpec
 
    use mapl3g_StateItemSpec
    use mapl3g_StateItemAspect
-   use mapl3g_AspectMap
+   use mapl3g_AspectCollection
    use mapl3g_ActualPtStateItemSpecMap
    use mapl3g_ActualConnectionPt
    use mapl3g_MultiState
@@ -264,18 +264,21 @@ contains
    end function get_aspect
 
    function get_aspects(this) result(aspects)
-      type(AspectMap), pointer :: aspects
+      type(AspectCollection), pointer :: aspects
       class(WildcardSpec), target, intent(in) :: this
       aspects => this%reference_spec%get_aspects()
    end function get_aspects
 
-   subroutine set_aspect(this, name, aspect)
+   subroutine set_aspect(this, aspect, rc)
       class(WildcardSpec), target, intent(inout) :: this
-      character(*), intent(in) :: name
       class(StateItemAspect), intent(in) :: aspect
+      integer, optional, intent(out) :: rc
 
-      call this%reference_spec%set_aspect(name, aspect)
+      integer :: status
 
+      call this%reference_spec%set_aspect(aspect, _RC)
+
+      _RETURN(_SUCCESS)
    end subroutine set_aspect
 
 end module mapl3g_WildcardSpec

@@ -19,7 +19,9 @@ module mapl3g_AspectCollection
    contains
       procedure :: get_aspect ! polymorphic
       procedure :: set_aspect ! polymorphic
+
       procedure :: get_geom_aspect
+      procedure :: set_geom_aspect
    end type AspectCollection
 
    interface AspectCollection
@@ -86,6 +88,12 @@ contains
       end if
 
    end function get_geom_aspect
+
+   subroutine set_geom_aspect(this, geom_aspect)
+      class(AspectCollection), intent(inout) :: this
+      type(GeomAspect), intent(in) :: geom_aspect
+      this%geom_aspect = geom_aspect
+   end subroutine set_geom_aspect
 
 end module mapl3g_AspectCollection
 

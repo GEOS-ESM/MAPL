@@ -359,8 +359,10 @@ contains
       class(StateItemAspect), intent(in) :: aspect
       integer, optional, intent(out) :: rc
 
+      integer :: status
+      
       new_spec = this
-      call new_spec%set_aspect(aspect_name, aspect)
+      call new_spec%set_aspect(aspect, _RC)
       
       _RETURN(_SUCCESS)
    end function make_extension
