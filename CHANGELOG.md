@@ -11,7 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Removed restrction that vector regridding in ExtData2G must be bilinear
+
 ### Fixed
+
+- Fixed by when using multiple rules for a vector item in ExtData2G
 
 ### Removed
 
