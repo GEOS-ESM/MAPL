@@ -6,7 +6,7 @@ module mapl3g_StateItemSpec
    use mapl3g_ActualPtVector
    use mapl3g_ExtensionAction
    use mapl3g_StateItemAspect
-   use mapl3g_AspectMap
+   use mapl3g_AspectCollection
    use gftl2_stringvector
    implicit none
    private
@@ -41,8 +41,7 @@ module mapl3g_StateItemSpec
       type(StringVector) :: raw_dependencies
       type(ActualPtVector) :: dependencies
 
-      type(AspectMap) :: aspects
-
+      type(AspectCollection) :: aspects
    contains
 
       procedure(I_create), deferred :: create
@@ -281,27 +280,27 @@ contains
 
       integer :: status
 
-      aspect => null()
-      _ASSERT(this%aspects%count(name) == 1, 'Aspect ' // name // ' not found.')
-      
-      aspect => this%aspects%at(name)
+      aspect => this%aspects%get_aspect(name, _RC)
 
       _RETURN(_SUCCESS)
    end function get_aspect
 
    function get_aspects(this) result(aspects)
-      type(AspectMap), pointer :: aspects
+      type(AspectCollection), pointer :: aspects
       class(StateItemSpec), target, intent(in) :: this
       aspects => this%aspects
    end function get_aspects
 
-   subroutine set_aspect(this, name, aspect)
+   subroutine set_aspect(this, aspect, rc)
       class(StateItemSpec), target, intent(inout) :: this
-      character(*), intent(in) :: name
       class(StateItemAspect), intent(in) :: aspect
+      integer, optional, intent(out) :: rc
 
-      call this%aspects%insert(name, aspect)
+      integer :: status
 
+      call this%aspects%set_aspect(aspect, _RC)
+
+      _RETURN(_SUCCESS)
    end subroutine set_aspect
 
    function get_aspect_order(src_spec, dst_spec) result(names)

@@ -136,7 +136,7 @@ contains
          _ASSERT(src_aspect%can_connect_to(dst_aspect), 'cannoct connect aspect ' // aspect_name)
          if (src_aspect%needs_extension_for(dst_aspect)) then
             action = src_aspect%make_action(dst_aspect)
-            call new_spec%set_aspect(aspect_name, dst_aspect)
+            call new_spec%set_aspect(dst_aspect, _RC)
             exit
          end if
 
