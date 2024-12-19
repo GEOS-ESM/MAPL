@@ -146,14 +146,13 @@ contains
       if (allocated(action)) then
          call new_spec%create(_RC)
          call new_spec%set_active()
-         coupler_gridcomp = make_coupler(action, _RC)
+         coupler_gridcomp = make_coupler(action, this%get_producer(), _RC)
          producer = GriddedComponentDriver(coupler_gridcomp, fake_clock, MultiState())
          extension = StateItemExtension(new_spec, producer)
          _RETURN(_SUCCESS)
       end if
 
-
-      ! The logic belowe should be removed once Aspects have fully
+      ! The logic below should be removed once Aspects have fully
       ! replaced Adapters.
       adapters = this%spec%make_adapters(goal, _RC)
       do i = 1, size(adapters)
@@ -171,7 +170,7 @@ contains
       call new_spec%create(_RC)
       call new_spec%set_active()
 
-      coupler_gridcomp = make_coupler(action, _RC)
+     coupler_gridcomp = make_coupler(action, this%get_producer(), _RC)
       producer = GriddedComponentDriver(coupler_gridcomp, fake_clock, MultiState())
       extension = StateItemExtension(new_spec, producer)
 

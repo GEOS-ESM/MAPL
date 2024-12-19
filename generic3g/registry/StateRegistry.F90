@@ -444,7 +444,7 @@ contains
       
    end subroutine propagate_unsatisfied_imports_virtual_pt
 
-   ! Loop over subregistryren and propagate unsatisfied imports of each
+   ! Loop over subregistry and propagate unsatisfied imports of each
    subroutine propagate_exports_all(this, rc)
       class(StateRegistry), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
@@ -495,7 +495,7 @@ contains
       type(VirtualConnectionPt), pointer :: virtual_pt
       type(VirtualConnectionPt) :: new_virtual_pt
       type(ExtensionFamily), pointer :: family
-!#      integer :: n
+      type(ExtensionFamily), pointer :: parent_family
       type(VirtualPtFamilyMapIterator) :: new_iter
 
       virtual_pt => iter%first()
@@ -506,18 +506,13 @@ contains
          new_virtual_pt = VirtualConnectionPt(virtual_pt, comp_name=subregistry_name)
       end if
 
-      ! TODO: Better logic would be the following line.  But gFTL has
-      ! a missing TARGET attribute (bug)
-!# n = this%family_map%erase(new_virtual_pt)
-      ! instead we do this:
-      associate(e => this%family_map%end())
-        new_iter = this%family_map%find(new_virtual_pt)
-        new_iter = this%family_map%erase(new_iter, e)
-      end associate
+      if (.not. this%has_virtual_pt(new_virtual_pt)) then
+         call this%add_virtual_pt(new_virtual_pt)
+      end if
 
-      call this%add_virtual_pt(new_virtual_pt, _RC)
       family => iter%second()
-      call this%family_map%insert(new_virtual_pt, family)
+      parent_family => this%get_extension_family(new_virtual_pt)
+      call parent_family%merge(family)
 
       _RETURN(_SUCCESS)
    end subroutine propagate_exports_virtual_pt

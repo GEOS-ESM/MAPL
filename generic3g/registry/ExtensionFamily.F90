@@ -30,6 +30,7 @@ module mapl3g_ExtensionFamily
       procedure :: get_extension
       procedure :: add_extension
       procedure :: num_variants
+      procedure :: merge
 
       procedure :: find_closest_extension
    end type ExtensionFamily
@@ -146,6 +147,7 @@ contains
             spec => extension_ptr%ptr%get_spec()
 
             src_aspect => spec%get_aspect(aspect_name, _RC)
+            _ASSERT(associated(src_aspect),'aspect '// aspect_name// ' not found')
 
             if (src_aspect%needs_extension_for(dst_aspect)) cycle
             call new_subgroup%push_back(extension_ptr)
@@ -183,6 +185,26 @@ contains
       _RETURN(_SUCCESS)
    end function find_closest_extension
 
+   subroutine merge(this, other)
+      class(ExtensionFamily), target, intent(inout) :: this
+      type(ExtensionFamily), target, intent(in) :: other
+
+      integer :: i, j
+      type(StateItemExtensionPtr) :: extension, other_extension
+
+      outer: do i = 1, other%num_variants()
+         other_extension = other%extensions%of(i)
+
+         do j = 1, this%num_variants()
+            extension = this%extensions%of(j)
+            if (associated(extension%ptr, other_extension%ptr)) cycle outer
+         end do
+         call this%extensions%push_back(other_extension)
+         
+      end do outer
+      this%has_primary_ = other%has_primary_
+
+   end subroutine merge
    
 end module mapl3g_ExtensionFamily
 
