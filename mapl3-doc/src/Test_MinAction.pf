@@ -1,0 +1,45 @@
+#include "MAPL_TestErr.h"
+module Test_MinAction
+   use mapl3g_MinAction
+   use accumulator_action_test_common
+   use esmf
+   use funit
+   use MAPL_FieldUtils
+   implicit none
+
+contains
+
+   @Test
+   subroutine test_min_accumulate_R4()
+      type(MinAction) :: acc
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+      integer :: status
+      type(ESMF_Field) :: update_field
+      type(ESMF_TypeKind_Flag), parameter :: tk =ESMF_TYPEKIND_R4
+      real(kind=ESMF_KIND_R4), pointer :: upPtr(:), accPtr(:)
+      real(kind=ESMF_KIND_R4), parameter :: UPDATE_VALUE = 1.0_R4, ACCUMULATED_VALUE = 3.0_R4
+      real(kind=ESMF_KIND_R4) :: undef_value
+      real(kind=ESMF_KIND_R4), allocatable :: expected(:)
+      integer :: i, n
+
+      ! Initialize
+      call set_undef(undef_value)
+      call initialize_objects(importState, exportState, clock, tk, _RC)
+      call acc%initialize(importState, exportState, clock, _RC)
+      call initialize_field(update_field, typekind=tk, _RC)
+      call assign_fptr(acc%accumulation_field, accPtr, _RC)
+      call assign_fptr(update_field, upPtr, _RC)
+      n = size(upPtr)
+      i = n - 3
+      accPtr(i:n) = [undef_value, ACCUMULATED_VALUE, ACCUMULATED_VALUE, ACCUMULATED_VALUE]
+      upPtr(i:n) = [UPDATE_VALUE, undef_value, UPDATE_VALUE, UPDATE_VALUE+ACCUMULATED_VALUE]
+      expected = [UPDATE_VALUE, ACCUMULATED_VALUE, UPDATE_VALUE, ACCUMULATED_VALUE]
+      call acc%accumulate_R4(update_field, _RC)
+      @assertEqual(expected, accPtr, 'accumulated_field not equal to expected values')
+      call ESMF_FieldDestroy(update_field, _RC)
+      call destroy_objects(importState, exportState, clock, _RC)
+
+   end subroutine test_min_accumulate_R4
+
+end module Test_MinAction
