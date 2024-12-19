@@ -17,6 +17,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.51.2] - 2024-12-19
+
+### Changed
+
+- Removed restriction that vector regridding in ExtData2G must be bilinear
+- Update CI to use Ubuntu 24 images
+
+### Fixed
+
+- Fixed by when using multiple rules for a vector item in ExtData2G
+- Fix profiler ExclusiveColumn test for GCC 14
+
 ## [2.51.1] - 2024-12-10
 
 ### Fixed
