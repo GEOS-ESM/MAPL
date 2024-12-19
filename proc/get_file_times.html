@@ -79,20 +79,20 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.1% of total for procedures.">45 statements</a>
+                 title=" 0.1% of total for procedures.">35 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/Regrid_Util.F90"> Source File</a>
+              <a href="../src/time_ave_util.F90"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/regrid_util.f90.html'>Regrid_Util.F90</a></li>
-                <li class="breadcrumb-item"><a href='../program/regrid_util.html'>Regrid_Util</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/time_ave_util.f90.html'>time_ave_util.F90</a></li>
+                <li class="breadcrumb-item"><a href='../program/time_ave.html'>time_ave</a></li>
             <li class="breadcrumb-item active" aria-current="page">get_file_times</li>
           </ol>
         </nav>
@@ -144,7 +144,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2> subroutine get_file_times(filename, itime, alltimes, tseries, timeInterval, tint, tsteps, rc)  
+    <h2> subroutine get_file_times(file_metadata, num_times, time_series, time_interval, yymmdd, hhmmss, rc)  
 </h2>
     
 
@@ -163,52 +163,37 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-filename~37"></span>
-              character(len=*),
+              <span class="anchor" id="variable-file_metadata~7"></span>
+              type(<a href='../type/filemetadatautils.html'>FileMetadataUtils</a>),
             </td>
-<td>intent(in)</td>
+<td>intent(inout)</td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>filename</strong></td>
+            <td><strong>file_metadata</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-itime~4"></span>
+              <span class="anchor" id="variable-num_times~2"></span>
               integer,
             </td>
-<td>intent(in)</td>
+<td>intent(out)</td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>itime</strong>(2)</td>
+            <td><strong>num_times</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-alltimes"></span>
-              logical,
-            </td>
-<td>intent(in)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>alltimes</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-tseries"></span>
+              <span class="anchor" id="variable-time_series~4"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_time.html'>ESMF_Time</a>),
             </td>
 <td>intent(inout),</td>
@@ -216,29 +201,14 @@
               allocatable
             </td>
             <td>::</td>
-            <td><strong>tseries</strong>(:)</td>
+            <td><strong>time_series</strong>(:)</td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-timeinterval~4"></span>
-              type(<a href='https://mathomp4.github.io/esmf/type/esmf_timeinterval.html'>ESMF_TimeInterval</a>),
-            </td>
-<td>intent(inout)</td>
-              <td></td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>timeInterval</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-tint~5"></span>
+              <span class="anchor" id="variable-time_interval~4"></span>
               integer,
             </td>
 <td>intent(out)</td>
@@ -246,29 +216,44 @@
               
             </td>
             <td>::</td>
-            <td><strong>tint</strong></td>
+            <td><strong>time_interval</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tsteps~2"></span>
+              <span class="anchor" id="variable-yymmdd~2"></span>
               integer,
             </td>
-<td>intent(out)</td>
+<td>intent(inout),</td>
               <td></td>            <td>
-              
+              allocatable
             </td>
             <td>::</td>
-            <td><strong>tsteps</strong></td>
+            <td><strong>yymmdd</strong>(:)</td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~843"></span>
+              <span class="anchor" id="variable-hhmmss~10"></span>
+              integer,
+            </td>
+<td>intent(inout),</td>
+              <td></td>            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>hhmmss</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~570"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -296,616 +281,625 @@
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~get_file_times~~CallsGraph Pages: 1 -->
-<svg id="procget_file_timesCallsGraph" width="641pt" height="386pt"
- viewBox="0.00 0.00 641.00 386.33" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~get_file_times~~CallsGraph" class="graph" transform="scale(0.45 0.45) rotate(0) translate(4 847)">
+<svg id="procget_file_timesCallsGraph" width="641pt" height="481pt"
+ viewBox="0.00 0.00 641.00 480.77" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~get_file_times~~CallsGraph" class="graph" transform="scale(0.53 0.53) rotate(0) translate(4 898.28)">
 <title>proc~~get_file_times~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-847 1408,-847 1408,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-898.28 1199,-898.28 1199,4 -4,4"/>
 <!-- proc~get_file_times -->
 <g id="proc~~get_file_times~~CallsGraph_node1" class="node">
 <title>proc~get_file_times</title>
-<polygon fill="none" stroke="black" points="86,-683 0,-683 0,-659 86,-659 86,-683"/>
-<text text-anchor="middle" x="43" y="-668.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_file_times</text>
+<polygon fill="none" stroke="black" points="86,-611.4 0,-611.4 0,-587.4 86,-587.4 86,-611.4"/>
+<text text-anchor="middle" x="43" y="-597" font-family="Helvetica,sans-Serif" font-size="10.50">get_file_times</text>
+</g>
+<!-- ESMF_TimeGet -->
+<g id="proc~~get_file_times~~CallsGraph_node2" class="node">
+<title>ESMF_TimeGet</title>
+<g id="a_proc~~get_file_times~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_timeget.html" xlink:title="ESMF_TimeGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="522,-831.4 431,-831.4 431,-807.4 522,-807.4 522,-831.4"/>
+<text text-anchor="middle" x="476.5" y="-817" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeGet</text>
+</a>
+</g>
+</g>
+<!-- proc~get_file_times&#45;&gt;ESMF_TimeGet -->
+<g id="proc~~get_file_times~~CallsGraph_edge1" class="edge">
+<title>proc~get_file_times&#45;&gt;ESMF_TimeGet</title>
+<path fill="none" stroke="#ff0000" d="M45.72,-611.59C52.66,-658.91 80.28,-829.33 122,-860.4 219.99,-933.4 377.56,-869.14 444.17,-836.13"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="445.97,-839.14 453.31,-831.51 442.81,-832.89 445.97,-839.14"/>
 </g>
 <!-- ESMF_TimeIntervalGet -->
-<g id="proc~~get_file_times~~CallsGraph_node2" class="node">
+<g id="proc~~get_file_times~~CallsGraph_node3" class="node">
 <title>ESMF_TimeIntervalGet</title>
-<g id="a_proc~~get_file_times~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeintervalget.html" xlink:title="ESMF_TimeIntervalGet">
-<polygon fill="#a7506f" stroke="#a7506f" points="280.5,-843 148.5,-843 148.5,-819 280.5,-819 280.5,-843"/>
-<text text-anchor="middle" x="214.5" y="-828.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeIntervalGet</text>
+<g id="a_proc~~get_file_times~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeintervalget.html" xlink:title="ESMF_TimeIntervalGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="292.5,-851.4 160.5,-851.4 160.5,-827.4 292.5,-827.4 292.5,-851.4"/>
+<text text-anchor="middle" x="226.5" y="-837" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeIntervalGet</text>
 </a>
 </g>
 </g>
 <!-- proc~get_file_times&#45;&gt;ESMF_TimeIntervalGet -->
-<g id="proc~~get_file_times~~CallsGraph_edge1" class="edge">
-<title>proc~get_file_times&#45;&gt;ESMF_TimeIntervalGet</title>
-<path fill="none" stroke="#ff0000" d="M47.59,-683.08C56.03,-709.4 79.69,-772.15 122,-805 127.14,-808.99 132.86,-812.36 138.86,-815.22"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="137.91,-818.62 148.49,-819.3 140.64,-812.18 137.91,-818.62"/>
-</g>
-<!-- ESMF_TimeIntervalSet -->
-<g id="proc~~get_file_times~~CallsGraph_node3" class="node">
-<title>ESMF_TimeIntervalSet</title>
-<g id="a_proc~~get_file_times~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeintervalset.html" xlink:title="ESMF_TimeIntervalSet">
-<polygon fill="#a7506f" stroke="#a7506f" points="517.5,-725 387.5,-725 387.5,-701 517.5,-701 517.5,-725"/>
-<text text-anchor="middle" x="452.5" y="-710.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeIntervalSet</text>
-</a>
-</g>
-</g>
-<!-- proc~get_file_times&#45;&gt;ESMF_TimeIntervalSet -->
 <g id="proc~~get_file_times~~CallsGraph_edge2" class="edge">
-<title>proc~get_file_times&#45;&gt;ESMF_TimeIntervalSet</title>
-<path fill="none" stroke="#ff0000" d="M86.39,-679.35C97.91,-681.41 110.41,-683.47 122,-685 209.3,-696.52 310.27,-704.29 377.19,-708.66"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="377.01,-712.16 387.22,-709.31 377.46,-705.17 377.01,-712.16"/>
-</g>
-<!-- ESMF_TimeSet -->
-<g id="proc~~get_file_times~~CallsGraph_node4" class="node">
-<title>ESMF_TimeSet</title>
-<g id="a_proc~~get_file_times~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeset.html" xlink:title="ESMF_TimeSet">
-<polygon fill="#a7506f" stroke="#a7506f" points="497.5,-683 407.5,-683 407.5,-659 497.5,-659 497.5,-683"/>
-<text text-anchor="middle" x="452.5" y="-668.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeSet</text>
-</a>
-</g>
-</g>
-<!-- proc~get_file_times&#45;&gt;ESMF_TimeSet -->
-<g id="proc~~get_file_times~~CallsGraph_edge3" class="edge">
-<title>proc~get_file_times&#45;&gt;ESMF_TimeSet</title>
-<path fill="none" stroke="#ff0000" d="M86.07,-671C160.37,-671 314.72,-671 397.04,-671"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="397.19,-674.5 407.19,-671 397.19,-667.5 397.19,-674.5"/>
+<title>proc~get_file_times&#45;&gt;ESMF_TimeIntervalGet</title>
+<path fill="none" stroke="#ff0000" d="M44.62,-611.48C47.17,-647.87 59.88,-757.4 122,-813.4 130.16,-820.77 140.1,-826.11 150.56,-829.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="149.68,-833.37 160.27,-833.13 151.84,-826.72 149.68,-833.37"/>
 </g>
 <!-- none~get_dimension -->
-<g id="proc~~get_file_times~~CallsGraph_node5" class="node">
+<g id="proc~~get_file_times~~CallsGraph_node4" class="node">
 <title>none~get_dimension</title>
-<g id="a_proc~~get_file_times~~CallsGraph_node5"><a xlink:href="../type/filemetadata.html#boundprocedure-get_dimension" xlink:title="FileMetadata%get_dimension">
-<polygon fill="#a7506f" stroke="#a7506f" points="800,-804 631,-804 631,-780 800,-780 800,-804"/>
-<text text-anchor="middle" x="715.5" y="-789.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadata%get_dimension</text>
+<g id="a_proc~~get_file_times~~CallsGraph_node4"><a xlink:href="../type/filemetadata.html#boundprocedure-get_dimension" xlink:title="FileMetadata%get_dimension">
+<polygon fill="#a7506f" stroke="#a7506f" points="824,-842.4 655,-842.4 655,-818.4 824,-818.4 824,-842.4"/>
+<text text-anchor="middle" x="739.5" y="-828" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadata%get_dimension</text>
 </a>
 </g>
 </g>
 <!-- proc~get_file_times&#45;&gt;none~get_dimension -->
-<g id="proc~~get_file_times~~CallsGraph_edge4" class="edge">
+<g id="proc~~get_file_times~~CallsGraph_edge3" class="edge">
 <title>proc~get_file_times&#45;&gt;none~get_dimension</title>
-<path fill="none" stroke="#ff0000" d="M49.61,-683.2C60.23,-704.68 85.54,-748.69 122,-767 206.69,-809.52 475.94,-803.82 620.54,-797.26"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="620.91,-800.74 630.73,-796.78 620.58,-793.75 620.91,-800.74"/>
-</g>
-<!-- proc~create -->
-<g id="proc~~get_file_times~~CallsGraph_node6" class="node">
-<title>proc~create</title>
-<g id="a_proc~~get_file_times~~CallsGraph_node6"><a xlink:href="../proc/create.html" xlink:title="FileMetadataUtils%create">
-<polygon fill="#d9534f" stroke="#d9534f" points="288,-66 141,-66 141,-42 288,-42 288,-66"/>
-<text text-anchor="middle" x="214.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadataUtils%create</text>
-</a>
-</g>
-</g>
-<!-- proc~get_file_times&#45;&gt;proc~create -->
-<g id="proc~~get_file_times~~CallsGraph_edge5" class="edge">
-<title>proc~get_file_times&#45;&gt;proc~create</title>
-<path fill="none" stroke="#ff0000" d="M43.86,-658.79C43.22,-582.41 43.51,-170.84 122,-80 125,-76.53 128.42,-73.51 132.14,-70.88"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="133.94,-73.88 140.71,-65.72 130.34,-67.88 133.94,-73.88"/>
+<path fill="none" stroke="#ff0000" d="M59.86,-611.67C122.29,-659.92 348.7,-834.33 367,-840.4 471.69,-875.16 602.23,-859.03 677.41,-844.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="678.51,-847.83 687.64,-842.45 677.15,-840.97 678.51,-847.83"/>
 </g>
 <!-- proc~get_time_info -->
-<g id="proc~~get_file_times~~CallsGraph_node7" class="node">
+<g id="proc~~get_file_times~~CallsGraph_node5" class="node">
 <title>proc~get_time_info</title>
-<g id="a_proc~~get_file_times~~CallsGraph_node7"><a xlink:href="../proc/get_time_info.html" xlink:title="FileMetadataUtils%get_time_info">
-<polygon fill="#d9534f" stroke="#d9534f" points="307,-465 122,-465 122,-441 307,-441 307,-465"/>
-<text text-anchor="middle" x="214.5" y="-450.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadataUtils%get_time_info</text>
+<g id="a_proc~~get_file_times~~CallsGraph_node5"><a xlink:href="../proc/get_time_info.html" xlink:title="FileMetadataUtils%get_time_info">
+<polygon fill="#d9534f" stroke="#d9534f" points="319,-611.4 134,-611.4 134,-587.4 319,-587.4 319,-611.4"/>
+<text text-anchor="middle" x="226.5" y="-597" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadataUtils%get_time_info</text>
 </a>
 </g>
 </g>
 <!-- proc~get_file_times&#45;&gt;proc~get_time_info -->
-<g id="proc~~get_file_times~~CallsGraph_edge6" class="edge">
+<g id="proc~~get_file_times~~CallsGraph_edge4" class="edge">
 <title>proc~get_file_times&#45;&gt;proc~get_time_info</title>
-<path fill="none" stroke="#ff0000" d="M53.35,-658.97C81.07,-623.32 162.99,-517.96 197.69,-473.34"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="200.59,-475.31 203.97,-465.26 195.06,-471.01 200.59,-475.31"/>
+<path fill="none" stroke="#ff0000" d="M86.1,-599.4C97.53,-599.4 110.42,-599.4 123.64,-599.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="123.79,-602.9 133.79,-599.4 123.79,-595.9 123.79,-602.9"/>
 </g>
-<!-- proc~mapl_return -->
-<g id="proc~~get_file_times~~CallsGraph_node8" class="node">
-<title>proc~mapl_return</title>
-<g id="a_proc~~get_file_times~~CallsGraph_node8"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
-<polygon fill="#d9534f" stroke="#d9534f" points="1205,-544 1123,-544 1123,-520 1205,-520 1205,-544"/>
-<text text-anchor="middle" x="1164" y="-529.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+<!-- proc~get_var_attr_int32 -->
+<g id="proc~~get_file_times~~CallsGraph_node6" class="node">
+<title>proc~get_var_attr_int32</title>
+<g id="a_proc~~get_file_times~~CallsGraph_node6"><a xlink:href="../proc/get_var_attr_int32.html" xlink:title="FileMetadataUtils%get_var_attr_int32">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="331,-276.4 122,-276.4 122,-252.4 331,-252.4 331,-276.4"/>
+<text text-anchor="middle" x="226.5" y="-262" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadataUtils%get_var_attr_int32</text>
 </a>
 </g>
 </g>
-<!-- proc~get_file_times&#45;&gt;proc~mapl_return -->
-<g id="proc~~get_file_times~~CallsGraph_edge7" class="edge">
-<title>proc~get_file_times&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#ff0000" d="M46.15,-658.95C61.71,-576.09 164.53,-94 451.5,-94 451.5,-94 451.5,-94 716.5,-94 868,-94 941.14,-12.38 1057,-110 1113.73,-157.81 1075.32,-200.95 1093,-273 1114.69,-361.39 1144.05,-465.73 1156.73,-510.18"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="1153.4,-511.26 1159.52,-519.92 1160.13,-509.34 1153.4,-511.26"/>
+<!-- proc~get_file_times&#45;&gt;proc~get_var_attr_int32 -->
+<g id="proc~~get_file_times~~CallsGraph_edge5" class="edge">
+<title>proc~get_file_times&#45;&gt;proc~get_var_attr_int32</title>
+<path fill="none" stroke="#ff0000" d="M50.67,-587.08C77.75,-537.11 179.58,-349.16 214.03,-285.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="217.27,-286.94 218.96,-276.48 211.11,-283.61 217.27,-286.94"/>
+</g>
+<!-- proc~mapl_abort -->
+<g id="proc~~get_file_times~~CallsGraph_node7" class="node">
+<title>proc~mapl_abort</title>
+<g id="a_proc~~get_file_times~~CallsGraph_node7"><a xlink:href="../proc/mapl_abort.html" xlink:title="MAPL_abort">
+<polygon fill="#d9534f" stroke="#d9534f" points="264,-156.4 189,-156.4 189,-132.4 264,-132.4 264,-156.4"/>
+<text text-anchor="middle" x="226.5" y="-142" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_abort</text>
+</a>
+</g>
+</g>
+<!-- proc~get_file_times&#45;&gt;proc~mapl_abort -->
+<g id="proc~~get_file_times~~CallsGraph_edge6" class="edge">
+<title>proc~get_file_times&#45;&gt;proc~mapl_abort</title>
+<path fill="none" stroke="#ff0000" d="M44.16,-587.14C45.27,-539.66 54,-364.5 122,-243.4 140.98,-209.61 175.21,-180.27 199.09,-162.49"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="201.34,-165.18 207.37,-156.47 197.22,-159.52 201.34,-165.18"/>
 </g>
 <!-- proc~mapl_verify -->
-<g id="proc~~get_file_times~~CallsGraph_node9" class="node">
+<g id="proc~~get_file_times~~CallsGraph_node8" class="node">
 <title>proc~mapl_verify</title>
-<g id="a_proc~~get_file_times~~CallsGraph_node9"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="1001,-706 925,-706 925,-682 1001,-682 1001,-706"/>
-<text text-anchor="middle" x="963" y="-691.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+<g id="a_proc~~get_file_times~~CallsGraph_node8"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="777.5,-156.4 701.5,-156.4 701.5,-132.4 777.5,-132.4 777.5,-156.4"/>
+<text text-anchor="middle" x="739.5" y="-142" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
 </a>
 </g>
 </g>
 <!-- proc~get_file_times&#45;&gt;proc~mapl_verify -->
-<g id="proc~~get_file_times~~CallsGraph_edge8" class="edge">
+<g id="proc~~get_file_times~~CallsGraph_edge7" class="edge">
 <title>proc~get_file_times&#45;&gt;proc~mapl_verify</title>
-<path fill="none" stroke="#ff0000" d="M64.78,-683.16C80.09,-691.53 101.69,-702.16 122,-708 217.05,-735.33 244.27,-728.21 343,-734 556.33,-746.51 810.86,-715.59 914.54,-701.05"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="915.27,-704.49 924.68,-699.62 914.29,-697.56 915.27,-704.49"/>
-</g>
-<!-- proc~unpackdatetime -->
-<g id="proc~~get_file_times~~CallsGraph_node10" class="node">
-<title>proc~unpackdatetime</title>
-<g id="a_proc~~get_file_times~~CallsGraph_node10"><a xlink:href="../proc/unpackdatetime.html" xlink:title="UnpackDateTime">
-<polygon fill="#d9534f" stroke="#d9534f" points="266.5,-24 162.5,-24 162.5,0 266.5,0 266.5,-24"/>
-<text text-anchor="middle" x="214.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UnpackDateTime</text>
-</a>
-</g>
-</g>
-<!-- proc~get_file_times&#45;&gt;proc~unpackdatetime -->
-<g id="proc~~get_file_times~~CallsGraph_edge9" class="edge">
-<title>proc~get_file_times&#45;&gt;proc~unpackdatetime</title>
-<path fill="none" stroke="#ff0000" d="M44.66,-658.75C49.32,-574.39 78.3,-81.5 122,-33 130.01,-24.11 140.96,-18.59 152.49,-15.24"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="153.35,-18.63 162.27,-12.91 151.73,-11.82 153.35,-18.63"/>
-</g>
-<!-- none~get_dimension&#45;&gt;proc~mapl_return -->
-<g id="proc~~get_file_times~~CallsGraph_edge12" class="edge">
-<title>none~get_dimension&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M770.74,-779.94C790.36,-775.57 812.68,-770.58 833,-766 836.11,-765.3 1054.43,-716.89 1057,-715 1113.21,-673.6 1144.39,-592.76 1156.72,-553.89"/>
-<polygon fill="#00ff00" stroke="#00ff00" points="1160.13,-554.7 1159.7,-544.11 1153.44,-552.66 1160.13,-554.7"/>
+<path fill="none" stroke="#ff0000" d="M44.33,-587.06C46.39,-519.62 59.45,-196.08 122,-123.4 258.46,35.15 385.56,15.45 586,-44.4 639.06,-60.25 690.8,-101.12 718.26,-125.43"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="716.21,-128.29 725.98,-132.39 720.9,-123.09 716.21,-128.29"/>
 </g>
 <!-- at -->
-<g id="proc~~get_file_times~~CallsGraph_node12" class="node">
+<g id="proc~~get_file_times~~CallsGraph_node11" class="node">
 <title>at</title>
-<polygon fill="#777777" stroke="#777777" points="1364.5,-627 1310.5,-627 1310.5,-603 1364.5,-603 1364.5,-627"/>
-<text text-anchor="middle" x="1337.5" y="-612.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+<polygon fill="#777777" stroke="#777777" points="1155.5,-621.4 1101.5,-621.4 1101.5,-597.4 1155.5,-597.4 1155.5,-621.4"/>
+<text text-anchor="middle" x="1128.5" y="-607" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
 </g>
 <!-- none~get_dimension&#45;&gt;at -->
-<g id="proc~~get_file_times~~CallsGraph_edge10" class="edge">
+<g id="proc~~get_file_times~~CallsGraph_edge8" class="edge">
 <title>none~get_dimension&#45;&gt;at</title>
-<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M800.26,-789.28C870.14,-785.22 971.72,-775.11 1057,-750 1154.13,-721.4 1259.24,-662.06 1308.3,-632.51"/>
-<polygon fill="#00ff00" stroke="#00ff00" points="1310.34,-635.37 1317.07,-627.18 1306.71,-629.38 1310.34,-635.37"/>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M815.6,-818.35C829.69,-814.78 844.05,-810.22 857,-804.4 960.94,-757.73 1064.94,-667.56 1107.48,-628.37"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="1109.98,-630.82 1114.92,-621.45 1105.21,-625.7 1109.98,-630.82"/>
 </g>
 <!-- find -->
-<g id="proc~~get_file_times~~CallsGraph_node13" class="node">
+<g id="proc~~get_file_times~~CallsGraph_node12" class="node">
 <title>find</title>
-<polygon fill="#777777" stroke="#777777" points="990,-824 936,-824 936,-800 990,-800 990,-824"/>
-<text text-anchor="middle" x="963" y="-809.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">find</text>
+<polygon fill="#777777" stroke="#777777" points="986.5,-842.4 932.5,-842.4 932.5,-818.4 986.5,-818.4 986.5,-842.4"/>
+<text text-anchor="middle" x="959.5" y="-828" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">find</text>
 </g>
 <!-- none~get_dimension&#45;&gt;find -->
-<g id="proc~~get_file_times~~CallsGraph_edge11" class="edge">
+<g id="proc~~get_file_times~~CallsGraph_edge9" class="edge">
 <title>none~get_dimension&#45;&gt;find</title>
-<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M800.3,-798.83C843.04,-802.31 892.81,-806.36 925.72,-809.04"/>
-<polygon fill="#00ff00" stroke="#00ff00" points="925.54,-812.54 935.79,-809.86 926.11,-805.56 925.54,-812.54"/>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M824.16,-830.4C858.08,-830.4 895.47,-830.4 922.17,-830.4"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="922.2,-833.9 932.2,-830.4 922.2,-826.9 922.2,-833.9"/>
 </g>
-<!-- proc~get_time_info&#45;&gt;ESMF_TimeIntervalSet -->
-<g id="proc~~get_file_times~~CallsGraph_edge14" class="edge">
-<title>proc~get_time_info&#45;&gt;ESMF_TimeIntervalSet</title>
-<path fill="none" stroke="#00a9ff" d="M218.07,-465.08C227.18,-504.78 261.85,-632.09 343,-692 353.11,-699.46 365.15,-704.48 377.46,-707.82"/>
-<polygon fill="#00a9ff" stroke="#00a9ff" points="376.84,-711.27 387.37,-710.15 378.44,-704.45 376.84,-711.27"/>
-</g>
-<!-- proc~get_time_info&#45;&gt;ESMF_TimeSet -->
-<g id="proc~~get_file_times~~CallsGraph_edge15" class="edge">
-<title>proc~get_time_info&#45;&gt;ESMF_TimeSet</title>
-<path fill="none" stroke="#00a9ff" d="M219.88,-465.19C232.85,-499.44 274.45,-597.1 343,-645 358.81,-656.05 378.73,-662.43 397.18,-666.11"/>
-<polygon fill="#00a9ff" stroke="#00a9ff" points="396.78,-669.6 407.24,-667.89 398,-662.7 396.78,-669.6"/>
-</g>
-<!-- proc~get_time_info&#45;&gt;proc~mapl_return -->
-<g id="proc~~get_file_times~~CallsGraph_edge23" class="edge">
-<title>proc~get_time_info&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#00a9ff" d="M241.94,-465.1C267.44,-476.45 307.31,-493.38 343,-505 571.98,-579.56 629.95,-605.9 869,-635 951.94,-645.1 979.58,-666.42 1057,-635 1062.46,-632.79 1114.6,-580.77 1143.67,-551.53"/>
-<polygon fill="#00a9ff" stroke="#00a9ff" points="1146.3,-553.85 1150.86,-544.28 1141.33,-548.92 1146.3,-553.85"/>
-</g>
-<!-- proc~get_time_info&#45;&gt;proc~mapl_verify -->
-<g id="proc~~get_file_times~~CallsGraph_edge24" class="edge">
-<title>proc~get_time_info&#45;&gt;proc~mapl_verify</title>
-<path fill="none" stroke="#00a9ff" d="M221.61,-465C237.31,-494.5 282.14,-570.8 343,-607 428.25,-657.71 464.91,-629.68 562,-650 578.04,-653.36 581.82,-655.41 598,-658 710.88,-676.06 844.99,-686.52 914.66,-691.14"/>
-<polygon fill="#00a9ff" stroke="#00a9ff" points="914.66,-694.65 924.87,-691.81 915.12,-687.66 914.66,-694.65"/>
-</g>
-<!-- ESMF_TimeGet -->
-<g id="proc~~get_file_times~~CallsGraph_node11" class="node">
-<title>ESMF_TimeGet</title>
-<g id="a_proc~~get_file_times~~CallsGraph_node11"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_timeget.html" xlink:title="ESMF_TimeGet">
-<polygon fill="#d9534f" stroke="#d9534f" points="498,-423 407,-423 407,-399 498,-399 498,-423"/>
-<text text-anchor="middle" x="452.5" y="-408.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeGet</text>
+<!-- proc~mapl_return -->
+<g id="proc~~get_file_times~~CallsGraph_node23" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~get_file_times~~CallsGraph_node23"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="1000.5,-518.4 918.5,-518.4 918.5,-494.4 1000.5,-494.4 1000.5,-518.4"/>
+<text text-anchor="middle" x="959.5" y="-504" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
 </a>
 </g>
 </g>
+<!-- none~get_dimension&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_file_times~~CallsGraph_edge10" class="edge">
+<title>none~get_dimension&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#48ff00" stroke-dasharray="5,2" d="M824.23,-822.72C836.24,-818.64 847.67,-812.78 857,-804.4 867.81,-794.71 930.68,-595.55 951.68,-528.34"/>
+<polygon fill="#48ff00" stroke="#48ff00" points="955.04,-529.32 954.67,-518.73 948.35,-527.23 955.04,-529.32"/>
+</g>
 <!-- proc~get_time_info&#45;&gt;ESMF_TimeGet -->
-<g id="proc~~get_file_times~~CallsGraph_edge13" class="edge">
+<g id="proc~~get_file_times~~CallsGraph_edge11" class="edge">
 <title>proc~get_time_info&#45;&gt;ESMF_TimeGet</title>
-<path fill="none" stroke="#00a9ff" d="M283.13,-440.96C319.17,-434.55 362.93,-426.76 396.81,-420.73"/>
-<polygon fill="#00a9ff" stroke="#00a9ff" points="397.75,-424.12 406.98,-418.92 396.53,-417.23 397.75,-424.12"/>
+<path fill="none" stroke="#00ff91" d="M232.09,-611.45C246.19,-646.68 292.48,-750.08 367,-798.4 382.89,-808.71 402.66,-814.19 420.96,-817.03"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="420.56,-820.51 430.93,-818.36 421.48,-813.57 420.56,-820.51"/>
+</g>
+<!-- proc~get_time_info&#45;&gt;proc~mapl_verify -->
+<g id="proc~~get_file_times~~CallsGraph_edge22" class="edge">
+<title>proc~get_time_info&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ff91" d="M231.43,-587.14C252.42,-521.76 351.01,-216.73 367,-203.4 370.11,-200.81 591.7,-166.78 691.13,-151.61"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="691.85,-155.04 701.21,-150.07 690.8,-148.12 691.85,-155.04"/>
+</g>
+<!-- ESMF_TimeIntervalSet -->
+<g id="proc~~get_file_times~~CallsGraph_node9" class="node">
+<title>ESMF_TimeIntervalSet</title>
+<g id="a_proc~~get_file_times~~CallsGraph_node9"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeintervalset.html" xlink:title="ESMF_TimeIntervalSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="541.5,-789.4 411.5,-789.4 411.5,-765.4 541.5,-765.4 541.5,-789.4"/>
+<text text-anchor="middle" x="476.5" y="-775" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeIntervalSet</text>
+</a>
+</g>
+</g>
+<!-- proc~get_time_info&#45;&gt;ESMF_TimeIntervalSet -->
+<g id="proc~~get_file_times~~CallsGraph_edge12" class="edge">
+<title>proc~get_time_info&#45;&gt;ESMF_TimeIntervalSet</title>
+<path fill="none" stroke="#00ff91" d="M234.43,-611.65C252.16,-641.75 302.37,-719.59 367,-756.4 377.48,-762.38 389.37,-766.68 401.33,-769.78"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="400.83,-773.26 411.36,-772.11 402.41,-766.44 400.83,-773.26"/>
+</g>
+<!-- ESMF_TimeSet -->
+<g id="proc~~get_file_times~~CallsGraph_node10" class="node">
+<title>ESMF_TimeSet</title>
+<g id="a_proc~~get_file_times~~CallsGraph_node10"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_timeset.html" xlink:title="ESMF_TimeSet">
+<polygon fill="#a7506f" stroke="#a7506f" points="521.5,-747.4 431.5,-747.4 431.5,-723.4 521.5,-723.4 521.5,-747.4"/>
+<text text-anchor="middle" x="476.5" y="-733" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TimeSet</text>
+</a>
+</g>
+</g>
+<!-- proc~get_time_info&#45;&gt;ESMF_TimeSet -->
+<g id="proc~~get_file_times~~CallsGraph_edge13" class="edge">
+<title>proc~get_time_info&#45;&gt;ESMF_TimeSet</title>
+<path fill="none" stroke="#00ff91" d="M239.31,-611.75C261.89,-634.61 313.72,-683.57 367,-709.4 383.76,-717.53 403.23,-723.22 421.01,-727.15"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="420.75,-730.68 431.26,-729.28 422.17,-723.82 420.75,-730.68"/>
 </g>
 <!-- interface~mapl_assert -->
-<g id="proc~~get_file_times~~CallsGraph_node15" class="node">
+<g id="proc~~get_file_times~~CallsGraph_node13" class="node">
 <title>interface~mapl_assert</title>
-<g id="a_proc~~get_file_times~~CallsGraph_node15"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
-<polygon fill="#a7506f" stroke="#a7506f" points="1002.5,-344 923.5,-344 923.5,-320 1002.5,-320 1002.5,-344"/>
-<text text-anchor="middle" x="963" y="-329.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+<g id="a_proc~~get_file_times~~CallsGraph_node13"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="999,-314.4 920,-314.4 920,-290.4 999,-290.4 999,-314.4"/>
+<text text-anchor="middle" x="959.5" y="-300" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
 </a>
 </g>
 </g>
 <!-- proc~get_time_info&#45;&gt;interface~mapl_assert -->
-<g id="proc~~get_file_times~~CallsGraph_edge16" class="edge">
+<g id="proc~~get_file_times~~CallsGraph_edge14" class="edge">
 <title>proc~get_time_info&#45;&gt;interface~mapl_assert</title>
-<path fill="none" stroke="#00a9ff" d="M221.49,-440.86C236.92,-411.08 281.17,-334.38 343,-301 439,-249.18 726.56,-247.1 833,-271 870.24,-279.36 909.39,-299.76 934.65,-314.67"/>
-<polygon fill="#00a9ff" stroke="#00a9ff" points="932.93,-317.72 943.3,-319.88 936.54,-311.72 932.93,-317.72"/>
+<path fill="none" stroke="#00ff91" d="M231.01,-587.25C242.86,-548.5 285.35,-427.08 367,-370.4 536.46,-252.78 801.16,-277.22 909.64,-293.71"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="909.22,-297.19 919.64,-295.28 910.3,-290.27 909.22,-297.19"/>
 </g>
-<!-- none~get_attribute -->
+<!-- none~get_attribute~2 -->
 <g id="proc~~get_file_times~~CallsGraph_node16" class="node">
-<title>none~get_attribute</title>
-<g id="a_proc~~get_file_times~~CallsGraph_node16"><a xlink:href="../type/variable.html#boundprocedure-get_attribute" xlink:title="Variable%get_attribute">
-<polygon fill="#a7506f" stroke="#a7506f" points="782.5,-304 648.5,-304 648.5,-280 782.5,-280 782.5,-304"/>
-<text text-anchor="middle" x="715.5" y="-289.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Variable%get_attribute</text>
+<title>none~get_attribute~2</title>
+<g id="a_proc~~get_file_times~~CallsGraph_node16"><a xlink:href="../type/variable.html#boundprocedure-get_attribute~2" xlink:title="Variable%get_attribute">
+<polygon fill="#a7506f" stroke="#a7506f" points="806.5,-354.4 672.5,-354.4 672.5,-330.4 806.5,-330.4 806.5,-354.4"/>
+<text text-anchor="middle" x="739.5" y="-340" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Variable%get_attribute</text>
 </a>
 </g>
 </g>
-<!-- proc~get_time_info&#45;&gt;none~get_attribute -->
-<g id="proc~~get_file_times~~CallsGraph_edge17" class="edge">
-<title>proc~get_time_info&#45;&gt;none~get_attribute</title>
-<path fill="none" stroke="#00a9ff" d="M228.07,-440.93C249.67,-420.92 296.07,-381.08 343,-361 439.68,-319.63 560.95,-303.01 638.1,-296.37"/>
-<polygon fill="#00a9ff" stroke="#00a9ff" points="638.54,-299.85 648.22,-295.54 637.97,-292.87 638.54,-299.85"/>
+<!-- proc~get_time_info&#45;&gt;none~get_attribute~2 -->
+<g id="proc~~get_file_times~~CallsGraph_edge15" class="edge">
+<title>proc~get_time_info&#45;&gt;none~get_attribute~2</title>
+<path fill="none" stroke="#00ff91" d="M237.91,-587.12C259.66,-562.07 312.45,-504.53 367,-469.4 470.19,-402.96 504.26,-398.05 622,-363.4 634.8,-359.64 648.61,-356.43 662.08,-353.74"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="663.14,-357.1 672.3,-351.78 661.82,-350.23 663.14,-357.1"/>
 </g>
 <!-- none~get_coordinate_data -->
 <g id="proc~~get_file_times~~CallsGraph_node17" class="node">
 <title>none~get_coordinate_data</title>
 <g id="a_proc~~get_file_times~~CallsGraph_node17"><a xlink:href="../type/coordinatevariable.html#boundprocedure-get_coordinate_data" xlink:title="CoordinateVariable%get_coordinate_data">
-<polygon fill="#a7506f" stroke="#a7506f" points="833,-384 598,-384 598,-360 833,-360 833,-384"/>
-<text text-anchor="middle" x="715.5" y="-369.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CoordinateVariable%get_coordinate_data</text>
+<polygon fill="#a7506f" stroke="#a7506f" points="857,-762.4 622,-762.4 622,-738.4 857,-738.4 857,-762.4"/>
+<text text-anchor="middle" x="739.5" y="-748" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CoordinateVariable%get_coordinate_data</text>
 </a>
 </g>
 </g>
 <!-- proc~get_time_info&#45;&gt;none~get_coordinate_data -->
-<g id="proc~~get_file_times~~CallsGraph_edge18" class="edge">
+<g id="proc~~get_file_times~~CallsGraph_edge16" class="edge">
 <title>proc~get_time_info&#45;&gt;none~get_coordinate_data</title>
-<path fill="none" stroke="#00a9ff" d="M233.98,-440.81C257.96,-425.72 301.65,-400.72 343,-390 422.55,-369.38 514.81,-364.81 587.5,-365.43"/>
-<polygon fill="#00a9ff" stroke="#00a9ff" points="587.58,-368.93 597.62,-365.55 587.66,-361.93 587.58,-368.93"/>
+<path fill="none" stroke="#00ff91" d="M267.27,-611.42C295.06,-619.6 333.11,-630.35 367,-638.4 463.51,-661.33 501.99,-628.67 586,-681.4 608.59,-695.58 599.31,-715.4 622,-729.4 624.84,-731.16 627.79,-732.77 630.83,-734.26"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="629.59,-737.54 640.15,-738.35 632.4,-731.13 629.59,-737.54"/>
 </g>
 <!-- none~get_coordinate_variable -->
 <g id="proc~~get_file_times~~CallsGraph_node18" class="node">
 <title>none~get_coordinate_variable</title>
 <g id="a_proc~~get_file_times~~CallsGraph_node18"><a xlink:href="../type/filemetadata.html#boundprocedure-get_coordinate_variable" xlink:title="FileMetadata%get_coordinate_variable">
-<polygon fill="#a7506f" stroke="#a7506f" points="825.5,-224 605.5,-224 605.5,-200 825.5,-200 825.5,-224"/>
-<text text-anchor="middle" x="715.5" y="-209.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadata%get_coordinate_variable</text>
+<polygon fill="#a7506f" stroke="#a7506f" points="849.5,-476.4 629.5,-476.4 629.5,-452.4 849.5,-452.4 849.5,-476.4"/>
+<text text-anchor="middle" x="739.5" y="-462" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadata%get_coordinate_variable</text>
 </a>
 </g>
 </g>
 <!-- proc~get_time_info&#45;&gt;none~get_coordinate_variable -->
-<g id="proc~~get_file_times~~CallsGraph_edge19" class="edge">
+<g id="proc~~get_file_times~~CallsGraph_edge17" class="edge">
 <title>proc~get_time_info&#45;&gt;none~get_coordinate_variable</title>
-<path fill="none" stroke="#00a9ff" d="M218.42,-440.95C228.31,-403.14 264.33,-286.53 343,-238 434.43,-181.61 563.66,-187.46 643.11,-198.52"/>
-<polygon fill="#00a9ff" stroke="#00a9ff" points="642.63,-201.98 653.03,-199.96 643.64,-195.06 642.63,-201.98"/>
+<path fill="none" stroke="#00ff91" d="M243.7,-587.39C268.74,-569.46 318.99,-536.05 367,-519.4 448.48,-491.14 544.95,-477.4 619.15,-470.72"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="619.81,-474.18 629.47,-469.83 619.21,-467.21 619.81,-474.18"/>
 </g>
-<!-- none~get_value~3 -->
+<!-- none~get_value -->
 <g id="proc~~get_file_times~~CallsGraph_node19" class="node">
-<title>none~get_value~3</title>
-<g id="a_proc~~get_file_times~~CallsGraph_node19"><a xlink:href="../type/unlimitedentity.html#boundprocedure-get_value~3" xlink:title="UnlimitedEntity%get_value">
-<polygon fill="#a7506f" stroke="#a7506f" points="793,-182 638,-182 638,-158 793,-158 793,-182"/>
-<text text-anchor="middle" x="715.5" y="-167.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UnlimitedEntity%get_value</text>
+<title>none~get_value</title>
+<g id="a_proc~~get_file_times~~CallsGraph_node19"><a xlink:href="../type/unlimitedentity.html#boundprocedure-get_value" xlink:title="UnlimitedEntity%get_value">
+<polygon fill="#a7506f" stroke="#a7506f" points="817,-720.4 662,-720.4 662,-696.4 817,-696.4 817,-720.4"/>
+<text text-anchor="middle" x="739.5" y="-706" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UnlimitedEntity%get_value</text>
 </a>
 </g>
 </g>
-<!-- proc~get_time_info&#45;&gt;none~get_value~3 -->
-<g id="proc~~get_file_times~~CallsGraph_edge20" class="edge">
-<title>proc~get_time_info&#45;&gt;none~get_value~3</title>
-<path fill="none" stroke="#00a9ff" d="M216.98,-440.93C223.03,-397.5 250.12,-248.49 343,-187 438.32,-123.9 579.49,-139.95 657.49,-155.85"/>
-<polygon fill="#00a9ff" stroke="#00a9ff" points="657.1,-159.34 667.61,-157.98 658.54,-152.49 657.1,-159.34"/>
+<!-- proc~get_time_info&#45;&gt;none~get_value -->
+<g id="proc~~get_file_times~~CallsGraph_edge18" class="edge">
+<title>proc~get_time_info&#45;&gt;none~get_value</title>
+<path fill="none" stroke="#00ff91" d="M319.02,-602.93C409.77,-607.78 541.51,-618.89 586,-643.4 608.13,-655.6 600.22,-674.59 622,-687.4 631.22,-692.83 641.51,-696.92 652.05,-699.98"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="651.22,-703.39 661.78,-702.53 652.99,-696.61 651.22,-703.39"/>
 </g>
 <!-- proc~get_coordinate_info -->
-<g id="proc~~get_file_times~~CallsGraph_node20" class="node">
+<g id="proc~~get_file_times~~CallsGraph_node21" class="node">
 <title>proc~get_coordinate_info</title>
-<g id="a_proc~~get_file_times~~CallsGraph_node20"><a xlink:href="../proc/get_coordinate_info.html" xlink:title="FileMetadataUtils%get_coordinate_info">
-<polygon fill="#d9534f" stroke="#d9534f" points="562,-465 343,-465 343,-441 562,-441 562,-465"/>
-<text text-anchor="middle" x="452.5" y="-450.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadataUtils%get_coordinate_info</text>
+<g id="a_proc~~get_file_times~~CallsGraph_node21"><a xlink:href="../proc/get_coordinate_info.html" xlink:title="FileMetadataUtils%get_coordinate_info">
+<polygon fill="#d9534f" stroke="#d9534f" points="586,-591.4 367,-591.4 367,-567.4 586,-567.4 586,-591.4"/>
+<text text-anchor="middle" x="476.5" y="-577" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadataUtils%get_coordinate_info</text>
 </a>
 </g>
 </g>
 <!-- proc~get_time_info&#45;&gt;proc~get_coordinate_info -->
-<g id="proc~~get_file_times~~CallsGraph_edge21" class="edge">
+<g id="proc~~get_file_times~~CallsGraph_edge19" class="edge">
 <title>proc~get_time_info&#45;&gt;proc~get_coordinate_info</title>
-<path fill="none" stroke="#00a9ff" d="M307.08,-453C315.46,-453 324.03,-453 332.61,-453"/>
-<polygon fill="#00a9ff" stroke="#00a9ff" points="332.67,-456.5 342.67,-453 332.67,-449.5 332.67,-456.5"/>
+<path fill="none" stroke="#00ff91" d="M319.14,-592.01C331.34,-591.03 343.98,-590.01 356.55,-589"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="356.92,-592.48 366.61,-588.19 356.36,-585.5 356.92,-592.48"/>
 </g>
 <!-- proc~get_file_name -->
-<g id="proc~~get_file_times~~CallsGraph_node21" class="node">
+<g id="proc~~get_file_times~~CallsGraph_node22" class="node">
 <title>proc~get_file_name</title>
-<g id="a_proc~~get_file_times~~CallsGraph_node21"><a xlink:href="../proc/get_file_name.html" xlink:title="FileMetadataUtils%get_file_name">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="1057,-584 869,-584 869,-560 1057,-560 1057,-584"/>
-<text text-anchor="middle" x="963" y="-569.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadataUtils%get_file_name</text>
+<g id="a_proc~~get_file_times~~CallsGraph_node22"><a xlink:href="../proc/get_file_name.html" xlink:title="FileMetadataUtils%get_file_name">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="833.5,-518.4 645.5,-518.4 645.5,-494.4 833.5,-494.4 833.5,-518.4"/>
+<text text-anchor="middle" x="739.5" y="-504" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadataUtils%get_file_name</text>
 </a>
 </g>
 </g>
 <!-- proc~get_time_info&#45;&gt;proc~get_file_name -->
-<g id="proc~~get_file_times~~CallsGraph_edge22" class="edge">
+<g id="proc~~get_file_times~~CallsGraph_edge20" class="edge">
 <title>proc~get_time_info&#45;&gt;proc~get_file_name</title>
-<path fill="none" stroke="#00a9ff" d="M287.97,-465.02C305.95,-467.98 325.17,-471.12 343,-474 532.43,-504.6 754.63,-539.55 874.55,-558.33"/>
-<polygon fill="#00a9ff" stroke="#00a9ff" points="874.35,-561.84 884.77,-559.93 875.44,-554.93 874.35,-561.84"/>
+<path fill="none" stroke="#00ff91" d="M263.26,-587.32C291.22,-578.25 331.22,-566.12 367,-558.4 456.68,-539.06 560.16,-525.26 635.09,-516.76"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="635.92,-520.19 645.47,-515.59 635.14,-513.23 635.92,-520.19"/>
 </g>
-<!-- proc~mapl_return&#45;&gt;at -->
+<!-- proc~get_time_info&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_file_times~~CallsGraph_edge21" class="edge">
+<title>proc~get_time_info&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff91" d="M246.07,-611.62C272.04,-628.14 321.19,-657.39 367,-673.4 460.47,-706.09 504.06,-658.8 586,-714.4 610.79,-731.23 595.76,-756.94 622,-771.4 667.74,-796.61 813.97,-801 857,-771.4 867.67,-764.06 929.32,-589.9 950.98,-527.99"/>
+<polygon fill="#00ff91" stroke="#00ff91" points="954.33,-529.03 954.32,-518.43 947.72,-526.72 954.33,-529.03"/>
+</g>
+<!-- proc~get_var_attr_int32&#45;&gt;proc~mapl_verify -->
+<g id="proc~~get_file_times~~CallsGraph_edge28" class="edge">
+<title>proc~get_var_attr_int32&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0091ff" d="M240.44,-252.15C263.64,-231.04 314.81,-188.36 367,-170.4 478.3,-132.11 619.17,-135.13 691.27,-140.07"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="691.17,-143.57 701.4,-140.81 691.68,-136.59 691.17,-143.57"/>
+</g>
+<!-- proc~get_var_attr_int32&#45;&gt;interface~mapl_assert -->
+<g id="proc~~get_file_times~~CallsGraph_edge23" class="edge">
+<title>proc~get_var_attr_int32&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#0091ff" d="M240.44,-252.03C274.27,-219.69 363.04,-135.06 367,-133.4 467.46,-91.33 762.89,-68.58 857,-123.4 916.1,-157.83 943.57,-240.88 953.67,-280.57"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="950.27,-281.42 956.02,-290.32 957.08,-279.78 950.27,-281.42"/>
+</g>
+<!-- none~get_attribute_int32 -->
+<g id="proc~~get_file_times~~CallsGraph_node15" class="node">
+<title>none~get_attribute_int32</title>
+<g id="a_proc~~get_file_times~~CallsGraph_node15"><a xlink:href="../type/variable.html#boundprocedure-get_attribute_int32" xlink:title="Variable%get_attribute_int32">
+<polygon fill="#a7506f" stroke="#a7506f" points="559.5,-236.4 393.5,-236.4 393.5,-212.4 559.5,-212.4 559.5,-236.4"/>
+<text text-anchor="middle" x="476.5" y="-222" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Variable%get_attribute_int32</text>
+</a>
+</g>
+</g>
+<!-- proc~get_var_attr_int32&#45;&gt;none~get_attribute_int32 -->
+<g id="proc~~get_file_times~~CallsGraph_edge24" class="edge">
+<title>proc~get_var_attr_int32&#45;&gt;none~get_attribute_int32</title>
+<path fill="none" stroke="#0091ff" d="M301.91,-252.4C329.86,-247.9 361.83,-242.74 390.66,-238.09"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="391.4,-241.51 400.72,-236.47 390.29,-234.6 391.4,-241.51"/>
+</g>
+<!-- none~get_variable -->
+<g id="proc~~get_file_times~~CallsGraph_node20" class="node">
+<title>none~get_variable</title>
+<g id="a_proc~~get_file_times~~CallsGraph_node20"><a xlink:href="../type/filemetadata.html#boundprocedure-get_variable" xlink:title="FileMetadata%get_variable">
+<polygon fill="#a7506f" stroke="#a7506f" points="818,-396.4 661,-396.4 661,-372.4 818,-372.4 818,-396.4"/>
+<text text-anchor="middle" x="739.5" y="-382" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadata%get_variable</text>
+</a>
+</g>
+</g>
+<!-- proc~get_var_attr_int32&#45;&gt;none~get_variable -->
 <g id="proc~~get_file_times~~CallsGraph_edge25" class="edge">
-<title>proc~mapl_return&#45;&gt;at</title>
-<path fill="none" stroke="#0000ff" d="M1182.74,-544.01C1203.28,-557.53 1238.49,-579.49 1271,-594 1280.31,-598.15 1290.69,-601.87 1300.4,-604.98"/>
-<polygon fill="#0000ff" stroke="#0000ff" points="1299.6,-608.4 1310.19,-608 1301.66,-601.71 1299.6,-608.4"/>
+<title>proc~get_var_attr_int32&#45;&gt;none~get_variable</title>
+<path fill="none" stroke="#0091ff" d="M271.35,-276.44C343.93,-296.13 493.78,-335.79 622,-363.4 633.46,-365.87 645.59,-368.28 657.53,-370.54"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="657.03,-374 667.5,-372.4 658.31,-367.12 657.03,-374"/>
 </g>
-<!-- insert -->
-<g id="proc~~get_file_times~~CallsGraph_node14" class="node">
-<title>insert</title>
-<polygon fill="#777777" stroke="#777777" points="1364.5,-543 1310.5,-543 1310.5,-519 1364.5,-519 1364.5,-543"/>
-<text text-anchor="middle" x="1337.5" y="-528.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
-</g>
-<!-- proc~mapl_return&#45;&gt;insert -->
+<!-- proc~get_var_attr_int32&#45;&gt;proc~get_file_name -->
 <g id="proc~~get_file_times~~CallsGraph_edge26" class="edge">
-<title>proc~mapl_return&#45;&gt;insert</title>
-<path fill="none" stroke="#0000ff" d="M1205.21,-531.77C1234,-531.6 1272.45,-531.37 1300.29,-531.21"/>
-<polygon fill="#0000ff" stroke="#0000ff" points="1300.42,-534.71 1310.4,-531.15 1300.38,-527.71 1300.42,-534.71"/>
+<title>proc~get_var_attr_int32&#45;&gt;proc~get_file_name</title>
+<path fill="none" stroke="#0091ff" d="M233.31,-276.57C249.45,-308.9 298.2,-397.29 367,-438.4 448.34,-487.01 556.23,-502.41 634.77,-506.6"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="635.01,-510.12 645.17,-507.1 635.35,-503.13 635.01,-510.12"/>
+</g>
+<!-- proc~get_var_attr_int32&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_file_times~~CallsGraph_edge27" class="edge">
+<title>proc~get_var_attr_int32&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0091ff" d="M245.7,-276.47C271.64,-293.18 321.18,-323.36 367,-341.4 475.72,-384.22 507.55,-381.83 622,-405.4 725.63,-426.75 757.9,-406.34 857,-443.4 885.94,-454.23 915.56,-473.78 935.28,-488.25"/>
+<polygon fill="#0091ff" stroke="#0091ff" points="933.25,-491.1 943.35,-494.29 937.44,-485.49 933.25,-491.1"/>
+</g>
+<!-- mpi_abort -->
+<g id="proc~~get_file_times~~CallsGraph_node14" class="node">
+<title>mpi_abort</title>
+<polygon fill="#777777" stroke="#777777" points="510,-77.4 443,-77.4 443,-53.4 510,-53.4 510,-77.4"/>
+<text text-anchor="middle" x="476.5" y="-63" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_abort</text>
+</g>
+<!-- proc~mapl_abort&#45;&gt;mpi_abort -->
+<g id="proc~~get_file_times~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_abort&#45;&gt;mpi_abort</title>
+<path fill="none" stroke="#4800ff" d="M255.98,-132.35C283.91,-120.83 327.88,-103.47 367,-91.4 388.54,-84.76 412.91,-78.79 433.09,-74.25"/>
+<polygon fill="#4800ff" stroke="#4800ff" points="433.92,-77.65 442.92,-72.07 432.4,-70.81 433.92,-77.65"/>
 </g>
 <!-- proc~mapl_throw_exception -->
-<g id="proc~~get_file_times~~CallsGraph_node22" class="node">
+<g id="proc~~get_file_times~~CallsGraph_node24" class="node">
 <title>proc~mapl_throw_exception</title>
-<g id="a_proc~~get_file_times~~CallsGraph_node22"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
-<polygon fill="#d9534f" stroke="#d9534f" points="1404,-585 1271,-585 1271,-561 1404,-561 1404,-585"/>
-<text text-anchor="middle" x="1337.5" y="-570.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+<g id="a_proc~~get_file_times~~CallsGraph_node24"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1195,-346.4 1062,-346.4 1062,-322.4 1195,-322.4 1195,-346.4"/>
+<text text-anchor="middle" x="1128.5" y="-332" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
 </a>
 </g>
-</g>
-<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
-<g id="proc~~get_file_times~~CallsGraph_edge27" class="edge">
-<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
-<path fill="none" stroke="#0000ff" d="M1205.21,-541.61C1226.35,-546.67 1252.68,-552.96 1276.21,-558.59"/>
-<polygon fill="#0000ff" stroke="#0000ff" points="1275.56,-562.03 1286.1,-560.95 1277.19,-555.22 1275.56,-562.03"/>
 </g>
 <!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
-<g id="proc~~get_file_times~~CallsGraph_edge28" class="edge">
+<g id="proc~~get_file_times~~CallsGraph_edge30" class="edge">
 <title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
-<path fill="none" stroke="#aa00ff" d="M1001.26,-684.14C1018.32,-679.48 1038.76,-673.7 1057,-668 1153.06,-637.99 1175.52,-625.81 1271,-594 1276.66,-592.11 1282.61,-590.16 1288.51,-588.25"/>
-<polygon fill="#aa00ff" stroke="#aa00ff" points="1289.91,-591.47 1298.35,-585.07 1287.76,-584.81 1289.91,-591.47"/>
+<path fill="none" stroke="#ff00da" d="M777.73,-153.26C800.99,-159.36 831.29,-168.35 857,-179.4 951.36,-219.98 1054.47,-285.57 1101.5,-316.8"/>
+<polygon fill="#ff00da" stroke="#ff00da" points="1099.62,-319.75 1109.88,-322.39 1103.5,-313.93 1099.62,-319.75"/>
 </g>
-<!-- none~get_attribute&#45;&gt;proc~mapl_return -->
+<!-- none~get_attribute_int32&#45;&gt;proc~mapl_verify -->
+<g id="proc~~get_file_times~~CallsGraph_edge35" class="edge">
+<title>none~get_attribute_int32&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M547.03,-212.4C560.32,-208.82 573.87,-204.24 586,-198.4 604.27,-189.62 603.66,-179.04 622,-170.4 643.69,-160.19 669.56,-153.89 691.41,-150.07"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="692.15,-153.49 701.46,-148.43 691.03,-146.58 692.15,-153.49"/>
+</g>
+<!-- none~get_attribute_int32&#45;&gt;interface~mapl_assert -->
 <g id="proc~~get_file_times~~CallsGraph_edge31" class="edge">
-<title>none~get_attribute&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#00ff7f" stroke-dasharray="5,2" d="M782.79,-287.92C869,-283.91 1013.7,-282.03 1057,-311 1126.76,-357.67 1151.95,-463.61 1159.84,-509.79"/>
-<polygon fill="#00ff7f" stroke="#00ff7f" points="1156.42,-510.6 1161.45,-519.93 1163.33,-509.5 1156.42,-510.6"/>
+<title>none~get_attribute_int32&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M546,-212.38C569.96,-208.73 597.09,-205.2 622,-203.4 726.17,-195.87 760.26,-164.04 857,-203.4 895.82,-219.2 927.9,-257.77 945.03,-281.84"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="942.29,-284.03 950.85,-290.28 948.05,-280.06 942.29,-284.03"/>
 </g>
-<!-- none~get_attribute&#45;&gt;interface~mapl_assert -->
-<g id="proc~~get_file_times~~CallsGraph_edge29" class="edge">
-<title>none~get_attribute&#45;&gt;interface~mapl_assert</title>
-<path fill="none" stroke="#00ff7f" stroke-dasharray="5,2" d="M782.61,-302.77C823.76,-309.48 875.79,-317.95 913.21,-324.05"/>
-<polygon fill="#00ff7f" stroke="#00ff7f" points="912.92,-327.55 923.35,-325.7 914.04,-320.64 912.92,-327.55"/>
+<!-- none~get_attribute_int32&#45;&gt;none~get_attribute~2 -->
+<g id="proc~~get_file_times~~CallsGraph_edge32" class="edge">
+<title>none~get_attribute_int32&#45;&gt;none~get_attribute~2</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M547.03,-236.41C560.32,-239.99 573.87,-244.57 586,-250.4 604.27,-259.19 605.06,-267.27 622,-278.4 648.89,-296.09 681.07,-313.5 704.78,-325.69"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="703.25,-328.84 713.75,-330.26 706.42,-322.6 703.25,-328.84"/>
 </g>
-<!-- none~at~230 -->
-<g id="proc~~get_file_times~~CallsGraph_node24" class="node">
-<title>none~at~230</title>
-<g id="a_proc~~get_file_times~~CallsGraph_node24"><a xlink:href="../type/stringattributemap.html#boundprocedure-at~230" xlink:title="StringAttributeMap%at">
-<polygon fill="#a7506f" stroke="#a7506f" points="1029.5,-264 896.5,-264 896.5,-240 1029.5,-240 1029.5,-264"/>
-<text text-anchor="middle" x="963" y="-249.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringAttributeMap%at</text>
+<!-- none~get_attribute_int32&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_file_times~~CallsGraph_edge34" class="edge">
+<title>none~get_attribute_int32&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M559.71,-235.73C658.14,-250.89 815.03,-280.68 857,-321.4 898.49,-361.66 862.55,-397.26 893,-446.4 903.16,-462.8 919.02,-477.49 932.59,-488.23"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="930.6,-491.12 940.67,-494.39 934.84,-485.55 930.6,-491.12"/>
+</g>
+<!-- none~get_values -->
+<g id="proc~~get_file_times~~CallsGraph_node29" class="node">
+<title>none~get_values</title>
+<g id="a_proc~~get_file_times~~CallsGraph_node29"><a xlink:href="../type/unlimitedentity.html#boundprocedure-get_values" xlink:title="UnlimitedEntity%get_values">
+<polygon fill="#a7506f" stroke="#a7506f" points="819.5,-236.4 659.5,-236.4 659.5,-212.4 819.5,-212.4 819.5,-236.4"/>
+<text text-anchor="middle" x="739.5" y="-222" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UnlimitedEntity%get_values</text>
 </a>
 </g>
 </g>
-<!-- none~get_attribute&#45;&gt;none~at~230 -->
-<g id="proc~~get_file_times~~CallsGraph_edge30" class="edge">
-<title>none~get_attribute&#45;&gt;none~at~230</title>
-<path fill="none" stroke="#00ff7f" stroke-dasharray="5,2" d="M782.61,-281.23C814.53,-276.03 852.99,-269.76 886.1,-264.37"/>
-<polygon fill="#00ff7f" stroke="#00ff7f" points="886.89,-267.78 896.2,-262.72 885.76,-260.88 886.89,-267.78"/>
+<!-- none~get_attribute_int32&#45;&gt;none~get_values -->
+<g id="proc~~get_file_times~~CallsGraph_edge33" class="edge">
+<title>none~get_attribute_int32&#45;&gt;none~get_values</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M559.72,-224.4C588.19,-224.4 620.23,-224.4 649.24,-224.4"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="649.36,-227.9 659.36,-224.4 649.36,-220.9 649.36,-227.9"/>
+</g>
+<!-- none~get_attribute~2&#45;&gt;interface~mapl_assert -->
+<g id="proc~~get_file_times~~CallsGraph_edge36" class="edge">
+<title>none~get_attribute~2&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00ff9f" stroke-dasharray="5,2" d="M805.91,-330.4C839.26,-324.28 879.13,-316.97 909.75,-311.35"/>
+<polygon fill="#00ff9f" stroke="#00ff9f" points="910.56,-314.76 919.76,-309.51 909.29,-307.87 910.56,-314.76"/>
+</g>
+<!-- none~get_attribute~2&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_file_times~~CallsGraph_edge38" class="edge">
+<title>none~get_attribute~2&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00ff9f" stroke-dasharray="5,2" d="M806.55,-343.11C824.42,-346.12 842.74,-352.11 857,-363.4 888.52,-388.37 869.66,-413.66 893,-446.4 904.27,-462.21 920.29,-476.98 933.67,-487.91"/>
+<polygon fill="#00ff9f" stroke="#00ff9f" points="931.58,-490.72 941.59,-494.19 935.93,-485.24 931.58,-490.72"/>
+</g>
+<!-- none~at~85 -->
+<g id="proc~~get_file_times~~CallsGraph_node27" class="node">
+<title>none~at~85</title>
+<g id="a_proc~~get_file_times~~CallsGraph_node27"><a xlink:href="../type/stringattributemap.html#boundprocedure-at~85" xlink:title="StringAttributeMap%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="1026,-356.4 893,-356.4 893,-332.4 1026,-332.4 1026,-356.4"/>
+<text text-anchor="middle" x="959.5" y="-342" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringAttributeMap%at</text>
+</a>
+</g>
+</g>
+<!-- none~get_attribute~2&#45;&gt;none~at~85 -->
+<g id="proc~~get_file_times~~CallsGraph_edge37" class="edge">
+<title>none~get_attribute~2&#45;&gt;none~at~85</title>
+<path fill="none" stroke="#00ff9f" stroke-dasharray="5,2" d="M806.8,-343.01C830.8,-343.23 858.08,-343.48 882.83,-343.71"/>
+<polygon fill="#00ff9f" stroke="#00ff9f" points="882.86,-347.21 892.9,-343.8 882.93,-340.21 882.86,-347.21"/>
 </g>
 <!-- none~get_coordinate_data&#45;&gt;proc~mapl_return -->
-<g id="proc~~get_file_times~~CallsGraph_edge32" class="edge">
+<g id="proc~~get_file_times~~CallsGraph_edge39" class="edge">
 <title>none~get_coordinate_data&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M796.88,-359.99C869.25,-353.12 976.33,-353.02 1057,-396 1104.92,-421.53 1138.14,-479.15 1153.44,-510.57"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="1150.35,-512.23 1157.78,-519.78 1156.69,-509.24 1150.35,-512.23"/>
-</g>
-<!-- none~get_coordinate_variable&#45;&gt;proc~mapl_return -->
-<g id="proc~~get_file_times~~CallsGraph_edge35" class="edge">
-<title>none~get_coordinate_variable&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#007fff" stroke-dasharray="5,2" d="M825.88,-205.33C911.43,-202.41 1021.61,-204.43 1057,-231 1103.5,-265.91 1145.01,-445.92 1158.45,-509.63"/>
-<polygon fill="#007fff" stroke="#007fff" points="1155.1,-510.71 1160.56,-519.79 1161.95,-509.28 1155.1,-510.71"/>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M842.59,-738.37C847.69,-735.84 852.54,-732.87 857,-729.4 923.07,-678.02 947.54,-573.87 955.33,-528.44"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="958.8,-528.89 956.92,-518.46 951.89,-527.78 958.8,-528.89"/>
 </g>
 <!-- none~get_coordinate_variable&#45;&gt;interface~mapl_assert -->
-<g id="proc~~get_file_times~~CallsGraph_edge33" class="edge">
+<g id="proc~~get_file_times~~CallsGraph_edge40" class="edge">
 <title>none~get_coordinate_variable&#45;&gt;interface~mapl_assert</title>
-<path fill="none" stroke="#007fff" stroke-dasharray="5,2" d="M797.87,-224.08C810.05,-227.6 822.15,-232.14 833,-238 852.63,-248.61 851.49,-259.17 869,-273 888.73,-288.58 912.73,-303.72 931.4,-314.76"/>
-<polygon fill="#007fff" stroke="#007fff" points="929.7,-317.82 940.1,-319.84 933.23,-311.77 929.7,-317.82"/>
+<path fill="none" stroke="#009fff" stroke-dasharray="5,2" d="M779.6,-452.33C804.48,-442.94 835.88,-427.72 857,-405.4 884.36,-376.5 863.44,-350.06 893,-323.4 898.07,-318.84 904.13,-315.26 910.5,-312.47"/>
+<polygon fill="#009fff" stroke="#009fff" points="911.84,-315.7 919.96,-308.9 909.37,-309.15 911.84,-315.7"/>
 </g>
-<!-- none~at~216 -->
-<g id="proc~~get_file_times~~CallsGraph_node23" class="node">
-<title>none~at~216</title>
-<g id="a_proc~~get_file_times~~CallsGraph_node23"><a xlink:href="../type/stringvariablemap.html#boundprocedure-at~216" xlink:title="StringVariableMap%at">
-<polygon fill="#a7506f" stroke="#a7506f" points="1028,-184 898,-184 898,-160 1028,-160 1028,-184"/>
-<text text-anchor="middle" x="963" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringVariableMap%at</text>
+<!-- none~get_coordinate_variable&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_file_times~~CallsGraph_edge42" class="edge">
+<title>none~get_coordinate_variable&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#009fff" stroke-dasharray="5,2" d="M808.93,-476.44C824.73,-479.3 841.46,-482.4 857,-485.4 873.68,-488.63 891.86,-492.34 908.17,-495.72"/>
+<polygon fill="#009fff" stroke="#009fff" points="907.54,-499.17 918.05,-497.79 908.97,-492.32 907.54,-499.17"/>
+</g>
+<!-- none~at~299 -->
+<g id="proc~~get_file_times~~CallsGraph_node26" class="node">
+<title>none~at~299</title>
+<g id="a_proc~~get_file_times~~CallsGraph_node26"><a xlink:href="../type/stringvariablemap.html#boundprocedure-at~299" xlink:title="StringVariableMap%at">
+<polygon fill="#a7506f" stroke="#a7506f" points="1024.5,-437.4 894.5,-437.4 894.5,-413.4 1024.5,-413.4 1024.5,-437.4"/>
+<text text-anchor="middle" x="959.5" y="-423" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringVariableMap%at</text>
 </a>
 </g>
 </g>
-<!-- none~get_coordinate_variable&#45;&gt;none~at~216 -->
-<g id="proc~~get_file_times~~CallsGraph_edge34" class="edge">
-<title>none~get_coordinate_variable&#45;&gt;none~at~216</title>
-<path fill="none" stroke="#007fff" stroke-dasharray="5,2" d="M790.16,-200C821.13,-194.95 857.09,-189.09 888.08,-184.04"/>
-<polygon fill="#007fff" stroke="#007fff" points="888.65,-187.5 897.96,-182.43 887.53,-180.59 888.65,-187.5"/>
+<!-- none~get_coordinate_variable&#45;&gt;none~at~299 -->
+<g id="proc~~get_file_times~~CallsGraph_edge41" class="edge">
+<title>none~get_coordinate_variable&#45;&gt;none~at~299</title>
+<path fill="none" stroke="#009fff" stroke-dasharray="5,2" d="M807.69,-452.39C831.88,-448.06 859.3,-443.15 884.08,-438.72"/>
+<polygon fill="#009fff" stroke="#009fff" points="884.92,-442.12 894.15,-436.92 883.69,-435.23 884.92,-442.12"/>
 </g>
-<!-- none~get_value~3&#45;&gt;proc~mapl_return -->
-<g id="proc~~get_file_times~~CallsGraph_edge36" class="edge">
-<title>none~get_value~3&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M743.31,-157.97C805.6,-132.04 962.01,-78.83 1057,-151 1060.73,-153.83 1135.13,-428.72 1157,-509.76"/>
-<polygon fill="#0000ff" stroke="#0000ff" points="1153.74,-511.11 1159.73,-519.86 1160.5,-509.29 1153.74,-511.11"/>
+<!-- none~get_value&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_file_times~~CallsGraph_edge43" class="edge">
+<title>none~get_value&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#003fff" stroke-dasharray="5,2" d="M817.08,-704.48C831.26,-701.1 845.28,-695.75 857,-687.4 912.79,-647.66 941.69,-567.12 952.88,-528.3"/>
+<polygon fill="#003fff" stroke="#003fff" points="956.29,-529.09 955.57,-518.52 949.54,-527.23 956.29,-529.09"/>
+</g>
+<!-- none~get_variable&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_file_times~~CallsGraph_edge45" class="edge">
+<title>none~get_variable&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#1f00ff" stroke-dasharray="5,2" d="M818.26,-395.31C831.67,-398.97 845.1,-403.87 857,-410.4 876.83,-421.3 876.65,-430.76 893,-446.4 907.67,-460.44 924.58,-475.92 937.54,-487.63"/>
+<polygon fill="#1f00ff" stroke="#1f00ff" points="935.27,-490.3 945.04,-494.39 939.96,-485.1 935.27,-490.3"/>
+</g>
+<!-- none~get_variable&#45;&gt;none~at~299 -->
+<g id="proc~~get_file_times~~CallsGraph_edge44" class="edge">
+<title>none~get_variable&#45;&gt;none~at~299</title>
+<path fill="none" stroke="#1f00ff" stroke-dasharray="5,2" d="M804.43,-396.43C829.5,-401.14 858.43,-406.58 884.4,-411.47"/>
+<polygon fill="#1f00ff" stroke="#1f00ff" points="884.09,-414.97 894.57,-413.38 885.39,-408.09 884.09,-414.97"/>
 </g>
 <!-- proc~get_coordinate_info&#45;&gt;none~get_dimension -->
-<g id="proc~~get_file_times~~CallsGraph_edge41" class="edge">
+<g id="proc~~get_file_times~~CallsGraph_edge50" class="edge">
 <title>proc~get_coordinate_info&#45;&gt;none~get_dimension</title>
-<path fill="none" stroke="#7f00ff" d="M462.79,-465.07C501.47,-515.31 650.01,-708.24 698.84,-771.66"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="696.18,-773.94 705.05,-779.73 701.72,-769.67 696.18,-773.94"/>
-</g>
-<!-- proc~get_coordinate_info&#45;&gt;proc~mapl_return -->
-<g id="proc~~get_file_times~~CallsGraph_edge45" class="edge">
-<title>proc~get_coordinate_info&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#7f00ff" d="M519.09,-440.98C543.74,-437 572.07,-433.06 598,-431 801.36,-414.85 867.97,-352.29 1057,-429 1097.87,-445.59 1131.64,-486.34 1149.43,-511.32"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="1146.68,-513.5 1155.24,-519.74 1152.44,-509.52 1146.68,-513.5"/>
+<path fill="none" stroke="#7f00ff" d="M488.16,-591.69C508.19,-614.98 552.45,-667.42 586,-714.4 603.41,-738.79 599.84,-751.24 622,-771.4 642.71,-790.24 670.55,-804.64 693.82,-814.49"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="692.56,-817.76 703.14,-818.3 695.21,-811.28 692.56,-817.76"/>
 </g>
 <!-- proc~get_coordinate_info&#45;&gt;proc~mapl_verify -->
-<g id="proc~~get_file_times~~CallsGraph_edge46" class="edge">
+<g id="proc~~get_file_times~~CallsGraph_edge55" class="edge">
 <title>proc~get_coordinate_info&#45;&gt;proc~mapl_verify</title>
-<path fill="none" stroke="#7f00ff" d="M470.26,-465.07C496.6,-483.72 549.67,-519.98 598,-545 708.82,-602.38 846.93,-653.77 916.88,-678.48"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="916.1,-681.92 926.7,-681.93 918.42,-675.31 916.1,-681.92"/>
+<path fill="none" stroke="#7f00ff" d="M478.96,-567.37C485.7,-516.77 517.95,-318.63 622,-203.4 640.63,-182.77 668.14,-168.37 691.75,-158.96"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="693.14,-162.18 701.25,-155.36 690.66,-155.63 693.14,-162.18"/>
 </g>
 <!-- proc~get_coordinate_info&#45;&gt;interface~mapl_assert -->
-<g id="proc~~get_file_times~~CallsGraph_edge37" class="edge">
+<g id="proc~~get_file_times~~CallsGraph_edge46" class="edge">
 <title>proc~get_coordinate_info&#45;&gt;interface~mapl_assert</title>
-<path fill="none" stroke="#7f00ff" d="M547.87,-440.92C552.88,-438.41 557.65,-435.46 562,-432 592.83,-407.48 565.54,-373.32 598,-351 647.79,-316.76 825.88,-323.03 913.13,-328.43"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="913.1,-331.93 923.3,-329.08 913.55,-324.95 913.1,-331.93"/>
+<path fill="none" stroke="#7f00ff" d="M567.52,-567.4C679.34,-552.43 855.69,-528.66 857,-527.4 923.34,-463.57 832.46,-392.77 893,-323.4 897.64,-318.09 903.63,-314.1 910.11,-311.12"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="911.72,-314.26 919.83,-307.44 909.23,-307.71 911.72,-314.26"/>
 </g>
-<!-- proc~get_coordinate_info&#45;&gt;none~get_attribute -->
-<g id="proc~~get_file_times~~CallsGraph_edge38" class="edge">
-<title>proc~get_coordinate_info&#45;&gt;none~get_attribute</title>
-<path fill="none" stroke="#7f00ff" d="M549.35,-440.93C553.87,-438.4 558.13,-435.45 562,-432 601.66,-396.64 558.84,-353.92 598,-318 609.28,-307.66 623.74,-301.12 638.61,-297.05"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="639.49,-300.44 648.41,-294.72 637.87,-293.63 639.49,-300.44"/>
+<!-- proc~get_coordinate_info&#45;&gt;none~get_attribute~2 -->
+<g id="proc~~get_file_times~~CallsGraph_edge47" class="edge">
+<title>proc~get_coordinate_info&#45;&gt;none~get_attribute~2</title>
+<path fill="none" stroke="#7f00ff" d="M481.65,-567.36C495.18,-530.08 541.79,-415.93 622,-363.4 634.08,-355.49 648.31,-350.34 662.6,-347.03"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="663.37,-350.45 672.47,-345.02 661.98,-343.59 663.37,-350.45"/>
 </g>
 <!-- proc~get_coordinate_info&#45;&gt;none~get_coordinate_data -->
-<g id="proc~~get_file_times~~CallsGraph_edge39" class="edge">
+<g id="proc~~get_file_times~~CallsGraph_edge48" class="edge">
 <title>proc~get_coordinate_info&#45;&gt;none~get_coordinate_data</title>
-<path fill="none" stroke="#7f00ff" d="M540.01,-440.95C547.64,-438.5 555.09,-435.55 562,-432 581.58,-421.95 578.56,-408.32 598,-398 606.13,-393.68 614.95,-390.08 623.97,-387.07"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="625.29,-390.33 633.82,-384.04 623.23,-383.64 625.29,-390.33"/>
+<path fill="none" stroke="#7f00ff" d="M509.25,-591.59C533.12,-602.15 565.16,-619.5 586,-643.4 613.23,-674.63 589.69,-703.47 622,-729.4 623.62,-730.71 625.3,-731.94 627.02,-733.11"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="625.61,-736.33 636,-738.39 629.16,-730.3 625.61,-736.33"/>
 </g>
 <!-- proc~get_coordinate_info&#45;&gt;none~get_coordinate_variable -->
-<g id="proc~~get_file_times~~CallsGraph_edge40" class="edge">
+<g id="proc~~get_file_times~~CallsGraph_edge49" class="edge">
 <title>proc~get_coordinate_info&#45;&gt;none~get_coordinate_variable</title>
-<path fill="none" stroke="#7f00ff" d="M550.69,-440.73C554.76,-438.23 558.56,-435.34 562,-432 614.59,-380.91 552.99,-328.88 598,-271 613.77,-250.72 638.41,-236.83 660.97,-227.66"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="662.4,-230.86 670.48,-224 659.89,-224.32 662.4,-230.86"/>
+<path fill="none" stroke="#7f00ff" d="M492,-567.1C516.85,-546.68 569.98,-506.04 622,-485.4 627.89,-483.07 634.06,-480.99 640.34,-479.14"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="641.57,-482.43 650.29,-476.42 639.72,-475.68 641.57,-482.43"/>
 </g>
-<!-- proc~get_coordinate_info&#45;&gt;none~get_value~3 -->
-<g id="proc~~get_file_times~~CallsGraph_edge43" class="edge">
-<title>proc~get_coordinate_info&#45;&gt;none~get_value~3</title>
-<path fill="none" stroke="#7f00ff" d="M551.47,-440.71C555.27,-438.21 558.81,-435.33 562,-432 636.92,-353.8 522.58,-268.72 598,-191 606.33,-182.42 616.89,-176.65 628.25,-172.86"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="629.26,-176.21 637.94,-170.13 627.36,-169.48 629.26,-176.21"/>
+<!-- proc~get_coordinate_info&#45;&gt;none~get_value -->
+<g id="proc~~get_file_times~~CallsGraph_edge52" class="edge">
+<title>proc~get_coordinate_info&#45;&gt;none~get_value</title>
+<path fill="none" stroke="#7f00ff" d="M562.4,-591.42C570.94,-595 579.01,-599.57 586,-605.4 616.54,-630.93 590.75,-662.76 622,-687.4 630.86,-694.39 641.28,-699.35 652.19,-702.82"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="651.29,-706.21 661.86,-705.51 653.16,-699.46 651.29,-706.21"/>
 </g>
 <!-- proc~get_coordinate_info&#45;&gt;proc~get_file_name -->
-<g id="proc~~get_file_times~~CallsGraph_edge44" class="edge">
+<g id="proc~~get_file_times~~CallsGraph_edge53" class="edge">
 <title>proc~get_coordinate_info&#45;&gt;proc~get_file_name</title>
-<path fill="none" stroke="#7f00ff" d="M537.97,-465.02C641.39,-480.04 806.16,-505.1 833,-516 851.05,-523.33 851.58,-532.28 869,-541 881.13,-547.07 894.71,-552.37 907.68,-556.78"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="906.84,-560.19 917.44,-559.99 909.03,-553.54 906.84,-560.19"/>
+<path fill="none" stroke="#7f00ff" d="M541.58,-567.34C556.43,-563.64 571.98,-559.03 586,-553.4 603.19,-546.51 604.76,-539.17 622,-532.4 633.49,-527.9 645.95,-524.08 658.29,-520.87"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="659.28,-524.23 668.15,-518.43 657.6,-517.44 659.28,-524.23"/>
+</g>
+<!-- proc~get_coordinate_info&#45;&gt;proc~mapl_return -->
+<g id="proc~~get_file_times~~CallsGraph_edge54" class="edge">
+<title>proc~get_coordinate_info&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#7f00ff" d="M586.22,-586.39C663.2,-588.36 768.14,-584.95 857,-560.4 884.7,-552.75 913.34,-536.63 933.11,-523.99"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="935.09,-526.87 941.53,-518.46 931.25,-521.02 935.09,-526.87"/>
 </g>
 <!-- none~get_ith_dimension -->
-<g id="proc~~get_file_times~~CallsGraph_node25" class="node">
+<g id="proc~~get_file_times~~CallsGraph_node28" class="node">
 <title>none~get_ith_dimension</title>
-<g id="a_proc~~get_file_times~~CallsGraph_node25"><a xlink:href="../type/variable.html#boundprocedure-get_ith_dimension" xlink:title="Variable%get_ith_dimension">
-<polygon fill="#a7506f" stroke="#a7506f" points="1044.5,-626 881.5,-626 881.5,-602 1044.5,-602 1044.5,-626"/>
-<text text-anchor="middle" x="963" y="-611.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Variable%get_ith_dimension</text>
+<g id="a_proc~~get_file_times~~CallsGraph_node28"><a xlink:href="../type/variable.html#boundprocedure-get_ith_dimension" xlink:title="Variable%get_ith_dimension">
+<polygon fill="#a7506f" stroke="#a7506f" points="821,-678.4 658,-678.4 658,-654.4 821,-654.4 821,-678.4"/>
+<text text-anchor="middle" x="739.5" y="-664" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Variable%get_ith_dimension</text>
 </a>
 </g>
 </g>
 <!-- proc~get_coordinate_info&#45;&gt;none~get_ith_dimension -->
-<g id="proc~~get_file_times~~CallsGraph_edge42" class="edge">
+<g id="proc~~get_file_times~~CallsGraph_edge51" class="edge">
 <title>proc~get_coordinate_info&#45;&gt;none~get_ith_dimension</title>
-<path fill="none" stroke="#7f00ff" d="M480.17,-465.01C508.79,-477.51 555.85,-496.9 598,-509 700.22,-538.33 740.05,-502.34 833,-554 853.62,-565.46 848.57,-581.2 869,-593 872.27,-594.89 875.7,-596.61 879.24,-598.18"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="878.2,-601.53 888.79,-601.97 880.79,-595.03 878.2,-601.53"/>
+<path fill="none" stroke="#7f00ff" d="M553.63,-591.43C564.93,-594.96 576.09,-599.51 586,-605.4 606.56,-617.63 601.1,-633.77 622,-645.4 630.04,-649.88 638.84,-653.44 647.88,-656.26"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="647.18,-659.7 657.76,-659.03 649.08,-652.96 647.18,-659.7"/>
 </g>
 <!-- proc~var_has_attr -->
-<g id="proc~~get_file_times~~CallsGraph_node26" class="node">
+<g id="proc~~get_file_times~~CallsGraph_node30" class="node">
 <title>proc~var_has_attr</title>
-<g id="a_proc~~get_file_times~~CallsGraph_node26"><a xlink:href="../proc/var_has_attr.html" xlink:title="FileMetadataUtils%var_has_attr">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="804.5,-464 626.5,-464 626.5,-440 804.5,-440 804.5,-464"/>
-<text text-anchor="middle" x="715.5" y="-449.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadataUtils%var_has_attr</text>
+<g id="a_proc~~get_file_times~~CallsGraph_node30"><a xlink:href="../proc/var_has_attr.html" xlink:title="FileMetadataUtils%var_has_attr">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="828.5,-636.4 650.5,-636.4 650.5,-612.4 828.5,-612.4 828.5,-636.4"/>
+<text text-anchor="middle" x="739.5" y="-622" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadataUtils%var_has_attr</text>
 </a>
 </g>
 </g>
 <!-- proc~get_coordinate_info&#45;&gt;proc~var_has_attr -->
-<g id="proc~~get_file_times~~CallsGraph_edge47" class="edge">
+<g id="proc~~get_file_times~~CallsGraph_edge56" class="edge">
 <title>proc~get_coordinate_info&#45;&gt;proc~var_has_attr</title>
-<path fill="none" stroke="#7f00ff" d="M562.3,-452.58C580.07,-452.52 598.4,-452.44 615.9,-452.38"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="616.12,-455.88 626.11,-452.34 616.1,-448.88 616.12,-455.88"/>
+<path fill="none" stroke="#7f00ff" d="M547.1,-591.4C581.47,-597.33 623.11,-604.51 658.76,-610.66"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="658.19,-614.11 668.64,-612.36 659.38,-607.21 658.19,-614.11"/>
 </g>
 <!-- proc~get_file_name&#45;&gt;proc~mapl_return -->
-<g id="proc~~get_file_times~~CallsGraph_edge48" class="edge">
-<title>proc~get_file_name&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#ff00ff" d="M1023.71,-560C1052.13,-554.29 1085.74,-547.53 1112.83,-542.08"/>
-<polygon fill="#ff00ff" stroke="#ff00ff" points="1113.75,-545.47 1122.86,-540.07 1112.37,-538.61 1113.75,-545.47"/>
-</g>
-<!-- none~find~51 -->
-<g id="proc~~get_file_times~~CallsGraph_node27" class="node">
-<title>none~find~51</title>
-<g id="a_proc~~get_file_times~~CallsGraph_node27"><a xlink:href="../type/stringvariablemap.html#boundprocedure-find~51" xlink:title="StringVariableMap%find">
-<polygon fill="#a7506f" stroke="#a7506f" points="1234,-184 1094,-184 1094,-160 1234,-160 1234,-184"/>
-<text text-anchor="middle" x="1164" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringVariableMap%find</text>
-</a>
-</g>
-</g>
-<!-- none~at~216&#45;&gt;none~find~51 -->
-<g id="proc~~get_file_times~~CallsGraph_edge49" class="edge">
-<title>none~at~216&#45;&gt;none~find~51</title>
-<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1028.06,-172C1045.8,-172 1065.26,-172 1083.75,-172"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="1083.9,-175.5 1093.9,-172 1083.9,-168.5 1083.9,-175.5"/>
-</g>
-<!-- none~find~57 -->
-<g id="proc~~get_file_times~~CallsGraph_node28" class="node">
-<title>none~find~57</title>
-<g id="a_proc~~get_file_times~~CallsGraph_node28"><a xlink:href="../type/stringattributemap.html#boundprocedure-find~57" xlink:title="StringAttributeMap%find">
-<polygon fill="#a7506f" stroke="#a7506f" points="1235,-264 1093,-264 1093,-240 1235,-240 1235,-264"/>
-<text text-anchor="middle" x="1164" y="-249.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">StringAttributeMap%find</text>
-</a>
-</g>
-</g>
-<!-- none~at~230&#45;&gt;none~find~57 -->
-<g id="proc~~get_file_times~~CallsGraph_edge50" class="edge">
-<title>none~at~230&#45;&gt;none~find~57</title>
-<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M1029.71,-252C1046.65,-252 1065.07,-252 1082.67,-252"/>
-<polygon fill="#7fff00" stroke="#7fff00" points="1082.91,-255.5 1092.91,-252 1082.91,-248.5 1082.91,-255.5"/>
-</g>
-<!-- none~get_ith_dimension&#45;&gt;proc~mapl_return -->
-<g id="proc~~get_file_times~~CallsGraph_edge52" class="edge">
-<title>none~get_ith_dimension&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1034.91,-601.97C1042.57,-599.51 1050.08,-596.55 1057,-593 1076.04,-583.22 1074.86,-572.37 1093,-561 1100.69,-556.18 1109.33,-551.85 1117.84,-548.1"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="1119.47,-551.21 1127.33,-544.11 1116.76,-544.76 1119.47,-551.21"/>
-</g>
-<!-- none~get_ith_dimension&#45;&gt;at -->
-<g id="proc~~get_file_times~~CallsGraph_edge51" class="edge">
-<title>none~get_ith_dimension&#45;&gt;at</title>
-<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1044.83,-614.22C1123.99,-614.43 1241.05,-614.74 1299.89,-614.9"/>
-<polygon fill="#00ffff" stroke="#00ffff" points="1300.17,-618.4 1310.18,-614.93 1300.19,-611.4 1300.17,-618.4"/>
-</g>
-<!-- proc~var_has_attr&#45;&gt;proc~mapl_return -->
 <g id="proc~~get_file_times~~CallsGraph_edge57" class="edge">
-<title>proc~var_has_attr&#45;&gt;proc~mapl_return</title>
-<path fill="none" stroke="#7f00ff" d="M797.87,-464.08C810.05,-467.6 822.15,-472.14 833,-478 852.63,-488.61 848.61,-503.94 869,-513 948.54,-548.32 1052.23,-545.08 1112.83,-538.94"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="1113.33,-542.41 1122.9,-537.85 1112.58,-535.45 1113.33,-542.41"/>
+<title>proc~get_file_name&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#df00ff" d="M833.58,-506.4C859.16,-506.4 885.93,-506.4 908.1,-506.4"/>
+<polygon fill="#df00ff" stroke="#df00ff" points="908.26,-509.9 918.26,-506.4 908.26,-502.9 908.26,-509.9"/>
 </g>
-<!-- proc~var_has_attr&#45;&gt;proc~mapl_verify -->
+<!-- proc~mapl_return&#45;&gt;at -->
 <g id="proc~~get_file_times~~CallsGraph_edge58" class="edge">
-<title>proc~var_has_attr&#45;&gt;proc~mapl_verify</title>
-<path fill="none" stroke="#7f00ff" d="M734.87,-464.2C759.89,-481.6 804.78,-515.69 833,-554 856.37,-585.72 843.27,-605.17 869,-635 884.46,-652.92 906.7,-667.3 925.56,-677.38"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="924.01,-680.51 934.5,-681.97 927.21,-674.29 924.01,-680.51"/>
+<title>proc~mapl_return&#45;&gt;at</title>
+<path fill="none" stroke="#ff00bf" d="M979.98,-518.42C1009.44,-536.59 1065.48,-571.15 1099.36,-592.05"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="1097.53,-595.03 1107.88,-597.3 1101.21,-589.08 1097.53,-595.03"/>
 </g>
-<!-- proc~var_has_attr&#45;&gt;interface~mapl_assert -->
-<g id="proc~~get_file_times~~CallsGraph_edge53" class="edge">
-<title>proc~var_has_attr&#45;&gt;interface~mapl_assert</title>
-<path fill="none" stroke="#7f00ff" d="M741.39,-439.83C785.71,-418.17 878.33,-372.9 928.3,-348.47"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="929.96,-351.56 937.41,-344.02 926.89,-345.27 929.96,-351.56"/>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~get_file_times~~CallsGraph_edge60" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00bf" d="M974.39,-494.35C987.89,-482.49 1008.82,-463.68 1026,-446.4 1056.99,-415.25 1090.86,-376.94 1110.59,-354.16"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="1113.3,-356.37 1117.18,-346.51 1108,-351.8 1113.3,-356.37"/>
 </g>
-<!-- proc~var_has_attr&#45;&gt;proc~get_file_name -->
-<g id="proc~~get_file_times~~CallsGraph_edge56" class="edge">
-<title>proc~var_has_attr&#45;&gt;proc~get_file_name</title>
-<path fill="none" stroke="#7f00ff" d="M804.51,-462.87C814.73,-466.61 824.52,-471.53 833,-478 860.19,-498.74 842.37,-524.54 869,-546 873.68,-549.77 878.88,-553 884.36,-555.76"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="883.23,-559.09 893.79,-559.97 886.09,-552.7 883.23,-559.09"/>
+<!-- insert -->
+<g id="proc~~get_file_times~~CallsGraph_node25" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1155.5,-518.4 1101.5,-518.4 1101.5,-494.4 1155.5,-494.4 1155.5,-518.4"/>
+<text text-anchor="middle" x="1128.5" y="-504" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
 </g>
-<!-- none~get_variable -->
-<g id="proc~~get_file_times~~CallsGraph_node29" class="node">
-<title>none~get_variable</title>
-<g id="a_proc~~get_file_times~~CallsGraph_node29"><a xlink:href="../type/filemetadata.html#boundprocedure-get_variable" xlink:title="FileMetadata%get_variable">
-<polygon fill="#a7506f" stroke="#a7506f" points="1041.5,-504 884.5,-504 884.5,-480 1041.5,-480 1041.5,-504"/>
-<text text-anchor="middle" x="963" y="-489.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileMetadata%get_variable</text>
-</a>
-</g>
-</g>
-<!-- proc~var_has_attr&#45;&gt;none~get_variable -->
-<g id="proc~~get_file_times~~CallsGraph_edge54" class="edge">
-<title>proc~var_has_attr&#45;&gt;none~get_variable</title>
-<path fill="none" stroke="#7f00ff" d="M790.16,-464C817.83,-468.51 849.48,-473.67 878.02,-478.32"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="877.54,-481.78 887.97,-479.94 878.66,-474.88 877.54,-481.78"/>
-</g>
-<!-- none~is_attribute_present -->
-<g id="proc~~get_file_times~~CallsGraph_node30" class="node">
-<title>none~is_attribute_present</title>
-<g id="a_proc~~get_file_times~~CallsGraph_node30"><a xlink:href="../type/variable.html#boundprocedure-is_attribute_present" xlink:title="Variable%is_attribute_present">
-<polygon fill="#a7506f" stroke="#a7506f" points="1048,-462 878,-462 878,-438 1048,-438 1048,-462"/>
-<text text-anchor="middle" x="963" y="-447.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Variable%is_attribute_present</text>
-</a>
-</g>
-</g>
-<!-- proc~var_has_attr&#45;&gt;none~is_attribute_present -->
-<g id="proc~~get_file_times~~CallsGraph_edge55" class="edge">
-<title>proc~var_has_attr&#45;&gt;none~is_attribute_present</title>
-<path fill="none" stroke="#7f00ff" d="M804.78,-451.28C825.22,-451.11 847.05,-450.94 867.73,-450.77"/>
-<polygon fill="#7f00ff" stroke="#7f00ff" points="867.81,-454.27 877.78,-450.69 867.75,-447.27 867.81,-454.27"/>
+<!-- proc~mapl_return&#45;&gt;insert -->
+<g id="proc~~get_file_times~~CallsGraph_edge59" class="edge">
+<title>proc~mapl_return&#45;&gt;insert</title>
+<path fill="none" stroke="#ff00bf" d="M1000.5,-506.4C1028.1,-506.4 1064.5,-506.4 1091.25,-506.4"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="1091.35,-509.9 1101.35,-506.4 1091.35,-502.9 1091.35,-509.9"/>
 </g>
 </g>
 </svg>
@@ -1005,46 +999,31 @@ large graphs.</div>
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
 <!-- Title: proc~~get_file_times~~CalledByGraph Pages: 1 -->
-<svg id="procget_file_timesCalledByGraph" width="290pt" height="32pt"
- viewBox="0.00 0.00 290.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg id="procget_file_timesCalledByGraph" width="191pt" height="32pt"
+ viewBox="0.00 0.00 191.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="proc~~get_file_times~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
 <title>proc~~get_file_times~~CalledByGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 286,-28 286,4 -4,4"/>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 187,-28 187,4 -4,4"/>
 <!-- proc~get_file_times -->
 <g id="proc~~get_file_times~~CalledByGraph_node1" class="node">
 <title>proc~get_file_times</title>
-<polygon fill="none" stroke="black" points="282,-24 196,-24 196,0 282,0 282,-24"/>
-<text text-anchor="middle" x="239" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_file_times</text>
+<polygon fill="none" stroke="black" points="183,-24 97,-24 97,0 183,0 183,-24"/>
+<text text-anchor="middle" x="140" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">get_file_times</text>
 </g>
-<!-- proc~main -->
+<!-- program~time_ave -->
 <g id="proc~~get_file_times~~CalledByGraph_node2" class="node">
-<title>proc~main</title>
-<g id="a_proc~~get_file_times~~CalledByGraph_node2"><a xlink:href="../proc/main.html" xlink:title="main">
-<polygon fill="#d9534f" stroke="#d9534f" points="160,-24 106,-24 106,0 160,0 160,-24"/>
-<text text-anchor="middle" x="133" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">main</text>
+<title>program~time_ave</title>
+<g id="a_proc~~get_file_times~~CalledByGraph_node2"><a xlink:href="../program/time_ave.html" xlink:title="time_ave">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="61,-24 0,-24 0,0 61,0 61,-24"/>
+<text text-anchor="middle" x="30.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">time_ave</text>
 </a>
 </g>
 </g>
-<!-- proc~main&#45;&gt;proc~get_file_times -->
+<!-- program~time_ave&#45;&gt;proc~get_file_times -->
 <g id="proc~~get_file_times~~CalledByGraph_edge1" class="edge">
-<title>proc~main&#45;&gt;proc~get_file_times</title>
-<path fill="none" stroke="#ff0000" d="M160.24,-12C168.11,-12 177.04,-12 185.96,-12"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="185.98,-15.5 195.98,-12 185.98,-8.5 185.98,-15.5"/>
-</g>
-<!-- program~regrid_util -->
-<g id="proc~~get_file_times~~CalledByGraph_node3" class="node">
-<title>program~regrid_util</title>
-<g id="a_proc~~get_file_times~~CalledByGraph_node3"><a xlink:href="../program/regrid_util.html" xlink:title="Regrid_Util">
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
-<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Regrid_Util</text>
-</a>
-</g>
-</g>
-<!-- program~regrid_util&#45;&gt;proc~main -->
-<g id="proc~~get_file_times~~CalledByGraph_edge2" class="edge">
-<title>program~regrid_util&#45;&gt;proc~main</title>
-<path fill="none" stroke="#ff0000" d="M70.12,-12C78.38,-12 87.24,-12 95.6,-12"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="95.84,-15.5 105.84,-12 95.84,-8.5 95.84,-15.5"/>
+<title>program~time_ave&#45;&gt;proc~get_file_times</title>
+<path fill="none" stroke="#ff0000" d="M61.16,-12C69.11,-12 77.95,-12 86.73,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="86.97,-15.5 96.96,-12 86.96,-8.5 86.97,-15.5"/>
 </g>
 </g>
 </svg>
@@ -1143,49 +1122,39 @@ large graphs.</div>
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">get_file_times</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="nb">itime</span><span class="p">,</span><span class="n">alltimes</span><span class="p">,</span><span class="n">tseries</span><span class="p">,</span><span class="n">timeInterval</span><span class="p">,</span><span class="n">tint</span><span class="p">,</span><span class="n">tsteps</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">filename</span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">itime</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">alltimes</span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tseries</span><span class="p">(:)</span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">timeInterval</span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tint</span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tsteps</span>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">get_file_times</span><span class="p">(</span><span class="n">file_metadata</span><span class="p">,</span><span class="n">num_times</span><span class="p">,</span><span class="n">time_series</span><span class="p">,</span><span class="n">time_interval</span><span class="p">,</span><span class="n">yymmdd</span><span class="p">,</span><span class="n">hhmmss</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FileMetadataUtils</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">file_metadata</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">num_times</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">time_series</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">yymmdd</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hhmmss</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">time_interval</span>
 <span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
 
 <span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">second</span><span class="p">,</span><span class="n">minute</span><span class="p">,</span><span class="n">hour</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">year</span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">NetCDF4_fileFormatter</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">formatter</span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FileMetadata</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">basic_metadata</span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">FileMetadataUtils</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">metadata</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">esmf_time_interval</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hour</span><span class="p">,</span><span class="w"> </span><span class="n">minute</span><span class="p">,</span><span class="w"> </span><span class="nb">second</span><span class="p">,</span><span class="w"> </span><span class="n">year</span><span class="p">,</span><span class="w"> </span><span class="n">month</span><span class="p">,</span><span class="w"> </span><span class="n">day</span><span class="p">,</span><span class="w"> </span><span class="n">i</span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">formatter</span><span class="p">%</span><span class="k">open</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span><span class="n">pFIO_Read</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">      </span><span class="n">basic_metadata</span><span class="o">=</span><span class="n">formatter</span><span class="p">%</span><span class="k">read</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">      </span><span class="k">call </span><span class="n">metadata</span><span class="p">%</span><span class="n">create</span><span class="p">(</span><span class="n">basic_metadata</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+<span class="w">      </span><span class="n">num_times</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">file_metadata</span><span class="p">%</span><span class="n">get_dimension</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">file_metadata</span><span class="p">%</span><span class="n">get_time_info</span><span class="p">(</span><span class="n">timeVector</span><span class="o">=</span><span class="n">time_series</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">num_times</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">time_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">file_metadata</span><span class="p">%</span><span class="n">get_var_attr_int32</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="s1">&#39;time_increment&#39;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">num_times</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">esmf_time_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time_series</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="n">time_series</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_TimeIntervalGet</span><span class="p">(</span><span class="n">esmf_time_interval</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">hour</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">minute</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="nb">second</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="n">time_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hour</span><span class="o">*</span><span class="mi">10000</span><span class="o">+</span><span class="n">minute</span><span class="o">*</span><span class="mi">100</span><span class="o">+</span><span class="nb">second</span>
+<span class="nb">      </span><span class="k">end if</span>
 
-<span class="w">      </span><span class="k">call </span><span class="n">formatter</span><span class="p">%</span><span class="k">close</span><span class="p">(</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-
-<span class="w">      </span><span class="n">tsteps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">metadata</span><span class="p">%</span><span class="n">get_dimension</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">      </span><span class="k">call </span><span class="n">metadata</span><span class="p">%</span><span class="n">get_time_info</span><span class="p">(</span><span class="n">timeVector</span><span class="o">=</span><span class="n">tSeries</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">allTimes</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">tSteps</span><span class="o">=</span><span class="mi">1</span>
-<span class="w">         </span><span class="k">call </span><span class="n">UnpackDateTIme</span><span class="p">(</span><span class="nb">itime</span><span class="p">,</span><span class="n">year</span><span class="p">,</span><span class="n">month</span><span class="p">,</span><span class="n">day</span><span class="p">,</span><span class="n">hour</span><span class="p">,</span><span class="n">minute</span><span class="p">,</span><span class="nb">second</span><span class="p">)</span>
-<span class="w">         </span><span class="k">deallocate</span><span class="p">(</span><span class="n">tSeries</span><span class="p">)</span>
-<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">tSeries</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-<span class="w">         </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="n">tSeries</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">yy</span><span class="o">=</span><span class="n">year</span><span class="p">,</span><span class="w"> </span><span class="n">mm</span><span class="o">=</span><span class="n">month</span><span class="p">,</span><span class="w"> </span><span class="n">dd</span><span class="o">=</span><span class="n">day</span><span class="p">,</span><span class="w">  </span><span class="n">h</span><span class="o">=</span><span class="n">hour</span><span class="p">,</span><span class="w">  </span><span class="n">m</span><span class="o">=</span><span class="n">minute</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="nb">second</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="k">      allocate</span><span class="p">(</span><span class="n">yymmdd</span><span class="p">(</span><span class="n">num_times</span><span class="p">),</span><span class="n">hhmmss</span><span class="p">(</span><span class="n">num_times</span><span class="p">))</span>
+<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="n">num_times</span>
+<span class="w">         </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="n">time_series</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="n">yy</span><span class="o">=</span><span class="n">year</span><span class="p">,</span><span class="n">mm</span><span class="o">=</span><span class="n">month</span><span class="p">,</span><span class="n">dd</span><span class="o">=</span><span class="n">day</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">hour</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">minute</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="nb">second</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="n">yymmdd</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">year</span><span class="o">*</span><span class="mi">10000</span><span class="o">+</span><span class="n">month</span><span class="o">*</span><span class="mi">100</span><span class="o">+</span><span class="n">day</span>
+<span class="w">         </span><span class="n">hhmmss</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">=</span><span class="n">hour</span><span class="o">*</span><span class="mi">10000</span><span class="o">+</span><span class="n">minute</span><span class="o">*</span><span class="mi">100</span><span class="o">+</span><span class="nb">second</span>
+<span class="nb">      </span><span class="k">enddo</span>
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">rc</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">rc</span><span class="o">=</span><span class="err">_</span><span class="n">SUCCESS</span>
 <span class="w">      </span><span class="k">end if</span>
-<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">tSteps</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="w"> </span><span class="n">TimeInterval</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="w"> </span><span class="p">)</span>
-<span class="w">      </span><span class="k">else</span>
-<span class="k">         </span><span class="n">TimeInterval</span><span class="o">=</span><span class="n">tSeries</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="n">tSeries</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="w">      </span><span class="k">end if</span>
-<span class="k">      call </span><span class="n">ESMF_TimeIntervalGet</span><span class="p">(</span><span class="n">TimeInterval</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="n">hour</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="n">minute</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="nb">second</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
-<span class="w">      </span><span class="n">tint</span><span class="o">=</span><span class="n">hour</span><span class="o">*</span><span class="mi">10000</span><span class="o">+</span><span class="n">minute</span><span class="o">*</span><span class="mi">100</span><span class="o">+</span><span class="nb">second</span>
-
-<span class="nb">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
-
-<span class="w">   </span><span class="k">end subroutine </span><span class="n">get_file_times</span>
+<span class="k">   end subroutine </span><span class="n">get_file_times</span>
 </pre></div>
 
     </section>
@@ -1209,7 +1178,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-12-19T13:58:28.892208+0000             </p>
+ on 2024-12-19T14:01:17.257689+0000             </p>
           </div>
         </div>
         <br>
