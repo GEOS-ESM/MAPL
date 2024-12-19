@@ -1,14 +1,5 @@
 esma_set_this (OVERRIDE MAPL.base)
 
-if(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
-  if(CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 20)
-    if(CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER 17)
-      add_definitions(-D__ifort_18)
-    endif()
-  endif()
-endif()
-
-
 set (srcs
   MAPL_Profiler.F90
   CFIOCollection.F90                    MAPL_RegridderManager.F90

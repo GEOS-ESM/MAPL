@@ -15,7 +15,6 @@ module MAPL_EpochSwathMod
   use MAPL_TimeDataMod
   use MAPL_VerticalDataMod
   use MAPL_Constants
-  use pFIO
   use MAPL_GriddedIOItemVectorMod
   use MAPL_GriddedIOItemMod
   use MAPL_ExceptionHandling
