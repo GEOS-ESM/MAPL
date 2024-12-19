@@ -318,7 +318,7 @@ contains
 
       _RETURN_UNLESS(new_array)
 
-      call MAPL_EmptyField(field, _RC)
+      call ESMF_FieldEmptyReset(field, status=ESMF_FIELDSTATUS_EMPTY, _RC)
       call ESMF_FieldEmptySet(field, geom, _RC)
 
       call ESMF_FieldEmptyComplete(field, &
