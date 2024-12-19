@@ -1464,10 +1464,6 @@ CONTAINS
 
         else if (item%vartype == MAPL_VectorField) then
 
-           if (item%Trans /= REGRID_METHOD_BILINEAR) then
-              _FAIL('No conservative re-gridding with vectors')
-           end if
-
            call ESMF_StateGet(ExtDataState, trim(item%vcomp1), field,_RC)
            call ESMF_FieldGet(field,grid=grid,rank=fieldRank,_RC)
 
