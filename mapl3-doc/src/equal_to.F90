@@ -1,25 +1,29 @@
 #include "MAPL_ErrLog.h"
 
-submodule (mapl3g_CoordinateAxis) equal_to_smod
-   use esmf, only: ESMF_UtilStringLowerCase
-   use mapl_ErrorHandling
-   use gftl2_StringVector
-   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
+submodule (mapl3g_LatLonDecomposition) equal_to_smod
+   use mapl_ErrorHandlingMod
+   use MAPL_Base
+   implicit none (type, external)
 
 contains
-   
-   elemental logical module function equal_to(a, b)
-      type(CoordinateAxis), intent(in) :: a, b
 
-      ! Do the fast checks first
-      equal_to = size(a%centers) == size(b%centers)
-      if (.not. equal_to) return
-      equal_to = size(a%corners) == size(b%corners)
+   elemental module function equal_to(decomp1, decomp2)
+      logical :: equal_to
+      type(LatLonDecomposition), intent(in) :: decomp1
+      type(LatLonDecomposition), intent(in) :: decomp2
+
+      equal_to = size(decomp1%lon_distribution) == size(decomp2%lon_distribution)
       if (.not. equal_to) return
 
-      equal_to = all(a%centers == b%centers)
+      equal_to = size(decomp1%lat_distribution) == size(decomp2%lat_distribution)
       if (.not. equal_to) return
-      equal_to = all(a%corners == b%corners)
+
+      equal_to = all(decomp1%lon_distribution == decomp2%lon_distribution)
+      if (.not. equal_to) return
+
+      equal_to = all(decomp1%lat_distribution == decomp2%lat_distribution)
+
    end function equal_to
 
 end submodule equal_to_smod
+
