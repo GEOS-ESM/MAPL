@@ -6,6 +6,7 @@ module ud2f_UDSystem
    use ud2f_interfaces
    use ud2f_encoding
    use ud2f_status_codes
+   use MAPL_ExceptionHandling
    use iso_c_binding, only: c_ptr, c_associated, c_null_ptr, c_null_char
    use iso_c_binding, only: c_char, c_int, c_float, c_double, c_loc
    implicit none
@@ -150,7 +151,7 @@ contains
       type(UDUnit), intent(in) :: from_unit
       type(UDUnit), intent(in) :: to_unit
       type(c_ptr) :: cvconverter1
-      logical :: convertible
+!      logical :: convertible !wdb fixme deleteme 
 
       ! Must supply units that are initialized and convertible
       if(from_unit%is_free() .or. to_unit%is_free()) return
@@ -176,8 +177,8 @@ contains
 
       conv = get_converter_function(from, to)
       _ASSERT_RC(.not. conv%is_free(), 'Failed to get converter function', UTF_CONVERTER_NOT_INITIALIZED)
-
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(status) !wdb fixme deleteme add blank line after
    end subroutine get_converter
 
    ! Get converter object
@@ -339,13 +340,13 @@ contains
       integer(ut_encoding), optional, intent(in) :: encoding
       integer, optional, intent(out) :: rc
       integer :: status
-      type(c_ptr) :: utsystem
+!      type(c_ptr) :: utsystem !wdb fixme deleteme 
 
       ! A system can be initialized only once.
       _ASSERT_RC(system%is_free(), 'UDSystem is initialized already.', UTF_INITIALIZATION_FAILURE)
-
       system = UDSystem(path, encoding)
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(status)
    end subroutine initialize_system
 
    ! Is the instance of the unit system initialized?
@@ -376,7 +377,7 @@ contains
    ! Free memory for converter
    subroutine free_cv_converter(this)
       class(Converter), intent(in) :: this
-      type(c_ptr) :: cvconverter1 
+!      type(c_ptr) :: cvconverter1 !wdb fixme deleteme 
 
       if(this%is_free()) return
       call cv_free(this%get_cptr())
