@@ -3,14 +3,16 @@ module Test_MaxAction
    use mapl3g_MaxAction
    use accumulator_action_test_common
    use esmf
-   use funit
    use MAPL_FieldUtils
+   use funit
+   use ESMF_TestMethod_mod
    implicit none
 
 contains
 
-   @Test
-   subroutine test_max_accumulate_R4()
+   !@Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_max_accumulate_R4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(MaxAction) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock

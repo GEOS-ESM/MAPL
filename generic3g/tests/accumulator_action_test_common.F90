@@ -88,7 +88,7 @@ contains
       call ESMF_TimeIntervalSet(timeStep, s=TIME_STEP, _RC)
       call ESMF_TimeSet(startTime, yy=START_TIME, _RC)
       clock = ESMF_ClockCreate(timeStep=timeStep, startTime=startTime, _RC)
-      grid = ESMF_GridCreateNoPeriDimUfrm(maxIndex=MAX_INDEX, minCornerCoord=MIN_CORNER_COORD, maxCornerCoord=MAX_CORNER_COORD, _RC)
+      grid = ESMF_GridCreate(regDecomp = [1, 1], maxIndex=MAX_INDEX, _RC)
       importField = ESMF_FieldCreate(grid=grid, typekind=typekind, _RC)
       exportField = ESMF_FieldCreate(grid=grid, typekind=typekind, _RC)
       importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, fieldList=[importField], name='import', _RC)
