@@ -79,20 +79,20 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.0% of total for procedures.">22 statements</a>
+                 title=" 0.0% of total for procedures.">27 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/ESMF_TestCase.F90"> Source File</a>
+              <a href="../src/ExtDataAbstractFileHandler.F90"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/esmf_testcase.f90.html'>ESMF_TestCase.F90</a></li>
-                <li class="breadcrumb-item"><a href='../module/esmf_testcase_mod.html'>ESMF_TestCase_mod</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/extdataabstractfilehandler.f90.html'>ExtDataAbstractFileHandler.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_extdataabstractfilehandler.html'>MAPL_ExtdataAbstractFileHandler</a></li>
             <li class="breadcrumb-item active" aria-current="page">initialize</li>
           </ol>
         </nav>
@@ -144,11 +144,13 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>private  subroutine initialize(comp, importState, exportState, clock, rc)  
+    <h2>private  subroutine initialize(this, file_series, persist_closest, unusable, rc)  
 </h2>
     
 
 
+    <h3>Type Bound</h3>
+    <p><a href='../type/extdataabstractfilehandler.html'>ExtDataAbstractFileHandler</a></p>
 
     <h3>Arguments</h3>
         <table class="table table-striped varlist">
@@ -163,71 +165,71 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-comp~2"></span>
-              type(<a href='https://mathomp4.github.io/esmf/type/esmf_gridcomp.html'>ESMF_GridComp</a>)
+              <span class="anchor" id="variable-this~3501"></span>
+              class(<a href='../type/extdataabstractfilehandler.html'>ExtDataAbstractFileHandler</a>),
             </td>
-<td></td>
+<td>intent(inout)</td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>comp</strong></td>
+            <td><strong>this</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-importstate"></span>
-              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>)
+              <span class="anchor" id="variable-file_series"></span>
+              type(<a href='../type/extdatafilestream.html'>ExtDataFileStream</a>),
             </td>
-<td></td>
+<td>intent(in)</td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>importState</strong></td>
+            <td><strong>file_series</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-exportstate"></span>
-              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>)
+              <span class="anchor" id="variable-persist_closest~2"></span>
+              logical,
             </td>
-<td></td>
-              <td></td>            <td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>exportState</strong></td>
+            <td><strong>persist_closest</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-clock~42"></span>
-              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>)
+              <span class="anchor" id="variable-unusable~228"></span>
+              class(<a href='../type/keywordenforcer~57.html'>KeywordEnforcer</a>),
             </td>
-<td></td>
-              <td></td>            <td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>clock</strong></td>
+            <td><strong>unusable</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~1090"></span>
+              <span class="anchor" id="variable-rc~1334"></span>
               integer,
             </td>
-<td>intent(out)</td>
-              <td></td>            <td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
               
             </td>
             <td>::</td>
@@ -242,7 +244,7 @@
     <br>
     <div class="card">
       <div class="card-header">
-  <h3 class="card-title">Calls</h3>
+  <h3 class="card-title">Called by</h3>
       </div>
       <div class="card-body">
   <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -250,51 +252,54 @@
  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Generated by graphviz version 2.43.0 (0)
  -->
-<!-- Title: proc~~initialize~7~~CallsGraph Pages: 1 -->
-<svg id="procinitialize7CallsGraph" width="289pt" height="74pt"
- viewBox="0.00 0.00 289.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="proc~~initialize~7~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
-<title>proc~~initialize~7~~CallsGraph</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 285,-70 285,4 -4,4"/>
+<!-- Title: proc~~initialize~7~~CalledByGraph Pages: 1 -->
+<svg id="procinitialize7CalledByGraph" width="577pt" height="32pt"
+ viewBox="0.00 0.00 577.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~initialize~7~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~initialize~7~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 573,-28 573,4 -4,4"/>
 <!-- proc~initialize~7 -->
-<g id="proc~~initialize~7~~CallsGraph_node1" class="node">
+<g id="proc~~initialize~7~~CalledByGraph_node1" class="node">
 <title>proc~initialize~7</title>
-<polygon fill="none" stroke="black" points="57,-45 0,-45 0,-21 57,-21 57,-45"/>
-<text text-anchor="middle" x="28.5" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">initialize</text>
+<polygon fill="none" stroke="black" points="569,-24 355,-24 355,0 569,0 569,-24"/>
+<text text-anchor="middle" x="462" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">ExtDataAbstractFileHandler%initialize</text>
 </g>
-<!-- ESMF_GridCompGetInternalState -->
-<g id="proc~~initialize~7~~CallsGraph_node2" class="node">
-<title>ESMF_GridCompGetInternalState</title>
-<g id="a_proc~~initialize~7~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridcompgetinternalstate.html" xlink:title="ESMF_GridCompGetInternalState">
-<polygon fill="#a7506f" stroke="#a7506f" points="281,-66 93,-66 93,-42 281,-42 281,-66"/>
-<text text-anchor="middle" x="187" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridCompGetInternalState</text>
+<!-- proc~fillin_primary -->
+<g id="proc~~initialize~7~~CalledByGraph_node2" class="node">
+<title>proc~fillin_primary</title>
+<g id="a_proc~~initialize~7~~CalledByGraph_node2"><a xlink:href="../proc/fillin_primary.html" xlink:title="ExtDataOldTypesCreator%fillin_primary">
+<polygon fill="#d9534f" stroke="#d9534f" points="319,-24 98,-24 98,0 319,0 319,-24"/>
+<text text-anchor="middle" x="208.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtDataOldTypesCreator%fillin_primary</text>
 </a>
 </g>
 </g>
-<!-- proc~initialize~7&#45;&gt;ESMF_GridCompGetInternalState -->
-<g id="proc~~initialize~7~~CallsGraph_edge1" class="edge">
-<title>proc~initialize~7&#45;&gt;ESMF_GridCompGetInternalState</title>
-<path fill="none" stroke="#ff0000" d="M57.12,-36.71C65.79,-37.87 75.9,-39.23 86.59,-40.66"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="86.17,-44.14 96.54,-42 87.1,-37.2 86.17,-44.14"/>
+<!-- proc~fillin_primary&#45;&gt;proc~initialize~7 -->
+<g id="proc~~initialize~7~~CalledByGraph_edge1" class="edge">
+<title>proc~fillin_primary&#45;&gt;proc~initialize~7</title>
+<path fill="none" stroke="#ff0000" d="M319.08,-12C327.64,-12 336.31,-12 344.91,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="344.97,-15.5 354.97,-12 344.97,-8.5 344.97,-15.5"/>
 </g>
-<!-- setup -->
-<g id="proc~~initialize~7~~CallsGraph_node3" class="node">
-<title>setup</title>
-<polygon fill="#777777" stroke="#777777" points="214,-24 160,-24 160,0 214,0 214,-24"/>
-<text text-anchor="middle" x="187" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">setup</text>
+<!-- proc~initialize_~2 -->
+<g id="proc~~initialize~7~~CalledByGraph_node3" class="node">
+<title>proc~initialize_~2</title>
+<g id="a_proc~~initialize~7~~CalledByGraph_node3"><a xlink:href="../proc/initialize_~2.html" xlink:title="Initialize_">
+<polygon fill="#d9534f" stroke="#d9534f" points="62,-24 0,-24 0,0 62,0 62,-24"/>
+<text text-anchor="middle" x="31" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Initialize_</text>
+</a>
 </g>
-<!-- proc~initialize~7&#45;&gt;setup -->
-<g id="proc~~initialize~7~~CallsGraph_edge2" class="edge">
-<title>proc~initialize~7&#45;&gt;setup</title>
-<path fill="none" stroke="#ff0000" d="M57.12,-29.29C82.87,-25.84 121.45,-20.66 149.69,-16.87"/>
-<polygon fill="#ff0000" stroke="#ff0000" points="150.51,-20.29 159.96,-15.49 149.58,-13.36 150.51,-20.29"/>
+</g>
+<!-- proc~initialize_~2&#45;&gt;proc~fillin_primary -->
+<g id="proc~~initialize~7~~CalledByGraph_edge2" class="edge">
+<title>proc~initialize_~2&#45;&gt;proc~fillin_primary</title>
+<path fill="none" stroke="#ff0000" d="M62.17,-12C69.8,-12 78.47,-12 87.68,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="87.87,-15.5 97.87,-12 87.87,-8.5 87.87,-15.5"/>
 </g>
 </g>
 </svg>
 </div>          <div>
-            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
           </div>
-          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -386,36 +391,28 @@ large graphs.</div>
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">initialize</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span><span class="w"> </span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_GridComp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comp</span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">importState</span><span class="w">            </span><span class="c">! must not be optional</span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">exportState</span><span class="w">            </span><span class="c">! must not be optional</span>
-<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span><span class="w">                  </span><span class="c">! must not be optional</span>
-<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w">                </span><span class="c">! must not be optional</span>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">initialize</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="n">file_series</span><span class="p">,</span><span class="n">persist_closest</span><span class="p">,</span><span class="n">unusable</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ExtDataAbstractFileHandler</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ExtDataFileStream</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">file_series</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">persist_closest</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
 
-<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">InternalState</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wrap</span>
-<span class="w">      </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_TestCase</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">testPtr</span>
-<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">finalrc</span>
-
-<span class="w">      </span><span class="c">! To prevent &quot;unused variable&quot; warnings, we do something useless here.</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="n">false</span><span class="p">.)</span><span class="w"> </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="nb">shape</span><span class="p">(</span><span class="n">importState</span><span class="p">)</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="n">false</span><span class="p">.)</span><span class="w"> </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="nb">shape</span><span class="p">(</span><span class="n">exportState</span><span class="p">)</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="n">false</span><span class="p">.)</span><span class="w"> </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="nb">shape</span><span class="p">(</span><span class="n">clock</span><span class="p">)</span>
-
-<span class="w">      </span><span class="c">! Get Internal State</span>
-<span class="w">      </span><span class="k">call </span><span class="n">ESMF_GridCompGetInternalState</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span><span class="w"> </span><span class="n">wrap</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="w"> </span><span class="n">ESMF_SUCCESS</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">finalrc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FAILURE</span>
+<span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">file_template</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">file_series</span><span class="p">%</span><span class="n">file_template</span>
+<span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">frequency</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">file_series</span><span class="p">%</span><span class="n">frequency</span>
+<span class="w">      </span><span class="n">this</span><span class="p">%</span><span class="n">reff_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">file_series</span><span class="p">%</span><span class="n">reff_time</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">file_series</span><span class="p">%</span><span class="n">valid_range</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          allocate</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">valid_range</span><span class="p">,</span><span class="n">source</span><span class="o">=</span><span class="n">file_series</span><span class="p">%</span><span class="n">valid_range</span><span class="p">)</span>
+<span class="w">      </span><span class="k">end if</span>
+<span class="k">      </span><span class="n">this</span><span class="p">%</span><span class="n">collection_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">file_series</span><span class="p">%</span><span class="n">collection_id</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">persist_closest</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">this</span><span class="p">%</span><span class="n">persist_closest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">persist_closest</span>
 <span class="w">      </span><span class="k">else</span>
-<span class="k">         </span><span class="n">finalrc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_SUCCESS</span>
+<span class="k">         </span><span class="n">this</span><span class="p">%</span><span class="n">persist_closest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
 <span class="w">      </span><span class="k">end if</span>
 
-<span class="w">      </span><span class="c">! Access private data block and verify data</span>
-<span class="w">      </span><span class="n">testPtr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">wrap</span><span class="p">%</span><span class="n">wrapped</span><span class="p">%</span><span class="n">testPtr</span>
-<span class="w">      </span>
-<span class="w">      </span><span class="k">call </span><span class="n">testPtr</span><span class="p">%</span><span class="n">setUp</span><span class="p">()</span>
-<span class="w">   </span>
-<span class="w">      </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">finalrc</span>
+<span class="k">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span>
 
 <span class="w">   </span><span class="k">end subroutine </span><span class="n">initialize</span>
 </pre></div>
@@ -441,7 +438,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-12-19T13:58:29.887618+0000             </p>
+ on 2024-12-19T14:01:20.435049+0000             </p>
           </div>
         </div>
         <br>
