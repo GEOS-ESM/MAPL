@@ -14,6 +14,7 @@ module accumulator_action_test_common
    integer(kind=ESMF_KIND_I4), parameter :: TIME_STEP = 1
    integer(kind=ESMF_KIND_I4), parameter :: START_TIME = 3000
    integer, parameter :: MAX_INDEX(2) = [4, 4]
+   integer, parameter :: REG_DECOMP = [1, 1]
    real(kind=ESMF_KIND_R8), parameter :: MIN_CORNER_COORD(2) = [0.0_R8, 0.0_R8]
    real(kind=ESMF_KIND_R8), parameter :: MAX_CORNER_COORD(2) = [4.0_R8, 4.0_R8]
    type(ESMF_TypeKind_Flag), parameter :: typekind = ESMF_TYPEKIND_R4
@@ -45,6 +46,16 @@ contains
 
    end subroutine set_undef
 
+   subroutine create_grid(grid, rc)
+      type(ESMF_Grid), optional, intent(inout) :: grid
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      grid = ESMF_GridCreate(regDecomp=REG_DECOMP, maxIndex=MAX_INDEX, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine create_grid
+
    subroutine initialize_field(field, typekind, grid, rc)
       type(ESMF_Field), intent(inout) :: field
       type(ESMF_TypeKind_Flag), intent(in) :: typekind
@@ -62,8 +73,7 @@ contains
       end if
 
       if(.not. grid_created) then
-         grid_ = ESMF_GridCreateNoPeriDimUfrm(maxIndex=MAX_INDEX, &
-            & minCornerCoord=MIN_CORNER_COORD, maxCornerCoord=MAX_CORNER_COORD, _RC)
+         call create_grid(grid_, _RC)
       end if
 
       field = ESMF_FieldCreate(grid=grid_, typekind=typekind, _RC)
@@ -88,7 +98,7 @@ contains
       call ESMF_TimeIntervalSet(timeStep, s=TIME_STEP, _RC)
       call ESMF_TimeSet(startTime, yy=START_TIME, _RC)
       clock = ESMF_ClockCreate(timeStep=timeStep, startTime=startTime, _RC)
-      grid = ESMF_GridCreate(regDecomp = [1, 1], maxIndex=MAX_INDEX, _RC)
+      call create_grid(grid, _RC)
       importField = ESMF_FieldCreate(grid=grid, typekind=typekind, _RC)
       exportField = ESMF_FieldCreate(grid=grid, typekind=typekind, _RC)
       importState = ESMF_StateCreate(stateIntent=ESMF_STATEINTENT_IMPORT, fieldList=[importField], name='import', _RC)
