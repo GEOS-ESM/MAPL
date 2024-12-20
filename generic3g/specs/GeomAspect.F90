@@ -86,11 +86,14 @@ contains
       class(StateItemAspect), intent(in)  :: dst
       integer, optional, intent(out) :: rc
 
+      _HERE,'inserting regrid action'
       select type(dst)
       class is (GeomAspect)
-         action = RegridAction(src%geom, dst%geom, dst%regridder_param)
+!#         action = RegridAction(src%geom, dst%geom, dst%regridder_param)
+         allocate(action, source=RegridAction(src%geom, dst%geom, dst%regridder_param))
       class default
-         action = NullAction()
+!#         action = NullAction()
+         allocate(action,source=NullAction())
          _FAIL('src is GeomAspect but dst is different subclass')
       end select
 

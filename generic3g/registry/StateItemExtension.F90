@@ -139,6 +139,7 @@ contains
       character(:), pointer :: aspect_name
       class(StateItemAspect), pointer :: src_aspect, dst_aspect
 
+
       call this%spec%set_active()
 
       new_spec = this%spec
@@ -151,7 +152,8 @@ contains
          _ASSERT(src_aspect%can_connect_to(dst_aspect), 'cannoct connect aspect ' // aspect_name)
 
          if (src_aspect%needs_extension_for(dst_aspect)) then
-            action = src_aspect%make_action(dst_aspect)
+            allocate(action, source=src_aspect%make_action(dst_aspect, rc=status))
+            _VERIFY(status)
             call new_spec%set_aspect(dst_aspect, _RC)
             exit
          end if
@@ -161,7 +163,12 @@ contains
       if (allocated(action)) then
          call new_spec%create(_RC)
          call new_spec%set_active()
+         block
+           type(GriddedComponentDriver), pointer :: p
+           p => this%get_producer()
          coupler_gridcomp = make_coupler(action, this%get_producer(), _RC)
+!#         coupler_gridcomp = make_coupler(action, p, _RC)
+         end block
          producer = GriddedComponentDriver(coupler_gridcomp, fake_clock, MultiState())
          extension = StateItemExtension(new_spec, producer)
          _RETURN(_SUCCESS)
@@ -185,7 +192,13 @@ contains
       call new_spec%create(_RC)
       call new_spec%set_active()
 
-     coupler_gridcomp = make_coupler(action, this%get_producer(), _RC)
+      block
+        type(GriddedComponentDriver), pointer :: p
+        p => this%get_producer()
+        _HERE, associated(p)
+        coupler_gridcomp = make_coupler(action, this%get_producer(), _RC)
+!#        coupler_gridcomp = make_coupler(action, p, _RC)
+      end block
       producer = GriddedComponentDriver(coupler_gridcomp, fake_clock, MultiState())
       extension = StateItemExtension(new_spec, producer)
 

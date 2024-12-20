@@ -29,15 +29,20 @@ contains
       integer :: status
       type(CouplerMetaComponent), pointer :: coupler_meta
 
+      _HERE, present(source)
+      stop
       coupler_gridcomp = ESMF_GridCompCreate(name='coupler', contextFlag=ESMF_CONTEXT_PARENT_VM, _RC)
       call attach_coupler_meta(coupler_gridcomp, _RC)
       coupler_meta => get_coupler_meta(coupler_gridcomp, _RC)
+      _HERE
 #ifndef __GFORTRAN__
+      _HERE
       coupler_meta = CouplerMetaComponent(action, source)
 #else
+      _HERE
       call ridiculous(coupler_meta, CouplerMetaComponent(action,source))
 #endif
-
+      _HERE
       call ESMF_GridCompSetServices(coupler_gridComp, setServices, _RC)
 
       _RETURN(_SUCCESS)

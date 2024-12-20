@@ -86,10 +86,14 @@ contains
 
       integer :: status
 
+      _HERE,'inserting units conversion action'
       select type (dst)
       class is (UnitsAspect)
-         action = ConvertUnitsAction(src%units, dst%units)
+         ! gfortran ugh
+!#         action = ConvertUnitsAction(src%units, dst%units)
+         allocate(action, source=ConvertUnitsAction(src%units, dst%units))
       class default
+         allocate(action, source=NullAction())
          _FAIL('UnitsApsect cannot convert from other supclass.')
       end select
 

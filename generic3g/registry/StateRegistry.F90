@@ -837,7 +837,9 @@ contains
          iter_count = iter_count + 1
          _ASSERT(iter_count <= MAX_ITERATIONS, "StateItem extensions for v_pt did not converge.")
 
+         _HERE 
          tmp_extension = closest_extension%make_extension(goal_spec, _RC)
+         _HERE
          if (.not. associated(tmp_extension%get_producer())) exit ! no further extensions needed
 
          ! Add permanent copy of extension to registry and retrieve a valid pointer:
