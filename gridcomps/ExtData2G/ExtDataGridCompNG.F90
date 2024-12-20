@@ -435,7 +435,6 @@ CONTAINS
       do j=1,self%primary%number_of_rules%at(i)
          item => self%primary%item_vec%at(i_start+j-1)
          rules_with_ps = allocated(item%vcoord%surf_name)
-         _HERE, item%vcoord%surf_name
          if (rules_with_ps) exit
       enddo
 
@@ -602,6 +601,7 @@ CONTAINS
       if (item%vartype == MAPL_VectorField) then
          call item%filestream%get_file_bracket(use_time,item%source_time, item%modelGridFields%comp2, item%fail_on_missing_file,_RC)
       end if
+      _HERE, 'bmaa'
       call create_bracketing_fields(item,self%ExtDataState,cf_master, _RC)
       call IOBundle_Add_Entry(IOBundles,item,idx)
       useTime(i)=use_time
@@ -939,10 +939,22 @@ CONTAINS
      integer                    :: status
      type(ESMF_Field) :: field
 
-     !call ESMF_StateGet(state,item%vcomp1,field,_RC)
-     call item%modelGridFields%comp1%interpolate_to_time(item%t_interp_field,time,_RC)
+     ! if we didn't actually create bracketing fields we had a gap in the data
+     ! in this case, get the ultimate pointer to fill
+     call ESMF_FieldBundleValidate(item%t_interp_bundle, rc=status) !bmaa
+     if (status /= _SUCCESS) then
+        call ESMF_StateGet(state,item%vcomp1,field,_RC)
+     else
+        call ESMF_FieldBundleGet(item%t_interp_bundle, item%vcomp1, field=field, _RC)
+     end if
+     call item%modelGridFields%comp1%interpolate_to_time(field,time,_RC)
      if (item%vartype == MAPL_VectorField) then
-        call ESMF_StateGet(state,item%vcomp2,field,_RC)
+        call ESMF_FieldBundleValidate(item%t_interp_bundle, rc=status) !bmaa
+        if (status /= _SUCCESS) then
+           call ESMF_StateGet(state,item%vcomp2,field,_RC)
+        else
+           call ESMF_FieldBundleGet(item%t_interp_bundle, item%vcomp2, field=field, _RC)
+        end if
         call item%modelGridFields%comp2%interpolate_to_time(field,time,_RC)
      end if
      _RETURN(ESMF_SUCCESS)
@@ -956,13 +968,14 @@ CONTAINS
 
      integer :: status
      integer :: id_ps
-     type(ESMF_Field) :: field, src_ps, dst_ple !, newfield,psF
+     type(ESMF_Field) :: src_field, dst_field, src_ps, dst_ple !, newfield,psF
      character(len=:), allocatable :: src_ps_name
      !type(PrimaryExport), pointer      :: ps_item
 
      integer :: fieldRank, src_lm, dst_lm
      real, pointer :: dst_ptr3d(:,:,:), src_ptr3d(:,:,:)
 
+     _RETURN(_SUCCESS) !bmaa
      if (.not. item%delivered_item) then
         _RETURN(_SUCCESS)
      end if
@@ -970,12 +983,13 @@ CONTAINS
      src_ps_name = item%vcoord%surf_name//"_"//trim(item%vcomp1)
      _HERE, src_ps_name
      call ESMF_StateGet(MAPLExtState%ExtDataState, src_ps_name, src_ps, _RC)
-     call ESMF_StateGet(MAPLExtState%ExtDataState,trim(item%vcomp1),field,_RC)
-     call ESMF_FieldGet(field,rank=fieldRank,_RC)
+     call ESMF_StateGet(MAPLExtState%ExtDataState,trim(item%vcomp1),dst_field,_RC)
+     call ESMF_FieldGet(dst_field,rank=fieldRank,_RC)
      if (fieldRank==3) then
-        call ESMF_FieldGet(field,farrayPtr=dst_ptr3d,_RC)
+        call ESMF_FieldGet(dst_field,farrayPtr=dst_ptr3d,_RC)
         dst_lm =  size(dst_ptr3d,3)
-        call ESMF_FieldGet(item%t_interp_field,farrayPtr=src_ptr3d,_RC)
+        call ESMF_FieldBundleGet(item%t_interp_bundle, trim(item%vcomp1), field=src_field, _RC)
+        call ESMF_FieldGet(src_field,farrayPtr=src_ptr3d,_RC)
         src_lm = size(src_ptr3d,3)
         if (src_lm /= dst_lm) then
            _HERE,src_lm, dst_lm
@@ -1069,6 +1083,7 @@ CONTAINS
         call MAPL_ConfigSetAttribute(cflocal,value=trim(gname), label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"GRIDNAME:",_RC)
 
         call ESMF_InfoGetFromHost(grid,infoh,_RC)
+        isPresent = ESMF_InfoIsPresent(infoh,'STRETCH_FACTOR',_RC)
         if (isPresent) then
            call ESMF_InfoGet(infoh,'STRETCH_FACTOR',temp_real,_RC)
            call MAPL_ConfigSetAttribute(cflocal,value=temp_real, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"STRETCH_FACTOR:",_RC)
@@ -1451,7 +1466,9 @@ CONTAINS
      logical :: found_file
      type(FileMetadataUtils), pointer :: metadata
      type(MAPLDataCollection), pointer :: collection
+     type(ESMF_Field) :: temp_field
 
+     _HERE, "bmaa ",item%modelGridFields%initialized
      if (item%modelGridFields%initialized) then
         _RETURN(_SUCCESS)
      else
@@ -1475,9 +1492,11 @@ CONTAINS
         end if
      end if
 
+     _HERE, "bmaa ",found_file
      if (found_file) then
         !call GetLevs(item,_RC)
         item%iclient_collection_id=i_clients%add_ext_collection(trim(item%file_template))
+        item%t_interp_bundle = ESMF_FieldBundleCreate(_RC)
         if (item%vartype == MAPL_FieldItem) then
 
            call ESMF_StateGet(ExtDataState, trim(item%name), field,_RC)
@@ -1494,15 +1513,18 @@ CONTAINS
               item%do_Fill = .true.
            end if
 !!!!!!!!!!!!!
-     bracket_grid = MAPL_ExtDataGridChangeLev(grid,cf,item%vcoord%num_levels,_RC)
-     left_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
-     right_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
+           bracket_grid = MAPL_ExtDataGridChangeLev(grid,cf,item%vcoord%num_levels,_RC)
+           left_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
+           right_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
 
-     if (item%vcoord%num_levels /= lm) then
-        item%t_interp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%vcomp1),_RC)
-     else
-        item%t_interp_field = field
-     end if
+           if (item%vcoord%num_levels /= lm) then
+              temp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%vcomp1),_RC)
+              call MAPL_FieldBundleAdd(item%t_interp_bundle, temp_field, _RC)
+              !item%t_interp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%vcomp1),_RC)
+           else
+              call MAPL_FieldBundleAdd(item%t_interp_bundle, field, _RC)
+              !item%t_interp_field = field
+           end if
         
 !!!!!!!!!!!!
            !left_field = MAPL_FieldCreate(field,item%var,doCopy=.true.,_RC)
@@ -1527,14 +1549,40 @@ CONTAINS
            else if (item%vcoord%num_levels /= lm .and. lm /= 0 .and. item%vcoord%num_levels /= 0) then
               item%do_Fill = .true.
            end if
+!!!!!!!!!!!!!
 
-           left_field = MAPL_FieldCreate(field,item%fcomp1,doCopy=.true.,_RC)
-           right_field = MAPL_FieldCreate(field,item%fcomp1,doCopy=.true.,_RC)
+           bracket_grid = MAPL_ExtDataGridChangeLev(grid,cf,item%vcoord%num_levels,_RC)
+           left_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
+           right_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
            call item%modelGridFields%comp1%set_parameters(left_field=left_field,right_field=right_field, _RC)
+           if (item%vcoord%num_levels /= lm) then
+              temp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%vcomp1),_RC)
+              call MAPL_FieldBundleAdd(item%t_interp_bundle, temp_field, _RC)
+           else
+              call MAPL_FieldBundleAdd(item%t_interp_bundle, field, _RC)
+           end if
+
+
            call ESMF_StateGet(ExtDataState, trim(item%vcomp2), field,_RC)
            left_field = MAPL_FieldCreate(field,item%fcomp2,doCopy=.true.,_RC)
            right_field = MAPL_FieldCreate(field,item%fcomp2,doCopy=.true.,_RC)
            call item%modelGridFields%comp2%set_parameters(left_field=left_field,right_field=right_field, _RC)
+           if (item%vcoord%num_levels /= lm) then
+              temp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%vcomp1),_RC)
+              call MAPL_FieldBundleAdd(item%t_interp_bundle, temp_field, _RC)
+           else
+              call MAPL_FieldBundleAdd(item%t_interp_bundle, field, _RC)
+           end if
+        
+!!!!!!!!!!!!
+
+           !left_field = MAPL_FieldCreate(field,item%fcomp1,doCopy=.true.,_RC)
+           !right_field = MAPL_FieldCreate(field,item%fcomp1,doCopy=.true.,_RC)
+           !call item%modelGridFields%comp1%set_parameters(left_field=left_field,right_field=right_field, _RC)
+           !call ESMF_StateGet(ExtDataState, trim(item%vcomp2), field,_RC)
+           !left_field = MAPL_FieldCreate(field,item%fcomp2,doCopy=.true.,_RC)
+           !right_field = MAPL_FieldCreate(field,item%fcomp2,doCopy=.true.,_RC)
+           !call item%modelGridFields%comp2%set_parameters(left_field=left_field,right_field=right_field, _RC)
 
         end if
 
