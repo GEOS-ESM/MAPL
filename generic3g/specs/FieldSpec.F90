@@ -11,7 +11,10 @@
 #define _SET_ALLOCATED_FIELD(A, B, F) if(allocated(B%F)) _SET_FIELD(A, B, F)
 
 module mapl3g_FieldSpec
-
+   use mapl3g_StateItemAspect
+   use mapl3g_AspectCollection
+   use mapl3g_GeomAspect
+   use mapl3g_UnitsAspect
    use mapl3g_VerticalStaggerLoc
    use mapl3g_StateItemSpec
    use mapl3g_WildcardSpec
@@ -74,7 +77,6 @@ module mapl3g_FieldSpec
 
    type, extends(StateItemSpec) :: FieldSpec
 
-      type(ESMF_Geom), allocatable :: geom
       class(VerticalGrid), allocatable :: vertical_grid
       type(VerticalDimSpec) :: vertical_dim_spec = VERTICAL_DIM_UNKNOWN
       type(ESMF_Typekind_flag) :: typekind = ESMF_TYPEKIND_R4
@@ -85,7 +87,6 @@ module mapl3g_FieldSpec
       ! Metadata
       character(:), allocatable :: standard_name
       character(:), allocatable :: long_name
-      character(:), allocatable :: units
       character(:), allocatable :: accumulation_type
       ! TBD
 !#      type(FrequencySpec) :: freq_spec
@@ -112,6 +113,7 @@ module mapl3g_FieldSpec
       procedure :: add_to_bundle
 
       procedure :: make_adapters
+      procedure :: get_aspect_priorities
 
       procedure :: set_geometry
 
@@ -135,18 +137,6 @@ module mapl3g_FieldSpec
       procedure :: can_match_vertical_grid
    end interface can_match
 
-   type, extends(StateItemAdapter) :: GeomAdapter
-      private
-      type(ESMF_Geom), allocatable :: geom
-      type(EsmfRegridderParam) :: regrid_param
-   contains
-      procedure :: adapt_one => adapt_geom
-      procedure :: match_one => adapter_match_geom
-   end type GeomAdapter
-
-   interface GeomAdapter
-      procedure :: new_GeomAdapter
-   end interface GeomAdapter
 
    type, extends(StateItemAdapter) :: VerticalGridAdapter
       private
@@ -177,24 +167,12 @@ module mapl3g_FieldSpec
       procedure :: new_TypeKindAdapter
    end interface TypeKindAdapter
 
-   type, extends(StateItemAdapter) :: UnitsAdapter
-      private
-      character(:), allocatable :: units
-   contains
-      procedure :: adapt_one => adapt_units
-      procedure :: match_one => adapter_match_units
-   end type UnitsAdapter
-
-   interface UnitsAdapter
-      procedure :: new_UnitsAdapter
-   end interface UnitsAdapter
-
 contains
 
    function new_FieldSpec_geom(unusable, geom, vertical_grid, vertical_dim_spec, typekind, ungridded_dims, &
         standard_name, long_name, units, &
         attributes, regrid_param, default_value, accumulation_type, run_dt) result(field_spec)
-      type(FieldSpec) :: field_spec
+      type(FieldSpec), target :: field_spec
 
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
@@ -214,8 +192,13 @@ contains
       type(ESMF_TimeInterval), optional, intent(in) :: run_dt
 
       integer :: status
+      type(AspectCollection), pointer :: aspects
 
-      if (present(geom)) field_spec%geom = geom
+      aspects => field_spec%get_aspects()
+
+!#      if (present(geom)) field_spec%geom = geom
+      call aspects%set_geom_aspect(GeomAspect(geom, regrid_param))
+
       if (present(vertical_grid)) field_spec%vertical_grid = vertical_grid
       field_spec%vertical_dim_spec = vertical_dim_spec
       field_spec%typekind = typekind
@@ -223,8 +206,10 @@ contains
 
       if (present(standard_name)) field_spec%standard_name = standard_name
       if (present(long_name)) field_spec%long_name = long_name
-      if (present(units)) field_spec%units = units
-      if (present(attributes)) field_spec%attributes = attributes
+!#      if (present(units)) field_spec%units = units
+      call aspects%set_units_aspect(UnitsAspect(units))
+ 
+     if (present(attributes)) field_spec%attributes = attributes
 
       ! regrid_param
       field_spec%regrid_param = EsmfRegridderParam() ! use default regrid method
@@ -249,7 +234,8 @@ contains
       _SET_FIELD(field_spec, variable_spec, attributes)
       _SET_FIELD(field_spec, variable_spec, regrid_param)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, standard_name)
-      _SET_ALLOCATED_FIELD(field_spec, variable_spec, units)
+      call field_spec%set_aspect(UnitsAspect(variable_spec%units))
+!#      _SET_ALLOCATED_FIELD(field_spec, variable_spec, units)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, default_value)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, accumulation_type)
 
@@ -266,9 +252,11 @@ contains
       integer :: status
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
 
-      if (present(geom)) this%geom = geom
+      call this%set_aspect(GeomAspect(geom, this%regrid_param), _RC)
+
       if (present(vertical_grid)) this%vertical_grid = vertical_grid
       if (present(run_dt)) this%run_dt = run_dt
+
 
       _RETURN(_SUCCESS)
    end subroutine set_geometry
@@ -309,13 +297,21 @@ contains
       integer, allocatable :: num_levels_grid
       integer, allocatable :: num_levels
       type(VerticalStaggerLoc) :: vert_staggerloc
+      class(StateItemAspect), pointer :: geom_aspect, units_aspect
+      character(:), allocatable :: units
 
       _RETURN_UNLESS(this%is_active())
 
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       _RETURN_IF(fstatus == ESMF_FIELDSTATUS_COMPLETE)
 
-      call ESMF_FieldEmptySet(this%payload, this%geom, _RC)
+      geom_aspect => this%get_aspect('GEOM', _RC)
+      select type (geom_aspect)
+      class is (GeomAspect)
+         call ESMF_FieldEmptySet(this%payload, geom_aspect%geom, _RC)
+      class default
+         _FAIL('no geom aspect')
+      end select
 
       if (allocated(this%vertical_grid)) then
          num_levels_grid = this%vertical_grid%get_num_levels()
@@ -333,12 +329,19 @@ contains
          _FAIL('unknown stagger')
       end if
 
+      units_aspect => this%get_aspect('UNITS', _RC)
+      select type(units_aspect)
+      class is (UnitsAspect)
+         units = units_aspect%units
+      class default
+         _FAIL('no units aspect')
+      end select
       call MAPL_FieldEmptyComplete(this%payload, &
            typekind=this%typekind, &
            ungridded_dims=this%ungridded_dims, &
            num_levels=num_levels, &
            vert_staggerLoc=vert_staggerLoc, &
-           units=this%units, &
+           units=units, &
            standard_name=this%standard_name, &
            long_name=this%long_name, &
            _RC)
@@ -370,9 +373,9 @@ contains
       if (allocated(this%long_name)) then
          write(unit, "(a, a, a)", iostat=iostat, iomsg=iomsg) new_line("a"), "long name:", this%long_name
       end if
-      if (allocated(this%units)) then
-         write(unit, "(a, a, a)", iostat=iostat, iomsg=iomsg) new_line("a"), "units:", this%units
-      end if
+!#      if (allocated(this%units)) then
+!#         write(unit, "(a, a, a)", iostat=iostat, iomsg=iomsg) new_line("a"), "units:", this%units
+!#      end if
       write(unit, "(a, dt'g0')", iostat=iostat, iomsg=iomsg) new_line("a"), this%vertical_dim_spec
       if (allocated(this%vertical_grid)) then
          write(unit, "(a, dt'g0', a)", iostat=iostat, iomsg=iomsg) new_line("a"), this%vertical_grid
@@ -430,6 +433,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      class(StateItemAspect), pointer :: geom_aspect, units_aspect
+
       interface mirror
          procedure :: mirror_geom
          procedure :: mirror_vertical_grid
@@ -441,7 +446,7 @@ contains
       end interface mirror
 
       _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
-
+      
       select type (src_spec)
       class is (FieldSpec)
          ! Import fields are preemptively created just so that they
@@ -453,10 +458,15 @@ contains
          call this%destroy(_RC)
          this%payload = src_spec%payload
 
-         call mirror(dst=this%geom, src=src_spec%geom)
+         geom_aspect => src_spec%get_aspect('GEOM', _RC)
+         call this%set_aspect(geom_aspect, _RC)
+         units_aspect => src_spec%get_aspect('UNITS', _RC)
+         call this%set_aspect(units_aspect, _RC)
+
+!#         call mirror(dst=this%geom, src=src_spec%geom)
          call mirror(dst=this%vertical_grid, src=src_spec%vertical_grid)
          call mirror(dst=this%typekind, src=src_spec%typekind)
-         call mirror(dst=this%units, src=src_spec%units)
+!#         call mirror(dst=this%units, src=src_spec%units)
          call mirror(dst=this%vertical_dim_spec, src=src_spec%vertical_dim_spec)
          call mirror(dst=this%default_value, src=src_spec%default_value)
          call mirror(dst=this%ungridded_dims, src=src_spec%ungridded_dims)
@@ -592,12 +602,16 @@ contains
 
       logical :: can_convert_units
       integer :: status
+      class(StateItemAspect), pointer :: src_units, dst_units
 
       select type(src_spec)
       class is (FieldSpec)
-         can_convert_units = can_connect_units(this%units, src_spec%units, _RC)
+         src_units => src_spec%get_aspect('UNITS', _RC)
+         dst_units => this%get_aspect('UNITS', _RC)
+         can_convert_units = src_units%can_connect_to(dst_units)
+!#         can_convert_units = can_connect_units(this%units, src_spec%units, _RC)
          can_connect_to = all ([ &
-              can_match(this%geom,src_spec%geom), &
+!#              can_match(this%geom,src_spec%geom), &
               can_match(this%vertical_grid, src_spec%vertical_grid), &
               match(this%vertical_dim_spec, src_spec%vertical_dim_spec), &
               match(this%ungridded_dims, src_spec%ungridded_dims), &
@@ -791,45 +805,6 @@ contains
       payload = this%payload
    end function get_payload
 
-   function new_GeomAdapter(geom, regrid_param) result(geom_adapter)
-      type(GeomAdapter) :: geom_adapter
-      type(ESMF_Geom), optional, intent(in) :: geom
-      type(EsmfRegridderParam), optional, intent(in) :: regrid_param
-
-      if (present(geom)) geom_adapter%geom = geom
-
-      geom_adapter%regrid_param = EsmfRegridderParam()
-      if (present(regrid_param)) geom_adapter%regrid_param = regrid_param
-   end function new_GeomAdapter
-
-   subroutine adapt_geom(this, spec, action, rc)
-      class(GeomAdapter), intent(in) :: this
-      class(StateItemSpec), intent(inout) :: spec
-      class(ExtensionAction), allocatable, intent(out) :: action
-      integer, optional, intent(out) :: rc
-
-      select type (spec)
-      type is (FieldSpec)
-         action = RegridAction(spec%geom, this%geom, this%regrid_param)
-         spec%geom = this%geom
-      end select
-
-      _RETURN(_SUCCESS)
-   end subroutine adapt_geom
-
-   logical function adapter_match_geom(this, spec, rc) result(match)
-      class(GeomAdapter), intent(in) :: this
-      class(StateItemSpec), intent(in) :: spec
-      integer, optional, intent(out) :: rc
-
-      match = .false.
-      select type (spec)
-      type is (FieldSpec)
-         match = match_geom(spec%geom, this%geom)
-      end select
-
-      _RETURN(_SUCCESS)
-   end function adapter_match_geom
 
    function new_VerticalGridAdapter(vertical_grid, geom, typekind, units, vertical_dim_spec, regrid_method) result(vertical_grid_adapter)
       type(VerticalGridAdapter) :: vertical_grid_adapter
@@ -858,6 +833,10 @@ contains
       type(GriddedComponentDriver), pointer :: v_out_coupler
       type(ESMF_Field) :: v_in_coord, v_out_coord
       type(ESMF_TypeKind_Flag) :: typekind_in, typekind_out
+      type(ESMF_Geom) :: geom
+      class(StateItemAspect), pointer :: geom_aspect
+      class(StateItemAspect), pointer :: units_aspect
+      character(:), allocatable :: units
       integer :: status
 
       select type (spec)
@@ -868,12 +847,29 @@ contains
          _ASSERT(spec%vertical_grid%get_units() == this%vertical_grid%get_units(), 'units must match')
          ! TODO: Should we add a typekind class variable to VerticalGrid?
          _ASSERT(spec%typekind == this%typekind, 'typekind must match')
+         
+         geom_aspect => spec%get_aspect('GEOM', _RC)
+         select type (geom_aspect)
+         class is (GeomAspect)
+            geom = geom_aspect%geom
+         class default
+            _FAIL('no geom aspect')
+         end select
+
+         units_aspect => spec%get_aspect('UNITS', _RC)
+         select type (units_aspect)
+         class is (UnitsAspect)
+            units = units_aspect%units
+         class default
+            _FAIL('no units aspect')
+         end select
+
          call spec%vertical_grid%get_coordinate_field( &
               v_in_coord, v_in_coupler, & ! output
-              'ignore', spec%geom, spec%typekind, this%vertical_grid%get_units(), spec%vertical_dim_spec, _RC)
+              'ignore', geom, spec%typekind, this%vertical_grid%get_units(), spec%vertical_dim_spec, _RC)
          call this%vertical_grid%get_coordinate_field( &
               v_out_coord, v_out_coupler, & ! output
-              'ignore', this%geom, this%typekind, this%units, this%vertical_dim_spec, _RC)
+              'ignore', geom, this%typekind, units, this%vertical_dim_spec, _RC)
          action = VerticalRegridAction(v_in_coord, v_out_coupler, v_out_coord, v_out_coupler, this%regrid_method)
          if (allocated(spec%vertical_grid)) deallocate(spec%vertical_grid)
          allocate(spec%vertical_grid, source=this%vertical_grid)
@@ -935,43 +931,6 @@ contains
       _RETURN(_SUCCESS)
    end function adapter_match_typekind
 
-   function new_UnitsAdapter(units) result(units_adapter)
-      type(UnitsAdapter) :: units_adapter
-      character(*), optional, intent(in) :: units
-
-      if (present(units)) units_adapter%units = units
-   end function new_UnitsAdapter
-
-   subroutine adapt_units(this, spec, action, rc)
-      class(UnitsAdapter), intent(in) :: this
-      class(StateItemSpec), intent(inout) :: spec
-      class(ExtensionAction), allocatable, intent(out) :: action
-      integer, optional, intent(out) :: rc
-
-      select type (spec)
-      type is (FieldSpec)
-         action = ConvertUnitsAction(spec%units, this%units)
-         spec%units = this%units
-      end select
-
-      _RETURN(_SUCCESS)
-   end subroutine adapt_units
-
-   logical function adapter_match_units(this, spec, rc) result(match)
-      class(UnitsAdapter), intent(in) :: this
-      class(StateItemSpec), intent(in) :: spec
-      integer, optional, intent(out) :: rc
-
-      match = .false.
-      select type (spec)
-      type is (FieldSpec)
-         match = .true.
-         if (.not. allocated(this%units)) return
-         match = (this%units == spec%units)
-      end select
-
-      _RETURN(_SUCCESS)
-   end function adapter_match_units
 
    recursive function make_adapters(this, goal_spec, rc) result(adapters)
       type(StateItemAdapterWrapper), allocatable :: adapters(:)
@@ -980,22 +939,46 @@ contains
       integer, optional, intent(out) :: rc
 
       type(VerticalGridAdapter) :: vertical_grid_adapter
+      class(StateItemAspect), pointer :: geom_aspect, units_aspect
+      type(ESMF_Geom) :: geom
+      character(:), allocatable :: units
       integer :: status
 
       select type (goal_spec)
       type is (FieldSpec)
-         allocate(adapters(4))
-         allocate(adapters(1)%adapter, source=GeomAdapter(goal_spec%geom, goal_spec%regrid_param))
+         ! TODO - convert remaining adapters to aspects
+         allocate(adapters(2))
+
+         geom_aspect => goal_spec%get_aspect('GEOM', _RC)
+         select type (geom_aspect)
+         class is (GeomAspect)
+            if (allocated(geom_aspect%geom)) then
+               geom = geom_aspect%geom
+            end if
+         class default
+            _FAIL('no geom aspect')
+         end select
+
+         units_aspect => goal_spec%get_aspect('UNITS', _RC)
+         _ASSERT(associated(units_aspect), 'no units aspect')
+         select type (units_aspect)
+         class is (UnitsAspect)
+            if (allocated(units_aspect%units)) then
+               units = units_aspect%units
+            end if
+         class default
+            _FAIL('no units aspect')
+         end select
+
          vertical_grid_adapter = VerticalGridAdapter( &
               goal_spec%vertical_grid, &
-              goal_spec%geom, &
+              geom, &
               goal_spec%typekind, &
-              goal_spec%units, &
+              units, &
               goal_spec%vertical_dim_spec, &
               VERTICAL_REGRID_LINEAR)
-         allocate(adapters(2)%adapter, source=vertical_grid_adapter)
-         allocate(adapters(3)%adapter, source=TypeKindAdapter(goal_spec%typekind))
-         allocate(adapters(4)%adapter, source=UnitsAdapter(goal_spec%units))
+         allocate(adapters(1)%adapter, source=vertical_grid_adapter)
+         allocate(adapters(2)%adapter, source=TypeKindAdapter(goal_spec%typekind))
       type is (WildCardSpec)
          adapters = goal_spec%make_adapters(goal_spec, _RC)
       class default
@@ -1005,6 +988,15 @@ contains
 
       _RETURN(_SUCCESS)
    end function make_adapters
+
+   function get_aspect_priorities(src_spec, dst_spec) result(order)
+      character(:), allocatable :: order
+      class(FieldSpec), intent(in) :: src_spec
+      class(StateItemSpec), intent(in) :: dst_spec
+
+      order = 'GEOM::UNITS'
+   end function get_aspect_priorities
+   
 
 end module mapl3g_FieldSpec
 

@@ -39,14 +39,11 @@
 
 
 module mapl3g_StateItemAspect
-   use mapl3g_ExtensionAction
    use mapl_ErrorHandling
    implicit none
    private
 
    public :: StateItemAspect
-   public :: AspectExtension
-
 
    type, abstract :: StateItemAspect
       private
@@ -61,7 +58,6 @@ module mapl3g_StateItemAspect
       generic :: supports_conversion => supports_conversion_general, supports_conversion_specific
 
       procedure, non_overridable :: can_connect_to
-      procedure, non_overridable :: make_extension
       procedure, non_overridable :: needs_extension_for
 
       procedure, non_overridable :: is_mirror
@@ -70,11 +66,6 @@ module mapl3g_StateItemAspect
       procedure, non_overridable :: set_time_dependent
    end type StateItemAspect
 
-   ! Simple tuple for aggregating aspect and action
-   type :: AspectExtension
-      class(StateItemAspect), allocatable :: aspect
-      class(ExtensionAction), allocatable :: action
-   end type AspectExtension
 
    abstract interface
 
@@ -169,23 +160,6 @@ contains
 
    end function needs_extension_for
 
-   function make_extension(src, dst, rc) result(extension)
-      type(AspectExtension) :: extension
-      class(StateItemAspect), intent(in) :: src
-      class(StateItemAspect), intent(in) :: dst
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      _ASSERT(src%can_connect_to(dst), 'cannot connect')
-      _ASSERT(src%needs_extension_for(dst), 'extension not needed')
-
-      extension%aspect = dst
-      extension%action = src%make_action(dst)
-
-   end function make_extension
-
-
    logical function is_mirror(this)
       class(StateItemAspect), intent(in) :: this
       is_mirror = this%mirror
@@ -193,8 +167,8 @@ contains
 
    subroutine set_mirror(this, mirror)
       class(StateItemAspect), intent(inout) :: this
-      logical, intent(in) :: mirror
-      this%mirror = mirror
+      logical, optional, intent(in) :: mirror
+      if (present(mirror)) this%mirror = mirror
    end subroutine set_mirror
 
    logical function is_time_dependent(this)
@@ -204,8 +178,8 @@ contains
 
    subroutine set_time_dependent(this, time_dependent)
       class(StateItemAspect), intent(inout) :: this
-      logical, intent(in) :: time_dependent
-      this%time_dependent = time_dependent
+      logical, optional, intent(in) :: time_dependent
+      if (present(time_dependent)) this%time_dependent = time_dependent
    end subroutine set_time_dependent
 
 end module mapl3g_StateItemAspect
