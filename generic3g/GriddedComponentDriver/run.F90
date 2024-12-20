@@ -20,7 +20,7 @@ contains
       integer :: status, user_status
 
       _ASSERT(present(phase_idx), 'until made not optional')
-      call this%run_import_couplers(_RC)
+!#      call this%run_import_couplers(_RC)
       
       associate ( &
            importState => this%states%importState, &
@@ -34,7 +34,7 @@ contains
 
       end associate
 
-      call this%run_export_couplers(phase_idx=phase_idx, _RC)
+!#      call this%run_export_couplers(phase_idx=phase_idx, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

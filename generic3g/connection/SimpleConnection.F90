@@ -171,6 +171,12 @@ contains
          call dst_spec%connect_to(new_spec, effective_pt, _RC)
          call dst_spec%set_active()
             
+         _HERE
+         if (new_extension%has_producer()) then
+         _HERE
+!#            call dst_extension%set_producer(new_extension%get_producer(), _RC)
+            dst_extension%dependency => new_extension%get_producer()
+         end if
       end do
          
       _RETURN(_SUCCESS)

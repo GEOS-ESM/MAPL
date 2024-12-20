@@ -741,6 +741,11 @@ contains
 
    end function filter
 
+   ! An item has a user-level export coupler iff:
+   !  - it is owned
+   !  - has a consumer
+   !  - has no producers
+   ! The export couplers are all consumers.
    function get_export_couplers(this) result(export_couplers)
       type(ComponentDriverPtrVector) :: export_couplers
       class(StateRegistry), target, intent(in) :: this
@@ -748,6 +753,9 @@ contains
       type(ComponentDriverPtr) :: wrapper
       type(StateItemExtension), pointer :: extension
       type(StateItemExtensionVectorIterator) :: iter
+      type(ComponentDriverPtrVector), pointer :: consumers
+      integer :: i
+      
       
       associate (e => this%owned_items%ftn_end())
         iter = this%owned_items%ftn_begin()
@@ -755,40 +763,78 @@ contains
            call iter%next()
            extension => iter%of()
 
-           if (extension%has_producer()) then
-              wrapper%ptr => extension%get_producer()
+           if (extension%has_producer()) cycle
+           consumers => extension%get_consumers()
+           do i = 1, consumers%size()
+              wrapper = consumers%of(i) ! copy ptr
               call export_couplers%push_back(wrapper)
-              cycle
-           end if
+           end do
+
         end do
       end associate
 
    end function get_export_couplers
 
+   ! An item is an import coupler iff:
+   !   - it is has a producer, but no consumer (end of chain)
+   !   - is primary
    function get_import_couplers(this) result(import_couplers)
       type(ComponentDriverPtrVector) :: import_couplers
       class(StateRegistry), target, intent(in) :: this
 
-      integer :: i
-      type(ComponentDriverPtr) :: wrapper
-      type(StateItemExtension), pointer :: extension
-      type(StateItemExtensionVectorIterator) :: iter
-      type(ComponentDriverPtrVector), pointer :: consumers
-      
-      associate (e => this%owned_items%ftn_end())
-        iter = this%owned_items%ftn_begin()
-        do while (iter /= e)
-           call iter%next()
-           extension => iter%of()
+!#      integer :: i
+!#      type(ComponentDriverPtr) :: wrapper
+!#      type(StateItemExtension), pointer :: extension
+!#      type(StateItemExtensionVectorIterator) :: iter
+!#      type(ComponentDriverPtrVector), pointer :: consumers
+!#      
+!#      associate (e => this%owned_items%ftn_end())
+!#        iter = this%owned_items%ftn_begin()
+!#        do while (iter /= e)
+!#           call iter%next()
+!#           extension => iter%of()
+!#
+!#           consumers => extension%get_consumers()
+!#           do i = 1, consumers%size()
+!#              wrapper = consumers%of(i) ! copy ptr
+!#              call import_couplers%push_back(wrapper)
+!#           end do
+!#        end do
+!#      end associate
 
-           consumers => extension%get_consumers()
-           do i = 1, consumers%size()
-              wrapper = consumers%of(i) ! copy ptr
+      type(VirtualPtFamilyMapIterator) :: family_iter
+      type(ExtensionFamily), pointer :: family
+      type(VirtualConnectionPt), pointer :: v_pt
+      type(ComponentDriverPtr) :: wrapper
+      type(StateItemExtension), pointer :: primary
+
+     _HERE, this%name, 'collecting import couplers'
+      associate (e => this%family_map%ftn_end())
+        family_iter = this%family_map%ftn_begin()
+        do while (family_iter /= e)
+           call family_iter%next()
+           v_pt => family_iter%first()
+           _HERE, '   ... ', v_pt
+           family => family_iter%second()
+
+           if (v_pt%get_comp_name() /= '') cycle
+           if (.not. family%has_primary()) cycle
+           primary => family%get_primary()
+           _HERE, '   ... has primary'
+
+!#           if (primary%has_producer() .and. .not. primary%has_consumers()) then
+!#              _HERE, '  ... is import coupler'
+!#              wrapper%ptr => primary%get_producer()
+!#              call import_couplers%push_back(wrapper)
+!#           end if
+           if (associated(primary%dependency)) then
+              wrapper%ptr => primary%dependency
               call import_couplers%push_back(wrapper)
-           end do
+           end if
+              
         end do
       end associate
-
+      
    end function get_import_couplers
 
    ! Repeatedly extend family at v_pt until extension can directly

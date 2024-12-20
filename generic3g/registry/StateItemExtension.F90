@@ -27,11 +27,15 @@ module mapl3g_StateItemExtension
       class(StateItemSpec), allocatable :: spec
       type(GriddedComponentDriver), allocatable :: producer ! coupler that computes spec
       type(ComponentDriverPtrVector) :: consumers ! couplers that depend on spec
+
+      type(GriddedComponentDriver), public, pointer :: dependency => null()
    contains
       procedure :: get_spec
       procedure :: get_producer
+      procedure :: set_producer
       procedure :: get_consumers
       procedure :: has_producer
+      procedure :: has_consumers
       procedure :: add_consumer
       procedure :: make_extension
    end type StateItemExtension
@@ -72,18 +76,32 @@ contains
       has_producer = allocated(this%producer)
    end function has_producer
 
+   logical function has_consumers(this)
+      class(StateItemExtension), target, intent(in) :: this
+      has_consumers = this%consumers%size() > 0
+   end function has_consumers
+
    function get_producer(this) result(producer)
       class(StateItemExtension), target, intent(in) :: this
       type(GriddedComponentDriver), pointer :: producer
 
-      if (.not. allocated(this%producer)) then
-         producer => null()
-         return
-      end if
-      
+      producer => null()
+      if (.not. allocated(this%producer)) return
       producer => this%producer
 
    end function get_producer
+
+   subroutine set_producer(this, producer, rc)
+      class(StateItemExtension), intent(inout) :: this
+      type(GriddedComponentDriver), intent(in) :: producer
+      integer, optional, intent(out) :: rc
+
+      _ASSERT(.not. this%has_producer(), 'cannot set producer for extension that already has one')
+      _HERE, 'small memory leak!'
+      this%producer = producer
+
+      _RETURN(_SUCCESS)
+   end subroutine set_producer
 
    function get_consumers(this) result(consumers)
       class(StateItemExtension), target, intent(in) :: this

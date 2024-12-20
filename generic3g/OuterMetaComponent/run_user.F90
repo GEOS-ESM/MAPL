@@ -30,16 +30,23 @@ contains
       phase = get_phase_index(run_phases, phase_name, found=found)
       _ASSERT(found, 'phase <'//phase_name//'> not found for gridcomp <'//this%get_name()//'>')
 
+      _HERE
+      _HERE, this%registry
       import_couplers = this%registry%get_import_couplers()
+      _HERE, this%get_name(), ' num import couplers: ', import_couplers%size()
       do i = 1, import_couplers%size()
          drvr = import_couplers%of(i)
          call drvr%ptr%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
       end do
-
+      _HERE
 
       call this%user_gc_driver%run(phase_idx=phase, _RC)
 
+      _HERE
+
       export_couplers = this%registry%get_export_couplers()
+      _HERE, this%get_name(), ' num export couplers: ', export_couplers%size()
+      _HERE
       do i = 1, export_couplers%size()
          drvr = export_couplers%of(i)
          call drvr%ptr%run(phase_idx=GENERIC_COUPLER_INVALIDATE, _RC)
