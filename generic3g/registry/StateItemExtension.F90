@@ -131,6 +131,7 @@ contains
       class(StateItemSpec), allocatable :: new_spec
       class(ExtensionAction), allocatable :: action
       type(GriddedComponentDriver) :: producer
+      type(GriddedComponentDriver), pointer :: source
       type(ESMF_GridComp) :: coupler_gridcomp
       type(StateItemAdapterWrapper), allocatable :: adapters(:)
       type(ESMF_Clock) :: fake_clock
@@ -163,12 +164,8 @@ contains
       if (allocated(action)) then
          call new_spec%create(_RC)
          call new_spec%set_active()
-         block
-           type(GriddedComponentDriver), pointer :: p
-           p => this%get_producer()
-         coupler_gridcomp = make_coupler(action, this%get_producer(), _RC)
-!#         coupler_gridcomp = make_coupler(action, p, _RC)
-         end block
+         source => this%get_producer()
+         coupler_gridcomp = make_coupler(action, source, _RC)
          producer = GriddedComponentDriver(coupler_gridcomp, fake_clock, MultiState())
          extension = StateItemExtension(new_spec, producer)
          _RETURN(_SUCCESS)
@@ -192,13 +189,8 @@ contains
       call new_spec%create(_RC)
       call new_spec%set_active()
 
-      block
-        type(GriddedComponentDriver), pointer :: p
-        p => this%get_producer()
-        _HERE, associated(p)
-        coupler_gridcomp = make_coupler(action, this%get_producer(), _RC)
-!#        coupler_gridcomp = make_coupler(action, p, _RC)
-      end block
+      source => this%get_producer()
+      coupler_gridcomp = make_coupler(action, source, _RC)
       producer = GriddedComponentDriver(coupler_gridcomp, fake_clock, MultiState())
       extension = StateItemExtension(new_spec, producer)
 

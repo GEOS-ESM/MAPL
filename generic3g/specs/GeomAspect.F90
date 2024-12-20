@@ -86,7 +86,6 @@ contains
       class(StateItemAspect), intent(in)  :: dst
       integer, optional, intent(out) :: rc
 
-      _HERE,'inserting regrid action'
       select type(dst)
       class is (GeomAspect)
 !#         action = RegridAction(src%geom, dst%geom, dst%regridder_param)

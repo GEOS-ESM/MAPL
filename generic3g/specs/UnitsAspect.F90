@@ -86,7 +86,6 @@ contains
 
       integer :: status
 
-      _HERE,'inserting units conversion action'
       select type (dst)
       class is (UnitsAspect)
          ! gfortran ugh
