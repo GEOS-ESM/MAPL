@@ -56,6 +56,8 @@ contains
 
       select type (dst)
       class is (UnitsAspect)
+         supports_conversion_specific = .true.
+         if (src%units == dst%units) return ! allow silly units so long as they are the same
          supports_conversion_specific = are_convertible(src%units, dst%units, rc=ignore)
       class default
          supports_conversion_specific = .false.

@@ -19,9 +19,11 @@ contains
 
       integer :: status, user_status
 
+      _HERE
       _ASSERT(present(phase_idx), 'until made not optional')
 !#      call this%run_import_couplers(_RC)
       
+      _HERE
       associate ( &
            importState => this%states%importState, &
            exportState => this%states%exportState)
@@ -31,6 +33,7 @@ contains
              exportState=exportState, &
              clock=this%clock, &
              phase=phase_idx, _USERRC)
+      _HERE
 
       end associate
 
