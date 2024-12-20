@@ -1,17 +1,18 @@
 #include "MAPL_TestErr.h"
-#include "unused_dummy.H"
 module Test_AccumulatorAction
    use mapl3g_AccumulatorAction
    use accumulator_action_test_common
    use esmf
-   use funit
    use MAPL_FieldUtils
+   use pfunit
+   use ESMF_TestMethod_mod
    implicit none
 
 contains
 
-   @Test
-   subroutine test_construct_AccumulatorAction()
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_construct_AccumulatorAction(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(AccumulatorAction) :: acc
 
       @assertFalse(acc%update_calculated, 'updated_calculated .TRUE.')
@@ -19,8 +20,9 @@ contains
 
    end subroutine test_construct_AccumulatorAction
 
-   @Test
-   subroutine test_initialize()
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_initialize(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(AccumulatorAction) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
@@ -36,8 +38,9 @@ contains
 
    end subroutine test_initialize
 
-   @Test
-   subroutine test_invalidate()
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_invalidate(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(AccumulatorAction) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
@@ -62,8 +65,9 @@ contains
 
    end subroutine test_invalidate
 
-   @Test
-   subroutine test_update()
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_update(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(AccumulatorAction) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
@@ -105,8 +109,9 @@ contains
 
    end subroutine test_update
 
-   !@Test
-   subroutine test_accumulate()
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_accumulate(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(AccumulatorAction) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
@@ -119,7 +124,7 @@ contains
       typekind = ESMF_TYPEKIND_R4
       call initialize_objects(importState, exportState, clock, typekind, _RC)
       call acc%initialize(importState, exportState, clock, _RC)
-      call initialize_field(update_field, typekind=typekind, _RC)
+      call initialize_field(update_field, acc%accumulation_field, _RC)
       call FieldSet(update_field, value_r4, _RC)
       call acc%accumulate(update_field, _RC)
       matches_expected = FieldIsConstant(acc%accumulation_field, value_r4, _RC)
@@ -129,8 +134,9 @@ contains
 
    end subroutine test_accumulate
 
-   @Test
-   subroutine test_clear()
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_clear(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(AccumulatorAction) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
@@ -148,8 +154,9 @@ contains
 
    end subroutine test_clear
 
-   !@Test
-   subroutine test_accumulate_R4()
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_accumulate_R4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(AccumulatorAction) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
@@ -162,7 +169,7 @@ contains
 
       call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
       call acc%initialize(importState, exportState, clock, _RC)
-      call initialize_field(update_field, typekind=typekind, _RC)
+      call initialize_field(update_field, acc%accumulation_field, _RC)
       call FieldSet(update_field, update_value, _RC)
       call FieldSet(acc%accumulation_field, INITIAL_VALUE, _RC)
       call acc%accumulate_R4(update_field, _RC)

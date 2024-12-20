@@ -1,6 +1,7 @@
 #define _RETURN_(R, S) if(present(R)) R = S; return
 #define _RETURN(S) _RETURN_(rc, S)
 #define _SUCCESS 0
+#define _FAILURE _SUCCESS-1
 #include "MAPL_TestErr.h"
 module accumulator_action_test_common
    use esmf
@@ -14,10 +15,13 @@ module accumulator_action_test_common
    integer(kind=ESMF_KIND_I4), parameter :: TIME_STEP = 1
    integer(kind=ESMF_KIND_I4), parameter :: START_TIME = 3000
    integer, parameter :: MAX_INDEX(2) = [4, 4]
-   integer, parameter :: REG_DECOMP = [1, 1]
-   real(kind=ESMF_KIND_R8), parameter :: MIN_CORNER_COORD(2) = [0.0_R8, 0.0_R8]
-   real(kind=ESMF_KIND_R8), parameter :: MAX_CORNER_COORD(2) = [4.0_R8, 4.0_R8]
-   type(ESMF_TypeKind_Flag), parameter :: typekind = ESMF_TYPEKIND_R4
+   integer, parameter :: REG_DECOMP(2) = [1, 1]
+   type(ESMF_TypeKind_Flag), parameter :: TYPEKIND = ESMF_TYPEKIND_R4
+
+   interface initialize_field
+      module procedure :: initialize_field_new
+      module procedure :: initialize_field_source
+   end interface initialize_field
 
 contains
 
@@ -56,32 +60,38 @@ contains
 
    end subroutine create_grid
 
-   subroutine initialize_field(field, typekind, grid, rc)
+   subroutine initialize_field_new(field, typekind, grid, rc)
       type(ESMF_Field), intent(inout) :: field
       type(ESMF_TypeKind_Flag), intent(in) :: typekind
-      type(ESMF_Grid), optional, intent(inout) :: grid
+      type(ESMF_Grid), optional, intent(out) :: grid
       integer, optional, intent(out) :: rc
-      type(ESMF_Grid) :: grid_
-      logical :: grid_created
 
+      type(ESMF_Grid) :: grid_
       integer :: status
       
-      grid_created = .FALSE.
-      if(present(grid)) then
-         grid_created = ESMF_GridIsCreated(grid, _RC)
-         if(grid_created) grid_ = grid
-      end if
-
-      if(.not. grid_created) then
-         call create_grid(grid_, _RC)
-      end if
-
+      call create_grid(grid_, _RC)
       field = ESMF_FieldCreate(grid=grid_, typekind=typekind, _RC)
-      
-      if(present(grid)) grid = grid_
+      if(present(grid)) grid=grid_
       _RETURN(_SUCCESS)
 
-   end subroutine initialize_field
+   end subroutine initialize_field_new
+
+   subroutine initialize_field_source(field, source, grid, rc)
+      type(ESMF_Field), intent(inout) :: field
+      type(ESMF_Field), intent(inout) :: source
+      type(ESMF_Grid), optional, intent(out) :: grid
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_TypeKind_Flag) :: typekind
+      type(ESMF_Grid) :: grid_
+      integer :: status
+      
+      call ESMF_FieldGet(source, grid=grid_, typekind=typekind, _RC)
+      field = ESMF_FieldCreate(grid=grid_, typekind=typekind, _RC)
+      if(present(grid)) grid=grid_
+      _RETURN(_SUCCESS)
+
+   end subroutine initialize_field_source
 
    subroutine initialize_objects(importState, exportState, clock, typekind, rc) 
       type(ESMF_State), intent(inout) :: importState, exportState
