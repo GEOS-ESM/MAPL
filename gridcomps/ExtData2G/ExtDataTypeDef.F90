@@ -72,7 +72,8 @@ module MAPL_ExtDataTypeDef
      logical :: fail_on_missing_file = .true.
 
      ! needed for final after time interp if no vertical interp, same field as import
-     type(ESMF_Field) :: t_interp_field 
+     !type(ESMF_Field) :: t_interp_field 
+     type(ESMF_FieldBundle) :: t_interp_bundle
 
   end type PrimaryExport
   

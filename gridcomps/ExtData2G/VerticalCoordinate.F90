@@ -178,6 +178,7 @@ contains
        pressure_hpa = "Pa"
        has_positive = var%is_attribute_present("positive", _RC)
        has_units = var%is_attribute_present("units", _RC)
+       has_pressure_units = .false.
        if (has_units) then
           units = var%get_attribute_string("units", _RC) 
           has_pressure_units = UDUNITS_are_convertible(units, pressure_hpa, _RC)

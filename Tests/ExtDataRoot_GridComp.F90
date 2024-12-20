@@ -688,9 +688,16 @@ MODULE ExtDataUtRoot_GridCompMod
          character(len=ESMF_MAXPATHLEN) :: akbk_file
          real, allocatable :: ak(:), bk(:)
          real :: ps_val
+         logical :: has_akbk, has_psval
 
-         call ESMF_ConfigGetAttribute(cf,label="akbk_file:",value=akbk_file,_RC)
-         call ESMF_ConfigGetAttribute(cf,label="ps_val:",value=ps_val,_RC)
+         call ESMF_ConfigFindLabel(cf,"akbk_file:",isPresent=has_akbk,_RC)
+         call ESMF_ConfigFindLabel(cf,"ps_val:",isPresent=has_psval,_RC)
+         if (has_akbk .and. has_psval) then
+            call ESMF_ConfigGetAttribute(cf,label="akbk_file:",value=akbk_file,_RC)
+            call ESMF_ConfigGetAttribute(cf,label="ps_val:",value=ps_val,_RC)
+         else
+            _RETURN(_SUCCESS)
+         end if
          hconfig = ESMF_HConfigCreate(filename=trim(akbk_file), _RC)
          km = size(ple_ptr,3)
          write(km_str,'(i3.3)') km-1
