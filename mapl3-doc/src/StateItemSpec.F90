@@ -1,13 +1,12 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_StateItemSpec
-
-   use mapl_ErrorHandling
    use mapl3g_ActualPtVector
    use mapl3g_ExtensionAction
    use mapl3g_StateItemAspect
-   use mapl3g_AspectMap
+   use mapl3g_AspectCollection
    use gftl2_stringvector
+   use mapl_ErrorHandling
    implicit none
    private
 
@@ -41,8 +40,7 @@ module mapl3g_StateItemSpec
       type(StringVector) :: raw_dependencies
       type(ActualPtVector) :: dependencies
 
-      type(AspectMap) :: aspects
-
+      type(AspectCollection) :: aspects
    contains
 
       procedure(I_create), deferred :: create
@@ -56,6 +54,8 @@ module mapl3g_StateItemSpec
       procedure :: get_aspect_order ! as string vector
 !#      procedure(I_get_aspect_priorities), deferred :: get_aspect_priorities ! as colon-separated string
       procedure :: get_aspect_priorities ! default implementation as aid to refactoring
+!#      procedure(I_make_extension), deferred :: make_extension
+      procedure :: make_extension
 
       procedure(I_add_to_state), deferred :: add_to_state
       procedure(I_add_to_bundle), deferred :: add_to_bundle
@@ -70,9 +70,12 @@ module mapl3g_StateItemSpec
       procedure, non_overridable :: is_allocated
       procedure, non_overridable :: is_active
       procedure, non_overridable :: set_active
-      procedure, non_overridable :: get_aspect
-      procedure, non_overridable :: get_aspects
-      procedure, non_overridable :: set_aspect
+!#      procedure, non_overridable :: get_aspect
+!#      procedure, non_overridable :: get_aspects
+!#      procedure, non_overridable :: set_aspect
+      procedure :: get_aspect
+      procedure :: get_aspects
+      procedure :: set_aspect
 
       procedure :: get_dependencies
       procedure :: get_raw_dependencies
@@ -205,6 +208,15 @@ module mapl3g_StateItemSpec
          class(StateItemSpec), intent(in) :: dst_spec
       end function I_get_aspect_priorities
 
+!#      function I_make_extension(this, aspect_name, aspect, rc) result(new_spec)
+!#         import StateItemSpec
+!#         class(StateItemSpec), allocatable :: new_spec
+!#         class(StateItemSpec), intent(in) :: this
+!#         character(*), intent(in) :: aspect_name
+!#         class(StateItemAspect), intent(in) :: aspect
+!#         integer, optional, intent(out) :: rc
+!#      end function I_make_extension
+
    end interface
 
 contains
@@ -281,27 +293,27 @@ contains
 
       integer :: status
 
-      aspect => null()
-      _ASSERT(this%aspects%count(name) == 1, 'Aspect ' // name // ' not found.')
-      
-      aspect => this%aspects%at(name)
+      aspect => this%aspects%get_aspect(name, _RC)
 
       _RETURN(_SUCCESS)
    end function get_aspect
 
    function get_aspects(this) result(aspects)
-      type(AspectMap), pointer :: aspects
+      type(AspectCollection), pointer :: aspects
       class(StateItemSpec), target, intent(in) :: this
       aspects => this%aspects
    end function get_aspects
 
-   subroutine set_aspect(this, name, aspect)
+   subroutine set_aspect(this, aspect, rc)
       class(StateItemSpec), target, intent(inout) :: this
-      character(*), intent(in) :: name
       class(StateItemAspect), intent(in) :: aspect
+      integer, optional, intent(out) :: rc
 
-      call this%aspects%insert(name, aspect)
+      integer :: status
 
+      call this%aspects%set_aspect(aspect, _RC)
+
+      _RETURN(_SUCCESS)
    end subroutine set_aspect
 
    function get_aspect_order(src_spec, dst_spec) result(names)
@@ -339,5 +351,20 @@ contains
 
       order = ''
    end function get_aspect_priorities
+
+   function make_extension(this, aspect_name, aspect, rc) result(new_spec)
+      class(StateItemSpec), allocatable :: new_spec
+      class(StateItemSpec), intent(in) :: this
+      character(*), intent(in) :: aspect_name
+      class(StateItemAspect), intent(in) :: aspect
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      
+      new_spec = this
+      call new_spec%set_aspect(aspect, _RC)
+      
+      _RETURN(_SUCCESS)
+   end function make_extension
 
 end module mapl3g_StateItemSpec

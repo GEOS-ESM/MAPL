@@ -37,7 +37,6 @@ contains
 #else
       call ridiculous(coupler_meta, CouplerMetaComponent(action,source))
 #endif
-
       call ESMF_GridCompSetServices(coupler_gridComp, setServices, _RC)
 
       _RETURN(_SUCCESS)

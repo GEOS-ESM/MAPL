@@ -3,6 +3,8 @@
 module mapl3g_WildcardSpec
 
    use mapl3g_StateItemSpec
+   use mapl3g_StateItemAspect
+   use mapl3g_AspectCollection
    use mapl3g_ActualPtStateItemSpecMap
    use mapl3g_ActualConnectionPt
    use mapl3g_MultiState
@@ -40,6 +42,10 @@ module mapl3g_WildcardSpec
       procedure :: write_formatted
 
       procedure :: get_reference_spec
+      ! These might be unnecessary once aspects are fully integrated
+      procedure :: get_aspect 
+      procedure :: get_aspects
+      procedure :: set_aspect
    end type WildcardSpec
 
    interface WildcardSpec
@@ -243,5 +249,36 @@ contains
       class(StateItemSpec), pointer :: reference_spec
       reference_spec => this%reference_spec
    end function get_reference_spec
+
+   function get_aspect(this, name, rc) result(aspect)
+      class(StateItemAspect), pointer :: aspect
+      character(*), intent(in) :: name
+      class(WildcardSpec), target, intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      aspect => this%reference_spec%get_aspect(name, _RC)
+
+      _RETURN(_SUCCESS)
+   end function get_aspect
+
+   function get_aspects(this) result(aspects)
+      type(AspectCollection), pointer :: aspects
+      class(WildcardSpec), target, intent(in) :: this
+      aspects => this%reference_spec%get_aspects()
+   end function get_aspects
+
+   subroutine set_aspect(this, aspect, rc)
+      class(WildcardSpec), target, intent(inout) :: this
+      class(StateItemAspect), intent(in) :: aspect
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call this%reference_spec%set_aspect(aspect, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine set_aspect
 
 end module mapl3g_WildcardSpec
