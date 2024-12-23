@@ -42,7 +42,7 @@ module mapl3g_FieldSpec
    use mapl3g_LU_Bound
    use mapl3g_geom_mgr, only: MAPL_SameGeom
    use mapl3g_FieldDictionary
-   use mapl3g_GriddedComponentDriver
+   use mapl3g_ComponentDriver
    use mapl3g_VariableSpec, only: VariableSpec
    use mapl3g_VerticalRegridMethod
    use mapl3g_AccumulatorActionInterface
@@ -829,8 +829,8 @@ contains
       class(ExtensionAction), allocatable, intent(out) :: action
       integer, optional, intent(out) :: rc
 
-      type(GriddedComponentDriver), pointer :: v_in_coupler
-      type(GriddedComponentDriver), pointer :: v_out_coupler
+      class(ComponentDriver), pointer :: v_in_coupler
+      class(ComponentDriver), pointer :: v_out_coupler
       type(ESMF_Field) :: v_in_coord, v_out_coord
       type(ESMF_TypeKind_Flag) :: typekind_in, typekind_out
       type(ESMF_Geom) :: geom
