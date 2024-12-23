@@ -37,14 +37,14 @@ module mapl3g_VerticalGrid
       end function I_get_num_levels
 
       subroutine I_get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, vertical_dim_spec, rc)
-         use mapl3g_GriddedComponentDriver
+         use mapl3g_ComponentDriver
          use mapl3g_VerticalDimSpec
          use esmf, only: ESMF_Geom, ESMF_TypeKind_Flag, ESMF_Field
          import VerticalGrid
 
          class(VerticalGrid), intent(in) :: this
          type(ESMF_Field), intent(out) :: field
-         type(GriddedComponentDriver), pointer, intent(out) :: coupler
+         class(ComponentDriver), pointer, intent(out) :: coupler
          character(*), intent(in) :: standard_name
          type(ESMF_Geom), intent(in) :: geom
          type(ESMF_TypeKind_Flag), intent(in) :: typekind

@@ -173,7 +173,6 @@ contains
             
          if (new_extension%has_producer()) then
             call dst_extension%set_producer(new_extension%get_producer(), _RC)
-!#            dst_extension%dependency => new_extension%get_producer()
          end if
       end do
          

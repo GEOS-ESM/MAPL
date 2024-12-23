@@ -1,179 +1,76 @@
+
+
 #include "MAPL_ErrLog.h"
 
-! Package exporter
-module mapl_Profiler
-   use mapl_AbstractMeter
-   use mapl_AbstractMeterNode
-   use mapl_AbstractMeterFactory
-   use mapl_MeterNodeVector
-   use mapl_MeterNode
-   use mapl_BaseProfiler
+!BOP
 
-   use mapl_AdvancedMeter
-   use mapl_MpiTimerGauge
-   use mapl_FortranTimerGauge
-   use mapl_RssMemoryGauge
-   use mapl_VmstatMemoryGauge
-
-   use mapl_DistributedMeter
-   use mapl_DistributedProfiler
-   use mapl_TimeProfiler
-   use mapl_MemoryProfiler
-
-   use mapl_ProfileReporter
-   use mapl_AbstractColumn
-   use mapl_SimpleColumn
-   use mapl_TextColumn
-   use mapl_SimpleTextColumn
-   use mapl_FormattedTextColumn
-   use mapl_MemoryTextColumn
-   use mapl_NameColumn
-   use mapl_NumCyclesColumn
-   use mapl_InclusiveColumn
-   use mapl_ExclusiveColumn
-   use mapl_StdDevColumn
-   use mapl_MinCycleColumn
-   use mapl_MaxCycleColumn
-   use mapl_MeanCycleColumn
-   use mapl_PercentageColumn
-   use mapl_TextColumnVector
-   use mapl_MultiColumn
-   use mapl_SeparatorColumn
-   use mapl_GlobalProfilers
-
-   implicit none
-
-contains
-
-   subroutine initialize(comm, unusable, enable_global_timeprof, enable_global_memprof, rc)
-      use mapl_ErrorHandlingMod
-      use mapl_KeywordEnforcerMod
-      integer, optional, intent(in) :: comm
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      logical, optional, intent(in) ::  enable_global_timeprof
-      logical, optional, intent(in) ::  enable_global_memprof
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      call initialize_global_time_profiler(name='All', comm=comm, enabled=enable_global_timeprof, _RC)
-      call initialize_global_memory_profiler(name='All', comm=comm, enabled=enable_global_memprof, _RC)
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine initialize
-
-   subroutine finalize(unusable, rc)
-      use mapl_KeywordEnforcerMod
-      use mapl_ErrorHandlingMod
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
-
-      class(DistributedProfiler), pointer :: t_p, m_p
-
-      integer :: status
-
-      t_p => get_global_time_profiler()
-      call t_p%stop(_RC)
-      m_p => get_global_memory_profiler()
-      call m_p%stop(_RC)
-
-      call report_global_profiler()
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-
-   end subroutine finalize
-
-   subroutine report_global_profiler(unusable,comm,rc)
-      use mapl_KeywordEnforcerMod
-      use mapl_ErrorHandlingMod
-      use mpi
-      use pflogger, only: logging
-      use pflogger, only: Logger
-
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(in) :: comm
-      integer, optional, intent(out) :: rc
-      type (ProfileReporter) :: reporter
-      integer :: i, world_comm
-      character(:), allocatable :: report_lines(:)
-      type (MultiColumn) :: inclusive
-      type (MultiColumn) :: exclusive
-      integer :: npes, my_rank, ierror
-      character(1) :: empty(0)
-      class (BaseProfiler), pointer :: t_p
-      class (BaseProfiler), pointer :: m_p
-      type(Logger), pointer :: lgr
-
-      if (present(comm)) then
-         world_comm = comm
-      else
-         world_comm=MPI_COMM_WORLD
-      end if
-
-      call MPI_Comm_size(world_comm, npes, ierror)
-      _VERIFY(ierror)
-      call MPI_Comm_Rank(world_comm, my_rank, ierror)
-      _VERIFY(ierror)
+! !MODULE: MAPL_Profiler -- A Module to instrument codes for profiling
 
 
-      t_p => get_global_time_profiler()
-      if (t_p%get_num_meters() > 0) then
-         reporter = ProfileReporter(empty)
-         call reporter%add_column(NameColumn(50, separator= " "))
-         call reporter%add_column(FormattedTextColumn('#-cycles','(i8.0)', 8, NumCyclesColumn(),separator='-'))
+! !INTERFACE:
 
-         inclusive = MultiColumn(['Inclusive'], separator='=')
-         call inclusive%add_column(FormattedTextColumn(' T (sec) ','(f9.3)', 9, InclusiveColumn(), separator='-'))
-         call inclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(InclusiveColumn(),'MAX'),separator='-'))
-         call reporter%add_column(inclusive)
+  module MAPL_ProfMod
 
-         exclusive = MultiColumn(['Exclusive'], separator='=')
-         call exclusive%add_column(FormattedTextColumn(' T (sec) ','(f9.3)', 9, ExclusiveColumn(), separator='-'))
-         call exclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(ExclusiveColumn()), separator='-'))
-         call reporter%add_column(exclusive)
+! !USES:
 
-         if (my_rank == 0) then
-            report_lines = reporter%generate_report(t_p)
-            lgr => logging%get_logger('MAPL.profiler')
-            call lgr%info('Report on process: %i0', my_rank)
-            do i = 1, size(report_lines)
-               call lgr%info('%a', report_lines(i))
-            end do
-         end if
-      end if
+  use ESMF
+  use MAPL_ExceptionHandling
+  implicit none
+  private
 
-      m_p => get_global_memory_profiler()
-      if (m_p%get_num_meters() > 0) then
-         reporter = ProfileReporter(empty)
-         call reporter%add_column(NameColumn(50, separator= " "))
+! !PUBLIC TYPES:
 
-         inclusive = MultiColumn(['Inclusive'], separator='=')
-         call inclusive%add_column(MemoryTextColumn(['  MEM  '],'(i4,1x,a2)', 9, InclusiveColumn(), separator='-'))
-!!$      call inclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(InclusiveColumn()), separator='-'))
-         call reporter%add_column(inclusive)
+! !PUBLIC MEMBER FUNCTIONS:
+  public MAPL_ProfDisable
+  public MAPL_ProfEnable
+  public MAPL_ProfIsDisabled
 
-         exclusive = MultiColumn(['Exclusive'], separator='=')
-         call exclusive%add_column(MemoryTextColumn(['  MEM  '],'(i4,1x,a2)', 9, ExclusiveColumn(), separator='-'))
-         call exclusive%add_column(FormattedTextColumn(' MEM (KB)','(-3p,f15.3, 0p)', 15, ExclusiveColumn(), separator='-'))
-!!$      call exclusive%add_column(FormattedTextColumn('   %  ','(f6.2)', 6, PercentageColumn(ExclusiveColumn()), separator='-'))
-         call reporter%add_column(exclusive)
+!EOP
 
-         if (my_rank == 0) then
-            report_lines = reporter%generate_report(m_p)
-            lgr => logging%get_logger('MAPL.profiler')
-            do i = 1, size(report_lines)
-               call lgr%info('%a', report_lines(i))
-            end do
-         end if
-      end if
+  logical,       save :: DISABLED  = .false.
 
-      call MPI_Barrier(world_comm, ierror)
-      _VERIFY(ierror)
 
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine report_global_profiler
+  contains
 
-end module mapl_Profiler
+!********************************************************
+    logical function MAPL_ProfIsDisabled()
+      !$omp master
+      MAPL_ProfIsDisabled = DISABLED
+      !$omp end master
+
+    end function MAPL_ProfIsDisabled
+
+!********************************************************
+
+!********************************************************
+
+    subroutine MAPL_ProfDisable(RC)
+      integer, optional, intent(OUT)   :: RC
+
+      character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_ProfDisable"
+
+      !$omp master
+      DISABLED = .true.
+      !$omp end master
+
+      _RETURN(ESMF_SUCCESS)
+      
+    end subroutine MAPL_ProfDisable
+
+!********************************************************
+
+    subroutine MAPL_ProfEnable(RC)
+      integer, optional, intent(OUT)   :: RC
+
+      character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_ProfEnable"
+
+      !$omp master
+      DISABLED = .false.
+      !$omp end master
+
+      _RETURN(ESMF_SUCCESS)
+      
+    end subroutine MAPL_ProfEnable
+
+  end module MAPL_ProfMod
+

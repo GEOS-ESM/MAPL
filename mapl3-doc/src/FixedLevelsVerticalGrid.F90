@@ -7,7 +7,7 @@ module mapl3g_FixedLevelsVerticalGrid
    use mapl3g_MirrorVerticalGrid
    use mapl3g_VerticalStaggerLoc
    use mapl3g_FieldCreate
-   use mapl3g_GriddedComponentDriver
+   use mapl3g_ComponentDriver
    use mapl3g_VerticalDimSpec
    use mapl3g_FieldCondensedArray, only: assign_fptr_condensed_array
    use esmf
@@ -65,7 +65,7 @@ contains
    subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, vertical_dim_spec, rc)
       class(FixedLevelsVerticalGrid), intent(in) :: this
       type(ESMF_Field), intent(out) :: field
-      type(GriddedComponentDriver), pointer, intent(out) :: coupler
+      class(ComponentDriver), pointer, intent(out) :: coupler
       character(*), intent(in) :: standard_name
       type(ESMF_Geom), intent(in) :: geom
       type(ESMF_TypeKind_Flag), intent(in) :: typekind

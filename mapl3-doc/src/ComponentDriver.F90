@@ -4,6 +4,7 @@ module mapl3g_ComponentDriver
    use mapl3g_MultiState
    use mapl_ErrorHandlingMod
    use :: MaplShared, only: KeywordEnforcer
+   use mapl3g_MultiState
    use :: esmf
    implicit none
    private
@@ -20,6 +21,8 @@ module mapl3g_ComponentDriver
       procedure(I_run), deferred :: finalize
       procedure(I_run), deferred :: read_restart
       procedure(I_run), deferred :: write_restart
+
+      procedure(I_get_states), deferred :: get_states
    end type ComponentDriver
 
    type :: ComponentDriverPtr
@@ -36,6 +39,13 @@ module mapl3g_ComponentDriver
          integer, optional, intent(in) :: phase_idx
          integer, optional, intent(out) :: rc
       end subroutine I_run
+
+      function I_get_states(this) result(states)
+         import ComponentDriver
+         import multistate
+         type(MultiState) :: states
+         class(ComponentDriver), intent(in) :: this
+      end function I_get_states
 
    end interface
 

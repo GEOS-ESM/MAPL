@@ -4,7 +4,7 @@ module mapl3g_VerticalRegridAction
 
    use mapl_ErrorHandling
    use mapl3g_ExtensionAction
-   use mapl3g_GriddedComponentDriver
+   use mapl3g_ComponentDriver
    use mapl3g_CouplerPhases, only: GENERIC_COUPLER_UPDATE
    use mapl3g_VerticalRegridMethod
    use mapl3g_VerticalLinearMap, only: compute_linear_map
@@ -24,8 +24,8 @@ module mapl3g_VerticalRegridAction
    type, extends(ExtensionAction) :: VerticalRegridAction
       type(ESMF_Field) :: v_in_coord, v_out_coord
       type(SparseMatrix_sp), allocatable :: matrix(:)
-      type(GriddedComponentDriver), pointer :: v_in_coupler => null()
-      type(GriddedComponentDriver), pointer :: v_out_coupler => null()
+      class(ComponentDriver), pointer :: v_in_coupler => null()
+      class(ComponentDriver), pointer :: v_out_coupler => null()
       type(VerticalRegridMethod) :: method = VERTICAL_REGRID_UNKNOWN
    contains
       procedure :: initialize
@@ -43,9 +43,9 @@ contains
    function new_VerticalRegridAction(v_in_coord, v_in_coupler, v_out_coord, v_out_coupler, method) result(action)
       type(VerticalRegridAction) :: action
       type(ESMF_Field), intent(in) :: v_in_coord
-      type(GriddedComponentDriver), pointer, intent(in) :: v_in_coupler
+      class(ComponentDriver), pointer, intent(in) :: v_in_coupler
       type(ESMF_Field), intent(in) :: v_out_coord
-      type(GriddedComponentDriver), pointer, intent(in) :: v_out_coupler
+      class(ComponentDriver), pointer, intent(in) :: v_out_coupler
       type(VerticalRegridMethod), intent(in) :: method
 
       action%v_in_coord = v_in_coord

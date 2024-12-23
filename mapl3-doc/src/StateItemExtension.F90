@@ -5,7 +5,7 @@ module mapl3g_StateItemExtension
    use mapl3g_ComponentDriver
    use mapl3g_GriddedComponentDriver
    use mapl3g_ComponentDriverVector
-   use mapl3g_ComponentDriverPtrVector
+   use mapl3g_ComponentDriverVector
    use mapl3g_ExtensionAction
    use mapl3g_GenericCoupler
    use mapl3g_StateItemAspect
@@ -25,16 +25,19 @@ module mapl3g_StateItemExtension
    type StateItemExtension
       private
       class(StateItemSpec), allocatable :: spec
-      type(GriddedComponentDriver), allocatable :: producer ! coupler that computes spec
-      type(ComponentDriverPtrVector) :: consumers ! couplers that depend on spec
+      type(ComponentDriverVector) :: consumers ! couplers that depend on spec
+      class(ComponentDriver), pointer :: producer => null() ! coupler that computes spec
    contains
       procedure :: get_spec
+
+      procedure :: has_producer
       procedure :: get_producer
       procedure :: set_producer
-      procedure :: get_consumers
-      procedure :: has_producer
+
       procedure :: has_consumers
       procedure :: add_consumer
+      procedure :: get_consumers
+
       procedure :: make_extension
    end type StateItemExtension
 
@@ -44,7 +47,6 @@ module mapl3g_StateItemExtension
 
    interface StateItemExtension
       procedure :: new_StateItemExtension_spec
-      procedure :: new_StateItemExtension_w_producer
    end interface StateItemExtension
 
 contains
@@ -55,14 +57,6 @@ contains
       ext%spec = spec
    end function new_StateItemExtension_spec
 
-   function new_StateItemExtension_w_producer(spec, producer) result(ext)
-      type(StateItemExtension) :: ext
-      class(StateItemSpec), intent(in) :: spec
-      type(GriddedComponentDriver), intent(in) :: producer
-      ext%spec = spec
-      ext%producer = producer
-   end function new_StateItemExtension_w_producer
-
    function get_spec(this) result(spec)
       class(StateItemExtension), target, intent(in) :: this
       class(StateItemSpec), pointer :: spec
@@ -71,57 +65,58 @@ contains
 
    logical function has_producer(this)
       class(StateItemExtension), target, intent(in) :: this
-      has_producer = allocated(this%producer)
+      has_producer = associated(this%producer)
    end function has_producer
-
-   logical function has_consumers(this)
-      class(StateItemExtension), target, intent(in) :: this
-      has_consumers = this%consumers%size() > 0
-   end function has_consumers
 
    function get_producer(this) result(producer)
       class(StateItemExtension), target, intent(in) :: this
-      type(GriddedComponentDriver), pointer :: producer
+      class(ComponentDriver), pointer :: producer
 
-      producer => null()
-      if (.not. allocated(this%producer)) return
       producer => this%producer
 
    end function get_producer
 
    subroutine set_producer(this, producer, rc)
       class(StateItemExtension), intent(inout) :: this
-      type(GriddedComponentDriver), intent(in) :: producer
+      class(ComponentDriver), pointer, intent(in) :: producer
       integer, optional, intent(out) :: rc
 
       _ASSERT(.not. this%has_producer(), 'cannot set producer for extension that already has one')
-      this%producer = producer
+      this%producer => producer
 
       _RETURN(_SUCCESS)
    end subroutine set_producer
 
+
+  logical function has_consumers(this)
+      class(StateItemExtension), target, intent(in) :: this
+      has_consumers = this%consumers%size() > 0
+   end function has_consumers
+
+
    function get_consumers(this) result(consumers)
       class(StateItemExtension), target, intent(in) :: this
-      type(ComponentDriverPtrVector), pointer :: consumers
+      type(ComponentDriverVector), pointer :: consumers
       consumers => this%consumers
    end function get_consumers
 
-   subroutine add_consumer(this, consumer)
-      class(StateItemExtension), intent(inout) :: this
-      type(GriddedComponentDriver), pointer :: consumer
-      type(ComponentDriverPtr) :: wrapper
+   function add_consumer(this, consumer) result(reference)
+      class(ComponentDriver), pointer :: reference
+      class(StateItemExtension), target, intent(inout) :: this
+      type(GriddedComponentDriver), intent(in) :: consumer
 
-      wrapper%ptr => consumer
-      call this%consumers%push_back(wrapper)
-   end subroutine add_consumer
+      call this%consumers%push_back(consumer)
+      reference => this%consumers%back()
+
+   end function add_consumer
 
    ! Creation of an extension requires a new coupler that transforms
-   ! from source (this) spec to dest (extension) spec. This new coupler
-   ! is added to the export specs of source (this), and the new extension
-   ! gains it as a reference (pointer).
+   ! from source (this) spec to dest (extension) spec.
+   ! This coupler is a "consumer" of the original spec (this), and a "producer" of
+   ! the new spec (extension).
 
    recursive function make_extension(this, goal, rc) result(extension)
-      type(StateItemExtension), target :: extension
+      type(StateItemExtension) :: extension
       class(StateItemExtension), target, intent(inout) :: this
       class(StateItemSpec), target, intent(in) :: goal
       integer, intent(out) :: rc
@@ -130,8 +125,8 @@ contains
       integer :: i
       class(StateItemSpec), allocatable :: new_spec
       class(ExtensionAction), allocatable :: action
-      type(GriddedComponentDriver) :: producer
-      type(GriddedComponentDriver), pointer :: source
+      class(ComponentDriver), pointer :: producer
+      class(ComponentDriver), pointer :: source
       type(ESMF_GridComp) :: coupler_gridcomp
       type(StateItemAdapterWrapper), allocatable :: adapters(:)
       type(ESMF_Clock) :: fake_clock
@@ -166,8 +161,9 @@ contains
          call new_spec%set_active()
          source => this%get_producer()
          coupler_gridcomp = make_coupler(action, source, _RC)
-         producer = GriddedComponentDriver(coupler_gridcomp, fake_clock, MultiState())
-         extension = StateItemExtension(new_spec, producer)
+         producer => this%add_consumer(GriddedComponentDriver(coupler_gridcomp, fake_clock, MultiState()))
+         extension = StateItemExtension(new_spec)
+         call extension%set_producer(producer)
          _RETURN(_SUCCESS)
       end if
 
@@ -191,8 +187,9 @@ contains
 
       source => this%get_producer()
       coupler_gridcomp = make_coupler(action, source, _RC)
-      producer = GriddedComponentDriver(coupler_gridcomp, fake_clock, MultiState())
-      extension = StateItemExtension(new_spec, producer)
+      producer => this%add_consumer(GriddedComponentDriver(coupler_gridcomp, fake_clock, MultiState()))
+      extension = StateItemExtension(new_spec)
+      call extension%set_producer(producer)
 
       _RETURN(_SUCCESS)
    end function make_extension

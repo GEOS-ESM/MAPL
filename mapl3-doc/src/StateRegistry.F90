@@ -493,7 +493,6 @@ contains
       type(VirtualConnectionPt) :: new_virtual_pt
       type(ExtensionFamily), pointer :: family
       type(ExtensionFamily), pointer :: parent_family
-      type(VirtualPtFamilyMapIterator) :: new_iter
 
       virtual_pt => iter%first()
       _RETURN_UNLESS(virtual_pt%is_export())
@@ -743,16 +742,16 @@ contains
    !  - has a consumer
    !  - has no producers
    ! The export couplers are all consumers.
+
    function get_export_couplers(this) result(export_couplers)
       type(ComponentDriverPtrVector) :: export_couplers
       class(StateRegistry), target, intent(in) :: this
 
-      type(ComponentDriverPtr) :: wrapper
       type(StateItemExtension), pointer :: extension
       type(StateItemExtensionVectorIterator) :: iter
-      type(ComponentDriverPtrVector), pointer :: consumers
+      type(ComponentDriverVector), pointer :: consumers
+      type(ComponentDriverPtr) :: wrapper
       integer :: i
-      
       
       associate (e => this%owned_items%ftn_end())
         iter = this%owned_items%ftn_begin()
@@ -763,7 +762,7 @@ contains
            if (extension%has_producer()) cycle
            consumers => extension%get_consumers()
            do i = 1, consumers%size()
-              wrapper = consumers%of(i) ! copy ptr
+              wrapper%ptr => consumers%of(i) ! copy ptr
               call export_couplers%push_back(wrapper)
            end do
 
@@ -772,13 +771,19 @@ contains
 
    end function get_export_couplers
 
-   ! An item is an import coupler iff:
-   !   - it is has a producer, but no consumer (end of chain)
-   !   - is primary
+   ! An item has an import coupler iff:
+   !   - is has a producer
+   !   - it has no consumers
+   !   - it is NOT an extension
+   !
+   ! That last condition is to prevent treating "ultimate" extensions
+   ! as having an import coupler.   These would be the same couplers
+   ! but would be activate at the connection level rather than
+   ! the owning grid comp. 
+
    function get_import_couplers(this) result(import_couplers)
       type(ComponentDriverPtrVector) :: import_couplers
       class(StateRegistry), target, intent(in) :: this
-
 
       type(VirtualPtFamilyMapIterator) :: family_iter
       type(ExtensionFamily), pointer :: family
@@ -804,8 +809,8 @@ contains
               
         end do
       end associate
-      
-   end function get_import_couplers
+ 
+  end function get_import_couplers
 
    ! Repeatedly extend family at v_pt until extension can directly
    ! connect to goal_spec.
@@ -821,7 +826,7 @@ contains
       type(StateItemExtension), pointer :: closest_extension, new_extension
       type(StateItemExtension) :: tmp_extension
       type(ExtensionFamily), pointer :: family
-      type(GriddedComponentDriver), pointer :: producer
+      class(ComponentDriver), pointer :: producer
       integer :: iter_count
       integer, parameter :: MAX_ITERATIONS = 10
       integer :: status
@@ -852,7 +857,6 @@ contains
          a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='export', short_name='export[1]'))
          new_spec => new_extension%get_spec()
          call new_spec%add_to_state(coupler_states, a_pt, _RC)
-         call closest_extension%add_consumer(producer)
 
          closest_extension => new_extension
       end do

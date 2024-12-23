@@ -17,7 +17,7 @@ module Test_ModelVerticalGrid
    use mapl3g_ActualConnectionPt
    use mapl3g_StateItemSpec
    use mapl3g_StateItemExtension
-   use mapl3g_GriddedComponentDriver
+   use mapl3g_ComponentDriver
    use mapl3g_ComponentDriver
    use mapl3g_ComponentDriverVector
    use mapl3g_ComponentDriverPtrVector
@@ -168,7 +168,7 @@ contains
    subroutine test_get_coordinate_field_simple(this)
       class(ESMF_TestMethod), intent(inout) :: this
       type(ModelVerticalGrid) :: vgrid
-      type(GriddedComponentDriver), pointer :: coupler
+      class(ComponentDriver), pointer :: coupler
       type(ESMF_Field) :: vcoord
       type(ESMF_Geom) :: geom
       integer :: rc, status
@@ -205,7 +205,7 @@ contains
       real(ESMF_KIND_R4), pointer :: a(:,:,:)
       type(ComponentDriverPtrVector) :: couplers
       type(ComponentDriverPtr) :: driver
-      type(GriddedComponentDriver), pointer :: coupler
+      class(ComponentDriver), pointer :: coupler
       integer :: i, rc
 
       call setup(geom, vgrid, _RC)
@@ -250,7 +250,7 @@ contains
       real(ESMF_KIND_R4), pointer :: a(:,:,:)
       type(ComponentDriverPtrVector) :: couplers
       type(ComponentDriverPtr) :: driver
-      type(GriddedComponentDriver), pointer :: coupler
+      class(ComponentDriver), pointer :: coupler
       integer :: i, rc
 
       call setup(geom, vgrid, _RC)

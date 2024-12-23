@@ -6,7 +6,7 @@ module mapl3g_GenericCoupler
    use mapl3g_CouplerMetaComponent
    use mapl3g_ExtensionAction
    use mapl3g_VerticalRegridAction
-   use mapl3g_GriddedComponentDriver
+   use mapl3g_ComponentDriver
    use mapl_ErrorHandlingMod
    use esmf
 
@@ -23,7 +23,7 @@ contains
    function make_coupler(action, source, rc) result(coupler_gridcomp)
       type(ESMF_GridComp) :: coupler_gridcomp
       class(ExtensionAction), intent(in) :: action
-      type(GriddedComponentDriver), target, optional, intent(in) :: source
+      class(ComponentDriver), target, optional, intent(in) :: source
       integer, optional, intent(out) :: rc
 
       integer :: status
