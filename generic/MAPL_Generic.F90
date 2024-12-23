@@ -1956,10 +1956,13 @@ contains
      integer :: hdr
      type(ESMF_Time) :: start_time, curr_time, target_time
      character(len=1) :: phase_
+     logical :: clobber_file
+
 
      call ESMF_GridCompGet(GC, NAME=comp_name, _RC)
      call MAPL_InternalStateGet (GC, STATE, _RC)
 
+     call MAPL_GetResource(state, clobber_file, LABEL="overwrite_checkpoint:", default = .false., _RC)
      call ESMF_ClockGet(clock, startTime=start_time, currTime=curr_time, _RC)
 
      call MAPL_GetResource(STATE, time_label, label='TARGET_TIME:', default='')
@@ -1979,12 +1982,15 @@ contains
         write(phase_, '(i1)') phase
 
         call MAPL_ESMFStateWriteToFile(import, CLOCK, trim(FILENAME)//"import_"//trim(POS)//"_runPhase"//phase_, &
-             FILETYPE, STATE, .false., state%grid%write_restart_by_oserver, _RC)
+             FILETYPE, STATE, .false., clobber=clobber_file, &
+             write_with_oserver=state%grid%write_restart_by_oserver, _RC)
         call MAPL_ESMFStateWriteToFile(export, CLOCK, trim(FILENAME)//"export_"//trim(POS)//"_runPhase"//phase_, &
-             FILETYPE, STATE, .false., state%grid%write_restart_by_oserver, _RC)
+             FILETYPE, STATE, .false., clobber=clobber_file, &
+             write_with_oserver=state%grid%write_restart_by_oserver, _RC)
         call MAPL_GetResource(STATE, hdr, default=0, LABEL="INTERNAL_HEADER:", _RC)
         call MAPL_ESMFStateWriteToFile(internal, CLOCK, trim(FILENAME)//"internal_"//trim(POS)//"_runPhase"//phase_, &
-             FILETYPE, STATE, hdr/=0, state%grid%write_restart_by_oserver, _RC)
+             FILETYPE, STATE, hdr/=0, clobber=clobber_file, &
+             write_with_oserver=state%grid%write_restart_by_oserver, _RC)
      end if
      _RETURN(_SUCCESS)
    end subroutine capture
@@ -2265,7 +2271,7 @@ contains
       call MAPL_InternalStateRetrieve(GC, STATE, RC=status)
       _VERIFY(status)
 
-      call MAPL_GetResource(state, clobber_file, LABEL="clobber_checkpoint:", default = .false., _RC)
+      call MAPL_GetResource(state, clobber_file, LABEL="overwrite_checkpoint:", default = .false., _RC)
 
       ! Finalize the children
       ! ---------------------
@@ -2725,7 +2731,7 @@ contains
       call MAPL_InternalStateRetrieve(GC, STATE, RC=status)
       _VERIFY(status)
 
-      call MAPL_GetResource(state, clobber_file, LABEL="clobber_checkpoint:", default = .false., _RC)
+      call MAPL_GetResource(state, clobber_file, LABEL="overwrite_checkpoint:", default = .false., _RC)
       if (.not.associated(STATE%RECORD)) then
          _RETURN(ESMF_SUCCESS)
       end if
@@ -10337,7 +10343,7 @@ contains
       call MAPL_InternalStateRetrieve(GC, STATE, RC=status)
       _VERIFY(status)
 
-      call MAPL_GetResource(state, clobber_file, LABEL="clobber_checkpoint:", default = .false., _RC)
+      call MAPL_GetResource(state, clobber_file, LABEL="overwrite_checkpoint:", default = .false., _RC)
 
       call MAPL_GetResource( STATE, FILENAME,         &
            LABEL="IMPORT_CHECKPOINT_FILE:", &
