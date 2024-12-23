@@ -1,0 +1,879 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>ChildSpec.F90 &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>ChildSpec.F90
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">84 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ChildSpec.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">ChildSpec.F90</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/mapl3g_childspec.html">mapl3g_ChildSpec</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/childspec.f90.html#src">ChildSpec.F90</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~childspec.f90~~EfferentGraph Pages: 1 -->
+<svg id="sourcefilechildspecf90EfferentGraph" width="581pt" height="116pt"
+ viewBox="0.00 0.00 581.00 116.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~childspec.f90~~EfferentGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 112)">
+<title>sourcefile~~childspec.f90~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 577,-112 577,4 -4,4"/>
+<!-- sourcefile~childspec.f90 -->
+<g id="sourcefile~~childspec.f90~~EfferentGraph_node1" class="node">
+<title>sourcefile~childspec.f90</title>
+<polygon fill="none" stroke="black" points="573,-87 485,-87 485,-63 573,-63 573,-87"/>
+<text text-anchor="middle" x="529" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">ChildSpec.F90</text>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~childspec.f90~~EfferentGraph_node2" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~childspec.f90~~EfferentGraph_node2"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="449,-108 325,-108 325,-84 449,-84 449,-108"/>
+<text text-anchor="middle" x="387" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~childspec.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~childspec.f90~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~childspec.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M484.85,-81.47C476.62,-82.71 467.81,-84.03 458.97,-85.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="458.39,-81.9 449.02,-86.85 459.43,-88.82 458.39,-81.9"/>
+</g>
+<!-- sourcefile~usersetservices.f90 -->
+<g id="sourcefile~~childspec.f90~~EfferentGraph_node3" class="node">
+<title>sourcefile~usersetservices.f90</title>
+<g id="a_sourcefile~~childspec.f90~~EfferentGraph_node3"><a xlink:href="../sourcefile/usersetservices.f90.html" xlink:title="UserSetServices.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="447.5,-66 326.5,-66 326.5,-42 447.5,-42 447.5,-66"/>
+<text text-anchor="middle" x="387" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UserSetServices.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~childspec.f90&#45;&gt;sourcefile~usersetservices.f90 -->
+<g id="sourcefile~~childspec.f90~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~childspec.f90&#45;&gt;sourcefile~usersetservices.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M484.85,-68.53C476.24,-67.24 466.99,-65.85 457.74,-64.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="458.14,-60.98 447.74,-62.96 457.11,-67.91 458.14,-60.98"/>
+</g>
+<!-- sourcefile~dso_utilities.f90 -->
+<g id="sourcefile~~childspec.f90~~EfferentGraph_node4" class="node">
+<title>sourcefile~dso_utilities.f90</title>
+<g id="a_sourcefile~~childspec.f90~~EfferentGraph_node4"><a xlink:href="../sourcefile/dso_utilities.f90.html" xlink:title="DSO_Utilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="279.5,-108 176.5,-108 176.5,-84 279.5,-84 279.5,-108"/>
+<text text-anchor="middle" x="228" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">DSO_Utilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~usersetservices.f90&#45;&gt;sourcefile~dso_utilities.f90 -->
+<g id="sourcefile~~childspec.f90~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~usersetservices.f90&#45;&gt;sourcefile~dso_utilities.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M341.01,-66.04C323.19,-70.8 302.54,-76.33 283.85,-81.33"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="282.75,-78 274,-83.96 284.56,-84.76 282.75,-78"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~childspec.f90~~EfferentGraph_node5" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~childspec.f90~~EfferentGraph_node5"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="282.5,-66 173.5,-66 173.5,-42 282.5,-42 282.5,-66"/>
+<text text-anchor="middle" x="228" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~usersetservices.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~childspec.f90~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~usersetservices.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M326.2,-54C315.25,-54 303.79,-54 292.73,-54"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="292.72,-50.5 282.72,-54 292.72,-57.5 292.72,-50.5"/>
+</g>
+<!-- sourcefile~esmf_interfaces.f90 -->
+<g id="sourcefile~~childspec.f90~~EfferentGraph_node6" class="node">
+<title>sourcefile~esmf_interfaces.f90</title>
+<g id="a_sourcefile~~childspec.f90~~EfferentGraph_node6"><a xlink:href="../sourcefile/esmf_interfaces.f90.html" xlink:title="ESMF_Interfaces.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="289,-24 167,-24 167,0 289,0 289,-24"/>
+<text text-anchor="middle" x="228" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_Interfaces.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~usersetservices.f90&#45;&gt;sourcefile~esmf_interfaces.f90 -->
+<g id="sourcefile~~childspec.f90~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~usersetservices.f90&#45;&gt;sourcefile~esmf_interfaces.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M341.01,-41.96C323.19,-37.2 302.54,-31.67 283.85,-26.67"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="284.56,-23.24 274,-24.04 282.75,-30 284.56,-23.24"/>
+</g>
+<!-- sourcefile~filesystemutilities.f90 -->
+<g id="sourcefile~~childspec.f90~~EfferentGraph_node7" class="node">
+<title>sourcefile~filesystemutilities.f90</title>
+<g id="a_sourcefile~~childspec.f90~~EfferentGraph_node7"><a xlink:href="../sourcefile/filesystemutilities.f90.html" xlink:title="FileSystemUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="131,-108 0,-108 0,-84 131,-84 131,-108"/>
+<text text-anchor="middle" x="65.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FileSystemUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~dso_utilities.f90&#45;&gt;sourcefile~filesystemutilities.f90 -->
+<g id="sourcefile~~childspec.f90~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~dso_utilities.f90&#45;&gt;sourcefile~filesystemutilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M176.22,-96C165.14,-96 153.18,-96 141.39,-96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="141.09,-92.5 131.09,-96 141.09,-99.5 141.09,-92.5"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~childspec.f90~~EfferentGraph_node8" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~childspec.f90~~EfferentGraph_node8"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="115.5,-66 15.5,-66 15.5,-42 115.5,-42 115.5,-66"/>
+<text text-anchor="middle" x="65.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~childspec.f90~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#00ff00" stroke-dasharray="5,2" d="M173.11,-54C157.87,-54 141.2,-54 125.67,-54"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="125.65,-50.5 115.65,-54 125.65,-57.5 125.65,-50.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Files dependent on this one</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~childspec.f90~~AfferentGraph Pages: 1 -->
+<svg id="sourcefilechildspecf90AfferentGraph" width="641pt" height="361pt"
+ viewBox="0.00 0.00 641.00 360.81" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~childspec.f90~~AfferentGraph" class="graph" transform="scale(0.8 0.8) rotate(0) translate(4 448)">
+<title>sourcefile~~childspec.f90~~AfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-448 799,-448 799,4 -4,4"/>
+<!-- sourcefile~childspec.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_node1" class="node">
+<title>sourcefile~childspec.f90</title>
+<polygon fill="none" stroke="black" points="88,-171 0,-171 0,-147 88,-147 88,-171"/>
+<text text-anchor="middle" x="44" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50">ChildSpec.F90</text>
+</g>
+<!-- sourcefile~add_child_by_name.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_node2" class="node">
+<title>sourcefile~add_child_by_name.f90</title>
+<g id="a_sourcefile~~childspec.f90~~AfferentGraph_node2"><a xlink:href="../sourcefile/add_child_by_name.f90.html" xlink:title="add_child_by_name.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="779,-444 639,-444 639,-420 779,-420 779,-444"/>
+<text text-anchor="middle" x="709" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">add_child_by_name.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~add_child_by_name.f90&#45;&gt;sourcefile~childspec.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_edge1" class="edge">
+<title>sourcefile~add_child_by_name.f90&#45;&gt;sourcefile~childspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M508,-241C437.87,-208.41 411.3,-243.36 334,-241"/>
+</g>
+<!-- sourcefile~childspecmap.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_node3" class="node">
+<title>sourcefile~childspecmap.f90</title>
+<g id="a_sourcefile~~childspec.f90~~AfferentGraph_node3"><a xlink:href="../sourcefile/childspecmap.f90.html" xlink:title="ChildSpecMap.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="235,-171 124,-171 124,-147 235,-147 235,-171"/>
+<text text-anchor="middle" x="179.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ChildSpecMap.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~add_child_by_name.f90&#45;&gt;sourcefile~childspecmap.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_edge6" class="edge">
+<title>sourcefile~add_child_by_name.f90&#45;&gt;sourcefile~childspecmap.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M639.2,-419.85C633.47,-417.42 627.97,-414.5 623,-411 548.8,-358.79 592.28,-279.23 510,-241"/>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M508,-241C490.05,-232.66 353.43,-206.75 334,-203"/>
+</g>
+<!-- sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_node4" class="node">
+<title>sourcefile~componentspecparser.f90</title>
+<g id="a_sourcefile~~childspec.f90~~AfferentGraph_node4"><a xlink:href="../sourcefile/componentspecparser.f90.html" xlink:title="ComponentSpecParser.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="587,-213 431,-213 431,-189 587,-189 587,-213"/>
+<text text-anchor="middle" x="509" y="-198.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpecParser.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~add_child_by_name.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_edge11" class="edge">
+<title>sourcefile~add_child_by_name.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M638.75,-422.41C632.9,-419.47 627.51,-415.73 623,-411 565.54,-350.65 641.89,-289.69 587,-227 584.12,-223.72 580.82,-220.85 577.23,-218.34"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="578.8,-215.2 568.41,-213.12 575.23,-221.22 578.8,-215.2"/>
+</g>
+<!-- sourcefile~childspecmap.f90&#45;&gt;sourcefile~childspec.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_edge2" class="edge">
+<title>sourcefile~childspecmap.f90&#45;&gt;sourcefile~childspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M123.82,-159C115.42,-159 106.76,-159 98.39,-159"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="98.37,-155.5 88.37,-159 98.37,-162.5 98.37,-155.5"/>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~childspec.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_edge3" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~childspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M471.86,-213.08C437.02,-223.83 382.59,-238.25 334,-241"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M332,-241C236.29,-246.42 129.04,-201.19 76.91,-175.68"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="78.34,-172.48 67.83,-171.16 75.22,-178.75 78.34,-172.48"/>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~childspecmap.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_edge8" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~childspecmap.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M430.75,-208.52C400.35,-209.76 365.3,-209.04 334,-203"/>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M332,-203C295.39,-195.94 254.89,-183.95 224.97,-174.27"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="225.85,-170.87 215.26,-171.08 223.67,-177.52 225.85,-170.87"/>
+</g>
+<!-- sourcefile~componentspec.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_node7" class="node">
+<title>sourcefile~componentspec.f90</title>
+<g id="a_sourcefile~~childspec.f90~~AfferentGraph_node7"><a xlink:href="../sourcefile/componentspec.f90.html" xlink:title="ComponentSpec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="395,-171 271,-171 271,-147 395,-147 395,-171"/>
+<text text-anchor="middle" x="333" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ComponentSpec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~componentspecparser.f90&#45;&gt;sourcefile~componentspec.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_edge22" class="edge">
+<title>sourcefile~componentspecparser.f90&#45;&gt;sourcefile~componentspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M458.14,-188.96C438.03,-184.11 414.65,-178.47 393.65,-173.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="394.41,-169.98 383.87,-171.04 392.77,-176.79 394.41,-169.98"/>
+</g>
+<!-- sourcefile~setservices.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_node5" class="node">
+<title>sourcefile~setservices.f90</title>
+<g id="a_sourcefile~~childspec.f90~~AfferentGraph_node5"><a xlink:href="../sourcefile/setservices.f90.html" xlink:title="SetServices.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="757.5,-66 660.5,-66 660.5,-42 757.5,-42 757.5,-66"/>
+<text text-anchor="middle" x="709" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">SetServices.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~setservices.f90&#45;&gt;sourcefile~childspec.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_edge4" class="edge">
+<title>sourcefile~setservices.f90&#45;&gt;sourcefile~childspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M660.43,-59.14C620.35,-62.93 561.47,-67.23 510,-66"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M508,-66C428.87,-64.12 413.04,-32.25 334,-28"/>
+</g>
+<!-- sourcefile~setservices.f90&#45;&gt;sourcefile~childspecmap.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_edge9" class="edge">
+<title>sourcefile~setservices.f90&#45;&gt;sourcefile~childspecmap.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M508,-66C430.69,-64.16 407.26,-41.22 334,-66"/>
+</g>
+<!-- sourcefile~setservices.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_edge20" class="edge">
+<title>sourcefile~setservices.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M660.3,-57.28C646.89,-60.31 633.2,-65.66 623,-75 586.61,-108.31 622.98,-146.25 587,-180 585.71,-181.21 584.37,-182.34 582.97,-183.42"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="580.96,-180.55 574.43,-188.89 584.74,-186.44 580.96,-180.55"/>
+</g>
+<!-- sourcefile~test_componentspecparser.pf -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_node6" class="node">
+<title>sourcefile~test_componentspecparser.pf</title>
+<g id="a_sourcefile~~childspec.f90~~AfferentGraph_node6"><a xlink:href="../sourcefile/test_componentspecparser.pf.html" xlink:title="Test_ComponentSpecParser.pf">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="795,-24 623,-24 623,0 795,0 795,-24"/>
+<text text-anchor="middle" x="709" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Test_ComponentSpecParser.pf</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~childspec.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_edge5" class="edge">
+<title>sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~childspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M622.68,-18.4C587.74,-21.16 546.91,-24.53 510,-28"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M508,-28C431.01,-35.23 411.22,-32.16 334,-28"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M332,-28C224.13,-22.19 112.13,-103.09 66.38,-140.54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="64.07,-137.91 58.63,-146.99 68.55,-143.28 64.07,-137.91"/>
+</g>
+<!-- sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~childspecmap.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_edge10" class="edge">
+<title>sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~childspecmap.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M508,-28C429.19,-35.4 408.98,-40.64 334,-66"/>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M332,-66C282.19,-82.85 231.58,-118.46 203.29,-140.4"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="200.94,-137.8 195.26,-146.74 205.28,-143.29 200.94,-137.8"/>
+</g>
+<!-- sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_edge21" class="edge">
+<title>sourcefile~test_componentspecparser.pf&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M634.54,-24.19C630.34,-26.65 626.44,-29.56 623,-33 575.49,-80.61 633.94,-131.82 587,-180 586.05,-180.98 585.06,-181.91 584.03,-182.8"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="581.64,-180.2 575.51,-188.84 585.69,-185.91 581.64,-180.2"/>
+</g>
+<!-- sourcefile~componentspec.f90&#45;&gt;sourcefile~childspecmap.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_edge7" class="edge">
+<title>sourcefile~componentspec.f90&#45;&gt;sourcefile~childspecmap.f90</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M270.82,-159C262.41,-159 253.75,-159 245.28,-159"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="245.07,-155.5 235.07,-159 245.07,-162.5 245.07,-155.5"/>
+</g>
+<!-- sourcefile~parse_child.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_node8" class="node">
+<title>sourcefile~parse_child.f90</title>
+<g id="a_sourcefile~~childspec.f90~~AfferentGraph_node8"><a xlink:href="../sourcefile/parse_child.f90.html" xlink:title="parse_child.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="757,-150 661,-150 661,-126 757,-126 757,-150"/>
+<text text-anchor="middle" x="709" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_child.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~parse_child.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_edge12" class="edge">
+<title>sourcefile~parse_child.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M660.92,-147.09C648.37,-150.2 634.97,-154.15 623,-159 605.83,-165.96 604.08,-172.84 587,-180 581.97,-182.11 576.66,-184.07 571.29,-185.87"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="570.05,-182.59 561.58,-188.95 572.17,-189.26 570.05,-182.59"/>
+</g>
+<!-- sourcefile~parse_children.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_node9" class="node">
+<title>sourcefile~parse_children.f90</title>
+<g id="a_sourcefile~~childspec.f90~~AfferentGraph_node9"><a xlink:href="../sourcefile/parse_children.f90.html" xlink:title="parse_children.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="765.5,-108 652.5,-108 652.5,-84 765.5,-84 765.5,-108"/>
+<text text-anchor="middle" x="709" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_children.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~parse_children.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_edge13" class="edge">
+<title>sourcefile~parse_children.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M652.48,-102.86C641.98,-105.98 631.61,-110.49 623,-117 597.27,-136.44 612.5,-160.25 587,-180 585.13,-181.45 583.17,-182.8 581.13,-184.05"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="579.02,-181.21 571.82,-188.98 582.29,-187.4 579.02,-181.21"/>
+</g>
+<!-- sourcefile~parse_component_spec.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_node10" class="node">
+<title>sourcefile~parse_component_spec.f90</title>
+<g id="a_sourcefile~~childspec.f90~~AfferentGraph_node10"><a xlink:href="../sourcefile/parse_component_spec.f90.html" xlink:title="parse_component_spec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="789.5,-402 628.5,-402 628.5,-378 789.5,-378 789.5,-402"/>
+<text text-anchor="middle" x="709" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_component_spec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~parse_component_spec.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_edge14" class="edge">
+<title>sourcefile~parse_component_spec.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M634.58,-377.78C630.37,-375.33 626.45,-372.43 623,-369 576.82,-323.1 631.22,-274.78 587,-227 583.84,-223.59 580.22,-220.62 576.31,-218.05"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="577.78,-214.86 567.35,-213.01 574.35,-220.96 577.78,-214.86"/>
+</g>
+<!-- sourcefile~parse_connections.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_node11" class="node">
+<title>sourcefile~parse_connections.f90</title>
+<g id="a_sourcefile~~childspec.f90~~AfferentGraph_node11"><a xlink:href="../sourcefile/parse_connections.f90.html" xlink:title="parse_connections.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="776.5,-360 641.5,-360 641.5,-336 776.5,-336 776.5,-360"/>
+<text text-anchor="middle" x="709" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_connections.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~parse_connections.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_edge15" class="edge">
+<title>sourcefile~parse_connections.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M641.15,-338.43C634.53,-335.52 628.31,-331.78 623,-327 587.92,-295.37 620.73,-260.07 587,-227 583.47,-223.54 579.46,-220.54 575.18,-217.94"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="576.53,-214.7 566.05,-213.14 573.28,-220.89 576.53,-214.7"/>
+</g>
+<!-- sourcefile~parse_geometry_spec.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_node12" class="node">
+<title>sourcefile~parse_geometry_spec.f90</title>
+<g id="a_sourcefile~~childspec.f90~~AfferentGraph_node12"><a xlink:href="../sourcefile/parse_geometry_spec.f90.html" xlink:title="parse_geometry_spec.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="785,-318 633,-318 633,-294 785,-294 785,-318"/>
+<text text-anchor="middle" x="709" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_geometry_spec.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~parse_geometry_spec.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_edge16" class="edge">
+<title>sourcefile~parse_geometry_spec.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M638.65,-293.83C633.1,-291.4 627.79,-288.49 623,-285 598.46,-267.16 610.77,-245.85 587,-227 582.33,-223.29 577.1,-220.1 571.62,-217.36"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="572.78,-214.04 562.23,-213.14 569.92,-220.43 572.78,-214.04"/>
+</g>
+<!-- sourcefile~parse_run_dt.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_node13" class="node">
+<title>sourcefile~parse_run_dt.f90</title>
+<g id="a_sourcefile~~childspec.f90~~AfferentGraph_node13"><a xlink:href="../sourcefile/parse_run_dt.f90.html" xlink:title="parse_run_dt.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="761,-276 657,-276 657,-252 761,-252 761,-276"/>
+<text text-anchor="middle" x="709" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_run_dt.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~parse_run_dt.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_edge17" class="edge">
+<title>sourcefile~parse_run_dt.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M656.79,-252.89C645.55,-250.03 633.78,-246.7 623,-243 606.44,-237.32 603.31,-233.36 587,-227 577.54,-223.31 567.3,-219.64 557.49,-216.27"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="558.44,-212.89 547.85,-213 556.2,-219.53 558.44,-212.89"/>
+</g>
+<!-- sourcefile~parse_setservices.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_node14" class="node">
+<title>sourcefile~parse_setservices.f90</title>
+<g id="a_sourcefile~~childspec.f90~~AfferentGraph_node14"><a xlink:href="../sourcefile/parse_setservices.f90.html" xlink:title="parse_setservices.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="774,-234 644,-234 644,-210 774,-210 774,-234"/>
+<text text-anchor="middle" x="709" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_setservices.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~parse_setservices.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_edge18" class="edge">
+<title>sourcefile~parse_setservices.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M643.99,-215.21C629.16,-213.64 613.13,-211.94 597.49,-210.28"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="597.59,-206.77 587.28,-209.2 596.85,-213.73 597.59,-206.77"/>
+</g>
+<!-- sourcefile~parse_var_specs.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_node15" class="node">
+<title>sourcefile~parse_var_specs.f90</title>
+<g id="a_sourcefile~~childspec.f90~~AfferentGraph_node15"><a xlink:href="../sourcefile/parse_var_specs.f90.html" xlink:title="parse_var_specs.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="770.5,-192 647.5,-192 647.5,-168 770.5,-168 770.5,-192"/>
+<text text-anchor="middle" x="709" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parse_var_specs.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~parse_var_specs.f90&#45;&gt;sourcefile~componentspecparser.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_edge19" class="edge">
+<title>sourcefile~parse_var_specs.f90&#45;&gt;sourcefile~componentspecparser.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M647.25,-186.44C631.53,-188.11 614.28,-189.94 597.49,-191.72"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="596.68,-188.29 587.11,-192.82 597.42,-195.25 596.68,-188.29"/>
+</g>
+<!-- sourcefile~mapl_generic.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_node16" class="node">
+<title>sourcefile~mapl_generic.f90</title>
+<g id="a_sourcefile~~childspec.f90~~AfferentGraph_node16"><a xlink:href="../sourcefile/mapl_generic.f90.html" xlink:title="MAPL_Generic.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="564.5,-129 453.5,-129 453.5,-105 564.5,-105 564.5,-129"/>
+<text text-anchor="middle" x="509" y="-114.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Generic.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_generic.f90&#45;&gt;sourcefile~componentspec.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_edge23" class="edge">
+<title>sourcefile~mapl_generic.f90&#45;&gt;sourcefile~componentspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M458.14,-129.04C438.03,-133.89 414.65,-139.53 393.65,-144.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="392.77,-141.21 383.87,-146.96 394.41,-148.02 392.77,-141.21"/>
+</g>
+<!-- sourcefile~outermetacomponent.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_node17" class="node">
+<title>sourcefile~outermetacomponent.f90</title>
+<g id="a_sourcefile~~childspec.f90~~AfferentGraph_node17"><a xlink:href="../sourcefile/outermetacomponent.f90.html" xlink:title="OuterMetaComponent.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="586,-171 432,-171 432,-147 586,-147 586,-171"/>
+<text text-anchor="middle" x="509" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">OuterMetaComponent.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~componentspec.f90 -->
+<g id="sourcefile~~childspec.f90~~AfferentGraph_edge24" class="edge">
+<title>sourcefile~outermetacomponent.f90&#45;&gt;sourcefile~componentspec.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M431.93,-159C423.06,-159 414.03,-159 405.23,-159"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="405.02,-155.5 395.02,-159 405.02,-162.5 405.02,-155.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefilechildspecf90AfferentGraph = svgPanZoom('#sourcefilechildspecf90AfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#AfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="AfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_ErrLog.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="k">module </span><span class="n">mapl3g_ChildSpec</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_UserSetServices</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl_KeywordEnforcer</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="k">   private</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="k">   public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ChildSpec</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">operator</span><span class="p">(</span><span class="o">==</span><span class="p">)</span>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">operator</span><span class="p">(</span><span class="o">/=</span><span class="p">)</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="k">public</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dump</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ChildSpec</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractUserSetServices</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">user_setservices</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config_file</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">      </span><span class="c">! Prevent default structure constructor</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="kd">::</span><span class="w">  </span><span class="n">hack</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">   </span><span class="k">contains</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="k">      procedure</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">write_formatted</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">      </span><span class="k">generic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">write</span><span class="p">(</span><span class="n">formatted</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">write_formatted</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">   </span><span class="k">end type </span><span class="n">ChildSpec</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">   </span><span class="k">interface </span><span class="n">ChildSpec</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">      </span><span class="k">module procedure </span><span class="n">new_ChildSpec</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a><span class="w">   </span><span class="k">end interface </span><span class="n">ChildSpec</span>
+<a id="ln-28" name="ln-28" href="#ln-28"></a>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">   </span><span class="k">interface </span><span class="n">operator</span><span class="p">(</span><span class="o">==</span><span class="p">)</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="k">module procedure </span><span class="n">equal</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">   </span><span class="k">end interface </span><span class="n">operator</span><span class="p">(</span><span class="o">==</span><span class="p">)</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">   </span><span class="k">interface </span><span class="n">operator</span><span class="p">(</span><span class="o">/=</span><span class="p">)</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="k">module procedure </span><span class="n">not_equal</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">   </span><span class="k">end interface </span><span class="n">operator</span><span class="p">(</span><span class="o">/=</span><span class="p">)</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a>
+<a id="ln-37" name="ln-37" href="#ln-37"></a>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="k">contains</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="k">   function </span><span class="n">new_ChildSpec</span><span class="p">(</span><span class="n">user_setservices</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">config_file</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ChildSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">AbstractUserSetServices</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">user_setservices</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">config_file</span>
+<a id="ln-45" name="ln-45" href="#ln-45"></a>
+<a id="ln-46" name="ln-46" href="#ln-46"></a><span class="w">      </span><span class="n">spec</span><span class="p">%</span><span class="n">user_setservices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">user_setservices</span>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">config_file</span><span class="p">))</span><span class="w"> </span><span class="n">spec</span><span class="p">%</span><span class="n">config_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">config_file</span>
+<a id="ln-48" name="ln-48" href="#ln-48"></a>
+<a id="ln-49" name="ln-49" href="#ln-49"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<a id="ln-50" name="ln-50" href="#ln-50"></a><span class="w">   </span><span class="k">end function </span><span class="n">new_ChildSpec</span>
+<a id="ln-51" name="ln-51" href="#ln-51"></a><span class="w">      </span>
+<a id="ln-52" name="ln-52" href="#ln-52"></a>
+<a id="ln-53" name="ln-53" href="#ln-53"></a><span class="w">   </span><span class="kt">logical </span><span class="k">function </span><span class="n">equal</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<a id="ln-54" name="ln-54" href="#ln-54"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ChildSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a</span>
+<a id="ln-55" name="ln-55" href="#ln-55"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ChildSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">b</span>
+<a id="ln-56" name="ln-56" href="#ln-56"></a>
+<a id="ln-57" name="ln-57" href="#ln-57"></a><span class="w">      </span><span class="n">equal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="p">%</span><span class="n">user_setservices</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">b</span><span class="p">%</span><span class="n">user_setservices</span><span class="p">)</span>
+<a id="ln-58" name="ln-58" href="#ln-58"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">equal</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<a id="ln-59" name="ln-59" href="#ln-59"></a><span class="k">      </span>
+<a id="ln-60" name="ln-60" href="#ln-60"></a><span class="k">      </span><span class="n">equal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">equal_alloc_str</span><span class="p">(</span><span class="n">a</span><span class="p">%</span><span class="n">config_file</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">%</span><span class="n">config_file</span><span class="p">)</span>
+<a id="ln-61" name="ln-61" href="#ln-61"></a><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">equal</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<a id="ln-62" name="ln-62" href="#ln-62"></a>
+<a id="ln-63" name="ln-63" href="#ln-63"></a><span class="k">   contains</span>
+<a id="ln-64" name="ln-64" href="#ln-64"></a>
+<a id="ln-65" name="ln-65" href="#ln-65"></a><span class="k">      </span><span class="kt">logical </span><span class="k">function </span><span class="n">equal_alloc_str</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">equal</span><span class="p">)</span>
+<a id="ln-66" name="ln-66" href="#ln-66"></a><span class="w">         </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a</span>
+<a id="ln-67" name="ln-67" href="#ln-67"></a><span class="w">         </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">b</span>
+<a id="ln-68" name="ln-68" href="#ln-68"></a>
+<a id="ln-69" name="ln-69" href="#ln-69"></a><span class="w">         </span><span class="n">equal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eqv</span><span class="p">.</span><span class="w"> </span><span class="nb">allocated</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+<a id="ln-70" name="ln-70" href="#ln-70"></a><span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">equal</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<a id="ln-71" name="ln-71" href="#ln-71"></a>
+<a id="ln-72" name="ln-72" href="#ln-72"></a><span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">a</span><span class="p">))</span><span class="w"> </span><span class="n">equal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<a id="ln-73" name="ln-73" href="#ln-73"></a>
+<a id="ln-74" name="ln-74" href="#ln-74"></a><span class="w">      </span><span class="k">end function </span><span class="n">equal_alloc_str</span>
+<a id="ln-75" name="ln-75" href="#ln-75"></a>
+<a id="ln-76" name="ln-76" href="#ln-76"></a><span class="w">   </span><span class="k">end function </span><span class="n">equal</span>
+<a id="ln-77" name="ln-77" href="#ln-77"></a>
+<a id="ln-78" name="ln-78" href="#ln-78"></a><span class="w">   </span><span class="kt">logical </span><span class="k">function </span><span class="n">not_equal</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<a id="ln-79" name="ln-79" href="#ln-79"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ChildSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">a</span>
+<a id="ln-80" name="ln-80" href="#ln-80"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ChildSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">b</span>
+<a id="ln-81" name="ln-81" href="#ln-81"></a>
+<a id="ln-82" name="ln-82" href="#ln-82"></a><span class="w">      </span><span class="n">not_equal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+<a id="ln-83" name="ln-83" href="#ln-83"></a><span class="w">   </span><span class="k">end function </span><span class="n">not_equal</span>
+<a id="ln-84" name="ln-84" href="#ln-84"></a>
+<a id="ln-85" name="ln-85" href="#ln-85"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">dump</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<a id="ln-86" name="ln-86" href="#ln-86"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ChildSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x</span>
+<a id="ln-87" name="ln-87" href="#ln-87"></a>
+<a id="ln-88" name="ln-88" href="#ln-88"></a><span class="w">      </span><span class="k">select type</span><span class="w"> </span><span class="p">(</span><span class="n">q</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">x</span><span class="p">%</span><span class="n">user_setservices</span><span class="p">)</span>
+<a id="ln-89" name="ln-89" href="#ln-89"></a><span class="w">      </span><span class="k">type is</span><span class="w"> </span><span class="p">(</span><span class="n">Dsosetservices</span><span class="p">)</span>
+<a id="ln-90" name="ln-90" href="#ln-90"></a><span class="w">         </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="err">__</span><span class="n">FILE__</span><span class="p">,</span><span class="err">__</span><span class="n">LINE__</span><span class="p">,</span><span class="w"> </span><span class="n">q</span><span class="p">%</span><span class="n">sharedObj</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;::&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">q</span><span class="p">%</span><span class="n">userRoutine</span>
+<a id="ln-91" name="ln-91" href="#ln-91"></a><span class="w">      </span><span class="k">end select</span>
+<a id="ln-92" name="ln-92" href="#ln-92"></a><span class="k">   end subroutine </span><span class="n">dump</span>
+<a id="ln-93" name="ln-93" href="#ln-93"></a>
+<a id="ln-94" name="ln-94" href="#ln-94"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">write_formatted</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="n">iotype</span><span class="p">,</span><span class="w"> </span><span class="n">v_list</span><span class="p">,</span><span class="w"> </span><span class="n">iostat</span><span class="p">,</span><span class="w"> </span><span class="n">iomsg</span><span class="p">)</span>
+<a id="ln-95" name="ln-95" href="#ln-95"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ChildSpec</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-96" name="ln-96" href="#ln-96"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unit</span>
+<a id="ln-97" name="ln-97" href="#ln-97"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iotype</span>
+<a id="ln-98" name="ln-98" href="#ln-98"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">v_list</span><span class="p">(:)</span>
+<a id="ln-99" name="ln-99" href="#ln-99"></a><span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iostat</span>
+<a id="ln-100" name="ln-100" href="#ln-100"></a><span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iomsg</span>
+<a id="ln-101" name="ln-101" href="#ln-101"></a>
+<a id="ln-102" name="ln-102" href="#ln-102"></a><span class="w">      </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">file</span>
+<a id="ln-103" name="ln-103" href="#ln-103"></a>
+<a id="ln-104" name="ln-104" href="#ln-104"></a><span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">this</span><span class="p">%</span><span class="n">config_file</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<a id="ln-105" name="ln-105" href="#ln-105"></a><span class="k">         file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">config_file</span>
+<a id="ln-106" name="ln-106" href="#ln-106"></a><span class="w">      </span><span class="k">else</span>
+<a id="ln-107" name="ln-107" href="#ln-107"></a><span class="k">         file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&lt;none&gt;&#39;</span>
+<a id="ln-108" name="ln-108" href="#ln-108"></a><span class="w">      </span><span class="k">end if</span>
+<a id="ln-109" name="ln-109" href="#ln-109"></a>
+<a id="ln-110" name="ln-110" href="#ln-110"></a><span class="k">      write</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="s1">&#39;(a,a)&#39;</span><span class="p">,</span><span class="n">iostat</span><span class="o">=</span><span class="n">iostat</span><span class="p">,</span><span class="w"> </span><span class="n">iomsg</span><span class="o">=</span><span class="n">iomsg</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;Config file: &#39;</span><span class="p">,</span><span class="w"> </span><span class="k">file</span>
+<a id="ln-111" name="ln-111" href="#ln-111"></a><span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">iostat</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<a id="ln-112" name="ln-112" href="#ln-112"></a>
+<a id="ln-113" name="ln-113" href="#ln-113"></a><span class="k">      write</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="s1">&#39;(a, DT)&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">iostat</span><span class="o">=</span><span class="n">iostat</span><span class="p">,</span><span class="w"> </span><span class="n">iomsg</span><span class="o">=</span><span class="n">iomsg</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;UserSetServices: &#39;</span><span class="p">,</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">user_setservices</span>
+<a id="ln-114" name="ln-114" href="#ln-114"></a>
+<a id="ln-115" name="ln-115" href="#ln-115"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">iotype</span><span class="p">)</span>
+<a id="ln-116" name="ln-116" href="#ln-116"></a><span class="w">      </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">v_list</span><span class="p">)</span>
+<a id="ln-117" name="ln-117" href="#ln-117"></a><span class="w">      </span>
+<a id="ln-118" name="ln-118" href="#ln-118"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">write_formatted</span>
+<a id="ln-119" name="ln-119" href="#ln-119"></a>
+<a id="ln-120" name="ln-120" href="#ln-120"></a>
+<a id="ln-121" name="ln-121" href="#ln-121"></a>
+<a id="ln-122" name="ln-122" href="#ln-122"></a><span class="k">end module </span><span class="n">mapl3g_ChildSpec</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2024 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2024-12-23T20:35:59.168712+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

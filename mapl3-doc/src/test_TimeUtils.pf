@@ -1,0 +1,120 @@
+module Test_TimeUtils
+   use MAPL_TimeUtilsMod
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_date()
+
+      integer :: date
+
+      ! Obvious cases
+      date = 20000101
+      @assert_that(is_valid_date(date), is(true()))
+
+      date = -1
+      @assert_that(is_valid_date(date), is(false()))
+
+      date = 20000000
+      @assert_that(is_valid_date(date), is(false()))
+
+      date = 20001301
+      @assert_that(is_valid_date(date), is(false()))
+
+      date = 20001232
+      @assert_that(is_valid_date(date), is(false()))
+
+      ! Month Tests
+
+      ! 30-day months
+
+      date = 12340431
+      @assert_that(is_valid_date(date), is(false()))
+
+      date = 12340631
+      @assert_that(is_valid_date(date), is(false()))
+
+      date = 12340931
+      @assert_that(is_valid_date(date), is(false()))
+
+      date = 12341131
+      @assert_that(is_valid_date(date), is(false()))
+
+      ! February tests
+
+      date = 19000228
+      @assert_that(is_valid_date(date), is(true()))
+
+      date = 19000229
+      @assert_that(is_valid_date(date), is(false()))
+
+      date = 20000229
+      @assert_that(is_valid_date(date), is(true()))
+
+      date = 20000230
+      @assert_that(is_valid_date(date), is(false()))
+
+      date = 20010229
+      @assert_that(is_valid_date(date), is(false()))
+
+      date = 20040229
+      @assert_that(is_valid_date(date), is(true()))
+
+      date = 18910301
+      @assert_that(is_valid_date(date), is(true()))
+
+   end subroutine test_date
+
+   @test
+   subroutine test_time()
+
+      integer :: time
+
+      time = 000000
+      @assert_that(is_valid_time(time), is(true()))
+
+      time = 235959
+      @assert_that(is_valid_time(time), is(true()))
+
+      time = 240000
+      @assert_that(is_valid_time(time), is(true()))
+
+      time = -000001
+      @assert_that(is_valid_time(time), is(false()))
+
+      time = 240001
+      @assert_that(is_valid_time(time), is(false()))
+
+      time = 006000
+      @assert_that(is_valid_time(time), is(false()))
+
+      time = 000060
+      @assert_that(is_valid_time(time), is(false()))
+
+      time = 234567
+      @assert_that(is_valid_time(time), is(false()))
+
+   end subroutine test_time
+
+   @test
+   subroutine test_datetime()
+
+      integer :: datetime(2)
+
+      ! Simple test
+      datetime = [20000101,120000]
+      @assert_that(is_valid_datetime(datetime), is(true()))
+
+      ! Bad date
+      datetime = [20001301,120000]
+      @assert_that(is_valid_datetime(datetime), is(false()))
+
+      ! Bad time
+      datetime = [20000101,250000]
+      @assert_that(is_valid_datetime(datetime), is(false()))
+
+   end subroutine test_datetime
+
+end module Test_TimeUtils
