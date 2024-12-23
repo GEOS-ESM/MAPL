@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.47.1.3] - 2024-12-24
+
+### Changed
+
+- Added new option to AGCM.rc `overwrite_checkpoint` to allow checkpoint files to be overwritten. By default still will not overwrite checkpoints
+
 ## [2.47.1.2] - 2024-10-28
 
 ### Changed
