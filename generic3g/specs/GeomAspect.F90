@@ -16,8 +16,7 @@ module mapl3g_GeomAspect
 
 
    type, extends(StateItemAspect) :: GeomAspect
-      private
-      type(ESMF_Geom) :: geom
+      type(ESMF_Geom), allocatable :: geom
       type(EsmfRegridderParam) :: regridder_param
    contains
       procedure :: matches
@@ -32,16 +31,24 @@ module mapl3g_GeomAspect
 
 contains
 
-   function new_GeomAspect(geom, regridder_param, is_mirror, is_time_dependent) result(aspect)
+   function new_GeomAspect(geom, regridder_param, is_time_dependent) result(aspect)
       type(GeomAspect) :: aspect
-      type(ESMF_Geom), intent(in) :: geom
-      type(EsmfRegridderParam), intent(in) :: regridder_param
-      logical, optional, intent(in) :: is_mirror
+      type(ESMF_Geom), optional, intent(in) :: geom
+      type(EsmfRegridderParam), optional, intent(in) :: regridder_param
       logical, optional, intent(in) :: is_time_dependent
 
-      aspect%geom = geom
-      aspect%regridder_param = regridder_param
-      call aspect%set_mirror(is_mirror)
+      call aspect%set_mirror(.true.)
+
+      if (present(geom)) then
+         aspect%geom = geom
+         call aspect%set_mirror(.false.)
+      end if
+
+      aspect%regridder_param = EsmfRegridderParam()
+      if (present(regridder_param)) then
+         aspect%regridder_param = regridder_param
+      end if
+
       call aspect%set_time_dependent(is_time_dependent)
 
    end function new_GeomAspect
@@ -81,9 +88,11 @@ contains
 
       select type(dst)
       class is (GeomAspect)
-         action = RegridAction(src%geom, dst%geom, dst%regridder_param)
+!#         action = RegridAction(src%geom, dst%geom, dst%regridder_param)
+         allocate(action, source=RegridAction(src%geom, dst%geom, dst%regridder_param))
       class default
-         action = NullAction()
+!#         action = NullAction()
+         allocate(action,source=NullAction())
          _FAIL('src is GeomAspect but dst is different subclass')
       end select
 

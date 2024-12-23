@@ -14,7 +14,7 @@ module mapl3g_UnitsAspect
 
 
    type, extends(StateItemAspect) :: UnitsAspect
-      private
+!#      private
       character(:), allocatable :: units
    contains
       procedure :: matches
@@ -29,14 +29,16 @@ module mapl3g_UnitsAspect
 
 contains
 
-   function new_UnitsAspect(units, is_mirror, is_time_dependent) result(aspect)
+   function new_UnitsAspect(units, is_time_dependent) result(aspect)
       type(UnitsAspect) :: aspect
-      character(*), intent(in) :: units
-      logical, optional, intent(in) :: is_mirror
+      character(*), optional, intent(in) :: units
       logical, optional, intent(in) :: is_time_dependent
 
-      aspect%units = units
-      call aspect%set_mirror(is_mirror)
+      call aspect%set_mirror(.true.)
+      if (present(units)) then
+         aspect%units = units
+         call aspect%set_mirror(.false.)
+      end if
       call aspect%set_mirror(is_time_dependent)
 
    end function new_UnitsAspect
@@ -50,9 +52,13 @@ contains
       class(UnitsAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
 
+      integer :: ignore
+
       select type (dst)
       class is (UnitsAspect)
-         supports_conversion_specific = are_convertible(src%units, dst%units)
+         supports_conversion_specific = .true.
+         if (src%units == dst%units) return ! allow silly units so long as they are the same
+         supports_conversion_specific = are_convertible(src%units, dst%units, rc=ignore)
       class default
          supports_conversion_specific = .false.
       end select
@@ -78,10 +84,15 @@ contains
       class(StateItemAspect), intent(in)  :: dst
       integer, optional, intent(out) :: rc
 
-      select type(dst)
+      integer :: status
+
+      select type (dst)
       class is (UnitsAspect)
-         action = ConvertUnitsAction(src%units, dst%units)
+         ! gfortran ugh
+!#         action = ConvertUnitsAction(src%units, dst%units)
+         allocate(action, source=ConvertUnitsAction(src%units, dst%units))
       class default
+         allocate(action, source=NullAction())
          _FAIL('UnitsApsect cannot convert from other supclass.')
       end select
 

@@ -123,7 +123,7 @@ contains
         
       _ASSERT(associated(src_registry), 'Unknown source registry')
       _ASSERT(associated(dst_registry), 'Unknown destination registry')
-        
+
       call this%connect_sibling(dst_registry, src_registry, _RC)
         
       _RETURN(_SUCCESS)
@@ -171,6 +171,10 @@ contains
          call dst_spec%connect_to(new_spec, effective_pt, _RC)
          call dst_spec%set_active()
             
+         if (new_extension%has_producer()) then
+            call dst_extension%set_producer(new_extension%get_producer(), _RC)
+!#            dst_extension%dependency => new_extension%get_producer()
+         end if
       end do
          
       _RETURN(_SUCCESS)

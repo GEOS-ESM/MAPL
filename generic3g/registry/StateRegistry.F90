@@ -36,9 +36,6 @@ module mapl3g_StateRegistry
 
       type(VirtualPtFamilyMap) :: family_map
 
-      !# type(GriddedComponentDriverPtrVector) :: export_couplers
-      !# type(GriddedComponentDriverPtrVector) :: import_couplers
-
    contains
 
       procedure :: add_subregistry
@@ -444,7 +441,7 @@ contains
       
    end subroutine propagate_unsatisfied_imports_virtual_pt
 
-   ! Loop over subregistryren and propagate unsatisfied imports of each
+   ! Loop over subregistry and propagate unsatisfied imports of each
    subroutine propagate_exports_all(this, rc)
       class(StateRegistry), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
@@ -495,7 +492,7 @@ contains
       type(VirtualConnectionPt), pointer :: virtual_pt
       type(VirtualConnectionPt) :: new_virtual_pt
       type(ExtensionFamily), pointer :: family
-!#      integer :: n
+      type(ExtensionFamily), pointer :: parent_family
       type(VirtualPtFamilyMapIterator) :: new_iter
 
       virtual_pt => iter%first()
@@ -506,18 +503,13 @@ contains
          new_virtual_pt = VirtualConnectionPt(virtual_pt, comp_name=subregistry_name)
       end if
 
-      ! TODO: Better logic would be the following line.  But gFTL has
-      ! a missing TARGET attribute (bug)
-!# n = this%family_map%erase(new_virtual_pt)
-      ! instead we do this:
-      associate(e => this%family_map%end())
-        new_iter = this%family_map%find(new_virtual_pt)
-        new_iter = this%family_map%erase(new_iter, e)
-      end associate
+      if (.not. this%has_virtual_pt(new_virtual_pt)) then
+         call this%add_virtual_pt(new_virtual_pt)
+      end if
 
-      call this%add_virtual_pt(new_virtual_pt, _RC)
       family => iter%second()
-      call this%family_map%insert(new_virtual_pt, family)
+      parent_family => this%get_extension_family(new_virtual_pt)
+      call parent_family%merge(family)
 
       _RETURN(_SUCCESS)
    end subroutine propagate_exports_virtual_pt
@@ -746,6 +738,11 @@ contains
 
    end function filter
 
+   ! An item has a user-level export coupler iff:
+   !  - it is owned
+   !  - has a consumer
+   !  - has no producers
+   ! The export couplers are all consumers.
    function get_export_couplers(this) result(export_couplers)
       type(ComponentDriverPtrVector) :: export_couplers
       class(StateRegistry), target, intent(in) :: this
@@ -753,6 +750,9 @@ contains
       type(ComponentDriverPtr) :: wrapper
       type(StateItemExtension), pointer :: extension
       type(StateItemExtensionVectorIterator) :: iter
+      type(ComponentDriverPtrVector), pointer :: consumers
+      integer :: i
+      
       
       associate (e => this%owned_items%ftn_end())
         iter = this%owned_items%ftn_begin()
@@ -760,40 +760,51 @@ contains
            call iter%next()
            extension => iter%of()
 
-           if (extension%has_producer()) then
-              wrapper%ptr => extension%get_producer()
+           if (extension%has_producer()) cycle
+           consumers => extension%get_consumers()
+           do i = 1, consumers%size()
+              wrapper = consumers%of(i) ! copy ptr
               call export_couplers%push_back(wrapper)
-              cycle
-           end if
+           end do
+
         end do
       end associate
 
    end function get_export_couplers
 
+   ! An item is an import coupler iff:
+   !   - it is has a producer, but no consumer (end of chain)
+   !   - is primary
    function get_import_couplers(this) result(import_couplers)
       type(ComponentDriverPtrVector) :: import_couplers
       class(StateRegistry), target, intent(in) :: this
 
-      integer :: i
-      type(ComponentDriverPtr) :: wrapper
-      type(StateItemExtension), pointer :: extension
-      type(StateItemExtensionVectorIterator) :: iter
-      type(ComponentDriverPtrVector), pointer :: consumers
-      
-      associate (e => this%owned_items%ftn_end())
-        iter = this%owned_items%ftn_begin()
-        do while (iter /= e)
-           call iter%next()
-           extension => iter%of()
 
-           consumers => extension%get_consumers()
-           do i = 1, consumers%size()
-              wrapper = consumers%of(i) ! copy ptr
+      type(VirtualPtFamilyMapIterator) :: family_iter
+      type(ExtensionFamily), pointer :: family
+      type(VirtualConnectionPt), pointer :: v_pt
+      type(ComponentDriverPtr) :: wrapper
+      type(StateItemExtension), pointer :: primary
+
+      associate (e => this%family_map%ftn_end())
+        family_iter = this%family_map%ftn_begin()
+        do while (family_iter /= e)
+           call family_iter%next()
+           v_pt => family_iter%first()
+           family => family_iter%second()
+
+           if (v_pt%get_comp_name() /= '') cycle
+           if (.not. family%has_primary()) cycle
+           primary => family%get_primary()
+
+           if (primary%has_producer() .and. .not. primary%has_consumers()) then
+              wrapper%ptr => primary%get_producer()
               call import_couplers%push_back(wrapper)
-           end do
+           end if
+              
         end do
       end associate
-
+      
    end function get_import_couplers
 
    ! Repeatedly extend family at v_pt until extension can directly
