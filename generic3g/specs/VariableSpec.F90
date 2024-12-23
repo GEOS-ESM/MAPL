@@ -1,7 +1,8 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_VariableSpec
-
+   use mapl3g_AspectCollection
+   use mapl3g_UnitsAspect
    use mapl3g_UngriddedDims
    use mapl3g_VerticalDimSpec
    use mapl3g_HorizontalDimsSpec
@@ -29,6 +30,7 @@ module mapl3g_VariableSpec
    ! also allows us to defer interpretation until after user
    ! setservices() have run.
    type VariableSpec
+      type(AspectCollection) :: aspects
       ! Mandatory values:
       type(ESMF_StateIntent_Flag) :: state_intent
       character(:), allocatable :: short_name
@@ -39,7 +41,6 @@ module mapl3g_VariableSpec
       character(:), allocatable :: standard_name
       type(ESMF_StateItem_Flag) :: itemtype = MAPL_STATEITEM_FIELD
       type(StringVector), allocatable :: service_items
-      character(:), allocatable :: units
       character(:), allocatable :: substate
       real, allocatable :: default_value
       type(StringVector) :: attributes
@@ -55,7 +56,6 @@ module mapl3g_VariableSpec
    contains
       procedure :: make_virtualPt
       procedure :: make_dependencies
-      procedure :: initialize
       procedure, private :: set_regrid_param_
    end type VariableSpec
 
@@ -105,10 +105,13 @@ contains
 #endif
 #define _SET_OPTIONAL(attr) if (present(attr)) var_spec%attr = attr
 
+      call var_spec%aspects%set_units_aspect(UnitsAspect(units))
+
       _SET_OPTIONAL(standard_name)
       _SET_OPTIONAL(geom)
       _SET_OPTIONAL(itemtype)
-      _SET_OPTIONAL(units)
+
+
       _SET_OPTIONAL(substate)
       _SET_OPTIONAL(typekind)
       _SET_OPTIONAL(service_items)
@@ -126,58 +129,6 @@ contains
    end function new_VariableSpec
 
 
-   ! Failing to find attributes in config is ok - they are
-   ! left uninitialized. Constistency and sufficiency checks are
-   ! relegated to the various StateItemSpec subclasses.
-   subroutine initialize(this, config)
-      class(VariableSpec), intent(out) :: this
-      type(ESMF_HConfig), intent(in) :: config
-
-      this%standard_name = ESMF_HConfigAsString(config,keyString='standard_name')
-      this%itemtype = get_itemtype(config)
-      this%units = ESMF_HConfigAsString(config,keyString='units')
-
-   contains
-
-      function get_itemtype(config) result(itemtype)
-         type(ESMF_StateItem_Flag) :: itemtype
-         type(ESMF_HConfig), intent(in) :: config
-
-         character(:), allocatable :: itemtype_as_string
-         integer :: status
-
-         itemtype = MAPL_STATEITEM_FIELD ! default
-         if (.not. ESMF_HConfigIsDefined(config,keyString='itemtype')) return
-
-         itemtype_as_string = ESMF_HConfigAsString(config,keyString='itemtype',rc=status)
-         if (status /= 0) then
-            itemtype = MAPL_STATEITEM_UNKNOWN
-            return
-         end if
-
-         select case (itemtype_as_string)
-         case ('field')
-            itemtype = MAPL_STATEITEM_FIELD
-         case ('bundle')
-            itemtype = MAPL_STATEITEM_FIELDBUNDLE
-         case ('state')
-            itemtype = MAPL_STATEITEM_STATE
-         case ('service_provider')
-            itemtype = MAPL_STATEITEM_SERVICE_PROVIDER
-         case ('service_subcriber')
-            itemtype = MAPL_STATEITEM_SERVICE_SUBSCRIBER
-         case ('wildcard')
-            itemtype = MAPL_STATEITEM_WILDCARD
-         case ('bracket')
-            itemtype = MAPL_STATEITEM_BRACKET
-         case default
-            itemtype = MAPL_STATEITEM_UNKNOWN
-         end select
-
-      end function get_itemtype
-
-   end subroutine initialize
-
    function make_virtualPt(this) result(v_pt)
       type(VirtualConnectionPt) :: v_pt
       class(VariableSpec), intent(in) :: this
@@ -186,30 +137,6 @@ contains
          v_pt = v_pt%add_comp_name(this%substate)
       end if
    end function make_virtualPt
-
-   subroutine fill_units(this, units, rc)
-      class(VariableSpec), intent(in) :: this
-      character(:), allocatable, intent(out) :: units
-      integer, optional, intent(out) :: rc
-
-      character(len=ESMF_MAXSTR) :: canonical_units
-      integer :: status
-
-      ! Only fill if not already specified
-      if (allocated(this%units)) then
-         units = this%units
-         _RETURN(_SUCCESS)
-      end if
-
-      ! Only fill if standard name is provided
-      _RETURN_UNLESS(allocated(this%standard_name))
-
-      call NUOPC_FieldDictionaryGetEntry(this%standard_name, canonical_units, status)
-      _ASSERT(status == ESMF_SUCCESS,'Units not found for standard name: <'//this%standard_name//'>')
-      units = trim(canonical_units)
-
-      _RETURN(_SUCCESS)
-   end subroutine fill_units
 
    function make_dependencies(this, rc) result(dependencies)
       type(ActualPtVector) :: dependencies
