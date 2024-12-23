@@ -1,5 +1,4 @@
 module mapl_AbstractComponent
-   use pFlogger, only: t_Logger => Logger
    implicit none
    private
 
@@ -97,7 +96,7 @@ module mapl_AbstractComponent
       end subroutine i_RunChild
 
       subroutine i_SetLogger(this, logger)
-         import t_Logger
+         use pfl_logger, only: t_Logger => Logger
          import AbstractComponent
          implicit none
          class(AbstractComponent), intent(inout) :: this
@@ -106,7 +105,7 @@ module mapl_AbstractComponent
       end subroutine i_SetLogger
 
       function i_GetLogger(this) result(logger)
-         import t_Logger
+         use pfl_logger, only: t_Logger => Logger
          import AbstractComponent
          implicit none
          class(t_Logger), pointer :: logger
@@ -114,5 +113,5 @@ module mapl_AbstractComponent
       end function i_GetLogger
 
    end interface
-
+      
 end module mapl_AbstractComponent

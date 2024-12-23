@@ -1,50 +1,159 @@
+#define I_AM_MAIN
+#include "MAPL_ErrLog.h"
 program main
-   use ESMF
-   use mapl_MaplGenericComponent
-   use mapl_ConcreteComposite
-   use UserComponent_mod
-   use mapl_AbstractComponent
-   use mapl_AbstractFrameworkComponent
-   use mapl_CompositeComponent
+   use mapl_BW_BenchmarkSpec
+   use mapl_BW_Benchmark
+   use mapl_ErrorHandlingMod
+   use mpi
+   use, intrinsic :: iso_fortran_env, only: INT64
    implicit none
 
-   type(MaplGenericComponent), target :: tmp
-   class(AbstractFrameworkComponent), pointer :: child_o => null()
-   class(AbstractFrameworkComponent), pointer :: child_a => null()
-   class(AbstractFrameworkComponent), pointer :: grandchild
-   type(UserComponent) :: gcm
-   type(UserComponent) :: agcm, ogcm
-   type(UserComponent) :: dynamics, physics
-   type(ESMF_Clock) :: clock
+   type(BW_BenchmarkSpec) :: spec
    integer :: status
+      
+   call mpi_init(_IERROR)
+   spec = make_BW_BenchmarkSpec() ! CLI
 
-   type(ConcreteComposite), target :: root_composite
-   class(AbstractFrameworkComponent), pointer :: root
+   call run(spec, _RC)
 
-   call gcm%set_name('GCM')
-   call agcm%set_name('AGCM')
-   call ogcm%set_name('OGCM')
-   call dynamics%set_name('DYN')
-   call physics%set_name('PHYSICS')
+   call MPI_Barrier(MPI_COMM_WORLD, _IERROR)
+   call mpi_finalize(_IERROR)
+   stop
 
 
-   root_composite = ConcreteComposite(tmp)
-   root => root_composite%get_component()
-   call root%set_composite(root_composite) ! close the circular structure
+contains
 
-   child_a => root%add_child_component('agcm', agcm)
-   grandchild => child_a%add_child_component('dynamics', dynamics)
-   grandchild => child_a%add_child_component('physics', physics)
 
-   child_o => root%add_child_component('ogcm', ogcm)
+#undef I_AM_MAIN
+#include "MAPL_ErrLog.h"
+   subroutine run(spec, rc)
+      type(BW_BenchmarkSpec), intent(in) :: spec
+      integer, optional, intent(out) :: rc
 
-   call root%run_child('agcm', clock, 'phase', rc=status)
+      integer :: status
 
-   call child_a%run_child('dynamics', clock, 'phase', rc=status)
-   call child_a%run_child('physics', clock, 'phase', rc=status)
+      real :: tot_time
+      real :: tot_time_sq
+      real :: avg_time
+      real :: std_time
+      type(BW_Benchmark) :: benchmark
+      integer :: writer_comm
+      integer :: gather_comm
+      integer :: i
+      real :: t
 
-   call root%run_child('ogcm', clock, 'phase', rc=status)
-   
+      integer :: color, rank, npes
+      call MPI_Comm_rank(MPI_COMM_WORLD, rank, _IERROR)
+      call MPI_Comm_size(MPI_COMM_WORLD, npes, _IERROR)
+
+      color = (rank*spec%n_writers) / npes
+      call MPI_Comm_split(MPI_COMM_WORLD, color, 0, gather_comm, _IERROR)
+      
+      call MPI_Comm_rank(gather_comm, rank, _IERROR)
+      call MPI_Comm_split(MPI_COMM_WORLD, rank, 0, writer_comm, _IERROR)
+      if (rank /= 0) writer_comm = MPI_COMM_NULL
+      _RETURN_IF(writer_comm == MPI_COMM_NULL)
+
+      benchmark = make_BW_Benchmark(spec, writer_comm, _RC)
+
+      call write_header(writer_comm, _RC)
+
+      tot_time = 0
+      tot_time_sq = 0
+      associate (n => spec%n_tries)
+        do i = 1, n
+           t = time(benchmark, writer_comm, _RC)
+           tot_time = tot_time + t
+           tot_time_sq = tot_time_sq + t**2
+        end do
+        avg_time = tot_time / n
+
+        std_time = -1 ! unless
+        if (n > 1) then
+           std_time = sqrt((tot_time_sq - spec%n_tries*avg_time**2)/(n-1))
+        end if
+      end associate
+
+      call report(spec, avg_time, std_time, writer_comm, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine run
+
+
+   real function time(benchmark, comm, rc)
+      type(BW_Benchmark), intent(in) :: benchmark
+      integer, intent(in) :: comm
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: rank
+      integer(kind=INT64) :: c0, c1, count_rate
+
+      call MPI_Barrier(comm, _IERROR)
+
+      call system_clock(c0)
+      call benchmark%run(_RC)
+      call MPI_Barrier(comm, _IERROR)
+      call system_clock(c1, count_rate=count_rate)
+
+      time = real(c1-c0)/count_rate
+
+      _RETURN(_SUCCESS)
+   end function time
+
+
+   subroutine write_header(comm, rc)
+      integer, intent(in) :: comm
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: rank
+
+      call MPI_Comm_rank(comm, rank, _IERROR)
+      _RETURN_UNLESS(rank == 0)
+
+      write(*,'(3(a10,","),6(a15,:,","))',iostat=status) &
+           'NX', '# levs', '# writers', 'write (GB)', 'packet (GB)', &
+           'Time (s)', 'Eff. BW (GB/s)', 'Avg. BW (GB/s)', 'Rel. Std. Dev.'
+
+      _RETURN(status)
+   end subroutine write_header
+
+
+   subroutine report(spec, avg_time, std_time, comm, rc)
+      type(BW_BenchmarkSpec), intent(in) :: spec
+      real, intent(in) :: avg_time
+      real, intent(in) :: std_time
+      integer, intent(in) :: comm
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      real :: packet_gb
+      real :: total_gb
+      real :: bw
+      integer :: npes
+      integer :: rank
+      integer, parameter :: WORD_SIZE = 4
+      integer(kind=INT64) :: packet_size
+
+      call MPI_Comm_size(comm, npes, _IERROR)
+      call MPI_Comm_rank(comm, rank, _IERROR)
+      _RETURN_UNLESS(rank == 0)
+
+      packet_size = int(spec%nx,kind=INT64)**2 * 6 * spec%n_levs / spec%n_writers
+      packet_gb = 1.e-9*(WORD_SIZE * packet_size)
+      total_gb = packet_gb * npes
+      bw = total_gb / avg_time
+
+      call MPI_Comm_size(comm, npes, _IERROR)
+
+      write(*,'(3(1x,i9.0,","),6(f15.4,:,","))') &
+           spec%nx, spec%n_levs, spec%n_writers, &
+           total_gb, packet_gb, avg_time, bw, bw/npes, std_time/avg_time
+
+      _RETURN(_SUCCESS)
+   end subroutine report
+
+
 end program main
-
    

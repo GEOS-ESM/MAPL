@@ -1,9 +1,6 @@
-#define I_AM_MAIN
-638 #include "MAPL_ErrLog.h"
 program main
    use MPI
    use MAPL_Profiler
-   use MAPL_ErrorHandlingMod
    implicit none
 
 
@@ -15,10 +12,9 @@ program main
 
    character(:), allocatable :: report_lines(:)
    integer :: i
-   integer :: ierror, rc, status
+   integer :: ierror
 
    call MPI_Init(ierror)
-   _VERIFY(ierror)
    main_prof = TimeProfiler('TOTAL')   ! timer 1
    call main_prof%start()
    lap_prof = TimeProfiler('Lap')

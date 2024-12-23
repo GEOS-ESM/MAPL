@@ -218,21 +218,20 @@ contains
     real(REAL64), dimension(Xdim), intent(out) :: array
     integer, optional, intent(out) :: rc
     integer :: status
-    integer :: ncid, varid, ncid2, ncid_sv
+    integer :: ncid, varid, ncid2
 
     call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
-    ncid_sv = ncid
-
     if(present(group_name)) then
-       if(group_name/='') then
-          ncid2= ncid
-          call check_nc_status(nf90_inq_ncid(ncid2, group_name, ncid), _RC)
-       end if
+       ncid2= ncid
+       call check_nc_status(nf90_inq_ncid(ncid2, group_name, ncid), _RC)
     end if
     call check_nc_status(nf90_inq_varid(ncid, name, varid), _RC)
     call check_nc_status(nf90_get_var(ncid, varid, array), _RC)
-
-    call check_nc_status(nf90_close(ncid_sv), _RC)
+    if(present(group_name)) then
+       call check_nc_status(nf90_close(ncid2), _RC)
+    else
+       call check_nc_status(nf90_close(ncid), _RC)
+    end if
     _RETURN(_SUCCESS)
 
   end subroutine get_v1d_netcdf_R8
@@ -257,11 +256,9 @@ contains
     call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
     ncid_sv = ncid
     if(present(group_name)) then
-       if(group_name/='') then
-          call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), _RC)
-          ! mod
-          ncid = ncid_grp
-       end if
+       call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), _RC)
+       ! mod
+       ncid = ncid_grp
     end if
     call check_nc_status(nf90_inq_varid(ncid, varname, varid), _RC)
     call check_nc_status(nf90_get_var(ncid, varid, array), _RC)
@@ -299,11 +296,9 @@ contains
     call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
     ncid_sv = ncid
     if(present(group_name)) then
-       if(group_name/='') then
-          call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), _RC)
-          ! overwrite
-          ncid = ncid_grp
-       end if
+       call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), _RC)
+       ! overwrite
+       ncid = ncid_grp
     end if
     call check_nc_status(nf90_inq_varid(ncid, varname, varid), _RC)
     call check_nc_status(nf90_get_att(ncid, varid, att_name, att_value), _RC)
@@ -329,11 +324,9 @@ contains
     call check_nc_status(nf90_open(trim(fileName), NF90_NOWRITE, ncid), _RC)
     ncid_sv = ncid
     if(present(group_name)) then
-       if(group_name/='') then
-          call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), _RC)
-          ! overwrite
-          ncid = ncid_grp
-       end if
+       call check_nc_status(nf90_inq_ncid(ncid, group_name, ncid_grp), _RC)
+       ! overwrite
+       ncid = ncid_grp
     end if
     call check_nc_status(nf90_inq_varid(ncid, varname, varid), _RC)
     call check_nc_status(nf90_get_att(ncid, varid, att_name, att_value), _RC)

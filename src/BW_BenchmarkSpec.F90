@@ -99,8 +99,7 @@ contains
         call random_number(benchmark%buffer)
       end associate
 
-      call MPI_Comm_rank(comm, rank, status)
-      _VERIFY(status)
+      call MPI_Comm_rank(comm, rank, _IERROR)
       benchmark%filename = make_filename(base='scratch.', rank=rank, width=5, _RC)
 
       _RETURN(_SUCCESS)

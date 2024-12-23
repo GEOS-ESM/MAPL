@@ -118,7 +118,6 @@ module MAPL_ApplicationSupport
       else
 
          call MPI_COMM_Rank(comm_world,rank,status)
-         _VERIFY(status)
          console = StreamHandler(OUTPUT_UNIT)
          call console%set_level(INFO)
          call console%set_formatter(MpiFormatter(comm_world, fmt='%(short_name)a10~: %(message)a'))
@@ -187,9 +186,7 @@ module MAPL_ApplicationSupport
       call reporter%add_column(exclusive)
 
       call MPI_Comm_size(world_comm, npes, ierror)
-      _VERIFY(ierror)
       call MPI_Comm_Rank(world_comm, my_rank, ierror)
-      _VERIFY(ierror)
 
       if (my_rank == 0) then
          report_lines = reporter%generate_report(t_p)
@@ -200,7 +197,6 @@ module MAPL_ApplicationSupport
          end do
       end if
       call MPI_Barrier(world_comm, ierror)
-      _VERIFY(ierror)
 
       _RETURN(_SUCCESS)
    end subroutine report_global_profiler

@@ -464,40 +464,32 @@ contains
       _RETURN(_SUCCESS)
    end subroutine done_collective_stage
 
-   subroutine wait(this, request_id, rc)
+   subroutine wait(this, request_id)
       use pFIO_AbstractRequestHandleMod
       class (ClientThread), target, intent(inout) :: this
       integer, intent(in) :: request_id
-      integer, optional, intent(out) :: rc
-      integer :: status
       class(AbstractRequestHandle), pointer :: handle
 
       handle => this%get_RequestHandle(request_id)
       call handle%wait()
       call handle%data_reference%deallocate()
       call this%erase_RequestHandle(request_id)
-      _RETURN(_SUCCESS)
-  
+
    end subroutine wait
 
-   subroutine wait_all(this, rc)
+   subroutine wait_all(this)
       use pFIO_AbstractRequestHandleMod
       class (ClientThread), target, intent(inout) :: this
-      integer, optional, intent(out) :: rc
-      integer:: status
-      call this%clear_RequestHandle(_RC)
+
+      call this%clear_RequestHandle()
       !call this%shake_hand()
-      _RETURN(_SUCCESS)
 
    end subroutine wait_all
 
-   subroutine post_wait_all(this, rc)
+   subroutine post_wait_all(this)
       use pFIO_AbstractRequestHandleMod
       class (ClientThread), target, intent(inout) :: this
-      integer, optional, intent(out):: rc
-      integer :: status
-      call this%wait_all(_RC)
-      _RETURN(_SUCCESS)
+      call this%wait_all()
    end subroutine post_wait_all
 
    integer function get_unique_request_id(this) result(request_id)

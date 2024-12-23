@@ -389,7 +389,6 @@ contains
         call MPI_AllGATHERV(locals, local_size,            MPI_INTEGER, &
                             i_ptr,  int(offsets),  int(g_offsets),  MPI_INTEGER, &
                             this%containing_server%NodeRoot_Comm,status)
-        _VERIFY(status)
         deallocate(locals)
 
       endif
@@ -1030,7 +1029,7 @@ contains
          iter = this%request_backlog%begin()
      enddo
 
-     call this%clear_RequestHandle(_RC)
+     call this%clear_RequestHandle()
      call this%clear_hist_collections()
 
      _RETURN(_SUCCESS)
@@ -1069,7 +1068,7 @@ contains
          iter = this%request_backlog%begin()
        enddo
 
-       call this%clear_RequestHandle(_RC)
+       call this%clear_RequestHandle()
 
        _RETURN(_SUCCESS)
        _UNUSED_DUMMY(message)
@@ -1154,7 +1153,7 @@ contains
 
            offset_address = c_loc(i_ptr(offset+1))
 
-           call mem_data_reference%fetch_data(offset_address,q%global_count,q%start-q%global_start+1, _RC)
+           call mem_data_reference%fetch_data(offset_address,q%global_count,q%start-q%global_start+1)
 
            call this%insert_RequestHandle(q%request_id, &
               & connection%put(q%request_id, mem_data_reference))
