@@ -1,0 +1,44 @@
+module test_PercentageColumn
+   use, intrinsic :: iso_fortran_env, only: REAL64
+   use MAPL_Profiler
+   use funit
+   use GFTL_UnlimitedVector
+
+contains
+
+   @test
+   subroutine test_percent_inclusive()
+      use, intrinsic :: iso_fortran_env, only: REAL64
+      type (PercentageColumn) :: c
+      type (MeterNode), target :: node
+      class (AbstractMeterNode), pointer :: child
+      class (AbstractMeter), pointer :: t
+      type(UnlimitedVector) :: v
+      integer :: i
+      integer :: expected(2)
+      class(*), allocatable :: q
+
+      node = MeterNode('foo', AdvancedMeter(MpiTimerGauge()))
+      t => node%get_meter()
+      call t%add_cycle(10.0_REAL64)
+
+      call node%add_child('a', AdvancedMeter(MpiTimerGauge()))
+      child => node%get_child('a')
+      t => child%get_meter()
+      call t%add_cycle(5.0_REAL64)
+      
+      c = PercentageColumn(InclusiveColumn(),'MAX')
+
+      v = c%get_rows(node)
+      expected = [100.,50.]
+      do i = 1, 2
+         q = v%at(i)
+         select type (q)
+         type is (real(kind=REAL64))
+            @assertEqual(expected(i), q)
+         end select
+      end do
+      
+   end subroutine test_percent_inclusive
+
+end module test_PercentageColumn
