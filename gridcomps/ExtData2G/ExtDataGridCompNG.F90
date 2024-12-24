@@ -400,6 +400,8 @@ CONTAINS
          item => self%primary%item_vec%at(i_start+j-1)
          item%pfioCOllection_id = MAPL_DataAddCollection(item%file_template)
          call new_GetLevs(item, time, _RC)
+        if (item%vcoord%vertical_type == fixed_height) item%allow_vertical_regrid = .true.
+        if (mapl_am_i_root()) write(*,*)'bmaa vcoord: ',trim(item%var),' ',item%vcoord%vertical_type
       enddo
 
    enddo
@@ -601,7 +603,6 @@ CONTAINS
       if (item%vartype == MAPL_VectorField) then
          call item%filestream%get_file_bracket(use_time,item%source_time, item%modelGridFields%comp2, item%fail_on_missing_file,_RC)
       end if
-      _HERE, 'bmaa'
       call create_bracketing_fields(item,self%ExtDataState,cf_master, _RC)
       call IOBundle_Add_Entry(IOBundles,item,idx)
       useTime(i)=use_time
@@ -857,6 +858,7 @@ CONTAINS
         end if
 
         item%vcoord = verticalCoordinate(metadata, item%var, _RC)
+        if (item%vcoord%vertical_type /= NO_COORD) item%allow_vertical_regrid = .true.
 
         _RETURN(ESMF_SUCCESS)
 
@@ -975,10 +977,20 @@ CONTAINS
      integer :: fieldRank, src_lm, dst_lm
      real, pointer :: dst_ptr3d(:,:,:), src_ptr3d(:,:,:)
 
-     _RETURN(_SUCCESS) !bmaa
-     if (.not. item%delivered_item) then
+     if (item%vcoord%vertical_type == NO_COORD &
+        .or. (.not.item%delivered_item) &
+        .or. (.not.item%allow_vertical_regrid)) then
         _RETURN(_SUCCESS)
      end if
+
+     if (item%allow_vertical_regrid) then
+        if (mapl_am_i_root()) write(*,*)'bmaa can flip ',item%vcoord%positive /= item%importVDir
+        if (item%vcoord%positive /= item%importVDir) then
+           call MAPL_ExtDataFlipVertical(item,_RC)
+        end if
+        _RETURN(_SUCCESS)
+     end if
+
      call ESMF_StateGet(import, "PLE", dst_ple, _RC)
      src_ps_name = item%vcoord%surf_name//"_"//trim(item%vcomp1)
      _HERE, src_ps_name
@@ -1217,9 +1229,8 @@ CONTAINS
 
   end subroutine MAPL_ExtDataFillField
 
-  subroutine MAPL_ExtDataFlipVertical(item,filec,rc)
+  subroutine MAPL_ExtDataFlipVertical(item,rc)
       type(PrimaryExport), intent(inout)      :: item
-      integer,                  intent(in)    :: filec
       integer, optional, intent(out)          :: rc
 
       integer :: status
@@ -1231,24 +1242,25 @@ CONTAINS
 
       if (item%vartype == MAPL_VectorField) then
 
-         call MAPL_ExtDataGetBracket(item,filec,field=Field1,vcomp=1,_RC)
-         call MAPL_ExtDataGetBracket(item,filec,field=Field2,vcomp=2,_RC)
+         !call MAPL_ExtDataGetBracket(item,filec,field=Field1,vcomp=1,_RC)
+         !call MAPL_ExtDataGetBracket(item,filec,field=Field2,vcomp=2,_RC)
 
-         call ESMF_FieldGet(Field1,0,farrayPtr=ptr,_RC)
-         allocate(ptemp,source=ptr,_STAT)
-         ls = lbound(ptr,3)
-         le = ubound(ptr,3)
-         ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
+         !call ESMF_FieldGet(Field1,0,farrayPtr=ptr,_RC)
+         !allocate(ptemp,source=ptr,_STAT)
+         !ls = lbound(ptr,3)
+         !le = ubound(ptr,3)
+         !ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
 
-         call ESMF_FieldGet(Field2,0,farrayPtr=ptr,_RC)
-         ptemp=ptr
-         ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
+         !call ESMF_FieldGet(Field2,0,farrayPtr=ptr,_RC)
+         !ptemp=ptr
+         !ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
 
-         deallocate(ptemp)
+         !deallocate(ptemp)
 
       else
 
-         call MAPL_ExtDataGetBracket(item,filec,field=Field,_RC)
+         !call MAPL_ExtDataGetBracket(item,filec,field=Field,_RC)
+         call ESMF_FieldBundleGet(item%t_interp_bundle, item%vcomp1, field=field, _RC)
 
          call ESMF_FieldGet(Field,0,farrayPtr=ptr,_RC)
          allocate(ptemp,source=ptr,_STAT)
@@ -1468,7 +1480,6 @@ CONTAINS
      type(MAPLDataCollection), pointer :: collection
      type(ESMF_Field) :: temp_field
 
-     _HERE, "bmaa ",item%modelGridFields%initialized
      if (item%modelGridFields%initialized) then
         _RETURN(_SUCCESS)
      else
@@ -1492,7 +1503,6 @@ CONTAINS
         end if
      end if
 
-     _HERE, "bmaa ",found_file
      if (found_file) then
         !call GetLevs(item,_RC)
         item%iclient_collection_id=i_clients%add_ext_collection(trim(item%file_template))

@@ -3,6 +3,7 @@ module VerticalCoordinateMod
    use PFIO
    use MAPL_ExceptionHandling
    use MAPL_FileMetadataUtilsMod
+   use MAPL_CommsMod
    use gFTL_StringVector
    use udunits2f, UDUNITS_are_convertible => are_convertible, &
       initialize_udunits => initialize, finalize_udunits => finalize
@@ -94,6 +95,7 @@ contains
          if (has_pressure_units) then
             vertical_coord%level_units = temp_units
             vertical_coord%vertical_type = fixed_pressure
+            if (vertical_coord%levels(1) > vertical_coord%levels(2)) vertical_coord%positive = "up" !bmaa
             _RETURN(_SUCCESS)
          end if
          ! now test if this is a "fixed" height level, if has height units, then dimensioanl coordinate, but must have positive 
@@ -154,6 +156,8 @@ contains
          end if
          ! if this is none of those, then a simple coordinate
          vertical_coord%vertical_type = simple_coord
+      else
+         vertical_coord%vertical_type = no_coord
       end if
       _RETURN(_SUCCESS)
       

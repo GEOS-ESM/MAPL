@@ -75,6 +75,10 @@ module MAPL_ExtDataTypeDef
      !type(ESMF_Field) :: t_interp_field 
      type(ESMF_FieldBundle) :: t_interp_bundle
 
+     character(len=4) :: importVDir = "down"
+     logical :: allow_vertical_regrid = .false.
+     
+
   end type PrimaryExport
   
   type DerivedExport
