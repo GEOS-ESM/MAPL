@@ -5,6 +5,7 @@ module mapl3g_AspectCollection
 
    use mapl3g_GeomAspect
    use mapl3g_UnitsAspect
+   use mapl3g_TypekindAspect
 
    use mapl3g_UngriddedDimsAspect
 
@@ -19,6 +20,7 @@ module mapl3g_AspectCollection
       private
       type(GeomAspect), allocatable :: geom_aspect
       type(UnitsAspect), allocatable :: units_aspect
+      type(TypekindAspect), allocatable :: typekind_aspect
       type(UngriddedDimsAspect), allocatable :: ungridded_dims_aspect
    contains
       procedure :: get_aspect ! polymorphic
@@ -30,6 +32,9 @@ module mapl3g_AspectCollection
 
       procedure :: get_units_aspect
       procedure :: set_units_aspect
+
+      procedure :: get_typekind_aspect
+      procedure :: set_typekind_aspect
 
       procedure :: get_ungridded_dims_aspect
       procedure :: set_ungridded_dims_aspect
@@ -68,6 +73,8 @@ contains
          aspect => this%get_geom_aspect()
       case ('UNITS')
          aspect => this%get_units_aspect()
+      case ('TYPEKIND')
+         aspect => this%get_typekind_aspect()
       case ('UNGRIDDED_DIMS')
          aspect => this%get_ungridded_dims_aspect()
       case default
@@ -101,6 +108,8 @@ contains
       type is (GeomAspect)
          this%geom_aspect = aspect
       type is (UnitsAspect)
+         this%units_aspect = aspect
+      type is (TypekindAspect)
          this%units_aspect = aspect
       type is (UngriddedDimsAspect)
          this%ungridded_dims_aspect = aspect
@@ -140,6 +149,22 @@ contains
       type(UnitsAspect), intent(in) :: units_aspect
       this%units_aspect = units_aspect
    end subroutine set_units_aspect
+
+   function get_typekind_aspect(this) result(typekind_aspect)
+      type(TypekindAspect), pointer :: typekind_aspect
+      class(AspectCollection), target, intent(in) :: this
+
+      typekind_aspect => null()
+      if (allocated(this%typekind_aspect)) then
+         typekind_aspect => this%typekind_aspect
+      end if
+   end function get_typekind_aspect
+
+   subroutine set_typekind_aspect(this, typekind_aspect)
+      class(AspectCollection), intent(inout) :: this
+      type(TypekindAspect), intent(in) :: typekind_aspect
+      this%typekind_aspect = typekind_aspect
+   end subroutine set_typekind_aspect
 
    function get_ungridded_dims_aspect(this) result(ungridded_dims_aspect)
       type(UngriddedDimsAspect), pointer :: ungridded_dims_aspect
