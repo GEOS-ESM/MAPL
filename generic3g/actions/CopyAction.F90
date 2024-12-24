@@ -20,25 +20,15 @@ module mapl3g_CopyAction
    end type CopyAction
 
    interface CopyAction
-      module procedure new_CopyAction
-      module procedure new_CopyAction2
+       module procedure new_CopyAction
    end interface CopyAction
 
 contains
 
-   function new_CopyAction(f_in, f_out) result(action)
-      type(CopyAction) :: action
-      type(ESMF_Field), intent(in) :: f_in
-      type(ESMF_Field), intent(in) :: f_out
-
-      action%f_in = f_in
-      action%f_out = f_out
-   end function new_CopyAction
-
    ! We don't really need to know the typekind as the low level conversion routines
    ! will accept whatever is handed. So these arguments are more to preserve
    ! a consistent form for constructions across Action subclasses.
-   function new_CopyAction2(src_typekind, dst_typekind) result(action)
+   function new_CopyAction(src_typekind, dst_typekind) result(action)
       type(CopyAction) :: action
       type(ESMF_Typekind_Flag), intent(in) :: src_typekind
       type(ESMF_Typekind_Flag), intent(in) :: dst_typekind
@@ -46,7 +36,7 @@ contains
       action%src_typekind = src_typekind
       action%dst_typekind = dst_typekind
 
-   end function new_CopyAction2
+   end function new_CopyAction
 
    subroutine initialize(this, importState, exportState, clock, rc)
       use esmf
