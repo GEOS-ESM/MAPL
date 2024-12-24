@@ -14,6 +14,7 @@ module mapl3g_FieldSpec
    use mapl3g_StateItemAspect
    use mapl3g_AspectCollection
    use mapl3g_GeomAspect
+   use mapl3g_HorizontalDimsSpec
    use mapl3g_UnitsAspect
    use mapl3g_VerticalStaggerLoc
    use mapl3g_StateItemSpec
@@ -171,7 +172,7 @@ contains
 
    function new_FieldSpec_geom(unusable, geom, vertical_grid, vertical_dim_spec, typekind, ungridded_dims, &
         standard_name, long_name, units, &
-        attributes, regrid_param, default_value, accumulation_type, run_dt) result(field_spec)
+        attributes, regrid_param, horizontal_dims_spec, default_value, accumulation_type, run_dt) result(field_spec)
       type(FieldSpec), target :: field_spec
 
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -185,6 +186,7 @@ contains
       character(*), optional, intent(in) :: long_name
       type(StringVector), optional, intent(in) :: attributes
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
+      type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
 
       ! optional args last
       real, optional, intent(in) :: default_value
@@ -196,8 +198,7 @@ contains
 
       aspects => field_spec%get_aspects()
 
-!#      if (present(geom)) field_spec%geom = geom
-      call aspects%set_geom_aspect(GeomAspect(geom, regrid_param))
+      call aspects%set_geom_aspect(GeomAspect(geom, regrid_param, horizontal_dims_spec))
 
       if (present(vertical_grid)) field_spec%vertical_grid = vertical_grid
       field_spec%vertical_dim_spec = vertical_dim_spec
@@ -206,14 +207,11 @@ contains
 
       if (present(standard_name)) field_spec%standard_name = standard_name
       if (present(long_name)) field_spec%long_name = long_name
-!#      if (present(units)) field_spec%units = units
       call aspects%set_units_aspect(UnitsAspect(units))
  
      if (present(attributes)) field_spec%attributes = attributes
 
       ! regrid_param
-      field_spec%regrid_param = EsmfRegridderParam() ! use default regrid method
-      if (present(regrid_param)) field_spec%regrid_param = regrid_param
 
       if (present(default_value)) field_spec%default_value = default_value
       field_spec%accumulation_type = NO_ACCUMULATION
@@ -232,9 +230,8 @@ contains
       _SET_FIELD(field_spec, variable_spec, typekind)
       _SET_FIELD(field_spec, variable_spec, ungridded_dims)
       _SET_FIELD(field_spec, variable_spec, attributes)
-      _SET_FIELD(field_spec, variable_spec, regrid_param)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, standard_name)
-      call field_spec%set_aspect(UnitsAspect(variable_spec%units))
+      call field_spec%set_aspect(variable_spec%aspects%get_aspect('UNITS'))
 !#      _SET_ALLOCATED_FIELD(field_spec, variable_spec, units)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, default_value)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, accumulation_type)
@@ -249,16 +246,35 @@ contains
       class(VerticalGrid), optional, intent(in) :: vertical_grid
       type(ESMF_TimeInterval), optional, intent(in) :: run_dt
       integer, optional, intent(out) :: rc
+
       integer :: status
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
 
-      call this%set_aspect(GeomAspect(geom, this%regrid_param), _RC)
-
+      call target_set_geom(this, geom)
       if (present(vertical_grid)) this%vertical_grid = vertical_grid
       if (present(run_dt)) this%run_dt = run_dt
 
-
       _RETURN(_SUCCESS)
+   contains
+
+      ! Helper needed to add target attribute to "this"
+      subroutine target_set_geom(this, geom)
+         class(FieldSpec), target, intent(inout) :: this
+         type(ESMF_Geom), optional, intent(in) :: geom
+
+         type(AspectCollection), pointer :: aspects
+         type(GeomAspect), pointer :: geom_aspect
+         
+         aspects => this%get_aspects()
+         geom_aspect => aspects%get_geom_aspect()
+
+         if (associated(geom_aspect)) then
+            call geom_aspect%set_geom(geom)
+         else
+            call aspects%set_geom_aspect(GeomAspect(geom))
+         end if
+         
+      end subroutine target_set_geom
    end subroutine set_geometry
 
    subroutine create(this, rc)

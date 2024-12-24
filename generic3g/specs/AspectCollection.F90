@@ -6,6 +6,8 @@ module mapl3g_AspectCollection
    use mapl3g_GeomAspect
    use mapl3g_UnitsAspect
 
+   use mapl3g_UngriddedDimsAspect
+
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    implicit none
@@ -17,6 +19,7 @@ module mapl3g_AspectCollection
       private
       type(GeomAspect), allocatable :: geom_aspect
       type(UnitsAspect), allocatable :: units_aspect
+      type(UngriddedDimsAspect), allocatable :: ungridded_dims_aspect
    contains
       procedure :: get_aspect ! polymorphic
       procedure :: has_aspect ! polymorphic
@@ -24,8 +27,12 @@ module mapl3g_AspectCollection
 
       procedure :: get_geom_aspect
       procedure :: set_geom_aspect
+
       procedure :: get_units_aspect
       procedure :: set_units_aspect
+
+      procedure :: get_ungridded_dims_aspect
+      procedure :: set_ungrided_dims_aspect
       
    end type AspectCollection
 
@@ -61,6 +68,8 @@ contains
          aspect => this%get_geom_aspect()
       case ('UNITS')
          aspect => this%get_units_aspect()
+      case ('UNGRIDDED_DIMS')
+         aspect => this%get_ungridded_dims_aspect()
       case default
          _FAIL('unknown aspect type: '//name)
       end select
@@ -73,7 +82,7 @@ contains
       character(*), intent(in) :: name
 
       select case (name)
-      case ('GEOM', 'UNITS')
+      case ('GEOM', 'UNITS', 'UNGRIDDED_DIMS'
          has_aspect = .true.
       case default
          has_aspect = .false.
@@ -93,6 +102,8 @@ contains
          this%geom_aspect = aspect
       type is (UnitsAspect)
          this%units_aspect = aspect
+      type is (UngriddedAspect)
+         this%ungridded_dims_aspect = aspect
       class default
          _FAIL('unsupported aspect type: ')
       end select
@@ -129,6 +140,21 @@ contains
       type(UnitsAspect), intent(in) :: units_aspect
       this%units_aspect = units_aspect
    end subroutine set_units_aspect
+
+   function get_ungridded_dims_aspect(this) result(ungridded_dims_aspect)
+      type(UngriddedDimsAspect), pointer :: ungridded_dims_aspect
+      class(AspectCollection), target, intent(in) :: this
+      ungridded_dims_aspect => null()
+      if (allocated(this%ungridded_dims_aspect)) then
+         ungridded_dims_aspect => this%ungridded_dims_aspect
+      end if
+   end function get_ungridded_dims_aspect
+
+   subroutine set_ungrided_dims_aspect(this, ungridded_dims_aspect)
+      class(AspectCollection), intent(inout) :: this
+      type(UngriddedDimsAspect), intent(in) :: ungridded_dims_aspect
+      this%ungridded_dims_aspect = ungridded_dims_aspect
+   end subroutine set_ungrided_dims_aspect
 
 end module mapl3g_AspectCollection
 

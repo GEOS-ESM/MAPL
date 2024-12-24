@@ -2,6 +2,7 @@
 
 module mapl3g_VariableSpec
    use mapl3g_AspectCollection
+   use mapl3g_GeomAspect
    use mapl3g_UnitsAspect
    use mapl3g_UngriddedDims
    use mapl3g_VerticalDimSpec
@@ -35,7 +36,6 @@ module mapl3g_VariableSpec
       type(ESMF_StateIntent_Flag) :: state_intent
       character(:), allocatable :: short_name
       type(ESMF_TypeKind_Flag) :: typekind = ESMF_TYPEKIND_R4
-      type(EsmfRegridderParam) :: regrid_param
 
       ! Metadata
       character(:), allocatable :: standard_name
@@ -48,7 +48,6 @@ module mapl3g_VariableSpec
       character(len=:), allocatable :: accumulation_type
 
       ! Geometry
-      type(ESMF_Geom), allocatable :: geom
       type(VerticalDimSpec) :: vertical_dim_spec = VERTICAL_DIM_UNKNOWN ! none, center, edge
       type(HorizontalDimsSpec) :: horizontal_dims_spec = HORIZONTAL_DIMS_GEOM ! none, geom
       type(UngriddedDims) :: ungridded_dims
@@ -56,7 +55,6 @@ module mapl3g_VariableSpec
    contains
       procedure :: make_virtualPt
       procedure :: make_dependencies
-      procedure, private :: set_regrid_param_
    end type VariableSpec
 
    interface VariableSpec
@@ -70,7 +68,7 @@ contains
         units, substate, itemtype, typekind, vertical_dim_spec, ungridded_dims, default_value, &
         service_items, attributes, &
         bracket_size, &
-        dependencies, regrid_param, &
+        dependencies, regrid_param, horizontal_dims_spec, &
         accumulation_type) result(var_spec)
 
       type(VariableSpec) :: var_spec
@@ -92,9 +90,11 @@ contains
       integer, optional, intent(in) :: bracket_size
       type(StringVector), optional, intent(in) :: dependencies
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
+      type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
       character(len=*), optional, intent(in) :: accumulation_type
 
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
+      type(EsmfRegridderParam) :: regrid_param_
       integer :: status
 
       var_spec%state_intent = state_intent
@@ -106,11 +106,11 @@ contains
 #define _SET_OPTIONAL(attr) if (present(attr)) var_spec%attr = attr
 
       call var_spec%aspects%set_units_aspect(UnitsAspect(units))
+      regrid_param_ = get_regrid_param(regrid_param, standard_name)
+      call var_spec%aspects%set_geom_aspect(GeomAspect(geom, regrid_param_, horizontal_dims_spec))
 
       _SET_OPTIONAL(standard_name)
-      _SET_OPTIONAL(geom)
       _SET_OPTIONAL(itemtype)
-
 
       _SET_OPTIONAL(substate)
       _SET_OPTIONAL(typekind)
@@ -122,8 +122,6 @@ contains
       _SET_OPTIONAL(bracket_size)
       _SET_OPTIONAL(dependencies)
       _SET_OPTIONAL(accumulation_type)
-
-      call var_spec%set_regrid_param_(regrid_param)
 
       _UNUSED_DUMMY(unusable)
    end function new_VariableSpec
@@ -156,15 +154,16 @@ contains
       _RETURN(_SUCCESS)
    end function make_dependencies
 
-   subroutine set_regrid_param_(this, regrid_param)
-      class(VariableSpec), intent(inout) :: this
-      type(EsmfRegridderParam), optional, intent(in) :: regrid_param
-
+   function get_regrid_param(requested_param, standard_name) result(regrid_param)
+      type(EsmfRegridderParam) :: regrid_param
+      type(EsmfRegridderParam), optional, intent(in) :: requested_param
+      character(*), optional, intent(in) :: standard_name
+      
       type(ESMF_RegridMethod_Flag) :: regrid_method
       integer :: status
 
-      if (present(regrid_param)) then
-         this%regrid_param = regrid_param
+      if (present(requested_param)) then
+         regrid_param = requested_param
          return
       end if
 
@@ -175,18 +174,19 @@ contains
       !       return
       !    end if
       ! end if
-      regrid_method = get_regrid_method_from_field_dict_(this%standard_name, rc=status)
+      regrid_param = EsmfRegridderParam() ! last resort - use default regrid method
+
+      regrid_method = get_regrid_method_from_field_dict_(standard_name, rc=status)
       if (status==ESMF_SUCCESS) then
-         this%regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
+         regrid_param = EsmfRegridderParam(regridmethod=regrid_method)
          return
       end if
 
-      this%regrid_param = EsmfRegridderParam() ! last resort - use default regrid method
-   end subroutine set_regrid_param_
+   end function get_regrid_param
 
-   function get_regrid_method_from_field_dict_(stdname, rc) result(regrid_method)
+   function get_regrid_method_from_field_dict_(standard_name, rc) result(regrid_method)
       type(ESMF_RegridMethod_Flag) :: regrid_method
-      character(:), allocatable, intent(in) :: stdname
+      character(*), optional, intent(in) :: standard_name
       integer, optional, intent(out) :: rc
 
       character(len=*), parameter :: field_dictionary_file = "field_dictionary.yml"
@@ -201,11 +201,11 @@ contains
       end if
 
       field_dict = FieldDictionary(filename=field_dictionary_file, _RC)
-      if (.not. allocated(stdname)) then
+      if (.not. present(standard_name)) then
          rc = _FAILURE
          return
       end if
-      regrid_method = field_dict%get_regrid_method(stdname, _RC)
+      regrid_method = field_dict%get_regrid_method(standard_name, _RC)
 
       _RETURN(_SUCCESS)
    end function get_regrid_method_from_field_dict_
