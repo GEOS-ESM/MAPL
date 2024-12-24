@@ -14,8 +14,9 @@ module mapl3g_FieldSpec
    use mapl3g_StateItemAspect
    use mapl3g_AspectCollection
    use mapl3g_GeomAspect
-   use mapl3g_HorizontalDimsSpec
    use mapl3g_UnitsAspect
+   use mapl3g_UngriddedDimsAspect
+   use mapl3g_HorizontalDimsSpec
    use mapl3g_VerticalStaggerLoc
    use mapl3g_StateItemSpec
    use mapl3g_WildcardSpec
@@ -81,7 +82,6 @@ module mapl3g_FieldSpec
       class(VerticalGrid), allocatable :: vertical_grid
       type(VerticalDimSpec) :: vertical_dim_spec = VERTICAL_DIM_UNKNOWN
       type(ESMF_Typekind_flag) :: typekind = ESMF_TYPEKIND_R4
-      type(UngriddedDims) :: ungridded_dims
       type(StringVector) :: attributes
       type(EsmfRegridderParam) :: regrid_param
 
@@ -130,7 +130,6 @@ module mapl3g_FieldSpec
       procedure :: match_geom
       procedure :: match_string
       procedure :: match_vertical_dim_spec
-      procedure :: match_ungridded_dims
    end interface match
 
    interface can_match
@@ -199,15 +198,15 @@ contains
       aspects => field_spec%get_aspects()
 
       call aspects%set_geom_aspect(GeomAspect(geom, regrid_param, horizontal_dims_spec))
-
+      call aspects%set_units_aspect(UnitsAspect(units))
+      call aspects%set_ungridded_dims_aspect(UngriddedDimsAspect(ungridded_dims))
+      
       if (present(vertical_grid)) field_spec%vertical_grid = vertical_grid
       field_spec%vertical_dim_spec = vertical_dim_spec
       field_spec%typekind = typekind
-      field_spec%ungridded_dims = ungridded_dims
 
       if (present(standard_name)) field_spec%standard_name = standard_name
       if (present(long_name)) field_spec%long_name = long_name
-      call aspects%set_units_aspect(UnitsAspect(units))
  
      if (present(attributes)) field_spec%attributes = attributes
 
@@ -228,9 +227,9 @@ contains
       field_spec%accumulation_type = NO_ACCUMULATION
       _SET_FIELD(field_spec, variable_spec, vertical_dim_spec)
       _SET_FIELD(field_spec, variable_spec, typekind)
-      _SET_FIELD(field_spec, variable_spec, ungridded_dims)
       _SET_FIELD(field_spec, variable_spec, attributes)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, standard_name)
+      call field_spec%set_aspect(variable_spec%aspects%get_aspect('UNGRIDDED_DIMS'))
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('UNITS'))
 !#      _SET_ALLOCATED_FIELD(field_spec, variable_spec, units)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, default_value)
@@ -308,12 +307,12 @@ contains
 
       integer :: status
       type(ESMF_FieldStatus_Flag) :: fstatus
-      type(LU_Bound), allocatable :: bounds(:)
 
       integer, allocatable :: num_levels_grid
       integer, allocatable :: num_levels
       type(VerticalStaggerLoc) :: vert_staggerloc
-      class(StateItemAspect), pointer :: geom_aspect, units_aspect
+      class(StateItemAspect), pointer :: geom_aspect, units_aspect, ungridded_dims_aspect
+      type(UngriddedDims), pointer :: ungridded_dims
       character(:), allocatable :: units
 
       _RETURN_UNLESS(this%is_active())
@@ -345,6 +344,19 @@ contains
          _FAIL('unknown stagger')
       end if
 
+      ungridded_dims_aspect => this%get_aspect('UNGRIDDED_DIMS', _RC)
+      ungridded_dims => null()
+      if (associated(ungridded_dims_aspect)) then
+         select type (ungridded_dims_aspect)
+         class is (UngriddedDimsAspect)
+            if (allocated(ungridded_dims_aspect%ungridded_dims)) then
+               ungridded_dims => ungridded_dims_aspect%ungridded_dims
+            end if
+         class default
+            _FAIL('no ungrgeom aspect')
+         end select
+      end if
+
       units_aspect => this%get_aspect('UNITS', _RC)
       select type(units_aspect)
       class is (UnitsAspect)
@@ -354,7 +366,7 @@ contains
       end select
       call MAPL_FieldEmptyComplete(this%payload, &
            typekind=this%typekind, &
-           ungridded_dims=this%ungridded_dims, &
+           ungridded_dims=ungridded_dims, &
            num_levels=num_levels, &
            vert_staggerLoc=vert_staggerLoc, &
            units=units, &
@@ -362,8 +374,6 @@ contains
            long_name=this%long_name, &
            _RC)
     
-      bounds = get_ungridded_bounds(this, _RC)
-
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       _ASSERT(fstatus == ESMF_FIELDSTATUS_COMPLETE, 'ESMF field status problem.')
 
@@ -402,25 +412,6 @@ contains
       _UNUSED_DUMMY(v_list)
    end subroutine write_formatted
 
-   function get_ungridded_bounds(this, rc) result(bounds)
-      type(LU_Bound), allocatable :: bounds(:)
-      type(FieldSpec), intent(in) :: this
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      integer:: num_levels
-      type(LU_Bound) :: vertical_bounds
-
-      _ASSERT(this%vertical_dim_spec /= VERTICAL_DIM_UNKNOWN, 'vertical_dim_spec has not been specified')
-
-      bounds = this%ungridded_dims%get_bounds()
-      if (this%vertical_dim_spec == VERTICAL_DIM_NONE) return
-
-      vertical_bounds = get_vertical_bounds(this%vertical_dim_spec, this%vertical_grid, _RC)
-      bounds = [vertical_bounds, bounds]
-
-      _RETURN(_SUCCESS)
-   end function get_ungridded_bounds
 
    function get_vertical_bounds(vertical_dim_spec, vertical_grid, rc) result(bounds)
       type(LU_Bound) :: bounds
@@ -458,7 +449,6 @@ contains
          procedure :: mirror_string
          procedure :: mirror_real
          procedure :: mirror_vertical_dim_spec
-         procedure :: mirror_ungriddedDims
       end interface mirror
 
       _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
@@ -485,7 +475,6 @@ contains
 !#         call mirror(dst=this%units, src=src_spec%units)
          call mirror(dst=this%vertical_dim_spec, src=src_spec%vertical_dim_spec)
          call mirror(dst=this%default_value, src=src_spec%default_value)
-         call mirror(dst=this%ungridded_dims, src=src_spec%ungridded_dims)
       class default
          _FAIL('Cannot connect field spec to non field spec.')
       end select
@@ -591,23 +580,6 @@ contains
          end if
       end subroutine mirror_real
 
-      subroutine mirror_ungriddedDims(dst, src)
-         type(UngriddedDims), intent(inout) :: dst, src
-
-         type(UngriddedDims) :: mirror_dims
-         mirror_dims = mirror_ungridded_dims()
-
-         if (dst == src) return
-
-         if (dst == mirror_dims) then
-            dst = src
-         end if
-
-         if (src == mirror_dims) then
-            src = dst
-         end if
-      end subroutine mirror_ungriddedDims
-
    end subroutine connect_to
 
    logical function can_connect_to(this, src_spec, rc)
@@ -619,20 +591,26 @@ contains
       logical :: can_convert_units
       integer :: status
       class(StateItemAspect), pointer :: src_units, dst_units
+      type(StringVector), target :: aspect_list
+      type(StringVectorIterator) :: aspect_iter
+
 
       select type(src_spec)
       class is (FieldSpec)
-         src_units => src_spec%get_aspect('UNITS', _RC)
-         dst_units => this%get_aspect('UNITS', _RC)
-         can_convert_units = src_units%can_connect_to(dst_units)
-!#         can_convert_units = can_connect_units(this%units, src_spec%units, _RC)
+         aspect_list = src_spec%get_aspect_order(this)
+         aspect_iter = aspect_list%ftn_begin()
+         associate (e => aspect_list%ftn_end())
+           do while (aspect_iter /= e)
+              call aspect_iter%next()
+              can_connect_to = can_connect_aspect(src_spec, this, aspect_iter%of())
+              _RETURN_UNLESS(can_connect_to)
+           end do
+         end associate
+
          can_connect_to = all ([ &
-!#              can_match(this%geom,src_spec%geom), &
               can_match(this%vertical_grid, src_spec%vertical_grid), &
               match(this%vertical_dim_spec, src_spec%vertical_dim_spec), &
-              match(this%ungridded_dims, src_spec%ungridded_dims), &
-              includes(this%attributes, src_spec%attributes), &
-              can_convert_units &
+              includes(this%attributes, src_spec%attributes) &
               ])
       class default
          can_connect_to = .false.
@@ -640,6 +618,30 @@ contains
       _RETURN(_SUCCESS)
 
    contains
+
+      logical function can_connect_aspect(src_spec, dst_spec, aspect_name)
+         class(StateItemSpec), intent(in) :: src_spec
+         class(StateItemSpec), intent(in) :: dst_spec
+         character(len=*), intent(in) :: aspect_name
+
+         integer :: status
+         class(StateItemAspect), pointer :: src_aspect, dst_aspect
+
+         src_aspect => src_spec%get_aspect(aspect_name)
+         if (.not. associated(src_aspect)) then
+            can_connect_aspect = .false.
+            return
+         end if
+
+         dst_aspect => dst_spec%get_aspect(aspect_name)
+         if (.not. associated(dst_aspect)) then
+            can_connect_aspect = .false.
+            return
+         end if
+
+         can_connect_aspect = src_aspect%can_connect_to(dst_aspect)
+
+      end function can_connect_aspect
 
       logical function includes(mandatory, provided)
          type(StringVector), target, intent(in) :: mandatory
@@ -778,17 +780,6 @@ contains
       n_mirror = count([a,b] == VERTICAL_DIM_MIRROR)
       match = (n_mirror == 1) .or. (n_mirror == 0 .and. a == b)
    end function match_vertical_dim_spec
-
-   logical function match_ungridded_dims(a, b) result(match)
-      type(UngriddedDims), intent(in) :: a, b
-
-      type(UngriddedDims) :: mirror_dims
-      integer :: n_mirror
-
-      mirror_dims = MIRROR_UNGRIDDED_DIMS()
-      n_mirror = count([a == mirror_dims, b == mirror_dims])
-      match = (n_mirror == 1) .or. (n_mirror == 0 .and. a == b)
-   end function match_ungridded_dims
 
    logical function mirror(str)
       character(:), allocatable :: str
@@ -1010,7 +1001,7 @@ contains
       class(FieldSpec), intent(in) :: src_spec
       class(StateItemSpec), intent(in) :: dst_spec
 
-      order = 'GEOM::UNITS'
+      order = 'UNGRIDDED_DIMS::GEOM::UNITS'
    end function get_aspect_priorities
    
 

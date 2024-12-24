@@ -4,6 +4,7 @@ module mapl3g_VariableSpec
    use mapl3g_AspectCollection
    use mapl3g_GeomAspect
    use mapl3g_UnitsAspect
+   use mapl3g_UngriddedDimsAspect
    use mapl3g_UngriddedDims
    use mapl3g_VerticalDimSpec
    use mapl3g_HorizontalDimsSpec
@@ -50,7 +51,6 @@ module mapl3g_VariableSpec
       ! Geometry
       type(VerticalDimSpec) :: vertical_dim_spec = VERTICAL_DIM_UNKNOWN ! none, center, edge
       type(HorizontalDimsSpec) :: horizontal_dims_spec = HORIZONTAL_DIMS_GEOM ! none, geom
-      type(UngriddedDims) :: ungridded_dims
       type(StringVector) :: dependencies
    contains
       procedure :: make_virtualPt
@@ -109,6 +109,8 @@ contains
       regrid_param_ = get_regrid_param(regrid_param, standard_name)
       call var_spec%aspects%set_geom_aspect(GeomAspect(geom, regrid_param_, horizontal_dims_spec))
 
+      call var_spec%aspects%set_ungridded_dims_aspect(UngriddedDimsAspect(ungridded_dims))
+
       _SET_OPTIONAL(standard_name)
       _SET_OPTIONAL(itemtype)
 
@@ -117,7 +119,6 @@ contains
       _SET_OPTIONAL(service_items)
       _SET_OPTIONAL(default_value)
       _SET_OPTIONAL(vertical_dim_spec)
-      _SET_OPTIONAL(ungridded_dims)
       _SET_OPTIONAL(attributes)
       _SET_OPTIONAL(bracket_size)
       _SET_OPTIONAL(dependencies)

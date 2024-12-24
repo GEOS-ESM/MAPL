@@ -32,7 +32,7 @@ module mapl3g_AspectCollection
       procedure :: set_units_aspect
 
       procedure :: get_ungridded_dims_aspect
-      procedure :: set_ungrided_dims_aspect
+      procedure :: set_ungridded_dims_aspect
       
    end type AspectCollection
 
@@ -82,7 +82,7 @@ contains
       character(*), intent(in) :: name
 
       select case (name)
-      case ('GEOM', 'UNITS', 'UNGRIDDED_DIMS'
+      case ('GEOM', 'UNITS', 'UNGRIDDED_DIMS')
          has_aspect = .true.
       case default
          has_aspect = .false.
@@ -102,7 +102,7 @@ contains
          this%geom_aspect = aspect
       type is (UnitsAspect)
          this%units_aspect = aspect
-      type is (UngriddedAspect)
+      type is (UngriddedDimsAspect)
          this%ungridded_dims_aspect = aspect
       class default
          _FAIL('unsupported aspect type: ')
@@ -150,11 +150,11 @@ contains
       end if
    end function get_ungridded_dims_aspect
 
-   subroutine set_ungrided_dims_aspect(this, ungridded_dims_aspect)
+   subroutine set_ungridded_dims_aspect(this, ungridded_dims_aspect)
       class(AspectCollection), intent(inout) :: this
       type(UngriddedDimsAspect), intent(in) :: ungridded_dims_aspect
       this%ungridded_dims_aspect = ungridded_dims_aspect
-   end subroutine set_ungrided_dims_aspect
+   end subroutine set_ungridded_dims_aspect
 
 end module mapl3g_AspectCollection
 
