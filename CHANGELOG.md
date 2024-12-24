@@ -10,12 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added loggers when writing or reading weight files
+- Added new option to AGCM.rc `overwrite_checkpoint` to allow checkpoint files to be overwritten. By default still will not overwrite checkpoints
 
 ### Changed
 
 - Increased formatting width of time index in ExtData2G diagnostic print
 
 ### Fixed
+
+- Fixed bug with return codes and macros in udunits2f
 
 ### Removed
 
