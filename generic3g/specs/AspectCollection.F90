@@ -110,7 +110,7 @@ contains
       type is (UnitsAspect)
          this%units_aspect = aspect
       type is (TypekindAspect)
-         this%units_aspect = aspect
+         this%typekind_aspect = aspect
       type is (UngriddedDimsAspect)
          this%ungridded_dims_aspect = aspect
       class default

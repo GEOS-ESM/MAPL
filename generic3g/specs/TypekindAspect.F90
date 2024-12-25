@@ -6,6 +6,7 @@ module mapl3g_TypekindAspect
    use mapl3g_Copyaction
    use mapl3g_NullAction
    use mapl_ErrorHandling
+   use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
    use esmf
    implicit none
    private
@@ -37,7 +38,7 @@ contains
       call aspect%set_mirror(.true.)
       if (present(typekind)) then
          aspect%typekind = typekind
-         call aspect%set_mirror(.false.)
+         call aspect%set_mirror(typekind == MAPL_TYPEKIND_MIRROR)
       end if
 
    end function new_TypekindAspect
@@ -59,7 +60,7 @@ contains
 
       select type(dst)
       class is (TypekindAspect)
-         matches = (src%typekind == dst%typekind)
+         matches = (src%typekind == dst%typekind) .or. count([src%typekind,dst%typekind]==MAPL_TYPEKIND_MIRROR) == 1
       class default
          matches = .false.
       end select

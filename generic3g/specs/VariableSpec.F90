@@ -4,6 +4,7 @@ module mapl3g_VariableSpec
    use mapl3g_AspectCollection
    use mapl3g_GeomAspect
    use mapl3g_UnitsAspect
+   use mapl3g_TypekindAspect
    use mapl3g_UngriddedDimsAspect
    use mapl3g_UngriddedDims
    use mapl3g_VerticalDimSpec
@@ -36,7 +37,6 @@ module mapl3g_VariableSpec
       ! Mandatory values:
       type(ESMF_StateIntent_Flag) :: state_intent
       character(:), allocatable :: short_name
-      type(ESMF_TypeKind_Flag) :: typekind = ESMF_TYPEKIND_R4
 
       ! Metadata
       character(:), allocatable :: standard_name
@@ -110,12 +110,12 @@ contains
       call var_spec%aspects%set_geom_aspect(GeomAspect(geom, regrid_param_, horizontal_dims_spec))
 
       call var_spec%aspects%set_ungridded_dims_aspect(UngriddedDimsAspect(ungridded_dims))
+      call var_spec%aspects%set_typekind_aspect(TypekindAspect(typekind))
 
       _SET_OPTIONAL(standard_name)
       _SET_OPTIONAL(itemtype)
 
       _SET_OPTIONAL(substate)
-      _SET_OPTIONAL(typekind)
       _SET_OPTIONAL(service_items)
       _SET_OPTIONAL(default_value)
       _SET_OPTIONAL(vertical_dim_spec)
