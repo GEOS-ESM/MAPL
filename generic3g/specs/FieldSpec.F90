@@ -167,7 +167,7 @@ contains
       class(VerticalGrid), optional, intent(in) :: vertical_grid
       type(VerticalDimSpec), intent(in) :: vertical_dim_spec
       type(ESMF_Typekind_Flag), intent(in) :: typekind
-      type(UngriddedDims), intent(in) :: ungridded_dims
+      type(UngriddedDims), optional, intent(in) :: ungridded_dims
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: long_name

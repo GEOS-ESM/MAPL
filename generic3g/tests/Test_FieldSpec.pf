@@ -273,19 +273,18 @@ contains
       type(FieldSpec) :: export_spec
       type(ESMF_Geom) :: geom
 
-      type(UngriddedDims) :: mirror_ungrid, export_dims
+      type(UngriddedDims) :: export_dims
       type(UngriddedDimVector) :: ungrid_dims
       type(UngriddedDim) :: ungrid_dim
 
-      mirror_ungrid = mirror_ungridded_dims()
       ungrid_dim = UngriddedDim(2)
       call ungrid_dims%push_back(ungrid_dim)
       export_dims = UngriddedDims(ungrid_dims)
 
+      ! Mirror ungrids by not specifying anything
       import_spec = FieldSpec( &
            geom=geom, vertical_grid=BasicVerticalGrid(1), vertical_dim_spec=VerticalDimSpec(), &
            typekind=ESMF_TYPEKIND_R4, &
-           ungridded_dims = mirror_ungrid, &
            standard_name='A', long_name='AA', attributes=StringVector(), &
            units='m')
 
