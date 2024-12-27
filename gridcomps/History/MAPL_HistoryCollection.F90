@@ -47,12 +47,15 @@ module MAPL_HistoryCollectionMod
      integer                            :: acc_offset
      integer                            :: ref_date
      integer                            :: ref_time
+     integer                            :: start_date
+     integer                            :: start_time
      integer                            :: end_date
      integer                            :: end_time
      integer                            :: duration
      type(ESMF_Alarm)                   :: his_alarm ! when to write file
      type(ESMF_Alarm)                   :: seg_alarm ! segment alarm controls when to write to new file
      type(ESMF_Alarm)                   :: mon_alarm
+     type(ESMF_Alarm)                   :: start_alarm
      type(ESMF_Alarm)                   :: end_alarm
      integer,pointer                    :: expSTATE (:)
      integer                            :: unit
@@ -70,6 +73,7 @@ module MAPL_HistoryCollectionMod
      integer                            :: verbose
      integer                            :: xyoffset
      logical                            :: disabled
+     logical                            :: skipWriting
      logical                            :: subVm
      logical                            :: backwards ! Adds support for clock running in reverse direction
      logical                            :: useNewFormat
