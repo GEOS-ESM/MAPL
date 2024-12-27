@@ -811,6 +811,17 @@ contains
                                       label=trim(string) // 'ref_time:',_RC )
        _ASSERT(is_valid_time(list(n)%ref_time),'Invalid ref_time')
 
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%start_date, default=-999, &
+                                      label=trim(string) // 'start_date:',_RC )
+       if (list(n)%start_date /= -999) then
+          _ASSERT(is_valid_date(list(n)%start_date),'Invalid start_date')
+       end if
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%start_time, default=-999, &
+                                      label=trim(string) // 'start_time:',_RC )
+       if (list(n)%start_time /= -999) then
+          _ASSERT(is_valid_time(list(n)%start_time),'Invalid start_time')
+       end if
+
        call ESMF_ConfigGetAttribute ( cfg, list(n)%end_date, default=-999, &
                                       label=trim(string) // 'end_date:',_RC )
        if (list(n)%end_date /= -999) then
@@ -1348,6 +1359,34 @@ contains
           list(n)%his_alarm = list(n)%mon_alarm
           intState%stampOffset(n) = Frequency ! we go to the beginning of the month
        end if
+
+! End Alarm based on start_date and start_time
+! ----------------------------------------
+       if( list(n)%start_date.ne.-999 .and. list(n)%start_time.ne.-999 ) then
+          REF_TIME(1) =     list(n)%start_date/10000
+          REF_TIME(2) = mod(list(n)%start_date,10000)/100
+          REF_TIME(3) = mod(list(n)%start_date,100)
+          REF_TIME(4) =     list(n)%start_time/10000
+          REF_TIME(5) = mod(list(n)%start_time,10000)/100
+          REF_TIME(6) = mod(list(n)%start_time,100)
+
+          call ESMF_TimeSet( RingTime, YY = REF_TIME(1), &
+                                       MM = REF_TIME(2), &
+                                       DD = REF_TIME(3), &
+                                       H  = REF_TIME(4), &
+                                       M  = REF_TIME(5), &
+                                       S  = REF_TIME(6), calendar=cal, rc=rc )
+       else
+          RingTime = CurrTime
+       end if
+       list(n)%start_alarm = ESMF_AlarmCreate( clock=clock, RingTime=RingTime, sticky=.false., _RC )
+
+       list(n)%skipWriting = .true.
+       if (RingTime == CurrTime) then
+          call  ESMF_AlarmRingerOn(list(n)%start_alarm, _RC )
+          list(n)%skipWriting = .false.
+       endif
+
 
 ! End Alarm based on end_date and end_time
 ! ----------------------------------------
@@ -3428,6 +3467,14 @@ ENDDO PARSER
   ! decide if we are writing based on alarms
 
    do n=1,nlist
+      if (list(n)%skipWriting) then
+         if (ESMF_AlarmIsRinging(list(n)%start_alarm)) then
+            list(n)%skipWriting = .false.
+         endif
+      endif
+   end do
+
+   do n=1,nlist
       if (list(n)%disabled .or. ESMF_AlarmIsRinging(list(n)%end_alarm) ) then
          list(n)%disabled = .true.
          Writing(n) = .false.
@@ -3453,6 +3500,8 @@ ENDDO PARSER
             call ESMF_AlarmRingerOff( list(n)%seg_alarm,_RC )
          end if
       end if
+
+      if (list(n)%skipWriting) writing(n) = .false.
 
        if (writing(n) .and. .not.IntState%average(n)) then
           ! R8 to R4 copy (if needed!)
