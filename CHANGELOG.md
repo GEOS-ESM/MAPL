@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+Added optional start_date and start_time to control the output window for each History collection. No output will be written before then. If not specified, these default to the beginning of the experiment.
 
 ### Changed
 
