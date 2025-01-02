@@ -1385,7 +1385,11 @@ contains
        if (RingTime == CurrTime) then
           call  ESMF_AlarmRingerOn(list(n)%start_alarm, _RC )
           list(n)%skipWriting = .false.
-       endif
+       else
+          if (RingTime < CurrTime) then
+             list(n)%skipWriting = .false.
+          endif
+       end if
 
 
 ! End Alarm based on end_date and end_time
