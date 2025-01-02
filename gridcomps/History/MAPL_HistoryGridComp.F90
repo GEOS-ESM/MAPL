@@ -1386,7 +1386,7 @@ contains
           call  ESMF_AlarmRingerOn(list(n)%start_alarm, _RC )
           list(n)%skipWriting = .false.
        else
-          if (RingTime < CurrTime) then
+          if (RingTime < CurrTime .NEQV. list(n)%backwards) then
              list(n)%skipWriting = .false.
           endif
        end if
