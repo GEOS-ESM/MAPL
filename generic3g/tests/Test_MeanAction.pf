@@ -1,17 +1,18 @@
 #include "MAPL_TestErr.h"
 module Test_MeanAction
-
    use mapl3g_MeanAction
    use accumulator_action_test_common
    use esmf
-   use funit
+   use pfunit
    use MAPL_FieldUtils
+   use ESMF_TestMethod_mod
    implicit none
 
 contains
 
-   @Test
-   subroutine test_calculate_mean_R4()
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_calculate_mean_R4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(MeanAction) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
@@ -46,11 +47,13 @@ contains
       call acc%calculate_mean_R4(_RC)
       @assertTrue(all(pack(fptr, mask) == MEAN), 'Some valid points not equal to MEAN')
       @assertTrue(undef(fptr(n)), 'mean at point was not UNDEF')
+      call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_calculate_mean_R4
 
-   @Test
-   subroutine test_clear()
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_clear(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(MeanAction) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
@@ -71,8 +74,9 @@ contains
 
    end subroutine test_clear
 
-   @Test
-   subroutine test_invalidate()
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_invalidate(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(MeanAction) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
@@ -97,50 +101,51 @@ contains
       counter_is_set = all(fptr == N)
       @assertTrue(counter_is_set, 'counter_scalar not equal to N')
       call destroy_objects(importState, exportState, clock, _RC)
+      call ESMF_FieldDestroy(importField)
 
    end subroutine test_invalidate
 
-   @Test
-   subroutine test_accumulate_mean_R4()
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_accumulate_mean_R4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(MeanAction) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
       integer :: status
-      type(ESMF_Field) :: update_field
-      real(kind=ESMF_KIND_R4), pointer :: upPtr(:), accPtr(:)
-      real(kind=ESMF_KIND_R4), parameter :: IMPORT_VALUE = 2.0_R4
       real(kind=ESMF_KIND_R4), parameter :: UPDATE_VALUE = 3.0_R4
-      real(kind=ESMF_KIND_R4) :: result_value = IMPORT_VALUE
+      type(ESMF_Field) :: update_field
+      real(kind=ESMF_KIND_R4), pointer :: upPtr(:) => null()
+      real(kind=ESMF_KIND_R4), pointer :: accPtr(:) => null()
+      integer(kind=I4), pointer :: countPtr(:) => null()
+      integer(kind=I4), allocatable :: expected_count(:)
       integer :: n
-      type(ESMF_Field) :: importField
 
       call initialize_objects(importState, exportState, clock, ESMF_TYPEKIND_R4, _RC)
-      call get_field(importState, importField, _RC)
-      call FieldSet(importField, IMPORT_VALUE, _RC)
       call acc%initialize(importState, exportState, clock, _RC)
       call initialize_field(update_field, acc%accumulation_field, _RC)
+      ! set update field
+      call FieldSet(update_field, UPDATE_VALUE, _RC)
       call assign_fptr(update_field, upPtr, _RC)
-      upPtr = UPDATE_VALUE
-
-      ! update_field not undef
+      ! set last element of update field to UNDEF
+      n = size(upPtr)
+      call set_undef(upPtr(n))
+      ! run subroutine to test
       call acc%accumulate_R4(update_field, _RC)
-      result_value = result_value + UPDATE_VALUE
       call assign_fptr(acc%accumulation_field, accPtr, _RC)
-      @assertTrue(all(accPtr == result_value), 'accumulation_field not equal to expected value.')
+      call assign_fptr(acc%counter_field, countPtr, _RC)
+      allocate(expected_count(size(countPtr)))
+      expected_count = 1_I4
+      expected_count(n) = 0_I4
+      @assertEqual(expected_count, countPtr, 'Counts do not match.')
 
-      ! update_field undef at point
-      call FieldSet(importField, result_value, _RC)
-      call acc%initialize(importState, exportState, clock, _RC)
-      call acc%accumulate_R4(update_field, _RC)
-      result_value = result_value + UPDATE_VALUE
-      @assertTrue(undef(accPtr(n)), 'invalid point is not UNDEF')
-      @assertTrue(all(pack(accPtr, .not. undef(upPtr)) == result_value), 'valid point not equal to expected value.')
+      call ESMF_FieldDestroy(update_field)
       call destroy_objects(importState, exportState, clock, _RC)
 
    end subroutine test_accumulate_mean_R4
 
-   @Test
-   subroutine test_initialize()
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_initialize(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(MeanAction) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
@@ -157,8 +162,9 @@ contains
 
    end subroutine test_initialize
 
-   @Test
-   subroutine test_accumulate_with_undef_some_steps()
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_accumulate_with_undef_some_steps(this)
+      class(ESMF_TestMethod), intent(inout) :: this
       type(MeanAction) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
@@ -199,6 +205,8 @@ contains
       call assign_fptr(acc%accumulation_field, accPtr, _RC)
       @assertEqual(4*UPDATE_VALUE, accPtr(n), 'Missing point does not match.')
       @assertTrue(all(pack(accPtr, mask) == 5*UPDATE_VALUE), 'Other points do not match.')
+      call destroy_objects(importState, exportState, clock, _RC)
+      call ESMF_FieldDestroy(update_field)
 
    end subroutine test_accumulate_with_undef_some_steps
 

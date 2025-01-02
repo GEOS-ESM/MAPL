@@ -11,6 +11,7 @@ module accumulator_action_test_common
 
    integer, parameter :: R4 = ESMF_KIND_R4
    integer, parameter :: R8 = ESMF_KIND_R8
+   integer, parameter :: I4 = ESMF_KIND_I4
    integer, parameter :: I8 = ESMF_KIND_I8
    integer(kind=ESMF_KIND_I4), parameter :: TIME_STEP = 1
    integer(kind=ESMF_KIND_I4), parameter :: START_TIME = 3000
