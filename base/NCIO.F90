@@ -1128,8 +1128,6 @@ module NCIOMod
        call mpi_gatherv( a, size(a), MPI_REAL, recvbuf, recvcounts, displs, MPI_REAL, &
                       0, arrdes%iogathercomm, status )
        _VERIFY(STATUS)
-       call MPI_Barrier(arrdes%iogathercomm,status)
-       _VERIFY(STATUS)
 
        if(myiorank==0) then
 
@@ -2706,8 +2704,6 @@ module NCIOMod
        call mpi_gatherv( a, size(a), MPI_DOUBLE_PRECISION, recvbuf, recvcounts, displs, &
                          MPI_DOUBLE_PRECISION, 0, arrdes%iogathercomm, status )
        _VERIFY(STATUS)
-       call MPI_Barrier(arrdes%iogathercomm,status)
-       _VERIFY(STATUS)
 
        if(myiorank==0) then
 
@@ -3516,11 +3512,12 @@ module NCIOMod
   _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_ArrayReadNCpar_3d
 
-  subroutine MAPL_BundleWriteNCPar(Bundle, arrdes, CLOCK, filename, oClients, rc)
+  subroutine MAPL_BundleWriteNCPar(Bundle, arrdes, CLOCK, filename, clobber, oClients, rc)
     type(ESMF_FieldBundle), intent(inout)   :: Bundle
     type(ArrDescr), intent(inout)           :: arrdes
     type(ESMF_Clock), intent(in)            :: CLOCK
     character(len=*), intent(in  )         :: filename
+    logical, intent(in)                    :: clobber
     type (ClientManager), optional, intent(inout) :: oClients
     integer, optional, intent(out)          :: rc
 
@@ -3586,6 +3583,8 @@ module NCIOMod
     type(ESMF_Field) :: lons_field, lats_field
     logical :: isGridCapture, have_oclients
     real(kind=ESMF_KIND_R8), pointer :: grid_lons(:,:), grid_lats(:,:), lons_field_ptr(:,:), lats_field_ptr(:,:)
+    integer :: pfio_mode
+
     have_oclients = present(oClients)
 
     call ESMF_FieldBundleGet(Bundle,FieldCount=nVars, name=BundleName, rc=STATUS)
@@ -4178,9 +4177,11 @@ module NCIOMod
 
     else
 
+       pfio_mode = PFIO_NOCLOBBER 
+       if (clobber) pfio_mode = PFIO_CLOBBER
        if (arrdes%writers_comm /= mpi_comm_null) then
           if (arrdes%num_writers == 1) then
-             call formatter%create(trim(filename), rc=status)
+             call formatter%create(trim(filename), mode=pfio_mode, rc=status)
              _VERIFY(status)
              call formatter%write(cf,rc=status)
              _VERIFY(STATUS)
@@ -4193,7 +4194,7 @@ module NCIOMod
                 _VERIFY(status)
                 call cf%add_attribute("Split_Cubed_Sphere", writer_rank, _RC)
              else
-                call formatter%create_par(trim(filename),comm=arrdes%writers_comm,info=info,rc=status)
+                call formatter%create_par(trim(filename),mode=pfio_mode,comm=arrdes%writers_comm,info=info,rc=status)
                 _VERIFY(status)
              endif
              call formatter%write(cf,rc=status)
@@ -4311,13 +4312,14 @@ module NCIOMod
 
   end subroutine MAPL_BundleWriteNCPar
 
-  subroutine MAPL_StateVarWriteNCPar(filename, STATE, ARRDES, CLOCK, NAME, forceWriteNoRestart, oClients, RC)
+  subroutine MAPL_StateVarWriteNCPar(filename, STATE, ARRDES, CLOCK, NAME, forceWriteNoRestart, clobber, oClients, RC)
     character(len=*)            , intent(IN   ) :: filename
     type (ESMF_State)           , intent(IN   ) :: STATE
     type(ArrDescr)              , intent(INOUT) :: ARRDES
     type(ESMF_Clock)            , intent(IN   ) :: CLOCK
     character(len=*),   optional, intent(IN   ) :: NAME
     logical,            optional, intent(IN   ) :: forceWriteNoRestart
+    logical,            optional, intent(in  ) :: clobber
     type (ClientManager), optional, intent(inout) :: oClients
     integer,            optional, intent(  OUT) :: RC
 
@@ -4343,6 +4345,7 @@ module NCIOMod
     logical                            :: is_test_framework, isGridCapture
     integer :: fieldIsValid
     type(ESMF_Array) :: array
+    logical :: local_clobber
 
     call ESMF_StateGet(STATE,ITEMCOUNT=ITEMCOUNT,RC=STATUS)
     _VERIFY(STATUS)
@@ -4362,9 +4365,9 @@ module NCIOMod
     _VERIFY(STATUS)
 
     forceWriteNoRestart_ = .false.
-    if(present(forceWriteNoRestart)) then
-       forceWriteNoRestart_ = forceWriteNoRestart
-    endif
+    if(present(forceWriteNoRestart)) forceWriteNoRestart_ = forceWriteNoRestart
+    local_clobber = .false.
+    if (present(clobber)) local_clobber = clobber
 
     if(present(NAME)) then
        DOIT = ITEMNAMES==NAME
@@ -4498,7 +4501,7 @@ module NCIOMod
        call ESMF_AttributeSet(bundle_write, name="MAPL_GridCapture", value=isGridCapture, _RC)
     end if
 
-    call MAPL_BundleWriteNCPar(Bundle_Write, arrdes, CLOCK, filename, oClients=oClients, rc=status)
+    call MAPL_BundleWriteNCPar(Bundle_Write, arrdes, CLOCK, filename, clobber=local_clobber, oClients=oClients, rc=status)
     _VERIFY(STATUS)
 
     _RETURN(ESMF_SUCCESS)
