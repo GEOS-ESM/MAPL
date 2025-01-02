@@ -75,6 +75,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added loggers when writing or reading weight files
+- Added new option to AGCM.rc `overwrite_checkpoint` to allow checkpoint files to be overwritten. By default still will not overwrite checkpoints
 
 ### Changed
 
@@ -82,9 +83,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed bug with return codes and macros in udunits2f
+
 ### Removed
 
 ### Deprecated
+
+## [2.51.2] - 2024-12-19
+
+### Changed
+
+- Removed restriction that vector regridding in ExtData2G must be bilinear
+- Update CI to use Ubuntu 24 images
+
+### Fixed
+
+- Fixed by when using multiple rules for a vector item in ExtData2G
+- Fix profiler ExclusiveColumn test for GCC 14
 
 ## [2.51.1] - 2024-12-10
 

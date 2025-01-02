@@ -65,7 +65,7 @@ contains
    function new_CouplerMetaComponent(action, source) result (this)
       type(CouplerMetaComponent) :: this
       class(ExtensionAction), intent(in) :: action
-      type(GriddedComponentDriver), target, optional, intent(in) :: source
+      class(ComponentDriver), target, optional, intent(in) :: source
 
       type(ComponentDriverPtr) :: source_wrapper
 
