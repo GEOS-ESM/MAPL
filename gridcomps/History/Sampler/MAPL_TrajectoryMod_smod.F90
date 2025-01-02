@@ -540,7 +540,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          real(REAL64)              :: t_shift
          integer,           allocatable :: obstype_id_full(:)
          integer,           allocatable :: location_index_ioda_full(:)
+         integer,           allocatable :: location_index_ioda_full_aux(:)
          integer,           allocatable :: IA_full(:)
+
 
          real(ESMF_KIND_R8), pointer :: ptAT(:)
          type(ESMF_routehandle) :: RH
@@ -553,7 +555,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(ESMF_VM) :: vm
          integer :: mypet, petcount, mpic
 
-         integer :: i, j, k, L, ii, jj
+         integer :: i, j, k, L, ii, jj, jj2, jj3
          integer :: fid_s, fid_e
          integer(kind=ESMF_KIND_I8) :: j0, j1
          integer(kind=ESMF_KIND_I8) :: jt1, jt2
@@ -612,7 +614,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               trim(this%var_name_lat),trim(this%var_name_time))
 
          L=0
-         fid_s=this%obsfile_Ts_index
+         fid_s=this%obsfile_Ts_index    ! this is downshifted by 1 in MAPL_ObsUtil.F90
          fid_e=this%obsfile_Te_index
 
          call lgr%debug('%a %i10 %i10', &
@@ -620,9 +622,14 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          arr(1)=0     ! len_full
          if (mapl_am_I_root()) then
+            !
+            ! __ s1. scan 1st time: determine len
             len = 0
             do k=1, this%nobs_type
                j = max (fid_s, L)
+               jj2 = 0           ! obs(k) count location
+               this%obs(k)%count_location_until_matching_file = 0   ! init
+               this%obs(k)%count_location_in_matching_file = 0      ! init
                do while (j<=fid_e)
                   filename = get_filename_from_template_use_index( &
                        this%obsfile_start_time, this%obsfile_interval, &
@@ -632,6 +639,14 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                      call lgr%debug('%a %a',   'exist: true filename       :', trim(filename))
                      call get_ncfile_dimension(filename, tdim=num_times, key_time=this%index_name_x, _RC)
                      len = len + num_times
+                     jj2 = jj2 + num_times
+                     if (j==fid_s) then
+                        this%obs(k)%count_location_until_matching_file = jj2
+                        write(6,'(2x,a,2x,i10)') 'this%obs(k)%count_location_until_matching_file', this%obs(k)%count_location_until_matching_file
+                     elseif (j==fid_s+1) then
+                        this%obs(k)%count_location_in_matching_file = num_times
+                        write(6,'(2x,a,2x,i10)') 'this%obs(k)%count_location_in_matching_file', this%obs(k)%count_location_in_matching_file
+                     end if
                   else
                      call lgr%debug('%a %i10', 'non-exist: filename fid j  :', j)
                      call lgr%debug('%a %a',   'non-exist: missing filename:', trim(filename))
@@ -641,6 +656,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             enddo
             arr(1)=len
 
+
+            !
+            ! __ s2. scan 2nd time: read time ect. into array, set location_index
             if (len>0) then
                allocate(lons_full(len),lats_full(len),_STAT)
                allocate(times_R8_full(len),_STAT)
@@ -652,6 +670,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                ii = 0
                do k=1, this%nobs_type
                   j = max (fid_s, L)
+                  jj2 = 0           ! obs(k) count location
                   do while (j<=fid_e)
                      filename = get_filename_from_template_use_index( &
                           this%obsfile_start_time, this%obsfile_interval, &
@@ -671,7 +690,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         times_R8_full(len+1:len+num_times) = times_R8_full(len+1:len+num_times) + t_shift
                         obstype_id_full(len+1:len+num_times) = k
                         do jj = 1, num_times
-                           location_index_ioda_full(len+jj) = jj
+                           jj2 = jj2 + 1
+                           location_index_ioda_full(len+jj) = jj2 - this%obs(k)%count_location_until_matching_file
+!! ygyu debug
+!!                           write(6,'(2x,a,2x,i10)')  'location_index_ioda_full(len+jj) = ', location_index_ioda_full(len+jj)
                         end do
                         len = len + num_times
                      end if
@@ -681,6 +703,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             end if
          end if
 
+         !call MPI_Barrier(mpic,ierr)
+         !stop 'nail 1'
 
          call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx_sum, &
               count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
@@ -708,10 +732,16 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call MAPL_CommsBcast(vm, this%datetime_units, N=ESMF_MAXSTR, ROOT=MAPL_Root, _RC)
 
 
-
          if (mapl_am_I_root()) then
             call sort_index (times_R8_full, IA_full, _RC)
-            location_index_ioda_full(:) = IA_full(:)
+            !! ygyu:  this is a complete reshuffle, but output the index of the sorted array
+            !!        I need the content of location_index_ioda_full
+            allocate(location_index_ioda_full_aux, source=location_index_ioda_full, _STAT)
+            do jj = 1, nx_sum
+               location_index_ioda_full(jj) = location_index_ioda_full_aux(IA_full(jj))
+            end do
+            deallocate(location_index_ioda_full_aux)
+            !! location_index_ioda_full(:) = IA_full(:)
             ! NVHPC dies with NVFORTRAN-S-0155-Could not resolve generic procedure sort_multi_arrays_by_time
             call sort_four_arrays_by_time(lons_full, lats_full, times_R8_full, obstype_id_full, _RC)
             call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
@@ -827,8 +857,17 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                     'epoch_index(1:2), nx', this%epoch_index(1), &
                     this%epoch_index(2), this%nobs_epoch)
                do k=1, this%nobs_type
-                  call lgr%debug('%a %i4 %a %i12', &
-                       'obs(', k, ')%nobs_epoch', this%obs(k)%nobs_epoch )
+                  call lgr%debug('%a %i4 %a %i12 %i12 %i12', &
+                       'obs(', k, ')%nobs_epoch, %count_location_in_matching_file, diff', &
+                       this%obs(k)%nobs_epoch, this%obs(k)%count_location_in_matching_file, &
+                       this%obs(k)%nobs_epoch - this%obs(k)%count_location_in_matching_file )
+                  j = this%obs(k)%nobs_epoch - this%obs(k)%count_location_in_matching_file
+                  _ASSERT(j==0, 'count_location_in_matching_file diff from cutted nobs_epoch')
+                  j = minval(this%obs(k)%location_index_ioda(:))
+                  _ASSERT(j==1, 'this%obs(k)%location_index_ioda(:) did not start from 1')
+                  j = maxval(this%obs(k)%location_index_ioda(:))
+                  _ASSERT(j==this%obs(k)%count_location_in_matching_file, &
+                       'this%obs(k)%location_index_ioda(:) did not end at obs file max pts')
                enddo
             end if
          else
