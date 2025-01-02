@@ -91,7 +91,7 @@ contains
          if (coord_var%is_attribute_present("units"))  temp_units = coord_var%get_attribute_string("units")
 
          ! now test if this is a "fixed" pressure level, if has units of pressure, then CF says is pressure dimensional coordinate
-         has_pressure_units = UDUNITS_are_convertible(temp_units, 'hPa', _RC)
+         has_pressure_units = safe_are_convertible(temp_units, 'hPa', _RC)
          if (has_pressure_units) then
             vertical_coord%level_units = temp_units
             vertical_coord%vertical_type = fixed_pressure
@@ -99,7 +99,7 @@ contains
             _RETURN(_SUCCESS)
          end if
          ! now test if this is a "fixed" height level, if has height units, then dimensioanl coordinate, but must have positive 
-         has_height_units = UDUNITS_are_convertible(temp_units, 'M', _RC)
+         has_height_units = safe_are_convertible(temp_units, 'm', _RC)
          if (has_height_units) then
             _ASSERT(allocated(vertical_coord%positive),"non pressure veritcal dimensional coordinates must have positive attribute")
             vertical_coord%level_units = temp_units
@@ -179,13 +179,14 @@ contains
        character(len=:), allocatable :: units
        character(len=3) :: pressure_hpa
 
+       is_vertical_coord_var = .false.
        pressure_hpa = "Pa"
        has_positive = var%is_attribute_present("positive", _RC)
        has_units = var%is_attribute_present("units", _RC)
        has_pressure_units = .false.
        if (has_units) then
           units = var%get_attribute_string("units", _RC) 
-          has_pressure_units = UDUNITS_are_convertible(units, pressure_hpa, _RC)
+          has_pressure_units = safe_are_convertible(units, pressure_hpa, _RC)
        end if
        is_vertical_coord_var = has_pressure_units .or. has_positive
        _RETURN(_SUCCESS)
@@ -248,5 +249,29 @@ contains
        end if
 
     end function find_term
+
+    function safe_are_convertible(from, to, rc) result(convertible)
+       logical :: convertible
+       character(*), intent(in) :: from, to
+       integer, optional, intent(out) :: rc
+
+       integer :: status
+       type(UDUnit) :: unit1, unit2
+       logical :: from_invalid, to_invalid
+
+       unit1 = UDUnit(from)
+       unit2 = UDUnit(to)
+    
+       from_invalid = unit1%is_free()
+       to_invalid = unit2%is_free()
+
+       if (from_invalid .or. to_invalid) then
+          convertible = .false.
+          _RETURN(_SUCCESS)
+       end if
+       convertible = UDUNITS_are_convertible(unit1, unit2, _RC)
+
+       _RETURN(_SUCCESS)
+    end function safe_are_convertible
 
 end module VerticalCoordinateMod   
