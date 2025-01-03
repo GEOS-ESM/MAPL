@@ -2,6 +2,7 @@ target_sources(MAPL.generic3g PRIVATE
   StateItemAspect.F90
   AspectCollection.F90
   GeomAspect.F90
+  TypekindAspect.F90
   UngriddedDimsAspect.F90
   UnitsAspect.F90
 
