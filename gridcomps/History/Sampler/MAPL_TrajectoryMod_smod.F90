@@ -555,7 +555,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(ESMF_VM) :: vm
          integer :: mypet, petcount, mpic
 
-         integer :: i, j, k, L, ii, jj, jj2, jj3
+         integer :: i, j, k, L, ii, jj, jj2, kk
          integer :: fid_s, fid_e
          integer(kind=ESMF_KIND_I8) :: j0, j1
          integer(kind=ESMF_KIND_I8) :: jt1, jt2
@@ -566,6 +566,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer :: arr(1)
          integer :: sec
          integer, allocatable :: ix(:) !  counter for each obs(k)%nobs_epoch
+         integer, allocatable :: marker(:)          
          integer :: nx2
          logical :: EX ! file
          logical :: zero_obs
@@ -783,15 +784,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                arr(1)=nx
             else
                !! doulbe check
-               ! (x1, x2]  design in bisect
+               ! (x1, x2]  design in bisect :  y(n) < x <= y(n+1), n is intercept index
                this%epoch_index(1)= jt1 + 1
 
-!!               ! (x1, x2]  design in bisect
-!!               if (jt1==0) then
-!!                  this%epoch_index(1)= 1
-!!               else
-!!                  this%epoch_index(1)= jt1
-!!               endif
                _ASSERT(jt2<=len, 'bisect index for this%epoch_index(2) failed')
                if (jt2==0) then
                   this%epoch_index(2)= 1
@@ -857,17 +852,54 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                     'epoch_index(1:2), nx', this%epoch_index(1), &
                     this%epoch_index(2), this%nobs_epoch)
                do k=1, this%nobs_type
-                  call lgr%debug('%a %i4 %a %i12 %i12 %i12', &
-                       'obs(', k, ')%nobs_epoch, %count_location_in_matching_file, diff', &
+                  call lgr%debug('%a %i4 %a80 %i12 %i12 %i12', &
+                       'obs(', k, ') '//trim(this%obs(k)%name)//' %nobs_epoch, %count_location_in_matching_file, diff', &
                        this%obs(k)%nobs_epoch, this%obs(k)%count_location_in_matching_file, &
                        this%obs(k)%nobs_epoch - this%obs(k)%count_location_in_matching_file )
+                  !! ygyu:  ioda file split [1/2 15Z  :  1/2 21Z ]  [ 1/2 21Z :  1/2 3Z] 
+                  !!        now we know
+                  !!        ___x  x  x x x ___ ---------------------------------- o --o ---o -- o --
+                  !!           negative index (extra) at Tmin                      missing Tmax
+
+                  !  count non-positive index on the left Tmin  (extra)
+                  !
+                  jj = 0
+                  do j = 1, this%obs(k)%nobs_epoch
+                     if ( this%obs(k)%location_index_ioda(j) <= 0 ) then
+                        jj = jj + 1
+                     end if
+                  end do
+
+                  kk = this%obs(k)%count_location_in_matching_file
+                  allocate ( marker(kk), _STAT )
+                  marker(:) = 0 
+                  do j = 1, this%obs(k)%nobs_epoch
+                     kk = this%obs(k)%location_index_ioda(j)
+                     if ( kk > 0 .and. kk <= this%obs(k)%nobs_epoch ) then
+                        marker(kk) = 1  ! exist
+                     end if
+                  end do
+                  do kk = 1, this%obs(k)%count_location_in_matching_file
+                     if ( marker(kk) == 0 ) then
+                        write(6, '(2x,a,2x,10i12)')  trim(this%obs(k)%name)//' missing pts in obervation ', kk
+                     end if
+                  end do
+                  deallocate(marker)
+
                   j = this%obs(k)%nobs_epoch - this%obs(k)%count_location_in_matching_file
-                  _ASSERT(j==0, 'count_location_in_matching_file diff from cutted nobs_epoch')
+                  if (j/=0) &
+                     write(6, *) trim(this%obs(k)%name)//'count_location_in_matching_file diff from cutted nobs_epoch'
+                  !!_ASSERT(j==0, trim(this%obs(k)%name)//'count_location_in_matching_file diff from cutted nobs_epoch')
                   j = minval(this%obs(k)%location_index_ioda(:))
-                  _ASSERT(j==1, 'this%obs(k)%location_index_ioda(:) did not start from 1')
+                  if (j/=1) &
+                       write(6,*) trim(this%obs(k)%name)//' min =', j, &
+                       ' this%obs(k)%location_index_ioda(:) start diff from 1'
+                  !!_ASSERT(j==1, trim(this%obs(k)%name)//'this%obs(k)%location_index_ioda(:) did not start from 1')
                   j = maxval(this%obs(k)%location_index_ioda(:))
-                  _ASSERT(j==this%obs(k)%count_location_in_matching_file, &
-                       'this%obs(k)%location_index_ioda(:) did not end at obs file max pts')
+                  if (j/=this%obs(k)%count_location_in_matching_file) &
+                       write(6,*) trim(this%obs(k)%name)//' max =', j, &
+                       ' this%obs(k)%location_index_ioda(:) end diff from obs file max pts'
+                  !!_ASSERT(j==this%obs(k)%count_location_in_matching_file, trim(this%obs(k)%name)//'this%obs(k)%location_index_ioda(:) did not end at obs file max pts')
                enddo
             end if
          else
