@@ -15,7 +15,7 @@ parameters:
     default: ""
 
 # Anchors to prevent forgetting to update a version
-os_version: &os_version ubuntu20
+os_version: &os_version ubuntu24
 baselibs_version: &baselibs_version v7.27.0
 bcs_version: &bcs_version v11.6.0
 tag_build_arg_name: &tag_build_arg_name maplversion
@@ -33,7 +33,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort]
+              compiler: [gfortran, ifort, ifx]
               cmake_generator: ['Unix Makefiles','Ninja']
           baselibs_version: *baselibs_version
           repo: MAPL
@@ -49,7 +49,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort]
+              compiler: [gfortran, ifort, ifx]
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
@@ -67,7 +67,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [ifort]
+              compiler: [ifort, ifx]
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
@@ -82,7 +82,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort]
+              compiler: [gfortran, ifort, ifx]
               tutorial_name:
                 - hello_world
                 - parent_no_children
@@ -104,7 +104,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort]
+              compiler: [gfortran, ifort, ifx]
           baselibs_version: *baselibs_version
           repo: GEOSgcm
           checkout_fixture: true
@@ -119,7 +119,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort]
+              compiler: [gfortran, ifort, ifx]
           requires:
             - build-GEOSgcm-on-<< matrix.compiler >>
           repo: GEOSgcm
@@ -176,7 +176,8 @@ workflows:
           fixture_branch: feature/mathomp4/mapldevelop
           checkout_mapl_branch: true
           mepodevelop: false
-          rebuild_procs: 1
+          rebuild_procs: 4
+          build_type: Release
 
   build-and-publish-docker:
     when:
@@ -199,23 +200,23 @@ workflows:
           compiler_version: "2021.13"
           image_name: geos-env
           tag_build_arg_name: *tag_build_arg_name
-      #- ci/publish_docker:
-          #filters:
-            #tags:
-              #only: /^v.*$/
-          #name: publish-ifx-docker-image
-          #context:
-            #- docker-hub-creds
-            #- ghcr-creds
-          #os_version: *os_version
-          #baselibs_version: *baselibs_version
-          #container_name: mapl
-          #mpi_name: intelmpi
-          #mpi_version: "2021.13"
-          #compiler_name: ifx
-          #compiler_version: "2024.2"
-          #image_name: geos-env
-          #tag_build_arg_name: *tag_build_arg_name
+      - ci/publish_docker:
+          filters:
+            tags:
+              only: /^v.*$/
+          name: publish-ifx-docker-image
+          context:
+            - docker-hub-creds
+            - ghcr-creds
+          os_version: *os_version
+          baselibs_version: *baselibs_version
+          container_name: mapl
+          mpi_name: intelmpi
+          mpi_version: "2021.14"
+          compiler_name: ifx
+          compiler_version: "2025.0"
+          image_name: geos-env
+          tag_build_arg_name: *tag_build_arg_name
       - ci/publish_docker:
           filters:
             tags:
@@ -228,8 +229,8 @@ workflows:
           baselibs_version: *baselibs_version
           container_name: mapl
           mpi_name: openmpi
-          mpi_version: 5.0.2
+          mpi_version: 5.0.5
           compiler_name: gcc
-          compiler_version: 13.2.0
+          compiler_version: 14.2.0
           image_name: geos-env-mkl
           tag_build_arg_name: *tag_build_arg_name
