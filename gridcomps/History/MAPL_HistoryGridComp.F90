@@ -5384,8 +5384,6 @@ ENDDO PARSER
   ! __ for each collection: find union fields, write to collection.rcx
   ! __ note: this subroutine is called by MPI root only
   !
-  ! __ note: this subroutine is called by MPI root only
-  !
   subroutine regen_rcx_for_obs_platform (config, nlist, list, rc)
     use  MAPL_scan_pattern_in_file
     use MAPL_ObsUtilMod, only : obs_platform, union_platform
@@ -5443,7 +5441,6 @@ ENDDO PARSER
     ! __ global set for call split_string by space
     length_mx = ESMF_MAXSTR2
     mxseg = 100
-
 
     ! __ s1. scan get  platform name + index_name_x  var_name_lat/lon/time
     do k=1, nplf

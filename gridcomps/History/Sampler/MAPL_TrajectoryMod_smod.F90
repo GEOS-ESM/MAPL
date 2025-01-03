@@ -52,6 +52,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          traj%clock=clock
          if (present(GENSTATE)) traj%GENSTATE => GENSTATE
+
          call ESMF_ClockGet ( clock, CurrTime=currTime, _RC )
          call ESMF_ConfigGetAttribute(config, value=time_integer, label=trim(string)//'Epoch:', default=0, _RC)
          _ASSERT(time_integer /= 0, 'Epoch value in config wrong')
@@ -71,6 +72,15 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               label=trim(string) // 'var_name_lat:', _RC)
          call ESMF_ConfigGetAttribute(config, value=traj%var_name_time_full, default="", &
               label=trim(string) // 'var_name_time:', _RC)
+         call ESMF_ConfigGetAttribute(config, value=traj%use_NWP_1_file, default=0, &
+              label=trim(string)//'use_NWP_1_file:', _RC)
+         if (mapl_am_I_root()) then
+            if (traj%use_NWP_1_file == 1) then
+               write(6,105) 'WARNING: Traj sampler: use_NWP_1_file is ON'
+               write(6,105) 'WARNING: USER needs to check if observation file is fetched correctly'
+            end if
+            _ASSERT ( (traj%use_NWP_1_file==1).OR.(traj%use_NWP_1_file==0), 'use_NWP_1_file: wrong input')
+         end if
 
          call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
               label=trim(string) // 'obs_file_begin:', _RC)
@@ -615,8 +625,15 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               trim(this%var_name_lat),trim(this%var_name_time))
 
          L=0
-         fid_s=this%obsfile_Ts_index    ! this is downshifted by 1 in MAPL_ObsUtil.F90
-         fid_e=this%obsfile_Te_index
+         if (this%use_NWP_1_file == 1) then
+            ! NWP IODA 1 file case
+            fid_s=this%obsfile_Ts_index+1    ! this is downshifted by 1 in MAPL_ObsUtil.F90
+            fid_e=fid_s
+         else
+            ! regular case for any trajectory
+            fid_s=this%obsfile_Ts_index    ! this is downshifted by 1 in MAPL_ObsUtil.F90
+            fid_e=this%obsfile_Te_index
+         end if
 
          call lgr%debug('%a %i10 %i10', &
               'fid_s,  fid_e', fid_s,  fid_e)
@@ -641,10 +658,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                      call get_ncfile_dimension(filename, tdim=num_times, key_time=this%index_name_x, _RC)
                      len = len + num_times
                      jj2 = jj2 + num_times
-                     if (j==fid_s) then
+                     if (j==this%obsfile_Ts_index) then
                         this%obs(k)%count_location_until_matching_file = jj2
                         write(6,'(2x,a,2x,i10)') 'this%obs(k)%count_location_until_matching_file', this%obs(k)%count_location_until_matching_file
-                     elseif (j==fid_s+1) then
+                     elseif (j==this%obsfile_Ts_index+1) then
                         this%obs(k)%count_location_in_matching_file = num_times
                         write(6,'(2x,a,2x,i10)') 'this%obs(k)%count_location_in_matching_file', this%obs(k)%count_location_in_matching_file
                      end if
@@ -704,8 +721,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             end if
          end if
 
-         !call MPI_Barrier(mpic,ierr)
-         !stop 'nail 1'
+!! ygyu debug         
+!         call MPI_Barrier(mpic,ierr)
+!         stop 'nail 1'
 
          call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx_sum, &
               count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
@@ -752,7 +770,15 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             sec = hms_2_s(this%Epoch)
             j1 = j0 + int(sec, kind=ESMF_KIND_I8)
             jx0 = real ( j0, kind=ESMF_KIND_R8)
-            jx1 = real ( j1, kind=ESMF_KIND_R8)
+            if (this%use_NWP_1_file == 1) then            
+               ! IODA case:  Epoch + 1 second : for ioda location index recover to match observation files
+               ! this works because all IODA files has same end <= Epoch
+               ! and we use 1 file only
+               jx1 = real ( j1 + 1, kind=ESMF_KIND_R8)
+            else
+               ! normal case: strict design with cutoff time at Epoch
+               jx1 = real ( j1, kind=ESMF_KIND_R8)
+            end if
 
             nstart=1; nend=size(times_R8_full)
             call bisect( times_R8_full, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
@@ -992,6 +1018,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          ! defer destroy fieldB at regen_grid step
          !
 
+         ! debug
+         !write(6,*) 'ip, npt=',   ip, size(this%obsTime)
          _RETURN(_SUCCESS)
        end procedure create_grid
 
@@ -1270,7 +1298,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            integer                 :: x_subset(2)
            type(ESMF_Time)         :: timeset(2)
            type(ESMF_Time)         :: current_time
-           type(ESMF_TimeInterval) :: dur
+           type(ESMF_TimeInterval) :: dur, delT
            type(GriddedIOitemVectorIterator) :: iter
            type(GriddedIOitem), pointer :: item
            type(ESMF_Field) :: src_field,dst_field,acc_field
@@ -1303,11 +1331,19 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            call ESMF_ClockGet(this%clock,timeStep=dur, _RC )
            timeset(1) = current_time - dur
            timeset(2) = current_time
+           if (this%use_NWP_1_file == 1) then
+              !
+              ! change UB to Epoch + 1 s to be inclusive for IODA
+              if ( ESMF_AlarmIsRinging (this%alarm) ) then
+                 call ESMF_TimeIntervalSet(delT, s=1, _RC)
+                 timeset(2) = current_time + delT
+              end if
+           end if
            call this%get_x_subset(timeset, x_subset, _RC)
            is=x_subset(1)
            ie=x_subset(2)
-           !! write(6,'(2x,a,4i10)') 'in regrid_accumulate is, ie=', is, ie
-
+           ! debug
+           !write(6,'(2x,a,4i10)') 'in regrid_accumulate is, ie=', is, ie
 
            !
            ! __ I designed a method to return from regridding if no valid points exist
@@ -1498,8 +1534,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            call bisect( this%obstime, rT1, index1, n_LB=lb, n_UB=ub, rc=rc)
            call bisect( this%obstime, rT2, index2, n_LB=lb, n_UB=ub, rc=rc)
 
-           ! (x1, x2]  design in bisect
-           !  simple version
+           ! (x1, x2]  design in bisect:  y(n) < x <= y(n+1),  n is output index
+           ! simple version
 
            x_subset(1) = index1+1
            x_subset(2) = index2
