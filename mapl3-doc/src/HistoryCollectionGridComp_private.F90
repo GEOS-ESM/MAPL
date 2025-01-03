@@ -247,15 +247,13 @@ contains
       type(StringVectorIterator) :: ftn_iter, ftn_end
       type(VariableSpec) :: varspec
       character(len=:), allocatable :: short_name
-      type(UngriddedDims) :: mirror_ungrid
 
-      mirror_ungrid = mirror_ungridded_dims()
       ftn_end = names%ftn_end()
       ftn_iter = names%ftn_begin()
       do while (ftn_iter /= ftn_end)
          call ftn_iter%next()
          short_name = ftn_iter%of()
-         varspec = VariableSpec(ESMF_STATEINTENT_IMPORT, short_name, vertical_dim_spec=VERTICAL_DIM_MIRROR, ungridded_dims=mirror_ungrid)
+         varspec = VariableSpec(ESMF_STATEINTENT_IMPORT, short_name, vertical_dim_spec=VERTICAL_DIM_MIRROR)
          call MAPL_AddSpec(gridcomp, varspec, _RC)
       end do
 

@@ -99,7 +99,6 @@ contains
             dependencies = to_dependencies(attributes, _RC)
 
             esmf_state_intent = to_esmf_state_intent(state_intent)
-
             var_spec = VariableSpec(esmf_state_intent, short_name=short_name, &
                  itemtype=itemtype, &
                  service_items=service_items, &
@@ -115,7 +114,6 @@ contains
             if (allocated(units)) deallocate(units)
             if (allocated(standard_name)) deallocate(standard_name)
             if (allocated(accumulation_type)) deallocate(accumulation_type)
-
             call var_specs%push_back(var_spec)
 
             call ESMF_HConfigDestroy(attributes, _RC)

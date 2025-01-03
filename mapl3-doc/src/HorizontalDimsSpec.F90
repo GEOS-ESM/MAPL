@@ -3,6 +3,8 @@ module mapl3g_HorizontalDimsSpec
    private
 
    public :: HorizontalDimsSpec
+   public :: operator(==)
+   public :: operator(/=)
 
    public :: HORIZONTAL_DIMS_UNKNOWN
    public :: HORIZONTAL_DIMS_NONE

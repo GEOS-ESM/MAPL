@@ -17,7 +17,6 @@ module mapl3g_UngriddedDims
 
    public :: UngriddedDims
    public :: make_UngriddedDims
-   public :: mirror_ungridded_dims
    public :: operator(==)
    public :: operator(/=)
 
@@ -51,14 +50,6 @@ module mapl3g_UngriddedDims
 
 
 contains
-
-   function mirror_ungridded_dims() result(spec)
-      type(UngriddedDims) :: spec
-
-      spec%dim_specs = UngriddedDimVector()
-      spec%is_mirror = .true.
-
-   end function mirror_ungridded_dims
 
    function new_UngriddedDims_empty() result(spec)
       type(UngriddedDims) :: spec

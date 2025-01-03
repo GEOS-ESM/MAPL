@@ -13,8 +13,8 @@ module mapl3g_UngriddedDimsAspect
 
 
    type, extends(StateItemAspect) :: UngriddedDimsAspect
-      private
-      type(UngriddedDims) :: ungridded_dims
+!#      private
+      type(UngriddedDims), allocatable :: ungridded_dims
    contains
       procedure :: matches
       procedure :: supports_conversion_general
@@ -29,13 +29,15 @@ module mapl3g_UngriddedDimsAspect
 contains
 
    ! Time dependent ungridded_dims is not supported.
-   function new_UngriddedDimsAspect(ungridded_dims, is_mirror) result(aspect)
+   function new_UngriddedDimsAspect(ungridded_dims) result(aspect)
       type(UngriddedDimsAspect) :: aspect
-      type(UngriddedDims), intent(in) :: ungridded_dims
-      logical, optional, intent(in) :: is_mirror
+      type(UngriddedDims), optional, intent(in) :: ungridded_dims
 
-      aspect%ungridded_dims = ungridded_dims
-      call aspect%set_mirror(is_mirror)
+      call aspect%set_mirror(.true.)
+      if (present(ungridded_dims)) then
+         aspect%ungridded_dims = ungridded_dims
+         call aspect%set_mirror(.false.)
+      end if
 
    end function new_UngriddedDimsAspect
 

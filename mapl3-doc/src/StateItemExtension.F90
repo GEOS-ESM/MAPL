@@ -145,7 +145,7 @@ contains
          aspect_name => aspect_names%of(i)
          src_aspect => new_spec%get_aspect(aspect_name, _RC)
          dst_aspect => goal%get_aspect(aspect_name, _RC)
-         _ASSERT(src_aspect%can_connect_to(dst_aspect), 'cannoct connect aspect ' // aspect_name)
+         _ASSERT(src_aspect%can_connect_to(dst_aspect), 'cannot connect aspect ' // aspect_name)
 
          if (src_aspect%needs_extension_for(dst_aspect)) then
             allocate(action, source=src_aspect%make_action(dst_aspect, rc=status))
