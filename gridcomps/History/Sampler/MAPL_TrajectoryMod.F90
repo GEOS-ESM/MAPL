@@ -40,7 +40,6 @@ module HistoryTrajectoryMod
      type(VerticalData) :: vdata
      logical :: do_vertical_regrid
 
-
      type(LocstreamRegridder) :: regridder
      type(TimeData)           :: time_info
      type(ESMF_Clock)         :: clock
@@ -48,13 +47,7 @@ module HistoryTrajectoryMod
      type(ESMF_Time)          :: RingTime
      type(ESMF_TimeInterval), public  :: epoch_frequency
 
-
      integer                        :: nobs_type
-!     character(len=ESMF_MAXSTR)     :: nc_index
-!     character(len=ESMF_MAXSTR)     :: nc_time
-!     character(len=ESMF_MAXSTR)     :: nc_latitude
-!     character(len=ESMF_MAXSTR)     :: nc_longitude
-
      character(len=ESMF_MAXSTR)     :: index_name_x
      character(len=ESMF_MAXSTR)     :: var_name_time
      character(len=ESMF_MAXSTR)     :: var_name_lat

@@ -710,8 +710,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         do jj = 1, num_times
                            jj2 = jj2 + 1
                            location_index_ioda_full(len+jj) = jj2 - this%obs(k)%count_location_until_matching_file
-!! ygyu debug
-!!                           write(6,'(2x,a,2x,i10)')  'location_index_ioda_full(len+jj) = ', location_index_ioda_full(len+jj)
+                           !! write(6,'(2x,a,2x,i10)')  'location_index_ioda_full(len+jj) = ', location_index_ioda_full(len+jj)
                         end do
                         len = len + num_times
                      end if
@@ -720,10 +719,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                enddo
             end if
          end if
-
-!! ygyu debug         
-!         call MPI_Barrier(mpic,ierr)
-!         stop 'nail 1'
 
          call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx_sum, &
               count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
@@ -753,14 +748,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          if (mapl_am_I_root()) then
             call sort_index (times_R8_full, IA_full, _RC)
-            !! ygyu:  this is a complete reshuffle, but output the index of the sorted array
-            !!        I need the content of location_index_ioda_full
+            !!   use index to sort togehter multiple arrays
             allocate(location_index_ioda_full_aux, source=location_index_ioda_full, _STAT)
             do jj = 1, nx_sum
                location_index_ioda_full(jj) = location_index_ioda_full_aux(IA_full(jj))
             end do
             deallocate(location_index_ioda_full_aux)
-            !! location_index_ioda_full(:) = IA_full(:)
             ! NVHPC dies with NVFORTRAN-S-0155-Could not resolve generic procedure sort_multi_arrays_by_time
             call sort_four_arrays_by_time(lons_full, lats_full, times_R8_full, obstype_id_full, _RC)
             call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
@@ -878,16 +871,18 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                     'epoch_index(1:2), nx', this%epoch_index(1), &
                     this%epoch_index(2), this%nobs_epoch)
                do k=1, this%nobs_type
-                  call lgr%debug('%a %i4 %a80 %i12 %i12 %i12', &
-                       'obs(', k, ') '//trim(this%obs(k)%name)//' %nobs_epoch, %count_location_in_matching_file, diff', &
+                  call lgr%debug('%a %i4 %a %a80 %i12 %i12 %i12', &
+                       'obs(', k, ') ', trim(this%obs(k)%name)//' %nobs_epoch, %count_location_in_matching_file, diff', &
                        this%obs(k)%nobs_epoch, this%obs(k)%count_location_in_matching_file, &
                        this%obs(k)%nobs_epoch - this%obs(k)%count_location_in_matching_file )
-                  !! ygyu:  ioda file split [1/2 15Z  :  1/2 21Z ]  [ 1/2 21Z :  1/2 3Z] 
-                  !!        now we know
-                  !!        ___x  x  x x x ___ ---------------------------------- o --o ---o -- o --
-                  !!           negative index (extra) at Tmin                      missing Tmax
                   !
-                  !  count non-positive index on the left Tmin  (extra)
+                  !    diagnostic print
+                  !    now we know
+                  !    ioda file split [1/2 15Z  :  1/2 21Z ]  [ 1/2 21Z :  1/2 3Z] 
+                  !        ___x  x  x x x ___ ---------------------------------- o --o ---o -- o --
+                  !           negative index (extra) at Tmin                      missing Tmax
+                  !
+                  !    count non-positive index on the left Tmin  (extra)
                   !
                   jj = 0
                   do j = 1, this%obs(k)%nobs_epoch
@@ -1016,7 +1011,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          !
 
          ! debug
-         !write(6,*) 'ip, npt=',   ip, size(this%obsTime)
+         ! write(6,*) 'ip, npt=',   ip, size(this%obsTime)
          _RETURN(_SUCCESS)
        end procedure create_grid
 
@@ -1340,7 +1335,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            is=x_subset(1)
            ie=x_subset(2)
            ! debug
-           !write(6,'(2x,a,4i10)') 'in regrid_accumulate is, ie=', is, ie
+           ! write(6,'(2x,a,4i10)') 'in regrid_accumulate is, ie=', is, ie
 
            !
            ! __ I designed a method to return from regridding if no valid points exist
