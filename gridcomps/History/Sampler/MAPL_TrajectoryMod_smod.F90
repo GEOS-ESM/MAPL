@@ -886,7 +886,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   !!        now we know
                   !!        ___x  x  x x x ___ ---------------------------------- o --o ---o -- o --
                   !!           negative index (extra) at Tmin                      missing Tmax
-
+                  !
                   !  count non-positive index on the left Tmin  (extra)
                   !
                   jj = 0
@@ -915,17 +915,14 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   j = this%obs(k)%nobs_epoch - this%obs(k)%count_location_in_matching_file
                   if (j/=0) &
                      write(6, *) trim(this%obs(k)%name)//'count_location_in_matching_file diff from cutted nobs_epoch'
-                  !!_ASSERT(j==0, trim(this%obs(k)%name)//'count_location_in_matching_file diff from cutted nobs_epoch')
                   j = minval(this%obs(k)%location_index_ioda(:))
                   if (j/=1) &
                        write(6,*) trim(this%obs(k)%name)//' min =', j, &
                        ' this%obs(k)%location_index_ioda(:) start diff from 1'
-                  !!_ASSERT(j==1, trim(this%obs(k)%name)//'this%obs(k)%location_index_ioda(:) did not start from 1')
                   j = maxval(this%obs(k)%location_index_ioda(:))
                   if (j/=this%obs(k)%count_location_in_matching_file) &
                        write(6,*) trim(this%obs(k)%name)//' max =', j, &
                        ' this%obs(k)%location_index_ioda(:) end diff from obs file max pts'
-                  !!_ASSERT(j==this%obs(k)%count_location_in_matching_file, trim(this%obs(k)%name)//'this%obs(k)%location_index_ioda(:) did not end at obs file max pts')
                enddo
             end if
          else
