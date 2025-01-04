@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added loggers when writing or reading weight files
 - Added new option to AGCM.rc `overwrite_checkpoint` to allow checkpoint files to be overwritten. By default still will not overwrite checkpoints
+- Added use_NWP_1_file=1 option in Trajectory sampler (HISTORY.rc) to generate the correct location_index_ioda array, mapping back to location points in the single IODA observation input file
 
 ### Changed
 
