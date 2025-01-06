@@ -5,6 +5,8 @@ import os
 import yaml
 import glob
 
+dims_dict = {"2":"xy", "3":"xyz"}
+
 def get_dims(component_map, name):
     for comp in component_map:
         if name in component_map[comp]:
@@ -114,10 +116,7 @@ if __name__ == '__main__':
          long_name = "NA"
          units = "NA"
          dims = get_dims(component_map, item) 
-         if dims == "2":
-            cdims = "xy"
-         elif dims == "3":
-            cdims = "xyz"
+         cdims = dims_dict[dims]
 
          if item not in written:
             f_agcm.write(item+cm+long_name+cm+units+cm+cdims+cm+"c"+nl)
@@ -134,10 +133,7 @@ if __name__ == '__main__':
              long_name = "NA"
              units = "NA"
              dims = get_dims(component_map, item) 
-             if dims == "2":
-                cdims = "xy"
-             elif dims == "3":
-                cdims = "xyz"
+             cdims = dims_dict[dims]
 
              if item not in written:
                 f_agcm.write(item+cm+long_name+cm+units+cm+cdims+cm+"c"+nl)
