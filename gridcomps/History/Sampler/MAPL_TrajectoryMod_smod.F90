@@ -75,11 +75,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_ConfigGetAttribute(config, value=traj%use_NWP_1_file, default=0, &
               label=trim(string)//'use_NWP_1_file:', _RC)
          if (mapl_am_I_root()) then
+            _ASSERT ( ANY(traj%use_NPW_1_file_param == traj%use_NWP_1_file), &
+                 'use_NWP_1_file: wrong input')
             if (traj%use_NWP_1_file == 1) then
                write(6,105) 'WARNING: Traj sampler: use_NWP_1_file is ON'
                write(6,105) 'WARNING: USER needs to check if observation file is fetched correctly'
             end if
-            _ASSERT ( (traj%use_NWP_1_file==1).OR.(traj%use_NWP_1_file==0), 'use_NWP_1_file: wrong input')
          end if
 
          call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
@@ -627,11 +628,11 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          L=0
          if (this%use_NWP_1_file == 1) then
             ! NWP IODA 1 file case
-            fid_s=this%obsfile_Ts_index+1    ! this is downshifted by 1 in MAPL_ObsUtil.F90
+            fid_s=this%obsfile_Ts_index+1    ! index is downshifted by 1 in MAPL_ObsUtil.F90
             fid_e=fid_s
          else
             ! regular case for any trajectory
-            fid_s=this%obsfile_Ts_index    ! this is downshifted by 1 in MAPL_ObsUtil.F90
+            fid_s=this%obsfile_Ts_index    ! index is downshifted by 1 in MAPL_ObsUtil.F90
             fid_e=this%obsfile_Te_index
          end if
 
@@ -660,10 +661,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                      jj2 = jj2 + num_times
                      if (j==this%obsfile_Ts_index) then
                         this%obs(k)%count_location_until_matching_file = jj2
-                        write(6,'(2x,a,2x,i10)') 'this%obs(k)%count_location_until_matching_file', this%obs(k)%count_location_until_matching_file
                      elseif (j==this%obsfile_Ts_index+1) then
                         this%obs(k)%count_location_in_matching_file = num_times
-                        write(6,'(2x,a,2x,i10)') 'this%obs(k)%count_location_in_matching_file', this%obs(k)%count_location_in_matching_file
                      end if
                   else
                      call lgr%debug('%a %i10', 'non-exist: filename fid j  :', j)
@@ -674,9 +673,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             enddo
             arr(1)=len
 
-
             !
-            ! __ s2. scan 2nd time: read time ect. into array, set location_index
+            ! __ s2. scan 2nd time: read time ect. into array,
+            !        set location_index starting with the 1st element of the closest matched obs file
             if (len>0) then
                allocate(lons_full(len),lats_full(len),_STAT)
                allocate(times_R8_full(len),_STAT)
@@ -709,8 +708,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         obstype_id_full(len+1:len+num_times) = k
                         do jj = 1, num_times
                            jj2 = jj2 + 1
+                           ! for each obs type use the correct starting point
                            location_index_ioda_full(len+jj) = jj2 - this%obs(k)%count_location_until_matching_file
-                           !! write(6,'(2x,a,2x,i10)')  'location_index_ioda_full(len+jj) = ', location_index_ioda_full(len+jj)
                         end do
                         len = len + num_times
                      end if
@@ -751,7 +750,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             !!   use index to sort togehter multiple arrays
             allocate(location_index_ioda_full_aux, source=location_index_ioda_full, _STAT)
             do jj = 1, nx_sum
-               location_index_ioda_full(jj) = location_index_ioda_full_aux(IA_full(jj))
+               ii = IA_full(jj)
+               location_index_ioda_full(jj) = location_index_ioda_full_aux(ii)
             end do
             deallocate(location_index_ioda_full_aux)
             ! NVHPC dies with NVFORTRAN-S-0155-Could not resolve generic procedure sort_multi_arrays_by_time
@@ -764,12 +764,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             j1 = j0 + int(sec, kind=ESMF_KIND_I8)
             jx0 = real ( j0, kind=ESMF_KIND_R8)
             if (this%use_NWP_1_file == 1) then            
-               ! IODA case:  Epoch + 1 second : for ioda location index recover to match observation files
-               ! this works because all IODA files has same end <= Epoch
-               ! and we use 1 file only
+               ! IODA case:
+               ! Upper bound time is set at 'Epoch + 1 second' to get the right index from bisect
+               ! 
                jx1 = real ( j1 + 1, kind=ESMF_KIND_R8)
             else
-               ! normal case: strict design with cutoff time at Epoch
+               ! normal case:
                jx1 = real ( j1, kind=ESMF_KIND_R8)
             end if
 
@@ -870,55 +870,15 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                call lgr%debug('%a %i12 %i12 %i12', &
                     'epoch_index(1:2), nx', this%epoch_index(1), &
                     this%epoch_index(2), this%nobs_epoch)
-               do k=1, this%nobs_type
-                  call lgr%debug('%a %i4 %a %a80 %i12 %i12 %i12', &
-                       'obs(', k, ') ', trim(this%obs(k)%name)//' %nobs_epoch, %count_location_in_matching_file, diff', &
-                       this%obs(k)%nobs_epoch, this%obs(k)%count_location_in_matching_file, &
-                       this%obs(k)%nobs_epoch - this%obs(k)%count_location_in_matching_file )
-                  !
-                  !    diagnostic print
-                  !    now we know
-                  !    ioda file split [1/2 15Z  :  1/2 21Z ]  [ 1/2 21Z :  1/2 3Z] 
-                  !        ___x  x  x x x ___ ---------------------------------- o --o ---o -- o --
-                  !           negative index (extra) at Tmin                      missing Tmax
-                  !
-                  !    count non-positive index on the left Tmin  (extra)
-                  !
-                  jj = 0
-                  do j = 1, this%obs(k)%nobs_epoch
-                     if ( this%obs(k)%location_index_ioda(j) <= 0 ) then
-                        jj = jj + 1
-                     end if
-                  end do
-
-                  kk = this%obs(k)%count_location_in_matching_file
-                  allocate ( marker(kk), _STAT )
-                  marker(:) = 0 
-                  do j = 1, this%obs(k)%nobs_epoch
-                     kk = this%obs(k)%location_index_ioda(j)
-                     if ( kk > 0 .and. kk <= this%obs(k)%nobs_epoch ) then
-                        marker(kk) = 1  ! exist
-                     end if
-                  end do
-                  do kk = 1, this%obs(k)%count_location_in_matching_file
-                     if ( marker(kk) == 0 ) then
-                        write(6, '(2x,a,2x,10i12)')  trim(this%obs(k)%name)//' missing pts in obervation ', kk
-                     end if
-                  end do
-                  deallocate(marker)
-
-                  j = this%obs(k)%nobs_epoch - this%obs(k)%count_location_in_matching_file
-                  if (j/=0) &
-                     write(6, *) trim(this%obs(k)%name)//'count_location_in_matching_file diff from cutted nobs_epoch'
-                  j = minval(this%obs(k)%location_index_ioda(:))
-                  if (j/=1) &
-                       write(6,*) trim(this%obs(k)%name)//' min =', j, &
-                       ' this%obs(k)%location_index_ioda(:) start diff from 1'
-                  j = maxval(this%obs(k)%location_index_ioda(:))
-                  if (j/=this%obs(k)%count_location_in_matching_file) &
-                       write(6,*) trim(this%obs(k)%name)//' max =', j, &
-                       ' this%obs(k)%location_index_ioda(:) end diff from obs file max pts'
-               enddo
+               !
+               !    Note: For IODA files, the default NPW_1_file=0 case shall reveal
+               !          the non-python array behavior in obs time sequence from observation files: for example:
+               !    ioda file split [1/2 15Z  :  1/2 21Z ]  [ 1/2 21Z :  1/2 3Z]   (aircraft)
+               !        ___x  x  x x x ___ ---------------------------------- o --o ---o -- o --
+               !           negative index (extra) at Tmin                      missing Tmax
+               !    our trajectory ioda_index will show: overcount at Tmin and missing points at Tmax
+               !    NPW_1_file=1 solves this issue.
+               !
             end if
          else
             allocate(this%lons(0),this%lats(0),_STAT)
@@ -1010,8 +970,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          ! defer destroy fieldB at regen_grid step
          !
 
-         ! debug
-         ! write(6,*) 'ip, npt=',   ip, size(this%obsTime)
          _RETURN(_SUCCESS)
        end procedure create_grid
 
@@ -1334,8 +1292,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            call this%get_x_subset(timeset, x_subset, _RC)
            is=x_subset(1)
            ie=x_subset(2)
-           ! debug
-           ! write(6,'(2x,a,4i10)') 'in regrid_accumulate is, ie=', is, ie
 
            !
            ! __ I designed a method to return from regridding if no valid points exist
@@ -1527,7 +1483,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            call bisect( this%obstime, rT2, index2, n_LB=lb, n_UB=ub, rc=rc)
 
            ! (x1, x2]  design in bisect:  y(n) < x <= y(n+1),  n is output index
-           ! simple version
 
            x_subset(1) = index1+1
            x_subset(2) = index2
