@@ -56,7 +56,7 @@
   use MaskSamplerGeosatMod
   use MAPL_StringTemplate
   use regex_module
-  use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
+  use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date, MAPL_UndefInt
   use gFTL_StringStringMap
   !use ESMF_CFIOMOD
   use MAPL_EpochSwathMod
@@ -811,27 +811,19 @@ contains
                                       label=trim(string) // 'ref_time:',_RC )
        _ASSERT(is_valid_time(list(n)%ref_time),'Invalid ref_time')
 
-       call ESMF_ConfigGetAttribute ( cfg, list(n)%start_date, default=-999, &
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%start_date, default=MAPL_UndefInt, &
                                       label=trim(string) // 'start_date:',_RC )
-       if (list(n)%start_date /= -999) then
-          _ASSERT(is_valid_date(list(n)%start_date),'Invalid start_date')
-       end if
-       call ESMF_ConfigGetAttribute ( cfg, list(n)%start_time, default=-999, &
+       _ASSERT(is_valid_date(list(n)%start_date),'Invalid start_date')
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%start_time, default=MAPL_UndefInt, &
                                       label=trim(string) // 'start_time:',_RC )
-       if (list(n)%start_time /= -999) then
-          _ASSERT(is_valid_time(list(n)%start_time),'Invalid start_time')
-       end if
+       _ASSERT(is_valid_time(list(n)%start_time),'Invalid start_time')
 
-       call ESMF_ConfigGetAttribute ( cfg, list(n)%end_date, default=-999, &
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%end_date, default=MAPL_UndefInt, &
                                       label=trim(string) // 'end_date:',_RC )
-       if (list(n)%end_date /= -999) then
-          _ASSERT(is_valid_date(list(n)%end_date),'Invalid end_date')
-       end if
-       call ESMF_ConfigGetAttribute ( cfg, list(n)%end_time, default=-999, &
+       _ASSERT(is_valid_date(list(n)%end_date),'Invalid end_date')
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%end_time, default=MAPL_UndefInt, &
                                       label=trim(string) // 'end_time:',_RC )
-       if (list(n)%end_time /= -999) then
-          _ASSERT(is_valid_time(list(n)%end_time),'Invalid end_time')
-       end if
+       _ASSERT(is_valid_time(list(n)%end_time),'Invalid end_time')
 
        call ESMF_ConfigGetAttribute ( cfg, list(n)%duration, default=list(n)%frequency, &
                                       label=trim(string) // 'duration:'  ,_RC )
@@ -1362,7 +1354,7 @@ contains
 
 ! End Alarm based on start_date and start_time
 ! ----------------------------------------
-       if( list(n)%start_date.ne.-999 .and. list(n)%start_time.ne.-999 ) then
+       if( list(n)%start_date.ne.MAPL_UndefInt .and. list(n)%start_time.ne.MAPL_UndefInt ) then
           REF_TIME(1) =     list(n)%start_date/10000
           REF_TIME(2) = mod(list(n)%start_date,10000)/100
           REF_TIME(3) = mod(list(n)%start_date,100)
@@ -1394,7 +1386,7 @@ contains
 
 ! End Alarm based on end_date and end_time
 ! ----------------------------------------
-       if( list(n)%end_date.ne.-999 .and. list(n)%end_time.ne.-999 ) then
+       if( list(n)%end_date.ne.MAPL_UndefInt .and. list(n)%end_time.ne.MAPL_UndefInt ) then
            REF_TIME(1) =     list(n)%end_date/10000
            REF_TIME(2) = mod(list(n)%end_date,10000)/100
            REF_TIME(3) = mod(list(n)%end_date,100)
@@ -2570,9 +2562,13 @@ ENDDO PARSER
          else
             print *, '    Duration: ',       list(n)%duration
          end if
-         if( list(n)%end_date.ne.-999 ) then
-         print *, '    End_Date: ',       list(n)%end_date
-         print *, '    End_Time: ',       list(n)%end_time
+         if( list(n)%start_date.ne.MAPL_UndefInt ) then
+            print *, '    Start_Date: ',       list(n)%start_date
+            print *, '    Start_Time: ',       list(n)%start_time
+         endif
+         if( list(n)%end_date.ne.MAPL_UndefInt ) then
+            print *, '    End_Date: ',       list(n)%end_date
+            print *, '    End_Time: ',       list(n)%end_time
          endif
          if (trim(list(n)%output_grid_label)/='') then
             print *, ' Regrid Mthd: ',       regrid_method_int_to_string(list(n)%regrid_method)
