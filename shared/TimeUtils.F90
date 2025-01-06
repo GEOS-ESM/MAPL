@@ -7,6 +7,8 @@ module MAPL_TimeUtilsMod
    public :: is_valid_time
    public :: is_valid_datetime
 
+   integer, public, parameter :: MAPL_UndefInt = -999
+
 contains
 
    logical function is_valid_date(date) result(is_valid)
@@ -18,6 +20,11 @@ contains
 
       integer :: year, month, day
       logical :: is_leap_year
+
+      if (date == MAPL_UndefInt) then
+         is_valid = .true.
+         return
+      end if
 
       year  = date/10000
       month = mod(date,10000)/100
@@ -65,6 +72,11 @@ contains
       integer, intent(in) :: time
 
       integer :: hours, minutes, seconds
+
+      if (time == MAPL_UndefInt) then
+         is_valid = .true.
+         return
+      end if
 
       hours   = time/10000
       minutes = mod(time,10000)/100
