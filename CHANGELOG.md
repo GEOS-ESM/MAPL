@@ -68,6 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implemented workarounds to avoid needing `-dusty` for NAG.  (Related PR in ESMA_CMake.)
 - Added constructor for DSO_SetServicesWrapper
 - Change macro in field/undo_function_overload.macro
+- Fixed bug with AccumulatorAction and subtypes
 
 ## [Unreleased]
 
