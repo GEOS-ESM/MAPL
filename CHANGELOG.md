@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added utility to prepare inputs for ExtDatDriver.x so that ExtData can simulate a real GEOS run
 - Added loggers when writing or reading weight files
 - Added new option to AGCM.rc `overwrite_checkpoint` to allow checkpoint files to be overwritten. By default still will not overwrite checkpoints
 
