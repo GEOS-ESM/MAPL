@@ -1513,12 +1513,13 @@ contains
            end if
            call ESMF_GridGetItem(spec%grid_out,itemflag=ESMF_GRIDITEM_MASK, &
            staggerloc=ESMF_STAGGERLOC_CENTER, isPresent = has_mask, _RC)
-           call ESMF_AttributeGet(spec%grid_out, name=MAPL_DESTINATIONMASK, isPresent=has_dstMaskValues, _RC)
+           call ESMF_InfoGetFromHost(spec%grid_out,infoh,_RC)
+           has_dstMaskValues = ESMF_InfoIsPresent(infoh,MAPL_DESTINATIONMASK,_RC)
            if (has_dstMaskValues) then
               _ASSERT(has_mask, "masking destination values when no masks is present")
-              call ESMF_AttributeGet(spec%grid_out, name=MAPL_DESTINATIONMASK, itemcount=num_mask_values, _RC)
+              call ESMF_InfoGet(infoh,MAPL_DESTINATIONMASK,num_mask_values,_RC)
               allocate(dstMaskValues(num_mask_values), _STAT)
-              call ESMF_AttributeGet(spec%grid_out, name=MAPL_DESTINATIONMASK, valuelist=dstMaskValues, _RC)
+              call ESMF_InfoGet(infoh,MAPL_DESTINATIONMASK,dstMaskValues,_RC)
            end if
 
            counter = counter + 1
