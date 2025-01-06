@@ -43,7 +43,7 @@ contains
    subroutine get_accumulator_action(accumulation_type, typekind, action, rc)
       character(len=*), intent(in) :: accumulation_type
       type(ESMF_TypeKind_Flag), intent(in) :: typekind
-      class(ExtensionAction), allocatable, intent(out) :: action
+      class(ExtensionAction), allocatable, intent(inout) :: action
       integer, optional, intent(out) :: rc 
 
       integer :: status
@@ -55,13 +55,13 @@ contains
 
       select case(accumulation_type)
       case (SIMPLE_ACCUMULATION)
-         action = AccumulatorAction(typekind)
+         allocate(action, source=AccumulatorAction(typekind))
       case (MEAN_ACCUMULATION)
-         action = MeanAction(typekind)
+         allocate(action, source=MeanAction(typekind))
       case (MAX_ACCUMULATION)
-         action = MaxAction(typekind)
+         allocate(action, source=MaxAction(typekind))
       case (MIN_ACCUMULATION)
-         action = MinAction(typekind)
+         allocate(action, source=MinAction(typekind))
       case default
          _FAIL('Unsupported AccumulatorAction')
       end select
