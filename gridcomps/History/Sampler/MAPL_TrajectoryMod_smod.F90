@@ -25,7 +25,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
   use, intrinsic :: iso_fortran_env, only: REAL64
   use, intrinsic :: iso_fortran_env, only: INT64
   implicit none
-
+  integer, parameter :: use_NWP_1_file_param(2) = [0, 1]
    contains
 
      module procedure HistoryTrajectory_from_config
@@ -75,7 +75,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_ConfigGetAttribute(config, value=traj%use_NWP_1_file, default=0, &
               label=trim(string)//'use_NWP_1_file:', _RC)
          if (mapl_am_I_root()) then
-            _ASSERT ( ANY(traj%use_NPW_1_file_param == traj%use_NWP_1_file), &
+            _ASSERT (ANY(use_NWP_1_file_param == traj%use_NWP_1_file), &
                  'use_NWP_1_file: wrong input')
             if (traj%use_NWP_1_file == 1) then
                write(6,105) 'WARNING: Traj sampler: use_NWP_1_file is ON'
