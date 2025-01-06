@@ -77,6 +77,7 @@
 
   integer, parameter         :: MAPL_ExtDataLeft          = 1
   integer, parameter         :: MAPL_ExtDataRight         = 2
+  integer, parameter         :: MAPL_ExtDataResult        = 3
   logical                    :: hasRun
   character(len=ESMF_MAXSTR) :: error_msg_str
 
@@ -645,15 +646,15 @@ CONTAINS
    call MAPL_TimerOff(MAPLSTATE,"---read-prefetch")
    call MAPL_TimerOff(MAPLSTATE,"--PRead")
 
-   !bundle_iter = IOBundles%begin()
-   !do while (bundle_iter /= IOBundles%end())
-      !io_bundle => bundle_iter%get()
-      !bracket_side = io_bundle%bracket_side
-      !entry_num = io_bundle%entry_index
-      !item => self%primary%item_vec%at(entry_num)
-      !call MAPL_ExtDataVerticalInterpolate(self,item,import_RC)
-      !call bundle_iter%next()
-   !enddo
+   bundle_iter = IOBundles%begin()
+   do while (bundle_iter /= IOBundles%end())
+      io_bundle => bundle_iter%get()
+      bracket_side = io_bundle%bracket_side
+      entry_num = io_bundle%entry_index
+      item => self%primary%item_vec%at(entry_num)
+      call MAPL_ExtDataFlipBracketSide(item,bracket_side,_RC)
+      call bundle_iter%next()
+   enddo
    call MAPL_ExtDataDestroyCFIO(IOBundles,_RC)
 
    call MAPL_TimerOff(MAPLSTATE,"-Read_Loop")
@@ -864,74 +865,6 @@ CONTAINS
 
      end subroutine new_GetLevs
 
-
-     !subroutine GetLevs(item, rc)
-
-        !type(PrimaryExport)      , intent(inout) :: item
-        !integer, optional        , intent(out  ) :: rc
-
-        !integer :: status
-
-        !real, allocatable          :: levFile(:)
-        !character(len=ESMF_MAXSTR) :: levunits,tlevunits
-        !character(len=:), allocatable :: levname
-        !character(len=:), pointer :: positive
-        !type(Variable), pointer :: var
-        !integer :: i
-
-        !positive=>null()
-        !var => null()
-        !if (item%vartype == MAPL_VectorField) then
-           !var=>item%file_metadata%get_variable(trim(item%fcomp1))
-           !_ASSERT(associated(var),"Variable "//TRIM(item%fcomp1)//" not found in file "//TRIM(item%file_template))
-           !var => null()
-           !var=>item%file_metadata%get_variable(trim(item%fcomp2))
-           !_ASSERT(associated(var),"Variable "//TRIM(item%fcomp2)//" not found in file "//TRIM(item%file_template))
-        !else
-           !var=>item%file_metadata%get_variable(trim(item%var))
-           !_ASSERT(associated(var),"Variable "//TRIM(item%var)//" not found in file "//TRIM(item%file_template))
-        !end if
-
-        !levName = item%file_metadata%get_level_name(_RC)
-        !if (trim(levName) /='') then
-           !call item%file_metadata%get_coordinate_info(levName,coordSize=item%lm,coordUnits=tLevUnits,coords=levFile,_RC)
-           !levUnits=MAPL_TrimString(tlevUnits)
-           !! check if pressure
-           !item%levUnit = ESMF_UtilStringLowerCase(levUnits)
-           !if (trim(item%levUnit) == 'hpa' .or. trim(item%levUnit)=='pa') then
-              !item%havePressure = .true.
-           !end if
-           !if (item%havePressure) then
-              !if (levFile(1)>levFile(size(levFile))) item%fileVDir="up"
-           !else
-              !positive => item%file_metadata%get_variable_attribute(levName,'positive',_RC)
-              !if (associated(positive)) then
-                 !if (MAPL_TrimString(positive)=='up') item%fileVDir="up"
-              !end if
-           !end if
-
-           !if (.not.allocated(item%levs)) allocate(item%levs(item%lm),__STAT__)
-           !item%levs=levFile
-           !if (trim(item%fileVDir)/=trim(item%importVDir)) then
-              !do i=1,size(levFile)
-                 !item%levs(i)=levFile(size(levFile)-i+1)
-              !enddo
-           !end if
-           !if (trim(item%levunit)=='hpa') item%levs=item%levs*100.0
-           !if (item%vartype == MAPL_VectorField) then
-              !item%units = item%file_metadata%get_variable_attribute(trim(item%fcomp1),"units",_RC)
-           !else
-              !item%units = item%file_metadata%get_variable_attribute(trim(item%var),"units",_RC)
-           !end if
-
-        !else
-           !item%LM=0
-        !end if
-
-        !_RETURN(ESMF_SUCCESS)
-
-     !end subroutine GetLevs
-
   subroutine MAPL_ExtDataInterpField(item,state,time,rc)
      type(PrimaryExport), intent(inout) :: item
      type(ESMF_State),    intent(in)    :: state
@@ -962,6 +895,26 @@ CONTAINS
      _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_ExtDataInterpField
 
+  subroutine MAPL_ExtDataFlipBracketSide(item,bracket_side,rc)
+     type(PrimaryExport), intent(inout)     :: item
+     integer, intent(in)                    :: bracket_side
+     integer, optional,   intent(out  )     :: rc
+
+     integer :: status
+
+     if (item%vcoord%vertical_type == NO_COORD) then
+        _RETURN(_SUCCESS)
+     end if
+
+     if (item%allow_vertical_regrid) then
+        if (mapl_am_i_root()) write(*,*)'bmaa can flip ',trim(item%vcomp1),' ',item%vcoord%positive /= item%importVDir
+        if (item%vcoord%positive /= item%importVDir) then
+           call MAPL_ExtDataFlipVertical(item,bracket_side,_RC)
+        end if
+        _RETURN(_SUCCESS)
+     end if
+  end subroutine MAPL_ExtDataFlipBracketSide
+
   subroutine MAPL_ExtDataVerticalInterpolate(MAPLExtState,item,import,rc)
      type(MAPL_ExtData_State), intent(inout) :: MAPLExtState
      type(PrimaryExport), intent(inout)     :: item
@@ -983,13 +936,14 @@ CONTAINS
         _RETURN(_SUCCESS)
      end if
 
-     if (item%allow_vertical_regrid) then
-        if (mapl_am_i_root()) write(*,*)'bmaa can flip ',item%vcoord%positive /= item%importVDir
-        if (item%vcoord%positive /= item%importVDir) then
-           call MAPL_ExtDataFlipVertical(item,_RC)
-        end if
-        _RETURN(_SUCCESS)
-     end if
+     _RETURN(_SUCCESS)
+     !if (item%allow_vertical_regrid) then
+        !if (mapl_am_i_root()) write(*,*)'bmaa can flip ',item%vcoord%positive /= item%importVDir
+        !if (item%vcoord%positive /= item%importVDir) then
+           !call MAPL_ExtDataFlipVertical(item,_RC)
+        !end if
+        !_RETURN(_SUCCESS)
+     !end if
 
      call ESMF_StateGet(import, "PLE", dst_ple, _RC)
      src_ps_name = item%vcoord%surf_name//"_"//trim(item%vcomp1)
@@ -1229,8 +1183,9 @@ CONTAINS
 
   end subroutine MAPL_ExtDataFillField
 
-  subroutine MAPL_ExtDataFlipVertical(item,rc)
+  subroutine MAPL_ExtDataFlipVertical(item,filec,rc)
       type(PrimaryExport), intent(inout)      :: item
+      integer, optional, intent(in)           :: filec
       integer, optional, intent(out)          :: rc
 
       integer :: status
@@ -1238,29 +1193,39 @@ CONTAINS
       type(ESMF_Field) :: Field,field1,field2
       real, pointer    :: ptr(:,:,:)
       real, allocatable :: ptemp(:,:,:)
-      integer :: ls, le
+      integer :: ls, le, local_filec
 
+      local_filec = MAPL_ExtDataResult
+      if (present(filec)) local_filec = filec
+         
       if (item%vartype == MAPL_VectorField) then
 
-         !call MAPL_ExtDataGetBracket(item,filec,field=Field1,vcomp=1,_RC)
-         !call MAPL_ExtDataGetBracket(item,filec,field=Field2,vcomp=2,_RC)
+         if (local_filec /= MAPL_ExtDataResult) then
+            call MAPL_ExtDataGetBracket(item,local_filec,field=Field1,vcomp=1,_RC)
+            call MAPL_ExtDataGetBracket(item,local_filec,field=Field2,vcomp=2,_RC)
+         else
+            _FAIL("not yet implemented")
+         end if
 
-         !call ESMF_FieldGet(Field1,0,farrayPtr=ptr,_RC)
-         !allocate(ptemp,source=ptr,_STAT)
-         !ls = lbound(ptr,3)
-         !le = ubound(ptr,3)
-         !ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
+         call ESMF_FieldGet(Field1,0,farrayPtr=ptr,_RC)
+         allocate(ptemp,source=ptr,_STAT)
+         ls = lbound(ptr,3)
+         le = ubound(ptr,3)
+         ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
 
-         !call ESMF_FieldGet(Field2,0,farrayPtr=ptr,_RC)
-         !ptemp=ptr
-         !ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
+         call ESMF_FieldGet(Field2,0,farrayPtr=ptr,_RC)
+         ptemp=ptr
+         ptr(:,:,le:ls:-1) = ptemp(:,:,ls:le:+1)
 
-         !deallocate(ptemp)
+         deallocate(ptemp)
 
       else
 
-         !call MAPL_ExtDataGetBracket(item,filec,field=Field,_RC)
-         call ESMF_FieldBundleGet(item%t_interp_bundle, item%vcomp1, field=field, _RC)
+         if (local_filec /= MAPL_ExtDataResult) then 
+            call MAPL_ExtDataGetBracket(item,local_filec,field=Field,_RC)
+         else
+            call ESMF_FieldBundleGet(item%t_interp_bundle, item%vcomp1, field=field, _RC)
+         end if
 
          call ESMF_FieldGet(Field,0,farrayPtr=ptr,_RC)
          allocate(ptemp,source=ptr,_STAT)
@@ -1273,6 +1238,7 @@ CONTAINS
       _RETURN(ESMF_SUCCESS)
 
   end subroutine MAPL_ExtDataFlipVertical
+
   subroutine MAPL_ExtDataPopulateBundle(item,filec,pbundle,rc)
       type(PrimaryExport), intent(inout)      :: item
       integer,                  intent(in)    :: filec
