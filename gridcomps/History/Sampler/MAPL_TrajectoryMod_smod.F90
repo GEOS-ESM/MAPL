@@ -75,8 +75,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_ConfigGetAttribute(config, value=traj%use_NWP_1_file, default=0, &
               label=trim(string)//'use_NWP_1_file:', _RC)
          if (mapl_am_I_root()) then
-            _ASSERT (ANY(use_NWP_1_file_param == traj%use_NWP_1_file), &
-                 'use_NWP_1_file: wrong input')
+            _ASSERT (ANY(use_NWP_1_file_param == traj%use_NWP_1_file), 'use_NWP_1_file: wrong input')
             if (traj%use_NWP_1_file == 1) then
                write(6,105) 'WARNING: Traj sampler: use_NWP_1_file is ON'
                write(6,105) 'WARNING: USER needs to check if observation file is fetched correctly'
