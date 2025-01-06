@@ -30,7 +30,7 @@ To get the list of ExtDate items, just grab all the lines that look like this to
         EXTDATA: INFO: ---- 00019: BRC_TERPENE
 ```
 
-To get the GCM component spec, run with `PRINTSPEC: `` in the `CAP.rc` and copy lines out that look like this:
+To get the GCM component spec, run with `PRINTSPEC: 1` in the `CAP.rc` and copy lines out that look like this:
 ```
  #IMPORT spec for GCM
  #COMPONENT, SHORT_NAME, LONG_NAME, UNIT, DIMS, CONTAINER_TYPE
