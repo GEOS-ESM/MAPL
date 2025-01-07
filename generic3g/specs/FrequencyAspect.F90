@@ -16,6 +16,8 @@ module mapl3g_FrequencyAspect
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_action
+      procedure :: set_dt
+      procedure :: set_accumulation_type
    end type FrequencyAspect
 
    interface FrequencyAspect
@@ -33,19 +35,36 @@ contains
       type(ESMF_TimeInterval), optional, intent(in) :: dt
       character(len=*), optional, intent(in) :: accumulation_type
 
-      associate(adt => aspect%dt, atype => aspect%accumulation_type)
-         atype = NO_ACCUMULATION
-         if(present(accumulation_type)) atype = accumulation_type
-         call ESMF_TimeIntervalSet(adt, ns=0)
-         if(.not. present(dt)) return
-         if(is_zero(dt)) return
-         adt = dt
-      end associate
+      aspect%accumulation_type = NO_ACCUMULATION
+      call ESMF_TimeIntervalSet(aspect%dt, ns=0)
+      if(present(accumulation_type)) then
+         call aspect%set_accumulation_type(accumulation_type)
+      end if
+      if(present(dt)) then
+         call aspect%set_dt(dt)
+      end if
+      aspect%mirror = .FALSE.
+      aspect%time_dependent = .FALSE.
       
    end function construct_frequency_aspect
 
+   subroutine set_dt(this, dt)
+      class(FrequencyAspect), intent(inout) :: this
+      type(ESMF_TimeInterval), intent(in) :: dt
+
+      this%run_dt = dt
+
+   end subroutine set_dt
+
+   subroutine set_accumulation_type(this, accumulation_type)
+      class(FrequencyAspect), intent(inout) :: this
+      character(len=*), intent(in) :: accumulation_type
+
+      if(accumulation_type_is_valid(accumulation_type)) this%accumulation_type = accumulation_type
+
+   end subroutine set_accumulation_type
+
    logical function matches(this, aspect) result(does_match)
-      import :: StateItemAspect
       class(FrequencyAspect), intent(in) :: this
       class(StateItemAspect), intent(in) :: aspect
 
@@ -55,8 +74,6 @@ contains
       class is (FrequencyAspect)
          if(is_zero(aspect%dt)) return
          does_match = this%dt == aspect%dt
-      class(default)
-         does_match = .FALSE.
       end select
 
    end function matches
@@ -99,8 +116,6 @@ contains
          if(is_zero(aspect%dt)) return
          if(.not. accumulation_type_is_valid(aspect%accumulation_type)) return 
          supports = aspect .divides. this
-      class default
-         supports = .FALSE.
       end select
 
    end function supports_conversion_specific
