@@ -9,14 +9,14 @@ module mapl3g_FrequencyAspect
    public :: FrequencyAspect
 
    type, extends(StateItemAspect) :: FrequencyAspect
-      type(ESMF_TimeInterval) :: dt
+      type(ESMF_TimeInterval) :: timestep
       character(len=:), allocatable :: accumulation_type
    contains
       procedure :: matches
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_action
-      procedure :: set_dt
+      procedure :: set_timestep
       procedure :: set_accumulation_type
    end type FrequencyAspect
 
@@ -25,71 +25,82 @@ module mapl3g_FrequencyAspect
    end interface FrequencyAspect
 
    interface operator(.divides.)
-      module procedure :: divides
+      module procedure :: aspect_divides
    end interface operator(.divides.)
+
+   ! This value should not be accessed directly. Use zero() instead.
+   ! There is no constructor for ESMF_TimeInterval, so the value cannot be initialized
+   ! at construction. The zero() function initializes the value the first time
+   ! and returns a pointer to the value.
+   type(ESMF_TimeInterval), target :: ZERO_TI
 
 contains
 
-   function construct_frequency_aspect(dt, accumulation_type) result(aspect)
+   function construct_frequency_aspect(timestep, accumulation_type) result(aspect)
       type(FrequencyAspect) :: aspect
-      type(ESMF_TimeInterval), optional, intent(in) :: dt
+      type(ESMF_TimeInterval), optional, intent(in) :: timestep
       character(len=*), optional, intent(in) :: accumulation_type
 
-      aspect%accumulation_type = NO_ACCUMULATION
-      call ESMF_TimeIntervalSet(aspect%dt, ns=0)
+      aspect%mirror = .FALSE.
+      aspect%time_dependent = .FALSE.
+      aspect%accumulation_type = INSTANTANEOUS
+      call ESMF_TimeIntervalSet(aspect%timestep, ns=0)
+
       if(present(accumulation_type)) then
          call aspect%set_accumulation_type(accumulation_type)
       end if
-      if(present(dt)) then
-         call aspect%set_dt(dt)
+
+      if(present(timestep)) then
+         call aspect%set_timestep(timestep)
       end if
-      aspect%mirror = .FALSE.
-      aspect%time_dependent = .FALSE.
       
    end function construct_frequency_aspect
 
-   subroutine set_dt(this, dt)
+   subroutine set_timestep(this, timestep)
       class(FrequencyAspect), intent(inout) :: this
-      type(ESMF_TimeInterval), intent(in) :: dt
+      type(ESMF_TimeInterval), intent(in) :: timestep
 
-      this%run_dt = dt
+      this%timestep = timestep
 
-   end subroutine set_dt
+   end subroutine set_timestep
 
    subroutine set_accumulation_type(this, accumulation_type)
       class(FrequencyAspect), intent(inout) :: this
       character(len=*), intent(in) :: accumulation_type
 
-      if(accumulation_type_is_valid(accumulation_type)) this%accumulation_type = accumulation_type
+      if(accumulation_type == INSTANTANEOUS .or. accumulation_type_is_valid(accumulation_type)) then
+         this%accumulation_type = accumulation_type
+      end if
 
    end subroutine set_accumulation_type
 
-   logical function matches(this, aspect) result(does_match)
-      class(FrequencyAspect), intent(in) :: this
-      class(StateItemAspect), intent(in) :: aspect
+   logical function matches(src, dst) result(does_match)
+      class(FrequencyAspect), intent(in) :: src
+      class(StateItemAspect), intent(in) :: dst
 
-      does_match = .FALSE.
-      if(is_zero(this%dt)) return
+      does_match = .TRUE.
+      if(src%timestep == zero()) return
       select type(StateItemAspect)
       class is (FrequencyAspect)
-         if(is_zero(aspect%dt)) return
-         does_match = this%dt == aspect%dt
+         if(dst%timestep == zero()) return
+         if(.not. accumulation_type_is_valid(dst%accumulation_type)) return
+         does_match = src%timestep == dst%timestep
       end select
 
    end function matches
 
-   function make_action(this, aspect, rc) result(action)
+   function make_action(src, dst, rc) result(action)
       use mapl3g_ExtensionAction
       class(ExtensionAction), allocatable :: action
-      class(FrequencyAspect), intent(in) :: this
-      class(StateItemAspect), intent(in) :: aspect
+      class(FrequencyAspect), intent(in) :: src
+      class(StateItemAspect), intent(in) :: dst
       integer, optional, intent(out) :: rc
       integer :: status
 
       allocate(action, source=NullAction())
-      select type(aspect)
+      select type(dst)
       class is (FrequencyAspect)
-         call get_accumulator_action(aspect%accumulation_type, ESMF_TYPEKIND_R4, action, _RC) 
+         call get_accumulator_action(dst%accumulation_type, ESMF_TYPEKIND_R4, action, _RC) 
          _ASSERT(allocated(action), 'Unable to allocate action')
       class default
          _FAIL('FrequencyAspect cannot convert from other class.')
@@ -101,55 +112,49 @@ contains
    logical function supports_conversion_general(this) result(supports)
       class(FrequencyAspect), intent(in) :: this
 
-      supports = .not. is_zero(this%dt)
+      supports = .TRUE.
 
    end function supports_conversion_general
 
-   logical function supports_conversion_specific(this, aspect) result(supports)
-      class(FrequencyAspect), intent(in) :: this
-      class(StateItemAspect), intent(in) :: aspect
+   logical function supports_conversion_specific(src, dst) result(supports)
+      class(FrequencyAspect), intent(in) :: src
+      class(StateItemAspect), intent(in) :: dst
 
-      supports = .FALSE.
-      if(is_zero(this%dt)) return
-      select type(aspect)
+      select type(dst)
       class is (FrequencyAspect)
-         if(is_zero(aspect%dt)) return
-         if(.not. accumulation_type_is_valid(aspect%accumulation_type)) return 
-         supports = aspect .divides. this
+         supports = src .divides. dst
       end select
 
    end function supports_conversion_specific
 
-   elemental function are_nonzero(ti) 
-      logical :: are_nonzero
-      type(ESMF_TimeInterval), intent(in) :: ti
-      type(ESMF_TimeInterval), save :: zero
-      logical :: uninitialized :: .TRUE.
-
-      if(uninitialized) then
-         call ESMF_TimeIntervalSet(zero, ns=0)
-         uninitialized = .FALSE.
-      end if
-      are_nonzero = ti > zero
-
-   end function are_nonzero
-
-   logical function is_zero(ti)
-      type(ESMF_TimeInterval), intent(in) :: ti
-
-      is_zero = .not. are_nonzero(ti)
-
-   end function is_zero
-
-   logical function divides(factor, base) result(lval)
+   logical function aspect_divides(factor, base)
       class(FrequencyAspect), intent(in) :: factor
       class(FrequencyAspect), intent(in) :: base
 
-      lval = .FALSE.
-      if(all(are_nonzero([base%dt, factor%dt]))) then
-         lval = is_zero(mod(base%dt, factor%dt))
-      end if
+      aspect_divides = interval_divides(factor%timestep, base%timestep)
 
-   end function divides
+   end function aspect_divides
+
+   logical function interval_divides(factor, base) result(lval)
+      type(ESMF_TimeInterval), intent(in) :: factor
+      type(ESMF_TimeInterval), intent(in) :: base
+
+      lval = .FALSE.
+      if(factor == zero()) return
+      lval = mod(base, factor) == zero()
+
+   end function interval_divides
+
+   function zero()
+      type(ESMF_TimeInterval), pointer :: zero
+      logical, save :: zero_is_uninitialized = .TRUE.
+
+      if(zero_is_uninitialized) then
+         call ESMF_TimeIntervalSet(ZERO_TI, ns=0)
+         zero_is_uninitialized = .FALSE.
+      end if
+      zero => ZERO_TI
+
+   end function zero
 
 end module mapl3g_FrequencyAspect

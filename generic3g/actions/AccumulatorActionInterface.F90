@@ -18,15 +18,18 @@ module mapl3g_AccumulatorActionInterface
    public :: MEAN_ACCUMULATION
    public :: MIN_ACCUMULATION
    public :: SIMPLE_ACCUMULATION
-   public :: NO_ACCUMULATION
+   public :: INSTANTANEOUS
    public :: accumulation_type_is_valid
    public :: get_accumulator_action
 
+   ! This is the default case where accumulation_type is not set.
+   character(len=*), parameter :: INSTANTANEOUS =''
+   
+   ! These are explicit accumulation_type values.
    character(len=*), parameter :: MAX_ACCUMULATION = 'max'
    character(len=*), parameter :: MEAN_ACCUMULATION = 'mean'
    character(len=*), parameter :: MIN_ACCUMULATION = 'min'
    character(len=*), parameter :: SIMPLE_ACCUMULATION = 'simple'
-   character(len=*), parameter :: NO_ACCUMULATION =''
    character(len=8), parameter :: ACCUMULATION_TYPES(4) = [character(len=8) :: &
       MAX_ACCUMULATION, MEAN_ACCUMULATION, MIN_ACCUMULATION, SIMPLE_ACCUMULATION]
 
@@ -35,8 +38,9 @@ contains
    logical function accumulation_type_is_valid(acctype) result(lval)
       character(len=*), optional, intent(in) :: acctype
 
-      lval = present(acctype)
-      if(lval) lval = any(ACCUMULATION_TYPES == acctype)
+      lval = .FALSE.
+      if(.not. present(acctype)) return
+      lval = any(ACCUMULATION_TYPES == acctype)
 
    end function accumulation_type_is_valid
 
@@ -48,10 +52,7 @@ contains
 
       integer :: status
 
-      if(typekind /= ESMF_TYPEKIND_R4) then
-         _FAIL('Unsupported typekind')
-      end if
-      _ASSERT(accumulation_type_is_valid(accumulation_type), 'Unsupported AccumulatorAction')
+      _ASSERT(typekind == ESMF_TYPEKIND_R4, 'Unsupported typekind')
 
       select case(accumulation_type)
       case (SIMPLE_ACCUMULATION)
@@ -62,6 +63,8 @@ contains
          allocate(action, source=MaxAction(typekind))
       case (MIN_ACCUMULATION)
          allocate(action, source=MinAction(typekind))
+      case (INSTANTANEOUS)
+         _FAIL('No AccumulatorAction for instantaneous.')
       case default
          _FAIL('Unsupported AccumulatorAction')
       end select

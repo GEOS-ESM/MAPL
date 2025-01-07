@@ -201,7 +201,7 @@ contains
       ! regrid_param
 
       if (present(default_value)) field_spec%default_value = default_value
-      field_spec%accumulation_type = NO_ACCUMULATION
+      field_spec%accumulation_type = INSTANTANEOUS
       if (present(accumulation_type)) field_spec%accumulation_type = trim(accumulation_type)
       if (present(run_dt)) field_spec%run_dt = run_dt
    end function new_FieldSpec_geom
@@ -212,7 +212,7 @@ contains
 
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
 
-      field_spec%accumulation_type = NO_ACCUMULATION
+      field_spec%accumulation_type = INSTANTANEOUS
       _SET_FIELD(field_spec, variable_spec, vertical_dim_spec)
       _SET_FIELD(field_spec, variable_spec, attributes)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, standard_name)
