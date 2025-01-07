@@ -25,7 +25,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
   use, intrinsic :: iso_fortran_env, only: REAL64
   use, intrinsic :: iso_fortran_env, only: INT64
   implicit none
-  integer, parameter :: use_NWP_1_file_param(2) = [0, 1]
    contains
 
      module procedure HistoryTrajectory_from_config
@@ -72,11 +71,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               label=trim(string) // 'var_name_lat:', _RC)
          call ESMF_ConfigGetAttribute(config, value=traj%var_name_time_full, default="", &
               label=trim(string) // 'var_name_time:', _RC)
-         call ESMF_ConfigGetAttribute(config, value=traj%use_NWP_1_file, default=0, &
+         call ESMF_ConfigGetAttribute(config, value=traj%use_NWP_1_file, default=.false., &
               label=trim(string)//'use_NWP_1_file:', _RC)
          if (mapl_am_I_root()) then
-            _ASSERT (ANY(use_NWP_1_file_param == traj%use_NWP_1_file), 'use_NWP_1_file: wrong input')
-            if (traj%use_NWP_1_file == 1) then
+            if (traj%use_NWP_1_file) then
                write(6,105) 'WARNING: Traj sampler: use_NWP_1_file is ON'
                write(6,105) 'WARNING: USER needs to check if observation file is fetched correctly'
             end if
@@ -576,7 +574,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer :: arr(1)
          integer :: sec
          integer, allocatable :: ix(:) !  counter for each obs(k)%nobs_epoch
-         integer, allocatable :: marker(:)          
+         integer, allocatable :: marker(:)
          integer :: nx2
          logical :: EX ! file
          logical :: zero_obs
@@ -625,7 +623,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               trim(this%var_name_lat),trim(this%var_name_time))
 
          L=0
-         if (this%use_NWP_1_file == 1) then
+         if (this%use_NWP_1_file) then
             ! NWP IODA 1 file case
             fid_s=this%obsfile_Ts_index+1    ! index is downshifted by 1 in MAPL_ObsUtil.F90
             fid_e=fid_s
@@ -762,10 +760,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             sec = hms_2_s(this%Epoch)
             j1 = j0 + int(sec, kind=ESMF_KIND_I8)
             jx0 = real ( j0, kind=ESMF_KIND_R8)
-            if (this%use_NWP_1_file == 1) then            
+            if (this%use_NWP_1_file) then
                ! IODA case:
                ! Upper bound time is set at 'Epoch + 1 second' to get the right index from bisect
-               ! 
+               !
                jx1 = real ( j1 + 1, kind=ESMF_KIND_R8)
             else
                ! normal case:
@@ -1280,7 +1278,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            call ESMF_ClockGet(this%clock,timeStep=dur, _RC )
            timeset(1) = current_time - dur
            timeset(2) = current_time
-           if (this%use_NWP_1_file == 1) then
+           if (this%use_NWP_1_file) then
               !
               ! change UB to Epoch + 1 s to be inclusive for IODA
               if ( ESMF_AlarmIsRinging (this%alarm) ) then
