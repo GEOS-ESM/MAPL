@@ -77,7 +77,7 @@ module MAPL_TileIOMod
                end if
                ref = ArrayReference(this%tile_buffer(i)%ptr)
                call i_clients%collective_prefetch_data(this%read_collection_id, filename, trim(names(i)), ref,  &
-                  start=local_start, global_start=global_start, global_count = global_count)
+                  start=local_start, global_start=global_start, global_count = global_count, _RC)
                deallocate(local_start,global_start,global_count)
             else
                _FAIL("rank >1 tile fields not supported")

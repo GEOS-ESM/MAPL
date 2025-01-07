@@ -48,6 +48,7 @@ contains
       reference%msize_word = msize_word
       reference%type_kind  = type_kind
       call Mpi_comm_dup(Comm,reference%comm,status)
+      _VERIFY(status)
       reference%mem_rank = rank
       call reference%allocate(rc=status)
       _VERIFY(status)
@@ -123,6 +124,7 @@ contains
       n_bytes    = this%msize_word * int_size
 
       call MPI_Comm_rank(this%comm,Rank,status)
+      _VERIFY(status)
 
       windowsize = 0_MPI_ADDRESS_KIND
       if (Rank == this%mem_rank) windowsize = n_bytes

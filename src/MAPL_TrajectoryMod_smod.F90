@@ -732,20 +732,11 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                  times_R8_full(1), times_R8_full(nend))
             call lgr%debug ('%a %i20 %i20', 'jt1, jt2 [final intercepted position]', jt1, jt2)
 
-
-!            if (jt1==jt2) then
-!               _FAIL('Epoch Time is too small, empty grid is generated, increase Epoch')
-!            endif
-
-            !-- shift the zero item to index 1
-            zero_obs = .false.
             if (jt1/=jt2) then
                zero_obs = .false.
-               if (jt1==0) jt1=1
             else
                ! at most one obs point exist, set it .true.
                zero_obs = .true.
-               !!  if (jt1==0) jt1=1
             end if
 
             !
@@ -891,14 +882,17 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call MPI_Scatterv( this%lons, sendcount, &
               displs, MPI_REAL8,  lons_chunk, &
               recvcount, MPI_REAL8, 0, mpic, ierr)
+         _VERIFY(ierr)
 
          call MPI_Scatterv( this%lats, sendcount, &
               displs, MPI_REAL8,  lats_chunk, &
               recvcount, MPI_REAL8, 0, mpic, ierr)
+         _VERIFY(ierr)
 
          call MPI_Scatterv( this%times_R8, sendcount, &
               displs, MPI_REAL8,  times_R8_chunk, &
               recvcount, MPI_REAL8, 0, mpic, ierr)
+         _VERIFY(ierr)
 
          ! -- root
          this%locstream_factory = LocStreamFactory(this%lons,this%lats,_RC)
@@ -1072,6 +1066,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   call MPI_gatherv ( p_acc_chunk_2d, nsend, MPI_REAL, &
                        p_acc_rt_2d, recvcount, displs, MPI_REAL,&
                        iroot, mpic, ierr )
+                  _VERIFY(ierr)
 
                   if (mapl_am_i_root()) then
                      !
@@ -1136,12 +1131,14 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         call MPI_gatherv ( p_dst_t(1,k), nsend, MPI_REAL, &
                              p_acc_rt_3d(1,k), recvcount, displs, MPI_REAL,&
                              iroot, mpic, ierr )
+                        _VERIFY(ierr)
                      end do
                      deallocate (p_dst_t)
                   else
                      call MPI_gatherv ( p_dst, nsend_v, MPI_REAL, &
                           p_dst_rt, recvcount_v, displs_v, MPI_REAL,&
                           iroot, mpic, ierr )
+                     _VERIFY(ierr)
                      p_acc_rt_3d = reshape ( p_dst_rt, shape(p_acc_rt_3d), order=[2,1] )
                   end if
 

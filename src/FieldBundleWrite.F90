@@ -29,7 +29,7 @@ module MAPL_ESMFFieldBundleWrite
 
    contains
 
-      subroutine write_bundle_single_time(bundle,clock,output_file,nbits_to_keep,deflate,quantize_algorithm,quantize_level,rc)
+      subroutine write_bundle_single_time(bundle,clock,output_file,nbits_to_keep,deflate,quantize_algorithm,quantize_level,zstandard_level,rc)
          type(ESMF_FieldBundle), intent(inout) :: bundle
          type(ESMF_Clock), intent(inout) :: clock
          character(len=*), intent(in) :: output_file
@@ -37,20 +37,21 @@ module MAPL_ESMFFieldBundleWrite
          integer, optional, intent(in)  :: deflate
          integer, optional, intent(in)  :: quantize_algorithm
          integer, optional, intent(in)  :: quantize_level
+         integer, optional, intent(in)  :: zstandard_level
          integer, optional, intent(out) :: rc
 
          integer :: status
 
          type(FieldBundleWriter) :: newWriter
 
-         call newWriter%create_from_bundle(bundle,clock,output_file=output_File,n_steps=1,time_interval=0,nbits_to_keep=nbits_to_keep,deflate=deflate,quantize_algorithm=quantize_algorithm,quantize_level=quantize_level,rc=status)
+         call newWriter%create_from_bundle(bundle,clock,output_file=output_File,n_steps=1,time_interval=0,nbits_to_keep=nbits_to_keep,deflate=deflate,quantize_algorithm=quantize_algorithm,quantize_level=quantize_level,zstandard_level=zstandard_level,rc=status)
          _VERIFY(status)
          call newWriter%write_to_file(rc=status)
          _VERIFY(status)
          _RETURN(_SUCCESS)
       end subroutine write_bundle_single_time
 
-      subroutine create_from_bundle(this,bundle,clock,output_file,vertical_data,n_steps,time_interval,nbits_to_keep,deflate,quantize_algorithm,quantize_level,rc)
+      subroutine create_from_bundle(this,bundle,clock,output_file,vertical_data,n_steps,time_interval,nbits_to_keep,deflate,quantize_algorithm,quantize_level,zstandard_level,rc)
          class(FieldBundleWRiter), intent(inout) :: this
          type(ESMF_FieldBundle), intent(inout) :: bundle
          type(ESMF_Clock), intent(inout) :: clock
@@ -62,6 +63,7 @@ module MAPL_ESMFFieldBundleWrite
          integer, optional, intent(in)  :: deflate
          integer, optional, intent(in)  :: quantize_algorithm
          integer, optional, intent(in)  :: quantize_level
+         integer, optional, intent(in)  :: zstandard_level
          integer, optional, intent(out) :: rc
 
          type(TimeData) :: time_info
@@ -85,7 +87,7 @@ module MAPL_ESMFFieldBundleWrite
             time_interval_=0
          end if
 
-         call this%cfio%set_param(nbits_to_keep=nbits_to_keep,deflation=deflate,quantize_algorithm=quantize_algorithm,quantize_level=quantize_level)
+         call this%cfio%set_param(nbits_to_keep=nbits_to_keep,deflation=deflate,quantize_algorithm=quantize_algorithm,quantize_level=quantize_level,zstandard_level=zstandard_level)
          time_info = TimeData(clock,file_steps,time_interval_,offset)
          call ESMF_FieldBundleGet(bundle, fieldCount=num_fields,rc=status)
          _VERIFY(status)

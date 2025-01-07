@@ -83,6 +83,7 @@ module MAPL_HistoryCollectionMod
      character(len=ESMF_MAXSTR)         :: quantize_algorithm_string
      integer                            :: quantize_algorithm
      integer                            :: quantize_level
+     integer                            :: zstandard_level
      integer                            :: slices
      integer                            :: Root
      integer                            :: Psize

@@ -7,7 +7,7 @@ module mapl_StateSpecification
    use mapl_ErrorHandlingMod
    use mapl_VarSpecVector
    use mapl_VarSpecMiscMod
-   use mapl_VariableSpecification
+   use MAPL_VarSpecTypeMod
    implicit none
 
    private
@@ -99,6 +99,7 @@ contains
                              ROTATION,   & 
                              GRID, &
                              DEPENDS_ON, DEPENDS_ON_CHILDREN, &
+                             POSITIVE, &
                                                                    RC  )
 
     type (StateSpecification), intent(inout):: SPEC
@@ -134,6 +135,7 @@ contains
     type(ESMF_Grid)    , optional   , intent(IN)      :: GRID
     logical            , optional   , intent(IN)      :: DEPENDS_ON_CHILDREN
     character (len=*)  , optional   , intent(IN)      :: DEPENDS_ON(:)
+    character(len=*)   , optional   , intent(IN)      :: positive
     integer            , optional   , intent(OUT)     :: RC
 
 
@@ -172,6 +174,7 @@ contains
     character(len=ESMF_MAXSTR) :: useableUngrd_Name
     real                      , pointer :: usableUNGRIDDED_COORDS(:) => NULL()
     logical                    :: usableDEPENDS_ON_CHILDREN
+    character(len=positive_length) :: usablePositive
 !    character (len=:), allocatable :: usableDEPENDS_ON(:)
 
     INTEGER :: I
@@ -413,6 +416,12 @@ contains
          usableUNGRIDDED_COORDS = UNGRIDDED_COORDS
       end if
 
+      if (present(POSITIVE)) then
+         usablePositive = positive
+      else
+         usablePositive = 'down'
+      end if
+
       I = spec%var_specs%size()
       allocate(tmp%specptr)
       
@@ -444,6 +453,7 @@ contains
       TMP%SPECPTR%ROTATION =  usableROTATION
       TMP%SPECPTR%doNotAllocate    =  .false.
       TMP%SPECPTR%alwaysAllocate   =  .false.
+      TMP%SPECPTR%positive = usablePositive
       if(associated(usableATTR_IVALUES)) then
          TMP%SPECPTR%ATTR_IVALUES  =>  usableATTR_IVALUES
       else

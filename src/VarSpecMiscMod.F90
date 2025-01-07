@@ -15,7 +15,6 @@ module MAPL_VarSpecMiscMod
    use pFlogger
    use MAPL_Constants
    use MAPL_ExceptionHandling
-   use mapl_VariableSpecification
    use mapl_VarSpecVector
    use mapl_VarConnVector
    use MAPL_VarSpecTypeMod

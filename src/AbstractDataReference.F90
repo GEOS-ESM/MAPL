@@ -319,7 +319,7 @@ contains
          case default
             _FAIL("dimension not supported yet")
       end select
-
+      _RETURN(_SUCCESS)
    end subroutine fetch_data
 
    integer function get_length_base(this) result(length)
