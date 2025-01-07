@@ -105,8 +105,6 @@ CONTAINS
 
       call ESMF_VmGet(VM, mpicommunicator=comm, rc=status)
       call MPI_Reduce(has_nans_local, has_nans, 1, MPI_LOGICAL, MPI_LOR, 0, comm, status)
-!      call MPI_Reduce(sendbuf=MPI_IN_PLACE, recvbuf=has_nans, count=1, &
-!           datatype=MPI_LOGICAL, op=MPI_LOR, root=0, comm=comm, ierror=status)
 
       if ( fac /= 0.0 ) then  ! trick to prevent printing
          if ( MAPL_am_I_root(vm) ) then
