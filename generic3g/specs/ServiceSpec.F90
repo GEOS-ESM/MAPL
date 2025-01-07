@@ -42,7 +42,6 @@ module mapl3g_ServiceSpec
 
       procedure :: connect_to
       procedure :: can_connect_to
-      procedure :: make_adapters
 
       procedure :: add_to_state
       procedure :: add_to_bundle
@@ -223,18 +222,5 @@ contains
 
       write(unit, "(a)", iostat=iostat, iomsg=iomsg) "ServiceSpec(write not implemented yet)"
    end subroutine write_formatted
-
-   function make_adapters(this, goal_spec, rc) result(adapters)
-      type(StateItemAdapterWrapper), allocatable :: adapters(:)
-      class(ServiceSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: goal_spec
-      integer, optional, intent(out) :: rc
-
-      allocate(adapters(0))
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(goal_spec)
-   end function make_adapters
 
 end module mapl3g_ServiceSpec

@@ -2,15 +2,14 @@
 
 module mapl3g_AspectCollection
    use mapl3g_StateItemAspect
-
    use mapl3g_GeomAspect
+   use mapl3g_VerticalGridAspect
    use mapl3g_UnitsAspect
    use mapl3g_TypekindAspect
-
    use mapl3g_UngriddedDimsAspect
-
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
+   use esmf
    implicit none
    private
 
@@ -19,6 +18,7 @@ module mapl3g_AspectCollection
    type AspectCollection
       private
       type(GeomAspect), allocatable :: geom_aspect
+      type(VerticalGridAspect), allocatable :: vertical_grid_aspect
       type(UnitsAspect), allocatable :: units_aspect
       type(TypekindAspect), allocatable :: typekind_aspect
       type(UngriddedDimsAspect), allocatable :: ungridded_dims_aspect
@@ -29,6 +29,9 @@ module mapl3g_AspectCollection
 
       procedure :: get_geom_aspect
       procedure :: set_geom_aspect
+
+      procedure :: get_vertical_grid_aspect
+      procedure :: set_vertical_grid_aspect
 
       procedure :: get_units_aspect
       procedure :: set_units_aspect
@@ -71,6 +74,8 @@ contains
       select case (name)
       case ('GEOM')
          aspect => this%get_geom_aspect()
+      case ('VERTICAL')
+         aspect => this%get_vertical_grid_aspect()
       case ('UNITS')
          aspect => this%get_units_aspect()
       case ('TYPEKIND')
@@ -89,8 +94,16 @@ contains
       character(*), intent(in) :: name
 
       select case (name)
-      case ('GEOM', 'UNITS', 'UNGRIDDED_DIMS')
-         has_aspect = .true.
+      case ('GEOM')
+         has_aspect = allocated(this%geom_aspect)
+      case ('VERTICAL')
+         has_aspect = allocated(this%vertical_grid_aspect)
+      case ('UNITS')
+         has_aspect = allocated(this%units_aspect)
+      case ('TYPEKIND')
+         has_aspect = allocated(this%typekind_aspect)
+      case ('UNGRIDDED_DIMS')
+         has_aspect = allocated(this%ungridded_dims_aspect)
       case default
          has_aspect = .false.
       end select
@@ -98,19 +111,39 @@ contains
    end function has_aspect
 
    subroutine set_aspect(this, aspect, rc)
-      class(AspectCollection) :: this
+      class(AspectCollection), target :: this
       class(StateItemAspect), target, intent(in) :: aspect
       integer, optional, intent(out) :: rc
 
+      type(ESMF_Geom) :: geom
+      type(ESMF_Typekind_Flag) :: typekind
       integer :: status
 
       select type (aspect)
       type is (GeomAspect)
          this%geom_aspect = aspect
+         ! aux vertical
+         if (allocated( this%vertical_grid_aspect)) then
+            geom = aspect%get_geom()
+            call this%vertical_grid_aspect%set_geom(geom)
+         end if
+      type is (VerticalGridAspect)
+         if (allocated(this%vertical_grid_aspect)) then
+            if (allocated(this%vertical_grid_aspect%vertical_grid)) then
+            end if
+         end if
+         this%vertical_grid_aspect = aspect
+         if (allocated(this%vertical_grid_aspect%vertical_grid)) then
+         end if
       type is (UnitsAspect)
          this%units_aspect = aspect
       type is (TypekindAspect)
          this%typekind_aspect = aspect
+         ! aux vertical
+         typekind = aspect%get_typekind()
+         if (allocated( this%vertical_grid_aspect)) then
+            call this%vertical_grid_aspect%set_typekind(typekind)
+         end if
       type is (UngriddedDimsAspect)
          this%ungridded_dims_aspect = aspect
       class default
@@ -134,6 +167,21 @@ contains
       type(GeomAspect), intent(in) :: geom_aspect
       this%geom_aspect = geom_aspect
    end subroutine set_geom_aspect
+
+   function get_vertical_grid_aspect(this) result(vertical_grid_aspect)
+      type(VerticalGridAspect), pointer :: vertical_grid_aspect
+      class(AspectCollection), target, intent(in) :: this
+      vertical_grid_aspect => null()
+      if (allocated(this%vertical_grid_aspect)) then
+         vertical_grid_aspect => this%vertical_grid_aspect
+      end if
+   end function get_vertical_grid_aspect
+
+   subroutine set_vertical_grid_aspect(this, vertical_grid_aspect)
+      class(AspectCollection), intent(inout) :: this
+      type(VerticalGridAspect), intent(in) :: vertical_grid_aspect
+      this%vertical_grid_aspect = vertical_grid_aspect
+   end subroutine set_vertical_grid_aspect
 
    function get_units_aspect(this) result(units_aspect)
       type(UnitsAspect), pointer :: units_aspect

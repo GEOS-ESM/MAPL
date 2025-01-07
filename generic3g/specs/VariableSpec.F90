@@ -3,6 +3,7 @@
 module mapl3g_VariableSpec
    use mapl3g_AspectCollection
    use mapl3g_GeomAspect
+   use mapl3g_VerticalGridAspect
    use mapl3g_UnitsAspect
    use mapl3g_TypekindAspect
    use mapl3g_UngriddedDimsAspect
@@ -107,6 +108,9 @@ contains
 
       call var_spec%aspects%set_units_aspect(UnitsAspect(units))
       regrid_param_ = get_regrid_param(regrid_param, standard_name)
+      call var_spec%aspects%set_vertical_grid_aspect(VerticalGridAspect( &
+           vertical_dim_spec=vertical_dim_spec, &
+           geom=geom))
       call var_spec%aspects%set_geom_aspect(GeomAspect(geom, regrid_param_, horizontal_dims_spec))
 
       call var_spec%aspects%set_ungridded_dims_aspect(UngriddedDimsAspect(ungridded_dims))

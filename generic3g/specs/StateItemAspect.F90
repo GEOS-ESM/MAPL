@@ -117,7 +117,10 @@ contains
               can_connect_to = src%supports_conversion()
               return
            end if
-           can_connect_to = src%supports_conversion(dst) .or. src%matches(dst)
+           can_connect_to = src%matches(dst)
+           if (.not. can_connect_to) then
+              can_connect_to = src%supports_conversion(dst)
+           end if
         case (1)
            can_connect_to = .true.
         case (2)

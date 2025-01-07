@@ -46,7 +46,7 @@ contains
       class(ComponentDriver), pointer, intent(in) :: v_in_coupler
       type(ESMF_Field), intent(in) :: v_out_coord
       class(ComponentDriver), pointer, intent(in) :: v_out_coupler
-      type(VerticalRegridMethod), intent(in) :: method
+      type(VerticalRegridMethod), optional, intent(in) :: method
 
       action%v_in_coord = v_in_coord
       action%v_out_coord = v_out_coord
@@ -54,7 +54,9 @@ contains
       action%v_in_coupler => v_in_coupler
       action%v_out_coupler => v_out_coupler
 
-      action%method = method
+      if (present(method)) then
+         action%method = method
+      end if
    end function new_VerticalRegridAction
 
    subroutine initialize(this, importState, exportState, clock, rc)

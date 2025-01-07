@@ -139,6 +139,7 @@ contains
       do i = 1, aspect_names%size()
          aspect_name => aspect_names%of(i)
          dst_aspect => goal_spec%get_aspect(aspect_name, _RC)
+         _ASSERT(associated(dst_aspect), 'expected aspect '//aspect_name//' is missing')
 
          ! Find subset that match current aspect
          new_subgroup = StateItemExtensionPtrVector()
@@ -156,27 +157,6 @@ contains
          if (new_subgroup%size() == 0) exit
          subgroup = new_subgroup
          
-      end do
-
-      ! old
-
-      adapters = archetype%make_adapters(goal_spec, _RC)
-
-      do i = 1, size(adapters)
-         new_subgroup = StateItemExtensionPtrVector()
-         do j = 1, subgroup%size()
-            extension_ptr = subgroup%of(j)
-            spec => extension_ptr%ptr%get_spec()
-            associate (adapter => adapters(i)%adapter)
-              match = adapter%match(spec, _RC)
-              if (match) then
-                 call new_subgroup%push_back(extension_ptr)
-              end if
-            end associate
-         end do
-         
-         if (new_subgroup%size() == 0) exit
-         subgroup = new_subgroup
       end do
 
       extension_ptr = subgroup%front()
