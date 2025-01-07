@@ -1020,6 +1020,7 @@ contains
       integer :: status
       type(ESMF_VM) :: vm
       integer :: has_undef, local_has_undef
+      type(ESMF_Info) :: infoh
 
       call ESMF_GridGetCoord(grid, coordDim=1, localDE=0, &
          staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=fptr, _RC)
@@ -1040,6 +1041,9 @@ contains
 
       mask = MAPL_MASK_IN
       where(fptr==MAPL_UNDEF) mask = MAPL_MASK_OUT
+
+      call ESMF_InfoGetFromHost(grid,infoh,_RC)
+      call ESMF_InfoSet(infoh,key=MAPL_DESTINATIONMASK,values=[MAPL_MASK_OUT],_RC)
 
       _RETURN(_SUCCESS)
     end subroutine add_mask
