@@ -77,7 +77,9 @@ CONTAINS
 !NOTE: the current version does not trap error conditions returned in status
       integer :: status
       integer :: comm
-      logical :: has_nans, hn
+      logical :: has_nans
+      logical :: has_nans_local
+      character(len=:), allocatable :: buf
 
       if ( present(fac_) ) then
          fac = fac_
@@ -87,7 +89,7 @@ CONTAINS
 
       call ESMF_VmGetCurrent(vm=vm, rc=status)
 
-      has_nans = any(a /= a)
+      has_nans_local = any(a /= a)
 
       pmin = minval(a, mask=(a==a))
       pmax = maxval(a, mask=(a==a))
@@ -102,20 +104,19 @@ CONTAINS
       if ( present(pmin_) ) pmin_ = pmin
 
       call ESMF_VmGet(VM, mpicommunicator=comm, rc=status)
-      call MPI_Reduce(has_nans, hn, 1, MPI_LOGICAL, MPI_LOR, 0, comm, status)
-!      call MPI_Reduce(sendbuf=has_nans, recvbuf=hn, count=1, &
+      call MPI_Reduce(has_nans_local, has_nans, 1, MPI_LOGICAL, MPI_LOR, 0, comm, status)
+!      call MPI_Reduce(sendbuf=MPI_IN_PLACE, recvbuf=has_nans, count=1, &
 !           datatype=MPI_LOGICAL, op=MPI_LOR, root=0, comm=comm, ierror=status)
 
       if ( fac /= 0.0 ) then  ! trick to prevent printing
          if ( MAPL_am_I_root(vm) ) then
             name = '            '
             name(1:len(qname)) = qname
-            if (hn) then
-               write(*,*) name, ' max = ', pmax*fac, ' min = ', pmin*fac, &
-                    ' has NaN'
-            else
-               write(*,*) name, ' max = ', pmax*fac, ' min = ', pmin*fac
+            buf = ""
+            if (has_nans) then
+               buf = " has NaN"
             end if
+            write(*,*) name, ' max = ', pmax*fac, ' min = ', pmin*fac, buf
             return
          end if
       end if
