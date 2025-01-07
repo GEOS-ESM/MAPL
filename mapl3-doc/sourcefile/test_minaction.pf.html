@@ -1,0 +1,908 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Test_MinAction.pf &ndash; MAPL</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Test_MinAction.pf
+      <small>Source File</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for source files.">72 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_MinAction.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">Test_MinAction.pf</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#mods-0"
+         aria-expanded="false" aria-controls="mods-0">
+         <h4 class="card-header bg-primary text-white">Modules</h4>
+      </a>
+      <div id="mods-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/test_minaction.html">Test_MinAction</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../sourcefile/test_minaction.pf.html#src">Test_MinAction.pf</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    <div class="col-md-9" id='text'>
+      
+      <br>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">This file depends on</h3>
+          </div>
+          <div class="card-body">
+            <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: sourcefile~~test_minaction.pf~~EfferentGraph Pages: 1 -->
+<svg id="sourcefiletest_minactionpfEfferentGraph" width="641pt" height="271pt"
+ viewBox="0.00 0.00 641.00 270.61" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph" class="graph" transform="scale(0.4 0.4) rotate(0) translate(4 672.75)">
+<title>sourcefile~~test_minaction.pf~~EfferentGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-672.75 1599,-672.75 1599,4 -4,4"/>
+<!-- sourcefile~test_minaction.pf -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node1" class="node">
+<title>sourcefile~test_minaction.pf</title>
+<polygon fill="none" stroke="black" points="1595,-170 1492,-170 1492,-146 1595,-146 1595,-170"/>
+<text text-anchor="middle" x="1543.5" y="-155.6" font-family="Helvetica,sans-Serif" font-size="10.50">Test_MinAction.pf</text>
+</g>
+<!-- sourcefile~accumulator_action_test_common.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node2" class="node">
+<title>sourcefile~accumulator_action_test_common.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node2"><a xlink:href="../sourcefile/accumulator_action_test_common.f90.html" xlink:title="accumulator_action_test_common.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1456,-190 1238,-190 1238,-166 1456,-166 1456,-190"/>
+<text text-anchor="middle" x="1347" y="-175.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">accumulator_action_test_common.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_minaction.pf&#45;&gt;sourcefile~accumulator_action_test_common.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge1" class="edge">
+<title>sourcefile~test_minaction.pf&#45;&gt;sourcefile~accumulator_action_test_common.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1491.91,-163.2C1483.81,-164.04 1475.15,-164.93 1466.24,-165.84"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1465.68,-162.38 1456.09,-166.89 1466.4,-169.34 1465.68,-162.38"/>
+</g>
+<!-- sourcefile~esmf_testmethod.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node3" class="node">
+<title>sourcefile~esmf_testmethod.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node3"><a xlink:href="../sourcefile/esmf_testmethod.f90.html" xlink:title="ESMF_TestMethod.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1411.5,-64 1282.5,-64 1282.5,-40 1411.5,-40 1411.5,-64"/>
+<text text-anchor="middle" x="1347" y="-49.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TestMethod.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_minaction.pf&#45;&gt;sourcefile~esmf_testmethod.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge2" class="edge">
+<title>sourcefile~test_minaction.pf&#45;&gt;sourcefile~esmf_testmethod.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1520.19,-145.84C1485.45,-126.91 1418.36,-90.35 1378.96,-68.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1380.51,-65.73 1370.05,-64.02 1377.16,-71.88 1380.51,-65.73"/>
+</g>
+<!-- sourcefile~fieldutils.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node4" class="node">
+<title>sourcefile~fieldutils.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node4"><a xlink:href="../sourcefile/fieldutils.f90.html" xlink:title="FieldUtils.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1175,-150 1093,-150 1093,-126 1175,-126 1175,-150"/>
+<text text-anchor="middle" x="1134" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldUtils.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_minaction.pf&#45;&gt;sourcefile~fieldutils.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge3" class="edge">
+<title>sourcefile~test_minaction.pf&#45;&gt;sourcefile~fieldutils.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1491.71,-155.51C1413.2,-151.65 1263.29,-144.3 1185.16,-140.46"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1185.24,-136.96 1175.08,-139.97 1184.9,-143.95 1185.24,-136.96"/>
+</g>
+<!-- sourcefile~minaction.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node5" class="node">
+<title>sourcefile~minaction.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node5"><a xlink:href="../sourcefile/minaction.f90.html" xlink:title="MinAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1390.5,-249 1303.5,-249 1303.5,-225 1390.5,-225 1390.5,-249"/>
+<text text-anchor="middle" x="1347" y="-234.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MinAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~test_minaction.pf&#45;&gt;sourcefile~minaction.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge4" class="edge">
+<title>sourcefile~test_minaction.pf&#45;&gt;sourcefile~minaction.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1518.57,-170.17C1501.37,-178.71 1477.52,-190.14 1456,-199 1436.28,-207.12 1414.12,-215.11 1395.02,-221.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1393.69,-218.4 1385.35,-224.93 1395.94,-225.03 1393.69,-218.4"/>
+</g>
+<!-- sourcefile~accumulator_action_test_common.f90&#45;&gt;sourcefile~fieldutils.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge5" class="edge">
+<title>sourcefile~accumulator_action_test_common.f90&#45;&gt;sourcefile~fieldutils.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1282.69,-166C1251.53,-160.09 1214.48,-153.07 1185.29,-147.53"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1185.79,-144.07 1175.31,-145.64 1184.49,-150.94 1185.79,-144.07"/>
+</g>
+<!-- sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node14" class="node">
+<title>sourcefile~internalconstants.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node14"><a xlink:href="../sourcefile/internalconstants.f90.html" xlink:title="InternalConstants.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1018,-268 889,-268 889,-244 1018,-244 1018,-268"/>
+<text text-anchor="middle" x="953.5" y="-253.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">InternalConstants.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~accumulator_action_test_common.f90&#45;&gt;sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge6" class="edge">
+<title>sourcefile~accumulator_action_test_common.f90&#45;&gt;sourcefile~internalconstants.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1285.69,-190.02C1215.42,-204.02 1099.49,-227.11 1025.1,-241.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1024.01,-238.58 1014.88,-243.97 1025.37,-245.45 1024.01,-238.58"/>
+</g>
+<!-- sourcefile~esmf_testcase.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node7" class="node">
+<title>sourcefile~esmf_testcase.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node7"><a xlink:href="../sourcefile/esmf_testcase.f90.html" xlink:title="ESMF_TestCase.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1191.5,-24 1076.5,-24 1076.5,0 1191.5,0 1191.5,-24"/>
+<text text-anchor="middle" x="1134" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TestCase.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~esmf_testmethod.f90&#45;&gt;sourcefile~esmf_testcase.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge7" class="edge">
+<title>sourcefile~esmf_testmethod.f90&#45;&gt;sourcefile~esmf_testcase.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M1282.69,-40C1257.19,-35.16 1227.74,-29.58 1201.89,-24.68"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="1202.28,-21.19 1191.8,-22.77 1200.97,-28.07 1202.28,-21.19"/>
+</g>
+<!-- sourcefile~esmf_testparameter.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node8" class="node">
+<title>sourcefile~esmf_testparameter.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node8"><a xlink:href="../sourcefile/esmf_testparameter.f90.html" xlink:title="ESMF_TestParameter.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1025.5,-24 881.5,-24 881.5,0 1025.5,0 1025.5,-24"/>
+<text text-anchor="middle" x="953.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_TestParameter.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~esmf_testmethod.f90&#45;&gt;sourcefile~esmf_testparameter.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge8" class="edge">
+<title>sourcefile~esmf_testmethod.f90&#45;&gt;sourcefile~esmf_testparameter.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M1282.41,-49.83C1225.52,-47.38 1139.95,-42.44 1066,-33 1051.47,-31.15 1035.98,-28.6 1021.31,-25.91"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="1021.78,-22.44 1011.3,-24.04 1020.49,-29.32 1021.78,-22.44"/>
+</g>
+<!-- sourcefile~fieldbinaryoperations.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node9" class="node">
+<title>sourcefile~fieldbinaryoperations.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node9"><a xlink:href="../sourcefile/fieldbinaryoperations.f90.html" xlink:title="FieldBinaryOperations.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1030,-108 877,-108 877,-84 1030,-84 1030,-108"/>
+<text text-anchor="middle" x="953.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBinaryOperations.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutils.f90&#45;&gt;sourcefile~fieldbinaryoperations.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge9" class="edge">
+<title>sourcefile~fieldutils.f90&#45;&gt;sourcefile~fieldbinaryoperations.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1092.94,-128.57C1070.16,-123.22 1041.17,-116.39 1015.61,-110.38"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="1016.17,-106.92 1005.64,-108.03 1014.57,-113.73 1016.17,-106.92"/>
+</g>
+<!-- sourcefile~fieldblas.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node10" class="node">
+<title>sourcefile~fieldblas.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node10"><a xlink:href="../sourcefile/fieldblas.f90.html" xlink:title="FieldBLAS.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="997.5,-66 909.5,-66 909.5,-42 997.5,-42 997.5,-66"/>
+<text text-anchor="middle" x="953.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldBLAS.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutils.f90&#45;&gt;sourcefile~fieldblas.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge10" class="edge">
+<title>sourcefile~fieldutils.f90&#45;&gt;sourcefile~fieldblas.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1116.3,-125.76C1096.56,-111.79 1062.3,-89.04 1030,-75 1022.81,-71.87 1015.02,-69.09 1007.28,-66.65"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="1008.13,-63.25 997.54,-63.75 1006.13,-69.96 1008.13,-63.25"/>
+</g>
+<!-- sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node11" class="node">
+<title>sourcefile~fieldpointerutilities.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node11"><a xlink:href="../sourcefile/fieldpointerutilities.f90.html" xlink:title="FieldPointerUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="841,-188 705,-188 705,-164 841,-164 841,-188"/>
+<text text-anchor="middle" x="773" y="-173.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldPointerUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutils.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge11" class="edge">
+<title>sourcefile~fieldutils.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1096.59,-150C1060.86,-160.86 1004.62,-175.51 954.5,-178"/>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M952.5,-178C919.26,-179.65 882.5,-179.57 851.02,-178.91"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="851.08,-175.41 841,-178.68 850.92,-182.41 851.08,-175.41"/>
+</g>
+<!-- sourcefile~fieldunaryfunctions.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node12" class="node">
+<title>sourcefile~fieldunaryfunctions.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node12"><a xlink:href="../sourcefile/fieldunaryfunctions.f90.html" xlink:title="FieldUnaryFunctions.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1024.5,-150 882.5,-150 882.5,-126 1024.5,-126 1024.5,-150"/>
+<text text-anchor="middle" x="953.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldUnaryFunctions.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutils.f90&#45;&gt;sourcefile~fieldunaryfunctions.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge12" class="edge">
+<title>sourcefile~fieldutils.f90&#45;&gt;sourcefile~fieldunaryfunctions.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1092.94,-138C1075.71,-138 1054.91,-138 1034.74,-138"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="1034.59,-134.5 1024.59,-138 1034.59,-141.5 1034.59,-134.5"/>
+</g>
+<!-- sourcefile~fieldutilities.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node13" class="node">
+<title>sourcefile~fieldutilities.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node13"><a xlink:href="../sourcefile/fieldutilities.f90.html" xlink:title="FieldUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1003,-348 904,-348 904,-324 1003,-324 1003,-348"/>
+<text text-anchor="middle" x="953.5" y="-333.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutils.f90&#45;&gt;sourcefile~fieldutilities.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge13" class="edge">
+<title>sourcefile~fieldutils.f90&#45;&gt;sourcefile~fieldutilities.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M1124.31,-150.29C1111.1,-169.19 1085.43,-206.69 1066,-240 1048.37,-270.22 1056.45,-287.1 1030,-310 1024.86,-314.45 1018.92,-318.15 1012.67,-321.22"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="1011.12,-318.08 1003.36,-325.29 1013.92,-324.5 1011.12,-318.08"/>
+</g>
+<!-- sourcefile~accumulatoraction.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node6" class="node">
+<title>sourcefile~accumulatoraction.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node6"><a xlink:href="../sourcefile/accumulatoraction.f90.html" xlink:title="AccumulatorAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="1202,-308 1066,-308 1066,-284 1202,-284 1202,-308"/>
+<text text-anchor="middle" x="1134" y="-293.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AccumulatorAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~minaction.f90&#45;&gt;sourcefile~accumulatoraction.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge14" class="edge">
+<title>sourcefile~minaction.f90&#45;&gt;sourcefile~accumulatoraction.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M1303.3,-248.94C1269.95,-258.27 1223.43,-271.27 1187.75,-281.25"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="1186.69,-277.91 1178,-283.98 1188.57,-284.65 1186.69,-277.91"/>
+</g>
+<!-- sourcefile~minaction.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge15" class="edge">
+<title>sourcefile~minaction.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M1303.7,-224.99C1232.2,-205.95 1082.71,-171.63 954.5,-178"/>
+</g>
+<!-- sourcefile~minaction.f90&#45;&gt;sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge16" class="edge">
+<title>sourcefile~minaction.f90&#45;&gt;sourcefile~internalconstants.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M1133,-254C1098.6,-253.66 1060.48,-253.99 1028.33,-254.47"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="1028.05,-250.98 1018.11,-254.64 1028.17,-257.98 1028.05,-250.98"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node15" class="node">
+<title>sourcefile~mapl_exceptionhandling.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node15"><a xlink:href="../sourcefile/mapl_exceptionhandling.f90.html" xlink:title="MAPL_ExceptionHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="669,-190 500,-190 500,-166 669,-166 669,-190"/>
+<text text-anchor="middle" x="584.5" y="-175.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ExceptionHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~minaction.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge17" class="edge">
+<title>sourcefile~minaction.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M1303.24,-242.72C1260.67,-247.88 1193.43,-254.58 1135,-254"/>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M1133,-254C1086.45,-253.54 1076.17,-240.95 1030,-235 916.85,-220.41 885.62,-239.62 774,-216"/>
+<path fill="none" stroke="#7f00ff" stroke-dasharray="5,2" d="M772,-216C734.94,-207.4 693.49,-198.85 659.1,-192.04"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="659.62,-188.57 649.13,-190.08 658.27,-195.44 659.62,-188.57"/>
+</g>
+<!-- sourcefile~accumulatoraction.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge19" class="edge">
+<title>sourcefile~accumulatoraction.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1065.88,-303.88C1031.98,-305.89 990.5,-305.31 954.5,-296"/>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M952.5,-296C919,-287.34 903.8,-298.89 877,-277 848.36,-253.61 868.14,-227.11 841,-202 837.21,-198.49 832.88,-195.43 828.31,-192.78"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="829.75,-189.58 819.25,-188.15 826.56,-195.82 829.75,-189.58"/>
+</g>
+<!-- sourcefile~accumulatoraction.f90&#45;&gt;sourcefile~fieldutilities.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge20" class="edge">
+<title>sourcefile~accumulatoraction.f90&#45;&gt;sourcefile~fieldutilities.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1079.44,-308C1058.52,-312.69 1034.47,-318.08 1013.09,-322.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1012.14,-319.5 1003.15,-325.1 1013.67,-326.33 1012.14,-319.5"/>
+</g>
+<!-- sourcefile~accumulatoraction.f90&#45;&gt;sourcefile~internalconstants.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge21" class="edge">
+<title>sourcefile~accumulatoraction.f90&#45;&gt;sourcefile~internalconstants.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1079.44,-284C1060.21,-279.69 1038.32,-274.78 1018.29,-270.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="1018.85,-266.83 1008.33,-268.06 1017.32,-273.66 1018.85,-266.83"/>
+</g>
+<!-- sourcefile~accumulatoraction.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge22" class="edge">
+<title>sourcefile~accumulatoraction.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M952.5,-296C919,-287.34 906.98,-294.28 877,-277 857.12,-265.54 860.3,-252.41 841,-240 814.4,-222.89 804.95,-222.55 774,-216"/>
+</g>
+<!-- sourcefile~extensionaction.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node17" class="node">
+<title>sourcefile~extensionaction.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node17"><a xlink:href="../sourcefile/extensionaction.f90.html" xlink:title="ExtensionAction.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="833,-601 713,-601 713,-577 833,-577 833,-601"/>
+<text text-anchor="middle" x="773" y="-586.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ExtensionAction.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~accumulatoraction.f90&#45;&gt;sourcefile~extensionaction.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge18" class="edge">
+<title>sourcefile~accumulatoraction.f90&#45;&gt;sourcefile~extensionaction.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M1118.03,-308.22C1062.04,-353.92 864.67,-515 796.99,-570.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="794.57,-567.7 789.03,-576.73 798.99,-573.12 794.57,-567.7"/>
+</g>
+<!-- sourcefile~esmf_testcase.f90&#45;&gt;sourcefile~esmf_testparameter.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge23" class="edge">
+<title>sourcefile~esmf_testcase.f90&#45;&gt;sourcefile~esmf_testparameter.f90</title>
+<path fill="none" stroke="#ff9900" stroke-dasharray="5,2" d="M1076.03,-12C1063.27,-12 1049.48,-12 1035.94,-12"/>
+<polygon fill="#ff9900" stroke="#ff9900" points="1035.65,-8.5 1025.65,-12 1035.65,-15.5 1035.65,-8.5"/>
+</g>
+<!-- sourcefile~fieldbinaryoperations.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge24" class="edge">
+<title>sourcefile~fieldbinaryoperations.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M902.35,-108.05C893.77,-110.65 885.03,-113.64 877,-117 849.79,-128.37 820.82,-145.46 800.56,-158.33"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="798.41,-155.55 791.9,-163.9 802.2,-161.43 798.41,-155.55"/>
+</g>
+<!-- sourcefile~fieldbinaryoperations.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge25" class="edge">
+<title>sourcefile~fieldbinaryoperations.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M876.82,-101.03C844.85,-104.04 807.37,-108.75 774,-116"/>
+</g>
+<!-- sourcefile~fieldblas.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge26" class="edge">
+<title>sourcefile~fieldblas.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M909.33,-60.35C898.07,-63.46 886.45,-68.09 877,-75 853.41,-92.24 861.43,-109.11 841,-130 830.36,-140.88 816.8,-150.75 804.66,-158.54"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="802.79,-155.58 796.14,-163.82 806.48,-161.53 802.79,-155.58"/>
+</g>
+<!-- sourcefile~fieldblas.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge27" class="edge">
+<title>sourcefile~fieldblas.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M909.14,-65.2C898.56,-68.17 887.31,-71.52 877,-75 830.31,-90.74 822.15,-105.53 774,-116"/>
+<path fill="none" stroke="#00ff66" stroke-dasharray="5,2" d="M772,-116C719.97,-127.31 662.07,-147.87 624.79,-162.2"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="623.37,-159 615.31,-165.88 625.9,-165.53 623.37,-159"/>
+</g>
+<!-- sourcefile~fieldpointerutilities.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge28" class="edge">
+<title>sourcefile~fieldpointerutilities.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M704.93,-176.72C696.6,-176.81 687.97,-176.9 679.32,-176.99"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="679.16,-173.5 669.2,-177.1 679.23,-180.49 679.16,-173.5"/>
+</g>
+<!-- sourcefile~fieldunaryfunctions.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge29" class="edge">
+<title>sourcefile~fieldunaryfunctions.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M896.02,-150.02C878.35,-153.78 858.7,-157.97 840.41,-161.86"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="839.47,-158.48 830.42,-163.99 840.93,-165.33 839.47,-158.48"/>
+</g>
+<!-- sourcefile~fieldunaryfunctions.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge30" class="edge">
+<title>sourcefile~fieldunaryfunctions.f90&#45;&gt;sourcefile~mapl_exceptionhandling.f90</title>
+<path fill="none" stroke="#0066ff" stroke-dasharray="5,2" d="M914.21,-125.91C877.83,-116.15 821.75,-105.62 774,-116"/>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~fieldpointerutilities.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge33" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~fieldpointerutilities.f90</title>
+<path fill="none" stroke="#3200ff" stroke-dasharray="5,2" d="M903.61,-326.47C893.82,-322.68 884.32,-317.39 877,-310 841.4,-274.05 875.9,-238.63 841,-202 837.68,-198.51 833.84,-195.49 829.7,-192.86"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="831.34,-189.77 820.89,-188.02 827.97,-195.9 831.34,-189.77"/>
+</g>
+<!-- sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node16" class="node">
+<title>sourcefile~errorhandling.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node16"><a xlink:href="../sourcefile/errorhandling.f90.html" xlink:title="ErrorHandling.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="264,-442 155,-442 155,-418 264,-418 264,-442"/>
+<text text-anchor="middle" x="209.5" y="-427.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ErrorHandling.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge31" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#3200ff" stroke-dasharray="5,2" d="M583.5,-612C578.4,-613.79 397.5,-652.07 392.5,-650"/>
+<path fill="none" stroke="#3200ff" stroke-dasharray="5,2" d="M390.5,-650C360.11,-637.44 344.82,-651.36 319,-631 258.85,-583.56 227.69,-493.26 216.03,-451.8"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="219.41,-450.88 213.42,-442.14 212.65,-452.71 219.41,-450.88"/>
+</g>
+<!-- sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node18" class="node">
+<title>sourcefile~fieldinfo.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node18"><a xlink:href="../sourcefile/fieldinfo.f90.html" xlink:title="FieldInfo.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="812.5,-365 733.5,-365 733.5,-341 812.5,-341 812.5,-365"/>
+<text text-anchor="middle" x="773" y="-350.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldInfo.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~fieldinfo.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge32" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~fieldinfo.f90</title>
+<path fill="none" stroke="#3200ff" stroke-dasharray="5,2" d="M903.72,-340.65C878.5,-343.05 847.81,-345.97 822.61,-348.37"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="822.16,-344.9 812.54,-349.33 822.83,-351.87 822.16,-344.9"/>
+</g>
+<!-- sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node19" class="node">
+<title>sourcefile~infoutilities.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node19"><a xlink:href="../sourcefile/infoutilities.f90.html" xlink:title="InfoUtilities.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="438.5,-382 344.5,-382 344.5,-358 438.5,-358 438.5,-382"/>
+<text text-anchor="middle" x="391.5" y="-367.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">InfoUtilities.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge34" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~infoutilities.f90</title>
+<path fill="none" stroke="#3200ff" stroke-dasharray="5,2" d="M926.1,-348.14C911.01,-355.68 892.13,-366.18 877,-378 824.21,-419.22 835.93,-462.5 774,-488"/>
+<path fill="none" stroke="#3200ff" stroke-dasharray="5,2" d="M772,-488C756.04,-494.57 533.11,-418.76 436.56,-385.35"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="437.67,-382.03 427.07,-382.06 435.38,-388.64 437.67,-382.03"/>
+</g>
+<!-- sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node20" class="node">
+<title>sourcefile~keywordenforcer.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node20"><a xlink:href="../sourcefile/keywordenforcer.f90.html" xlink:title="KeywordEnforcer.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="271.5,-304 147.5,-304 147.5,-280 271.5,-280 271.5,-304"/>
+<text text-anchor="middle" x="209.5" y="-289.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">KeywordEnforcer.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge35" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#3200ff" stroke-dasharray="5,2" d="M903.94,-324.39C847.77,-311.54 752.31,-291.54 669,-283 514.25,-267.13 474.29,-269.73 319,-279 307.02,-279.72 294.33,-280.87 282.01,-282.21"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="281.33,-278.76 271.78,-283.36 282.11,-285.72 281.33,-278.76"/>
+</g>
+<!-- sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node21" class="node">
+<title>sourcefile~lu_bound.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node21"><a xlink:href="../sourcefile/lu_bound.f90.html" xlink:title="LU_Bound.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="435.5,-622 347.5,-622 347.5,-598 435.5,-598 435.5,-622"/>
+<text text-anchor="middle" x="391.5" y="-607.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LU_Bound.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge36" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#3200ff" stroke-dasharray="5,2" d="M772,-488C680.81,-527.9 679.42,-579.05 585.5,-612"/>
+<path fill="none" stroke="#3200ff" stroke-dasharray="5,2" d="M583.5,-612C538.98,-627.62 484.94,-625.26 445.72,-620.08"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="445.98,-616.58 435.58,-618.63 444.99,-623.51 445.98,-616.58"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node23" class="node">
+<title>sourcefile~ungriddeddims.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node23"><a xlink:href="../sourcefile/ungriddeddims.f90.html" xlink:title="UngriddedDims.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="643.5,-500 525.5,-500 525.5,-476 643.5,-476 643.5,-500"/>
+<text text-anchor="middle" x="584.5" y="-485.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDims.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldutilities.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge37" class="edge">
+<title>sourcefile~fieldutilities.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#3200ff" stroke-dasharray="5,2" d="M772,-488C734.92,-503.27 690.06,-503.76 653.63,-500.2"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="653.92,-496.71 643.6,-499.1 653.16,-503.67 653.92,-496.71"/>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge38" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff0098" stroke-dasharray="5,2" d="M560.02,-190.16C511.88,-215.71 399.71,-278.49 319,-349 300.48,-365.18 302.15,-375.58 283,-391 272.37,-399.56 259.59,-407.16 247.73,-413.32"/>
+<polygon fill="#ff0098" stroke="#ff0098" points="245.86,-410.34 238.48,-417.95 248.99,-416.6 245.86,-410.34"/>
+</g>
+<!-- sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node22" class="node">
+<title>sourcefile~mapl_throw.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node22"><a xlink:href="../sourcefile/mapl_throw.f90.html" xlink:title="MAPL_Throw.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="100,-307 0,-307 0,-283 100,-283 100,-307"/>
+<text text-anchor="middle" x="50" y="-292.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Throw.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge39" class="edge">
+<title>sourcefile~mapl_exceptionhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#ff0098" stroke-dasharray="5,2" d="M499.92,-180.38C447.48,-183.15 378.72,-189.13 319,-202 233.97,-220.32 138.7,-257.63 87.8,-279"/>
+<polygon fill="#ff0098" stroke="#ff0098" points="86.37,-275.81 78.52,-282.93 89.1,-282.26 86.37,-275.81"/>
+</g>
+<!-- sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge40" class="edge">
+<title>sourcefile~errorhandling.f90&#45;&gt;sourcefile~mapl_throw.f90</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M180.59,-417.86C166.5,-411.04 149.56,-401.74 136,-391 107.75,-368.63 81.24,-336.16 65.57,-315.32"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="68.29,-313.12 59.54,-307.16 62.66,-317.28 68.29,-313.12"/>
+</g>
+<!-- sourcefile~extensionaction.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge41" class="edge">
+<title>sourcefile~extensionaction.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ffbf00" stroke-dasharray="5,2" d="M748.77,-601.06C687.88,-630.95 519.6,-702.36 392.5,-650"/>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge42" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M738.08,-365.01C718.19,-371.59 692.44,-379.34 669,-384 529.93,-411.64 363.66,-423.05 274.51,-427.46"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="274.11,-423.98 264.29,-427.96 274.45,-430.97 274.11,-423.98"/>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge43" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~infoutilities.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M583.5,-370C538.34,-369.7 487.17,-369.72 449.17,-369.8"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="448.81,-366.3 438.82,-369.83 448.82,-373.3 448.81,-366.3"/>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge44" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M750.29,-340.93C729.97,-330.33 698.41,-315.59 669,-309 534.84,-278.94 373.17,-281.69 282.07,-286.67"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="281.64,-283.19 271.85,-287.25 282.04,-290.17 281.64,-283.19"/>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~ungriddeddims.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge46" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~ungriddeddims.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M763.86,-365.07C748.14,-387.46 711.41,-435.54 669,-462 662.48,-466.07 655.27,-469.54 647.9,-472.5"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="646.69,-469.22 638.53,-475.98 649.12,-475.79 646.69,-469.22"/>
+</g>
+<!-- sourcefile~mapl_esmf_infokeys.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node24" class="node">
+<title>sourcefile~mapl_esmf_infokeys.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node24"><a xlink:href="../sourcefile/mapl_esmf_infokeys.f90.html" xlink:title="MAPL_ESMF_InfoKeys.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="283,-382 136,-382 136,-358 283,-358 283,-382"/>
+<text text-anchor="middle" x="209.5" y="-367.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ESMF_InfoKeys.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge45" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M733.16,-358.76C695.5,-363.83 636.71,-370.34 585.5,-370"/>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M583.5,-370C529.58,-369.64 517.72,-353.68 464,-349 399.8,-343.4 383.15,-342.85 319,-349 303.57,-350.48 287.07,-353.12 271.71,-356.03"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="270.95,-352.62 261.81,-357.98 272.3,-359.49 270.95,-352.62"/>
+</g>
+<!-- sourcefile~verticalstaggerloc.f90~2 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node27" class="node">
+<title>sourcefile~verticalstaggerloc.f90~2</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node27"><a xlink:href="../sourcefile/verticalstaggerloc.f90~2.html" xlink:title="VerticalStaggerLoc.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="652.5,-342 516.5,-342 516.5,-318 652.5,-318 652.5,-342"/>
+<text text-anchor="middle" x="584.5" y="-327.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">VerticalStaggerLoc.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~fieldinfo.f90&#45;&gt;sourcefile~verticalstaggerloc.f90~2 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge47" class="edge">
+<title>sourcefile~fieldinfo.f90&#45;&gt;sourcefile~verticalstaggerloc.f90~2</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M733.36,-348.23C712.91,-345.71 687.07,-342.53 662.72,-339.52"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="663.11,-336.05 652.76,-338.29 662.26,-342.99 663.11,-336.05"/>
+</g>
+<!-- sourcefile~infoutilities.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge48" class="edge">
+<title>sourcefile~infoutilities.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M354.07,-382.14C325.8,-391.57 286.44,-404.69 256.08,-414.81"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="254.94,-411.5 246.56,-417.98 257.16,-418.14 254.94,-411.5"/>
+</g>
+<!-- sourcefile~infoutilities.f90&#45;&gt;sourcefile~keywordenforcer.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge49" class="edge">
+<title>sourcefile~infoutilities.f90&#45;&gt;sourcefile~keywordenforcer.f90</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M362.77,-357.98C331.85,-344.59 281.7,-322.85 247.47,-308.02"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="248.83,-304.79 238.26,-304.03 246.05,-311.22 248.83,-304.79"/>
+</g>
+<!-- sourcefile~infoutilities.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge50" class="edge">
+<title>sourcefile~infoutilities.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M344.15,-370C328.65,-370 310.87,-370 293.44,-370"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="293.25,-366.5 283.25,-370 293.25,-373.5 293.25,-366.5"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~errorhandling.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge51" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~errorhandling.f90</title>
+<path fill="none" stroke="#ff00bf" stroke-dasharray="5,2" d="M566.77,-500.23C544.58,-515.62 503.61,-541.2 464,-551 401.44,-566.48 377.85,-577.27 319,-551 273.17,-530.54 238.64,-480.09 221.84,-451.2"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="224.79,-449.31 216.83,-442.31 218.69,-452.74 224.79,-449.31"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~infoutilities.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge52" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~infoutilities.f90</title>
+<path fill="none" stroke="#ff00bf" stroke-dasharray="5,2" d="M567.47,-475.76C550.64,-462.91 523.42,-442.08 500,-424 483.96,-411.61 481.74,-405.81 464,-396 457.09,-392.18 449.51,-388.73 441.95,-385.68"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="443.02,-382.34 432.43,-382.03 440.52,-388.88 443.02,-382.34"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~lu_bound.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge53" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~lu_bound.f90</title>
+<path fill="none" stroke="#ff00bf" stroke-dasharray="5,2" d="M571.26,-500.16C550.67,-520.04 507.13,-559.72 464,-584 457.2,-587.83 449.74,-591.27 442.27,-594.31"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="440.94,-591.07 432.86,-597.93 443.45,-597.6 440.94,-591.07"/>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge54" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~mapl_esmf_infokeys.f90</title>
+<path fill="none" stroke="#ff00bf" stroke-dasharray="5,2" d="M545.34,-475.93C476.83,-454.26 333.2,-408.82 258.27,-385.11"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="259.2,-381.74 248.61,-382.06 257.09,-388.41 259.2,-381.74"/>
+</g>
+<!-- sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node25" class="node">
+<title>sourcefile~ungriddeddim.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node25"><a xlink:href="../sourcefile/ungriddeddim.f90.html" xlink:title="UngriddedDim.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="447.5,-542 335.5,-542 335.5,-518 447.5,-518 447.5,-542"/>
+<text text-anchor="middle" x="391.5" y="-527.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDim.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddim.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge55" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddim.f90</title>
+<path fill="none" stroke="#ff00bf" stroke-dasharray="5,2" d="M528.77,-500.04C506.39,-504.96 480.34,-510.69 457.04,-515.81"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="456.26,-512.4 447.24,-517.96 457.76,-519.23 456.26,-512.4"/>
+</g>
+<!-- sourcefile~ungriddeddimvector.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_node26" class="node">
+<title>sourcefile~ungriddeddimvector.f90</title>
+<g id="a_sourcefile~~test_minaction.pf~~EfferentGraph_node26"><a xlink:href="../sourcefile/ungriddeddimvector.f90.html" xlink:title="UngriddedDimVector.F90">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="464,-500 319,-500 319,-476 464,-476 464,-500"/>
+<text text-anchor="middle" x="391.5" y="-485.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">UngriddedDimVector.F90</text>
+</a>
+</g>
+</g>
+<!-- sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddimvector.f90 -->
+<g id="sourcefile~~test_minaction.pf~~EfferentGraph_edge56" class="edge">
+<title>sourcefile~ungriddeddims.f90&#45;&gt;sourcefile~ungriddeddimvector.f90</title>
+<path fill="none" stroke="#ff00bf" stroke-dasharray="5,2" d="M525.42,-488C509.27,-488 491.43,-488 474.2,-488"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="474.14,-484.5 464.14,-488 474.14,-491.5 474.14,-484.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var pansourcefiletest_minactionpfEfferentGraph = svgPanZoom('#sourcefiletest_minactionpfEfferentGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#EfferentGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="EfferentGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="202pt" height="32pt"
+ viewBox="0.00 0.00 201.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 197.5,-28 197.5,4 -4,4"/>
+<!-- Source File -->
+<g id="node1" class="node">
+<title>Source File</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Source File</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node2" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="193.5,-24 88.5,-24 88.5,0 193.5,0 193.5,-24"/>
+<text text-anchor="middle" x="141" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a file to a file which it depends on. A file
+is dependent upon another if the latter must be compiled before the former
+can be.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+<br>
+      <section>
+        <h2><span class="anchor" id="src"></span>Source Code</h2>
+        <div class="hl codehilite"><pre><span></span><a id="ln-1" name="ln-1" href="#ln-1"></a><span class="cp">#include &quot;MAPL_TestErr.h&quot;</span>
+<a id="ln-2" name="ln-2" href="#ln-2"></a><span class="k">module </span><span class="n">Test_MinAction</span>
+<a id="ln-3" name="ln-3" href="#ln-3"></a><span class="w">   </span><span class="k">use </span><span class="n">mapl3g_MinAction</span>
+<a id="ln-4" name="ln-4" href="#ln-4"></a><span class="w">   </span><span class="k">use </span><span class="n">accumulator_action_test_common</span>
+<a id="ln-5" name="ln-5" href="#ln-5"></a><span class="w">   </span><span class="k">use </span><span class="n">esmf</span>
+<a id="ln-6" name="ln-6" href="#ln-6"></a><span class="w">   </span><span class="k">use </span><span class="n">MAPL_FieldUtils</span>
+<a id="ln-7" name="ln-7" href="#ln-7"></a><span class="w">   </span><span class="k">use </span><span class="n">pfunit</span>
+<a id="ln-8" name="ln-8" href="#ln-8"></a><span class="w">   </span><span class="k">use </span><span class="n">ESMF_TestMethod_mod</span>
+<a id="ln-9" name="ln-9" href="#ln-9"></a><span class="w">   </span><span class="k">implicit none</span>
+<a id="ln-10" name="ln-10" href="#ln-10"></a>
+<a id="ln-11" name="ln-11" href="#ln-11"></a><span class="k">contains</span>
+<a id="ln-12" name="ln-12" href="#ln-12"></a>
+<a id="ln-13" name="ln-13" href="#ln-13"></a><span class="w">   </span><span class="err">@</span><span class="n">Test</span><span class="p">(</span><span class="k">type</span><span class="o">=</span><span class="n">ESMF_TestMethod</span><span class="p">,</span><span class="w"> </span><span class="n">npes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<a id="ln-14" name="ln-14" href="#ln-14"></a><span class="w">   </span><span class="k">subroutine </span><span class="n">test_min_accumulate_R4</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<a id="ln-15" name="ln-15" href="#ln-15"></a><span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<a id="ln-16" name="ln-16" href="#ln-16"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">MinAction</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">acc</span>
+<a id="ln-17" name="ln-17" href="#ln-17"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span>
+<a id="ln-18" name="ln-18" href="#ln-18"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">clock</span>
+<a id="ln-19" name="ln-19" href="#ln-19"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<a id="ln-20" name="ln-20" href="#ln-20"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">update_field</span>
+<a id="ln-21" name="ln-21" href="#ln-21"></a><span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TypeKind_Flag</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tk</span><span class="w"> </span><span class="o">=</span><span class="n">ESMF_TYPEKIND_R4</span>
+<a id="ln-22" name="ln-22" href="#ln-22"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">upPtr</span><span class="p">(:),</span><span class="w"> </span><span class="n">accPtr</span><span class="p">(:)</span>
+<a id="ln-23" name="ln-23" href="#ln-23"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">UPDATE_VALUE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0_R4</span><span class="p">,</span><span class="w"> </span><span class="n">ACCUMULATED_VALUE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.0_R4</span>
+<a id="ln-24" name="ln-24" href="#ln-24"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">undef_value</span>
+<a id="ln-25" name="ln-25" href="#ln-25"></a><span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">expected</span><span class="p">(:)</span>
+<a id="ln-26" name="ln-26" href="#ln-26"></a><span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">n</span>
+<a id="ln-27" name="ln-27" href="#ln-27"></a>
+<a id="ln-28" name="ln-28" href="#ln-28"></a><span class="w">      </span><span class="c">! Initialize</span>
+<a id="ln-29" name="ln-29" href="#ln-29"></a><span class="w">      </span><span class="k">call </span><span class="n">set_undef</span><span class="p">(</span><span class="n">undef_value</span><span class="p">)</span>
+<a id="ln-30" name="ln-30" href="#ln-30"></a><span class="w">      </span><span class="k">call </span><span class="n">initialize_objects</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="n">tk</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-31" name="ln-31" href="#ln-31"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">initialize</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-32" name="ln-32" href="#ln-32"></a><span class="w">      </span><span class="k">call </span><span class="n">initialize_field</span><span class="p">(</span><span class="n">update_field</span><span class="p">,</span><span class="w"> </span><span class="n">acc</span><span class="p">%</span><span class="n">accumulation_field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-33" name="ln-33" href="#ln-33"></a><span class="w">      </span><span class="k">call </span><span class="n">assign_fptr</span><span class="p">(</span><span class="n">acc</span><span class="p">%</span><span class="n">accumulation_field</span><span class="p">,</span><span class="w"> </span><span class="n">accPtr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-34" name="ln-34" href="#ln-34"></a><span class="w">      </span><span class="k">call </span><span class="n">assign_fptr</span><span class="p">(</span><span class="n">update_field</span><span class="p">,</span><span class="w"> </span><span class="n">upPtr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-35" name="ln-35" href="#ln-35"></a><span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">upPtr</span><span class="p">)</span>
+<a id="ln-36" name="ln-36" href="#ln-36"></a><span class="w">      </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">3</span>
+<a id="ln-37" name="ln-37" href="#ln-37"></a><span class="w">      </span><span class="n">accPtr</span><span class="p">(</span><span class="n">i</span><span class="p">:</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">undef_value</span><span class="p">,</span><span class="w"> </span><span class="n">ACCUMULATED_VALUE</span><span class="p">,</span><span class="w"> </span><span class="n">ACCUMULATED_VALUE</span><span class="p">,</span><span class="w"> </span><span class="n">ACCUMULATED_VALUE</span><span class="p">]</span>
+<a id="ln-38" name="ln-38" href="#ln-38"></a><span class="w">      </span><span class="n">upPtr</span><span class="p">(</span><span class="n">i</span><span class="p">:</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">UPDATE_VALUE</span><span class="p">,</span><span class="w"> </span><span class="n">undef_value</span><span class="p">,</span><span class="w"> </span><span class="n">UPDATE_VALUE</span><span class="p">,</span><span class="w"> </span><span class="n">UPDATE_VALUE</span><span class="o">+</span><span class="n">ACCUMULATED_VALUE</span><span class="p">]</span>
+<a id="ln-39" name="ln-39" href="#ln-39"></a><span class="w">      </span><span class="n">expected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">UPDATE_VALUE</span><span class="p">,</span><span class="w"> </span><span class="n">ACCUMULATED_VALUE</span><span class="p">,</span><span class="w"> </span><span class="n">UPDATE_VALUE</span><span class="p">,</span><span class="w"> </span><span class="n">ACCUMULATED_VALUE</span><span class="p">]</span>
+<a id="ln-40" name="ln-40" href="#ln-40"></a><span class="w">      </span><span class="k">call </span><span class="n">acc</span><span class="p">%</span><span class="n">accumulate_R4</span><span class="p">(</span><span class="n">update_field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-41" name="ln-41" href="#ln-41"></a><span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span><span class="w"> </span><span class="n">accPtr</span><span class="p">(</span><span class="n">i</span><span class="p">:</span><span class="n">n</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;accumulation_field not equal to expected values&#39;</span><span class="p">)</span>
+<a id="ln-42" name="ln-42" href="#ln-42"></a><span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldDestroy</span><span class="p">(</span><span class="n">update_field</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-43" name="ln-43" href="#ln-43"></a><span class="w">      </span><span class="k">call </span><span class="n">destroy_objects</span><span class="p">(</span><span class="n">importState</span><span class="p">,</span><span class="w"> </span><span class="n">exportState</span><span class="p">,</span><span class="w"> </span><span class="n">clock</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<a id="ln-44" name="ln-44" href="#ln-44"></a>
+<a id="ln-45" name="ln-45" href="#ln-45"></a><span class="w">   </span><span class="k">end subroutine </span><span class="n">test_min_accumulate_R4</span>
+<a id="ln-46" name="ln-46" href="#ln-46"></a>
+<a id="ln-47" name="ln-47" href="#ln-47"></a><span class="k">end module </span><span class="n">Test_MinAction</span>
+</pre></div>
+
+      </section>
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-01-07T18:03:52.420803+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
