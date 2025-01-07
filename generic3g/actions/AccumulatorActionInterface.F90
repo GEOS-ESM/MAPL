@@ -52,7 +52,9 @@ contains
 
       integer :: status
 
-      _ASSERT(typekind == ESMF_TYPEKIND_R4, 'Unsupported typekind')
+      if(typekind /= ESMF_TYPEKIND_R4) then
+         _FAIL('Unsupported typekind')
+      end if
 
       select case(accumulation_type)
       case (SIMPLE_ACCUMULATION)
