@@ -86,6 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed the behavior of MAPL_MaxMin in presence of NaN
 - Fixed bug with return codes and macros in udunits2f
 
 ### Removed
