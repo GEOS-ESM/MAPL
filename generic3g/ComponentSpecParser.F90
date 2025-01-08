@@ -38,7 +38,7 @@ module mapl3g_ComponentSpecParser
    public :: parse_child
    public :: parse_SetServices
    public :: parse_geometry_spec
-   public :: parse_run_dt
+   public :: parse_timestep
 
 !!$   public :: parse_ChildSpecMap
 !!$   public :: parse_ChildSpec
@@ -63,7 +63,7 @@ module mapl3g_ComponentSpecParser
    character(*), parameter :: KEY_UNGRIDDED_DIM_COORDINATES = 'coordinates'
    character(*), parameter :: KEY_VERTICAL_DIM_SPEC = 'vertical_dim_spec'
    character(*), parameter :: KEY_ACCUMULATION_TYPE = 'accumulation_type'
-   character(*), parameter :: KEY_RUN_DT = 'run_dt'
+   character(*), parameter :: KEY_TIMESTEP = 'TIMESTEP'
 
    !>
    ! Submodule declarations
@@ -112,11 +112,11 @@ module mapl3g_ComponentSpecParser
          integer, optional, intent(out) :: rc
       end function parse_child
 
-      module function parse_run_dt(hconfig, rc) result(run_dt)
-         type(ESMF_TimeInterval) :: run_dt
+      module function parse_timestep(hconfig, rc) result(timestep)
+         type(ESMF_TimeInterval) :: timestep
          type(ESMF_HConfig), intent(in) :: hconfig
          integer, optional, intent(out) :: rc
-      end function parse_run_dt
+      end function parse_timestep
 
    END INTERFACE
 

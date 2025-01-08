@@ -5,6 +5,7 @@ module mapl3g_AccumulatorActionInterface
    use mapl3g_MaxAction
    use mapl3g_MinAction
    use mapl3g_ExtensionAction
+   use mapl3g_NullAction
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use esmf, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R4, operator(/=)
@@ -47,10 +48,12 @@ contains
    subroutine get_accumulator_action(accumulation_type, typekind, action, rc)
       character(len=*), intent(in) :: accumulation_type
       type(ESMF_TypeKind_Flag), intent(in) :: typekind
-      class(ExtensionAction), allocatable, intent(inout) :: action
+      class(ExtensionAction), allocatable, intent(out) :: action
       integer, optional, intent(out) :: rc 
 
       integer :: status
+
+      allocate(action, source=NullAction())
 
       if(typekind /= ESMF_TYPEKIND_R4) then
          _FAIL('Unsupported typekind')

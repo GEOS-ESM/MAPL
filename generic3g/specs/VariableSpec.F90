@@ -46,7 +46,6 @@ module mapl3g_VariableSpec
       real, allocatable :: default_value
       type(StringVector) :: attributes
       integer, allocatable :: bracket_size
-      character(len=:), allocatable :: accumulation_type
 
       ! Geometry
       type(VerticalDimSpec) :: vertical_dim_spec = VERTICAL_DIM_UNKNOWN ! none, center, edge
@@ -111,6 +110,7 @@ contains
 
       call var_spec%aspects%set_ungridded_dims_aspect(UngriddedDimsAspect(ungridded_dims))
       call var_spec%aspects%set_typekind_aspect(TypekindAspect(typekind))
+      call var_spec%aspects%set_frequency_aspect(FrequencyAspect(accumulation_type))
 
       _SET_OPTIONAL(standard_name)
       _SET_OPTIONAL(itemtype)
