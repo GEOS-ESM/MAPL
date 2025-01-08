@@ -9,13 +9,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Allow update offsets of &#177;timestep in ExtData2G
-- Minor revision (and generalization) of grid-def for GSI purposes
-- Trajectory sampler: fix a bug when group_name does not exist in netCDF file and a bug that omitted the first time point
+- Added optional start_date and start_time to control the output window for each History collection. No output will be written before then. If not specified, these default to the beginning of the experiment.
+- Added utility to prepare inputs for ExtDatDriver.x so that ExtData can simulate a real GEOS run
+- Added loggers when writing or reading weight files
+- Added new option to AGCM.rc `overwrite_checkpoint` to allow checkpoint files to be overwritten. By default still will not overwrite checkpoints
+- Added use_NWP_1_file=1 option in Trajectory sampler (HISTORY.rc) to generate the correct location_index_ioda array, mapping back to location points in the single IODA observation input file
 
 ### Changed
 
-- refactored tableEnd check
+- Changed MAPL_ESMFRegridder to require the dstMaskValues to be added as grid attribute to use fixed masking, fixes UFS issue
+- Increased formatting width of time index in ExtData2G diagnostic print
+
+### Fixed
+
+- Fixed bug with return codes and macros in udunits2f
+
+### Removed
+
+### Deprecated
+
+## [2.51.2] - 2024-12-19
+
+### Changed
+
+- Removed restriction that vector regridding in ExtData2G must be bilinear
+- Update CI to use Ubuntu 24 images
+
+### Fixed
+
+- Fixed by when using multiple rules for a vector item in ExtData2G
+- Fix profiler ExclusiveColumn test for GCC 14
+
+## [2.51.1] - 2024-12-10
+
+### Fixed
+
+- Properly nullified the pointers to the per-grid-cell counters
+
+## [2.51.0] - 2024-12-06
+
+### Added
+
+- Added macro `_RETURN(_SUCCESS)` to fetch_data
+- Allow update offsets of &#177;timestep in ExtData2G
+- Minor revision (and generalization) of grid-def for GSI purposes
+- Add ability to use an `ESMF_CONFIG_FILE` environment variable to specify name of file to pass in pre-`ESMF_Initialize` options to ESMF (see [ESMF Docs](https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node4.html#SECTION04024000000000000000) for allowed flags.
+- Allow lat-lon grid factory to detect and use CF compliant lat-lon bounds in a file when making a grid
+- PFIO/Variable class, new procedures to retrieve string/reals/int attributes from a variable
+- Added a call in GenericRefresh to allow GC's refresh method to be called; in support
+  of CICE6 rewind
+
+### Changed
+
+- Change minimum CMake version to 3.24
+  - This is needed for f2py and meson support
+- Refactored tableEnd check
 - Added commandline options to `checkpoint_benchmark.x` and `restart_benchmark.x` to allow for easier testing of different configurations. Note that the old configuration file style of input is allowed via the `--config_file` option (which overrides any other command line options)
 - Update ESMF version for Baselibs to match that of Spack for consistency
 - Update `components.yaml`
@@ -28,21 +76,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
       - GSL 2.8
       - jpeg 9f
       - Various build fixes
-  - ESMA_cmake v3.52.0
+  - ESMA_cmake v3.55.0
     - Fixes for using MAPL as a library in spack builds of GEOSgcm
     - Various backports from v4
+    - Code for capturing `mepo status` output
+    - Fixes for f2py and meson (NOTE: Requires CMake minimum version of 3.24 in project for complete functionality)
+    - Fixes for `MPI_STACK` code run multiple times
 - Updates to CI
   - Use v7.27.0 Baselibs
   - Use GCC 14 for GNU tests
   - Add pFUnit-less build test
+  - Enable ifx tests
+- Improve some writes to be more informative
+  - In `base/MAPL_CFIO.F90`, added `Iam` to a print statement so that when a read fails we know which routine failed
+  - In `gridcomps/ExtData2G/ExtDataConfig.F90`, print out the name of the duplicate collection that causes model to fail
 
 ### Fixed
 
 - Fixed issue of some Baselibs builds appearing to support zstandard. This is not possible due to Baselibs building HDF5 and netCDF as static libraries
+- Workaround ifx bug in `pfio/ArrayReference.F90` (NOTE: This currently targets all versions of ifx, but will need to be qualified or removed in the future)
+- Updates to support llvm-flang
+- Trajectory sampler: fix a bug when group_name does not exist in netCDF file and a bug that omitted the first time point
+- Fixed a bug where the periodicity around the earth of the lat-lon grid was not being set properly when grid did not span from pole to pole
 
-### Removed
+## [2.50.3] - 2024-12-02
 
-### Deprecated
+### Fixed
+
+- Fixed bug where c null character is not removed from end of string when reading netcdf attribute in NetCDF4\_FileFormatter.F90
 
 ## [2.50.2] - 2024-10-30
 

@@ -25,7 +25,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
   use, intrinsic :: iso_fortran_env, only: REAL64
   use, intrinsic :: iso_fortran_env, only: INT64
   implicit none
-
    contains
 
      module procedure HistoryTrajectory_from_config
@@ -52,6 +51,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          traj%clock=clock
          if (present(GENSTATE)) traj%GENSTATE => GENSTATE
+
          call ESMF_ClockGet ( clock, CurrTime=currTime, _RC )
          call ESMF_ConfigGetAttribute(config, value=time_integer, label=trim(string)//'Epoch:', default=0, _RC)
          _ASSERT(time_integer /= 0, 'Epoch value in config wrong')
@@ -71,6 +71,14 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               label=trim(string) // 'var_name_lat:', _RC)
          call ESMF_ConfigGetAttribute(config, value=traj%var_name_time_full, default="", &
               label=trim(string) // 'var_name_time:', _RC)
+         call ESMF_ConfigGetAttribute(config, value=traj%use_NWP_1_file, default=.false., &
+              label=trim(string)//'use_NWP_1_file:', _RC)
+         if (mapl_am_I_root()) then
+            if (traj%use_NWP_1_file) then
+               write(6,105) 'WARNING: Traj sampler: use_NWP_1_file is ON'
+               write(6,105) 'WARNING: USER needs to check if observation file is fetched correctly'
+            end if
+         end if
 
          call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
               label=trim(string) // 'obs_file_begin:', _RC)
@@ -549,7 +557,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          real(REAL64)              :: t_shift
          integer,           allocatable :: obstype_id_full(:)
          integer,           allocatable :: location_index_ioda_full(:)
+         integer,           allocatable :: location_index_ioda_full_aux(:)
          integer,           allocatable :: IA_full(:)
+
 
          real(ESMF_KIND_R8), pointer :: ptAT(:)
          type(ESMF_routehandle) :: RH
@@ -562,7 +572,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(ESMF_VM) :: vm
          integer :: mypet, petcount, mpic
 
-         integer :: i, j, k, L, ii, jj
+         integer :: i, j, k, L, ii, jj, jj2, kk
          integer :: fid_s, fid_e
          integer(kind=ESMF_KIND_I8) :: j0, j1
          integer(kind=ESMF_KIND_I8) :: jt1, jt2
@@ -573,6 +583,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer :: arr(1)
          integer :: sec
          integer, allocatable :: ix(:) !  counter for each obs(k)%nobs_epoch
+         integer, allocatable :: marker(:)
          integer :: nx2
          logical :: EX ! file
          logical :: zero_obs
@@ -621,17 +632,29 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               trim(this%var_name_lat),trim(this%var_name_time))
 
          L=0
-         fid_s=this%obsfile_Ts_index
-         fid_e=this%obsfile_Te_index
+         if (this%use_NWP_1_file) then
+            ! NWP IODA 1 file case
+            fid_s=this%obsfile_Ts_index+1    ! index is downshifted by 1 in MAPL_ObsUtil.F90
+            fid_e=fid_s
+         else
+            ! regular case for any trajectory
+            fid_s=this%obsfile_Ts_index    ! index is downshifted by 1 in MAPL_ObsUtil.F90
+            fid_e=this%obsfile_Te_index
+         end if
 
          call lgr%debug('%a %i10 %i10', &
               'fid_s,  fid_e', fid_s,  fid_e)
 
          arr(1)=0     ! len_full
          if (mapl_am_I_root()) then
+            !
+            ! __ s1. scan 1st time: determine len
             len = 0
             do k=1, this%nobs_type
                j = max (fid_s, L)
+               jj2 = 0           ! obs(k) count location
+               this%obs(k)%count_location_until_matching_file = 0   ! init
+               this%obs(k)%count_location_in_matching_file = 0      ! init
                do while (j<=fid_e)
                   filename = get_filename_from_template_use_index( &
                        this%obsfile_start_time, this%obsfile_interval, &
@@ -641,6 +664,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                      call lgr%debug('%a %a',   'exist: true filename       :', trim(filename))
                      call get_ncfile_dimension(filename, tdim=num_times, key_time=this%index_name_x, _RC)
                      len = len + num_times
+                     jj2 = jj2 + num_times
+                     if (j==this%obsfile_Ts_index) then
+                        this%obs(k)%count_location_until_matching_file = jj2
+                     elseif (j==this%obsfile_Ts_index+1) then
+                        this%obs(k)%count_location_in_matching_file = num_times
+                     end if
                   else
                      call lgr%debug('%a %i10', 'non-exist: filename fid j  :', j)
                      call lgr%debug('%a %a',   'non-exist: missing filename:', trim(filename))
@@ -650,6 +679,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             enddo
             arr(1)=len
 
+            !
+            ! __ s2. scan 2nd time: read time ect. into array,
+            !        set location_index starting with the 1st element of the closest matched obs file
             if (len>0) then
                allocate(lons_full(len),lats_full(len),_STAT)
                allocate(times_R8_full(len),_STAT)
@@ -661,6 +693,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                ii = 0
                do k=1, this%nobs_type
                   j = max (fid_s, L)
+                  jj2 = 0           ! obs(k) count location
                   do while (j<=fid_e)
                      filename = get_filename_from_template_use_index( &
                           this%obsfile_start_time, this%obsfile_interval, &
@@ -680,7 +713,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         times_R8_full(len+1:len+num_times) = times_R8_full(len+1:len+num_times) + t_shift
                         obstype_id_full(len+1:len+num_times) = k
                         do jj = 1, num_times
-                           location_index_ioda_full(len+jj) = jj
+                           jj2 = jj2 + 1
+                           ! for each obs type use the correct starting point
+                           location_index_ioda_full(len+jj) = jj2 - this%obs(k)%count_location_until_matching_file
                         end do
                         len = len + num_times
                      end if
@@ -689,7 +724,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                enddo
             end if
          end if
-
 
          call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=nx_sum, &
               count=1, reduceflag=ESMF_REDUCE_SUM, rc=rc)
@@ -717,10 +751,15 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call MAPL_CommsBcast(vm, this%datetime_units, N=ESMF_MAXSTR, ROOT=MAPL_Root, _RC)
 
 
-
          if (mapl_am_I_root()) then
             call sort_index (times_R8_full, IA_full, _RC)
-            location_index_ioda_full(:) = IA_full(:)
+            !!   use index to sort togehter multiple arrays
+            allocate(location_index_ioda_full_aux, source=location_index_ioda_full, _STAT)
+            do jj = 1, nx_sum
+               ii = IA_full(jj)
+               location_index_ioda_full(jj) = location_index_ioda_full_aux(ii)
+            end do
+            deallocate(location_index_ioda_full_aux)
             ! NVHPC dies with NVFORTRAN-S-0155-Could not resolve generic procedure sort_multi_arrays_by_time
             call sort_four_arrays_by_time(lons_full, lats_full, times_R8_full, obstype_id_full, _RC)
             call ESMF_ClockGet(this%clock,currTime=current_time,_RC)
@@ -730,7 +769,15 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             sec = hms_2_s(this%Epoch)
             j1 = j0 + int(sec, kind=ESMF_KIND_I8)
             jx0 = real ( j0, kind=ESMF_KIND_R8)
-            jx1 = real ( j1, kind=ESMF_KIND_R8)
+            if (this%use_NWP_1_file) then
+               ! IODA case:
+               ! Upper bound time is set at 'Epoch + 1 second' to get the right index from bisect
+               !
+               jx1 = real ( j1 + 1, kind=ESMF_KIND_R8)
+            else
+               ! normal case:
+               jx1 = real ( j1, kind=ESMF_KIND_R8)
+            end if
 
             nstart=1; nend=size(times_R8_full)
             call bisect( times_R8_full, jx0, jt1, n_LB=int(nstart, ESMF_KIND_I8), n_UB=int(nend, ESMF_KIND_I8), rc=rc)
@@ -762,15 +809,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                arr(1)=nx
             else
                !! doulbe check
-               ! (x1, x2]  design in bisect
+               ! (x1, x2]  design in bisect :  y(n) < x <= y(n+1), n is intercept index
                this%epoch_index(1)= jt1 + 1
 
-!!               ! (x1, x2]  design in bisect
-!!               if (jt1==0) then
-!!                  this%epoch_index(1)= 1
-!!               else
-!!                  this%epoch_index(1)= jt1
-!!               endif
                _ASSERT(jt2<=len, 'bisect index for this%epoch_index(2) failed')
                if (jt2==0) then
                   this%epoch_index(2)= 1
@@ -835,10 +876,15 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                call lgr%debug('%a %i12 %i12 %i12', &
                     'epoch_index(1:2), nx', this%epoch_index(1), &
                     this%epoch_index(2), this%nobs_epoch)
-               do k=1, this%nobs_type
-                  call lgr%debug('%a %i4 %a %i12', &
-                       'obs(', k, ')%nobs_epoch', this%obs(k)%nobs_epoch )
-               enddo
+               !
+               !    Note: For IODA files, the default NPW_1_file=0 case shall reveal
+               !          the non-python array behavior in obs time sequence from observation files: for example:
+               !    ioda file split [1/2 15Z  :  1/2 21Z ]  [ 1/2 21Z :  1/2 3Z]   (aircraft)
+               !        ___x  x  x x x ___ ---------------------------------- o --o ---o -- o --
+               !           negative index (extra) at Tmin                      missing Tmax
+               !    our trajectory ioda_index will show: overcount at Tmin and missing points at Tmax
+               !    NPW_1_file=1 solves this issue.
+               !
             end if
          else
             allocate(this%lons(0),this%lats(0),_STAT)
@@ -1218,7 +1264,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            integer                 :: x_subset(2)
            type(ESMF_Time)         :: timeset(2)
            type(ESMF_Time)         :: current_time
-           type(ESMF_TimeInterval) :: dur
+           type(ESMF_TimeInterval) :: dur, delT
            type(GriddedIOitemVectorIterator) :: iter
            type(GriddedIOitem), pointer :: item
            type(ESMF_Field) :: src_field,dst_field,acc_field
@@ -1251,11 +1297,17 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            call ESMF_ClockGet(this%clock,timeStep=dur, _RC )
            timeset(1) = current_time - dur
            timeset(2) = current_time
+           if (this%use_NWP_1_file) then
+              !
+              ! change UB to Epoch + 1 s to be inclusive for IODA
+              if ( ESMF_AlarmIsRinging (this%alarm) ) then
+                 call ESMF_TimeIntervalSet(delT, s=1, _RC)
+                 timeset(2) = current_time + delT
+              end if
+           end if
            call this%get_x_subset(timeset, x_subset, _RC)
            is=x_subset(1)
            ie=x_subset(2)
-           !! write(6,'(2x,a,4i10)') 'in regrid_accumulate is, ie=', is, ie
-
 
            !
            ! __ I designed a method to return from regridding if no valid points exist
@@ -1446,8 +1498,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            call bisect( this%obstime, rT1, index1, n_LB=lb, n_UB=ub, rc=rc)
            call bisect( this%obstime, rT2, index2, n_LB=lb, n_UB=ub, rc=rc)
 
-           ! (x1, x2]  design in bisect
-           !  simple version
+           ! (x1, x2]  design in bisect:  y(n) < x <= y(n+1),  n is output index
 
            x_subset(1) = index1+1
            x_subset(2) = index2

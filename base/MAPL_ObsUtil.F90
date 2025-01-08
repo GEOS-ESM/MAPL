@@ -26,6 +26,8 @@ module MAPL_ObsUtilMod
   type :: obs_unit
      integer :: nobs_epoch
      integer :: ngeoval
+     integer :: count_location_until_matching_file
+     integer :: count_location_in_matching_file
      logical :: export_all_geoval
      type(FileMetadata), allocatable :: metadata
      type(NetCDF4_FileFormatter), allocatable :: file_handle
