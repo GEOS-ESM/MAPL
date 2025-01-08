@@ -208,7 +208,6 @@ contains
 
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
 
-      field_spec%accumulation_type = INSTANTANEOUS
       _SET_FIELD(field_spec, variable_spec, vertical_dim_spec)
       _SET_FIELD(field_spec, variable_spec, attributes)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, standard_name)
