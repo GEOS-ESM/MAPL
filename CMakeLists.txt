@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.23)
+cmake_minimum_required (VERSION 3.24)
 
 get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(NOT is_multi_config AND NOT (CMAKE_BUILD_TYPE OR DEFINED ENV{CMAKE_BUILD_TYPE}))
@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.50.1
+  VERSION 2.51.2
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
