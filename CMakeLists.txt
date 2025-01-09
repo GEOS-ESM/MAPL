@@ -212,6 +212,7 @@ add_subdirectory (generic)
 add_subdirectory (generic3g)
 add_subdirectory (field)
 add_subdirectory (field_bundle)
+add_subdirectory (state)
 add_subdirectory (oomph) # temporary - will rename to generic when done
 add_subdirectory (shared)
 add_subdirectory (include)
