@@ -6,6 +6,7 @@ module mapl3g_VariableSpec
    use mapl3g_UnitsAspect
    use mapl3g_TypekindAspect
    use mapl3g_UngriddedDimsAspect
+   use mapl3g_FrequencyAspect
    use mapl3g_UngriddedDims
    use mapl3g_VerticalDimSpec
    use mapl3g_HorizontalDimsSpec
@@ -122,7 +123,6 @@ contains
       _SET_OPTIONAL(attributes)
       _SET_OPTIONAL(bracket_size)
       _SET_OPTIONAL(dependencies)
-      _SET_OPTIONAL(accumulation_type)
 
       _UNUSED_DUMMY(unusable)
    end function new_VariableSpec

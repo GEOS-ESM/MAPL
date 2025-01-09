@@ -107,8 +107,6 @@ contains
       class(StateItemAspect), target, intent(in) :: aspect
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       select type (aspect)
       type is (GeomAspect)
          this%geom_aspect = aspect
@@ -190,7 +188,7 @@ contains
 
    function get_frequency_aspect(this) result(frequency_aspect)
       type(FrequencyAspect), pointer :: frequency_aspect
-      class(AspectCollection), intent(inout) :: this
+      class(AspectCollection), target, intent(inout) :: this
       frequency_aspect => null()
       if(allocated(this%frequency_aspect)) then
          frequency_aspect => this%frequency_aspect

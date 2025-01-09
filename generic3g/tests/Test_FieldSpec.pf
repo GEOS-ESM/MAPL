@@ -9,6 +9,8 @@ module Test_FieldSpec
    use mapl3g_UngriddedDimVector
    use mapl3g_VerticalDimSpec
    use mapl3g_BasicVerticalGrid
+   use mapl3g_AspectCollection
+   use mapl3g_FrequencyAspect
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
    use gftl2_StringVector
    use esmf
@@ -305,12 +307,18 @@ contains
       type(VerticalDimSpec) :: vertical_dim_spec
       type(ESMF_Typekind_Flag) :: typekind
       character(len=8) :: accumulation_type
+      type(AspectCollection), pointer :: aspects
+      type(FrequencyAspect), pointer :: aspect
+      character(len=8) :: actual_accumulation_type
 
       typekind = ESMF_TYPEKIND_R4
       accumulation_type = 'mean'
       field_spec = FieldSpec(vertical_dim_spec=vertical_dim_spec, typekind=typekind, &
          accumulation_type=accumulation_type, ungridded_dims=UngriddedDims())
-      @assertEqual(accumulation_type, field_spec%accumulation_type, 'accumulation_type does not match expected.')
+      aspects => field_spec%get_aspects()
+      aspect => aspects%get_frequency_aspect()
+      actual_accumulation_type = aspect%accumulation_type()
+      @assertEqual(accumulation_type, actual_accumulation_type, 'accumulation_type does not match expected.')
 
    end subroutine test_field_accumulation
 
