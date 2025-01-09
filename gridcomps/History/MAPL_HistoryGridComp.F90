@@ -56,7 +56,7 @@
   use MaskSamplerGeosatMod
   use MAPL_StringTemplate
   use regex_module
-  use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date
+  use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date, MAPL_UndefInt
   use gFTL_StringStringMap
   !use ESMF_CFIOMOD
   use MAPL_EpochSwathMod
@@ -458,12 +458,27 @@ contains
     call ESMF_ClockGet ( clock,     calendar=cal,       _RC )
     call ESMF_ClockGet ( clock,     currTime=CurrTime,  _RC )
     call ESMF_ClockGet ( clock,     StartTime=StartTime,_RC )
-    call ESMF_TimeGet  ( StartTime, TimeString=string, yy=year, mm=month, dd=day, h=hour, m=minute, s=second ,_RC )
+    call ESMF_TimeGet  ( StartTime, TimeString=string  ,_RC )
+
+    read(string( 1: 4),'(i4.4)') year
+    read(string( 6: 7),'(i2.2)') month
+    read(string( 9:10),'(i2.2)') day
+    read(string(12:13),'(i2.2)') hour
+    read(string(15:16),'(i2.2)') minute
+    read(string(18:18),'(i2.2)') second
 
     nymd0 =  year*10000 +  month*100 + day
     nhms0 =  hour*10000 + minute*100 + second
 
-    call ESMF_TimeGet  ( CurrTime, TimeString=string  , yy=year, mm=month, dd=day, h=hour, m=minute, s=second, _RC )
+    call ESMF_TimeGet  ( CurrTime, TimeString=string  ,_RC )
+
+    read(string( 1: 4),'(i4.4)') year
+    read(string( 6: 7),'(i2.2)') month
+    read(string( 9:10),'(i2.2)') day
+    read(string(12:13),'(i2.2)') hour
+    read(string(15:16),'(i2.2)') minute
+    read(string(18:18),'(i2.2)') second
+
     nymdc =  year*10000 +  month*100 + day
     nhmsc =  hour*10000 + minute*100 + second
 
@@ -796,16 +811,19 @@ contains
                                       label=trim(string) // 'ref_time:',_RC )
        _ASSERT(is_valid_time(list(n)%ref_time),'Invalid ref_time')
 
-       call ESMF_ConfigGetAttribute ( cfg, list(n)%end_date, default=-999, &
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%start_date, default=MAPL_UndefInt, &
+                                      label=trim(string) // 'start_date:',_RC )
+       _ASSERT(is_valid_date(list(n)%start_date),'Invalid start_date')
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%start_time, default=MAPL_UndefInt, &
+                                      label=trim(string) // 'start_time:',_RC )
+       _ASSERT(is_valid_time(list(n)%start_time),'Invalid start_time')
+
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%end_date, default=MAPL_UndefInt, &
                                       label=trim(string) // 'end_date:',_RC )
-       if (list(n)%end_date /= -999) then
-          _ASSERT(is_valid_date(list(n)%end_date),'Invalid end_date')
-       end if
-       call ESMF_ConfigGetAttribute ( cfg, list(n)%end_time, default=-999, &
+       _ASSERT(is_valid_date(list(n)%end_date),'Invalid end_date')
+       call ESMF_ConfigGetAttribute ( cfg, list(n)%end_time, default=MAPL_UndefInt, &
                                       label=trim(string) // 'end_time:',_RC )
-       if (list(n)%end_time /= -999) then
-          _ASSERT(is_valid_time(list(n)%end_time),'Invalid end_time')
-       end if
+       _ASSERT(is_valid_time(list(n)%end_time),'Invalid end_time')
 
        call ESMF_ConfigGetAttribute ( cfg, list(n)%duration, default=list(n)%frequency, &
                                       label=trim(string) // 'duration:'  ,_RC )
@@ -1334,9 +1352,41 @@ contains
           intState%stampOffset(n) = Frequency ! we go to the beginning of the month
        end if
 
+! End Alarm based on start_date and start_time
+! ----------------------------------------
+       if( list(n)%start_date.ne.MAPL_UndefInt .and. list(n)%start_time.ne.MAPL_UndefInt ) then
+          REF_TIME(1) =     list(n)%start_date/10000
+          REF_TIME(2) = mod(list(n)%start_date,10000)/100
+          REF_TIME(3) = mod(list(n)%start_date,100)
+          REF_TIME(4) =     list(n)%start_time/10000
+          REF_TIME(5) = mod(list(n)%start_time,10000)/100
+          REF_TIME(6) = mod(list(n)%start_time,100)
+
+          call ESMF_TimeSet( RingTime, YY = REF_TIME(1), &
+                                       MM = REF_TIME(2), &
+                                       DD = REF_TIME(3), &
+                                       H  = REF_TIME(4), &
+                                       M  = REF_TIME(5), &
+                                       S  = REF_TIME(6), calendar=cal, rc=rc )
+       else
+          RingTime = CurrTime
+       end if
+       list(n)%start_alarm = ESMF_AlarmCreate( clock=clock, RingTime=RingTime, sticky=.false., _RC )
+
+       list(n)%skipWriting = .true.
+       if (RingTime == CurrTime) then
+          call  ESMF_AlarmRingerOn(list(n)%start_alarm, _RC )
+          list(n)%skipWriting = .false.
+       else
+          if (RingTime < CurrTime .NEQV. list(n)%backwards) then
+             list(n)%skipWriting = .false.
+          endif
+       end if
+
+
 ! End Alarm based on end_date and end_time
 ! ----------------------------------------
-       if( list(n)%end_date.ne.-999 .and. list(n)%end_time.ne.-999 ) then
+       if( list(n)%end_date.ne.MAPL_UndefInt .and. list(n)%end_time.ne.MAPL_UndefInt ) then
            REF_TIME(1) =     list(n)%end_date/10000
            REF_TIME(2) = mod(list(n)%end_date,10000)/100
            REF_TIME(3) = mod(list(n)%end_date,100)
@@ -2512,9 +2562,13 @@ ENDDO PARSER
          else
             print *, '    Duration: ',       list(n)%duration
          end if
-         if( list(n)%end_date.ne.-999 ) then
-         print *, '    End_Date: ',       list(n)%end_date
-         print *, '    End_Time: ',       list(n)%end_time
+         if( list(n)%start_date.ne.MAPL_UndefInt ) then
+            print *, '    Start_Date: ',       list(n)%start_date
+            print *, '    Start_Time: ',       list(n)%start_time
+         endif
+         if( list(n)%end_date.ne.MAPL_UndefInt ) then
+            print *, '    End_Date: ',       list(n)%end_date
+            print *, '    End_Time: ',       list(n)%end_time
          endif
          if (trim(list(n)%output_grid_label)/='') then
             print *, ' Regrid Mthd: ',       regrid_method_int_to_string(list(n)%regrid_method)
@@ -3413,6 +3467,14 @@ ENDDO PARSER
   ! decide if we are writing based on alarms
 
    do n=1,nlist
+      if (list(n)%skipWriting) then
+         if (ESMF_AlarmIsRinging(list(n)%start_alarm)) then
+            list(n)%skipWriting = .false.
+         endif
+      endif
+   end do
+
+   do n=1,nlist
       if (list(n)%disabled .or. ESMF_AlarmIsRinging(list(n)%end_alarm) ) then
          list(n)%disabled = .true.
          Writing(n) = .false.
@@ -3438,6 +3500,8 @@ ENDDO PARSER
             call ESMF_AlarmRingerOff( list(n)%seg_alarm,_RC )
          end if
       end if
+
+      if (list(n)%skipWriting) writing(n) = .false.
 
        if (writing(n) .and. .not.IntState%average(n)) then
           ! R8 to R4 copy (if needed!)
@@ -4223,10 +4287,20 @@ ENDDO PARSER
         currentTime = currentTime - offset
     end if
 
-    call ESMF_TimeGet (currentTime, timeString=TimeString, yy=yy,mm=mm,dd=dd,h=h,m=m,s=s, _RC)
+    call ESMF_TimeGet (currentTime, timeString=TimeString, _RC)
 
     if(present(DateStamp)) then
-       write(DateStamp, '(I4.4,I2.2,I2.2,"_",I2.2,I2.2,I2.2,"z")') yy, mm, dd, h, m, s
+       associate ( &
+         year   => TimeString( 1: 4), &
+         month  => TimeString( 6: 7), &
+         day    => TimeString( 9:10), &
+         hour   => TimeString(12:13), &
+         minute => TimeString(15:16), &
+         second => TimeString(18:19)  &
+         )
+         DateStamp = year//month//day//'_'//hour//minute//second //'z'
+      end associate
+
     end if
 
     _RETURN(ESMF_SUCCESS)

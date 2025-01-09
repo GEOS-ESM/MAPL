@@ -47,7 +47,7 @@ jobs:
       - name: Set default compiler and target
         shell: spack-bash {0}
         run: |
-          spack config add 'packages:all:compiler:[gcc@13.2.0]'
+          spack config add 'packages:all:compiler:[gcc@14.2.0]'
           spack config add 'packages:all:require:target=x86_64_v3'
 
       - name: Create Spack environment
@@ -83,7 +83,7 @@ jobs:
           spack load \
             esmf gftl gftl-shared fargparse pflogger pfunit yafyaml ecbuild udunits
           spack find --loaded
-          FC=gfortran-13 CC=gcc-13 CXX=g++-13
+          FC=gfortran-14 CC=gcc-14 CXX=g++-14
           cmake -B build -S . -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF -DCMAKE_Fortran_COMPILER=${FC} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX}
           cmake --build build -j 4
           cmake --install build

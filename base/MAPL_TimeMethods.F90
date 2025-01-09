@@ -15,7 +15,7 @@ module MAPL_TimeDataMod
      integer :: ntime
      integer :: tcount
      type(ESMFTimeVector) :: tvec
-     integer :: frequency = TimeData_uninit_int
+     integer :: frequency = TimeData_uninit_int 
      type(ESMF_TimeInterval) :: offset
      character(len=:), allocatable :: funits
      logical :: integer_time
@@ -42,7 +42,7 @@ contains
      class(TimeData), intent(inout) :: this
      logical_temp = this%is_initialized
   end
-
+     
   function new_time_data(clock,ntime,frequency,offset,funits,integer_time,rc) result(tData)
     type(timeData) :: tData
     type(ESMF_Clock),intent(inout) :: clock
@@ -83,7 +83,7 @@ contains
      end if
      _RETURN(_SUCCESS)
   end subroutine get
-
+       
   subroutine setFrequency(this,frequency,rc)
      class(TimeData), intent(inout) :: this
      integer, intent(in) :: frequency
@@ -93,7 +93,7 @@ contains
 
      _RETURN(_SUCCESS)
    end subroutine setFrequency
-
+       
 
   function define_time_variable(this,rc) result(v)
     class(TimeData), intent(inout) :: this
@@ -103,26 +103,31 @@ contains
     integer :: status
     character(len=ESMF_MAXSTR) :: startTime,timeUnits
     type(ESMF_Time) :: currTime
-    integer :: i1,i2,i3,ipos1,ipos2,isc,imn,ihr,i4,i5,i6
+    integer :: i1,i2,i3,ipos1,ipos2,isc,imn,ihr
     integer :: begin_date, begin_time, time_increment, packed_hms
-    character(len=10) :: yearstring
-    character(len=8) :: timestring
 
     _ASSERT(this%frequency/=TimeData_uninit_int,"Frequency component was not set before use.")
 
     call ESMF_ClockGet(this%clock,currTime=currTime,rc=status)
     _VERIFY(status)
     currTime = currTime - this%offset
-    call ESMF_TimeGet(currTime,timeString=StartTime,yy=i1,mm=i2,dd=i3,h=i4,m=i5,s=i6,rc=status)
+    call ESMF_TimeGet(currTime,timeString=StartTime,rc=status)
     _VERIFY(status)
-    write(yearstring, '(I4.4,"-",I2.2,"-",I2.2)') i1, i2, i3
-    write(timestring, '(I2.2,":",I2.2,":",I2.2)') i4, i5, i6
-
-    timeUnits = trim(this%funits)//" since "//yearstring//" "//timestring
-
+    timeUnits = trim(this%funits)//" since "//startTime( 1: 10)//" "//startTime(12:19)
+  
+    ipos1=index(startTime,"-")
+    ipos2=index(startTime,"-",back=.true.)
+    read(startTime(1:ipos1-1),'(i4)')i1
+    read(startTime(ipos1+1:ipos2-1),'(i2)')i2
+    read(startTime(ipos2+1:10),'(i2)')i3
     begin_date=10000*i1+100*i2+i3
 
-    begin_time=10000*i4+100*i5+i6
+    ipos1=index(startTime,":")
+    ipos2=index(startTime,":",back=.true.)
+    read(startTime(12:ipos1-1),'(i2)')i1
+    read(startTime(ipos1+1:ipos2-1),'(i2)')i2
+    read(startTime(ipos2+1:19),'(i2)')i3
+    begin_time=10000*i1+100*i2+i3
 
     isc=mod(this%frequency,60)
     i2=this%frequency-isc
@@ -130,7 +135,7 @@ contains
     imn=mod(i2,60)
     i2=i2-imn
     ihr=i2/60
-    packed_hms=10000*ihr+100*imn+isc
+    packed_hms=10000*ihr+100*imn+isc 
     select case(trim(this%funits))
     case('seconds')
        time_increment = packed_hms
@@ -166,7 +171,7 @@ contains
     call v%add_attribute('begin_date',begin_date)
     call v%add_attribute('begin_time',begin_time)
     call v%add_attribute('time_increment',time_increment)
-
+    
     _RETURN(ESMF_SUCCESS)
 
   end function define_time_variable
@@ -178,7 +183,7 @@ contains
 
     real, allocatable :: times(:)
     integer :: status
-
+    
     type(ESMF_Time) :: currTime,startTime
     type(ESMF_TimeInterval) :: tint
     integer :: i
@@ -186,8 +191,8 @@ contains
     type(ESMFTimeVectorIterator) :: iter
     type(ESMF_Time), pointer :: tptr
     ! for now return minutes, this should be optional argument in future
-
-    this%tcount=this%tcount+1
+  
+    this%tcount=this%tcount+1 
     call ESMF_ClockGet(this%clock,currTime=currTime,rc=status)
     _VERIFY(status)
     startTime = this%get_start_time(metadata,rc=status)
@@ -222,9 +227,9 @@ contains
        end select
        call iter%next()
     enddo
-    _RETURN(ESMF_SUCCESS)
+    _RETURN(ESMF_SUCCESS) 
 
-  end function compute_time_vector
+  end function compute_time_vector 
 
   subroutine add_time_to_metadata(this,metadata,rc)
     class(timeData), intent(inout) :: this
@@ -274,7 +279,7 @@ contains
        _FAIL('unsupported subclass for units')
     end select
 
-
+    
   end function get_start_time
 
   function parse_time_string(timeUnits,rc) result(time)
