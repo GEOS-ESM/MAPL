@@ -5,7 +5,6 @@ module mapl3g_ConfigurableGridComp
    use mapl_ErrorHandling
    use mapl3g_Generic, only: MAPL_GridCompSetEntryPoint, MAPL_RunChildren
    use mapl3g_Generic, only: MAPL_GridCompGet
-   use mapl3g_StateGet, only: MAPL_StateGet
    use mapl, only: MAPL_GetPointer
    use esmf
 
