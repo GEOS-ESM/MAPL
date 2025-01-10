@@ -178,7 +178,7 @@ contains
 
    end function interval_divides
 
-   function get_zero()
+   function get_zero() result(zero)
       type(ESMF_TimeInterval), pointer :: zero
       logical, save :: zero_is_uninitialized = .TRUE.
 
