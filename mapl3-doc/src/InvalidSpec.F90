@@ -133,18 +133,18 @@ contains
       _UNUSED_DUMMY(bundle)
    end subroutine add_to_bundle
 
-   subroutine set_geometry(this, geom, vertical_grid, run_dt, rc)
+   subroutine set_geometry(this, geom, vertical_grid, timestep, rc)
       class(InvalidSpec), intent(inout) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
-      type(ESMF_TimeInterval), optional, intent(in) :: run_dt
+      type(ESMF_TimeInterval), optional, intent(in) :: timestep
       integer, optional, intent(out) :: rc
 
       _FAIL('Attempt to initialize item of type InvalidSpec')
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(geom)
       _UNUSED_DUMMY(vertical_grid)
-      _UNUSED_DUMMY(run_dt)
+      _UNUSED_DUMMY(timestep)
    end subroutine set_geometry
 
    subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)

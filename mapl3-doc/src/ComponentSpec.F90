@@ -21,7 +21,7 @@ module mapl3g_ComponentSpec
       type(ConnectionVector) :: connections
       type(ChildSpecMap) :: children
       type(ESMF_HConfig), allocatable :: geom_hconfig ! optional
-      type(ESMF_TimeInterval), allocatable :: run_dt
+      type(ESMF_TimeInterval), allocatable :: timestep
    contains
       procedure :: has_geom_hconfig
       procedure :: add_var_spec
@@ -34,15 +34,15 @@ module mapl3g_ComponentSpec
 
 contains
 
-   function new_ComponentSpec(var_specs, connections, run_dt) result(spec)
+   function new_ComponentSpec(var_specs, connections, timestep) result(spec)
       type(ComponentSpec) :: spec
       type(VariableSpecVector), optional, intent(in) :: var_specs
       type(ConnectionVector), optional, intent(in) :: connections
-      type(ESMF_TimeInterval), optional, intent(in) :: run_dt
+      type(ESMF_TimeInterval), optional, intent(in) :: timestep
 
       if (present(var_specs)) spec%var_specs = var_specs
       if (present(connections)) spec%connections = connections
-      if (present(run_dt)) spec%run_dt = run_dt
+      if (present(timestep)) spec%timestep = timestep
 
    end function new_ComponentSpec
 
@@ -57,7 +57,6 @@ contains
       call this%var_specs%push_back(var_spec)
    end subroutine add_var_spec
 
-
    subroutine add_connection(this, conn)
       class(ComponentSpec), intent(inout) :: this
       class(Connection), intent(in) :: conn
@@ -65,4 +64,3 @@ contains
    end subroutine add_connection
 
 end module mapl3g_ComponentSpec
-

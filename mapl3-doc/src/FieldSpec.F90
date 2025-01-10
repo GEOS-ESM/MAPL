@@ -17,6 +17,7 @@ module mapl3g_FieldSpec
    use mapl3g_UnitsAspect
    use mapl3g_TypekindAspect
    use mapl3g_UngriddedDimsAspect
+   use mapl3g_FrequencyAspect
    use mapl3g_HorizontalDimsSpec
    use mapl3g_VerticalStaggerLoc
    use mapl3g_StateItemSpec
@@ -88,7 +89,6 @@ module mapl3g_FieldSpec
       ! Metadata
       character(:), allocatable :: standard_name
       character(:), allocatable :: long_name
-      character(:), allocatable :: accumulation_type
       ! TBD
 !#      type(FrequencySpec) :: freq_spec
 !#      class(AbstractFrequencySpec), allocatable :: freq_spec
@@ -99,7 +99,6 @@ module mapl3g_FieldSpec
 !#      type(VariableSpec) :: variable_spec
 
       logical :: is_created = .false.
-      type(ESMF_TimeInterval), allocatable :: run_dt
 
    contains
 
@@ -159,7 +158,7 @@ contains
 
    function new_FieldSpec_geom(unusable, geom, vertical_grid, vertical_dim_spec, typekind, ungridded_dims, &
         standard_name, long_name, units, &
-        attributes, regrid_param, horizontal_dims_spec, default_value, accumulation_type, run_dt) result(field_spec)
+        attributes, regrid_param, horizontal_dims_spec, default_value, accumulation_type, timestep) result(field_spec)
       type(FieldSpec), target :: field_spec
 
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -178,9 +177,8 @@ contains
       ! optional args last
       real, optional, intent(in) :: default_value
       character(*), optional, intent(in) :: accumulation_type
-      type(ESMF_TimeInterval), optional, intent(in) :: run_dt
+      type(ESMF_TimeInterval), optional, intent(in) :: timestep
 
-      integer :: status
       type(AspectCollection), pointer :: aspects
 
       aspects => field_spec%get_aspects()
@@ -189,6 +187,7 @@ contains
       call aspects%set_units_aspect(UnitsAspect(units))
       call aspects%set_ungridded_dims_aspect(UngriddedDimsAspect(ungridded_dims))
       call aspects%set_typekind_aspect(TypekindAspect(typekind))
+      call aspects%set_frequency_aspect(FrequencyAspect(timestep, accumulation_type))
       
       if (present(vertical_grid)) field_spec%vertical_grid = vertical_grid
       field_spec%vertical_dim_spec = vertical_dim_spec
@@ -201,47 +200,41 @@ contains
       ! regrid_param
 
       if (present(default_value)) field_spec%default_value = default_value
-      field_spec%accumulation_type = NO_ACCUMULATION
-      if (present(accumulation_type)) field_spec%accumulation_type = trim(accumulation_type)
-      if (present(run_dt)) field_spec%run_dt = run_dt
+      _UNUSED_DUMMY(unusable)
+
    end function new_FieldSpec_geom
 
    function new_FieldSpec_varspec(variable_spec) result(field_spec)
       type(FieldSpec) :: field_spec
       class(VariableSpec), intent(in) :: variable_spec
 
-      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
-
-      field_spec%accumulation_type = NO_ACCUMULATION
       _SET_FIELD(field_spec, variable_spec, vertical_dim_spec)
       _SET_FIELD(field_spec, variable_spec, attributes)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, standard_name)
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('UNGRIDDED_DIMS'))
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('TYPEKIND'))
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('UNITS'))
+      call field_spec%set_aspect(variable_spec%aspects%get_aspect('FREQUENCY'))
 !#      _SET_ALLOCATED_FIELD(field_spec, variable_spec, units)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, default_value)
-      _SET_ALLOCATED_FIELD(field_spec, variable_spec, accumulation_type)
 
       field_spec%long_name = 'unknown'
 
    end function new_FieldSpec_varspec
 
-   subroutine set_geometry(this, geom, vertical_grid, run_dt, rc)
+   subroutine set_geometry(this, geom, vertical_grid, timestep, rc)
       class(FieldSpec), intent(inout) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
-      type(ESMF_TimeInterval), optional, intent(in) :: run_dt
+      type(ESMF_TimeInterval), optional, intent(in) :: timestep
       integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
 
       call target_set_geom(this, geom)
       if (present(vertical_grid)) this%vertical_grid = vertical_grid
-      if (present(run_dt)) this%run_dt = run_dt
+      call target_set_timestep(this, timestep)
 
       _RETURN(_SUCCESS)
+
    contains
 
       ! Helper needed to add target attribute to "this"
@@ -262,6 +255,26 @@ contains
          end if
          
       end subroutine target_set_geom
+
+      subroutine target_set_timestep(this, timestep)
+         class(FieldSpec), target, intent(inout) :: this
+         type(ESMF_TimeInterval), optional, intent(in) :: timestep
+
+         type(AspectCollection), pointer :: aspects
+         type(FrequencyAspect), pointer :: frequency_aspect
+
+         if(.not. present(timestep)) return
+         aspects => this%get_aspects()
+         frequency_aspect => aspects%get_frequency_aspect()
+
+         if (associated(frequency_aspect)) then
+            call frequency_aspect%set_timestep(timestep)
+            return
+         end if
+         call aspects%set_frequency_aspect(FrequencyAspect(timestep))
+
+      end subroutine target_set_timestep
+
    end subroutine set_geometry
 
    subroutine create(this, rc)
@@ -418,8 +431,6 @@ contains
       class(VerticalGrid), intent(in) :: vertical_grid
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       _ASSERT(vertical_dim_spec /= VERTICAL_DIM_UNKNOWN, 'vertical_dim_spec has not been specified')
       bounds%lower = 1
       bounds%upper = vertical_grid%get_num_levels()
@@ -570,7 +581,6 @@ contains
       integer, optional, intent(out) :: rc
 
       logical :: can_convert_units
-      integer :: status
       class(StateItemAspect), pointer :: src_units, dst_units
       type(StringVector), target :: aspect_list
       type(StringVectorIterator) :: aspect_iter
@@ -709,7 +719,6 @@ contains
    logical function match_geom(a, b) result(match)
       type(ESMF_Geom), allocatable, intent(in) :: a, b
 
-      integer :: status
       integer :: n_mirror
 
       ! At most one geom can be mirror (unallocated).
@@ -872,8 +881,6 @@ contains
       class(StateItemSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       match = .false.
       select type (spec)
       type is (FieldSpec)
@@ -948,6 +955,7 @@ contains
       end select
 
       _RETURN(_SUCCESS)
+
    end function make_adapters
 
    function get_aspect_priorities(src_spec, dst_spec) result(order)
@@ -956,6 +964,7 @@ contains
       class(StateItemSpec), intent(in) :: dst_spec
 
       order = 'UNGRIDDED_DIMS::GEOM::UNITS::TYPEKIND'
+
    end function get_aspect_priorities
    
 
