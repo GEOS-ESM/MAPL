@@ -100,7 +100,7 @@ contains
       params = [params, add_params('field status', check_field_status)]
       params = [params, add_params('field typekind', check_field_typekind)]
       params = [params, add_params('field value', check_field_value)]
-      params = [params, add_params('field k_values', check_field_k_values)]
+      params = [params, add_params('field vertical_profile', check_field_vertical_profile)]
       params = [params, add_params('field exists', check_field_rank)]
 
       ! Service oriented tests
@@ -515,14 +515,14 @@ contains
       rc = 0
    end subroutine check_field_value
 
-   subroutine check_field_k_values(expectations, state, short_name, description, rc)
+   subroutine check_field_vertical_profile(expectations, state, short_name, description, rc)
       type(ESMF_HConfig), intent(in) :: expectations
       type(ESMF_State), intent(inout) :: state
       character(*), intent(in) :: short_name
       character(*), intent(in) :: description
       integer, intent(out) :: rc
 
-      real, allocatable :: expected_k_values(:)
+      real, allocatable :: expected_vertical_profile(:)
       integer :: rank
       type(ESMF_TypeKind_Flag) :: typekind
       integer :: status
@@ -539,12 +539,12 @@ contains
          return
       end if
 
-      if (.not. ESMF_HConfigIsDefined(expectations,keyString='k_values')) then
+      if (.not. ESMF_HConfigIsDefined(expectations,keyString='vertical_profile')) then
          rc = 0
          return
       end if
 
-      expected_k_values = ESMF_HConfigAsR4Seq(expectations,keyString='k_values',_RC)
+      expected_vertical_profile = ESMF_HConfigAsR4Seq(expectations,keyString='vertical_profile',_RC)
 
       call ESMF_StateGet(state, short_name, field, _RC)
       call ESMF_FieldGet(field, typekind=typekind, rank=rank, rc=status)
@@ -559,7 +559,7 @@ contains
                shape3 = shape(x3)
                do i = 1, shape3(1)
                   do j = 1, shape3(2)
-                     @assert_that("value of "//short_name, x3(i, j, :), is(equal_to(expected_k_values)))
+                     @assert_that("value of "//short_name, x3(i, j, :), is(equal_to(expected_vertical_profile)))
                   end do
                end do
             case(4)
@@ -568,7 +568,7 @@ contains
                do i = 1, shape4(1)
                   do j = 1, shape4(2)
                      do l = 1, shape4(4)
-                        @assert_that("value of "//short_name, x4(i, j, :, l), is(equal_to(expected_k_values)))
+                        @assert_that("value of "//short_name, x4(i, j, :, l), is(equal_to(expected_vertical_profile)))
                      end do
                   end do
                end do
@@ -585,7 +585,7 @@ contains
                shape3 = shape(x3)
                do i = 1, shape3(1)
                   do j = 1, shape3(2)
-                     @assert_that("value of "//short_name, x3(i, j, :), is(equal_to(expected_k_values)))
+                     @assert_that("value of "//short_name, x3(i, j, :), is(equal_to(expected_vertical_profile)))
                   end do
                end do
             case(4)
@@ -594,7 +594,7 @@ contains
                do i = 1, shape4(1)
                   do j = 1, shape4(2)
                      do l = 1, shape4(4)
-                        @assert_that("value of "//short_name, x4(i, j, :, l), is(equal_to(expected_k_values)))
+                        @assert_that("value of "//short_name, x4(i, j, :, l), is(equal_to(expected_vertical_profile)))
                      end do
                   end do
                end do
@@ -607,7 +607,7 @@ contains
       end if
 
       rc = 0
-   end subroutine check_field_k_values
+   end subroutine check_field_vertical_profile
 
    subroutine check_field_rank(expectations, state, short_name, description, rc)
       type(ESMF_HConfig), intent(in) :: expectations

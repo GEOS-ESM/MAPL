@@ -2,14 +2,13 @@
 
 module mapl_BW_Benchmark
    use mapl_ErrorHandlingMod
-   use Kernel_mod
    use, intrinsic :: iso_fortran_env, only: INT64
    implicit none
    private
 
    public :: BW_Benchmark
 
-   type, extends(Kernel_T) :: BW_Benchmark
+   type :: BW_Benchmark
       real, allocatable :: buffer(:)
       character(:), allocatable :: filename
    contains
@@ -57,9 +56,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      integer :: i
 
-      write(unit, iostat=status) buffer
+      write(unit, iostat=status) buffer(:)
       _VERIFY(status)
 
       ! Without the close, maybe the writing is not done?
