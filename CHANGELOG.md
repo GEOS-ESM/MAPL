@@ -69,20 +69,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implemented workarounds to avoid needing `-dusty` for NAG.  (Related PR in ESMA_CMake.)
 - Added constructor for DSO_SetServicesWrapper
 - Change macro in field/undo_function_overload.macro
+- Fixed bug with AccumulatorAction and subtypes
 
 ## [Unreleased]
 
 ### Added
 
+- Added optional start_date and start_time to control the output window for each History collection. No output will be written before then. If not specified, these default to the beginning of the experiment.
+- Added utility to prepare inputs for ExtDatDriver.x so that ExtData can simulate a real GEOS run
 - Added loggers when writing or reading weight files
 - Added new option to AGCM.rc `overwrite_checkpoint` to allow checkpoint files to be overwritten. By default still will not overwrite checkpoints
 
 ### Changed
 
+- Changed MAPL_ESMFRegridder to require the dstMaskValues to be added as grid attribute to use fixed masking, fixes UFS issue
 - Increased formatting width of time index in ExtData2G diagnostic print
 
 ### Fixed
 
+- Fixed the behavior of MAPL_MaxMin in presence of NaN
 - Fixed bug with return codes and macros in udunits2f
 
 ### Removed
