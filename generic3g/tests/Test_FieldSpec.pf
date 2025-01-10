@@ -303,7 +303,7 @@ contains
 
    @test
    subroutine test_field_accumulation()
-      type(FieldSpec) :: field_spec
+      type(FieldSpec), target :: field_spec
       type(VerticalDimSpec) :: vertical_dim_spec
       type(ESMF_Typekind_Flag) :: typekind
       character(len=8) :: accumulation_type
@@ -311,13 +311,14 @@ contains
       type(FrequencyAspect), pointer :: aspect
       character(len=8) :: actual_accumulation_type
 
+      aspects => null()
       typekind = ESMF_TYPEKIND_R4
       accumulation_type = 'mean'
       field_spec = FieldSpec(vertical_dim_spec=vertical_dim_spec, typekind=typekind, &
          accumulation_type=accumulation_type, ungridded_dims=UngriddedDims())
       aspects => field_spec%get_aspects()
       aspect => aspects%get_frequency_aspect()
-      actual_accumulation_type = aspect%accumulation_type()
+      actual_accumulation_type = aspect%get_accumulation_type()
       @assertEqual(accumulation_type, actual_accumulation_type, 'accumulation_type does not match expected.')
 
    end subroutine test_field_accumulation

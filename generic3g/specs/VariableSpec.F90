@@ -111,7 +111,7 @@ contains
 
       call var_spec%aspects%set_ungridded_dims_aspect(UngriddedDimsAspect(ungridded_dims))
       call var_spec%aspects%set_typekind_aspect(TypekindAspect(typekind))
-      call var_spec%aspects%set_frequency_aspect(FrequencyAspect(accumulation_type))
+      call var_spec%aspects%set_frequency_aspect(FrequencyAspect(accumulation_type=accumulation_type))
 
       _SET_OPTIONAL(standard_name)
       _SET_OPTIONAL(itemtype)
