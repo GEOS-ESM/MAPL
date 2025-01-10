@@ -840,9 +840,16 @@ contains
     wc=0
     ios=0
     string = trim( adjustl(string_in) )
+    str_piece(:)=''
+    i = index (string, mark)
+    if (i==0) then
+       nseg=1
+       str_piece(1)=string
+       return
+    end if
     do while (ios==0)
        i = index (string, mark)
-       !!print*, 'index=', i
+       !! print*, 'ck index=', i
        if (i > 1) then
           wc = wc + 1
           str_piece(wc)=trim(adjustl(string(1:i)))
@@ -858,5 +865,59 @@ contains
   end subroutine split_string_by_space
 
 
+  subroutine split_string_by_seperator (string_in, length_mx, seperator_in, &
+       mxseg, nseg, str_piece, jstatus)
+    character (len=length_mx), intent (in) :: string_in
+    integer,           intent (in) :: length_mx
+    character (len=length_mx), intent (in) :: seperator_in
+    integer,           intent (in) :: mxseg
+    integer,           intent (out):: nseg
+    character (len=length_mx), intent (out):: str_piece(mxseg)
+    integer,           intent (out):: jstatus
+    character (len=length_mx) :: string_sc, string_oper, string_aux
+    character (len=1) :: mark, CH
+    integer :: ios
+    integer :: wc
+    integer :: len1, len2
+    !
+    !  "xxxx;  yy; zz;   uu,   vv,"
+    !  seperator = ";,"
+    !
+
+    !__ s1. replace seperator by space
+    !
+    string_sc = trim( adjustl(string_in) )
+    string_oper = trim( adjustl(seperator_in) )
+    len1 = len_trim(string_sc)
+    len2 = len_trim(string_oper)
+    string_aux=string_sc
+    do i = 1, len1
+       CH = string_sc(i:i)
+       do j = 1, len2
+          mark = string_oper(j:j)
+          if (CH==mark) then
+!              write(6,102) 'mark in', mark
+             string_aux(i:i)=' '
+          end if
+       end do
+    end do
+
+    !__ s2. split by space
+    call split_string_by_space (string_aux, length_mx, &
+       mxseg, nseg, str_piece, jstatus)
+
+!    ! ygyu debug
+!    write(6,121) 'len1,len2', len1, len2
+!    write(6,102) 'string_sc, string_oper', trim(string_sc), trim(string_oper)
+!    write(6,*)  'ck string_aux:', trim(string_aux)
+!    write(6,*) 'nseg', nseg
+!    do i=1, nseg
+!       write(6,*) 'output str_piece: ', trim(str_piece(i))
+!    end do
+
+    return
+
+  include '/Users/yyu11/sftp/myformat.inc'
+  end subroutine split_string_by_seperator
 
 end module MAPL_scan_pattern_in_file

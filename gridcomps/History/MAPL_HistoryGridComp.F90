@@ -964,6 +964,7 @@ contains
        if (old_fields_style) then
           field_set_name = trim(string) // 'fields'
           allocate(field_set)
+          ! ygyu: code runs here
           call parse_fields(cfg, trim(field_set_name), field_set, collection_name = list(n)%collection, items = list(n)%items, _RC)
        end if
 
@@ -2484,7 +2485,8 @@ ENDDO PARSER
           end if
           if (list(n)%timeseries_output) then
              list(n)%trajectory = HistoryTrajectory(cfg,string,clock,genstate=GENSTATE,_RC)
-             call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
+             call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,&
+                  vdata=list(n)%vdata,_RC)
              IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
           elseif (list(n)%sampler_spec == 'mask') then
              call MAPL_TimerOn(GENSTATE,"mask_init")
@@ -5464,7 +5466,7 @@ ENDDO PARSER
     integer :: nseg
     integer :: nseg_ub
     integer :: nfield, nplatform
-    integer :: nentry_name
+    integer :: nfield_name_max
     logical :: obs_flag
     integer, allocatable :: map(:)
     type(Logger), pointer          :: lgr
@@ -5554,7 +5556,7 @@ ENDDO PARSER
 
 
 
-    ! __ s2.1 scan fields: only determine ngeoval / nentry_name = nword
+    ! __ s2.1 scan fields: only determine ngeoval / nfield_name_max = nword
     allocate (str_piece(mxseg))
     rewind(unitr)
     do k=1, nplf
@@ -5578,10 +5580,10 @@ ENDDO PARSER
           end if
        enddo
        PLFS(k)%ngeoval = ngeoval
-       PLFS(k)%nentry_name = nseg_ub
+       nseg_ub = PLFS(k)%nfield_name_mx
        allocate ( PLFS(k)%field_name (nseg_ub, ngeoval) )
        PLFS(k)%field_name = ''
-       !! print*, 'k, ngeoval, nentry_name', k, ngeoval, nseg_ub
+       !! print*, 'k, ngeoval, nfield_name_max', k, ngeoval, nseg_ub
     end do
 
 
@@ -5613,12 +5615,14 @@ ENDDO PARSER
                   nseg, str_piece, status)
              do m=1, nseg
                 PLFS(k)%field_name (m, ngeoval) = trim(str_piece(m))
+                !! write(6,*) 'm, trim(str_piece(m))', m, trim(str_piece(m))
              end do
           endif
        enddo
     end do
     deallocate(str_piece)
     rewind(unitr)
+
 
 
     call lgr%debug('%a %i8','count PLATFORM.', nplf)
@@ -5635,7 +5639,7 @@ ENDDO PARSER
           enddo
        enddo
     end if
-!!    write(6,*) 'nlist=', nlist
+    write(6,*) 'nlist=', nlist
 
 
     ! __ s3: Add more entry:  'obs_files:' and 'fields:' to rcx
@@ -5722,10 +5726,10 @@ ENDDO PARSER
           end do
 
           nfield = p1%ngeoval
-          nentry_name = p1%nentry_name
+          nfield_name_max = p1%nfield_name_mx
           do j=1, nfield
              line=''
-             do i=1, nentry_name
+             do i=1, nfield_name_max
                 line = trim(line)//' '//trim(p1%field_name(i,j))
              enddo
               if (j==1) then
@@ -5744,7 +5748,7 @@ ENDDO PARSER
              write(unitw, '(a)') trim(adjustl(PLFS(k)%file_name_template))
              do j=1, PLFS(k)%ngeoval
                 line=''
-                do i=1, nentry_name
+                do i=1, nfield_name_max
                    line = trim(line)//' '//trim(adjustl(PLFS(k)%field_name(i,j)))
                 enddo
                 write(unitw, '(a)') trim(adjustl(line))

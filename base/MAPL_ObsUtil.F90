@@ -52,7 +52,7 @@ module MAPL_ObsUtilMod
      character (len=ESMF_MAXSTR) :: var_name_time=''
      character (len=ESMF_MAXSTR) :: file_name_template=''
      integer :: ngeoval=0
-     integer :: nentry_name=0
+     integer :: nfield_name_mx=12   ! fix max
      character (len=ESMF_MAXSTR), allocatable :: field_name(:,:)
      !character (len=ESMF_MAXSTR), allocatable :: field_name(:)
   end type obs_platform
@@ -770,7 +770,7 @@ contains
     copy_platform_nckeys%var_name_lon = a%var_name_lon
     copy_platform_nckeys%var_name_lat = a%var_name_lat
     copy_platform_nckeys%var_name_time = a%var_name_time
-    copy_platform_nckeys%nentry_name = a%nentry_name
+    copy_platform_nckeys%nfield_name_mx = a%nfield_name_mx
     _RETURN(_SUCCESS)
 
   end function copy_platform_nckeys
@@ -783,7 +783,7 @@ contains
     integer, optional, intent(out) :: rc
 
     character (len=ESMF_MAXSTR), allocatable :: field_name_loc(:,:)
-    integer :: nfield, nentry_name
+    integer :: nfield, nfield_name_mx
     integer, allocatable :: tag(:)
     integer :: i, j, k
     integer :: status
@@ -796,7 +796,7 @@ contains
     k=nfield
     do j=1, b%ngeoval
        do i=1, a%ngeoval
-          if ( trim(b%field_name(1,j)) == trim(a%field_name(1,i)) ) then
+          if ( trim(b%field_name(1,j)) == trim(a%field_name(1,i)) ) then    ! ygyu: potential problem here
              tag(j)=0
           endif
        enddo
@@ -804,9 +804,9 @@ contains
     enddo
     union_platform%ngeoval=k
     nfield=k
-    nentry_name=union_platform%nentry_name
+    nfield_name_mx=union_platform%nfield_name_mx
     if ( allocated (union_platform%field_name) ) deallocate(union_platform%field_name)
-    allocate(union_platform%field_name(nentry_name, nfield))
+    allocate(union_platform%field_name(nfield_name_mx, nfield))
     do i=1, a%ngeoval
        union_platform%field_name(:,i) = a%field_name(:,i)
     enddo
