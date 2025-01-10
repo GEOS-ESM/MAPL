@@ -35,9 +35,9 @@ module mapl3g_FrequencyAspect
       module procedure :: aspect_divides
    end interface operator(.divides.)
 
-   ! This value should not be accessed directly. Use zero() instead.
+   ! This value should not be accessed directly. Use get_zero() instead.
    ! There is no constructor for ESMF_TimeInterval, so the value cannot be initialized
-   ! at construction. The zero() function initializes the value the first time
+   ! at construction. The get_zero() function initializes the value the first time
    ! and returns a pointer to the value.
    type(ESMF_TimeInterval), target :: ZERO_TI
 
@@ -102,16 +102,19 @@ contains
    logical function matches(src, dst) result(does_match)
       class(FrequencyAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
-      type(ESMF_TimeInterval) :: timestep
+      type(ESMF_TimeInterval) :: src_timestep, dst_timestep
+      type(ESMF_TimeInterval), pointer :: zero
 
       does_match = .TRUE.
-      if(src%get_timestep() == zero()) return
+      zero => get_zero()
+      src_timestep = src%get_timestep()
+      if(src_timestep == zero) return
       select type(dst)
       class is (FrequencyAspect)
-         timestep = dst%get_timestep()
-         if(timestep == zero()) return
+         dst_timestep = dst%get_timestep()
+         if(dst_timestep == zero) return
          if(.not. accumulation_type_is_valid(dst%get_accumulation_type())) return
-         does_match = timestep == src%get_timestep()
+         does_match = dst_timestep == src_timestep
       end select
 
    end function matches
@@ -166,14 +169,16 @@ contains
    logical function interval_divides(factor, base) result(lval)
       type(ESMF_TimeInterval), intent(in) :: factor
       type(ESMF_TimeInterval), intent(in) :: base
+      type(ESMF_TimeInterval), pointer :: zero
 
       lval = .FALSE.
-      if(factor == zero()) return
-      lval = mod(base, factor) == zero()
+      zero => get_zero()
+      if(factor == zero) return
+      lval = mod(base, factor) == zero
 
    end function interval_divides
 
-   function zero()
+   function get_zero()
       type(ESMF_TimeInterval), pointer :: zero
       logical, save :: zero_is_uninitialized = .TRUE.
 
@@ -183,6 +188,6 @@ contains
       end if
       zero => ZERO_TI
 
-   end function zero
+   end function get_zero
 
 end module mapl3g_FrequencyAspect
