@@ -40,37 +40,43 @@ contains
       type(ESMF_Clock) :: clock
       integer, intent(out) :: rc
 
-      type(ESMF_FieldBundle) :: export_bundle
-      type(ESMF_Field), allocatable :: field_list(:)
-      character(len=ESMF_MAXSTR) :: field_name
-      type(ESMF_HConfig) :: hconfig, mapl_cfg, states_cfg, export_cfg, var_cfg
-      logical :: has_k_values
+      character(:), allocatable :: field_name
+      type(ESMF_HConfig) :: hconfig, mapl_cfg, states_cfg, export_cfg, field_cfg
+      logical :: has_export_section, has_k_values
       real(kind=ESMF_KIND_R4), allocatable :: k_values(:)
       real(kind=ESMF_KIND_R4), pointer :: ptr3d(:, :, :)
-      integer :: field_count, idx, i, j, shape_(3), status
+      integer :: ii, jj, shape_(3), status
+
+      type(ESMF_HConfigIter) :: iter, e, b
 
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
+      ! ASSUME: mapl and states sections always exist
       mapl_cfg = ESMF_HConfigCreateAt(hconfig, keyString=MAPL_SECTION, _RC)
       states_cfg = ESMF_HConfigCreateAt(mapl_cfg, keyString=COMPONENT_STATES_SECTION, _RC)
-      export_cfg = ESMF_HConfigCreateAt(states_cfg, keyString=COMPONENT_EXPORT_STATE_SECTION, _RC)
+      has_export_section = ESMF_HConfigIsDefined(states_cfg, keyString=COMPONENT_EXPORT_STATE_SECTION, _RC)
+      _RETURN_UNLESS(has_export_section)
 
       ! For each field getting 'export'ed, check hconfig and use k_values if specified
-      export_bundle = MAPL_StateGet(exportState, _RC)
-      call ESMF_FieldBundleGet(export_bundle, fieldCount=field_count, _RC)
-      allocate(field_list(field_count), _STAT)
-      call ESMF_FieldBundleGet(export_bundle, fieldList=field_list, _RC)
-      do idx = 1, field_count
-         call ESMF_FieldGet(field_list(idx), name=field_name, _RC)
-         var_cfg = ESMF_HConfigCreateAt(export_cfg, keyString=trim(field_name), _RC)
-         has_k_values = ESMF_HConfigIsDefined(var_cfg, keyString=KEY_K_VALUES, _RC)
+      export_cfg = ESMF_HConfigCreateAt(states_cfg, keyString=COMPONENT_EXPORT_STATE_SECTION, _RC)
+      b = ESMF_HConfigIterBegin(export_cfg, _RC)
+      e = ESMF_HConfigIterEnd(export_cfg, _RC)
+      iter = b
+      do while (ESMF_HConfigIterLoop(iter, b, e))
+         field_name = ESMF_HConfigAsStringMapKey(iter, _RC)
+         ! print *, "FIELD: ", field_name
+         field_cfg = ESMF_HConfigCreateAtMapVal(iter, _RC)
+         has_k_values = ESMF_HConfigIsDefined(field_cfg, keyString=KEY_K_VALUES, _RC)
          if (has_k_values) then
-            k_values = ESMF_HConfigAsR4Seq(var_cfg, keyString=KEY_K_VALUES, _RC)
+            k_values = ESMF_HConfigAsR4Seq(field_cfg, keyString=KEY_K_VALUES, _RC)
+            ! print *, "K VALUES: ", k_values
             call MAPL_GetPointer(exportState, ptr3d, trim(field_name), _RC)
             shape_ = shape(ptr3d)
             _ASSERT(shape_(3) == size(k_values), "incorrect number of k_values")
-            do concurrent(i = 1:shape_(1), j=1:shape_(2))
-               ptr3d(i, j, :) = k_values
+            print *, ptr3d(1, 4, 3)
+            do concurrent(ii = 1:shape_(1), jj=1:shape_(2))
+               ptr3d(ii, jj, :) = k_values
             end do
+            print *, ptr3d(1, 4, 3)
          end if
       end do
 
