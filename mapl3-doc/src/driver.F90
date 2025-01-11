@@ -1,27 +1,28 @@
 #define I_AM_MAIN
 #include "MAPL_ErrLog.h"
 program main
-   use mapl_BW_BenchmarkSpec
+   use mapl_ComboSpec
+   use mapl_GathervKernel
    use mapl_BW_Benchmark
    use mapl_ErrorHandlingMod
+   use Kernel_mod
    use mpi
-   use, intrinsic :: iso_fortran_env, only: INT64
    implicit none
 
-   type(BW_BenchmarkSpec) :: spec
+   type(ComboSpec) :: spec
    integer :: status
       
    call mpi_init(status)
    _VERIFY(status)
-   spec = make_BW_BenchmarkSpec() ! CLI
+   spec = make_ComboSpec() ! CLI
 
    call run(spec, _RC)
 
    call MPI_Barrier(MPI_COMM_WORLD, status)
    _VERIFY(status)
    call mpi_finalize(status)
-   stop
 
+   stop
 
 contains
 
@@ -29,20 +30,23 @@ contains
 #undef I_AM_MAIN
 #include "MAPL_ErrLog.h"
    subroutine run(spec, rc)
-      type(BW_BenchmarkSpec), intent(in) :: spec
+      type(ComboSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       real :: tot_time
-      real :: tot_time_sq
+      real :: tot_time_write
+      real :: tot_time_gather
       real :: avg_time
-      real :: std_time
+      real :: avg_time_write
+      real :: avg_time_gather
+      type(GathervKernel) :: kernel
       type(BW_Benchmark) :: benchmark
       integer :: writer_comm
       integer :: gather_comm
       integer :: i
-      real :: t
+      real :: ta, tb
 
       integer :: color, rank, npes
       call MPI_Comm_rank(MPI_COMM_WORLD, rank, status)
@@ -58,58 +62,62 @@ contains
       _VERIFY(status)
       call MPI_Comm_split(MPI_COMM_WORLD, rank, 0, writer_comm, status)
       _VERIFY(status)
-      if (rank /= 0) writer_comm = MPI_COMM_NULL
-      _RETURN_IF(writer_comm == MPI_COMM_NULL)
+      if (rank /= 0) then
+         writer_comm = MPI_COMM_NULL
+      end if
 
-      benchmark = make_BW_Benchmark(spec, writer_comm, _RC)
+      kernel = make_GathervKernel(spec, gather_comm, _RC)
+      if (rank == 0) then
+         benchmark = make_BW_Benchmark(spec, writer_comm, _RC)
+      end if
 
-      call write_header(writer_comm, _RC)
+      call write_header(MPI_COMM_WORLD, _RC)
 
       tot_time = 0
-      tot_time_sq = 0
+      tot_time_gather = 0
+      tot_time_write = 0
       associate (n => spec%n_tries)
         do i = 1, n
-           t = time(benchmark, writer_comm, _RC)
-           tot_time = tot_time + t
-           tot_time_sq = tot_time_sq + t**2
+           ta = time(kernel, gather_comm, _RC)
+           if (writer_comm /= MPI_COMM_NULL) then
+              tb = time(benchmark, writer_comm, _RC)
+           end if
+           tot_time_gather = tot_time_gather + ta
+           tot_time_write = tot_time_write + tb
+           tot_time = tot_time + ta + tb
         end do
         avg_time = tot_time / n
+        avg_time_gather = tot_time_gather / n
+        avg_time_write = tot_time_write / n
 
-        std_time = -1 ! unless
-        if (n > 1) then
-           std_time = sqrt((tot_time_sq - spec%n_tries*avg_time**2)/(n-1))
-        end if
       end associate
 
-      call report(spec, avg_time, std_time, writer_comm, _RC)
+      call report(spec, avg_time, avg_time_gather, avg_time_write, MPI_COMM_WORLD, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine run
 
 
-   real function time(benchmark, comm, rc)
-      type(BW_Benchmark), intent(in) :: benchmark
+   real function time(kernel, comm, rc)
+      class(Kernel_T), intent(in) :: kernel
       integer, intent(in) :: comm
       integer, optional, intent(out) :: rc
 
       integer :: status
-      integer :: rank
-      integer(kind=INT64) :: c0, c1, count_rate
+      real :: t0, t1
 
       call MPI_Barrier(comm, status)
       _VERIFY(status)
-
-      call system_clock(c0)
-      call benchmark%run(_RC)
+      t0 = MPI_Wtime()
+      call kernel%run(_RC)
       call MPI_Barrier(comm, status)
       _VERIFY(status)
-      call system_clock(c1, count_rate=count_rate)
+      t1 = MPI_Wtime()
 
-      time = real(c1-c0)/count_rate
+      time = t1 - t0
 
       _RETURN(_SUCCESS)
    end function time
-
 
    subroutine write_header(comm, rc)
       integer, intent(in) :: comm
@@ -121,49 +129,40 @@ contains
       call MPI_Comm_rank(comm, rank, status)
       _VERIFY(status)
       _RETURN_UNLESS(rank == 0)
-
-      write(*,'(3(a10,","),6(a15,:,","))',iostat=status) &
-           'NX', '# levs', '# writers', 'write (GB)', 'packet (GB)', &
-           'Time (s)', 'Eff. BW (GB/s)', 'Avg. BW (GB/s)', 'Rel. Std. Dev.'
+      
+      write(*,'(4(a6,","),4(a15,:,","))',iostat=status) 'NX', '# levs', '# writers', 'group size', 'Time (s)', 'G Time (s)', 'W Time (s)', 'BW (GB/sec)'
 
       _RETURN(status)
    end subroutine write_header
 
 
-   subroutine report(spec, avg_time, std_time, comm, rc)
-      type(BW_BenchmarkSpec), intent(in) :: spec
+   subroutine report(spec, avg_time, avg_time_gather, avg_time_write, comm, rc)
+      type(ComboSpec), intent(in) :: spec
       real, intent(in) :: avg_time
-      real, intent(in) :: std_time
+      real, intent(in) :: avg_time_gather
+      real, intent(in) :: avg_time_write
+
       integer, intent(in) :: comm
       integer, optional, intent(out) :: rc
 
       integer :: status
-      real :: packet_gb
-      real :: total_gb
-      real :: bw
-      integer :: npes
       integer :: rank
-      integer, parameter :: WORD_SIZE = 4
-      integer(kind=INT64) :: packet_size
+      integer :: npes
+      integer :: group
+      real :: bw_gb
+      integer, parameter :: WORD=4
 
-      call MPI_Comm_size(comm, npes, status)
-      _VERIFY(status)
       call MPI_Comm_rank(comm, rank, status)
       _VERIFY(status)
       _RETURN_UNLESS(rank == 0)
 
-      packet_size = int(spec%nx,kind=INT64)**2 * 6 * spec%n_levs / spec%n_writers
-      packet_gb = 1.e-9*(WORD_SIZE * packet_size)
-      total_gb = packet_gb * npes
-      bw = total_gb / avg_time
-
-      call MPI_Comm_size(comm, npes, status)
+      call MPI_Comm_size(MPI_COMM_WORLD, npes, status)
       _VERIFY(status)
+      group = npes /spec%n_writers
 
-      write(*,'(3(1x,i9.0,","),6(f15.4,:,","))') &
-           spec%nx, spec%n_levs, spec%n_writers, &
-           total_gb, packet_gb, avg_time, bw, bw/npes, std_time/avg_time
-
+      bw_gb = 1.e-9 * WORD * (spec%nx**2)*6*spec%n_levs / avg_time
+      write(*,'(4(i6.0,","),4(f15.4,:,","))') spec%nx, spec%n_levs, spec%n_writers, group, avg_time, avg_time_gather, avg_time_write, bw_gb
+ 
       _RETURN(_SUCCESS)
    end subroutine report
 

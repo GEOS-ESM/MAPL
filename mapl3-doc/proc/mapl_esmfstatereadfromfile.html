@@ -79,7 +79,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 0.4% of total for procedures.">274 statements</a>
+                 title=" 0.4% of total for procedures.">276 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -91,7 +91,7 @@
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/mapl_generic.f90~2.html'>MAPL_Generic.F90</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_generic.f90.html'>MAPL_Generic.F90</a></li>
                 <li class="breadcrumb-item"><a href='../module/mapl_genericmod.html'>MAPL_GenericMod</a></li>
             <li class="breadcrumb-item active" aria-current="page">MAPL_ESMFStateReadFromFile</li>
           </ol>
@@ -163,7 +163,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-state~52"></span>
+              <span class="anchor" id="variable-state~31"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
             </td>
 <td>intent(inout)</td>
@@ -193,7 +193,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-filename~14"></span>
+              <span class="anchor" id="variable-filename~5"></span>
               character(len=*),
             </td>
 <td>intent(in)</td>
@@ -238,7 +238,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rc~282"></span>
+              <span class="anchor" id="variable-rc~80"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -261,7 +261,9 @@
       </div>
       <div class="card-body">
   <table class="graph">
-<tr><td class="root" rowspan="83">MAPL_ESMFStateReadFromFile</td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/arrdescrcreatereadercomm.html">ArrDescrCreateReaderComm</a></td></tr>
+<tr><td class="root" rowspan="87">MAPL_ESMFStateReadFromFile</td><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/arrdescrcommfree.html">ArrDescrCommFree</a></td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/arrdescrcreatereadercomm.html">ArrDescrCreateReaderComm</a></td></tr>
 <tr><td class="solidTop">w</td></tr>
 <tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/arrdescrcreatewritercomm.html">ArrDescrCreateWriterComm</a></td></tr>
 <tr><td class="solidTop">w</td></tr>
@@ -321,13 +323,15 @@
 <tr><td class="solidTop">w</td></tr>
 <tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d9534f"><a href="../proc/mapl_skip.html">MAPL_Skip</a></td></tr>
 <tr><td class="solidTop">w</td></tr>
-<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_varread~2.html">MAPL_VarRead</a></td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_varread.html">MAPL_VarRead</a></td></tr>
 <tr><td class="solidTop">w</td></tr>
 <tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#A7506F"><a href="../interface/mapl_varreadncpar.html">MAPL_VarReadNCPar</a></td></tr>
 <tr><td class="solidTop">w</td></tr>
 <tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#d94e8f"><a href="../proc/mapl_verify.html">MAPL_Verify</a></td></tr>
 <tr><td class="solidTop">w</td></tr>
 <tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">mpi_barrier</td></tr>
+<tr><td class="solidTop">w</td></tr>
+<tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">mpi_comm_dup</td></tr>
 <tr><td class="solidTop">w</td></tr>
 <tr><td class="solidBottom">w</td><td rowspan="2" class="triangle-right"></td><td rowspan="2" class="node" bgcolor="#777777">mpi_comm_rank</td></tr>
 <tr><td class="solidTop">w</td></tr>
@@ -888,7 +892,7 @@ large graphs.</div>
 
 <span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">filetype</span><span class="o">==</span><span class="s1">&#39;pbinary&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="k">         call </span><span class="n">ArrDescrSet</span><span class="p">(</span><span class="n">arrdes</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">)</span>
-<span class="w">         </span><span class="n">arrdes</span><span class="p">%</span><span class="n">Ycomm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">Ycomm</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MPI_Comm_Dup</span><span class="p">(</span><span class="n">mpl</span><span class="p">%</span><span class="n">grid</span><span class="p">%</span><span class="n">Ycomm</span><span class="p">,</span><span class="n">ArrDes</span><span class="p">%</span><span class="n">Ycomm</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span>
 <span class="w">         </span><span class="k">call </span><span class="n">MAPL_VarRead</span><span class="p">(</span><span class="n">UNIT</span><span class="o">=</span><span class="n">UNIT</span><span class="p">,</span><span class="w"> </span><span class="n">STATE</span><span class="o">=</span><span class="n">STATE</span><span class="p">,</span><span class="w"> </span><span class="n">arrdes</span><span class="o">=</span><span class="n">arrdes</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
 <span class="w">         </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
 <span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">AmReader</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
@@ -920,6 +924,7 @@ large graphs.</div>
 <span class="w">      </span><span class="k">call </span><span class="n">MAPL_AttributeSet</span><span class="p">(</span><span class="n">STATE</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="s2">&quot;MAPL_InitStatus&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">VALUE</span><span class="o">=</span><span class="n">MAPL_InitialRestart</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
 <span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
 
+<span class="w">      </span><span class="k">call </span><span class="n">ArrDescrCommFree</span><span class="p">(</span><span class="n">arrdes</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
 <span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
 
 <span class="w">     </span><span class="k">contains</span>
@@ -974,7 +979,7 @@ large graphs.</div>
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2025-01-10T18:13:12.480989+0000             </p>
+ on 2025-01-11T00:09:10.999892+0000             </p>
           </div>
         </div>
         <br>
