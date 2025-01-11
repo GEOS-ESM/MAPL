@@ -849,11 +849,9 @@ contains
     end if
     do while (ios==0)
        i = index (string, mark)
-       !! print*, 'ck index=', i
        if (i > 1) then
           wc = wc + 1
           str_piece(wc)=trim(adjustl(string(1:i)))
-          !!write(6,*) 'str_piece(wc)=', trim(str_piece(wc))
           string = trim(adjustl(string(i:)))
        else
           ios=1
@@ -896,7 +894,6 @@ contains
        do j = 1, len2
           mark = string_oper(j:j)
           if (CH==mark) then
-!              write(6,102) 'mark in', mark
              string_aux(i:i)=' '
           end if
        end do
@@ -906,18 +903,7 @@ contains
     call split_string_by_space (string_aux, length_mx, &
        mxseg, nseg, str_piece, jstatus)
 
-!    ! ygyu debug
-!    write(6,121) 'len1,len2', len1, len2
-!    write(6,102) 'string_sc, string_oper', trim(string_sc), trim(string_oper)
-!    write(6,*)  'ck string_aux:', trim(string_aux)
-!    write(6,*) 'nseg', nseg
-!    do i=1, nseg
-!       write(6,*) 'output str_piece: ', trim(str_piece(i))
-!    end do
-
     return
-
-  include '/Users/yyu11/sftp/myformat.inc'
   end subroutine split_string_by_seperator
 
 end module MAPL_scan_pattern_in_file
