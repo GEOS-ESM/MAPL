@@ -5971,7 +5971,7 @@ contains
 
 
       if(filetype=='pbinary' ) then
-         arrdes%ycomm = mpl%grid%Ycomm
+         call MPI_Comm_Dup(mpl%grid%Ycomm,ArrDes%Ycomm, status)
          call MAPL_VarWrite(UNIT=UNIT, STATE=STATE, arrdes=arrdes, rc=status)
          _VERIFY(status)
 
@@ -6001,6 +6001,7 @@ contains
          _VERIFY(status)
       endif
 
+      call ArrDescrCommFree(arrdes, _RC)
       _RETURN(ESMF_SUCCESS)
    end subroutine MAPL_ESMFStateWriteToFile
 
@@ -6297,7 +6298,7 @@ contains
 
       if(filetype=='pbinary') then
          call ArrDescrSet(arrdes, offset)
-         arrdes%Ycomm = mpl%grid%Ycomm
+         call MPI_Comm_Dup(mpl%grid%Ycomm,ArrDes%Ycomm, status)
          call MAPL_VarRead(UNIT=UNIT, STATE=STATE, arrdes=arrdes, RC=status)
          _VERIFY(status)
          if (AmReader) then
@@ -6329,6 +6330,7 @@ contains
       call MAPL_AttributeSet(STATE, NAME="MAPL_InitStatus", VALUE=MAPL_InitialRestart, RC=status)
       _VERIFY(status)
 
+      call ArrDescrCommFree(arrdes, _RC)
       _RETURN(ESMF_SUCCESS)
 
      contains
@@ -9923,7 +9925,7 @@ contains
                     im_world = mpl%grid%im_world,           &
                     jm_world = mpl%grid%jm_world)
             endif
-            arrdes%Ycomm = mpl%grid%Ycomm
+            call MPI_Comm_Dup(mpl%grid%Ycomm,ArrDes%Ycomm, status)
 
             if (AmReader) then
                call MPI_COMM_RANK(mpl%grid%readers_comm, io_rank, status)
@@ -11106,10 +11108,14 @@ contains
          arrdes%NX0   = mpl%grid%NX0
          arrdes%tile=.true.
          arrdes%grid=tilegrid
-         call ArrDescrCreateWriterComm(arrdes,mpl%grid%comm,mpl%grid%num_writers,_RC)
-         call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_readers,_RC)
-         arrdes%iogathercomm = mpl%grid%comm
-         arrdes%ioscattercomm = mpl%grid%comm
+         if (present(num_writers)) then
+            call ArrDescrCreateWriterComm(arrdes,mpl%grid%comm,mpl%grid%num_writers,_RC)
+         end if
+         if (present(num_readers)) then
+            call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_readers,_RC)
+         end if
+         call MPI_Comm_Dup(mpl%grid%comm,ArrDes%iogathercomm, status)
+         call MPI_Comm_Dup(mpl%grid%comm,ArrDes%ioscattercomm, status)
          arrdes%split_restart = .false.
          arrdes%split_checkpoint = .false.
       else
@@ -11134,8 +11140,12 @@ contains
          arrdes%NX0   = mpl%grid%NX0
          arrdes%tile=.false.
          arrdes%grid=MPL%GRID%ESMFGRID
-         call ArrDescrCreateWriterComm(arrdes,mpl%grid%comm,mpl%grid%num_writers,_RC)
-         call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_readers,_RC)
+         if (present(num_writers)) then
+            call ArrDescrCreateWriterComm(arrdes,mpl%grid%comm,mpl%grid%num_writers,_RC)
+         end if
+         if (present(num_readers)) then
+            call ArrDescrCreateReaderComm(arrdes,mpl%grid%comm,mpl%grid%num_readers,_RC)
+         end if
          call mpi_comm_rank(arrdes%ycomm,arrdes%myrow,status)
          _VERIFY(status)
          arrdes%split_restart = mpl%grid%split_restart

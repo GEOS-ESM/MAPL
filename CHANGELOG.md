@@ -43,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add accumulation type variable to VariableSpec and ComponentSpecParser
 - Add run_dt to ComponentSpec and ComponentSpecParser
 - Add run_dt to FieldSpec
+- Add FrequencyAspect
 
 ### Changed
 
@@ -86,6 +87,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Free MPI communicators after reading and/or writing of restarts
 - Fixed the behavior of MAPL_MaxMin in presence of NaN
 - Fixed bug with return codes and macros in udunits2f
 

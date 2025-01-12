@@ -181,7 +181,7 @@ contains
    end subroutine test_parse_ChildSpecMap_2
 
    @test
-   subroutine test_parse_run_dt()
+   subroutine test_parse_timestep()
       integer(kind=ESMF_KIND_I4) :: d(6)
       type(ESMF_TimeInterval) :: expected
       character(len=:), allocatable :: iso_duration
@@ -192,27 +192,27 @@ contains
       character(len=:), allocatable :: msg
       character(len=ESMF_MAXSTR) :: expected_timestring, actual_timestring
 
-      ! Test with correct key for run_dt
+      ! Test with correct key for timestep
       d = [10, 3, 7, 13, 57, 32]
       call ESMF_TimeIntervalSet(expected, yy=d(1), mm=d(2), d=d(3), h=d(4), m=d(5), s=d(6), _RC)
       iso_duration = 'P10Y3M7DT13H57M32S'
-      content = 'run_dt: ' // iso_duration
+      content = 'timestep: ' // iso_duration
       hconfig = ESMF_HConfigCreate(content=content, _RC)
-      actual = parse_run_dt(hconfig, _RC)
+      actual = parse_timestep(hconfig, _RC)
       call ESMF_TimeIntervalGet(expected, timeString=expected_timestring, _RC)
       call ESMF_TimeIntervalGet(actual, timeString=actual_timestring, _RC)
       msg = trim(actual_timestring) // ' /= ' // trim(expected_timestring)
       @assertTrue(actual == expected, msg)
       call ESMF_HConfigDestroy(hconfig, _RC)
       
-      ! Test with incorrect key for run_dt; should return without setting actual (invalid)
+      ! Test with incorrect key for timestep; should return without setting actual (invalid)
       content = 'run_dmc: ' // iso_duration
       hconfig = ESMF_HConfigCreate(content=content, _RC)
-      actual = parse_run_dt(hconfig, _RC)
+      actual = parse_timestep(hconfig, _RC)
       call ESMF_TimeIntervalValidate(actual, rc=status)
       @assertTrue(status /= ESMF_SUCCESS, 'ESMF_TimeInterval should be invalid.')
       call ESMF_HConfigDestroy(hconfig, _RC)
 
-   end subroutine test_parse_run_dt
+   end subroutine test_parse_timestep
 
 end module Test_ComponentSpecParser

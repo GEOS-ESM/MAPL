@@ -6,6 +6,7 @@ target_sources(MAPL.generic3g PRIVATE
   VerticalGridAspect.F90
   UngriddedDimsAspect.F90
   UnitsAspect.F90
+  FrequencyAspect.F90
 
   VariableSpec.F90
   StateItem.F90

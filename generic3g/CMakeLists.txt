@@ -55,7 +55,7 @@ endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.regridder_mgr MAPL.geom_mgr MAPL.GeomIO MAPL.esmf_utils MAPL.field MAPL.shared MAPL.profiler MAPL.base MAPL.hconfig_utils
+  DEPENDENCIES MAPL.regridder_mgr MAPL.geom_mgr MAPL.GeomIO MAPL.esmf_utils MAPL.field MAPL.state MAPL.shared MAPL.profiler MAPL.base MAPL.hconfig_utils
                ESMF::ESMF NetCDF::NetCDF_Fortran udunits2f PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
   TYPE SHARED
   )
@@ -89,7 +89,7 @@ esma_add_fortran_submodules(
   SUBDIRECTORY ComponentSpecParser
   SOURCES parse_child.F90 parse_children.F90 parse_connections.F90
           parse_var_specs.F90 parse_geometry_spec.F90 parse_component_spec.F90
-          parse_setservices.F90 parse_run_dt.F90)
+          parse_setservices.F90 parse_timestep.F90)
 
 esma_add_fortran_submodules(
   TARGET MAPL.generic3g

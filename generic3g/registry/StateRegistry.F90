@@ -618,11 +618,11 @@ contains
       _RETURN(_SUCCESS)
    end subroutine allocate
 
-   subroutine set_blanket_geometry(this, geom, vertical_grid, run_dt, rc)
+   subroutine set_blanket_geometry(this, geom, vertical_grid, timestep, rc)
       class(StateRegistry), target, intent(inout) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
-      type(ESMF_TimeInterval), optional, intent(in) :: run_dt
+      type(ESMF_TimeInterval), optional, intent(in) :: timestep
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -637,7 +637,7 @@ contains
            extension => iter%of()
            spec => extension%get_spec()
            if (spec%is_active()) then
-              call spec%set_geometry(geom, vertical_grid, run_dt, _RC)
+              call spec%set_geometry(geom, vertical_grid, timestep, _RC)
            end if
         end do
       end associate

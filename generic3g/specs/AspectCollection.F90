@@ -6,6 +6,7 @@ module mapl3g_AspectCollection
    use mapl3g_VerticalGridAspect
    use mapl3g_UnitsAspect
    use mapl3g_TypekindAspect
+   use mapl3g_FrequencyAspect
    use mapl3g_UngriddedDimsAspect
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
@@ -22,6 +23,7 @@ module mapl3g_AspectCollection
       type(UnitsAspect), allocatable :: units_aspect
       type(TypekindAspect), allocatable :: typekind_aspect
       type(UngriddedDimsAspect), allocatable :: ungridded_dims_aspect
+      type(FrequencyAspect), allocatable :: frequency_aspect
    contains
       procedure :: get_aspect ! polymorphic
       procedure :: has_aspect ! polymorphic
@@ -42,6 +44,8 @@ module mapl3g_AspectCollection
       procedure :: get_ungridded_dims_aspect
       procedure :: set_ungridded_dims_aspect
       
+      procedure :: get_frequency_aspect
+      procedure :: set_frequency_aspect
    end type AspectCollection
 
    interface AspectCollection
@@ -82,6 +86,8 @@ contains
          aspect => this%get_typekind_aspect()
       case ('UNGRIDDED_DIMS')
          aspect => this%get_ungridded_dims_aspect()
+      case ('FREQUENCY')
+         aspect => this%get_frequency_aspect()
       case default
          _FAIL('unknown aspect type: '//name)
       end select
@@ -94,6 +100,7 @@ contains
       character(*), intent(in) :: name
 
       select case (name)
+
       case ('GEOM')
          has_aspect = allocated(this%geom_aspect)
       case ('VERTICAL')
@@ -104,6 +111,7 @@ contains
          has_aspect = allocated(this%typekind_aspect)
       case ('UNGRIDDED_DIMS')
          has_aspect = allocated(this%ungridded_dims_aspect)
+
       case default
          has_aspect = .false.
       end select
@@ -146,6 +154,8 @@ contains
          end if
       type is (UngriddedDimsAspect)
          this%ungridded_dims_aspect = aspect
+      type is (FrequencyAspect)
+         this%frequency_aspect = aspect
       class default
          _FAIL('unsupported aspect type: ')
       end select
@@ -228,6 +238,21 @@ contains
       type(UngriddedDimsAspect), intent(in) :: ungridded_dims_aspect
       this%ungridded_dims_aspect = ungridded_dims_aspect
    end subroutine set_ungridded_dims_aspect
+
+   function get_frequency_aspect(this) result(frequency_aspect)
+      type(FrequencyAspect), pointer :: frequency_aspect
+      class(AspectCollection), target, intent(inout) :: this
+      frequency_aspect => null()
+      if(allocated(this%frequency_aspect)) then
+         frequency_aspect => this%frequency_aspect
+      end if
+   end function get_frequency_aspect
+
+   subroutine set_frequency_aspect(this, frequency_aspect)
+      class(AspectCollection), intent(inout) :: this
+      type(FrequencyAspect), intent(in) :: frequency_aspect
+      this%frequency_aspect = frequency_aspect
+   end subroutine set_frequency_aspect
 
 end module mapl3g_AspectCollection
 
