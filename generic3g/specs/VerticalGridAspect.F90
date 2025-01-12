@@ -38,6 +38,8 @@ module mapl3g_VerticalGridAspect
       procedure :: set_vertical_grid
       procedure :: set_geom
       procedure :: set_typekind
+
+      procedure :: get_description
    end type VerticalGridAspect
 
    interface VerticalGridAspect
@@ -190,5 +192,14 @@ contains
 
       self%typekind = typekind
    end subroutine set_typekind
+
+   function get_description(this) result(s)
+      character(:), allocatable :: s
+      class(VerticalGridAspect), intent(in) :: this
+
+      ! Should not get here in mirror'd case, but ...
+      s = 'description not implemented'
+
+   end function get_description
 
 end module mapl3g_VerticalGridAspect

@@ -64,6 +64,10 @@ module mapl3g_StateItemAspect
       procedure, non_overridable :: set_mirror
       procedure, non_overridable :: is_time_dependent
       procedure, non_overridable :: set_time_dependent
+
+      procedure(I_get_description), deferred :: get_description
+      procedure :: write_formatted_aspect
+      generic :: write(formatted) => write_formatted_aspect
    end type StateItemAspect
 
 
@@ -93,6 +97,11 @@ module mapl3g_StateItemAspect
          integer, optional, intent(out) :: rc
       end function I_make_action
 
+      function I_get_description(this) result(s)
+         import StateItemAspect
+         character(:), allocatable :: s
+         class(StateItemAspect), intent(in) :: this
+      end function I_get_description
    end interface
 
 contains
@@ -184,6 +193,31 @@ contains
       logical, optional, intent(in) :: time_dependent
       if (present(time_dependent)) this%time_dependent = time_dependent
    end subroutine set_time_dependent
+
+
+   subroutine write_formatted_aspect(this, unit, iotype, v_list, iostat, iomsg)
+      class(StateItemAspect), intent(in) :: this
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      character(:), allocatable :: buffer
+      iostat = 0
+
+      if (this%is_mirror()) then
+         write(unit,'(a)', iostat=iostat, iomsg=iomsg) " < mirror(tbd) > "
+         return
+      end if
+
+      buffer = "< " // this%get_description() // " >"
+      write(unit,'(a)', iostat=iostat, iomsg=iomsg) buffer 
+      
+      _UNUSED_DUMMY(v_list)
+      _UNUSED_DUMMY(iotype)
+   end subroutine write_formatted_aspect
+
 
 end module mapl3g_StateItemAspect
 

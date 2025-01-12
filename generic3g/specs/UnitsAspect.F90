@@ -12,7 +12,6 @@ module mapl3g_UnitsAspect
 
    public :: UnitsAspect
 
-
    type, extends(StateItemAspect) :: UnitsAspect
 !#      private
       character(:), allocatable :: units
@@ -21,11 +20,14 @@ module mapl3g_UnitsAspect
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_action
+
+      procedure :: get_description
+
    end type UnitsAspect
 
    interface UnitsAspect
       procedure new_UnitsAspect
-   end interface
+   end interface UnitsAspect
 
 contains
 
@@ -56,14 +58,12 @@ contains
 
       select type (dst)
       class is (UnitsAspect)
-         _HERE, src%units, ' --> ', dst%units
          supports_conversion_specific = .true.
          if (src%units == dst%units) return ! allow silly units so long as they are the same
          supports_conversion_specific = are_convertible(src%units, dst%units, rc=ignore)
       class default
          supports_conversion_specific = .false.
       end select
-      _HERE, supports_conversion_specific
 
    end function supports_conversion_specific
 
@@ -100,5 +100,14 @@ contains
 
       _RETURN(_SUCCESS)
    end function make_action
+
+   function get_description(this) result(s)
+      character(:), allocatable :: s
+      class(UnitsAspect), intent(in) :: this
+
+      ! Should not get here in mirror'd case, but ...
+      s = 'ERROR'
+      if (allocated(this%units)) s = this%units
+   end function get_description
 
 end module mapl3g_UnitsAspect

@@ -17,6 +17,8 @@ module MockAspect_mod
       procedure :: make_action
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
+
+      procedure :: get_description
    end type MockAspect
 
    interface MockAspect
@@ -73,4 +75,13 @@ contains
       if (present(rc)) rc = 0
    end function make_action
    
+   function get_description(this) result(s)
+      character(:), allocatable :: s
+      class(MockASpect), intent(in) :: this
+
+      ! Should not get here in mirror'd case, but ...
+      s = 'not implemented'
+
+   end function get_description
+
 end module MockAspect_mod

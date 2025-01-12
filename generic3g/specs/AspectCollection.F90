@@ -41,13 +41,16 @@ module mapl3g_AspectCollection
 
       procedure :: get_ungridded_dims_aspect
       procedure :: set_ungridded_dims_aspect
+
+      procedure :: write_formatted
+      generic :: write(formatted) => write_formatted
       
    end type AspectCollection
 
    interface AspectCollection
       procedure :: new_AspectCollection
    end interface AspectCollection
-   
+
 contains
 
    function new_AspectCollection( unusable, &
@@ -229,5 +232,58 @@ contains
       this%ungridded_dims_aspect = ungridded_dims_aspect
    end subroutine set_ungridded_dims_aspect
 
+
+   subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
+      class(AspectCollection), intent(in) :: this
+      integer, intent(in) :: unit
+      character(*), intent(in) :: iotype
+      integer, intent(in) :: v_list(:)
+      integer, intent(out) :: iostat
+      character(*), intent(inout) :: iomsg
+
+      iostat = 0
+
+      call handle('TYPEKIND', iostat=iostat, iomsg=iomsg)
+      call handle('GEOM', iostat=iostat, iomsg=iomsg)
+      call handle('VERTICAL', iostat=iostat, iomsg=iomsg)
+      call handle('UNITS', iostat=iostat, iomsg=iomsg)
+      call handle('UNGRIDDED_DIMS', iostat=iostat, iomsg=iomsg)
+      
+      _UNUSED_DUMMY(v_list)
+      _UNUSED_DUMMY(iotype)
+
+   contains
+
+      subroutine handle(name, iostat, iomsg)
+         character(*), intent(in) :: name
+         integer, intent(out) :: iostat
+         character(*), intent(inout) :: iomsg
+
+         character(10) :: fmt
+         class(StateItemAspect), pointer :: aspect
+
+         ! v_list(1) is indent
+         if (size(v_list) > 0) then
+            write(fmt,'("(",i0,"x)")', iostat=iostat) v_list(1)
+            if (iostat /= 0) return
+            write(unit,trim(fmt), iostat=iostat, iomsg=iomsg)
+            if (iostat /= 0) return
+         end if
+
+         aspect => this%get_aspect(name)
+         if (associated(aspect)) then
+            write(unit,'(a12,":",1x)',iostat=iostat,iomsg=iomsg) name 
+            if (iostat /= 0) return
+
+!#            write(unit, '(DT,a)', iostat=iostat, iomsg=iomsg) aspect, new_line('a')
+            write(unit, '(a,a)', iostat=iostat, iomsg=iomsg) aspect%get_description(), new_line('a')
+            return
+         end if
+
+         write(unit, '(a, a)', iostat=iostat, iomsg=iomsg) '< not allocated >', new_line('a')
+      end subroutine handle
+
+   end subroutine write_formatted
+   
 end module mapl3g_AspectCollection
 

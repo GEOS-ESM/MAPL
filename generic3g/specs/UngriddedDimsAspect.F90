@@ -20,6 +20,8 @@ module mapl3g_UngriddedDimsAspect
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_action
+
+      procedure :: get_description
    end type UngriddedDimsAspect
 
    interface UngriddedDimsAspect
@@ -75,5 +77,14 @@ contains
 
       _RETURN(_SUCCESS)
    end function make_action
+
+   function get_description(this) result(s)
+      character(:), allocatable :: s
+      class(UngriddedDimsAspect), intent(in) :: this
+
+      ! Should not get here in mirror'd case, but ...
+      s = 'description not implemented'
+
+   end function get_description
 
 end module mapl3g_UngriddedDimsAspect

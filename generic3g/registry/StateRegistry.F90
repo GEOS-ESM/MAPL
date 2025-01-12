@@ -2,6 +2,7 @@
 
 module mapl3g_StateRegistry
 
+   use mapl3g_AspectCollection
    use mapl3g_AbstractRegistry
    use mapl3g_RegistryPtr
    use mapl3g_RegistryPtrMap
@@ -559,6 +560,7 @@ contains
               ', n_extensions=', total, ')' // new_line('a')
          if (iostat /= 0) return
          write(unit,*,iostat=iostat,iomsg=iomsg) '   extensions: '// new_line('a')
+
       end subroutine write_header
 
       subroutine write_virtual_pts(this, iostat, iomsg)
@@ -571,6 +573,9 @@ contains
          type(StateItemExtension), pointer :: extension
          class(StateItemSpec), pointer :: spec
          logical :: is_active
+
+         integer :: i
+         type(AspectCollection), pointer :: aspects
 
          write(unit,*,iostat=iostat,iomsg=iomsg) '   virtuals: '// new_line('a')
          if (iostat /= 0) return
@@ -590,6 +595,20 @@ contains
                      ': ',family%num_variants(), ' variants ', &
                      ' is primary? ', family%has_primary(),  ' is active? ', is_active, new_line('a')
                 if (iostat /= 0) return
+
+                do i = 1, family%num_variants()
+                   extension => family%get_extension(i)
+                   spec => extension%get_spec()
+                   aspects => spec%get_aspects()
+                   write(unit,'(16x,a,i5.0,a)', iostat=iostat, iomsg=iomsg) 'Variant: ', i, new_line('a')
+                   if (iostat/=0) return
+                   write(unit,'(DT(20),a)',iostat=iostat, iomsg=iomsg) aspects
+                   if (iostat/=0) return
+                   write(unit,*, iostat=iostat, iomsg=iomsg) new_line('a')
+                   if (iostat/=0) return
+                end do
+
+                
               end associate
            end do
          end associate

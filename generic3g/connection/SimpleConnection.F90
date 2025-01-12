@@ -175,6 +175,8 @@ contains
             call dst_extension%set_producer(new_extension%get_producer(), _RC)
          end if
       end do
+
+      _HERE, src_registry
          
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

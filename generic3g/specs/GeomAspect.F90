@@ -27,6 +27,8 @@ module mapl3g_GeomAspect
       procedure :: supports_conversion_specific
       procedure :: set_geom
       procedure :: get_geom
+
+      procedure :: get_description
    end type GeomAspect
 
    interface GeomAspect
@@ -132,5 +134,14 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_geom
+
+   function get_description(this) result(s)
+      character(:), allocatable :: s
+      class(GeomAspect), intent(in) :: this
+
+      ! Should not get here in mirror'd case, but ...
+      s = 'description not implemented'
+
+   end function get_description
 
 end module mapl3g_GeomAspect

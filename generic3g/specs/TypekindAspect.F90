@@ -25,6 +25,9 @@ module mapl3g_TypekindAspect
 
       procedure :: set_typekind
       procedure :: get_typekind
+
+      procedure :: get_description
+
    end type TypekindAspect
 
    interface TypekindAspect
@@ -61,12 +64,9 @@ contains
       class(TypekindAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
 
-      _HERE
       select type(dst)
       class is (TypekindAspect)
-         _HERE
          matches = (src%typekind == dst%typekind) .or. count([src%typekind,dst%typekind]==MAPL_TYPEKIND_MIRROR) == 1
-         _HERE, matches
       class default
          matches = .false.
       end select
@@ -102,5 +102,24 @@ contains
 
       typekind = this%typekind
    end function get_typekind
+
+   function get_description(this) result(s)
+      character(:), allocatable :: s
+      class(TypekindAspect), intent(in) :: this
+
+      ! Should not get here in mirror'd case, but ...
+      s = 'ERROR'
+
+      if (this%typekind == ESMF_TYPEKIND_R4) then
+         s = 'R4'
+      elseif (this%typekind == ESMF_TYPEKIND_R8) then
+         s = 'R8'
+      elseif (this%typekind == ESMF_TYPEKIND_I4) then
+         s = 'I4'
+      elseif (this%typekind == ESMF_TYPEKIND_I8) then
+         s = 'I8'
+      end if ! otherwise ERROR (from above)
+         
+   end function get_description
 
 end module mapl3g_TypekindAspect
