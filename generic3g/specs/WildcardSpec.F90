@@ -34,7 +34,6 @@ module mapl3g_WildcardSpec
 
       procedure :: connect_to
       procedure :: can_connect_to
-      procedure :: make_adapters
       procedure :: add_to_state
       procedure :: add_to_bundle
       procedure :: set_geometry
@@ -229,20 +228,6 @@ contains
 
       write(unit, "(a)", iostat=iostat, iomsg=iomsg) "WildcardSpec(write not implemented yet)"
    end subroutine write_formatted
-
-   function make_adapters(this, goal_spec, rc) result(adapters)
-      type(StateItemAdapterWrapper), allocatable :: adapters(:)
-      class(WildcardSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: goal_spec
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      associate (field_spec => this%reference_spec)
-        adapters = field_spec%make_adapters(field_spec, _RC)
-      end associate
-
-      _RETURN(_SUCCESS)
-   end function make_adapters
 
    function get_reference_spec(this) result(reference_spec)
       class(WildcardSpec), target, intent(in) :: this

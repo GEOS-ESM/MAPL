@@ -26,6 +26,7 @@ module mapl3g_GeomAspect
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: set_geom
+      procedure :: get_geom
    end type GeomAspect
 
    interface GeomAspect
@@ -120,5 +121,16 @@ contains
       call this%set_mirror(.false.)
       
    end subroutine set_geom
+
+   function get_geom(this, rc) result(geom)
+      class(GeomAspect), intent(in) :: this
+      type(ESMF_Geom) :: geom
+      integer, optional, intent(out) :: rc
+
+      _ASSERT(allocated(this%geom), 'geom not allocated')
+      geom = this%geom
+
+      _RETURN(_SUCCESS)
+   end function get_geom
 
 end module mapl3g_GeomAspect
