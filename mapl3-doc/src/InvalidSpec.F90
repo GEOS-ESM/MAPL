@@ -40,7 +40,6 @@ module mapl3g_InvalidSpec
       procedure :: set_geometry => set_geometry
 
       procedure :: write_formatted
-      procedure :: make_adapters
    end type InvalidSpec
 
 contains
@@ -157,20 +156,5 @@ contains
 
       write(unit, "(a)", iostat=iostat, iomsg=iomsg) "InvalidSpec()"
    end subroutine write_formatted
-
-   ! Stub implementation
-   function make_adapters(this, goal_spec, rc) result(adapters)
-      type(StateItemAdapterWrapper), allocatable :: adapters(:)
-      class(InvalidSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: goal_spec
-      integer, optional, intent(out) :: rc
-
-      allocate(adapters(0))
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(goal_spec)
-   end function make_adapters
-
 
 end module mapl3g_InvalidSpec

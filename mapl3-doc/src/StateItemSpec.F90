@@ -49,7 +49,6 @@ module mapl3g_StateItemSpec
 
       procedure(I_connect), deferred :: connect_to
       procedure(I_can_connect), deferred :: can_connect_to
-      procedure(I_make_adapters), deferred :: make_adapters
 
       procedure :: get_aspect_order ! as string vector
 !#      procedure(I_get_aspect_priorities), deferred :: get_aspect_priorities ! as colon-separated string
@@ -184,22 +183,6 @@ module mapl3g_StateItemSpec
          integer, intent(out) :: iostat
          character(*), intent(inout) :: iomsg
       end subroutine I_write_formatted
-
-      ! Returns an ordered list of adapters that priorities matching
-      ! rules for connecting a family of extension to a goal spec.
-      ! The intent is that the adapters are ordered to prioritize
-      ! coupling to avoid more expensive and/or diffusive couplers.
-      ! E.g., The first adapter for a FieldSpec is expected to be
-      ! a GeomAdapter so that a new RegridAction is only needed when
-      ! no existing extensions match the geom of the goal_spec.
-      function I_make_adapters(this, goal_spec, rc) result(adapters)
-         import StateItemSpec
-         import StateItemAdapterWrapper
-         type(StateItemAdapterWrapper), allocatable :: adapters(:)
-         class(StateItemSpec), intent(in) :: this
-         class(StateItemSpec), intent(in) :: goal_spec
-         integer, optional, intent(out) :: rc
-      end function I_make_adapters
 
       function I_get_aspect_priorities(src_spec, dst_spec) result(aspect_order)
          import StateItemSpec

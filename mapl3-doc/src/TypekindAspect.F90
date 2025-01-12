@@ -22,6 +22,9 @@ module mapl3g_TypekindAspect
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_action
+
+      procedure :: set_typekind
+      procedure :: get_typekind
    end type TypekindAspect
 
    interface TypekindAspect
@@ -82,5 +85,19 @@ contains
 
       _RETURN(_SUCCESS)
    end function make_action
+
+   subroutine set_typekind(this, typekind)
+      class(TypekindAspect), intent(inout) :: this
+      type(ESMF_Typekind_Flag), intent(in) :: typekind
+
+      this%typekind = typekind
+   end subroutine set_typekind
+
+   function get_typekind(this) result(typekind)
+      type(ESMF_Typekind_Flag) :: typekind
+      class(TypekindAspect), intent(in) :: this
+
+      typekind = this%typekind
+   end function get_typekind
 
 end module mapl3g_TypekindAspect

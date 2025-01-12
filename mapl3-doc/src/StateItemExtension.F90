@@ -123,7 +123,7 @@ contains
 
       integer :: status
       integer :: i
-      class(StateItemSpec), allocatable :: new_spec
+      class(StateItemSpec), target, allocatable :: new_spec
       class(ExtensionAction), allocatable :: action
       class(ComponentDriver), pointer :: producer
       class(ComponentDriver), pointer :: source
@@ -144,7 +144,11 @@ contains
       do i = 1, aspect_names%size()
          aspect_name => aspect_names%of(i)
          src_aspect => new_spec%get_aspect(aspect_name, _RC)
+         _ASSERT(associated(src_aspect), 'src aspect not found')
+
          dst_aspect => goal%get_aspect(aspect_name, _RC)
+         _ASSERT(associated(dst_aspect), 'dst aspect not found')
+
          _ASSERT(src_aspect%can_connect_to(dst_aspect), 'cannot connect aspect ' // aspect_name)
 
          if (src_aspect%needs_extension_for(dst_aspect)) then
@@ -166,30 +170,6 @@ contains
          call extension%set_producer(producer)
          _RETURN(_SUCCESS)
       end if
-
-      ! The logic below should be removed once Aspects have fully
-      ! replaced Adapters.
-      adapters = this%spec%make_adapters(goal, _RC)
-      do i = 1, size(adapters)
-         match = adapters(i)%adapter%match(new_spec, _RC)
-         if (match) cycle
-         call adapters(i)%adapter%adapt(new_spec, action, _RC)
-         exit
-      end do
-
-      if (.not. allocated(action)) then
-         extension = StateItemExtension(this%spec)
-         _RETURN(_SUCCESS)
-      end if
-
-      call new_spec%create(_RC)
-      call new_spec%set_active()
-
-      source => this%get_producer()
-      coupler_gridcomp = make_coupler(action, source, _RC)
-      producer => this%add_consumer(GriddedComponentDriver(coupler_gridcomp, fake_clock, MultiState()))
-      extension = StateItemExtension(new_spec)
-      call extension%set_producer(producer)
 
       _RETURN(_SUCCESS)
    end function make_extension

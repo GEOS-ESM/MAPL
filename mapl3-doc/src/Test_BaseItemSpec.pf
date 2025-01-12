@@ -1,5 +1,8 @@
 ! Test suite that focuses on methods implemented in base class StateItemSpec
 
+! The tests made more sense in the previous adapter scheme.  With
+! StateItemAspect, the tests are almost trivial.
+
 module Test_BaseItemSpec
    use MockItemSpecMod
    use gftl2_StringVector
@@ -37,7 +40,7 @@ contains
         @assert_that(int(expected), is(1))
       end associate
 
-      @assertEqual(aspect_names%of(1), 'a1')
+      @assertEqual(aspect_names%of(1), 'TYPEKIND')
 
    end subroutine get_aspect_one
 
@@ -51,12 +54,11 @@ contains
 
       aspect_names = spec%get_aspect_order(goal)
       associate ( expected => aspect_names%size() ) ! returns INT64
-        @assert_that(int(expected), is(3))
+        @assert_that(int(expected), is(2))
       end associate
 
-      @assertEqual(aspect_names%of(1), 'a1')
-      @assertEqual(aspect_names%of(2), 'b2')
-      @assertEqual(aspect_names%of(3), 'c3')
+      @assertEqual(aspect_names%of(1), 'TYPEKIND')
+      @assertEqual(aspect_names%of(2), 'UNITS')
 
    end subroutine get_aspect_multi
 

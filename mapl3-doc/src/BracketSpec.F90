@@ -45,7 +45,6 @@ module mapl3g_BracketSpec
       procedure :: add_to_state
       procedure :: add_to_bundle
 
-      procedure :: make_adapters
       procedure :: set_geometry
       procedure :: write_formatted
    end type BracketSpec
@@ -281,19 +280,4 @@ contains
       write(unit, "(a)", iostat=iostat, iomsg=iomsg) "BracketSpec(write not implemented yet)"
    end subroutine write_formatted
 
-   function make_adapters(this, goal_spec, rc) result(adapters)
-      type(StateItemAdapterWrapper), allocatable :: adapters(:)
-      class(BracketSpec), intent(in) :: this
-      class(StateItemSpec), intent(in) :: goal_spec
-      integer, optional, intent(out) :: rc
-
-
-      allocate(adapters(0))
-      _FAIL('unimplemented')
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(goal_spec)
-   end function make_adapters
- 
 end module mapl3g_BracketSpec
