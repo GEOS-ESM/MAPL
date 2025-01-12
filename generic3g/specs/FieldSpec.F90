@@ -187,10 +187,6 @@ contains
 
       if (present(default_value)) field_spec%default_value = default_value
 
-      field_spec%accumulation_type = NO_ACCUMULATION
-      if (present(accumulation_type)) field_spec%accumulation_type = trim(accumulation_type)
-      if (present(run_dt)) field_spec%run_dt = run_dt
-      
       _UNUSED_DUMMY(unusable)
 
    end function new_FieldSpec_geom
@@ -200,8 +196,6 @@ contains
       class(VariableSpec), intent(in) :: variable_spec
 
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
-
-      field_spec%accumulation_type = NO_ACCUMULATION
 
       _SET_FIELD(field_spec, variable_spec, attributes)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, standard_name)
@@ -229,7 +223,6 @@ contains
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
 
       call target_set_geom(this, geom, vertical_grid)
-      if (present(run_dt)) this%run_dt = run_dt
       call target_set_timestep(this, timestep)
 
       _RETURN(_SUCCESS)
@@ -288,8 +281,7 @@ contains
             call frequency_aspect%set_timestep(timestep)
             return
          end if
-         call aspects%set_frequency_aspect(FrequencyAspect(timestep))
-
+ 
       end subroutine target_set_timestep
 
    end subroutine set_geometry

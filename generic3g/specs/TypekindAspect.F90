@@ -61,12 +61,9 @@ contains
       class(TypekindAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
 
-      _HERE
       select type(dst)
       class is (TypekindAspect)
-         _HERE
          matches = (src%typekind == dst%typekind) .or. count([src%typekind,dst%typekind]==MAPL_TYPEKIND_MIRROR) == 1
-         _HERE, matches
       class default
          matches = .false.
       end select
