@@ -18,7 +18,7 @@ module mapl3g_AttributesAspect
 
    type, extends(StateItemAspect) :: AttributesAspect
 !#      private
-      type(StringVector), allocatable :: attribute_names
+      type(StringVector) :: attribute_names
    contains
       procedure :: matches
       procedure :: supports_conversion_general
@@ -69,7 +69,7 @@ contains
    contains
 
       logical function includes(provided_names, mandatory_names)
-         type(StringVector), intent(in) :: provided_names
+         type(StringVector), target, intent(in) :: provided_names
          type(StringVector), target, intent(in) :: mandatory_names
 
          integer :: i, j

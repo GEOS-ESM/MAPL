@@ -92,7 +92,7 @@ contains
       case ('UNGRIDDED_DIMS')
          aspect => this%get_ungridded_dims_aspect()
       case ('ATTRIBUTES')
-         aspect => this%get_ungridded_dims_aspect()
+         aspect => this%get_attributes_aspect()
       case ('FREQUENCY')
          aspect => this%get_frequency_aspect()
       case default
