@@ -494,7 +494,8 @@ contains
       integer, optional, intent(out) :: rc
 
       logical :: can_convert_units
-      class(StateItemAspect), pointer :: src_units, dst_units
+      class(StateItemAspect), pointer :: src_aspect, dst_aspect
+      character(:), pointer :: aspecT_name
       type(StringVector), target :: aspect_list
       type(StringVectorIterator) :: aspect_iter
 
@@ -506,7 +507,10 @@ contains
          associate (e => aspect_list%ftn_end())
            do while (aspect_iter /= e)
               call aspect_iter%next()
-              can_connect_to = can_connect_aspect(src_spec, this, aspect_iter%of())
+              aspect_name => aspect_iter%of()
+              src_aspect => src_spec%get_aspect(aspect_name)
+              dst_aspect => this%get_aspect(aspect_name)
+              can_connect_to = src_aspect%can_connect_to(dst_aspect)
               _RETURN_UNLESS(can_connect_to)
            end do
          end associate
@@ -520,30 +524,6 @@ contains
       _RETURN(_SUCCESS)
 
    contains
-
-      logical function can_connect_aspect(src_spec, dst_spec, aspect_name)
-         class(StateItemSpec), intent(in) :: src_spec
-         class(StateItemSpec), intent(in) :: dst_spec
-         character(len=*), intent(in) :: aspect_name
-
-         integer :: status
-         class(StateItemAspect), pointer :: src_aspect, dst_aspect
-
-         src_aspect => src_spec%get_aspect(aspect_name)
-         if (.not. associated(src_aspect)) then
-            can_connect_aspect = .false.
-            return
-         end if
-
-         dst_aspect => dst_spec%get_aspect(aspect_name)
-         if (.not. associated(dst_aspect)) then
-            can_connect_aspect = .false.
-            return
-         end if
-
-         can_connect_aspect = src_aspect%can_connect_to(dst_aspect)
-
-      end function can_connect_aspect
 
       logical function includes(mandatory, provided)
          type(StringVector), target, intent(in) :: mandatory
