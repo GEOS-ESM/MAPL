@@ -22,25 +22,19 @@ module mapl3g_FieldSpec
    use mapl3g_HorizontalDimsSpec
    use mapl3g_VerticalStaggerLoc
    use mapl3g_StateItemSpec
-   use mapl3g_WildcardSpec
    use mapl3g_UngriddedDims
    use mapl3g_ActualConnectionPt
    use mapl3g_ESMF_Utilities, only: get_substate
-   use mapl3g_ActualPtSpecPtrMap
    use mapl3g_MultiState
-   use mapl3g_ActualPtVector
-   use mapl3g_ActualConnectionPt
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use mapl3g_InfoUtilities
    use mapl3g_VerticalGrid
    use mapl3g_VerticalDimSpec
-   use mapl3g_AbstractActionSpec
    use mapl3g_EsmfRegridder, only: EsmfRegridderParam
    use MAPL_FieldUtils
    use mapl3g_LU_Bound
    use mapl3g_FieldDictionary
-   use mapl3g_ComponentDriver
    use mapl3g_VariableSpec, only: VariableSpec
    use mapl3g_VerticalRegridMethod
    use gftl2_StringVector
