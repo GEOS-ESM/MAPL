@@ -33,25 +33,17 @@ module mapl3g_FieldSpec
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use mapl3g_InfoUtilities
-   use mapl3g_ExtensionAction
    use mapl3g_VerticalGrid
-   use mapl3g_VerticalRegridAction
    use mapl3g_VerticalDimSpec
    use mapl3g_AbstractActionSpec
-   use mapl3g_NullAction
-   use mapl3g_CopyAction
-   use mapl3g_RegridAction
    use mapl3g_EsmfRegridder, only: EsmfRegridderParam
-   use mapl3g_ConvertUnitsAction
-   use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
+   use MAPL_FieldUtils
    use mapl3g_LU_Bound
    use mapl3g_geom_mgr, only: MAPL_SameGeom
    use mapl3g_FieldDictionary
    use mapl3g_ComponentDriver
    use mapl3g_VariableSpec, only: VariableSpec
    use mapl3g_VerticalRegridMethod
-   use mapl3g_AccumulatorActionInterface
-   use udunits2f, only: UDUNITS_are_convertible => are_convertible, udunit
    use gftl2_StringVector
    use esmf
    use nuopc
@@ -408,10 +400,6 @@ contains
       if (allocated(this%long_name)) then
          write(unit, "(a, a, a)", iostat=iostat, iomsg=iomsg) new_line("a"), "long name:", this%long_name
       end if
-!#      if (allocated(this%units)) then
-!#         write(unit, "(a, a, a)", iostat=iostat, iomsg=iomsg) new_line("a"), "units:", this%units
-!#      end if
-!#      write(unit, "(a, dt'g0')", iostat=iostat, iomsg=iomsg) new_line("a"), this%vertical_dim_spec
       write(unit, "(a)") ")"
 
       _UNUSED_DUMMY(iotype)
@@ -447,11 +435,7 @@ contains
       class(StateItemAspect), pointer :: aspect
 
       interface mirror
-         procedure :: mirror_geom
-         procedure :: mirror_vertical_grid
-         procedure :: mirror_string
          procedure :: mirror_real
-         procedure :: mirror_vertical_dim_spec
       end interface mirror
 
       _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
@@ -476,8 +460,6 @@ contains
          aspect => src_spec%get_aspect('TYPEKIND', _RC)
          call this%set_aspect(aspect, _RC)
 
-!#         call mirror(dst=this%vertical_grid, src=src_spec%vertical_grid)
-!#         call mirror(dst=this%vertical_dim_spec, src=src_spec%vertical_dim_spec)
          call mirror(dst=this%default_value, src=src_spec%default_value)
       class default
          _FAIL('Cannot connect field spec to non field spec.')
@@ -487,72 +469,6 @@ contains
       _UNUSED_DUMMY(actual_pt)
 
    contains
-
-      subroutine mirror_geom(dst, src)
-         type(ESMF_Geom), allocatable, intent(inout) :: dst, src
-
-         _ASSERT(allocated(dst) .or. allocated(src), 'cannot double mirror')
-         if (allocated(dst) .and. .not. allocated(src)) then
-            src = dst
-            return
-         end if
-
-         if (allocated(src) .and. .not. allocated(dst)) then
-            dst = src
-            return
-         end if
-
-         _ASSERT(MAPL_SameGeom(dst, src), 'cannot connect mismatched geom without coupler.')
-      end subroutine mirror_geom
-
-      subroutine mirror_vertical_grid(dst, src)
-         class(VerticalGrid), allocatable, intent(inout) :: dst, src
-
-         _ASSERT(allocated(dst) .or. allocated(src), 'cannot double mirror')
-         if (allocated(dst) .and. .not. allocated(src)) then
-            src = dst
-            return
-         end if
-
-         if (allocated(src) .and. .not. allocated(dst)) then
-            dst = src
-            return
-         end if
-
-         ! _ASSERT(MAPL_SameVerticalGrid(dst, src), 'cannot connect mismatched geom without coupler.')
-      end subroutine mirror_vertical_grid
-
-      ! Earlier checks should rule out double-mirror before this is
-      ! called.
-      subroutine mirror_vertical_dim_spec(dst, src)
-         type(VerticalDimSpec), intent(inout) :: dst, src
-
-         if (dst == src) return
-
-         if (dst == VERTICAL_DIM_MIRROR) then
-            dst = src
-         end if
-
-         if (src == VERTICAL_DIM_MIRROR) then
-            src = dst
-         end if
-
-         _ASSERT(dst == src, 'unsupported vertical_dim_spec mismatch')
-      end subroutine mirror_vertical_dim_spec
-
-      subroutine mirror_string(dst, src)
-         character(len=:), allocatable, intent(inout) :: dst, src
-
-         if (allocated(dst) .eqv. allocated(src)) return
-
-         if (.not. allocated(dst)) then
-            dst = src
-         end if
-
-         if (.not. allocated(src)) then
-            src = dst
-         end if
-      end subroutine mirror_string
 
       subroutine mirror_real(dst, src)
          real, allocatable, intent(inout) :: dst, src
