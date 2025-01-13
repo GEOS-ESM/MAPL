@@ -82,7 +82,6 @@ module mapl3g_FieldSpec
 
    type, extends(StateItemSpec) :: FieldSpec
 
-      class(VerticalGrid), allocatable :: vertical_grid
       type(StringVector) :: attributes
 !#      type(EsmfRegridderParam) :: regrid_param
 
@@ -124,18 +123,6 @@ module mapl3g_FieldSpec
       module procedure new_FieldSpec_varspec
    end interface FieldSpec
 
-   interface match
-      procedure :: match_geom
-      procedure :: match_string
-      procedure :: match_vertical_dim_spec
-   end interface match
-
-   interface can_match
-      procedure :: can_match_geom
-      procedure :: can_match_vertical_grid
-   end interface can_match
-
-
 
 contains
 
@@ -176,8 +163,6 @@ contains
       call aspects%set_typekind_aspect(TypekindAspect(typekind))
       call aspects%set_frequency_aspect(FrequencyAspect(timestep, accumulation_type))
       
-      if (present(vertical_grid)) field_spec%vertical_grid = vertical_grid
-
       if (present(standard_name)) field_spec%standard_name = standard_name
       if (present(long_name)) field_spec%long_name = long_name
  
@@ -252,7 +237,6 @@ contains
 
          if (present(vertical_grid)) then
             vertical_grid_aspect => aspects%get_vertical_grid_aspect()
-            this%vertical_grid = vertical_grid
             if (associated(vertical_grid_aspect)) then
                call vertical_grid_aspect%set_vertical_grid(vertical_grid)
                if (present(geom)) then
@@ -343,9 +327,7 @@ contains
 
       select type (aspect)
       class is (VerticalGridAspect)
-         if (allocated(this%vertical_grid)) then
-            num_levels_grid = aspect%vertical_grid%get_num_levels()
-         end if
+         num_levels_grid = aspect%vertical_grid%get_num_levels()
          if (aspect%vertical_dim_spec == VERTICAL_DIM_NONE) then
             vert_staggerloc = VERTICAL_STAGGER_NONE
          else if (aspect%vertical_dim_spec == VERTICAL_DIM_EDGE) then
@@ -430,9 +412,6 @@ contains
 !#         write(unit, "(a, a, a)", iostat=iostat, iomsg=iomsg) new_line("a"), "units:", this%units
 !#      end if
 !#      write(unit, "(a, dt'g0')", iostat=iostat, iomsg=iomsg) new_line("a"), this%vertical_dim_spec
-      if (allocated(this%vertical_grid)) then
-         write(unit, "(a, dt'g0', a)", iostat=iostat, iomsg=iomsg) new_line("a"), this%vertical_grid
-      end if
       write(unit, "(a)") ")"
 
       _UNUSED_DUMMY(iotype)
@@ -616,8 +595,6 @@ contains
          end associate
 
          can_connect_to = all ([ &
-!#              can_match(this%vertical_grid, src_spec%vertical_grid), &
-!#              match(this%vertical_dim_spec, src_spec%vertical_dim_spec), &
               includes(this%attributes, src_spec%attributes) &
               ])
       class default
@@ -709,100 +686,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle
-
-   logical function can_match_geom(a, b) result(can_match)
-      type(ESMF_Geom), allocatable, intent(in) :: a, b
-
-      integer :: n_mirror
-
-      ! At most one geom can be mirror (unallocated).
-      ! Otherwise, assume ESMF can provide regrid
-      n_mirror = count([.not. allocated(a), .not. allocated(b)])
-      can_match = n_mirror <= 1
-   end function can_match_geom
-
-   logical function can_match_vertical_grid(a, b) result(can_match)
-      class(VerticalGrid), allocatable, intent(in) :: a, b
-
-      integer :: n_mirror
-
-      ! At most one grid can be mirror (unallocated).
-      ! Otherwise, see if regrid is supported
-      n_mirror = count([.not. allocated(a), .not. allocated(b)])
-      can_match = n_mirror <= 1
-   end function can_match_vertical_grid
-
-
-   logical function match_geom(a, b) result(match)
-      type(ESMF_Geom), allocatable, intent(in) :: a, b
-
-      integer :: n_mirror
-
-      ! At most one geom can be mirror (unallocated).
-      ! Otherwise, assume ESMF can provide regrid
-      n_mirror = count([.not. allocated(a), .not. allocated(b)])
-
-      select case (n_mirror)
-      case (0)
-         match = MAPL_SameGeom(a,b)
-      case (1)
-         match = .true.
-      case (2)
-         match = .true.
-      end select
-   end function match_geom
-
-   logical function match_string(a, b) result(match)
-      character(:), allocatable, intent(in) :: a, b
-
-      logical :: mirror_a, mirror_b
-
-      match = (mirror(a) .neqv. mirror(b))
-      if (match) return
-
-      ! Neither is mirror
-      if (allocated(a) .and. allocated(b)) then
-         match = (a == b)
-         return
-      end if
-
-      ! Both are mirror
-      match = .false.
-   end function match_string
-
-   logical function match_vertical_dim_spec(a, b) result(match)
-      type(VerticalDimSpec), intent(in) :: a, b
-
-      integer :: n_mirror
-
-      n_mirror = count([a,b] == VERTICAL_DIM_MIRROR)
-      match = (n_mirror == 1) .or. (n_mirror == 0 .and. a == b)
-   end function match_vertical_dim_spec
-
-   logical function mirror(str)
-      character(:), allocatable :: str
-
-      mirror = .not. allocated(str)
-      if (mirror) return
-
-      mirror = (str == '_MIRROR_')
-   end function mirror
-
-   logical function can_connect_units(dst_units, src_units, rc)
-      character(:), allocatable, intent(in) :: dst_units
-      character(:), allocatable, intent(in) :: src_units
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      ! If mirror or same, we can connect without a coupler
-      can_connect_units = match(dst_units, src_units)
-      _RETURN_IF(can_connect_units)
-
-      ! Otherwise need a coupler, but need to check if units are convertible
-      can_connect_units = UDUNITS_are_convertible(src_units, dst_units, _RC)
-      _RETURN(_SUCCESS)
-   end function can_connect_units
 
   function get_payload(this) result(payload)
       type(ESMF_Field) :: payload
