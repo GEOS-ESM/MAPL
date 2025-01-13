@@ -136,13 +136,7 @@ contains
             call this%vertical_grid_aspect%set_geom(geom)
          end if
       type is (VerticalGridAspect)
-         if (allocated(this%vertical_grid_aspect)) then
-            if (allocated(this%vertical_grid_aspect%vertical_grid)) then
-            end if
-         end if
          this%vertical_grid_aspect = aspect
-         if (allocated(this%vertical_grid_aspect%vertical_grid)) then
-         end if
       type is (UnitsAspect)
          this%units_aspect = aspect
       type is (TypekindAspect)
