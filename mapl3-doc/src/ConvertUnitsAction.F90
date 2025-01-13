@@ -9,6 +9,7 @@ module mapl3g_ConvertUnitsAction
    use mapl_ErrorHandling
    use esmf
    implicit none
+   private
 
    public :: ConvertUnitsAction
 

@@ -1,180 +1,79 @@
-!------------------------------------------------------------------------------
-!               Global Modeling and Assimilation Office (GMAO)                !
-!                    Goddard Earth Observing System (GEOS)                    !
-!                                 MAPL Component                              !
-!------------------------------------------------------------------------------
-!
 #include "MAPL_Generic.h"
-!
-!>
-!### MODULE: `mapl_RegridderSpec`
-!
-! Author: GMAO SI-Team
-!
-! A RegridderSpec is used to indicate which subclass of regridder will be used.
-!
-module mapl_RegridderSpec
-   use MAPL_KeywordEnforcerMod
-   use MAPL_ErrorHandlingMod
-   use mapl_RegridMethods
-   use ESMF
-   use, intrinsic :: iso_fortran_env, only: INT64
+
+module mapl3g_RegridderSpec
+   use esmf
+   use mapl3g_RegridderParam
+   use mapl3g_geom_mgr, only: MAPL_SameGeom
    implicit none
    private
 
-
    public :: RegridderSpec
+   public :: operator(==)
 
    type :: RegridderSpec
-      type (ESMF_Grid) :: grid_in
-      type (ESMF_Grid) :: grid_out
-      integer :: regrid_method = UNSPECIFIED_REGRID_METHOD
-      integer :: hints = 0
+      private
+      class(RegridderParam), allocatable :: param
+      type(ESMF_Geom) :: geom_in
+      type(ESMF_Geom) :: geom_out
    contains
-      procedure :: equals
-      procedure :: get_grid_type
-      generic :: operator (==) => equals
-      procedure :: less_than
-      generic :: operator (<) => less_than
+      procedure :: get_param
+      procedure :: get_geom_in
+      procedure :: get_geom_out
    end type RegridderSpec
 
+   interface operator(==)
+      module procedure equal_to
+   end interface operator(==)
 
    interface RegridderSpec
-      module procedure newRegridderSpec
+      procedure new_RegridderSpec
    end interface RegridderSpec
-
-   character(len=*), parameter :: MOD_NAME = 'MAPL_RegridderSpec_private::'
 
 contains
 
+   function new_RegridderSpec(param, geom_in, geom_out) result(spec)
+      type(RegridderSpec) :: spec
+      class(RegridderParam), intent(in) :: param
+      type(ESMF_Geom), intent(in) :: geom_in
+      type(ESMF_Geom), intent(in) :: geom_out
 
-   function newRegridderSpec(grid_in, grid_out, regrid_method, unusable, hints, rc) result(spec)
-      type (RegridderSpec) :: spec
-      type (ESMF_Grid), intent(in) :: grid_in
-      type (ESMF_Grid), intent(in) :: grid_out
-      integer :: regrid_method
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(in) :: hints
-      integer, optional, intent(out) :: rc
+      spec%param = param
+      spec%geom_in = geom_in
+      spec%geom_out = geom_out
+   end function new_RegridderSpec
 
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(rc)
+   function get_param(this) result(param)
+      class(RegridderParam), allocatable :: param
+      class(RegridderSpec), intent(in) :: this
+      param = this%param
+   end function get_param
 
-      spec%grid_in = grid_in
-      spec%grid_out = grid_out
-      spec%regrid_method = regrid_method
+   function get_geom_in(this) result(geom)
+      type(ESMF_Geom) :: geom
+      class(RegridderSpec), intent(in) :: this
+      geom = this%geom_in
+   end function get_geom_in
 
-      if (present(hints)) spec%hints = hints
+   function get_geom_out(this) result(geom)
+      type(ESMF_Geom) :: geom
+      class(RegridderSpec), intent(in) :: this
+      geom = this%geom_out
+   end function get_geom_out
+   
+   logical function equal_to(this, other) result(eq)
+      type(RegridderSpec), intent(in) :: this
+      type(RegridderSpec), intent(in) :: other
 
-   end function newRegridderSpec
+      eq = this%param == other%param
+      if (.not. eq) return
 
+      eq = MAPL_SameGeom(this%geom_in, other%geom_in)
+      if (.not. eq) return
 
-!---------------
-!>
-! Two regridders are equivalent if their specs are identical.  This
-! can be used to check if a given regridder is already contained in
-! the regridder_manager without instantiating the regridder.
-! Currently the implementation assumes that two regridders are identical
-! if the corresponding grids are the same and the same method is in use.
-! This will need to be changed to incorporate LocStreams.
-!---------------
-   logical function equals(a, b)
-      use MAPL_GridManagerMod, only: get_factory_id
-      class (RegridderSpec), intent(in) :: a
-      type (RegridderSpec), intent(in) :: b
+      eq = MAPL_SameGeom(this%geom_out, other%geom_out)
+      if (.not. eq) return
+      
+   end function equal_to
 
-      equals = &
-           & (get_factory_id(a%grid_in) == get_factory_id(b%grid_in)) .and. &
-           & (get_factory_id(a%grid_out) == get_factory_id(b%grid_out)) .and. &
-           & (a%regrid_method == b%regrid_method) .and. &
-           & (a%hints == b%hints)
-
-   end function equals
-
-   subroutine get_grid_type(this,unusable,grid_type_in, grid_type_out, rc)
-      class (RegridderSpec), intent(in) :: this
-      class (KeywordEnforcer), optional, intent(in) :: unusable
-      character(len=*), optional, intent(out) :: grid_type_in
-      character(len=*), optional, intent(out) :: grid_type_out
-      integer, optional, intent(out) :: rc
-
-      type(ESMF_Info) :: infohin, infohout
-      integer :: status
-
-      _UNUSED_DUMMY(unusable)
-
-      if (present(grid_type_in)) then
-         call ESMF_InfoGetFromHost(this%grid_in,infohin,rc=status)
-         _VERIFY(status)
-         call ESMF_InfoGet(infohin,'GridType',grid_type_in,rc=status)
-         _VERIFY(status)
-      end if
-      if (present(grid_type_out)) then
-         call ESMF_InfoGetFromHost(this%grid_out,infohout,rc=status)
-         _VERIFY(status)
-         call ESMF_InfoGet(infohout,'GridType',grid_type_out,rc=status)
-         _VERIFY(status)
-      end if
-      _RETURN(_SUCCESS)
-
-   end subroutine get_grid_type
-
-   logical function less_than(a, b)
-      use MAPL_GridManagerMod, only: get_factory_id
-      class (RegridderSpec), intent(in) :: a
-      type (RegridderSpec), intent(in) :: b
-      integer (kind=INT64) :: a_in_id, b_in_id
-      integer (kind=INT64) :: a_out_id, b_out_id
-
-      integer :: a_esmf_method, b_esmf_method
-
-      select case (a%regrid_method)
-      case (REGRID_METHOD_CONSERVE, REGRID_METHOD_VOTE, REGRID_METHOD_FRACTION)
-         a_esmf_method = REGRID_METHOD_CONSERVE
-      case default
-         a_esmf_method = a%regrid_method
-      end select
-
-      select case (b%regrid_method)
-      case (REGRID_METHOD_CONSERVE, REGRID_METHOD_VOTE, REGRID_METHOD_FRACTION)
-         b_esmf_method = REGRID_METHOD_CONSERVE
-      case default
-         b_esmf_method = b%regrid_method
-      end select
-
-      if (a_esmf_method > b_esmf_method) then
-         less_than = .false.
-         return
-      elseif (a_esmf_method < b_esmf_method) then
-         less_than = .true.
-         return
-      end if
-
-      a_in_id = get_factory_id(a%grid_in)
-      b_in_id = get_factory_id(b%grid_in)
-      if (a_in_id > b_in_id) then
-         less_than = .false.
-         return
-      elseif (a_in_id < b_in_id) then
-         less_than = .true.
-         return
-      end if
-
-      a_out_id = get_factory_id(a%grid_out)
-      b_out_id = get_factory_id(b%grid_out)
-      if (a_out_id > b_out_id) then
-         less_than = .false.
-         return
-      elseif (a_out_id < b_out_id) then
-         less_than = .true.
-         return
-      end if
-
-      less_than = .false.
-      return
-
-   end function less_than
-
-end module MAPL_RegridderSpec
-#undef _UNUSED_DUMMY
-
+   
+end module mapl3g_RegridderSpec

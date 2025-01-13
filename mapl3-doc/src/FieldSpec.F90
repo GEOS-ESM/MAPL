@@ -22,36 +22,21 @@ module mapl3g_FieldSpec
    use mapl3g_HorizontalDimsSpec
    use mapl3g_VerticalStaggerLoc
    use mapl3g_StateItemSpec
-   use mapl3g_WildcardSpec
    use mapl3g_UngriddedDims
    use mapl3g_ActualConnectionPt
    use mapl3g_ESMF_Utilities, only: get_substate
-   use mapl3g_ActualPtSpecPtrMap
    use mapl3g_MultiState
-   use mapl3g_ActualPtVector
-   use mapl3g_ActualConnectionPt
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use mapl3g_InfoUtilities
-   use mapl3g_ExtensionAction
    use mapl3g_VerticalGrid
-   use mapl3g_VerticalRegridAction
    use mapl3g_VerticalDimSpec
-   use mapl3g_AbstractActionSpec
-   use mapl3g_NullAction
-   use mapl3g_CopyAction
-   use mapl3g_RegridAction
    use mapl3g_EsmfRegridder, only: EsmfRegridderParam
-   use mapl3g_ConvertUnitsAction
-   use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
+   use MAPL_FieldUtils
    use mapl3g_LU_Bound
-   use mapl3g_geom_mgr, only: MAPL_SameGeom
    use mapl3g_FieldDictionary
-   use mapl3g_ComponentDriver
    use mapl3g_VariableSpec, only: VariableSpec
    use mapl3g_VerticalRegridMethod
-   use mapl3g_AccumulatorActionInterface
-   use udunits2f, only: UDUNITS_are_convertible => are_convertible, udunit
    use gftl2_StringVector
    use esmf
    use nuopc
@@ -82,7 +67,6 @@ module mapl3g_FieldSpec
 
    type, extends(StateItemSpec) :: FieldSpec
 
-      class(VerticalGrid), allocatable :: vertical_grid
       type(StringVector) :: attributes
 !#      type(EsmfRegridderParam) :: regrid_param
 
@@ -124,18 +108,6 @@ module mapl3g_FieldSpec
       module procedure new_FieldSpec_varspec
    end interface FieldSpec
 
-   interface match
-      procedure :: match_geom
-      procedure :: match_string
-      procedure :: match_vertical_dim_spec
-   end interface match
-
-   interface can_match
-      procedure :: can_match_geom
-      procedure :: can_match_vertical_grid
-   end interface can_match
-
-
 
 contains
 
@@ -176,8 +148,6 @@ contains
       call aspects%set_typekind_aspect(TypekindAspect(typekind))
       call aspects%set_frequency_aspect(FrequencyAspect(timestep, accumulation_type))
       
-      if (present(vertical_grid)) field_spec%vertical_grid = vertical_grid
-
       if (present(standard_name)) field_spec%standard_name = standard_name
       if (present(long_name)) field_spec%long_name = long_name
  
@@ -195,17 +165,16 @@ contains
       type(FieldSpec) :: field_spec
       class(VariableSpec), intent(in) :: variable_spec
 
-      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
-
       _SET_FIELD(field_spec, variable_spec, attributes)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, standard_name)
+
+      ! Cannot do a simple copy as some setters have side-effects
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('GEOM'))
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('VERTICAL'))
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('UNGRIDDED_DIMS'))
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('TYPEKIND'))
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('UNITS'))
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('FREQUENCY'))
-!#      _SET_ALLOCATED_FIELD(field_spec, variable_spec, units)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, default_value)
 
       field_spec%long_name = 'unknown'
@@ -220,7 +189,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
 
       call target_set_geom(this, geom, vertical_grid)
       call target_set_timestep(this, timestep)
@@ -252,7 +220,6 @@ contains
 
          if (present(vertical_grid)) then
             vertical_grid_aspect => aspects%get_vertical_grid_aspect()
-            this%vertical_grid = vertical_grid
             if (associated(vertical_grid_aspect)) then
                call vertical_grid_aspect%set_vertical_grid(vertical_grid)
                if (present(geom)) then
@@ -343,9 +310,7 @@ contains
 
       select type (aspect)
       class is (VerticalGridAspect)
-         if (allocated(this%vertical_grid)) then
-            num_levels_grid = aspect%vertical_grid%get_num_levels()
-         end if
+         num_levels_grid = aspect%vertical_grid%get_num_levels()
          if (aspect%vertical_dim_spec == VERTICAL_DIM_NONE) then
             vert_staggerloc = VERTICAL_STAGGER_NONE
          else if (aspect%vertical_dim_spec == VERTICAL_DIM_EDGE) then
@@ -426,13 +391,6 @@ contains
       if (allocated(this%long_name)) then
          write(unit, "(a, a, a)", iostat=iostat, iomsg=iomsg) new_line("a"), "long name:", this%long_name
       end if
-!#      if (allocated(this%units)) then
-!#         write(unit, "(a, a, a)", iostat=iostat, iomsg=iomsg) new_line("a"), "units:", this%units
-!#      end if
-!#      write(unit, "(a, dt'g0')", iostat=iostat, iomsg=iomsg) new_line("a"), this%vertical_dim_spec
-      if (allocated(this%vertical_grid)) then
-         write(unit, "(a, dt'g0', a)", iostat=iostat, iomsg=iomsg) new_line("a"), this%vertical_grid
-      end if
       write(unit, "(a)") ")"
 
       _UNUSED_DUMMY(iotype)
@@ -468,11 +426,7 @@ contains
       class(StateItemAspect), pointer :: aspect
 
       interface mirror
-         procedure :: mirror_geom
-         procedure :: mirror_vertical_grid
-         procedure :: mirror_string
          procedure :: mirror_real
-         procedure :: mirror_vertical_dim_spec
       end interface mirror
 
       _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
@@ -492,13 +446,15 @@ contains
          call this%set_aspect(aspect, _RC)
          aspect => src_spec%get_aspect('VERTICAL', _RC)
          call this%set_aspect(aspect, _RC)
-         aspect => src_spec%get_aspect('UNITS', _RC)
+         aspect => src_spec%get_aspect('UNGRIDDED_DIMS', _RC)
          call this%set_aspect(aspect, _RC)
          aspect => src_spec%get_aspect('TYPEKIND', _RC)
          call this%set_aspect(aspect, _RC)
+         aspect => src_spec%get_aspect('UNITS', _RC)
+         call this%set_aspect(aspect, _RC)
+         aspect => src_spec%get_aspect('FREQUENCY', _RC)
+         call this%set_aspect(aspect, _RC)
 
-!#         call mirror(dst=this%vertical_grid, src=src_spec%vertical_grid)
-!#         call mirror(dst=this%vertical_dim_spec, src=src_spec%vertical_dim_spec)
          call mirror(dst=this%default_value, src=src_spec%default_value)
       class default
          _FAIL('Cannot connect field spec to non field spec.')
@@ -508,72 +464,6 @@ contains
       _UNUSED_DUMMY(actual_pt)
 
    contains
-
-      subroutine mirror_geom(dst, src)
-         type(ESMF_Geom), allocatable, intent(inout) :: dst, src
-
-         _ASSERT(allocated(dst) .or. allocated(src), 'cannot double mirror')
-         if (allocated(dst) .and. .not. allocated(src)) then
-            src = dst
-            return
-         end if
-
-         if (allocated(src) .and. .not. allocated(dst)) then
-            dst = src
-            return
-         end if
-
-         _ASSERT(MAPL_SameGeom(dst, src), 'cannot connect mismatched geom without coupler.')
-      end subroutine mirror_geom
-
-      subroutine mirror_vertical_grid(dst, src)
-         class(VerticalGrid), allocatable, intent(inout) :: dst, src
-
-         _ASSERT(allocated(dst) .or. allocated(src), 'cannot double mirror')
-         if (allocated(dst) .and. .not. allocated(src)) then
-            src = dst
-            return
-         end if
-
-         if (allocated(src) .and. .not. allocated(dst)) then
-            dst = src
-            return
-         end if
-
-         ! _ASSERT(MAPL_SameVerticalGrid(dst, src), 'cannot connect mismatched geom without coupler.')
-      end subroutine mirror_vertical_grid
-
-      ! Earlier checks should rule out double-mirror before this is
-      ! called.
-      subroutine mirror_vertical_dim_spec(dst, src)
-         type(VerticalDimSpec), intent(inout) :: dst, src
-
-         if (dst == src) return
-
-         if (dst == VERTICAL_DIM_MIRROR) then
-            dst = src
-         end if
-
-         if (src == VERTICAL_DIM_MIRROR) then
-            src = dst
-         end if
-
-         _ASSERT(dst == src, 'unsupported vertical_dim_spec mismatch')
-      end subroutine mirror_vertical_dim_spec
-
-      subroutine mirror_string(dst, src)
-         character(len=:), allocatable, intent(inout) :: dst, src
-
-         if (allocated(dst) .eqv. allocated(src)) return
-
-         if (.not. allocated(dst)) then
-            dst = src
-         end if
-
-         if (.not. allocated(src)) then
-            src = dst
-         end if
-      end subroutine mirror_string
 
       subroutine mirror_real(dst, src)
          real, allocatable, intent(inout) :: dst, src
@@ -598,7 +488,8 @@ contains
       integer, optional, intent(out) :: rc
 
       logical :: can_convert_units
-      class(StateItemAspect), pointer :: src_units, dst_units
+      class(StateItemAspect), pointer :: src_aspect, dst_aspect
+      character(:), pointer :: aspecT_name
       type(StringVector), target :: aspect_list
       type(StringVectorIterator) :: aspect_iter
 
@@ -610,14 +501,15 @@ contains
          associate (e => aspect_list%ftn_end())
            do while (aspect_iter /= e)
               call aspect_iter%next()
-              can_connect_to = can_connect_aspect(src_spec, this, aspect_iter%of())
+              aspect_name => aspect_iter%of()
+              src_aspect => src_spec%get_aspect(aspect_name)
+              dst_aspect => this%get_aspect(aspect_name)
+              can_connect_to = src_aspect%can_connect_to(dst_aspect)
               _RETURN_UNLESS(can_connect_to)
            end do
          end associate
 
          can_connect_to = all ([ &
-!#              can_match(this%vertical_grid, src_spec%vertical_grid), &
-!#              match(this%vertical_dim_spec, src_spec%vertical_dim_spec), &
               includes(this%attributes, src_spec%attributes) &
               ])
       class default
@@ -626,30 +518,6 @@ contains
       _RETURN(_SUCCESS)
 
    contains
-
-      logical function can_connect_aspect(src_spec, dst_spec, aspect_name)
-         class(StateItemSpec), intent(in) :: src_spec
-         class(StateItemSpec), intent(in) :: dst_spec
-         character(len=*), intent(in) :: aspect_name
-
-         integer :: status
-         class(StateItemAspect), pointer :: src_aspect, dst_aspect
-
-         src_aspect => src_spec%get_aspect(aspect_name)
-         if (.not. associated(src_aspect)) then
-            can_connect_aspect = .false.
-            return
-         end if
-
-         dst_aspect => dst_spec%get_aspect(aspect_name)
-         if (.not. associated(dst_aspect)) then
-            can_connect_aspect = .false.
-            return
-         end if
-
-         can_connect_aspect = src_aspect%can_connect_to(dst_aspect)
-
-      end function can_connect_aspect
 
       logical function includes(mandatory, provided)
          type(StringVector), target, intent(in) :: mandatory
@@ -709,100 +577,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle
-
-   logical function can_match_geom(a, b) result(can_match)
-      type(ESMF_Geom), allocatable, intent(in) :: a, b
-
-      integer :: n_mirror
-
-      ! At most one geom can be mirror (unallocated).
-      ! Otherwise, assume ESMF can provide regrid
-      n_mirror = count([.not. allocated(a), .not. allocated(b)])
-      can_match = n_mirror <= 1
-   end function can_match_geom
-
-   logical function can_match_vertical_grid(a, b) result(can_match)
-      class(VerticalGrid), allocatable, intent(in) :: a, b
-
-      integer :: n_mirror
-
-      ! At most one grid can be mirror (unallocated).
-      ! Otherwise, see if regrid is supported
-      n_mirror = count([.not. allocated(a), .not. allocated(b)])
-      can_match = n_mirror <= 1
-   end function can_match_vertical_grid
-
-
-   logical function match_geom(a, b) result(match)
-      type(ESMF_Geom), allocatable, intent(in) :: a, b
-
-      integer :: n_mirror
-
-      ! At most one geom can be mirror (unallocated).
-      ! Otherwise, assume ESMF can provide regrid
-      n_mirror = count([.not. allocated(a), .not. allocated(b)])
-
-      select case (n_mirror)
-      case (0)
-         match = MAPL_SameGeom(a,b)
-      case (1)
-         match = .true.
-      case (2)
-         match = .true.
-      end select
-   end function match_geom
-
-   logical function match_string(a, b) result(match)
-      character(:), allocatable, intent(in) :: a, b
-
-      logical :: mirror_a, mirror_b
-
-      match = (mirror(a) .neqv. mirror(b))
-      if (match) return
-
-      ! Neither is mirror
-      if (allocated(a) .and. allocated(b)) then
-         match = (a == b)
-         return
-      end if
-
-      ! Both are mirror
-      match = .false.
-   end function match_string
-
-   logical function match_vertical_dim_spec(a, b) result(match)
-      type(VerticalDimSpec), intent(in) :: a, b
-
-      integer :: n_mirror
-
-      n_mirror = count([a,b] == VERTICAL_DIM_MIRROR)
-      match = (n_mirror == 1) .or. (n_mirror == 0 .and. a == b)
-   end function match_vertical_dim_spec
-
-   logical function mirror(str)
-      character(:), allocatable :: str
-
-      mirror = .not. allocated(str)
-      if (mirror) return
-
-      mirror = (str == '_MIRROR_')
-   end function mirror
-
-   logical function can_connect_units(dst_units, src_units, rc)
-      character(:), allocatable, intent(in) :: dst_units
-      character(:), allocatable, intent(in) :: src_units
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      ! If mirror or same, we can connect without a coupler
-      can_connect_units = match(dst_units, src_units)
-      _RETURN_IF(can_connect_units)
-
-      ! Otherwise need a coupler, but need to check if units are convertible
-      can_connect_units = UDUNITS_are_convertible(src_units, dst_units, _RC)
-      _RETURN(_SUCCESS)
-   end function can_connect_units
 
   function get_payload(this) result(payload)
       type(ESMF_Field) :: payload
