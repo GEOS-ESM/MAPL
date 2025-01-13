@@ -39,7 +39,6 @@ module mapl3g_FieldSpec
    use mapl3g_EsmfRegridder, only: EsmfRegridderParam
    use MAPL_FieldUtils
    use mapl3g_LU_Bound
-   use mapl3g_geom_mgr, only: MAPL_SameGeom
    use mapl3g_FieldDictionary
    use mapl3g_ComponentDriver
    use mapl3g_VariableSpec, only: VariableSpec
@@ -172,17 +171,16 @@ contains
       type(FieldSpec) :: field_spec
       class(VariableSpec), intent(in) :: variable_spec
 
-      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
-
       _SET_FIELD(field_spec, variable_spec, attributes)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, standard_name)
+
+      ! Cannot do a simple copy as some setters have side-effects
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('GEOM'))
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('VERTICAL'))
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('UNGRIDDED_DIMS'))
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('TYPEKIND'))
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('UNITS'))
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('FREQUENCY'))
-!#      _SET_ALLOCATED_FIELD(field_spec, variable_spec, units)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, default_value)
 
       field_spec%long_name = 'unknown'
@@ -197,7 +195,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
 
       call target_set_geom(this, geom, vertical_grid)
       call target_set_timestep(this, timestep)
@@ -455,9 +452,13 @@ contains
          call this%set_aspect(aspect, _RC)
          aspect => src_spec%get_aspect('VERTICAL', _RC)
          call this%set_aspect(aspect, _RC)
-         aspect => src_spec%get_aspect('UNITS', _RC)
+         aspect => src_spec%get_aspect('UNGRIDDED_DIMS', _RC)
          call this%set_aspect(aspect, _RC)
          aspect => src_spec%get_aspect('TYPEKIND', _RC)
+         call this%set_aspect(aspect, _RC)
+         aspect => src_spec%get_aspect('UNITS', _RC)
+         call this%set_aspect(aspect, _RC)
+         aspect => src_spec%get_aspect('FREQUENCY', _RC)
          call this%set_aspect(aspect, _RC)
 
          call mirror(dst=this%default_value, src=src_spec%default_value)

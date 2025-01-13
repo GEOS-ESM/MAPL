@@ -17,7 +17,7 @@ module mapl3g_AspectCollection
    public :: AspectCollection
 
    type AspectCollection
-      private
+!#      private
       type(GeomAspect), allocatable :: geom_aspect
       type(VerticalGridAspect), allocatable :: vertical_grid_aspect
       type(UnitsAspect), allocatable :: units_aspect
@@ -136,13 +136,7 @@ contains
             call this%vertical_grid_aspect%set_geom(geom)
          end if
       type is (VerticalGridAspect)
-         if (allocated(this%vertical_grid_aspect)) then
-            if (allocated(this%vertical_grid_aspect%vertical_grid)) then
-            end if
-         end if
          this%vertical_grid_aspect = aspect
-         if (allocated(this%vertical_grid_aspect%vertical_grid)) then
-         end if
       type is (UnitsAspect)
          this%units_aspect = aspect
       type is (TypekindAspect)
