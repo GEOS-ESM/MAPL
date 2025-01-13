@@ -1,6 +1,7 @@
 target_sources(MAPL.generic3g PRIVATE
   StateItemAspect.F90
   AspectCollection.F90
+  AttributesAspect.F90
   GeomAspect.F90
   TypekindAspect.F90
   VerticalGridAspect.F90
