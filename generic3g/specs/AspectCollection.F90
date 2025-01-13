@@ -17,7 +17,7 @@ module mapl3g_AspectCollection
    public :: AspectCollection
 
    type AspectCollection
-!#      private
+      private
       type(GeomAspect), allocatable :: geom_aspect
       type(VerticalGridAspect), allocatable :: vertical_grid_aspect
       type(UnitsAspect), allocatable :: units_aspect
