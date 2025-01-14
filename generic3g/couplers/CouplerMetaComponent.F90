@@ -30,7 +30,6 @@ module mapl3g_CouplerMetaComponent
       type(ComponentDriverPtrVector) :: sources
       type(ComponentDriverVector) :: consumers
       logical :: stale = .true.
-      logical :: always_invalidate = .false.
    contains
       ! ESMF methods
       procedure :: initialize
@@ -63,11 +62,10 @@ module mapl3g_CouplerMetaComponent
 
 contains
 
-   function new_CouplerMetaComponent(action, source, force_invalidate) result (this)
+   function new_CouplerMetaComponent(action, source) result (this)
       type(CouplerMetaComponent) :: this
       class(ExtensionAction), intent(in) :: action
       class(ComponentDriver), target, optional, intent(in) :: source
-      logical, optional, intent(in) :: force_invalidate
 
       type(ComponentDriverPtr) :: source_wrapper
 
@@ -76,7 +74,6 @@ contains
          source_wrapper%ptr => source
          call this%sources%push_back(source_wrapper)
       end if
-      if (present(force_invalidate)) this%always_invalidate = force_invalidate
 
    end function new_CouplerMetaComponent
 
@@ -180,17 +177,17 @@ contains
 
       integer :: status
 
-      if(this%always_invalidate) then
+      if(this%action%runs_invalidate()) then
          call this%update_sources(_RC)
-         call this%set_up_to_date()
-      end if 
+         call this%action%invalidate(importState, exportState, clock, _RC)
+      end if
       _RETURN_IF(this%is_stale())
 
-      call this%action%invalidate(importState, exportState, clock, _RC)
       call this%invalidate_consumers(_RC)
       call this%set_stale()
   
       _RETURN(_SUCCESS)
+
    end subroutine invalidate
       
    recursive subroutine invalidate_consumers(this, rc)

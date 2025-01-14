@@ -11,6 +11,7 @@ module mapl3g_ExtensionAction
    contains
       procedure(I_run), deferred :: initialize
       procedure(I_run), deferred :: update
+      procedure :: runs_invalidate
       procedure :: invalidate
    end type ExtensionAction
 
@@ -44,5 +45,15 @@ contains
       _UNUSED_DUMMY(exportState)
       _UNUSED_DUMMY(clock)
    end subroutine invalidate
+
+   ! This is a default logical function that always return .FALSE.
+   ! to determine if invalidate should run. Subclasses that run invalidate
+   ! (override the invalidate subroutine nontrivially) need to implement
+   ! a nontrivial override of this function.
+   logical function run_invalidate(this)
+      import ExtensionAction
+      class(ExtensionAction), intent(in) :: this
+      run_invalidate = .FALSE.
+   end function run_invalidate
 
 end module mapl3g_ExtensionAction

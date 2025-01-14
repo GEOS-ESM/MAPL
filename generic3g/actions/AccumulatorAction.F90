@@ -20,9 +20,11 @@ module mapl3g_AccumulatorAction
       logical :: initialized = .FALSE.
    contains
       ! Implementations of deferred procedures
-      procedure :: invalidate
       procedure :: initialize
       procedure :: update
+      ! Override procedures
+      procedure :: invalidate
+      procedure :: runs_invalidate
       ! Helpers
       procedure :: accumulate
       procedure :: accumulate_R4
@@ -228,4 +230,9 @@ contains
 
    end subroutine accumulate_R4
 
+   logical function runs_invalidate(this)
+      class(AccumulatorAction), intent(in) :: this
+      runs_invalidate = .TRUE.
+   end function runs_invalidate
+      
 end module mapl3g_AccumulatorAction
