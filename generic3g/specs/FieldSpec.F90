@@ -18,6 +18,7 @@ module mapl3g_FieldSpec
    use mapl3g_UnitsAspect
    use mapl3g_TypekindAspect
    use mapl3g_UngriddedDimsAspect
+   use mapl3g_AttributesAspect
    use mapl3g_FrequencyAspect
    use mapl3g_HorizontalDimsSpec
    use mapl3g_VerticalStaggerLoc
@@ -147,12 +148,11 @@ contains
       call aspects%set_ungridded_dims_aspect(UngriddedDimsAspect(ungridded_dims))
       call aspects%set_typekind_aspect(TypekindAspect(typekind))
       call aspects%set_frequency_aspect(FrequencyAspect(timestep, accumulation_type))
+      call aspects%set_attributes_aspect(AttributesAspect(attributes))
       
       if (present(standard_name)) field_spec%standard_name = standard_name
       if (present(long_name)) field_spec%long_name = long_name
  
-     if (present(attributes)) field_spec%attributes = attributes
-
       ! regrid_param
 
       if (present(default_value)) field_spec%default_value = default_value
@@ -165,13 +165,13 @@ contains
       type(FieldSpec) :: field_spec
       class(VariableSpec), intent(in) :: variable_spec
 
-      _SET_FIELD(field_spec, variable_spec, attributes)
       _SET_ALLOCATED_FIELD(field_spec, variable_spec, standard_name)
 
       ! Cannot do a simple copy as some setters have side-effects
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('GEOM'))
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('VERTICAL'))
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('UNGRIDDED_DIMS'))
+      call field_spec%set_aspect(variable_spec%aspects%get_aspect('ATTRIBUTES'))
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('TYPEKIND'))
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('UNITS'))
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('FREQUENCY'))
@@ -398,23 +398,6 @@ contains
    end subroutine write_formatted
 
 
-   function get_vertical_bounds(vertical_dim_spec, vertical_grid, rc) result(bounds)
-      type(LU_Bound) :: bounds
-      type(VerticalDimSpec), intent(in) :: vertical_dim_spec
-      class(VerticalGrid), intent(in) :: vertical_grid
-      integer, optional, intent(out) :: rc
-
-      _ASSERT(vertical_dim_spec /= VERTICAL_DIM_UNKNOWN, 'vertical_dim_spec has not been specified')
-      bounds%lower = 1
-      bounds%upper = vertical_grid%get_num_levels()
-
-      if (vertical_dim_spec == VERTICAL_DIM_EDGE) then
-         bounds%upper = bounds%upper + 1
-      end if
-
-      _RETURN(_SUCCESS)
-   end function get_vertical_bounds
-
    subroutine connect_to(this, src_spec, actual_pt, rc)
 
       class(FieldSpec), intent(inout) :: this
@@ -509,35 +492,10 @@ contains
            end do
          end associate
 
-         can_connect_to = all ([ &
-              includes(this%attributes, src_spec%attributes) &
-              ])
       class default
          can_connect_to = .false.
       end select
       _RETURN(_SUCCESS)
-
-   contains
-
-      logical function includes(mandatory, provided)
-         type(StringVector), target, intent(in) :: mandatory
-         type(StringVector), target, intent(in) :: provided
-
-         integer :: i, j
-         character(:), pointer :: attribute_name
-
-         m: do i = 1, mandatory%size()
-            attribute_name => mandatory%of(i)
-            p: do j = 1, provided%size()
-               if (attribute_name == provided%of(j)) cycle m
-            end do p
-            ! ith not found
-            includes = .false.
-            return
-         end do m
-
-         includes = .true.
-      end function includes
 
    end function can_connect_to
 
@@ -590,7 +548,7 @@ contains
       class(FieldSpec), intent(in) :: src_spec
       class(StateItemSpec), intent(in) :: dst_spec
 
-      order = 'UNGRIDDED_DIMS::GEOM::VERTICAL::UNITS::TYPEKIND'
+      order = 'ATTRIBUTES::UNGRIDDED_DIMS::GEOM::VERTICAL::UNITS::TYPEKIND'
 
    end function get_aspect_priorities
    

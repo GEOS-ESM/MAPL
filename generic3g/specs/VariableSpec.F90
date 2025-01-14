@@ -7,6 +7,7 @@ module mapl3g_VariableSpec
    use mapl3g_UnitsAspect
    use mapl3g_TypekindAspect
    use mapl3g_UngriddedDimsAspect
+   use mapl3g_AttributesAspect
    use mapl3g_FrequencyAspect
    use mapl3g_UngriddedDims
    use mapl3g_VerticalDimSpec
@@ -114,6 +115,7 @@ contains
       call var_spec%aspects%set_geom_aspect(GeomAspect(geom, regrid_param_, horizontal_dims_spec))
 
       call var_spec%aspects%set_ungridded_dims_aspect(UngriddedDimsAspect(ungridded_dims))
+      call var_spec%aspects%set_attributes_aspect(AttributesAspect(attributes))
       call var_spec%aspects%set_typekind_aspect(TypekindAspect(typekind))
       call var_spec%aspects%set_frequency_aspect(FrequencyAspect(accumulation_type=accumulation_type))
 
