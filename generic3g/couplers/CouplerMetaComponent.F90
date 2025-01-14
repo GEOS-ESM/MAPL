@@ -182,7 +182,7 @@ contains
 
       if(this%always_invalidate) then
          call this%update_sources(_RC)
-         this%set_up_to_date()
+         call this%set_up_to_date()
       end if 
       _RETURN_IF(this%is_stale())
 
