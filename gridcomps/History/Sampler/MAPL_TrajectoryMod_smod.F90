@@ -1023,7 +1023,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             nx=this%obs(k)%nobs_epoch
             if (nx >0) then
                if (mapl_am_i_root()) then
-                  call this%obs(k)%file_handle%put_var(this%var_name_time, real(this%obs(k)%times_R8), &
+                  call this%obs(k)%file_handle%put_var(this%var_name_time, this%obs(k)%times_R8, &
                        start=[is], count=[nx], _RC)
                   call this%obs(k)%file_handle%put_var(this%var_name_lon, this%obs(k)%lons, &
                        start=[is], count=[nx], _RC)
