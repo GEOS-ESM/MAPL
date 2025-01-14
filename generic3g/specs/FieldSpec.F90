@@ -231,24 +231,6 @@ contains
 
       end subroutine target_set_geom
 
-      subroutine target_set_timestep(this, timestep)
-         class(FieldSpec), target, intent(inout) :: this
-         type(ESMF_TimeInterval), optional, intent(in) :: timestep
-
-         type(AspectCollection), pointer :: aspects
-         type(FrequencyAspect), pointer :: frequency_aspect
-
-         if(.not. present(timestep)) return
-         aspects => this%get_aspects()
-         frequency_aspect => aspects%get_frequency_aspect()
-
-         if (associated(frequency_aspect)) then
-            call frequency_aspect%set_timestep(timestep)
-            return
-         end if
- 
-      end subroutine target_set_timestep
-
    end subroutine set_geometry
 
    subroutine create(this, rc)

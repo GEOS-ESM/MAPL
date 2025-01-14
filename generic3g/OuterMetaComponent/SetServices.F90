@@ -38,7 +38,6 @@ contains
       user_gridcomp = this%user_gc_driver%get_gridcomp()
 
       if (allocated(this%component_spec%timestep)) then
-         _HERE, 'override timestep: '
          user_clock = this%user_gc_driver%get_clock()
          call ESMF_ClockSet(user_clock, timestep=this%component_spec%timestep, _RC)
       end if
