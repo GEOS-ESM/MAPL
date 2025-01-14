@@ -46,11 +46,10 @@ module mapl3g_StateSpec
 contains
 
    ! Nothing defined at this time.
-   subroutine set_geometry(this, geom, vertical_grid, timestep, rc)
+   subroutine set_geometry(this, geom, vertical_grid, rc)
       class(StateSpec), intent(inout) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
-      type(ESMF_TimeInterval), optional, intent(in) :: timestep
       integer, optional, intent(out) :: rc
 
       _RETURN(_SUCCESS)
@@ -58,7 +57,6 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(geom)
       _UNUSED_DUMMY(vertical_grid)
-      _UNUSED_DUMMY(timestep)
    end subroutine set_geometry
 
    subroutine add_item(this, name, item)
