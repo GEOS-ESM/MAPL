@@ -4,9 +4,9 @@ submodule (mapl3g_ComponentSpecParser) parse_timestep_smod
    use MAPL_TimeStringConversion, only: parse_isostring => string_to_esmf_timeinterval
 contains
 
-      module function parse_timestep(hconfig, rc) result(timestep)
-         type(ESMF_TimeInterval) :: timestep
+      module subroutine parse_timestep(hconfig, timestep, rc)
          type(ESMF_HConfig), intent(in) :: hconfig
+         type(ESMF_TimeInterval), allocatable, intent(inout) :: timestep
          integer, optional, intent(out) :: rc
          
          integer :: status
@@ -19,6 +19,6 @@ contains
          timestep = parse_isostring(iso_duration, _RC)
          _RETURN(_SUCCESS)
 
-      end function parse_timestep
+      end subroutine parse_timestep
 
 end submodule parse_timestep_smod
