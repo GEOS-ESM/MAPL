@@ -1,0 +1,19 @@
+#include "MAPL_TestErr.h"
+module Test_ExtensionAction
+   use mapl3g_ExtensionAction
+   use mapl3g_NullAction
+   use pfunit
+   use ESMF_TestMethod_mod
+   implicit none
+
+contains
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_runs_invalidate(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(NullAction) :: action
+
+      @assert_that(action%runs_invalidate().TRUE., is(false()))
+   end subroutine test_runs_invalidate
+
+end module Test_ExtensionAction
