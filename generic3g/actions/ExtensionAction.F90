@@ -30,9 +30,8 @@ module mapl3g_ExtensionAction
 
 contains
 
-   ! This is a default no-op implementation of invalidate.
-   ! Types derived from ExtensionAction should overload it
-   ! as needed.
+   ! This is a default no-op implementation of invalidate. Types derived from
+   ! ExtensionAction should overload it as needed.
    subroutine invalidate(this, importState, exportState, clock, rc)
       use ESMF
       class(ExtensionAction), intent(inout) :: this
@@ -50,10 +49,10 @@ contains
    ! to determine if invalidate should run. Subclasses that run invalidate
    ! (override the invalidate subroutine nontrivially) need to implement
    ! a nontrivial override of this function.
-   logical function run_invalidate(this)
+   logical function runs_invalidate(this)
       import ExtensionAction
       class(ExtensionAction), intent(in) :: this
-      run_invalidate = .FALSE.
-   end function run_invalidate
+      runs_invalidate = .FALSE.
+   end function runs_invalidate
 
 end module mapl3g_ExtensionAction
