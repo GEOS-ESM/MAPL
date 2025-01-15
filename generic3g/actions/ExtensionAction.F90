@@ -50,10 +50,9 @@ contains
    ! to determine if invalidate should run. Subclasses that run invalidate
    ! (override the invalidate subroutine nontrivially) need to implement
    ! a nontrivial override of this function.
-   logical function run_invalidate(this)
-      import ExtensionAction
+   logical function runs_invalidate(this)
       class(ExtensionAction), intent(in) :: this
-      run_invalidate = .FALSE.
-   end function run_invalidate
+      runs_invalidate = .FALSE.
+   end function runs_invalidate
 
 end module mapl3g_ExtensionAction
