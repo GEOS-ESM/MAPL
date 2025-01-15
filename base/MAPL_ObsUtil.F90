@@ -40,6 +40,7 @@ module MAPL_ObsUtilMod
      real(kind=REAL64), allocatable :: lats(:)
      real(kind=REAL64), allocatable :: times_R8(:)
      integer,           allocatable :: location_index_ioda(:)
+     integer,           allocatable :: restore_index(:)
      real(kind=REAL32), allocatable :: p2d(:)
      real(kind=REAL32), allocatable :: p3d(:,:)
   end type obs_unit

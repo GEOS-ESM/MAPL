@@ -58,6 +58,7 @@ module HistoryTrajectoryMod
      character(len=ESMF_MAXSTR)     :: datetime_units
      character(len=ESMF_MAXSTR)     :: Location_index_name
      logical                        :: use_NWP_1_file = .false.
+     logical                        :: restore_2_obs_vector = .false.
      integer                        :: epoch        ! unit: second
      integer(kind=ESMF_KIND_I8)     :: epoch_index(2)
      real(kind=ESMF_KIND_R8), pointer:: obsTime(:)
