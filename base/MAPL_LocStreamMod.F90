@@ -69,8 +69,8 @@ end type MAPL_LocStreamXform
 
 !EOP
 
-integer, parameter :: NumGlobalVars=4
-integer, parameter :: NumLocalVars =4
+!integer, parameter :: NumGlobalVars=4
+!integer, parameter :: NumLocalVars =4
 
 
 type MAPL_GeoLocation
@@ -343,7 +343,7 @@ contains
     integer                           :: UNIT
     integer                           :: N, I, K, L, NT
     type(MAPL_LocStreamType), pointer :: STREAM
-    real,    pointer                  :: AVR(:,:), AVR_transpose(:,:)
+    real,    pointer                  :: AVR(:,:)
     logical, pointer                  :: MSK(:)
     real                              :: X, Y, X0, Y0, XE, DX, DY
     integer                           :: II, JJ
@@ -407,9 +407,9 @@ contains
 !------------------------------------------------------------------------
     call MAPL_NCIOGetFileType(FILENAME, filetype, _RC)
 
-    isnc4   = (filetype == 0)
-    isascii = (filetype == 1)
-    isbinary= (filetype == 2)
+    isnc4   = (filetype == MAPL_FILETYPE_NC4)
+    isascii = (filetype == MAPL_FILETYPE_TXT)
+    isbinary= (filetype == MAPL_FILETYPE_BIN)
 
     if ( .not. isbinary) then
 ! Open file and read header info

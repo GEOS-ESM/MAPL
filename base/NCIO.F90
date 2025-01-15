@@ -22,7 +22,8 @@ module NCIOMod
   use MAPL_ExceptionHandling
   use netcdf
   use pFIO
-  use BinIOMod
+  use BinIOMod, only: GETFILE, READ_PARALLEL, FREE_FILE
+  use MAPL_Constants
   !use pFIO_ClientManagerMod
   use gFTL_StringIntegerMap
   use gFTL_StringVector
@@ -81,8 +82,8 @@ module NCIOMod
      module procedure MAPL_VarWriteNCpar_R8_4d
   end interface
 
-  integer, parameter :: NumGlobalVars=4
-  integer, parameter :: NumLocalVars =4
+  integer, parameter, public :: NumGlobalVars=4
+  integer, parameter, public :: NumLocalVars =4
 
 contains
 
@@ -4550,9 +4551,9 @@ contains
    read (UNIT, REC=2, ERR=100) TwoWords(5:8)
    close(UNIT)
 
-   typehdf5 = .true.
-   filetype = -1 ! Unknown
+   filetype = MAPL_FILETYPE_UNK ! Unknown
 
+   typehdf5 = .true.
    do i = 1, 8
       if (iachar(TwoWords(i)) /= hdf5(i)) then
          typehdf5 = .false.
@@ -4560,7 +4561,7 @@ contains
       end if
    end do
    if (typehdf5) then
-      filetype = 0 ! HDF5
+      filetype = MAPL_FILETYPE_NC4
       _RETURN(ESMF_SUCCESS)
    end if
 
@@ -4572,11 +4573,11 @@ contains
        end if
    end do
    if (isascii) then
-      filetype = 1
+      filetype = MAPL_FILETYPE_TXT
       _RETURN(ESMF_SUCCESS)
    endif
 
-   filetype = 2
+   filetype = MAPL_FILETYPE_BIN
    _RETURN(ESMF_SUCCESS)
 
 100   continue
@@ -5306,7 +5307,7 @@ contains
       endif
 
       call READ_PARALLEL(layout, AVR_transpose(:,:), unit=UNIT, rc=status)
-      AVR= transpose(AVR_transpose)
+      AVR = transpose(AVR_transpose)
       deallocate(AVR_transpose)
       call FREE_FILE(UNIT)
 
