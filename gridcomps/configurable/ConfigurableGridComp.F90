@@ -70,11 +70,9 @@ contains
             call MAPL_GetPointer(exportState, ptr3d, trim(field_name), _RC)
             shape_ = shape(ptr3d)
             _ASSERT(shape_(3) == size(default_vert_profile), "incorrect size of vertical profile")
-            print *, ptr3d(1, 4, 3)
             do concurrent(ii = 1:shape_(1), jj=1:shape_(2))
                ptr3d(ii, jj, :) = default_vert_profile
             end do
-            print *, ptr3d(1, 4, 3)
          end if
       end do
 
