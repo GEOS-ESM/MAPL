@@ -164,8 +164,6 @@ contains
       call ESMF_GridCompGet(gridcomp, currentPhase=phase, _RC)
       select case (phase)
       case (GENERIC_INIT_ADVERTISE)
-         ! outer clock is not available during set services, so must validate now
-         call outer_meta%set_run_user_alarm(clock, _RC)
          call outer_meta%initialize_advertise(_RC)
       case (GENERIC_INIT_MODIFY_ADVERTISED)
          call outer_meta%initialize_modify_advertised(importState, exportState, clock, _RC)
@@ -203,11 +201,11 @@ contains
       call ESMF_GridCompGet(gridcomp, currentPhase=phase_idx, _RC)
       select case (phase_idx)
       case (GENERIC_RUN_CLOCK_ADVANCE)
-         call outer_meta%run_clock_advance(_RC)
+         call outer_meta%run_clock_advance(clock, _RC)
       case default ! user-defined run phase
          phases => outer_meta%get_phases(ESMF_METHOD_RUN)
          phase_name => phases%of(phase_idx)
-         call outer_meta%run_user(phase_name=phase_name, _RC)
+         call outer_meta%run_user(clock, phase_name=phase_name, _RC)
       end select
 
       _RETURN(ESMF_SUCCESS)
