@@ -573,7 +573,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(ESMF_VM) :: vm
          integer :: mypet, petcount, mpic
 
-         integer :: i, j, k, L, ii, jj, jj2, kk
+         integer :: i, j, k, L, ii, jj, jj2
          integer :: fid_s, fid_e
          integer(kind=ESMF_KIND_I8) :: j0, j1
          integer(kind=ESMF_KIND_I8) :: jt1, jt2
@@ -584,7 +584,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer :: arr(1)
          integer :: sec
          integer, allocatable :: ix(:) !  counter for each obs(k)%nobs_epoch
-         integer, allocatable :: marker(:)
          integer :: nx2
          logical :: EX ! file
          logical :: zero_obs
@@ -718,7 +717,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                            ! for each obs type use the correct starting point
                            ! if: use_nwp_1_file:  index_ioda = [ 1, Nobs ] : restore_2_obs_vector is exact
                            ! else                 index_ioda = [ -M, 0 ] + [1, Nobs1] + [Nob1+1, Nobs2] : restore_2_obs_vector may fail
-                           !                                      File1       File2         File3
+                           !                                      File1     File(center)         File3
                            ! why: bc we have no restriction on observation file name vs content, hence unexpected things can happen
                            !      use use_nwp_1_file + restore_2_obs_vector only when filename and content are systematic
                            location_index_ioda_full(len+jj) = jj2 - this%obs(k)%count_location_until_matching_file
@@ -891,13 +890,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                     'epoch_index(1:2), nx', this%epoch_index(1), &
                     this%epoch_index(2), this%nobs_epoch)
                !
-               !    Note: For IODA files, the default NPW_1_file=.false. we can see
-               !          the non-python array behavior in obs time sequence from observation files: for example:
-               !    ioda file split [1/2 15Z  :  1/2 21Z ]  [ 1/2 21Z :  1/2 3Z]   (aircraft)
+               !    Note: the time boundary issue can appear when we use python convention [T1, T2) but obs files donot
+               !    ioda file split [1/2data 15Z  :  1/2data 21Z ]  [ 1/2data 21Z :  1/2data 3Z]   (aircraft)
                !        ___x  x  x x x ___ ---------------------------------- o --o ---o -- o --
-               !           negative index (extra) at Tmin                      missing Tmax
-               !    our trajectory ioda_index will show: overcount at Tmin and missing points at Tmax
-               !    NPW_1_file=1 solves this issue.
+               !    debug:  negative index (extra) at Tmin                    missing Tmax
+               !    debug shows: overcount at Tmin and missing points at Tmax
+               !    use_NPW_1_file=.true. solves this issue, due to special treatment at time boundaries
                !
             end if
          else
