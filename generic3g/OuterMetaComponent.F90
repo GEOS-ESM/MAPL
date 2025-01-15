@@ -102,6 +102,7 @@ module mapl3g_OuterMetaComponent
 
       procedure :: connect_all
 
+      procedure :: set_run_user_alarm
    end type OuterMetaComponent
 
    type OuterMetaWrapper
@@ -419,4 +420,37 @@ module mapl3g_OuterMetaComponent
 
    integer, save :: counter = 0
 
+contains
+
+   subroutine set_run_user_alarm(this, outer_clock, rc)
+      use mapl_ErrorHandling
+      class(OuterMetaComponent), intent(in) :: this
+      type(ESMF_Clock), intent(in) :: outer_clock
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Clock) :: user_clock
+      type(ESMF_TimeInterval) :: outer_timestep, user_timestep, zero
+      type(ESMF_Time) :: refTime
+      type(ESMF_Alarm) :: alarm
+
+      call ESMF_TimeIntervalSet(zero, s=0, _RC)
+
+      user_clock = this%user_gc_driver%get_clock()
+      call ESMF_ClockGet(outer_clock, timestep=outer_timestep, refTime=refTime, _RC)
+      call ESMF_ClockGet(user_clock, timestep=user_timestep, _RC)
+
+      _ASSERT(mod(user_timestep, outer_timestep) == zero, 'User timestep is not an integer multiple of parent timestep')
+
+      alarm = ESMF_AlarmCreate(outer_clock, &
+           name = 'run_user', &
+           ringInterval=user_timestep, &
+           refTime=refTime, &
+           sticky=.false., &
+           _RC)
+      call ESMF_AlarmRingerOn(alarm, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine set_run_user_alarm
+      
 end module mapl3g_OuterMetaComponent

@@ -187,7 +187,7 @@ contains
       character(len=:), allocatable :: iso_duration
       character(len=:), allocatable :: content
       type(ESMF_HConfig) :: hconfig
-      type(ESMF_TimeInterval), allocatable :: actual
+      type(ESMF_TimeInterval) :: actual, default
       integer :: rc, status
       character(len=:), allocatable :: msg
       character(len=ESMF_MAXSTR) :: expected_timestring, actual_timestring
@@ -198,7 +198,7 @@ contains
       iso_duration = 'P10Y3M7DT13H57M32S'
       content = 'timestep: ' // iso_duration
       hconfig = ESMF_HConfigCreate(content=content, _RC)
-      call parse_timestep(hconfig, actual, _RC)
+      actual = parse_timestep(hconfig, default, _RC)
       call ESMF_TimeIntervalGet(expected, timeString=expected_timestring, _RC)
       call ESMF_TimeIntervalGet(actual, timeString=actual_timestring, _RC)
       msg = trim(actual_timestring) // ' /= ' // trim(expected_timestring)
@@ -208,9 +208,9 @@ contains
       ! Test with incorrect key for timestep; should return without setting actual (invalid)
       content = 'run_dmc: ' // iso_duration
       hconfig = ESMF_HConfigCreate(content=content, _RC)
-      deallocate(actual)
-      call parse_timestep(hconfig, actual, _RC)
-      @assert_that(allocated(actual), is(false()))
+      actual = parse_timestep(hconfig, default, _RC)
+      call ESMF_TimeIntervalValidate(actual, rc=status)
+      @assert_that(status, is(not(0)))
       call ESMF_HConfigDestroy(hconfig, _RC)
 
    end subroutine test_parse_timestep

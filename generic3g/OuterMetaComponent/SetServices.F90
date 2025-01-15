@@ -32,9 +32,15 @@ contains
 
       integer :: status
       type(ESMF_GridComp) :: user_gridcomp
-      type(ESMF_Clock) :: user_clock
+      type(ESMF_Clock) :: user_clock, outer_clock
+      type(ESMF_Time) :: refTime
+      type(ESMF_TimeInterval) :: timeStep
 
-      this%component_spec = parse_component_spec(this%hconfig, this%registry, _RC)
+      call ESMF_GridCompGet(this%self_gridcomp, clock=outer_clock, _RC)
+      call ESMF_ClockGet(outer_clock, refTime=refTime, timeStep=timeStep, _RC)
+      
+      this%component_spec = parse_component_spec(this%hconfig, this%registry, &
+           refTime=refTime, timeStep=timeStep, _RC)
       user_gridcomp = this%user_gc_driver%get_gridcomp()
 
       if (allocated(this%component_spec%timestep)) then

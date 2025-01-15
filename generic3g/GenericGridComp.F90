@@ -106,7 +106,8 @@ contains
 
       contextFlag = ESMF_CONTEXT_PARENT_VM
       if(present(petlist)) contextFlag = ESMF_CONTEXT_OWN_VM
-      gridcomp = ESMF_GridCompCreate(name=outer_name(name), petlist=petlist, contextFlag=contextFlag, _RC)
+      gridcomp = ESMF_GridCompCreate(name=outer_name(name), &
+           petlist=petlist, contextFlag=contextFlag, clock=clock, _RC)
       call set_is_generic(gridcomp, _RC)
 
       user_gridcomp = ESMF_GridCompCreate(name=name, petlist=petlist, contextFlag=contextFlag, _RC)
@@ -163,6 +164,8 @@ contains
       call ESMF_GridCompGet(gridcomp, currentPhase=phase, _RC)
       select case (phase)
       case (GENERIC_INIT_ADVERTISE)
+         ! outer clock is not available during set services, so must validate now
+         call outer_meta%set_run_user_alarm(clock, _RC)
          call outer_meta%initialize_advertise(_RC)
       case (GENERIC_INIT_MODIFY_ADVERTISED)
          call outer_meta%initialize_modify_advertised(importState, exportState, clock, _RC)
