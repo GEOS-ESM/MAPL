@@ -504,8 +504,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             do k=1, this%nobs_type
                if (this%obs(k)%nobs_epoch > 0) then
                   filename=trim(this%obs(k)%name)//trim(filename_suffix)
-                  call lgr%debug('%a %a', &
-                       "Sampling to new file : ",trim(filename))
+                  write(6,'(1x,a,2x,a)')  "Sampling to new file :",trim(filename)
                   call this%obs(k)%file_handle%create(trim(filename),_RC)
                   call this%obs(k)%file_handle%write(this%obs(k)%metadata,_RC)
                end if
