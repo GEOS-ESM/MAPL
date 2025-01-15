@@ -34,15 +34,13 @@ module mapl3g_ComponentSpec
 
 contains
 
-   function new_ComponentSpec(var_specs, connections, timestep) result(spec)
+   function new_ComponentSpec(var_specs, connections) result(spec)
       type(ComponentSpec) :: spec
       type(VariableSpecVector), optional, intent(in) :: var_specs
       type(ConnectionVector), optional, intent(in) :: connections
-      type(ESMF_TimeInterval), optional, intent(in) :: timestep
 
       if (present(var_specs)) spec%var_specs = var_specs
       if (present(connections)) spec%connections = connections
-      if (present(timestep)) spec%timestep = timestep
 
    end function new_ComponentSpec
 

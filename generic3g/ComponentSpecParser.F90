@@ -112,11 +112,11 @@ module mapl3g_ComponentSpecParser
          integer, optional, intent(out) :: rc
       end function parse_child
 
-      module function parse_timestep(hconfig, rc) result(timestep)
-         type(ESMF_TimeInterval) :: timestep
+      module subroutine parse_timestep(hconfig, timestep, rc)
          type(ESMF_HConfig), intent(in) :: hconfig
+         type(ESMF_TimeInterval), allocatable, intent(inout) :: timestep
          integer, optional, intent(out) :: rc
-      end function parse_timestep
+      end subroutine parse_timestep
 
    END INTERFACE
 

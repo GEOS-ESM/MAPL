@@ -115,7 +115,10 @@ contains
       call attach_outer_meta(gridcomp, _RC)
       outer_meta => get_outer_meta(gridcomp, _RC)
 
+      ! We copy the outer gridcomp here.  If the user gridcomp runs at a different (slower!) timestep, that
+      ! must be processed later as the information gets stored in the ComponentSpec.
       user_clock = ESMF_ClockCreate(clock, _RC)
+      
       user_gc_driver = GriddedComponentDriver(user_gridcomp, user_clock, MultiState())
 #ifndef __GFORTRAN__
       outer_meta = OuterMetaComponent(gridcomp, user_gc_driver, set_services, config)
