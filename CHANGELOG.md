@@ -13,12 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added utility to prepare inputs for ExtDatDriver.x so that ExtData can simulate a real GEOS run
 - Added loggers when writing or reading weight files
 - Added new option to AGCM.rc `overwrite_checkpoint` to allow checkpoint files to be overwritten. By default still will not overwrite checkpoints
-- Added use_NWP_1_file=1 option in Trajectory sampler (HISTORY.rc) to generate the correct location_index_ioda array, mapping back to location points in the single IODA observation input file
+- The trajectory sampler netCDF output variable `location_index_in_iodafile` can be turned off, after we add two control variables: `use_NWP_1_file` and `restore_2_obs_vector` for users.  When set to true, the two options will select only one obs file at each Epoch interval, and will rotate the output field index back to the location vector inthe obs file before generating netCDF output.
 
 ### Changed
 
 - Changed MAPL_ESMFRegridder to require the dstMaskValues to be added as grid attribute to use fixed masking, fixes UFS issue
 - Increased formatting width of time index in ExtData2G diagnostic print
+- Updated GitHub checkout action to use blobless clones
 
 ### Fixed
 
