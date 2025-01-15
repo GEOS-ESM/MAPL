@@ -849,9 +849,11 @@ contains
     end if
     do while (ios==0)
        i = index (string, mark)
+       !!print*, 'index=', i
        if (i > 1) then
           wc = wc + 1
           str_piece(wc)=trim(adjustl(string(1:i)))
+          !!write(6,*) 'str_piece(wc)=', trim(str_piece(wc))
           string = trim(adjustl(string(i:)))
        else
           ios=1

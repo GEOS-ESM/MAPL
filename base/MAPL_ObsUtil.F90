@@ -53,7 +53,7 @@ module MAPL_ObsUtilMod
      character (len=ESMF_MAXSTR) :: var_name_time=''
      character (len=ESMF_MAXSTR) :: file_name_template=''
      integer :: ngeoval=0
-     integer :: nfield_name_mx=12   ! fix max
+     integer :: nfield_name_mx=12
      character (len=ESMF_MAXSTR), allocatable :: field_name(:,:)
      !character (len=ESMF_MAXSTR), allocatable :: field_name(:)
   end type obs_platform
@@ -797,7 +797,7 @@ contains
     k=nfield
     do j=1, b%ngeoval
        do i=1, a%ngeoval
-          if ( trim(b%field_name(1,j)) == trim(a%field_name(1,i)) ) then    ! ygyu: potential problem here
+          if ( trim(b%field_name(1,j)) == trim(a%field_name(1,i)) ) then
              tag(j)=0
           endif
        enddo
@@ -953,7 +953,7 @@ contains
     if (lenmax < slen) then
        if (MAPL_AM_I_ROOT())  write(6,*) 'pathlen vs filename_max_char_len: ', slen, lenmax
        _FAIL ('PATHLEN is greater than filename_max_char_len')
-       stop 'm1'
+       STOP 'lenmax < slen'
     end if
     if (slen>0) filename(1:slen)=c_filename(1:slen)
 

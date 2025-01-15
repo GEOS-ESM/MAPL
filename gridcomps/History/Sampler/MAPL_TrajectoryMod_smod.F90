@@ -218,7 +218,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   ! the Alias case + the splitField case
                   ! 3-item     :  var1 , 'root',  var1_alias case
                   ! 3-item     :  var1 , 'root', 'TOTEXTTAU470;TOTEXTTAU550;TOTEXTTAU870',
-                  ! 3-item     :  there is a problem of 'u;v' vector interpolation
+                  ! 3-item     :  'u;v' vector interpolation is not handled
                   STR1=trim(word(3))
                else
                   STR1=trim(word(3))
@@ -263,19 +263,19 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                else
                   traj%obs(nobs)%ngeoval=jvar
                   head=1
-                  jvar=0   ! reset counter
+                  jvar=0
                endif
             enddo
          end if
 
-         if (mapl_am_i_root()) then
-            do k=1, nobs
-               do j=1, traj%obs(k)%ngeoval
-                  write(6, '(2x,a,2x,2i10,2x,a)') &
-                       'traj%obs(k)%geoval_xname(j),  k, j, xname ', k, j, trim(traj%obs(k)%geoval_xname(j))
-               end do
-            end do
-         end if
+         !!if (mapl_am_i_root()) then
+         !!   do k=1, nobs
+         !!      do j=1, traj%obs(k)%ngeoval
+         !!         write(6, '(2x,a,2x,2i10,2x,a)') &
+         !!              'traj%obs(k)%geoval_xname(j),  k, j, xname ', k, j, trim(traj%obs(k)%geoval_xname(j))
+         !!      end do
+         !!   end do
+         !!end if
 
 
          do k=1, traj%nobs_type
@@ -492,9 +492,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
         iter = this%items%begin()
         do while (iter /= this%items%end())
            item => iter%get()
-
-           if (mapl_am_I_root()) print*, 'create new bundle, this%items%xname= ', trim(item%xname)
-
+           !!if (mapl_am_I_root()) print*, 'create new bundle, this%items%xname= ', trim(item%xname)
            if (item%itemType == ItemTypeScalar) then
               call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
               call ESMF_FieldGet(src_field,rank=rank,_RC)
@@ -516,7 +514,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            end if
            call iter%next()
         enddo
-!        _FAIL('nail 1')
         _RETURN(_SUCCESS)
 
       end procedure create_new_bundle
@@ -1185,7 +1182,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          iter = this%items%begin()
          do while (iter /= this%items%end())
             item => iter%get()
-            !! if (mapl_am_I_root())  print*, 'regrid: item%xname= ', trim(item%xname)
+            !!if (mapl_am_I_root())  print*, 'regrid: item%xname= ', trim(item%xname)
 
             if (item%itemType == ItemTypeScalar) then
                call ESMF_FieldBundleGet(this%acc_bundle,trim(item%xname),field=acc_field,_RC)
@@ -1259,7 +1256,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         deallocate (this%obs(k)%p2d, _STAT)
                      enddo
                   end if
-
                else if (rank==2) then
 
                   call ESMF_FieldGet( acc_field, localDE=0, farrayPtr=p_acc_3d, _RC)

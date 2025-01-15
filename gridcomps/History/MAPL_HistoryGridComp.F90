@@ -964,7 +964,6 @@ contains
        if (old_fields_style) then
           field_set_name = trim(string) // 'fields'
           allocate(field_set)
-          ! ygyu: code runs here
           call parse_fields(cfg, trim(field_set_name), field_set, collection_name = list(n)%collection, items = list(n)%items, _RC)
        end if
 
@@ -2485,8 +2484,7 @@ ENDDO PARSER
           end if
           if (list(n)%timeseries_output) then
              list(n)%trajectory = HistoryTrajectory(cfg,string,clock,genstate=GENSTATE,_RC)
-             call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,&
-                  vdata=list(n)%vdata,_RC)
+             call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
              IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
           elseif (list(n)%sampler_spec == 'mask') then
              call MAPL_TimerOn(GENSTATE,"mask_init")
@@ -5615,14 +5613,12 @@ ENDDO PARSER
                   nseg, str_piece, status)
              do m=1, nseg
                 PLFS(k)%field_name (m, ngeoval) = trim(str_piece(m))
-                !! write(6,*) 'm, trim(str_piece(m))', m, trim(str_piece(m))
              end do
           endif
        enddo
     end do
     deallocate(str_piece)
     rewind(unitr)
-
 
 
     call lgr%debug('%a %i8','count PLATFORM.', nplf)
@@ -5639,7 +5635,7 @@ ENDDO PARSER
           enddo
        enddo
     end if
-    write(6,*) 'nlist=', nlist
+!!    write(6,*) 'nlist=', nlist
 
 
     ! __ s3: Add more entry:  'obs_files:' and 'fields:' to rcx
@@ -5686,9 +5682,9 @@ ENDDO PARSER
           call lgr%debug('%a %a', 'line for obsplatforms=', trim(line))
           call lgr%debug('%a %i6', 'split string,  nplatform=', nplatform)
           call lgr%debug('%a %i6', 'nplf=', nplf)
-          if (mapl_am_i_root()) then
-             write(6,*)  '     str_piece=', str_piece(1:nplatform)
-          end if
+          !if (mapl_am_i_root()) then
+          !   write(6,*)  '     str_piece=', str_piece(1:nplatform)
+          !end if
 
           !
           !   a) union the platform
@@ -5704,9 +5700,9 @@ ENDDO PARSER
              end do
           end do
           deallocate(str_piece)
-          if (mapl_am_i_root()) then
-             write(6,*) 'collection n=',n, 'map(:)=', map(:)
-          end if
+          !if (mapl_am_i_root()) then
+          !   write(6,*) 'collection n=',n, 'map(:)=', map(:)
+          !end if
 
 
           ! __ write common nc_index,time,lon,lat
