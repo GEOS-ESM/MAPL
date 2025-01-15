@@ -544,12 +544,12 @@ module FileIOSharedMod
          ArrDes%jm_world=jm_world
          ArrDes%lm_world=lm_world
 
-         ArrDes%readers_comm  = readers_comm
-         ArrDes%ioscattercomm = ioscattercomm
-         ArrDes%writers_comm  = writers_comm
-         ArrDes%iogathercomm  = iogathercomm
-         ArrDes%xcomm = xcomm
-         ArrDes%ycomm = ycomm
+         call MAPL_Comm_dup(readers_comm, ArrDes%readers_comm, status)
+         call MAPL_Comm_dup(ioscattercomm, ArrDes%IOscattercomm, status)
+         call MAPL_Comm_dup(writers_comm, ArrDes%writers_comm, status)
+         call MAPL_Comm_dup(iogathercomm, ArrDes%IOgathercomm, status)
+         call MAPL_Comm_dup(xcomm, ArrDes%Xcomm, status)
+         call MAPL_Comm_dup(ycomm, ArrDes%Ycomm, status)
          call mpi_comm_rank(arrdes%ycomm,arrdes%myrow,status)
          _VERIFY(status)
 
@@ -595,16 +595,16 @@ module FileIOSharedMod
       
       if(present(offset  )) ArrDes%offset   = offset
       if(present(readers_comm )) then
-         call MPI_Comm_Dup(readers_comm, ArrDes%readers_comm, status)
+         call MAPL_Comm_dup(readers_comm, ArrDes%readers_comm, status)
       end if
       if(present(ioscattercomm)) then
-         call MPI_Comm_Dup(ioscattercomm, ArrDes%ioscattercomm, status)
+         call MAPL_Comm_dup(IOscattercomm, ArrDes%IOscattercomm, status)
       end if
       if(present(writers_comm )) then
-         call MPI_Comm_Dup(writers_comm, ArrDes%writers_comm, status)
+         call MAPL_Comm_dup(writers_comm, ArrDes%writers_comm, status)
       end if
       if(present(iogathercomm)) then
-         call MPI_Comm_Dup(iogathercomm, ArrDes%iogathercomm, status)
+         call MAPL_Comm_dup(IOgathercomm, ArrDes%IOgathercomm, status)
       end if
       if(present(i1      )) ArrDes%i1       => i1
       if(present(in      )) ArrDes%in       => in
@@ -645,7 +645,7 @@ module FileIOSharedMod
        call MPI_COMM_SPLIT(full_comm, color, myid, arrdes%writers_comm, status)
        _VERIFY(status)
        if (num_writers==ny) then
-          arrdes%IOgathercomm = arrdes%Xcomm
+          call MAPL_Comm_dup(arrdes%Xcomm, ArrDes%IOgathercomm, status)
        else
             j = arrdes%NY0 - mod(arrdes%NY0-1,ny_by_writers)
           call MPI_COMM_SPLIT(full_comm, j, myid, arrdes%IOgathercomm, status)
@@ -693,7 +693,7 @@ module FileIOSharedMod
        call MPI_COMM_SPLIT(full_comm, color, MYID, arrdes%readers_comm, status)
        _VERIFY(status)
        if (num_readers==ny) then
-          arrdes%IOscattercomm = arrdes%Xcomm
+          call MAPL_Comm_dup(arrdes%Xcomm, ArrDes%IOscattercomm, status)
        else
           j = arrdes%NY0 - mod(arrdes%NY0-1,ny_by_readers)
           call MPI_COMM_SPLIT(full_comm, j, MYID, arrdes%IOscattercomm, status)
@@ -917,4 +917,19 @@ module FileIOSharedMod
     end if
     _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_CommFree
+
+  subroutine MAPL_Comm_Dup(comm, newcomm, rc)
+    integer, intent(in) :: comm
+    integer, intent(out) :: newcomm
+    integer, optional, intent(out) :: rc
+
+    integer :: status
+
+    newcomm = MPI_COMM_NULL 
+    if(comm /= MPI_COMM_NULL) then
+       call MPI_Comm_Dup(comm, newcomm,status)
+       _VERIFY(status)
+    end if
+    _RETURN(ESMF_SUCCESS)
+  end subroutine MAPL_Comm_Dup
 end module FileIOSharedMod
