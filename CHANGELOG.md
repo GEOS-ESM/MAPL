@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added subroutine to read nc4 tile file
 - Added optional start_date and start_time to control the output window for each History collection. No output will be written before then. If not specified, these default to the beginning of the experiment.
 - Added utility to prepare inputs for ExtDatDriver.x so that ExtData can simulate a real GEOS run
 - Added loggers when writing or reading weight files
