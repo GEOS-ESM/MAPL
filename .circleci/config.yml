@@ -21,14 +21,14 @@ bcs_version: &bcs_version v11.6.0
 tag_build_arg_name: &tag_build_arg_name maplversion
 
 orbs:
-  ci: geos-esm/circleci-tools@dev:3757bb798cb16579e4631876735162774b6e18f6
+  ci: geos-esm/circleci-tools@dev:7b6720489f6be392a932159176d49313bb36a7a2
 
 workflows:
   build-and-test-MAPL:
     jobs:
       # Builds MAPL in a "default" way
       - ci/build:
-          name: build-and-test-MAPL-as<< matrix.build_type >>-on-<< matrix.compiler >>-using-<< matrix.cmake_generator >>
+          name: build-and-test-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>-using-<< matrix.cmake_generator >>
           context:
             - docker-hub-creds
           matrix:
@@ -96,7 +96,7 @@ workflows:
           # We will only run the tutorials with GNU make. No need to double up
           # as Ninja is a build test only
           requires:
-            - build-and-test-MAPL-as<< matrix.build_type >>-on-<< matrix.compiler >>-using-Unix Makefiles
+            - build-and-test-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>-using-Unix Makefiles
           baselibs_version: *baselibs_version
 
   build-and-run-GEOSgcm:
