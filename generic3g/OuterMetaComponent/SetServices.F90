@@ -32,9 +32,16 @@ contains
 
       integer :: status
       type(ESMF_GridComp) :: user_gridcomp
+      type(ESMF_Clock) :: user_clock
 
       this%component_spec = parse_component_spec(this%hconfig, this%registry, _RC)
       user_gridcomp = this%user_gc_driver%get_gridcomp()
+
+      if (allocated(this%component_spec%timestep)) then
+         user_clock = this%user_gc_driver%get_clock()
+         call ESMF_ClockSet(user_clock, timestep=this%component_spec%timestep, _RC)
+      end if
+
       call attach_inner_meta(user_gridcomp, this%self_gridcomp, _RC)
       call this%user_setservices%run(user_gridcomp, _RC)
       call add_children(this, _RC)

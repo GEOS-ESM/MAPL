@@ -163,14 +163,13 @@ module mapl3g_StateItemSpec
          integer, optional, intent(out) :: rc
       end subroutine I_add_to_bundle
 
-      subroutine I_set_geometry(this, geom, vertical_grid, timestep, rc)
+      subroutine I_set_geometry(this, geom, vertical_grid, rc)
          use esmf, only: ESMF_Geom, ESMF_TimeInterval
          use mapl3g_VerticalGrid, only: VerticalGrid
          import StateItemSpec
          class(StateItemSpec), intent(inout) :: this
          type(ESMF_Geom), optional, intent(in) :: geom
          class(VerticalGrid), optional, intent(in) :: vertical_grid
-         type(ESMF_TimeInterval), optional, intent(in) :: timestep
          integer, optional, intent(out) :: rc
       end subroutine I_set_geometry
 

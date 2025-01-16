@@ -181,17 +181,15 @@ contains
 
    end function new_FieldSpec_varspec
 
-   subroutine set_geometry(this, geom, vertical_grid, timestep, rc)
+   subroutine set_geometry(this, geom, vertical_grid, rc)
       class(FieldSpec), intent(inout) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
-      type(ESMF_TimeInterval), optional, intent(in) :: timestep
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       call target_set_geom(this, geom, vertical_grid)
-      call target_set_timestep(this, timestep)
 
       _RETURN(_SUCCESS)
 
@@ -232,24 +230,6 @@ contains
          end if
 
       end subroutine target_set_geom
-
-      subroutine target_set_timestep(this, timestep)
-         class(FieldSpec), target, intent(inout) :: this
-         type(ESMF_TimeInterval), optional, intent(in) :: timestep
-
-         type(AspectCollection), pointer :: aspects
-         type(FrequencyAspect), pointer :: frequency_aspect
-
-         if(.not. present(timestep)) return
-         aspects => this%get_aspects()
-         frequency_aspect => aspects%get_frequency_aspect()
-
-         if (associated(frequency_aspect)) then
-            call frequency_aspect%set_timestep(timestep)
-            return
-         end if
- 
-      end subroutine target_set_timestep
 
    end subroutine set_geometry
 

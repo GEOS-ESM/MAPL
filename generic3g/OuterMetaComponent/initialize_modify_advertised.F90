@@ -66,7 +66,7 @@ contains
       
       integer :: status
 
-      call this%registry%set_blanket_geometry(this%geom, this%vertical_grid, this%component_spec%timestep, _RC)
+      call this%registry%set_blanket_geometry(this%geom, this%vertical_grid, _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

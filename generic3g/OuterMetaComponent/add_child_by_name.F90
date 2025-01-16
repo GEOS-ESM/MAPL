@@ -29,6 +29,10 @@ contains
 
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
 
+      ! By default, children run with the same timestep as their
+      ! parent.  This can be overridden by the MAPL generic layer
+      ! which will check for `timestep` in the MAPL section of the
+      ! resource file.
       clock = this%user_gc_driver%get_clock()
       child_clock = ESMF_ClockCreate(clock, _RC)
       child_gc = create_grid_comp(child_name, setservices, hconfig, clock, _RC)

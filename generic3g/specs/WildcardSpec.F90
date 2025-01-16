@@ -204,16 +204,15 @@ contains
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle
 
-   subroutine set_geometry(this, geom, vertical_grid, timestep, rc)
+   subroutine set_geometry(this, geom, vertical_grid, rc)
       class(WildcardSpec), intent(inout) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
-      type(ESMF_TimeInterval), optional, intent(in) :: timestep
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      call this%reference_spec%set_geometry(geom, vertical_grid, timestep, _RC)
+      call this%reference_spec%set_geometry(geom, vertical_grid, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine set_geometry
