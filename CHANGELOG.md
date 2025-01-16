@@ -75,6 +75,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added subroutine to read nc4 tile file
 - Added optional start_date and start_time to control the output window for each History collection. No output will be written before then. If not specified, these default to the beginning of the experiment.
 - Added utility to prepare inputs for ExtDatDriver.x so that ExtData can simulate a real GEOS run
 - Added loggers when writing or reading weight files
@@ -87,6 +88,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed MAPL_ESMFRegridder to require the dstMaskValues to be added as grid attribute to use fixed masking, fixes UFS issue
 - Increased formatting width of time index in ExtData2G diagnostic print
 - Updated GitHub checkout action to use blobless clones
+- Update CI to use Baselibs 7.29.0 by default
+  - This provides ESMF 8.8.0
+- Update `components.yaml`
+  - ESMA_env v4.34.0
+    - Update to MPT 2.30 at NAS
+    - Update to Baselibs 7.29.0 (ESMF 8.8.0)
+  - ESMA_cmake v3.56.0
+    - Use `LOCATION` Python `FIND_STRATEGY`
 
 ### Fixed
 
