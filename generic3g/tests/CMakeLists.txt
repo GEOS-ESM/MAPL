@@ -38,6 +38,7 @@ set (test_srcs
   Test_MeanAction.pf
   Test_MaxAction.pf
   Test_MinAction.pf
+  Test_ExtensionAction.pf
 )
 
 add_pfunit_ctest(
