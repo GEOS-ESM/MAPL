@@ -44,6 +44,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add run_dt to ComponentSpec and ComponentSpecParser
 - Add run_dt to FieldSpec
 - Add FrequencyAspect
+- Remove MAPL `==` and `/=` for `ESMF_Geom`
+  - NOTE: This *requires* ESMF 8.8.0 or later
 
 ### Changed
 
