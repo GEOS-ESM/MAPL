@@ -23,6 +23,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated GitHub checkout action to use blobless clones
 - Update CI to use Baselibs 7.29.0 by default
   - This provides ESMF 8.8.0
+- Update `components.yaml`
+  - ESMA_env v4.34.0
+    - Update to MPT 2.30 at NAS
+    - Update to Baselibs 7.29.0 (ESMF 8.8.0)
+  - ESMA_cmake v3.56.0
+    - Use `LOCATION` Python `FIND_STRATEGY`
 
 ### Fixed
 
