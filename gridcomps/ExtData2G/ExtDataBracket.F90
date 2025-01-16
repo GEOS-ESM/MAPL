@@ -188,10 +188,13 @@ contains
 
       right_node_set = this%right_node%check_if_initialized(_RC)
       left_node_set = this%left_node%check_if_initialized(_RC)
-      call this%right_node%get(file=right_file)
-      call this%left_node%get(file=left_file)
-      right_node_set = right_file /= file_not_found
-      left_node_set = left_file /= file_not_found
+      write(*,*)'bmaa first check ',left_node_set,right_node_set,this%exact
+      call ESMF_TimePrint(this%left_node%time,options='string',preString='left bracket time: ')
+      call ESMF_TimePrint(this%right_node%time,options='string',preString='right bracket time: ')
+      !call this%right_node%get(file=right_file)
+      !call this%left_node%get(file=left_file)
+      !right_node_set = right_file /= file_not_found
+      !left_node_set = left_file /= file_not_found
 
       alpha = 0.0
       if ( (.not.this%disable_interpolation) .and. (.not.this%intermittent_disable) .and. right_node_set .and. left_node_set) then
@@ -206,6 +209,7 @@ contains
       if (left_node_set) then
          call assign_fptr(this%left_node%field,var1d_left,_RC)
       end if
+      write(*,*)'bmaa inter: ',left_node_set, right_node_set,this%new_file_left, this%new_file_right
       if ( left_node_set .and. (time == this%left_node%time .or. this%disable_interpolation)) then
          var1d = var1d_left
       else if (right_node_set .and. (time == this%right_node%time)) then
@@ -216,7 +220,10 @@ contains
          elsewhere
             var1d = mapl_undef
          endwhere
-      else
+      end if
+ 
+      if (this%exact .and. (.not.(time == this%left_node%time))) then
+         !write(*,*)'bmaa setting undef'
          var1d = mapl_undef
       end if
 
@@ -243,10 +250,14 @@ contains
 
       left_created  = ESMF_FieldIsCreated(this%left_node%field,_RC)
       right_created = ESMF_FieldIsCreated(this%right_node%field,_RC)
+      write(*,*)'bmaa swapping nodes ',left_created,right_created
+      left_created  = ESMF_FieldIsCreated(this%left_node%field,_RC)
       if (left_created .and. right_created) then     
          call assign_fptr(this%left_node%field,left_ptr,_RC) 
          call assign_fptr(this%right_node%field,right_ptr,_RC) 
+         write(*,*)'bmaa LR before: ',maxval(left_ptr),maxval(right_ptr)
          left_ptr = right_ptr
+         write(*,*)'bmaa LR  after: ',maxval(left_ptr),maxval(right_ptr)
       end if
       _RETURN(_SUCCESS)
    end subroutine swap_node_fields

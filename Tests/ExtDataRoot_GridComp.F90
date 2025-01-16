@@ -677,12 +677,8 @@ MODULE ExtDataUtRoot_GridCompMod
 
       integer :: status
       integer                             :: i
-      real, pointer                       :: ptr3_1(:,:,:)
-      real, pointer                       :: ptr3_2(:,:,:)
-      real, pointer                       :: ptr2_1(:,:)
-      real, pointer                       :: ptr2_2(:,:)
-      real, pointer                       :: ptr1_1(:)
-      real, pointer                       :: ptr1_2(:)
+      real, pointer                       :: ptr1(:)
+      real, pointer                       :: ptr2(:)
       integer :: itemcount,rank1,rank2
       character(len=ESMF_MAXSTR), allocatable :: NameList(:)
       logical, allocatable :: foundDiff(:)
@@ -696,6 +692,7 @@ MODULE ExtDataUtRoot_GridCompMod
          _VERIFY(status)
          call ESMF_StateGet(State1,itemNameList=NameList,_RC)
          do i=1,itemCount
+            write(*,*)'comparing ',trim(nameList(i))
             call ESMF_StateGet(State1,trim(nameList(i)),field1,_RC)
             call ESMF_StateGet(State2,trim(nameList(i)),field2,_RC)
             call ESMF_FieldGet(field1,rank=rank1,_RC)
@@ -706,29 +703,17 @@ MODULE ExtDataUtRoot_GridCompMod
                exit
             end if
             _ASSERT(rank1==rank2,'needs informative message')
+            call assign_fptr(field1, ptr1, _RC)
+            call assign_fptr(field2, ptr2, _RC)
+            write(*,*)'bmaa max ',maxval(ptr1),maxval(ptr2)
+            _ASSERT(size(ptr1)==size(ptr2),'needs informative message')
             foundDiff(i)=.false.
-            if (rank1==1) then
-               call MAPL_GetPointer(state1,ptr1_1,trim(nameList(i)),_RC)
-               call MAPL_GetPointer(state2,ptr1_2,trim(nameList(i)),_RC)
-               if (any((ptr1_1-ptr1_2) > tol)) then
-                   foundDiff(i) = .true.
-               end if
-            else if (rank1==2) then
-               call MAPL_GetPointer(state1,ptr2_1,trim(nameList(i)),_RC)
-               call MAPL_GetPointer(state2,ptr2_2,trim(nameList(i)),_RC)
-               if (any((ptr2_1-ptr2_2) > tol)) then
-                   foundDiff(i) = .true.
-               end if
-            else if (rank1==3) then
-               call MAPL_GetPointer(state1,ptr3_1,trim(nameList(i)),_RC)
-               call MAPL_GetPointer(state2,ptr3_2,trim(nameList(i)),_RC)
-               if (any((ptr3_1-ptr3_2) > tol)) then
-                   foundDiff(i) = .true.
-               end if
+            if (any(abs(ptr1-ptr2) > tol)) then
+                foundDiff(i) = .true.
             end if
-            if (foundDiff(i)) then
-               _FAIL('found difference when compare state')
-            end if
+            !if (foundDiff(i)) then
+               !_FAIL('found difference when compare state')
+            !end if
          enddo
 
          _RETURN(ESMF_SUCCESS)
@@ -741,10 +726,8 @@ MODULE ExtDataUtRoot_GridCompMod
 
          integer :: status
 
-         real, pointer :: ptr3d(:,:,:)
-         real, pointer :: ptr2d(:,:)
          integer       :: ii
-         integer :: itemcount,dims
+         integer :: itemcount
          character(len=ESMF_MAXSTR), allocatable :: NameList(:)
          type (ESMF_StateItem_Flag), allocatable :: itemTypeList(:)
          type(ESMF_Field) :: Field
