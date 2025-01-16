@@ -214,4 +214,13 @@ contains
 
    end subroutine test_accumulate_R4
 
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_runs_invalidate(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(AccumulatorAction) :: action
+
+      @assert_that(action%runs_invalidate(), is(true()))
+
+   end subroutine test_runs_invalidate
+
 end module Test_AccumulatorAction
