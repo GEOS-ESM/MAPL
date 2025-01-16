@@ -11,6 +11,7 @@ module mapl3g_ExtensionAction
    contains
       procedure(I_run), deferred :: initialize
       procedure(I_run), deferred :: update
+      procedure :: runs_invalidate
       procedure :: invalidate
    end type ExtensionAction
 
@@ -29,9 +30,8 @@ module mapl3g_ExtensionAction
 
 contains
 
-   ! This is a default no-op implementation of invalidate.
-   ! Types derived from ExtensionAction should overload it
-   ! as needed.
+   ! This is a default no-op implementation of invalidate. Types derived from
+   ! ExtensionAction should overload it as needed.
    subroutine invalidate(this, importState, exportState, clock, rc)
       use ESMF
       class(ExtensionAction), intent(inout) :: this
@@ -44,5 +44,14 @@ contains
       _UNUSED_DUMMY(exportState)
       _UNUSED_DUMMY(clock)
    end subroutine invalidate
+
+   ! This is a default logical function that always return .FALSE.
+   ! to determine if invalidate should run. Subclasses that run invalidate
+   ! (override the invalidate subroutine nontrivially) need to implement
+   ! a nontrivial override of this function.
+   logical function runs_invalidate(this)
+      class(ExtensionAction), intent(in) :: this
+      runs_invalidate = .FALSE.
+   end function runs_invalidate
 
 end module mapl3g_ExtensionAction

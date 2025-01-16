@@ -176,16 +176,18 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
-        
+
+      if(this%action%runs_invalidate()) then
+         call this%update_sources(_RC)
+         call this%action%invalidate(importState, exportState, clock, _RC)
+      end if
       _RETURN_IF(this%is_stale())
 
       call this%invalidate_consumers(_RC)
       call this%set_stale()
   
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(clock)
-      _UNUSED_DUMMY(exportState)
-      _UNUSED_DUMMY(importState)
+
    end subroutine invalidate
       
    recursive subroutine invalidate_consumers(this, rc)
