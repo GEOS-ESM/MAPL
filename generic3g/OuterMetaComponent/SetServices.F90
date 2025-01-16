@@ -94,18 +94,19 @@ contains
          class(OuterMetaComponent), target, intent(inout) :: this
          integer, optional, intent(out) :: rc
 
-         integer :: status
+         integer :: status, user_status
          type(GriddedComponentDriver), pointer :: child_comp
          type(ESMF_GridComp) :: child_outer_gc
          type(GriddedComponentDriverMapIterator) :: iter
 
-          associate ( e => this%children%ftn_end() )
+
+         associate ( e => this%children%ftn_end() )
             iter = this%children%ftn_begin()
             do while (iter /= e)
                call iter%next()
                child_comp => iter%second()
                child_outer_gc = child_comp%get_gridcomp()
-               call ESMF_GridCompSetServices(child_outer_gc, generic_setservices, _RC)
+               call ESMF_GridCompSetServices(child_outer_gc, generic_setservices, _USERRC)
             end do
          end associate
 

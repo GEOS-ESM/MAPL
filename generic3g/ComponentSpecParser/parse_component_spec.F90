@@ -16,11 +16,13 @@ contains
       logical :: has_mapl_section
       type(ESMF_HConfig) :: mapl_cfg
 
+      spec%timestep = timestep
+
       has_mapl_section = ESMF_HConfigIsDefined(hconfig, keyString=MAPL_SECTION, _RC)
       _RETURN_UNLESS(has_mapl_section)
       mapl_cfg = ESMF_HConfigCreateAt(hconfig, keyString=MAPL_SECTION, _RC)
 
-      spec%timestep = parse_timestep(mapl_cfg, timestep, _RC)
+      call parse_timestep(mapl_cfg, spec%timestep, _RC)
       spec%geometry_spec = parse_geometry_spec(mapl_cfg, registry, _RC)
       spec%var_specs = parse_var_specs(mapl_cfg, spec%timestep, _RC)
       spec%connections = parse_connections(mapl_cfg, _RC)
