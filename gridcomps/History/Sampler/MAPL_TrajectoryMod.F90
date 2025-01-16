@@ -71,6 +71,7 @@ module HistoryTrajectoryMod
      integer                        :: obsfile_Te_index
      logical                        :: active               ! case: when no obs. exist
      logical                        :: level_by_level = .false.
+     !
      ! note
      ! for MPI_GATHERV of 3D data in procedure :: append_file
      ! we have choice LEVEL_BY_LEVEL or ALL_AT_ONCE  (timing in sec below for extdata)

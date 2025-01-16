@@ -29,22 +29,25 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
      module procedure HistoryTrajectory_from_config
          use BinIOMod
+         use  MAPL_scan_pattern_in_file
          use pflogger, only         :  Logger, logging
          type(ESMF_Time)            :: currTime
          type(ESMF_TimeInterval)    :: epoch_frequency
          type(ESMF_TimeInterval)    :: obs_time_span
          integer                    :: time_integer, second
          integer                    :: status
-         character(len=ESMF_MAXSTR) :: STR1, line
+         character(len=ESMF_MAXSTR) :: STR1, line, splitter
          character(len=ESMF_MAXSTR) :: symd, shms
          integer                    :: nline, col
          integer, allocatable       :: ncol(:)
          character(len=ESMF_MAXSTR), allocatable :: word(:)
+         character(len=ESMF_MAXSTR), allocatable :: str_piece(:)
          integer                    :: nobs, head, jvar
          logical                    :: tend
          integer                    :: i, j, k, k2, M
          integer                    :: count, idx
          integer                    :: unitr, unitw
+         integer                    :: length_mx, mxseg, nseg
          type(GriddedIOitem)        :: item
          type(Logger), pointer      :: lgr
 
@@ -163,6 +166,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 
          ! __ s3. retrieve template and geoval, set metadata file_handle
          lgr => logging%get_logger('HISTORY.sampler')
+         length_mx = ESMF_MAXSTR
+         mxseg = 100
+         allocate (str_piece(mxseg))
          if ( nobs == 0 ) then
             !
             !   treatment-1:
@@ -208,11 +214,18 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                   ! 1-item case:  file template or one-var
                   ! 2-item     :  var1 , 'root' case
                   STR1=trim(word(1))
-               else
-                  ! 3-item     :  var1 , 'root', var1_alias case
+               elseif ( count == 3 ) then
+                  ! the Alias case + the splitField case
+                  ! 3-item     :  var1 , 'root',  var1_alias case
+                  ! 3-item     :  var1 , 'root', 'TOTEXTTAU470;TOTEXTTAU550;TOTEXTTAU870',
+                  ! 3-item     :  'u;v' vector interpolation is not handled
                   STR1=trim(word(3))
+               else
+                  STR1=trim(word(3))
+                  call lgr%debug('%a %i8', 'WARNING: there are more than 3 field_names in platform rcx' )
                end if
                deallocate(word, _STAT)
+
                if ( index(trim(STR1), '-----') == 0 ) then
                   if (head==1 .AND. trim(STR1)/='') then
                      nobs=nobs+1
@@ -221,13 +234,29 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                      head=0
                   else
                      if (trim(STR1)/='') then
-                        jvar=jvar+1
-                        idx = index(STR1,";")
-                        if (idx==0) then
-                           traj%obs(nobs)%geoval_xname(jvar) = STR1
+                        splitter=';,'
+                        call split_string_by_seperator (STR1, length_mx, splitter, mxseg, &
+                             nseg, str_piece, status)
+                        if (count < 3) then
+                           ! case
+                           ! 'var1'
+                           ! 'var1' , 'ROOT'
+                           ! 'u;v'  , 'ROOT'
+                           jvar=jvar+1
+                           if (nseg==1) then
+                              traj%obs(nobs)%geoval_xname(jvar) = STR1
+                           else
+                              traj%obs(nobs)%geoval_xname(jvar) = trim(str_piece(1))
+                              traj%obs(nobs)%geoval_yname(jvar) = trim(str_piece(2))
+                           end if
                         else
-                           traj%obs(nobs)%geoval_xname(jvar) = trim(STR1(1:idx-1))
-                           traj%obs(nobs)%geoval_yname(jvar) = trim(STR1(idx+1:))
+                           ! case
+                           ! 'var1' , 'ROOT' , alias
+                           ! 'var1' , 'ROOT' , 'TOTEXTTAU470;TOTEXTTAU550;TOTEXTTAU870,'  split_field
+                           do j=1, nseg
+                              jvar=jvar+1
+                              traj%obs(nobs)%geoval_xname(jvar) = trim(str_piece(j))
+                           end do
                         end if
                      end if
                   end if
@@ -238,6 +267,15 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                endif
             enddo
          end if
+
+         !!if (mapl_am_i_root()) then
+         !!   do k=1, nobs
+         !!      do j=1, traj%obs(k)%ngeoval
+         !!         write(6, '(2x,a,2x,2i10,2x,a)') &
+         !!              'traj%obs(k)%geoval_xname(j),  k, j, xname ', k, j, trim(traj%obs(k)%geoval_xname(j))
+         !!      end do
+         !!   end do
+         !!end if
 
 
          do k=1, traj%nobs_type
@@ -454,6 +492,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
         iter = this%items%begin()
         do while (iter /= this%items%end())
            item => iter%get()
+           !!if (mapl_am_I_root()) print*, 'create new bundle, this%items%xname= ', trim(item%xname)
            if (item%itemType == ItemTypeScalar) then
               call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
               call ESMF_FieldGet(src_field,rank=rank,_RC)
@@ -1143,6 +1182,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          iter = this%items%begin()
          do while (iter /= this%items%end())
             item => iter%get()
+            !!if (mapl_am_I_root())  print*, 'regrid: item%xname= ', trim(item%xname)
+
             if (item%itemType == ItemTypeScalar) then
                call ESMF_FieldBundleGet(this%acc_bundle,trim(item%xname),field=acc_field,_RC)
                call ESMF_FieldGet(acc_field,rank=rank,_RC)
@@ -1202,6 +1243,8 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         nx = this%obs(k)%nobs_epoch
                         if (nx>0) then
                            do ig = 1, this%obs(k)%ngeoval
+                              !! print*, 'this%obs(k)%geoval_xname(ig)= ', this%obs(k)%geoval_xname(ig)
+
                               if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
                                  call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p2d(1:nx), &
                                       start=[is],count=[nx])

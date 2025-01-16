@@ -5464,7 +5464,7 @@ ENDDO PARSER
     integer :: nseg
     integer :: nseg_ub
     integer :: nfield, nplatform
-    integer :: nentry_name
+    integer :: nfield_name_max
     logical :: obs_flag
     integer, allocatable :: map(:)
     type(Logger), pointer          :: lgr
@@ -5554,7 +5554,7 @@ ENDDO PARSER
 
 
 
-    ! __ s2.1 scan fields: only determine ngeoval / nentry_name = nword
+    ! __ s2.1 scan fields: only determine ngeoval / nfield_name_max = nword
     allocate (str_piece(mxseg))
     rewind(unitr)
     do k=1, nplf
@@ -5578,10 +5578,10 @@ ENDDO PARSER
           end if
        enddo
        PLFS(k)%ngeoval = ngeoval
-       PLFS(k)%nentry_name = nseg_ub
+       nseg_ub = PLFS(k)%nfield_name_mx
        allocate ( PLFS(k)%field_name (nseg_ub, ngeoval) )
        PLFS(k)%field_name = ''
-       !! print*, 'k, ngeoval, nentry_name', k, ngeoval, nseg_ub
+       !! print*, 'k, ngeoval, nfield_name_max', k, ngeoval, nseg_ub
     end do
 
 
@@ -5679,12 +5679,12 @@ ENDDO PARSER
           call split_string_by_space (line, length_mx, mxseg, &
                nplatform, str_piece, status)
 
-          !! to do: add debug
-          !write(6,*) 'line for obsplatforms=', trim(line)
-          !write(6,*) 'split string,  nplatform=', nplatform
-          !write(6,*) 'nplf=', nplf
-          !write(6,*) 'str_piece=', str_piece(1:nplatform)
-
+          call lgr%debug('%a %a', 'line for obsplatforms=', trim(line))
+          call lgr%debug('%a %i6', 'split string,  nplatform=', nplatform)
+          call lgr%debug('%a %i6', 'nplf=', nplf)
+          !if (mapl_am_i_root()) then
+          !   write(6,*)  '     str_piece=', str_piece(1:nplatform)
+          !end if
 
           !
           !   a) union the platform
@@ -5700,7 +5700,10 @@ ENDDO PARSER
              end do
           end do
           deallocate(str_piece)
-          !! write(6,*) 'collection n=',n, 'map(:)=', map(:)
+          !if (mapl_am_i_root()) then
+          !   write(6,*) 'collection n=',n, 'map(:)=', map(:)
+          !end if
+
 
           ! __ write common nc_index,time,lon,lat
           k=map(1)   ! plat form # 1
@@ -5719,10 +5722,10 @@ ENDDO PARSER
           end do
 
           nfield = p1%ngeoval
-          nentry_name = p1%nentry_name
+          nfield_name_max = p1%nfield_name_mx
           do j=1, nfield
              line=''
-             do i=1, nentry_name
+             do i=1, nfield_name_max
                 line = trim(line)//' '//trim(p1%field_name(i,j))
              enddo
               if (j==1) then
@@ -5741,7 +5744,7 @@ ENDDO PARSER
              write(unitw, '(a)') trim(adjustl(PLFS(k)%file_name_template))
              do j=1, PLFS(k)%ngeoval
                 line=''
-                do i=1, nentry_name
+                do i=1, nfield_name_max
                    line = trim(line)//' '//trim(adjustl(PLFS(k)%field_name(i,j)))
                 enddo
                 write(unitw, '(a)') trim(adjustl(line))
