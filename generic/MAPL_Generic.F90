@@ -6061,7 +6061,7 @@ contains
 
       nwrgt1 = (mpl%grid%num_readers > 1)
 
-      isNC4 = -100
+      isNC4 = MAPL_FILETYPE_UNK 
       if (on_tiles) mpl%grid%split_restart = .false.
       if(INDEX(FNAME,'*') == 0) then
          if (AmIRoot) then
@@ -6111,7 +6111,7 @@ contains
          !end if
 
          if (FileExists) then
-            if (isNC4 == 0) then
+            if (isNC4 == MAPL_FILETYPE_NC4) then
                filetype = 'pnc4'
             else
                if (.not.nwrgt1) then
