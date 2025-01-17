@@ -6,6 +6,7 @@ module Test_ComponentSpecParser
    use mapl3g_ChildSpec
    use mapl3g_ChildSpecMap
    use mapl_ErrorHandling
+   use MAPL_TimeStringConversion
    use esmf
    implicit none
 
@@ -183,36 +184,26 @@ contains
    @test
    subroutine test_parse_timestep()
       integer(kind=ESMF_KIND_I4), parameter :: IMM=3
-      integer(kind=ESMF_KIND_I4), parameter :: MM=1
-      integer(kind=ESMF_KIND_I4), parameter :: YY=0
+      integer(kind=ESMF_KIND_I4), parameter :: MM=10
+      integer(kind=ESMF_KIND_I4), parameter :: YY=1582
       integer(kind=ESMF_KIND_I4), parameter :: DD=15
       type(ESMF_TimeInterval) :: expected
       type(ESMF_Time) :: expected_start
-      character(len=:), allocatable :: iso_duration
-      character(len=:), allocatable :: iso_time
+      character(len=*), parameter :: iso_duration = 'P3M'
+      character(len=*), parameter :: iso_time = '1582-10-15'
+      character(len=*), parameter :: NL = new_line('NL')
       character(len=:), allocatable :: content
       type(ESMF_HConfig) :: hconfig
       type(ESMF_TimeInterval), allocatable :: actual
       type(ESMF_Time), allocatable :: actual_start
       integer :: rc, status
-      character(len=:), allocatable :: msg
-      character(len=ESMF_MAXSTR) :: expected_timestring, actual_timestring
-      character(len=ESMF_MAXSTR) :: expected_start_string, actual_start_string
 
       ! Test with correct key for timestep
       call ESMF_TimeIntervalSet(expected, mm=IMM, _RC)
-      iso_duration = 'P3M'
-      !call ESMF_TimeSet(expected_start, yy=YY, mm=MM, dd=DD, _RC)
-      iso_time = '1999-12-31'
-      call ESMF_TimeSet(expected_start, timeString=trim(iso_time), _RC) !wdb fixme deleteme 
-      content = 'timestep: ' // iso_duration
-      content = content // new_line('NEW_LINE') // 'timestep_start: ' // iso_time
+      call ESMF_TimeSet(expected_start, yy=YY, mm=MM, dd=DD, _RC)
+      content = 'timestep: ' // iso_duration // NL // 'timestep_start: ' // iso_time
       hconfig = ESMF_HConfigCreate(content=content, _RC)
       call parse_timestep(hconfig, actual, actual_start, _RC)
-!      call ESMF_TimeIntervalGet(expected, timeString=expected_timestring, _RC)
-!      call ESMF_TimeIntervalGet(actual, timeString=actual_timestring, _RC)
-!      msg = trim(actual_timestring) // ' /= ' // trim(expected_timestring)
-!      @assertTrue(actual == expected, msg)
       @assertTrue(actual == expected, 'Actual timestep does not match expected timestep.')
       @assertTrue(actual_start == expected_start, 'Actual timestep start does not match expected timestep start.')
       call ESMF_HConfigDestroy(hconfig, _RC)

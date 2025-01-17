@@ -1,8 +1,7 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_ComponentSpecParser) parse_timestep_smod
-   use MAPL_TimeStringConversion, only: parse_isoduration => string_to_esmf_timeinterval
-!   use MAPL_TimeStringConversion, only: parse_isotime => string_to_esmf_time !wdb fixme deleteme 
+   use MAPL_TimeStringConversion, only: string_to_esmf_timeinterval, string_to_esmf_time
 contains
 
       module subroutine parse_timestep(hconfig, timestep, start, rc)
@@ -15,21 +14,16 @@ contains
          logical :: has_timestep, has_start
          character(len=32) :: iso_datetime
          character(len=128) :: iso_duration
-         type(ESMF_Time) :: datetime
 
          has_timestep = ESMF_HConfigIsDefined(hconfig, keyString=KEY_TIMESTEP, _RC)
          _RETURN_UNLESS(has_timestep)
          iso_duration = ESMF_HConfigAsString(hconfig, keyString=KEY_TIMESTEP, _RC)
-         timestep = parse_isoduration(trim(iso_duration), _RC)
+         timestep = string_to_esmf_timeinterval(trim(iso_duration), _RC)
 
          has_start = ESMF_HConfigIsDefined(hconfig, keyString=KEY_TIMESTEP_START, _RC)
          _RETURN_UNLESS(has_start)
          iso_datetime = ESMF_HConfigAsString(hconfig, keyString=KEY_TIMESTEP_START, _RC)
-         iso_datetime = adjustl(iso_datetime)
-!         start = parse_isotime(iso_datetime, _RC) !wdb fixme deleteme 
-         _HERE, 'iso_datetime: ', trim(iso_datetime) !wdb fixme deleteme 
-         call ESMF_TimeSet(datetime, timeString=trim(iso_datetime), _RC) !wdb fixme 
-         allocate(start, source=datetime) !wdb fixme 
+         start = string_to_esmf_time(iso_datetime, _RC)
 
          _RETURN(_SUCCESS)
 
