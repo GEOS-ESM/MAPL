@@ -1,3 +1,4 @@
+#include "MAPL_ErrLog.h"
 module Test_udunits2f
 
    use funit
@@ -51,7 +52,7 @@ contains
       integer(ut_status) :: status
          
       call initialize_udunits_system(rc=status)
-      @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
+      @assertEqual(_SUCCESS, status, 'Failed to initialize')
       unit1 = UDUnit(KM)
       @assertFalse(unit1%is_free(), 'ut_unit is not set (default encoding)')
 
@@ -68,7 +69,7 @@ contains
       integer(ut_status) :: status
       
       call initialize_udunits_system(rc=status)
-      @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
+      @assertEqual(_SUCCESS, status, 'Failed to initialize')
       unit1 = UDUnit(KM)
       unit2 = UDUnit(M)
       conv = Converter(unit1, unit2) 
@@ -124,7 +125,7 @@ contains
       logical :: convertible
 
       call initialize_udunits_system(rc=status)
-      @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
+      @assertEqual(_SUCCESS, status, 'Failed to initialize')
       unit1 = UDUnit(KM)
       unit2 = UDUnit(M)
       convertible = are_convertible(unit1, unit2, rc=status)
@@ -147,7 +148,7 @@ contains
       logical :: convertible
 
       call initialize_udunits_system(rc=status)
-      @assertEqual(UT_SUCCESS, status, 'Failed to initialize')
+      @assertEqual(_SUCCESS, status, 'Failed to initialize')
       unit1 = UDUnit(KM)
       unit2 = UDUnit(S)
       convertible = are_convertible(unit1, unit2, rc=status)
@@ -155,7 +156,7 @@ contains
       if(.not. convertible) then
          @assertFalse(status == UT_BAD_ARG, 'One of the units is null.')
          @assertFalse(status == UT_NOT_SAME_SYSTEM, 'Units belong to different systems.')
-         @assertTrue(status == UT_SUCCESS, 'Units are not convertible.')
+         @assertTrue(status == _SUCCESS, 'Units are not convertible.')
       end if
 
       call unit1%free()
