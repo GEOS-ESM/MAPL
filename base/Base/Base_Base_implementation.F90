@@ -2659,8 +2659,6 @@ contains
     end if
 
     if (im_world*6==jm_world) then
-!    call ESMF_AttributeGet(grid, name='GridType', value=grid_type, _RC)
-!    if(trim(grid_type) == "Cubed-Sphere") then
 
       call MAPL_GetGlobalHorzIJIndex(npts, II, JJ, lon=lon, lat=lat, lonR8=lonR8, latR8=latR8, Grid=Grid, _RC)
 

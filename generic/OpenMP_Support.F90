@@ -189,7 +189,6 @@ module MAPL_OpenMP_Support
               global_grid_info(8) = i2
               global_grid_info(9) = j1 + bounds(i)%min - 1
               global_grid_info(10) = j1 + bounds(i)%max - 1
-              print '(a,i6,6i4)', __FILE__, __LINE__, myPet, i, j1, j2, global_grid_info(9), global_grid_info(10)
               call ESMF_AttributeSet(subgrids(i), name="GLOBAL_GRID_INFO",  &
                    itemCount=10, valueList=global_grid_info, _RC)
            end block
