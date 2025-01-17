@@ -44,6 +44,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add run_dt to ComponentSpec and ComponentSpecParser
 - Add run_dt to FieldSpec
 - Add FrequencyAspect
+- Remove MAPL `==` and `/=` for `ESMF_Geom`
+  - NOTE: This *requires* ESMF 8.8.0 or later
 - Add timestep_start
 
 ### Changed
@@ -76,8 +78,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added optional start_date and start_time to control the output window for each History collection. No output will be written before then. If not specified, these default to the beginning of the experiment.
-- Added utility to prepare inputs for ExtDatDriver.x so that ExtData can simulate a real GEOS run
+### Changed
+
+### Fixed
+
+### Removed
+
+### Deprecated
+
+## [2.52.0] - 2025-01-17
+
+### Added
+
+- Added subroutine to read nc4 tile file
+- Added optional `start_date` and `start_time` to control the output window for each History collection. No output will be written before then. If not specified, these default to the beginning of the experiment.
+- Added utility to prepare inputs for `ExtDataDriver.x` so that ExtData can simulate a real GEOS run
 - Added loggers when writing or reading weight files
 - Added new option to AGCM.rc `overwrite_checkpoint` to allow checkpoint files to be overwritten. By default still will not overwrite checkpoints
 - The trajectory sampler netCDF output variable `location_index_in_iodafile` can be turned off, after we add two control variables: `use_NWP_1_file` and `restore_2_obs_vector` for users.  When set to true, the two options will select only one obs file at each Epoch interval, and will rotate the output field index back to the location vector inthe obs file before generating netCDF output.
@@ -85,19 +100,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Changed MAPL_ESMFRegridder to require the dstMaskValues to be added as grid attribute to use fixed masking, fixes UFS issue
+- Changed `MAPL_ESMFRegridder` to require the dstMaskValues to be added as grid attribute to use fixed masking, fixes UFS issue
 - Increased formatting width of time index in ExtData2G diagnostic print
 - Updated GitHub checkout action to use blobless clones
+- Update CI to use Baselibs 7.29.0 by default
+  - This provides ESMF 8.8.0
+- Update `components.yaml`
+  - `ESMA_env` v4.34.0
+    - Update to MPT 2.30 at NAS
+    - Update to Baselibs 7.29.0 (ESMF 8.8.0)
+  - `ESMA_cmake` v3.56.0
+    - Use `LOCATION` Python `FIND_STRATEGY`
 
 ### Fixed
 
 - Free MPI communicators after reading and/or writing of restarts
-- Fixed the behavior of MAPL_MaxMin in presence of NaN
+- Fixed the behavior of `MAPL_MaxMin` in presence of NaN
 - Fixed bug with return codes and macros in udunits2f
-
-### Removed
-
-### Deprecated
 
 ## [2.51.2] - 2024-12-19
 

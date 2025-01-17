@@ -16,7 +16,6 @@ module mapl3g_FieldDelta
    private
 
    public :: FieldDelta
-   public :: operator(==), operator(/=)
 
    ! Allocatable components are used to indicate that the delta involves a
    ! change in the relevant quantity.   Unallocated means unchanged.
@@ -47,15 +46,6 @@ module mapl3g_FieldDelta
       procedure new_FieldDelta
    end interface FieldDelta
 
-
-   ! Will be in next release of ESMF (8.8?)
-   interface operator(==)
-      procedure :: ESMF_GeomEqual
-   end interface operator(==)
-
-   interface operator(/=)
-      procedure :: ESMF_GeomNotEqual
-   end interface operator(/=)
 
 contains
 
@@ -423,60 +413,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine reallocate_fields
-
-   ! TODO - delete when next ESMF release provides support.
-   
-   impure elemental logical function ESMF_GeomEqual(geom1, geom2)
-      type(ESMF_Geom), intent(in) :: geom1, geom2
-
-      type(ESMF_GeomType_Flag) :: geomtype1, geomtype2
-      type(ESMF_Grid) :: grid1, grid2
-      type(ESMF_LocStream) :: locstream1, locstream2
-      type(ESMF_Mesh) :: mesh1, mesh2
-      type(ESMF_XGrid) :: xgrid1, xgrid2
-      
-      ESMF_GeomEqual = .false.
-
-      call ESMF_GeomGet(geom1, geomtype=geomtype1)
-      call ESMF_GeomGet(geom2, geomtype=geomtype2)
-
-      if (geomtype1 /= geomtype2) return
-      
-      if (geomtype1 == ESMF_GEOMTYPE_GRID) then
-         call ESMF_GeomGet(geom1, grid=grid1)
-         call ESMF_GeomGet(geom2, grid=grid2)
-         ESMF_GeomEqual = (grid1 == grid2)
-         return
-      end if
-
-      if (geomtype1 == ESMF_GEOMTYPE_LOCSTREAM) then
-         call ESMF_GeomGet(geom1, locstream=locstream1)
-         call ESMF_GeomGet(geom2, locstream=locstream2)
-         ESMF_GeomEqual = (locstream1 == locstream2)
-         return
-      end if
-
-      if (geomtype1 == ESMF_GEOMTYPE_MESH) then
-         call ESMF_GeomGet(geom1, mesh=mesh1)
-         call ESMF_GeomGet(geom2, mesh=mesh2)
-         ESMF_GeomEqual = (mesh1 == mesh2)
-         return
-      end if
-
-      if (geomtype1 == ESMF_GEOMTYPE_XGRID) then
-         call ESMF_GeomGet(geom1, xgrid=xgrid1)
-         call ESMF_GeomGet(geom2, xgrid=xgrid2)
-         ESMF_GeomEqual = (xgrid1 == xgrid2)
-         return
-      end if
-      
-   end function ESMF_GeomEqual
-
-
-   impure elemental logical function ESMF_GeomNotEqual(geom1, geom2)
-      type(ESMF_Geom), intent(in) :: geom1, geom2
-      ESMF_GeomNotEqual = .not. (geom1 == geom2)
-   end function ESMF_GeomNotEqual
 
    subroutine MAPL_EmptyField(field, rc)
       type(ESMF_Field), intent(inout) :: field
