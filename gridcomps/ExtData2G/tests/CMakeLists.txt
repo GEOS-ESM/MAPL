@@ -6,7 +6,11 @@ set (test_srcs
 
 add_pfunit_ctest(MAPL.ExtData2G.tests
                 TEST_SOURCES ${test_srcs}
-                LINK_LIBRARIES MAPL.ExtData2G
+                LINK_LIBRARIES MAPL.ExtData2G MAPL.pfunit
+                EXTRA_INITIALIZE Initialize
+                EXTRA_USE MAPL_pFUnit_Initialize
+                WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+                MAX_PES 1
                 )
 set_target_properties(MAPL.ExtData2G.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 set_tests_properties(MAPL.ExtData2G.tests PROPERTIES LABELS "ESSENTIAL")
