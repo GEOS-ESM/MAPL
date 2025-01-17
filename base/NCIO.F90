@@ -5079,12 +5079,12 @@ contains
    end function create_flipped_field
 
    subroutine MAPL_ReadTilingNC4(File, GridName, im, jm, nx, ny, n_Grids, iTable, rTable, N_PfafCat, AVR,rc)
-      character(*),                        intent(IN)  :: File
-      character(*), optional,              intent(out) :: GridName(:)
-      integer,      optional,              intent(out) :: IM(:), JM(:)
-      integer,      optional,              intent(out) :: nx, ny, n_Grids
-      integer,      optional, allocatable, intent(out) :: iTable(:,:)
-      real(kind=8), optional, allocatable, intent(out) :: rTable(:,:)
+      character(*),                             intent(IN)  :: File
+      character(*), optional,                   intent(out) :: GridName(:)
+      integer,      optional,                   intent(out) :: IM(:), JM(:)
+      integer,      optional,                   intent(out) :: nx, ny, n_Grids
+      integer,      optional, allocatable,      intent(out) :: iTable(:,:)
+      real(kind=REAL64), optional, allocatable, intent(out) :: rTable(:,:)
       integer,      optional,              intent(out) :: N_PfafCat
       real,         optional, pointer,     intent(out) :: AVR(:,:)      ! used by GEOSgcm
       integer,      optional,              intent(out) :: rc
@@ -5098,11 +5098,11 @@ contains
       class(*), pointer             :: attr_val(:)
       class(*), pointer             :: char_val
       integer, allocatable          :: tmp_int(:)
-      real(kind=8), allocatable     :: fr(:)
+      real(kind=REAL64),allocatable :: fr(:)
 
       integer            :: NumCol
       integer,      allocatable :: iTable_(:,:)
-      real(kind=8), allocatable :: rTable_(:,:)
+      real(kind=REAL64), allocatable :: rTable_(:,:)
 
       call formatter%open(File, pFIO_READ, rc=status)
       meta = formatter%read(rc=status)
