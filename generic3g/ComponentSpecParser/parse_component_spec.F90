@@ -22,7 +22,7 @@ contains
       spec%var_specs = parse_var_specs(mapl_cfg, _RC)
       spec%connections = parse_connections(mapl_cfg, _RC)
       spec%children = parse_children(mapl_cfg, _RC)
-      call parse_timestep(mapl_cfg, spec%timestep, _RC)
+      call parse_timestep(mapl_cfg, spec%timestep, spec%timestep_start, _RC)
 
       call ESMF_HConfigDestroy(mapl_cfg, _RC)
 
