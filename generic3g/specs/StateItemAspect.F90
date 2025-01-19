@@ -40,10 +40,28 @@
 
 module mapl3g_StateItemAspect
    use mapl_ErrorHandling
-   implicit none
-   private
+
+#define Key AspectType
+#define Key_LT(a,b) a < b
+#define T StateItemAspect
+#define T_polymorphic
+#define Map AspectMap
+#define MapIterator AspectMapIterator
+#define Pair AspectPair
+
+#include "map/header.inc"
+#include "map/public.inc"
+
 
    public :: StateItemAspect
+
+   type :: AspectType
+      integer :: id
+   end type AspectType
+
+   interface operator(<)
+      procedure :: aspect_type_less_than
+   end interface
 
    type, abstract :: StateItemAspect
       private
@@ -95,7 +113,12 @@ module mapl3g_StateItemAspect
 
    end interface
 
+#include "map/specification.inc"
+
 contains
+
+#include "map/procedures.inc"
+#include "map/tail.inc"
 
    !-------------------------------------------
    ! Two aspects cann connect if and only if:
@@ -185,6 +208,18 @@ contains
       if (present(time_dependent)) this%time_dependent = time_dependent
    end subroutine set_time_dependent
 
+   logical function aspect_type_less_than(a, b) result(less_than)
+      type(AspectType), intent(in) :: a, b
+      less_than = (a%id < b%id)
+   end function aspect_type_less_than
+
+#undef AspectPair
+#undef AspectMapIterator
+#undef AspectMap
+#undef T_polymorphic
+#undef T
+#undef Key
+#undef KEY_LT
 end module mapl3g_StateItemAspect
 
 
