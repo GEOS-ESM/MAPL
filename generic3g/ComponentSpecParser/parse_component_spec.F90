@@ -4,11 +4,11 @@ submodule (mapl3g_ComponentSpecParser) parse_component_spec_smod
    
 contains
 
-   module function parse_component_spec(hconfig, registry, refTime, timestep, rc) result(spec)
+   module function parse_component_spec(hconfig, registry, timestep, reference_time, rc) result(spec)
       type(ComponentSpec) :: spec
       type(ESMF_HConfig), target, intent(inout) :: hconfig
       type(StateRegistry), target, intent(in) :: registry
-      type(ESMF_Time), intent(in) :: refTime ! default
+      type(ESMF_Time), intent(in) :: reference_time ! default
       type(ESMF_TimeInterval), intent(in) :: timestep ! default
       integer, optional, intent(out) :: rc
 
