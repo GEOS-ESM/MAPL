@@ -692,7 +692,6 @@ MODULE ExtDataUtRoot_GridCompMod
          _VERIFY(status)
          call ESMF_StateGet(State1,itemNameList=NameList,_RC)
          do i=1,itemCount
-            write(*,*)'comparing ',trim(nameList(i))
             call ESMF_StateGet(State1,trim(nameList(i)),field1,_RC)
             call ESMF_StateGet(State2,trim(nameList(i)),field2,_RC)
             call ESMF_FieldGet(field1,rank=rank1,_RC)
@@ -705,15 +704,14 @@ MODULE ExtDataUtRoot_GridCompMod
             _ASSERT(rank1==rank2,'needs informative message')
             call assign_fptr(field1, ptr1, _RC)
             call assign_fptr(field2, ptr2, _RC)
-            write(*,*)'bmaa max ',maxval(ptr1),maxval(ptr2)
             _ASSERT(size(ptr1)==size(ptr2),'needs informative message')
             foundDiff(i)=.false.
             if (any(abs(ptr1-ptr2) > tol)) then
                 foundDiff(i) = .true.
             end if
-            !if (foundDiff(i)) then
-               !_FAIL('found difference when compare state')
-            !end if
+            if (foundDiff(i)) then
+               _FAIL('found difference when compare state')
+            end if
          enddo
 
          _RETURN(ESMF_SUCCESS)
