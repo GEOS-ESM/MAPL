@@ -282,16 +282,18 @@ module mapl3g_OuterMetaComponent
          integer, optional, intent(out) :: rc
       end subroutine run_custom
    
-      module recursive subroutine run_user(this, phase_name, unusable, rc)
+      module recursive subroutine run_user(this, clock, phase_name, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
+         type(ESMF_Clock), intent(inout) :: clock
          ! optional arguments
          character(len=*), optional, intent(in) :: phase_name
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine run_user
    
-      module recursive subroutine run_clock_advance(this, unusable, rc)
+      module recursive subroutine run_clock_advance(this, clock, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
+         type(ESMF_Clock), intent(inout) :: clock
          ! optional arguments
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
@@ -418,5 +420,7 @@ module mapl3g_OuterMetaComponent
    end interface apply_to_children
 
    integer, save :: counter = 0
+
+   character(*), parameter :: RUN_USER_ALARM = 'run_user'
 
 end module mapl3g_OuterMetaComponent

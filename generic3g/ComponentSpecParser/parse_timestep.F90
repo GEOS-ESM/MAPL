@@ -18,6 +18,7 @@ contains
 
          has_timestep = ESMF_HConfigIsDefined(hconfig, keyString=KEY_TIMESTEP, _RC)
          _RETURN_UNLESS(has_timestep)
+
          iso_duration = ESMF_HConfigAsString(hconfig, keyString=KEY_TIMESTEP, _RC)
          call ESMF_TimeIntervalSet(interval, timeIntervalString=iso_duration, _RC)
          allocate(timestep, source=interval)

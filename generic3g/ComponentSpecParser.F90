@@ -69,10 +69,12 @@ module mapl3g_ComponentSpecParser
    !>
    ! Submodule declarations
    INTERFACE
-      module function parse_component_spec(hconfig, registry, rc) result(spec)
+      module function parse_component_spec(hconfig, registry, refTime, timeStep, rc) result(spec)
          type(ComponentSpec) :: spec
          type(ESMF_HConfig), target, intent(inout) :: hconfig
-         type(StateRegistry), optional, target, intent(in) :: registry
+         type(StateRegistry), target, intent(in) :: registry
+         type(ESMF_Time), intent(in) :: refTime
+         type(ESMF_TimeInterval), intent(in) :: timeStep
          integer, optional, intent(out) :: rc
       end function parse_component_spec
 
@@ -83,9 +85,10 @@ module mapl3g_ComponentSpecParser
          integer, optional, intent(out) :: rc
       end function parse_geometry_spec
 
-      module function parse_var_specs(hconfig, rc) result(var_specs)
+      module function parse_var_specs(hconfig, timestep, rc) result(var_specs)
          type(VariableSpecVector) :: var_specs
-         type(ESMF_HConfig), optional, intent(in) :: hconfig
+         type(ESMF_HConfig), intent(in) :: hconfig
+         type(ESMF_TimeInterval), intent(in) :: timestep
          integer, optional, intent(out) :: rc
       end function parse_var_specs
 
