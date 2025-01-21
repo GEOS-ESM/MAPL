@@ -22,7 +22,7 @@ module mapl3g_ComponentSpec
       type(ChildSpecMap) :: children
       type(ESMF_HConfig), allocatable :: geom_hconfig ! optional
       type(ESMF_TimeInterval), allocatable :: timestep
-      type(ESMF_Time), allocatable :: timestep_start
+      type(ESMF_Time), allocatable :: reference_time
    contains
       procedure :: has_geom_hconfig
       procedure :: add_var_spec

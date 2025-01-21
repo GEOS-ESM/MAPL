@@ -1,3 +1,8 @@
+#if defined(MAKE_MESSAGE)
+#  undef MAKE_MESSAGE
+#endif
+#define MAKE_MESSAGE(V) 'Actual ' // V // ' does not match ' // V // '.'
+
 #include "MAPL_ErrLog.h"
 module Test_ComponentSpecParser
    use funit
@@ -188,32 +193,32 @@ contains
       integer(kind=ESMF_KIND_I4), parameter :: YY=1582
       integer(kind=ESMF_KIND_I4), parameter :: DD=15
       type(ESMF_TimeInterval) :: expected
-      type(ESMF_Time) :: expected_start
+      type(ESMF_Time) :: expected_reference_time
       character(len=*), parameter :: iso_duration = 'P3M'
       character(len=*), parameter :: iso_time = '1582-10-15'
       character(len=*), parameter :: NL = new_line('NL')
       character(len=:), allocatable :: content
       type(ESMF_HConfig) :: hconfig
       type(ESMF_TimeInterval), allocatable :: actual
-      type(ESMF_Time), allocatable :: actual_start
+      type(ESMF_Time), allocatable :: actual_reference_time
       integer :: rc, status
 
       ! Test with correct key for timestep
       call ESMF_TimeIntervalSet(expected, mm=IMM, _RC)
-      call ESMF_TimeSet(expected_start, yy=YY, mm=MM, dd=DD, _RC)
-      content = 'timestep: ' // iso_duration // NL // 'timestep_start: ' // iso_time
+      call ESMF_TimeSet(expected_reference_time, yy=YY, mm=MM, dd=DD, _RC)
+      content = 'timestep: ' // iso_duration // NL // 'reference_time: ' // iso_time
       hconfig = ESMF_HConfigCreate(content=content, _RC)
-      call parse_timestep(hconfig, actual, actual_start, _RC)
-      @assertTrue(actual == expected, 'Actual timestep does not match expected timestep.')
-      @assertTrue(actual_start == expected_start, 'Actual timestep start does not match expected timestep start.')
+      call parse_timestep(hconfig, actual, actual_reference_time, _RC)
+      @assertTrue(actual == expected, MAKE_MESSAGE('timestep'))
+      @assertTrue(actual_reference_time == expected_reference_time, MAKE_MESSAGE('reference time'))
       call ESMF_HConfigDestroy(hconfig, _RC)
       
       ! Test with incorrect key for timestep; should return without setting actual (invalid)
       content = 'run_dmc: ' // iso_duration
       hconfig = ESMF_HConfigCreate(content=content, _RC)
       deallocate(actual)
-      deallocate(actual_start)
-      call parse_timestep(hconfig, actual, actual_start, _RC)
+      deallocate(actual_reference_time)
+      call parse_timestep(hconfig, actual, actual_reference_time, _RC)
       @assert_that(allocated(actual), is(false()))
       call ESMF_HConfigDestroy(hconfig, _RC)
 
