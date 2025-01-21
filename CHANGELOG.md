@@ -47,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove MAPL `==` and `/=` for `ESMF_Geom`
   - NOTE: This *requires* ESMF 8.8.0 or later
 - Add ability for child component to specify reference_time for execution.
+- Add reference_time
 
 ### Changed
 
