@@ -528,7 +528,7 @@ contains
       class(FieldSpec), intent(in) :: src_spec
       class(StateItemSpec), intent(in) :: dst_spec
 
-      order = 'ATTRIBUTES::UNGRIDDED_DIMS::GEOM::VERTICAL::UNITS::TYPEKIND'
+      order = 'ATTRIBUTES::UNGRIDDED_DIMS::GEOM::VERTICAL_GRID::UNITS::TYPEKIND'
 
    end function get_aspect_priorities
    

@@ -39,9 +39,10 @@
 
 
 module mapl3g_StateItemAspect
+   use mapl3g_AspectId
    use mapl_ErrorHandling
 
-#define Key AspectType
+#define Key AspectId
 #define Key_LT(a,b) a < b
 #define T StateItemAspect
 #define T_polymorphic
@@ -55,14 +56,6 @@ module mapl3g_StateItemAspect
 
    public :: StateItemAspect
 
-   type :: AspectType
-      integer :: id
-   end type AspectType
-
-   interface operator(<)
-      procedure :: aspect_type_less_than
-   end interface
-
    type, abstract :: StateItemAspect
       private
       logical :: mirror = .false.
@@ -71,6 +64,14 @@ module mapl3g_StateItemAspect
       ! Subclass must define these
       procedure(I_matches), deferred :: matches
       procedure(I_make_action), deferred :: make_action
+
+!#      procedure(I_connect_to), deferred :: connect_to
+      procedure(I_make_action2), deferred :: make_action2
+!#      procedure(I_extend), deferred :: extend
+      procedure :: connect_to
+      procedure :: extend
+      procedure(I_get_aspect_id), deferred, nopass :: get_aspect_id
+
       procedure(I_supports_conversion_general), deferred :: supports_conversion_general
       procedure(I_supports_conversion_specific), deferred :: supports_conversion_specific
       generic :: supports_conversion => supports_conversion_general, supports_conversion_specific
@@ -84,6 +85,7 @@ module mapl3g_StateItemAspect
       procedure, non_overridable :: set_time_dependent
    end type StateItemAspect
 
+#include "map/specification.inc"
 
    abstract interface
 
@@ -111,9 +113,32 @@ module mapl3g_StateItemAspect
          integer, optional, intent(out) :: rc
       end function I_make_action
 
+      subroutine I_connect_to(dst, src, rc)
+         import :: StateItemAspect
+         class(StateItemAspect), intent(inout) :: dst
+         class(StateItemAspect), intent(in) :: src
+         integer, optional, intent(out) :: rc
+      end subroutine I_connect_to
+
+      function I_get_aspect_id() result(aspect_id)
+         import StateItemAspect
+         import AspectId
+         type(AspectId) :: aspect_id
+      end function I_get_aspect_id
+
+      function I_make_action2(src, dst, other_aspects, rc) result(action)
+         use mapl3g_ExtensionAction
+         import :: StateItemAspect
+         import :: AspectMap
+         class(ExtensionAction), allocatable :: action
+         class(StateItemAspect), intent(in) :: src
+         class(StateItemAspect), intent(in) :: dst
+         type(AspectMap), target, intent(in) :: other_aspects
+         integer, optional, intent(out) :: rc
+      end function I_make_action2
+
    end interface
 
-#include "map/specification.inc"
 
 contains
 
@@ -208,10 +233,24 @@ contains
       if (present(time_dependent)) this%time_dependent = time_dependent
    end subroutine set_time_dependent
 
-   logical function aspect_type_less_than(a, b) result(less_than)
-      type(AspectType), intent(in) :: a, b
-      less_than = (a%id < b%id)
-   end function aspect_type_less_than
+   ! TODO: Eliminate base implementation
+   subroutine connect_to(dst, src, rc)
+      class(StateItemAspect), intent(inout) :: dst
+      class(StateItemAspect), intent(in) :: src
+      integer, optional, intent(out) :: rc
+
+      _RETURN(_SUCCESS)
+   end subroutine connect_to
+   
+   function extend(src, goal, aspects, rc) result(extension)
+      class(StateItemAspect), allocatable :: extension
+      class(StateItemAspect), intent(in) :: src
+      class(stateItemAspect), intent(in) :: goal
+      type(AspectMap), target, intent(in) :: aspects
+      integer, optional, intent(out) :: rc
+
+      extension = goal
+   end function extend
 
 #undef AspectPair
 #undef AspectMapIterator
