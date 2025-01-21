@@ -46,7 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add FrequencyAspect
 - Remove MAPL `==` and `/=` for `ESMF_Geom`
   - NOTE: This *requires* ESMF 8.8.0 or later
-- Add timestep_start (now reference_time)
+- Add ability for child component to specify reference_time for execution.
 
 ### Changed
 
