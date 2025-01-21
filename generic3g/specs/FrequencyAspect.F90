@@ -21,6 +21,7 @@ module mapl3g_FrequencyAspect
       procedure :: supports_conversion_specific
       procedure :: make_action
       procedure :: make_action2
+      procedure :: connect_to
       procedure, nopass :: get_aspect_id
       ! These are specific to FrequencyAspect.
       procedure :: get_timestep
@@ -163,6 +164,15 @@ contains
       _RETURN(_SUCCESS)
    end function make_action2
 
+   ! no op
+   subroutine connect_to(dst, src, rc)
+      class(FrequencyAspect), intent(inout) :: dst
+      class(StateItemAspect), intent(in) :: src
+      integer, optional, intent(out) :: rc
+
+      _RETURN(_SUCCESS)
+   end subroutine connect_to
+
   logical function supports_conversion_general(src) result(supports)
       class(FrequencyAspect), intent(in) :: src
 
@@ -218,5 +228,6 @@ contains
       type(AspectId) :: aspect_id
       aspect_id = FREQUENCY_ASPECT_ID
    end function get_aspect_id
+
 
 end module mapl3g_FrequencyAspect

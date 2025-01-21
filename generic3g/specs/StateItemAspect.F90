@@ -65,10 +65,9 @@ module mapl3g_StateItemAspect
       procedure(I_matches), deferred :: matches
       procedure(I_make_action), deferred :: make_action
 
-!#      procedure(I_connect_to), deferred :: connect_to
       procedure(I_make_action2), deferred :: make_action2
 !#      procedure(I_extend), deferred :: extend
-      procedure :: connect_to
+      procedure(I_connect_to), deferred :: connect_to
       procedure :: extend
       procedure(I_get_aspect_id), deferred, nopass :: get_aspect_id
 
@@ -113,13 +112,6 @@ module mapl3g_StateItemAspect
          integer, optional, intent(out) :: rc
       end function I_make_action
 
-      subroutine I_connect_to(dst, src, rc)
-         import :: StateItemAspect
-         class(StateItemAspect), intent(inout) :: dst
-         class(StateItemAspect), intent(in) :: src
-         integer, optional, intent(out) :: rc
-      end subroutine I_connect_to
-
       function I_get_aspect_id() result(aspect_id)
          import StateItemAspect
          import AspectId
@@ -137,13 +129,21 @@ module mapl3g_StateItemAspect
          integer, optional, intent(out) :: rc
       end function I_make_action2
 
-   end interface
+      subroutine I_connect_to(dst, src, rc)
+         import :: StateItemAspect
+         class(StateItemAspect), intent(inout) :: dst
+         class(StateItemAspect), intent(in) :: src
+         integer, optional, intent(out) :: rc
+      end subroutine I_connect_to
+
+  end interface
 
 
 contains
 
 #include "map/procedures.inc"
 #include "map/tail.inc"
+
 
    !-------------------------------------------
    ! Two aspects cann connect if and only if:
@@ -233,14 +233,6 @@ contains
       if (present(time_dependent)) this%time_dependent = time_dependent
    end subroutine set_time_dependent
 
-   ! TODO: Eliminate base implementation
-   subroutine connect_to(dst, src, rc)
-      class(StateItemAspect), intent(inout) :: dst
-      class(StateItemAspect), intent(in) :: src
-      integer, optional, intent(out) :: rc
-
-      _RETURN(_SUCCESS)
-   end subroutine connect_to
    
    function extend(src, goal, aspects, rc) result(extension)
       class(StateItemAspect), allocatable :: extension

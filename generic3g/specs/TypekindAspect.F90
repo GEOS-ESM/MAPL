@@ -29,6 +29,7 @@ module mapl3g_TypekindAspect
       procedure :: supports_conversion_specific
       procedure :: make_action
       procedure :: make_action2
+      procedure :: connect_to
       procedure, nopass :: get_aspect_id
 
       procedure :: set_typekind
@@ -113,6 +114,27 @@ contains
       _RETURN(_SUCCESS)
    end function make_action2
 
+   ! Copy from src - might have been mirror.
+
+   subroutine connect_to(dst, src, rc)
+      class(TypekindAspect), intent(inout) :: dst
+      class(StateItemAspect), intent(in) :: src
+      integer, optional, intent(out) :: rc
+
+      type(TypekindAspect) :: src_
+      integer :: status
+
+      src_ = to_TypekindAspect(src, _RC)
+      if (dst%is_mirror()) then
+         dst%typekind = src_%typekind
+         _RETURN(_SUCCESS)
+      end if
+
+      ! Verify if not mirror:
+      _ASSERT(dst%typekind == src_%typekind, 'TypekindAspect: connect_to: src and dst typekinds do not match')
+
+      _RETURN(_SUCCESS)
+   end subroutine connect_to
 
   subroutine set_typekind(this, typekind)
       class(TypekindAspect), intent(inout) :: this
