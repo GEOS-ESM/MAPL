@@ -23,7 +23,7 @@ module mapl3g_UngriddedDimsAspect
       type(UngriddedDims), allocatable :: ungridded_dims
    contains
       procedure :: matches
-      procedure :: connect_to
+      procedure :: connect_to_export
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_action
@@ -130,20 +130,20 @@ contains
       _RETURN(_SUCCESS)
    end function make_action2
 
-   subroutine connect_to(dst, src, rc)
-      class(UngriddedDimsAspect), intent(inout) :: dst
-      class(StateItemAspect), intent(in) :: src
+   subroutine connect_to_export(this, export, rc)
+      class(UngriddedDimsAspect), intent(inout) :: this
+      class(StateItemAspect), intent(in) :: export
       integer, optional, intent(out) :: rc
 
-      type(UngriddedDimsAspect) :: src_
+      type(UngriddedDimsAspect) :: export_
       integer :: status
       
-      src_ = to_UngriddedDimsAspect(src, _RC)
-      dst%ungridded_dims = src_%ungridded_dims
+      export_ = to_UngriddedDimsAspect(export, _RC)
+      this%ungridded_dims = export_%ungridded_dims
 
       _RETURN(_SUCCESS)
-   end subroutine connect_to
-
+   end subroutine connect_to_export
+   
    function get_aspect_id() result(aspect_id)
       type(AspectId) :: aspect_id
       aspect_id = UNGRIDDED_DIMS_ASPECT_ID

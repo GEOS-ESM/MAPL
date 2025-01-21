@@ -66,9 +66,8 @@ module mapl3g_StateItemAspect
       procedure(I_make_action), deferred :: make_action
 
       procedure(I_make_action2), deferred :: make_action2
-!#      procedure(I_extend), deferred :: extend
-      procedure(I_connect_to), deferred :: connect_to
-      procedure :: extend
+      procedure :: connect_to_import
+      procedure(I_connect_to_export), deferred :: connect_to_export
       procedure(I_get_aspect_id), deferred, nopass :: get_aspect_id
 
       procedure(I_supports_conversion_general), deferred :: supports_conversion_general
@@ -129,14 +128,14 @@ module mapl3g_StateItemAspect
          integer, optional, intent(out) :: rc
       end function I_make_action2
 
-      subroutine I_connect_to(dst, src, rc)
+      subroutine I_connect_to_export(this, export, rc)
          import :: StateItemAspect
-         class(StateItemAspect), intent(inout) :: dst
-         class(StateItemAspect), intent(in) :: src
+         class(StateItemAspect), intent(inout) :: this
+         class(StateItemAspect), intent(in) :: export
          integer, optional, intent(out) :: rc
-      end subroutine I_connect_to
+      end subroutine I_connect_to_export
 
-  end interface
+end interface
 
 
 contains
@@ -233,16 +232,19 @@ contains
       if (present(time_dependent)) this%time_dependent = time_dependent
    end subroutine set_time_dependent
 
-   
-   function extend(src, goal, aspects, rc) result(extension)
-      class(StateItemAspect), allocatable :: extension
-      class(StateItemAspect), intent(in) :: src
-      class(stateItemAspect), intent(in) :: goal
-      type(AspectMap), target, intent(in) :: aspects
+   ! Most subclasses have same behavior (NOOP) so we provide a base
+   ! implementation. 
+   subroutine connect_to_import(this, import, rc)
+      class(StateItemAspect), intent(inout) :: this
+      class(StateItemAspect), intent(in) :: import
       integer, optional, intent(out) :: rc
 
-      extension = goal
-   end function extend
+      
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(import)
+   end subroutine connect_to_import
+   
 
 #undef AspectPair
 #undef AspectMapIterator

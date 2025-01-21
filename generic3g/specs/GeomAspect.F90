@@ -30,7 +30,7 @@ module mapl3g_GeomAspect
       procedure :: matches
       procedure :: make_action
       procedure :: make_action2
-      procedure :: connect_to
+      procedure :: connect_to_export
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: set_geom
@@ -161,19 +161,19 @@ contains
       _RETURN(_SUCCESS)
    end function get_geom
 
-   subroutine connect_to(dst, src, rc)
-      class(GeomAspect), intent(inout) :: dst
-      class(StateItemAspect), intent(in) :: src
+   subroutine connect_to_export(this, export, rc)
+      class(GeomAspect), intent(inout) :: this
+      class(StateItemAspect), intent(in) :: export
       integer, optional, intent(out) :: rc
 
-      type(GeomAspect) :: src_
+      type(GeomAspect) :: export_
       integer :: status
 
-      src_ = to_GeomAspect(src, _RC)
-      dst%geom = src_%geom
+      export_ = to_GeomAspect(export, _RC)
+      this%geom = export_%geom
 
       _RETURN(_SUCCESS)
-   end subroutine connect_to
+   end subroutine connect_to_export
 
    function to_geom_from_poly(aspect, rc) result(geom_aspect)
       type(GeomAspect) :: geom_aspect

@@ -26,7 +26,7 @@ module mapl3g_UnitsAspect
       procedure :: matches
       procedure :: make_action
       procedure :: make_action2
-      procedure :: connect_to
+      procedure :: connect_to_export
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure, nopass :: get_aspect_id
@@ -128,19 +128,19 @@ contains
       _RETURN(_SUCCESS)
    end function make_action2
 
-   subroutine connect_to(dst, src, rc)
-      class(UnitsAspect), intent(inout) :: dst
-      class(StateItemAspect), intent(in) :: src
+   subroutine connect_to_export(this, export, rc)
+      class(UnitsAspect), intent(inout) :: this
+      class(StateItemAspect), intent(in) :: export
       integer, optional, intent(out) :: rc
 
-      type(UnitsAspect) :: src_
+      type(UnitsAspect) :: export_
       integer :: status
 
-      src_ = to_UnitsAspect(src, _RC)
-      dst%units = src_%units
+      export_ = to_UnitsAspect(export, _RC)
+      this%units = export_%units
       
       _RETURN(_SUCCESS)
-   end subroutine connect_to
+   end subroutine connect_to_export
 
    function to_units_from_poly(aspect, rc) result(units_aspect)
       type(UnitsAspect) :: units_aspect

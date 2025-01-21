@@ -21,7 +21,7 @@ module mapl3g_FrequencyAspect
       procedure :: supports_conversion_specific
       procedure :: make_action
       procedure :: make_action2
-      procedure :: connect_to
+      procedure :: connect_to_export
       procedure, nopass :: get_aspect_id
       ! These are specific to FrequencyAspect.
       procedure :: get_timestep
@@ -164,14 +164,15 @@ contains
       _RETURN(_SUCCESS)
    end function make_action2
 
-   ! no op
-   subroutine connect_to(dst, src, rc)
-      class(FrequencyAspect), intent(inout) :: dst
-      class(StateItemAspect), intent(in) :: src
+   subroutine connect_to_export(this, export, rc)
+      class(FrequencyAspect), intent(inout) :: this
+      class(StateItemAspect), intent(in) :: export
       integer, optional, intent(out) :: rc
 
       _RETURN(_SUCCESS)
-   end subroutine connect_to
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(export)
+   end subroutine connect_to_export
 
   logical function supports_conversion_general(src) result(supports)
       class(FrequencyAspect), intent(in) :: src

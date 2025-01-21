@@ -26,7 +26,7 @@ module mapl3g_AttributesAspect
       procedure :: supports_conversion_specific
       procedure :: make_action
       procedure :: make_action2
-      procedure :: connect_to
+      procedure :: connect_to_export
       procedure, nopass :: get_aspect_id
    end type AttributesAspect
 
@@ -123,13 +123,15 @@ contains
       aspect_id = ATTRIBUTES_ASPECT_ID
    end function get_aspect_id
 
-   ! No-op
-   subroutine connect_to(dst, src, rc)
-      class(AttributesAspect), intent(inout) :: dst
-      class(StateItemAspect), intent(in) :: src
+   ! No-op (cannot mirror)
+   subroutine connect_to_export(this, export, rc)
+      class(AttributesAspect), intent(inout) :: this
+      class(StateItemAspect), intent(in) :: export
       integer, optional, intent(out) :: rc
 
       _RETURN(_SUCCESS)
-   end subroutine connect_to
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(export)
+   end subroutine connect_to_export
 
 end module mapl3g_AttributesAspect

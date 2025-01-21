@@ -18,7 +18,7 @@ module MockAspect_mod
       procedure :: matches
       procedure :: make_action
       procedure :: make_action2
-      procedure :: connect_to
+      procedure :: connect_to_export
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure, nopass :: get_aspect_id
@@ -90,25 +90,25 @@ contains
 
    end function make_action2
 
-   subroutine connect_to(dst, src, rc)
-      class(MockAspect), intent(inout) :: dst
-      class(StateItemAspect), intent(in) :: src
+   subroutine connect_to_export(this, export, rc)
+      class(MockAspect), intent(inout) :: this
+      class(StateItemAspect), intent(in) :: export
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      select type (dst)
+      select type (this)
       type is (MockAspect)
-         select type (src)
+         select type (export)
          type is (MockAspect)
-            dst = src
+            this = export
          class default
             _FAIL('bad subtype')
          end select
       end select
 
       _RETURN(_SUCCESS)
-   end subroutine connect_to
+   end subroutine connect_to_export
 
    function get_aspect_id() result(aspect_id)
       type(AspectId) :: aspect_id

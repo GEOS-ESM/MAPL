@@ -40,7 +40,7 @@ module mapl3g_VerticalGridAspect
       procedure :: matches
       procedure :: make_action
       procedure :: make_action2
-      procedure :: connect_to
+      procedure :: connect_to_export
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: typesafe_make_action
@@ -237,19 +237,19 @@ contains
       self%typekind = typekind
    end subroutine set_typekind
 
-   subroutine connect_to(dst, src, rc)
-      class(VerticalGridAspect), intent(inout) :: dst
-      class(StateItemAspect), intent(in) :: src
+   subroutine connect_to_export(this, export, rc)
+      class(VerticalGridAspect), intent(inout) :: this
+      class(StateItemAspect), intent(in) :: export
       integer, optional, intent(out) :: rc
 
-      type(VerticalGridAspect) :: src_
+      type(VerticalGridAspect) :: export_
       integer :: status
 
-      src_ = to_VerticalGridAspect(src, _RC)
-      dst%vertical_grid = src_%vertical_grid
+      export_ = to_VerticalGridAspect(export, _RC)
+      this%vertical_grid = export_%vertical_grid
 
       _RETURN(_SUCCESS)
-   end subroutine connect_to
+   end subroutine connect_to_export
 
    function to_vertical_grid_from_poly(aspect, rc) result(vertical_grid_aspect)
       type(VerticalGridAspect) :: vertical_grid_aspect

@@ -29,7 +29,7 @@ module mapl3g_TypekindAspect
       procedure :: supports_conversion_specific
       procedure :: make_action
       procedure :: make_action2
-      procedure :: connect_to
+      procedure :: connect_to_export
       procedure, nopass :: get_aspect_id
 
       procedure :: set_typekind
@@ -116,25 +116,18 @@ contains
 
    ! Copy from src - might have been mirror.
 
-   subroutine connect_to(dst, src, rc)
-      class(TypekindAspect), intent(inout) :: dst
-      class(StateItemAspect), intent(in) :: src
+   subroutine connect_to_export(this, export, rc)
+      class(TypekindAspect), intent(inout) :: this
+      class(StateItemAspect), intent(in) :: export
       integer, optional, intent(out) :: rc
 
-      type(TypekindAspect) :: src_
+      type(TypekindAspect) :: export_
       integer :: status
 
-      src_ = to_TypekindAspect(src, _RC)
-      if (dst%is_mirror()) then
-         dst%typekind = src_%typekind
-         _RETURN(_SUCCESS)
-      end if
-
-      ! Verify if not mirror:
-      _ASSERT(dst%typekind == src_%typekind, 'TypekindAspect: connect_to: src and dst typekinds do not match')
-
+      export_ = to_TypekindAspect(export, _RC)
+      this%typekind = export_%typekind
       _RETURN(_SUCCESS)
-   end subroutine connect_to
+   end subroutine connect_to_export
 
   subroutine set_typekind(this, typekind)
       class(TypekindAspect), intent(inout) :: this
