@@ -110,7 +110,7 @@ contains
 
       case ('GEOM')
          has_aspect = allocated(this%geom_aspect)
-      case ('VERTICAL')
+      case ('VERTICAL_GRID')
          has_aspect = allocated(this%vertical_grid_aspect)
       case ('UNITS')
          has_aspect = allocated(this%units_aspect)
