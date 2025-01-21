@@ -106,7 +106,8 @@ contains
 
       contextFlag = ESMF_CONTEXT_PARENT_VM
       if(present(petlist)) contextFlag = ESMF_CONTEXT_OWN_VM
-      gridcomp = ESMF_GridCompCreate(name=outer_name(name), petlist=petlist, contextFlag=contextFlag, _RC)
+      gridcomp = ESMF_GridCompCreate(name=outer_name(name), &
+           petlist=petlist, contextFlag=contextFlag, clock=clock, _RC)
       call set_is_generic(gridcomp, _RC)
 
       user_gridcomp = ESMF_GridCompCreate(name=name, petlist=petlist, contextFlag=contextFlag, _RC)
@@ -200,11 +201,11 @@ contains
       call ESMF_GridCompGet(gridcomp, currentPhase=phase_idx, _RC)
       select case (phase_idx)
       case (GENERIC_RUN_CLOCK_ADVANCE)
-         call outer_meta%run_clock_advance(_RC)
+         call outer_meta%run_clock_advance(clock, _RC)
       case default ! user-defined run phase
          phases => outer_meta%get_phases(ESMF_METHOD_RUN)
          phase_name => phases%of(phase_idx)
-         call outer_meta%run_user(phase_name=phase_name, _RC)
+         call outer_meta%run_user(clock, phase_name=phase_name, _RC)
       end select
 
       _RETURN(ESMF_SUCCESS)

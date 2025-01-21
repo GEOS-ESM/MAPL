@@ -71,7 +71,7 @@ contains
         service_items, attributes, &
         bracket_size, &
         dependencies, regrid_param, horizontal_dims_spec, &
-        accumulation_type) result(var_spec)
+        accumulation_type, timestep) result(var_spec)
 
       type(VariableSpec) :: var_spec
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
@@ -94,6 +94,7 @@ contains
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
       type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
       character(len=*), optional, intent(in) :: accumulation_type
+      type(ESMF_TimeInterval), optional, intent(in) :: timestep
 
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
       type(EsmfRegridderParam) :: regrid_param_
@@ -117,7 +118,7 @@ contains
       call var_spec%aspects%set_ungridded_dims_aspect(UngriddedDimsAspect(ungridded_dims))
       call var_spec%aspects%set_attributes_aspect(AttributesAspect(attributes))
       call var_spec%aspects%set_typekind_aspect(TypekindAspect(typekind))
-      call var_spec%aspects%set_frequency_aspect(FrequencyAspect(accumulation_type=accumulation_type))
+      call var_spec%aspects%set_frequency_aspect(FrequencyAspect(timestep=timestep, accumulation_type=accumulation_type))
 
       _SET_OPTIONAL(standard_name)
       _SET_OPTIONAL(itemtype)

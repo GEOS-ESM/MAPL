@@ -32,15 +32,24 @@ contains
 
       integer :: status
       type(ESMF_GridComp) :: user_gridcomp
-      type(ESMF_Clock) :: user_clock
+      type(ESMF_Clock) :: user_clock, outer_clock
+      type(ESMF_Time) :: refTime
+      type(ESMF_TimeInterval) :: timeStep
 
-      this%component_spec = parse_component_spec(this%hconfig, this%registry, _RC)
+      call ESMF_GridCompGet(this%self_gridcomp, clock=outer_clock, _RC)
+      call ESMF_ClockGet(outer_clock, refTime=refTime, timeStep=timeStep, _RC)
+      
+      this%component_spec = parse_component_spec(this%hconfig, this%registry, &
+           refTime=refTime, timeStep=timeStep, _RC)
       user_gridcomp = this%user_gc_driver%get_gridcomp()
 
       if (allocated(this%component_spec%timestep)) then
          user_clock = this%user_gc_driver%get_clock()
          call ESMF_ClockSet(user_clock, timestep=this%component_spec%timestep, _RC)
       end if
+
+      call set_run_user_alarm(this, outer_clock, user_clock, _RC)
+      
 
       call attach_inner_meta(user_gridcomp, this%self_gridcomp, _RC)
       call this%user_setservices%run(user_gridcomp, _RC)
@@ -85,18 +94,19 @@ contains
          class(OuterMetaComponent), target, intent(inout) :: this
          integer, optional, intent(out) :: rc
 
-         integer :: status
+         integer :: status, user_status
          type(GriddedComponentDriver), pointer :: child_comp
          type(ESMF_GridComp) :: child_outer_gc
          type(GriddedComponentDriverMapIterator) :: iter
 
-          associate ( e => this%children%ftn_end() )
+
+         associate ( e => this%children%ftn_end() )
             iter = this%children%ftn_begin()
             do while (iter /= e)
                call iter%next()
                child_comp => iter%second()
                child_outer_gc = child_comp%get_gridcomp()
-               call ESMF_GridCompSetServices(child_outer_gc, generic_setservices, _RC)
+               call ESMF_GridCompSetServices(child_outer_gc, generic_setservices, _USERRC)
             end do
          end associate
 
@@ -104,5 +114,36 @@ contains
       end subroutine run_children_setservices
 
    end subroutine SetServices_
+
+   subroutine set_run_user_alarm(this, outer_clock, user_clock,  rc)
+      use mapl_ErrorHandling
+      class(OuterMetaComponent), intent(in) :: this
+      type(ESMF_Clock), intent(inout) :: outer_clock
+      type(ESMF_Clock), intent(inout) :: user_clock
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_TimeInterval) :: outer_timestep, user_timestep, zero
+      type(ESMF_Time) :: refTime
+      type(ESMF_Alarm) :: alarm
+
+      call ESMF_TimeIntervalSet(zero, s=0, _RC)
+
+      call ESMF_ClockGet(outer_clock, timestep=outer_timestep, _RC)
+      call ESMF_ClockGet(user_clock, timestep=user_timestep, refTime=refTime, _RC)
+
+      _ASSERT(mod(user_timestep, outer_timestep) == zero, 'User timestep is not an integer multiple of parent timestep')
+
+      alarm = ESMF_AlarmCreate(outer_clock, &
+           name = RUN_USER_ALARM, &
+           ringInterval=user_timestep, &
+           refTime=refTime, &
+           sticky=.false., &
+           _RC)
+
+      call ESMF_AlarmRingerOn(alarm, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine set_run_user_alarm
 
 end submodule SetServices_smod

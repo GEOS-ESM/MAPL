@@ -187,7 +187,7 @@ contains
       character(len=:), allocatable :: iso_duration
       character(len=:), allocatable :: content
       type(ESMF_HConfig) :: hconfig
-      type(ESMF_TimeInterval), allocatable :: actual
+      type(ESMF_TimeInterval) :: actual, invalid
       integer :: rc, status
       character(len=:), allocatable :: msg
       character(len=ESMF_MAXSTR) :: expected_timestring, actual_timestring
@@ -208,9 +208,10 @@ contains
       ! Test with incorrect key for timestep; should return without setting actual (invalid)
       content = 'run_dmc: ' // iso_duration
       hconfig = ESMF_HConfigCreate(content=content, _RC)
-      deallocate(actual)
+      actual = invalid
       call parse_timestep(hconfig, actual, _RC)
-      @assert_that(allocated(actual), is(false()))
+      call ESMF_TimeIntervalValidate(actual, rc=status)
+      @assert_that(status, is(not(0)))
       call ESMF_HConfigDestroy(hconfig, _RC)
 
    end subroutine test_parse_timestep

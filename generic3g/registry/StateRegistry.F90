@@ -272,16 +272,16 @@ contains
 
       integer :: status
       type(ExtensionFamily), pointer :: family
-      integer :: i
+      integer :: i, n
 
       _ASSERT(this%has_virtual_pt(virtual_pt), "Virtual connection point does not exist in registry")
       family => this%family_map%at(virtual_pt, _RC)
-      associate (n => family%num_variants())
-        allocate(extensions(n))
-        do i = 1, n
-           extensions(i)%ptr => family%get_extension(i)
-        end do
-      end associate
+
+      n = family%num_variants()
+      allocate(extensions(n))
+      do i = 1, n
+         extensions(i)%ptr => family%get_extension(i)
+      end do
 
       _RETURN(_SUCCESS)
    end function get_extensions
