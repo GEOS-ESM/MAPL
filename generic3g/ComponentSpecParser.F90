@@ -69,12 +69,12 @@ module mapl3g_ComponentSpecParser
    !>
    ! Submodule declarations
    INTERFACE
-      module function parse_component_spec(hconfig, registry, refTime, timeStep, rc) result(spec)
+      module function parse_component_spec(hconfig, registry, timestep, reference_time, rc) result(spec)
          type(ComponentSpec) :: spec
          type(ESMF_HConfig), target, intent(inout) :: hconfig
          type(StateRegistry), target, intent(in) :: registry
-         type(ESMF_Time), intent(in) :: refTime
-         type(ESMF_TimeInterval), intent(in) :: timeStep
+         type(ESMF_TimeInterval), intent(in) :: timestep ! default
+         type(ESMF_Time), intent(in) :: reference_time ! default
          integer, optional, intent(out) :: rc
       end function parse_component_spec
 
