@@ -99,7 +99,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Changed `MAPL_ESMFRegridder` to require the dstMaskValues to be added as grid attribute to use fixed masking, fixes UFS issue
+- Updated ExtData so that if files are missing in a sequence the last value will be perisisted if one has not chosen `exact` option
+- Changed MAPL_ESMFRegridder to require the dstMaskValues to be added as grid attribute to use fixed masking, fixes UFS issue
 - Increased formatting width of time index in ExtData2G diagnostic print
 - Updated GitHub checkout action to use blobless clones
 - Update CI to use Baselibs 7.29.0 by default
