@@ -35,17 +35,26 @@ contains
       type(ESMF_Clock) :: user_clock, outer_clock
       type(ESMF_Time) :: reference_time
       type(ESMF_TimeInterval) :: timeStep
+      logical :: timestep_is_allocated
+      logical :: reference_time_is_allocated
 
       call ESMF_GridCompGet(this%self_gridcomp, clock=outer_clock, _RC)
       call ESMF_ClockGet(outer_clock, refTime=reference_time, timeStep=timeStep, _RC)
       
       this%component_spec = parse_component_spec(this%hconfig, this%registry, &
-           reference_time=reference_time, timeStep=timeStep, _RC)
+           timeStep=timeStep, reference_time=reference_time, _RC)
       user_gridcomp = this%user_gc_driver%get_gridcomp()
 
+      timestep_is_allocated = allocated(this%component_spec%timestep)
+      reference_time_is_allocated = allocated(this%component_spec%reference_time)
+      if(timestep_is_allocated .or. reference_time_is_allocated) user_clock = this%user_gc_driver%get_clock()
+
       if (allocated(this%component_spec%timestep)) then
-         user_clock = this%user_gc_driver%get_clock()
          call ESMF_ClockSet(user_clock, timestep=this%component_spec%timestep, _RC)
+      end if
+
+      if (allocated(this%component_spec%reference_time)) then
+         call ESMF_ClockSet(user_clock, refTime = this%component_spec%reference_time, _RC)
       end if
 
       call set_run_user_alarm(this, outer_clock, user_clock, _RC)
