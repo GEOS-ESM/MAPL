@@ -1,3 +1,8 @@
+#if defined(MAKE_MESSAGE)
+#  undef MAKE_MESSAGE
+#endif
+#define MAKE_MESSAGE(V) 'Actual ' // V // ' does not match ' // V // '.'
+
 #include "MAPL_ErrLog.h"
 module Test_ComponentSpecParser
    use funit
@@ -6,6 +11,7 @@ module Test_ComponentSpecParser
    use mapl3g_ChildSpec
    use mapl3g_ChildSpecMap
    use mapl_ErrorHandling
+   use MAPL_TimeStringConversion
    use esmf
    implicit none
 
@@ -182,36 +188,43 @@ contains
 
    @test
    subroutine test_parse_timestep()
-      integer(kind=ESMF_KIND_I4) :: d(6)
-      type(ESMF_TimeInterval) :: expected
-      character(len=:), allocatable :: iso_duration
+      type(ESMF_TimeInterval) :: expected_interval
+      type(ESMF_Time) :: expected_time
+      character(len=*), parameter :: ISO_DURATION = 'P3M'
+      character(len=*), parameter :: ISO_TIME = '1582-10-15'
+      character(len=*), parameter :: NL = new_line('10')
       character(len=:), allocatable :: content
       type(ESMF_HConfig) :: hconfig
-      type(ESMF_TimeInterval) :: actual, invalid
+      type(ESMF_TimeInterval) :: actual_interval
+      type(ESMF_Time) :: actual_time
+      integer :: actual_mm
+      integer :: expected_mm
+      integer :: actual_time_array(3)
+      integer :: expected_time_array(3)
       integer :: rc, status
-      character(len=:), allocatable :: msg
-      character(len=ESMF_MAXSTR) :: expected_timestring, actual_timestring
 
       ! Test with correct key for timestep
-      d = [10, 3, 7, 13, 57, 32]
-      call ESMF_TimeIntervalSet(expected, yy=d(1), mm=d(2), d=d(3), h=d(4), m=d(5), s=d(6), _RC)
-      iso_duration = 'P10Y3M7DT13H57M32S'
-      content = 'timestep: ' // iso_duration
+      call ESMF_TimeIntervalSet(expected_interval, mm=3, _RC)
+      call ESMF_TimeSet(expected_time, yy=1582, mm=10, dd=15, _RC)
+      content = 'timestep: ' // ISO_DURATION // NL // 'reference_time: ' // ISO_TIME
       hconfig = ESMF_HConfigCreate(content=content, _RC)
-      call parse_timestep(hconfig, actual, _RC)
-      call ESMF_TimeIntervalGet(expected, timeString=expected_timestring, _RC)
-      call ESMF_TimeIntervalGet(actual, timeString=actual_timestring, _RC)
-      msg = trim(actual_timestring) // ' /= ' // trim(expected_timestring)
-      @assertTrue(actual == expected, msg)
+      call parse_timestep(hconfig, actual_interval, actual_time, _RC)
+      @assertTrue(actual_interval == expected_interval, MAKE_MESSAGE('timestep'))
+      @assertTrue(actual_time == expected_time, MAKE_MESSAGE('reference time'))
       call ESMF_HConfigDestroy(hconfig, _RC)
       
-      ! Test with incorrect key for timestep; should return without setting actual (invalid)
-      content = 'run_dmc: ' // iso_duration
+      ! Test with incorrect key for timestep; should return without setting actual_interval (invalid)
+      expected_mm = 1
+      expected_time_array = [1583, 11, 16]
+      call ESMF_TimeIntervalSet(actual_interval, mm=expected_mm, _RC)
+      call ESMF_TimeSet(actual_time, yy=expected_time_array(1), mm=expected_time_array(2), dd=expected_time_array(3), _RC)
+      content = 'run_dmc: ' // ISO_DURATION
       hconfig = ESMF_HConfigCreate(content=content, _RC)
-      actual = invalid
-      call parse_timestep(hconfig, actual, _RC)
-      call ESMF_TimeIntervalValidate(actual, rc=status)
-      @assert_that(status, is(not(0)))
+      call parse_timestep(hconfig, actual_interval, actual_time, _RC)
+      call ESMF_TimeIntervalGet(actual_interval, mm=actual_mm, _RC)
+      @assertEqual(expected_mm, actual_mm, 'Expected and actual month intervals do not match.')
+      call ESMF_TimeGet(actual_time, yy=actual_time_array(1), mm=actual_time_array(2), dd=actual_time_array(3), _RC)
+      @assertEqual(expected_time_array, actual_time_array, 'Expected and actual time arrays do not match.')
       call ESMF_HConfigDestroy(hconfig, _RC)
 
    end subroutine test_parse_timestep

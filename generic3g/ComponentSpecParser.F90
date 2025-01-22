@@ -64,16 +64,17 @@ module mapl3g_ComponentSpecParser
    character(*), parameter :: KEY_VERTICAL_DIM_SPEC = 'vertical_dim_spec'
    character(*), parameter :: KEY_ACCUMULATION_TYPE = 'accumulation_type'
    character(*), parameter :: KEY_TIMESTEP = 'timestep'
+   character(*), parameter :: KEY_REFERENCE_TIME = 'reference_time'
 
    !>
    ! Submodule declarations
    INTERFACE
-      module function parse_component_spec(hconfig, registry, refTime, timeStep, rc) result(spec)
+      module function parse_component_spec(hconfig, registry, timestep, reference_time, rc) result(spec)
          type(ComponentSpec) :: spec
          type(ESMF_HConfig), target, intent(inout) :: hconfig
          type(StateRegistry), target, intent(in) :: registry
-         type(ESMF_Time), intent(in) :: refTime
-         type(ESMF_TimeInterval), intent(in) :: timeStep
+         type(ESMF_TimeInterval), intent(in) :: timestep ! default
+         type(ESMF_Time), intent(in) :: reference_time ! default
          integer, optional, intent(out) :: rc
       end function parse_component_spec
 
@@ -115,9 +116,10 @@ module mapl3g_ComponentSpecParser
          integer, optional, intent(out) :: rc
       end function parse_child
 
-      module subroutine parse_timestep(hconfig, timestep, rc)
+      module subroutine parse_timestep(hconfig, timestep, reference_time, rc)
          type(ESMF_HConfig), intent(in) :: hconfig
-         type(ESMF_TimeInterval),intent(inout) :: timestep
+         type(ESMF_TimeInterval), intent(inout) :: timestep
+         type(ESMF_Time), intent(inout) :: reference_time
          integer, optional, intent(out) :: rc
       end subroutine parse_timestep
 
