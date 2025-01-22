@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_VerticalGridAspect
+   use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_ExtensionAction
@@ -27,28 +28,21 @@ module mapl3g_VerticalGridAspect
    end interface to_VerticalGridAspect
 
    type, extends(StateItemAspect) :: VerticalGridAspect
-!#      private
+      private
       class(VerticalGrid), allocatable :: vertical_grid
       type(VerticalRegridMethod) :: regrid_method = VERTICAL_REGRID_LINEAR
-!#      type(VerticalStaggerLoc), allocatable :: vertical_staggerloc
       type(VerticalDimSpec), allocatable :: vertical_dim_spec
-
-      ! These might be updated due to intervening couplers
-      type(ESMF_Geom), allocatable :: geom
-      type(ESMF_Typekind_Flag) :: typekind
    contains
       procedure :: matches
       procedure :: make_action
-      procedure :: make_action2
       procedure :: connect_to_export
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
-      procedure :: typesafe_make_action
       procedure, nopass :: get_aspect_id
 
       procedure :: set_vertical_grid
-      procedure :: set_geom
-      procedure :: set_typekind
+      procedure :: get_vertical_grid
+      procedure :: get_vertical_dim_spec
    end type VerticalGridAspect
 
    interface VerticalGridAspect
@@ -76,20 +70,12 @@ contains
          aspect%regrid_method = regrid_method
       end if
 
-      if (present(vertical_dim_spec)) then
+     aspect%vertical_dim_spec = VERTICAL_DIM_CENTER
+     if (present(vertical_dim_spec)) then
          aspect%vertical_dim_spec = vertical_dim_spec
       end if
     
-      if (present(geom)) then
-         aspect%geom = geom
-      end if
-
-      if (present(typekind)) then
-         aspect%typekind = typekind
-      end if
-
       call aspect%set_time_dependent(time_dependent)
-
    end function new_VerticalGridAspect_specific
 
    function new_VerticalGridAspect_mirror() result(aspect)
@@ -133,54 +119,7 @@ contains
 
    end function matches
 
-   function make_action(src, dst, rc) result(action)
-      class(ExtensionAction), allocatable :: action
-      class(VerticalGridAspect), intent(in) :: src
-      class(StateItemAspect), intent(in)  :: dst
-      integer, optional, intent(out) :: rc
-
-      select type (dst)
-      class is (VerticalGridAspect)
-         action = src%typesafe_make_action(dst, rc)
-      class default
-         action = NullAction()
-         _FAIL('dst is not a VerticalGridAspect')
-      end select
-
-      _RETURN(_SUCCESS)
-   end function make_action
-
-   function typesafe_make_action(src, dst, rc) result(action)
-      class(ExtensionAction), allocatable :: action
-      class(VerticalGridAspect), intent(in) :: src
-      class(VerticalGridAspect), intent(in)  :: dst
-      integer, optional, intent(out) :: rc
-
-      class(ComponentDriver), pointer :: v_in_coupler
-      class(ComponentDriver), pointer :: v_out_coupler
-      type(ESMF_Field) :: v_in_field, v_out_field
-
-      type(ESMF_Geom) :: geom
-      type(ESMF_TypeKind_Flag) :: typekind
-      character(:), allocatable :: units
-      integer :: status
-
-      geom = src%geom
-      typekind = src%typekind
-      units = src%vertical_grid%get_units()
-
-!#      call src%vertical_grid%get_coordinate_field(v_in_field, v_in_coupler, geom, typekind, src%vertical_staggerloc, _RC)
-!#      call dst%vertical_grid%get_coordinate_field(v_out_field, v_out_coupler, geom, typekind, dst%vertical_staggerloc, _RC)
-
-      call src%vertical_grid%get_coordinate_field(v_in_field, v_in_coupler, 'ignore', geom, typekind, units, src%vertical_dim_spec, _RC)
-      call dst%vertical_grid%get_coordinate_field(v_out_field, v_out_coupler, 'ignore', geom, typekind, units, dst%vertical_dim_spec, _RC)
-
-      action = VerticalRegridAction(v_in_field, v_in_coupler, v_out_field, v_out_coupler, dst%regrid_method)
-
-      _RETURN(_SUCCESS)
-   end function typesafe_make_action
-
-   function make_action2(src, dst, other_aspects, rc) result(action)
+  function make_action(src, dst, other_aspects, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(VerticalGridAspect), intent(in) :: src
       class(StateItemAspect), intent(in)  :: dst
@@ -198,7 +137,6 @@ contains
 
       allocate(action,source=NullAction()) ! just in case
       dst_ = to_VerticalGridAspect(dst, _RC)
-
       deallocate(action)
 
       geom_aspect = to_GeomAspect(other_aspects, _RC)
@@ -209,11 +147,10 @@ contains
            geom_aspect%get_geom(), typekind_aspect%get_typekind(), units, src%vertical_dim_spec, _RC)
       call dst_%vertical_grid%get_coordinate_field(v_out_field, v_out_coupler, 'ignore', &
            geom_aspect%get_geom(), typekind_aspect%get_typekind(), units, dst_%vertical_dim_spec, _RC)
-
       action = VerticalRegridAction(v_in_field, v_in_coupler, v_out_field, v_out_coupler, dst_%regrid_method)
 
       _RETURN(_SUCCESS)
-   end function make_action2
+   end function make_action
 
    subroutine set_vertical_grid(self, vertical_grid)
       class(VerticalGridAspect), intent(inout) :: self
@@ -223,23 +160,10 @@ contains
       call self%set_mirror(.false.)
    end subroutine set_vertical_grid
 
-   subroutine set_geom(self, geom)
-      class(VerticalGridAspect), intent(inout) :: self
-      type(ESMF_Geom), intent(in) :: geom
-
-      self%geom = geom
-   end subroutine set_geom
-
-   subroutine set_typekind(self, typekind)
-      class(VerticalGridAspect), intent(inout) :: self
-      type(ESMF_Typekind_Flag), intent(in) :: typekind
-
-      self%typekind = typekind
-   end subroutine set_typekind
-
-   subroutine connect_to_export(this, export, rc)
+   subroutine connect_to_export(this, export, actual_pt, rc)
       class(VerticalGridAspect), intent(inout) :: this
       class(StateItemAspect), intent(in) :: export
+      type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
       type(VerticalGridAspect) :: export_
@@ -249,6 +173,7 @@ contains
       this%vertical_grid = export_%vertical_grid
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
    function to_vertical_grid_from_poly(aspect, rc) result(vertical_grid_aspect)
@@ -286,5 +211,31 @@ contains
       type(AspectId) :: aspect_id
       aspect_id = VERTICAL_GRID_ASPECT_ID
    end function get_aspect_id
+
+   function get_vertical_grid(this, rc) result(vertical_grid)
+      class(VerticalGridAspect), intent(in) :: this
+      class(VerticalGrid), allocatable :: vertical_grid
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _ASSERT(allocated(this%vertical_grid), "vertical_grid not allocated.")
+      vertical_grid = this%vertical_grid
+
+      _RETURN(_SUCCESS)
+   end function get_vertical_grid
+
+   function get_vertical_dim_spec(this, rc) result(vertical_dim_spec)
+      class(VerticalGridAspect), intent(in) :: this
+      type(VerticalDimSpec) :: vertical_dim_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _ASSERT(allocated(this%vertical_dim_spec), "vertical_dim_spec not allocated.")
+      vertical_dim_spec = this%vertical_dim_spec
+
+      _RETURN(_SUCCESS)
+   end function get_vertical_dim_spec
 
 end module mapl3g_VerticalGridAspect

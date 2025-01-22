@@ -10,13 +10,23 @@ module mapl3g_ModelVerticalGrid
    use mapl3g_StateRegistry
    use mapl3g_VirtualConnectionPt
    use mapl3g_StateItemSpec
-   use mapl3g_FieldSpec
+   use mapl3g_StateItemSpec
    use mapl3g_UngriddedDims
    use mapl3g_StateItemExtension
    use mapl3g_ExtensionFamily
    use mapl3g_ExtensionAction
    use mapl3g_ComponentDriver
    use mapl3g_VerticalDimSpec
+   use mapl3g_AspectId
+   use mapl3g_StateItemAspect
+   use mapl3g_ClassAspect
+   use mapl3g_FieldClassAspect
+   use mapl3g_GeomAspect
+   use mapl3g_UnitsAspect
+   use mapl3g_UngriddedDimsAspect
+   use mapl3g_AttributesAspect
+   use mapl3g_TypekindAspect
+   use mapl3g_VerticalGridAspect
    use esmf
 
    implicit none
@@ -135,24 +145,33 @@ contains
       character(:), allocatable :: short_name
       type(VirtualConnectionPt) :: v_pt
       type(StateItemExtension), pointer :: new_extension
-      class(StateItemSpec), pointer :: new_spec
-      type(FieldSpec) :: goal_spec
+      type(StateItemSpec), pointer :: new_spec
+      type(StateItemSpec), target :: goal_spec
+      type(AspectMap), pointer :: aspects
+      class(StateItemAspect), pointer :: class_aspect
 
       short_name = this%get_short_name(vertical_dim_spec)
       v_pt = VirtualConnectionPt(state_intent="export", short_name=short_name)
 
-      goal_spec = FieldSpec( &
-           geom=geom, vertical_grid=this, vertical_dim_spec=vertical_dim_spec, &
-           typekind=typekind, standard_name=standard_name, units=units, ungridded_dims=UngriddedDims())
-
+      aspects => goal_spec%get_aspects()
+      call aspects%insert(CLASS_ASPECT_ID, FieldClassAspect(standard_name='', long_name=''))
+      call aspects%insert(GEOM_ASPECT_ID, GeomAspect(geom))
+      call aspects%insert(VERTICAL_GRID_ASPECT_ID, VerticalGridAspect(vertical_grid=this, vertical_dim_spec=vertical_dim_spec))
+      call aspects%insert(TYPEKIND_ASPECT_ID, TypekindAspect(typekind))
+      call aspects%insert(UNITS_ASPECT_ID, UnitsAspect(units))
+      call aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, UngriddedDimsAspect(UngriddedDimS()))
+      call aspects%insert(ATTRIBUTES_ASPECT_ID, AttributesAspect())
+      
       new_extension => this%registry%extend(v_pt, goal_spec, _RC)
       coupler => new_extension%get_producer()
       new_spec => new_extension%get_spec()
-      select type (new_spec)
-      type is (FieldSpec)
-         field = new_spec%get_payload()
+
+      class_aspect => new_spec%get_aspect(CLASS_ASPECT_ID, _RC)
+      select type (class_aspect)
+      type is (FieldClassAspect)
+         field = class_aspect%get_payload()
       class default
-         _FAIL("unsupported spec type; must be FieldSpec")
+         _FAIL("unsupported aspect type; must be FieldClassAspect")
       end select
 
       _RETURN(_SUCCESS)

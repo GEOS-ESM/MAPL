@@ -9,10 +9,12 @@ module Test_StateRegistry
    use mapl3g_MultiState
    use mapl3g_ConnectionPt
    use mapl3g_VirtualConnectionPt
-   use MockItemSpecMod
    use mapl3g_ExtensionFamily
    use mapl3g_SimpleConnection
-   use MockItemSpecMod
+   use mapl3g_StateItemAspect
+   use mapl3g_FieldClassAspect
+   use mapl3g_AspectId
+   use MockAspect_mod
    use ESMF_TestMethod_mod
    use esmf
    use funit
@@ -50,22 +52,26 @@ contains
       integer :: status
       type(ExtensionFamily), pointer :: family
       type(StateItemExtension), pointer :: primary
-      class(StateItemSpec), pointer :: spec
+      type(StateItemSpec), pointer :: spec
+      class(StateItemAspect), pointer :: class_aspect
 
       r = StateRegistry('A')
       x = VirtualConnectionPt(state_intent='import', short_name='x')
 
-      call r%add_primary_spec(x, MockItemSpec('x'), _RC)
+      call r%add_primary_spec(x, MockItemSpec(1), _RC)
 
       @assert_that(r%num_owned_items(), is(1))
 
       family => r%get_extension_family(x, _RC)
       primary => family%get_primary()
       @assert_that(associated(primary), is(true()))
+
       spec => primary%get_spec()
-      select type (spec)
-      type is (MockItemSpec)
-         @assert_that(spec%name, is('x'))
+
+      class_aspect => spec%get_aspect(CLASS_ASPECT_ID)
+      select type (class_aspect)
+      type is (MockAspect)
+         @assert_that(class_aspect%value, is(1))
       class default
          @assert_that(1, is(0))
       end select
@@ -83,15 +89,16 @@ contains
       integer :: status
       type(ExtensionFamily), pointer :: family
       type(StateItemExtensionPtr), pointer :: wrapper
-      class(StateItemSpec), pointer :: spec
+      type(StateItemSpec), pointer :: spec
       type(StateItemExtension), pointer :: extension
       type(StateItemExtensionPtrVector) :: extensions
+      class(StateItemAspect), pointer :: class_aspect
 
       r = StateRegistry('A')
       x = VirtualConnectionPt(state_intent='import', short_name='x')
       call r%add_virtual_pt(x, _RC)
 
-      call r%add_spec(x, MockItemSpec('x'), _RC)
+      call r%add_spec(x, MockItemSpec(value=1), _RC)
       @assert_that(r%num_owned_items(), is(1))
 
       family => r%get_extension_family(x, _RC)
@@ -102,14 +109,16 @@ contains
       wrapper => extensions%of(1)
       extension => wrapper%ptr
       spec => extension%get_spec()
-      select type (spec)
-      type is (MockItemSpec)
-         @assert_that(spec%name, is('x'))
+
+      class_aspect => spec%get_aspect(CLASS_ASPECT_ID)
+      select type (class_aspect)
+      type is (MockAspect)
+         @assert_that(class_aspect%value, is(1))
       class default
          @assert_that(1, is(0))
       end select
 
-      call r%add_spec(x, MockItemSpec('y'), _RC)
+      call r%add_spec(x, MockItemSpec(value=2), _RC)
       @assert_that(r%num_owned_items(), is(2))
       @assert_that(family%has_primary(), is(false()))
       extensions = family%get_extensions()
@@ -117,9 +126,11 @@ contains
       wrapper => extensions%of(2)
       extension => wrapper%ptr
       spec => extension%get_spec()
-      select type (spec)
-      type is (MockItemSpec)
-         @assert_that(spec%name, is('y'))
+
+      class_aspect => spec%get_aspect(CLASS_ASPECT_ID)
+      select type (class_aspect)
+      type is (MockAspect)
+         @assert_that(class_aspect%value, is(2))
       class default
          @assert_that(1, is(0))
       end select
@@ -139,7 +150,7 @@ contains
       x = VirtualConnectionPt(state_intent='import', short_name='x')
       call r%add_virtual_pt(x, _RC)
 
-      extension = StateItemExtension(MockItemSpec('x'))
+      extension = StateItemExtension(MockItemSpec(value=11))
       call r%link_extension(x, extension, _RC)
       @assert_that(r%num_owned_items(), is(0))
 
@@ -151,17 +162,18 @@ contains
       integer :: status
       type(ExtensionFamily), pointer :: family
       type(StateItemExtensionPtr), pointer :: wrapper
-      class(StateItemSpec), allocatable :: spec_x, spec_y
-      class(StateItemSpec), pointer :: spec
+      type(StateItemSpec), allocatable :: spec_x, spec_y
+      type(StateItemSpec), pointer :: spec
       type(StateItemExtensionPtrVector) :: extensions
       type(StateItemExtension), target :: ext_x, ext_y
       type(StateItemExtension), pointer :: ext
+      class(StateItemAspect), pointer :: class_aspect
 
       r = StateRegistry('A')
       x = VirtualConnectionPt(state_intent='import', short_name='x')
       call r%add_virtual_pt(x, _RC)
 
-      allocate(spec_x, source=MockItemSpec('x'))
+      allocate(spec_x, source=MockItemSpec(value=1))
       ext_x = StateItemExtension(spec_x)
       call r%link_extension(x, ext_x, _RC)
       @assert_that(r%num_owned_items(), is(0))
@@ -173,14 +185,16 @@ contains
       wrapper => extensions%of(1)
       ext => wrapper%ptr
       spec => ext%get_spec()
-      select type (spec)
-      type is (MockItemSpec)
-         @assert_that(spec%name, is('x'))
+
+      class_aspect => spec%get_aspect(CLASS_ASPECT_ID, _RC)
+      select type (class_aspect)
+      type is (MockAspect)
+         @assert_that(class_aspect%value, is(1))
       class default
          @assert_that(1, is(0))
       end select
 
-      allocate(spec_y, source=MockItemSpec('y'))
+      allocate(spec_y, source=MockItemSpec(2))
       ext_y = StateItemExtension(spec_y)
       call r%link_extension(x, ext_y)
       @assert_that(r%num_owned_items(), is(0))
@@ -191,9 +205,11 @@ contains
       wrapper => extensions%of(2)
       ext => wrapper%ptr
       spec => ext%get_spec()
-      select type (spec)
-      type is (MockItemSpec)
-         @assert_that(spec%name, is('y'))
+
+      class_aspect => spec%get_aspect(CLASS_ASPECT_ID, _RC)
+      select type (class_aspect)
+      type is (MockAspect)
+         @assert_that(class_aspect%value, is(2))
       class default
          @assert_that(1, is(0))
       end select
@@ -240,7 +256,7 @@ contains
       call r_parent%add_subregistry(r_child)
 
       v_pt = VirtualConnectionPt(state_intent='import', short_name='T')
-      call r_child%add_primary_spec(v_pt, MockItemSpec('T_child'), _RC)
+      call r_child%add_primary_spec(v_pt, MockItemSpec(12), _RC)
       call r_parent%propagate_unsatisfied_imports(_RC)
 
       @assert_that(r_parent%num_owned_items(), is(0))
@@ -265,8 +281,8 @@ contains
       call r_parent%add_subregistry(r_child)
 
       v_pt = VirtualConnectionPt(state_intent='import', short_name='T')
-      call r_child%add_primary_spec(v_pt, MockItemSpec('T_child'), _RC)
-      call r_parent%add_primary_spec(v_pt, MockItemSpec('T_parent'), _RC)
+      call r_child%add_primary_spec(v_pt, MockItemSpec(13), _RC)
+      call r_parent%add_primary_spec(v_pt, MockItemSpec(14), _RC)
       call r_parent%propagate_unsatisfied_imports(_RC)
 
       @assert_that(r_parent%num_owned_items(), is(1))
@@ -285,14 +301,14 @@ contains
       type(StateRegistry), target :: r_child, r_parent
       integer :: status
       type(VirtualConnectionPt) :: v_pt
-      type(MockItemSpec), target :: spec
+      type(StateItemSpec), target :: spec
       
       r_parent = StateRegistry('parent')
       r_child = StateRegistry('child')
       call r_parent%add_subregistry(r_child)
 
       v_pt = VirtualConnectionPt(state_intent='import', short_name='T')
-      spec = MockItemSpec('T_child')
+      spec = MockItemSpec(value=7)
       call spec%set_active()
       call r_child%add_primary_spec(v_pt, spec, _RC)
       call r_parent%propagate_unsatisfied_imports(_RC)
@@ -308,14 +324,14 @@ contains
       type(StateRegistry), target :: r_child, r_parent
       integer :: status
       type(VirtualConnectionPt) :: v_pt
-      type(MockItemSpec), target :: spec
+      type(StateItemSpec), target :: spec
       
       r_parent = StateRegistry('parent')
       r_child = StateRegistry('child')
       call r_parent%add_subregistry(r_child)
 
       v_pt = VirtualConnectionPt(state_intent='export', short_name='T')
-      spec = MockItemSpec('T_child')
+      spec = MockItemSpec(3)
       call r_child%add_primary_spec(v_pt, spec, _RC)
       call r_parent%propagate_unsatisfied_imports(_RC)
 
@@ -336,7 +352,7 @@ contains
       call r_parent%add_subregistry(r_child)
 
       v_pt = VirtualConnectionPt(state_intent='export', short_name='T')
-      call r_child%add_primary_spec(v_pt, MockItemSpec('T_child'), _RC)
+      call r_child%add_primary_spec(v_pt, MockItemSpec(4), _RC)
       call r_parent%propagate_exports(_RC)
 
       @assert_that(r_parent%num_owned_items(), is(0))
@@ -359,7 +375,7 @@ contains
       call r_parent%add_subregistry(r_child)
 
       v_pt = VirtualConnectionPt(state_intent='import', short_name='T')
-      call r_child%add_primary_spec(v_pt, MockItemSpec('T_child'), _RC)
+      call r_child%add_primary_spec(v_pt, MockItemSpec(5), _RC)
       call r_parent%propagate_exports(_RC)
 
       @assert_that(r_parent%num_owned_items(), is(0))
@@ -390,8 +406,8 @@ contains
       cp_A = VirtualConnectionPt(state_intent='export', short_name='ae')
       cp_B = VirtualConnectionPt(state_intent='import', short_name='ai')
 
-      call r_a%add_primary_spec(cp_A, MockItemSpec('AE', typekind=ESMF_TYPEKIND_R4, units='m'))
-      call r_b%add_primary_spec(cp_B, MockItemSpec('AI',typekind=ESMF_TYPEKIND_R8, units='m'))
+      call r_a%add_primary_spec(cp_A, MockItemSpec(7, state_intent=ESMF_STATEINTENT_EXPORT, typekind=ESMF_TYPEKIND_R4, units='m'))
+      call r_b%add_primary_spec(cp_B, MockItemSpec(7, state_intent=ESMF_STATEINTENT_IMPORT, typekind=ESMF_TYPEKIND_R8, units='m'))
 
       conn = SimpleConnection(CP('child_A', cp_A), CP('child_B', cp_B))
       call conn%connect(r, _RC)
@@ -427,12 +443,12 @@ contains
       cp_i1 = VirtualConnectionPt(state_intent='import', short_name='i1')
       cp_i2 = VirtualConnectionPt(state_intent='import', short_name='i2')
 
-      call r_a%add_primary_spec(cp_e1, MockItemSpec('e1'))
-      call r_a%add_primary_spec(cp_i1, MockItemSpec('i1'))
+      call r_a%add_primary_spec(cp_e1, MockItemSpec(1, state_intent=ESMF_STATEINTENT_EXPORT, short_name='e1'))
+      call r_a%add_primary_spec(cp_i1, MockItemSpec(2, state_intent=ESMF_STATEINTENT_IMPORT, short_name='i2'))
 
-      call r%add_primary_spec(cp_e2, MockItemSpec('e2'))
-      call r%add_primary_spec(cp_i1, MockItemSpec('i1')) ! intentional duplicate with r_A
-      call r%add_primary_spec(cp_i2, MockItemSpec('i2'))
+      call r%add_primary_spec(cp_e2, MockItemSpec(3, state_intent=ESMF_STATEINTENT_EXPORT, short_name='e2'))
+      call r%add_primary_spec(cp_i1, MockItemSpec(4, state_intent=ESMF_STATEINTENT_IMPORT, short_name='i1')) ! intentional duplicate with r_A
+      call r%add_primary_spec(cp_i2, MockItemSpec(5, state_intent=ESMF_STATEINTENT_IMPORT, short_name='i2'))
 
       call r%propagate_exports(_RC)
       call r%propagate_unsatisfied_imports(_RC)

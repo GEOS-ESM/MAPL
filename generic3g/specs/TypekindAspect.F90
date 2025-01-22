@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_TypekindAspect
+   use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_ExtensionAction
@@ -28,7 +29,6 @@ module mapl3g_TypekindAspect
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_action
-      procedure :: make_action2
       procedure :: connect_to_export
       procedure, nopass :: get_aspect_id
 
@@ -79,23 +79,7 @@ contains
 
    end function matches
 
-   function make_action(src, dst, rc) result(action)
-      class(ExtensionAction), allocatable :: action
-      class(TypekindAspect), intent(in) :: src
-      class(StateItemAspect), intent(in)  :: dst
-      integer, optional, intent(out) :: rc
-
-      select type(dst)
-      class is (TypekindAspect)
-         action = CopyAction(src%typekind, dst%typekind)
-      class default
-         _FAIL('src is TypekindAspect, but dst is not.')
-      end select
-
-      _RETURN(_SUCCESS)
-   end function make_action
-
-   function make_action2(src, dst, other_aspects, rc) result(action)
+  function make_action(src, dst, other_aspects, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(TypekindAspect), intent(in) :: src
       class(StateItemAspect), intent(in)  :: dst
@@ -112,13 +96,14 @@ contains
       allocate(action, source=CopyAction(src%typekind, dst_%typekind))
 
       _RETURN(_SUCCESS)
-   end function make_action2
+   end function make_action
 
    ! Copy from src - might have been mirror.
 
-   subroutine connect_to_export(this, export, rc)
+   subroutine connect_to_export(this, export, actual_pt, rc)
       class(TypekindAspect), intent(inout) :: this
       class(StateItemAspect), intent(in) :: export
+      type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
       type(TypekindAspect) :: export_
@@ -127,6 +112,7 @@ contains
       export_ = to_TypekindAspect(export, _RC)
       this%typekind = export_%typekind
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
   subroutine set_typekind(this, typekind)

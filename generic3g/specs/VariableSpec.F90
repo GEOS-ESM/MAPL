@@ -1,7 +1,6 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_VariableSpec
-   use mapl3g_AspectCollection
    use mapl3g_GeomAspect
    use mapl3g_VerticalGridAspect
    use mapl3g_UnitsAspect
@@ -20,6 +19,8 @@ module mapl3g_VariableSpec
    use mapl_ErrorHandling
    use mapl3g_StateRegistry
    use mapl3g_StateItem
+   use mapl3g_AspectId
+   use mapl3g_StateItemAspect
    use mapl3g_EsmfRegridder, only: EsmfRegridderParam
    use mapl3g_FieldDictionary
    use esmf
@@ -36,7 +37,7 @@ module mapl3g_VariableSpec
    ! also allows us to defer interpretation until after user
    ! setservices() have run.
    type VariableSpec
-      type(AspectCollection) :: aspects
+      type(AspectMap) :: aspects
       ! Mandatory values:
       type(ESMF_StateIntent_Flag) :: state_intent
       character(:), allocatable :: short_name
@@ -108,17 +109,19 @@ contains
 #endif
 #define _SET_OPTIONAL(attr) if (present(attr)) var_spec%attr = attr
 
-      call var_spec%aspects%set_units_aspect(UnitsAspect(units))
-      regrid_param_ = get_regrid_param(regrid_param, standard_name)
-      call var_spec%aspects%set_vertical_grid_aspect(VerticalGridAspect( &
-           vertical_dim_spec=vertical_dim_spec, &
-           geom=geom))
-      call var_spec%aspects%set_geom_aspect(GeomAspect(geom, regrid_param_, horizontal_dims_spec))
+      call var_spec%aspects%insert(UNITS_ASPECT_ID, UnitsAspect(units))
 
-      call var_spec%aspects%set_ungridded_dims_aspect(UngriddedDimsAspect(ungridded_dims))
-      call var_spec%aspects%set_attributes_aspect(AttributesAspect(attributes))
-      call var_spec%aspects%set_typekind_aspect(TypekindAspect(typekind))
-      call var_spec%aspects%set_frequency_aspect(FrequencyAspect(timestep=timestep, accumulation_type=accumulation_type))
+      regrid_param_ = get_regrid_param(regrid_param, standard_name)
+      call var_spec%aspects%insert(VERTICAL_GRID_ASPECT_ID, &
+           VerticalGridAspect(vertical_dim_spec=vertical_dim_spec, geom=geom))
+
+      call var_spec%aspects%insert(GEOM_ASPECT_ID, GeomAspect(geom, regrid_param_, horizontal_dims_spec))
+
+      call var_spec%aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, UngriddedDimsAspect(ungridded_dims))
+      call var_spec%aspects%insert(ATTRIBUTES_ASPECT_ID, AttributesAspect(attributes))
+      call var_spec%aspects%insert(TYPEKIND_ASPECT_ID, TypekindAspect(typekind))
+
+      call var_spec%aspects%insert(FREQUENCY_ASPECT_ID, FrequencyAspect(timestep=timestep, accumulation_type=accumulation_type))
 
       _SET_OPTIONAL(standard_name)
       _SET_OPTIONAL(itemtype)

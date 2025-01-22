@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 #include "unused_dummy.H"
 module mapl3g_FrequencyAspect
+   use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_AccumulatorActionInterface
@@ -20,7 +21,6 @@ module mapl3g_FrequencyAspect
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_action
-      procedure :: make_action2
       procedure :: connect_to_export
       procedure, nopass :: get_aspect_id
       ! These are specific to FrequencyAspect.
@@ -123,27 +123,7 @@ contains
 
    end function matches
 
-   function make_action(src, dst, rc) result(action)
-      use mapl3g_ExtensionAction
-      class(ExtensionAction), allocatable :: action
-      class(FrequencyAspect), intent(in) :: src
-      class(StateItemAspect), intent(in) :: dst
-      integer, optional, intent(out) :: rc
-      integer :: status
-
-      select type(dst)
-      class is (FrequencyAspect)
-         call get_accumulator_action(dst%get_accumulation_type(), ESMF_TYPEKIND_R4, action, _RC) 
-         _ASSERT(allocated(action), 'Unable to allocate action')
-      class default
-         _FAIL('FrequencyAspect cannot convert from other class.')
-      end select
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(src)
-
-   end function make_action
-
-    function make_action2(src, dst, other_aspects, rc) result(action)
+   function make_action(src, dst, other_aspects, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(FrequencyAspect), intent(in) :: src
       class(StateItemAspect), intent(in)  :: dst
@@ -162,16 +142,18 @@ contains
       end select
 
       _RETURN(_SUCCESS)
-   end function make_action2
+   end function make_action
 
-   subroutine connect_to_export(this, export, rc)
+   subroutine connect_to_export(this, export, actual_pt, rc)
       class(FrequencyAspect), intent(inout) :: this
       class(StateItemAspect), intent(in) :: export
+      type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(export)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
   logical function supports_conversion_general(src) result(supports)

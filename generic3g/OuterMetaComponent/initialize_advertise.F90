@@ -100,13 +100,12 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         class(StateItemSpec), allocatable :: item_spec
+         type(StateItemSpec) :: item_spec
          type(VirtualConnectionPt) :: virtual_pt
 
          _ASSERT(var_spec%itemtype /= MAPL_STATEITEM_UNKNOWN, 'Invalid type id in variable spec <'//var_spec%short_name//'>.')
 
-         allocate(item_spec, source=make_ItemSpec(var_spec, registry, rc=status))
-         _VERIFY(status)
+         item_spec = make_ItemSpec(var_spec, registry, _RC)
          call item_spec%create(_RC)
 
          virtual_pt = var_spec%make_virtualPt()
@@ -117,7 +116,7 @@ contains
       end subroutine advertise_variable
 
       subroutine process_connections(this, rc)
-        class(OuterMetaComponent), intent(inout) :: this
+        class(OuterMetaComponent), target, intent(inout) :: this
         integer, optional, intent(out) :: rc
 
         integer :: status

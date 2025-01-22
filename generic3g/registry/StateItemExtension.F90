@@ -8,10 +8,10 @@ module mapl3g_StateItemExtension
    use mapl3g_ComponentDriverVector
    use mapl3g_ExtensionAction
    use mapl3g_GenericCoupler
+   use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_MultiState
    use mapl_ErrorHandling
-   use gftl2_StringVector
    use esmf
    implicit none
    private
@@ -24,7 +24,7 @@ module mapl3g_StateItemExtension
 
    type StateItemExtension
       private
-      class(StateItemSpec), allocatable :: spec
+      type(StateItemSpec) :: spec
       type(ComponentDriverVector) :: consumers ! couplers that depend on spec
       class(ComponentDriver), pointer :: producer => null() ! coupler that computes spec
    contains
@@ -53,13 +53,13 @@ contains
 
    function new_StateItemExtension_spec(spec) result(ext)
       type(StateItemExtension) :: ext
-      class(StateItemSpec), intent(in) :: spec
+      type(StateItemSpec), intent(in) :: spec
       ext%spec = spec
    end function new_StateItemExtension_spec
 
    function get_spec(this) result(spec)
       class(StateItemExtension), target, intent(in) :: this
-      class(StateItemSpec), pointer :: spec
+      type(StateItemSpec), pointer :: spec
       spec => this%spec
    end function get_spec
 
@@ -118,41 +118,39 @@ contains
    recursive function make_extension(this, goal, rc) result(extension)
       type(StateItemExtension) :: extension
       class(StateItemExtension), target, intent(inout) :: this
-      class(StateItemSpec), target, intent(in) :: goal
+      type(StateItemSpec), target, intent(in) :: goal
       integer, intent(out) :: rc
 
       integer :: status
       integer :: i
-      class(StateItemSpec), target, allocatable :: new_spec
+      type(StateItemSpec), target :: new_spec
       class(ExtensionAction), allocatable :: action
       class(ComponentDriver), pointer :: producer
       class(ComponentDriver), pointer :: source
       type(ESMF_GridComp) :: coupler_gridcomp
-      type(StateItemAdapterWrapper), allocatable :: adapters(:)
       type(ESMF_Clock) :: fake_clock
       logical :: match
-      type(StringVector), target :: aspect_names
-      character(:), pointer :: aspect_name
+      type(AspectId), allocatable :: aspect_ids(:)
       class(StateItemAspect), pointer :: src_aspect, dst_aspect
-
+      type(AspectMap), pointer :: other_aspects
 
       call this%spec%set_active()
 
       new_spec = this%spec
 
-      aspect_names = this%spec%get_aspect_order(goal)
-      do i = 1, aspect_names%size()
-         aspect_name => aspect_names%of(i)
-         src_aspect => new_spec%get_aspect(aspect_name, _RC)
+      aspect_ids = this%spec%get_aspect_order(goal)
+      do i = 1, size(aspect_ids)
+         src_aspect => new_spec%get_aspect(aspect_ids(i), _RC)
          _ASSERT(associated(src_aspect), 'src aspect not found')
 
-         dst_aspect => goal%get_aspect(aspect_name, _RC)
+         dst_aspect => goal%get_aspect(aspect_ids(i), _RC)
          _ASSERT(associated(dst_aspect), 'dst aspect not found')
 
-         _ASSERT(src_aspect%can_connect_to(dst_aspect), 'cannot connect aspect ' // aspect_name)
+         _ASSERT(src_aspect%can_connect_to(dst_aspect), 'cannot connect aspect ' // aspect_ids(i)%to_string())
 
          if (src_aspect%needs_extension_for(dst_aspect)) then
-            allocate(action, source=src_aspect%make_action(dst_aspect, rc=status))
+            other_aspects => new_spec%get_aspects()
+            allocate(action, source=src_aspect%make_action(dst_aspect, other_aspects, rc=status))
             _VERIFY(status)
             call new_spec%set_aspect(dst_aspect, _RC)
             exit

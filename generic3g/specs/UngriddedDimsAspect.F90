@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_UngriddedDimsAspect
+   use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_ExtensionAction
@@ -19,7 +20,7 @@ module mapl3g_UngriddedDimsAspect
    end interface to_UngriddedDimsAspect
 
    type, extends(StateItemAspect) :: UngriddedDimsAspect
-!#      private
+      private
       type(UngriddedDims), allocatable :: ungridded_dims
    contains
       procedure :: matches
@@ -27,8 +28,9 @@ module mapl3g_UngriddedDimsAspect
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_action
-      procedure :: make_action2
       procedure, nopass :: get_aspect_id
+
+      procedure :: get_ungridded_dims
    end type UngriddedDimsAspect
 
    interface UngriddedDimsAspect
@@ -43,6 +45,8 @@ contains
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
 
       call aspect%set_mirror(.true.)
+      aspect%ungridded_dims = UngriddedDims()
+
       if (present(ungridded_dims)) then
          aspect%ungridded_dims = ungridded_dims
          call aspect%set_mirror(.false.)
@@ -107,18 +111,7 @@ contains
    end function to_ungridded_dims_from_map
 
 
-   function make_action(src, dst, rc) result(action)
-      class(ExtensionAction), allocatable :: action
-      class(UngriddedDimsAspect), intent(in) :: src
-      class(StateItemAspect), intent(in)  :: dst
-      integer, optional, intent(out) :: rc
-
-      action = NullAction()
-
-      _RETURN(_SUCCESS)
-   end function make_action
-
-   function make_action2(src, dst, other_aspects, rc) result(action)
+   function make_action(src, dst, other_aspects, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(UngriddedDimsAspect), intent(in) :: src
       class(StateItemAspect), intent(in)  :: dst
@@ -128,11 +121,12 @@ contains
       allocate(action,source=NullAction()) ! just in case
 
       _RETURN(_SUCCESS)
-   end function make_action2
+   end function make_action
 
-   subroutine connect_to_export(this, export, rc)
+   subroutine connect_to_export(this, export, actual_pt, rc)
       class(UngriddedDimsAspect), intent(inout) :: this
       class(StateItemAspect), intent(in) :: export
+      type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
       type(UngriddedDimsAspect) :: export_
@@ -142,6 +136,7 @@ contains
       this%ungridded_dims = export_%ungridded_dims
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
    
    function get_aspect_id() result(aspect_id)
@@ -149,5 +144,17 @@ contains
       aspect_id = UNGRIDDED_DIMS_ASPECT_ID
    end function get_aspect_id
 
+   function get_ungridded_dims(this, rc)  result(ungridded_dims)
+      type(UngriddedDims) :: ungridded_dims
+      class(UngriddedDimsAspect), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _ASSERT(allocated(this%ungridded_dims), "ungridded_dims not allocated.")
+      ungridded_dims = this%ungridded_dims
+
+      _RETURN(_SUCCESS)
+   end function get_ungridded_dims
 
 end module mapl3g_UngriddedDimsAspect

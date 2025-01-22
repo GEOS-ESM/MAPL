@@ -1,27 +1,40 @@
 #include "MAPL_Generic.h"
 
 module MockAspect_mod
+   use mapl3g_VariableSpec
+   use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
-   use mapl3g_StateItemASpect
+   use mapl3g_StateItemSpec
+   use mapl3g_StateItemAspect
    use mapl3g_ExtensionAction
+   use mapl3g_ClassAspect
    use mapl3g_NullAction
+   use mapl3g_MultiState
    use mapl_ErrorHandling
+   use esmf
    implicit none
    private
 
    public :: MockAspect
+   public :: MockItemSpec
 
-   type, extends(StateItemAspect) :: MockAspect
-      integer :: value
-      logical :: supports_conversion_
+   type, extends(ClassAspect) :: MockAspect
+      integer :: value = -1
+      logical :: supports_conversion_ = .false.
    contains
       procedure :: matches
       procedure :: make_action
-      procedure :: make_action2
       procedure :: connect_to_export
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
-      procedure, nopass :: get_aspect_id
+
+      procedure :: create
+      procedure :: allocate
+      procedure :: destroy
+      procedure :: add_to_state
+      procedure :: add_to_bundle
+      procedure :: get_aspect_order
+      
    end type MockAspect
 
    interface MockAspect
@@ -30,11 +43,60 @@ module MockAspect_mod
 
 contains
 
-   function new_MockAspect(mirror, time_dependent, value, supports_conversion) result(aspect)
+   function MockItemSpec(value, state_intent, short_name, typekind, units, mirror, time_dependent, supports_conversion) result(mock_spec)
+      type(StateItemSpec) :: mock_spec
+      integer, intent(in) :: value
+      type(ESMF_StateIntent_Flag), optional, intent(in) :: state_intent
+      character(*), optional, intent(in) :: short_name
+      type(ESMF_Typekind_Flag), optional, intent(in) :: typekind
+      character(*), optional, intent(in) :: units
+      logical, optional, intent(in) :: mirror
+      logical, optional, intent(in) :: time_dependent
+      logical, optional, intent(in) :: supports_conversion
+
+      type(AspectMap), pointer :: aspects
+      type(MockAspect) :: mock_aspect
+
+      logical :: mirror_
+      logical :: time_dependent_
+      logical :: supports_conversion_
+      type(ESMF_StateIntent_Flag) :: state_intent_
+      type(VariableSpec), target :: var_spec
+      character(:), allocatable :: short_name_, units_
+
+      mirror_ = .false.
+      if (present(mirror)) mirror_ = mirror
+
+      time_dependent_ = .false.
+      if (present(time_dependent)) time_dependent_ = time_dependent
+
+      supports_conversion_ = .false.
+      if (present(supports_conversion)) supports_conversion_ = supports_conversion
+
+      state_intent_ = ESMF_STATEINTENT_EXPORT
+      if (present(state_intent)) state_intent_ = state_intent
+
+      short_name_ = 'AAA'
+      if (present(short_name)) short_name_ = short_name
+
+      units_ = 'barn'
+      if (present(units)) units_ = units
+
+      var_spec = VariableSpec(state_intent=state_intent_, short_name=short_name_, typekind=typekind, units=units_)
+      aspects => var_spec%aspects
+
+      mock_aspect = MockAspect(value, mirror_, time_dependent_, supports_conversion_)
+      call aspects%insert(CLASS_ASPECT_ID, mock_aspect)
+
+      mock_spec = StateItemSpec(aspects)
+
+   end function MockItemSpec
+
+   function new_MockAspect(value, mirror, time_dependent, supports_conversion) result(aspect)
       type(MockAspect) :: aspect
+      integer, intent(in) :: value
       logical, intent(in) :: mirror
       logical, intent(in) :: time_dependent
-      integer, intent(in) :: value
       logical, intent(in) :: supports_conversion
 
       call aspect%set_mirror(mirror)
@@ -68,17 +130,7 @@ contains
       supports_conversion_specific = src%supports_conversion_
    end function supports_conversion_specific
 
-   function make_action(src, dst, rc) result(action)
-      class(ExtensionAction), allocatable :: action
-      class(MockAspect), intent(in) :: src
-      class(StateItemAspect), intent(in) :: dst
-      integer, optional, intent(out) :: rc
-
-      action = NullAction()
-      if (present(rc)) rc = 0
-   end function make_action
-   
-   function make_action2(src, dst, other_aspects, rc) result(action)
+   function make_action(src, dst, other_aspects, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(MockAspect), intent(in) :: src
       class(StateItemAspect), intent(in)  :: dst
@@ -88,11 +140,12 @@ contains
       allocate(action,source=NullAction()) ! just in case
       if (present(rc)) rc = 0
 
-   end function make_action2
+   end function make_action
 
-   subroutine connect_to_export(this, export, rc)
+   subroutine connect_to_export(this, export, actual_pt, rc)
       class(MockAspect), intent(inout) :: this
       class(StateItemAspect), intent(in) :: export
+      type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -108,11 +161,83 @@ contains
       end select
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
-   function get_aspect_id() result(aspect_id)
-      type(AspectId) :: aspect_id
-      aspect_id = MOCK_ASPECT_ID
-   end function get_aspect_id
+   subroutine create(this, rc)
+      class(MockAspect), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _RETURN(_SUCCESS)
+   end subroutine create
+
+   ! Tile / Grid   X  or X, Y
+   subroutine allocate(this, other_aspects, rc)
+      class(MockAspect), intent(inout) :: this
+      type(AspectMap), intent(in) :: other_aspects
+      integer, optional, intent(out) :: rc
+
+
+      _RETURN(_SUCCESS)
+   end subroutine allocate
+
+
+   subroutine destroy(this, rc)
+      class(MockAspect), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _RETURN(_SUCCESS)
+   end subroutine destroy
+
+
+   subroutine add_to_state(this, multi_state, actual_pt, rc)
+      class(MockAspect), intent(in) :: this
+      type(MultiState), intent(inout) :: multi_state
+      type(ActualConnectionPt), intent(in) :: actual_pt
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_State) :: state
+      type(ESMF_Info) :: info
+      integer :: status
+
+      call multi_state%get_state(state, actual_pt%get_state_intent(), _RC)
+      call ESMF_InfoGetFromHost(state, info, _RC)
+      call ESMF_InfoSet(info, key=actual_pt%get_full_name(), value=.true., _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine add_to_state
+
+   subroutine add_to_bundle(this, field_bundle, rc)
+      class(MockAspect), intent(in) :: this
+      type(ESMF_FieldBundle), intent(inout) :: field_bundle
+      integer, optional, intent(out) :: rc
+
+      _FAIL('not supported')
+   end subroutine add_to_bundle
+
+ 
+   function get_aspect_order(this, goal_aspects, rc) result(aspect_ids)
+      type(AspectId), allocatable :: aspect_ids(:)
+      class(MockAspect), intent(in) :: this
+      type(AspectMap), intent(in) :: goal_aspects
+      integer, optional, intent(out) :: rc
+
+      select case (this%value)
+      case (0)
+         allocate(aspect_ids(0))
+      case (1)
+         aspect_ids = [TYPEKIND_ASPECT_ID]
+      case (3)
+         aspect_ids = [TYPEKIND_ASPECT_ID, UNITS_ASPECT_ID]
+      case default
+         aspect_ids = [TYPEKIND_ASPECT_ID, UNITS_ASPECT_ID]
+      end select
+
+   end function get_aspect_order
+
 
 end module MockAspect_mod

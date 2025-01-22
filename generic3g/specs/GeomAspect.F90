@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_GeomAspect
+   use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_HorizontalDimsSpec
    use mapl3g_StateItemAspect
@@ -23,13 +24,13 @@ module mapl3g_GeomAspect
    end interface to_GeomAspect
 
    type, extends(StateItemAspect) :: GeomAspect
+      private
       type(ESMF_Geom), allocatable :: geom
       type(EsmfRegridderParam) :: regridder_param
       type(HorizontalDimsSpec) :: horizontal_dims_spec = HORIZONTAL_DIMS_GEOM ! none, geom
    contains
       procedure :: matches
       procedure :: make_action
-      procedure :: make_action2
       procedure :: connect_to_export
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
@@ -105,24 +106,7 @@ contains
 
    end function matches
 
-   function make_action(src, dst, rc) result(action)
-      class(ExtensionAction), allocatable :: action
-      class(GeomAspect), intent(in) :: src
-      class(StateItemAspect), intent(in)  :: dst
-      integer, optional, intent(out) :: rc
-
-      select type(dst)
-      class is (GeomAspect)
-         allocate(action, source=RegridAction(src%geom, dst%geom, dst%regridder_param))
-      class default
-         allocate(action,source=NullAction())
-         _FAIL('src is GeomAspect but dst is different subclass')
-      end select
-
-      _RETURN(_SUCCESS)
-   end function make_action
-
-   function make_action2(src, dst, other_aspects, rc) result(action)
+   function make_action(src, dst, other_aspects, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(GeomAspect), intent(in) :: src
       class(StateItemAspect), intent(in)  :: dst
@@ -139,7 +123,7 @@ contains
       allocate(action, source=RegridAction(src%geom, dst_%geom, dst_%regridder_param))
 
       _RETURN(_SUCCESS)
-   end function make_action2
+   end function make_action
 
    subroutine set_geom(this, geom)
       class(GeomAspect), intent(inout) :: this
@@ -161,9 +145,10 @@ contains
       _RETURN(_SUCCESS)
    end function get_geom
 
-   subroutine connect_to_export(this, export, rc)
+   subroutine connect_to_export(this, export, actual_pt, rc)
       class(GeomAspect), intent(inout) :: this
       class(StateItemAspect), intent(in) :: export
+      type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
       type(GeomAspect) :: export_
@@ -173,6 +158,7 @@ contains
       this%geom = export_%geom
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
    function to_geom_from_poly(aspect, rc) result(geom_aspect)

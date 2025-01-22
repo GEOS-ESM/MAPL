@@ -163,7 +163,7 @@ contains
    subroutine add_primary_spec(this, virtual_pt, spec, rc)
       class(StateRegistry), target, intent(inout) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
-      class(StateItemSpec), intent(in) :: spec
+      type(StateItemSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -172,7 +172,6 @@ contains
 
       extension = StateItemExtension(spec)
       call this%owned_items%push_back(extension)
- 
      family = ExtensionFamily(this%owned_items%back())
       call this%add_family(virtual_pt, family, _RC)
       
@@ -219,7 +218,7 @@ contains
    subroutine add_spec(this, virtual_pt, spec, rc)
       class(StateRegistry), target, intent(inout) :: this
       type(VirtualConnectionPt), intent(in) :: virtual_pt
-      class(StateItemSpec), intent(in) :: spec
+      type(StateItemSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -425,8 +424,8 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         class(StateItemSpec), pointer :: spec
-
+         type(StateItemSpec), pointer :: spec
+         
          spec => extension%get_spec()
          _RETURN_IF(spec%is_active())
 
@@ -569,7 +568,7 @@ contains
          type(VirtualPtFamilyMapIterator) :: virtual_iter
          type(ExtensionFamily), pointer :: family
          type(StateItemExtension), pointer :: extension
-         class(StateItemSpec), pointer :: spec
+         type(StateItemSpec), pointer :: spec
          logical :: is_active
 
          write(unit,*,iostat=iostat,iomsg=iomsg) '   virtuals: '// new_line('a')
@@ -605,7 +604,7 @@ contains
       integer :: status
       type(StateItemExtension), pointer :: extension
       integer :: i
-      class(StateItemSpec), pointer :: item_spec
+      type(StateItemSpec), pointer :: item_spec
 
       do i = 1, this%owned_items%size()
          extension => this%owned_items%of(i)
@@ -627,7 +626,7 @@ contains
       integer :: status
       type(StateItemExtensionVectorIterator) :: iter
       class(StateItemExtension), pointer :: extension
-      class(StateItemSpec), pointer :: spec
+      type(StateItemSpec), pointer :: spec
 
       associate (e => this%owned_items%ftn_end())
         iter = this%owned_items%ftn_begin()
@@ -662,7 +661,7 @@ contains
       type(StateItemExtensionPtr), pointer :: extension
       type(StateItemExtension), pointer :: primary
       type(StateItemExtensionPtrVectorIterator) :: ext_iter
-      class(StateItemSpec), pointer :: spec
+      type(StateItemSpec), pointer :: spec
       integer :: i, label
 
       _ASSERT(any([mode == 'user', mode == 'outer']), 'invalid mode: <' // mode // '>')
@@ -819,7 +818,7 @@ contains
       type(StateItemExtension), pointer :: extension
       class(StateRegistry), target, intent(inout) :: registry
       type(VirtualConnectionPt), intent(in) :: v_pt
-      class(StateItemSpec), intent(in) :: goal_spec
+      type(StateItemSpec), intent(in) :: goal_spec
       integer, optional, intent(out) :: rc
 
       type(StateItemExtension), pointer :: closest_extension, new_extension
@@ -831,7 +830,7 @@ contains
       integer :: status
       type(MultiState) :: coupler_states
       type(ActualConnectionPt) :: a_pt
-      class(StateItemSpec), pointer :: last_spec, new_spec
+      type(StateItemSpec), pointer :: last_spec, new_spec
 
       family => registry%get_extension_family(v_pt, _RC)
       

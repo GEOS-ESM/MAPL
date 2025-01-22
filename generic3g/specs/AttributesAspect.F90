@@ -5,6 +5,7 @@
 ! be unused and/or correspond to attributes needed by other imports.
 
 module mapl3g_AttributesAspect
+   use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_ExtensionAction
@@ -25,7 +26,6 @@ module mapl3g_AttributesAspect
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_action
-      procedure :: make_action2
       procedure :: connect_to_export
       procedure, nopass :: get_aspect_id
    end type AttributesAspect
@@ -95,18 +95,7 @@ contains
 
    end function matches
 
-   function make_action(src, dst, rc) result(action)
-      class(ExtensionAction), allocatable :: action
-      class(AttributesAspect), intent(in) :: src
-      class(StateItemAspect), intent(in)  :: dst
-      integer, optional, intent(out) :: rc
-
-      action = NullAction()
-
-      _RETURN(_SUCCESS)
-   end function make_action
-
-   function make_action2(src, dst, other_aspects, rc) result(action)
+   function make_action(src, dst, other_aspects, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(AttributesAspect), intent(in) :: src
       class(StateItemAspect), intent(in)  :: dst
@@ -116,7 +105,7 @@ contains
       action = NullAction()
 
       _RETURN(_SUCCESS)
-   end function make_action2
+   end function make_action
 
    function get_aspect_id() result(aspect_id)
       type(AspectId) :: aspect_id
@@ -124,14 +113,16 @@ contains
    end function get_aspect_id
 
    ! No-op (cannot mirror)
-   subroutine connect_to_export(this, export, rc)
+   subroutine connect_to_export(this, export, actual_pt, rc)
       class(AttributesAspect), intent(inout) :: this
       class(StateItemAspect), intent(in) :: export
+      type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(export)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
 end module mapl3g_AttributesAspect

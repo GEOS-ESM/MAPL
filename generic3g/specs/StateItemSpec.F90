@@ -1,38 +1,28 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_StateItemSpec
+   use mapl3g_AspectId
+   use mapl3g_ActualConnectionPt
    use mapl3g_ActualPtVector
    use mapl3g_ExtensionAction
+   use mapl3g_MultiState
    use mapl3g_StateItemAspect
-   use mapl3g_AspectCollection
-   use gftl2_stringvector
+   use mapl3g_GeomAspect
+   use mapl3g_VerticalGridAspect
+   use mapl3g_ClassAspect
+   use mapl3g_VerticalGrid
    use mapl_ErrorHandling
+   use esmf
+   use gftl2_stringvector
    implicit none
    private
 
+   public :: check
    public :: StateItemSpec
    public :: StateItemSpecPtr
-   public :: StateItemAdapter
-   public :: StateItemAdapterWrapper
+   public :: assignment(=)
 
-   ! Concrete adapter subclasses are used to identify members of an
-   ! ExtensionFamily that match some aspect of a "goal" spec.  A
-   ! sequence of adapters can then be used.  Note that to avoid
-   ! circularity, Adapters actually act on an array of ptr wrappers of
-   ! StateItemSpecs.
-   type, abstract :: StateItemAdapter
-   contains
-      generic :: adapt => adapt_one
-      generic :: match => match_one
-      procedure(I_adapt_one), deferred :: adapt_one
-      procedure(I_match_one), deferred :: match_one
-   end type StateItemAdapter
-
-   type :: StateItemAdapterWrapper
-      class(StateItemAdapter), allocatable :: adapter
-   end type StateItemAdapterWrapper
-
-   type, abstract :: StateItemSpec
+   type :: StateItemSpec
       private
 
       logical :: active = .false.
@@ -40,39 +30,24 @@ module mapl3g_StateItemSpec
       type(StringVector) :: raw_dependencies
       type(ActualPtVector) :: dependencies
 
-      type(AspectCollection) :: aspects
+      type(AspectMap) :: aspects
    contains
 
-      procedure(I_create), deferred :: create
-      procedure(I_destroy), deferred :: destroy
-      procedure(I_allocate), deferred :: allocate
-
-      procedure(I_connect), deferred :: connect_to
-      procedure(I_can_connect), deferred :: can_connect_to
-
       procedure :: get_aspect_order ! as string vector
-!#      procedure(I_get_aspect_priorities), deferred :: get_aspect_priorities ! as colon-separated string
       procedure :: get_aspect_priorities ! default implementation as aid to refactoring
-!#      procedure(I_make_extension), deferred :: make_extension
       procedure :: make_extension
 
-      procedure(I_add_to_state), deferred :: add_to_state
-      procedure(I_add_to_bundle), deferred :: add_to_bundle
-      procedure(I_set_geometry), deferred :: set_geometry
-
-      procedure(I_write_formatted), deferred :: write_formatted
-#ifndef __GFORTRAN__
-      generic :: write(formatted) => write_formatted
-#endif
+!#      procedure(I_write_formatted), deferred :: write_formatted
+!##ifndef __GFORTRAN__
+!#      generic :: write(formatted) => write_formatted
+!##endif
 
       procedure, non_overridable :: set_allocated
       procedure, non_overridable :: is_allocated
       procedure, non_overridable :: is_active
       procedure, non_overridable :: set_active
-!#      procedure, non_overridable :: get_aspect
-!#      procedure, non_overridable :: get_aspects
-!#      procedure, non_overridable :: set_aspect
-      procedure :: get_aspect
+      procedure :: get_aspect_by_id
+      generic :: get_aspect => get_aspect_by_id
       procedure :: get_aspects
       procedure :: set_aspect
 
@@ -80,129 +55,43 @@ module mapl3g_StateItemSpec
       procedure :: get_raw_dependencies
       procedure :: set_dependencies
       procedure :: set_raw_dependencies
+
+      procedure :: create
+      procedure :: destroy
+      procedure :: allocate
+
+      procedure :: connect
+      procedure :: connect_to_import
+      procedure :: connect_to_export
+      procedure :: can_connect_to
+      procedure :: add_to_state
+
+      procedure :: set_geometry
    end type StateItemSpec
 
    type :: StateItemSpecPtr
       class(StateItemSpec), pointer :: ptr => null()
    end type StateItemSpecPtr
 
-   abstract interface
+   interface StateItemSpec
+      procedure :: new_StateItemSpec
+   end interface StateItemSpec
 
-      ! Modify "this" to match attribute in spec.
-      subroutine I_adapt_one(this, spec, action, rc)
-         import StateItemAdapter
-         import StateItemSpec
-         import ExtensionAction
-         class(StateItemAdapter), intent(in) :: this
-         class(StateItemSpec), intent(inout) :: spec
-         class(ExtensionAction), allocatable, intent(out) :: action
-         integer, optional, intent(out) :: rc
-      end subroutine I_adapt_one
+   interface assignment(=)
+      procedure :: copy_item_spec
+   end interface assignment(=)
 
-      ! Detect if "this" matches attribute in spec.
-      logical function I_match_one(this, spec, rc) result(match)
-         import StateItemAdapter
-         import StateItemSpec
-         class(StateItemAdapter), intent(in) :: this
-         class(StateItemSpec), intent(in) :: spec
-         integer, optional, intent(out) :: rc
-      end function I_match_one
-
-      subroutine I_connect(this, src_spec, actual_pt, rc)
-         use mapl3g_ActualConnectionPt
-         import StateItemSpec
-         class(StateItemSpec), intent(inout) :: this
-         class(StateItemSpec), intent(inout) :: src_spec
-         type(ActualConnectionPt), intent(in) :: actual_pt
-         integer, optional, intent(out) :: rc
-      end subroutine I_connect
-
-      logical function I_can_connect(this, src_spec, rc)
-         import StateItemSpec
-         class(StateItemSpec), intent(in) :: this
-         class(StateItemSpec), intent(in) :: src_spec
-         integer, optional, intent(out) :: rc
-      end function I_can_connect
-
-      ! Will use ESMF so cannot be PURE
-      subroutine I_create(this, rc)
-         import StateItemSpec
-         class(StateItemSpec), intent(inout) :: this
-         integer, optional, intent(out) :: rc
-      end subroutine I_create
-
-      subroutine I_destroy(this, rc)
-         import StateItemSpec
-         class(StateItemSpec), intent(inout) :: this
-         integer, optional, intent(out) :: rc
-      end subroutine I_destroy
-
-      ! Will use ESMF so cannot be PURE
-      subroutine I_allocate(this, rc)
-         import StateItemSpec
-         class(StateItemSpec), intent(inout) :: this
-         integer, optional, intent(out) :: rc
-      end subroutine I_allocate
-
-      subroutine I_add_to_state(this, multi_state, actual_pt, rc)
-         use mapl3g_MultiState
-         use mapl3g_ActualConnectionPt
-         import StateItemSpec
-         class(StateItemSpec), intent(in) :: this
-         type(MultiState), intent(inout) :: multi_state
-         type(ActualConnectionPt), intent(in) :: actual_pt
-         integer, optional, intent(out) :: rc
-      end subroutine I_add_to_state
-
-      subroutine I_add_to_bundle(this, bundle, rc)
-         use esmf, only: ESMF_FieldBundle
-         use mapl3g_ActualConnectionPt
-         import StateItemSpec
-         class(StateItemSpec), intent(in) :: this
-         type(ESMF_FieldBundle), intent(inout) :: bundle
-         integer, optional, intent(out) :: rc
-      end subroutine I_add_to_bundle
-
-      subroutine I_set_geometry(this, geom, vertical_grid, rc)
-         use esmf, only: ESMF_Geom, ESMF_TimeInterval
-         use mapl3g_VerticalGrid, only: VerticalGrid
-         import StateItemSpec
-         class(StateItemSpec), intent(inout) :: this
-         type(ESMF_Geom), optional, intent(in) :: geom
-         class(VerticalGrid), optional, intent(in) :: vertical_grid
-         integer, optional, intent(out) :: rc
-      end subroutine I_set_geometry
-
-      subroutine I_write_formatted(this, unit, iotype, v_list, iostat, iomsg)
-         import StateItemSpec
-         class(StateItemSpec), intent(in) :: this
-         integer, intent(in) :: unit
-         character(*), intent(in) :: iotype
-         integer, intent(in) :: v_list(:)
-         integer, intent(out) :: iostat
-         character(*), intent(inout) :: iomsg
-      end subroutine I_write_formatted
-
-      function I_get_aspect_priorities(src_spec, dst_spec) result(aspect_order)
-         import StateItemSpec
-         character(:), allocatable :: order
-         class(StateItemSpec), intent(in) :: src_spec
-         class(StateItemSpec), intent(in) :: dst_spec
-      end function I_get_aspect_priorities
-
-!#      function I_make_extension(this, aspect_name, aspect, rc) result(new_spec)
-!#         import StateItemSpec
-!#         class(StateItemSpec), allocatable :: new_spec
-!#         class(StateItemSpec), intent(in) :: this
-!#         character(*), intent(in) :: aspect_name
-!#         class(StateItemAspect), intent(in) :: aspect
-!#         integer, optional, intent(out) :: rc
-!#      end function I_make_extension
-
-   end interface
 
 contains
-   
+
+   function new_StateItemSpec(aspects) result(spec)
+      type(StateItemSpec) :: spec
+      type(AspectMap), intent(in) :: aspects
+
+      spec%aspects = aspects
+   end function new_StateItemSpec
+
+
    function new_StateItemSpecPtr(state_item) result(wrap)
       type(StateItemSpecPtr) :: wrap
       class(StateItemSpec), target :: state_item
@@ -215,11 +104,11 @@ contains
       class(StateItemSpec), intent(inout) :: this
       logical, optional, intent(in) :: allocated
 
+      this%allocated =  .true.
       if (present(allocated)) then
          this%allocated = allocated
-      else
-         this%allocated =  .true.
       end if
+
    end subroutine set_allocated
 
    pure logical function is_allocated(this)
@@ -231,11 +120,11 @@ contains
       class(StateItemSpec), intent(inout) :: this
       logical, optional, intent(in) :: active
 
+      this%active =  .true.
       if (present(active)) then
          this%active = active
-      else
-         this%active =  .true.
       end if
+
    end subroutine set_active
 
    pure logical function is_active(this)
@@ -267,21 +156,21 @@ contains
       this%raw_dependencies = raw_dependencies
    end subroutine set_raw_dependencies
 
-   function get_aspect(this, name, rc) result(aspect)
+   function get_aspect_by_id(this, aspect_id, rc) result(aspect)
       class(StateItemAspect), pointer :: aspect
-      character(*), intent(in) :: name
+      type(AspectId), intent(in) :: aspect_id
       class(StateItemSpec), target, intent(in) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
 
-      aspect => this%aspects%get_aspect(name, _RC)
+      aspect => this%aspects%at(aspect_id, _RC)
 
       _RETURN(_SUCCESS)
-   end function get_aspect
+   end function get_aspect_by_id
 
    function get_aspects(this) result(aspects)
-      type(AspectCollection), pointer :: aspects
+      type(AspectMap), pointer :: aspects
       class(StateItemSpec), target, intent(in) :: this
       aspects => this%aspects
    end function get_aspects
@@ -292,35 +181,29 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(AspectId) :: id
 
-      call this%aspects%set_aspect(aspect, _RC)
+      id = aspect%get_aspect_id()
+
+      call this%aspects%insert(aspect%get_aspect_id(), aspect)
 
       _RETURN(_SUCCESS)
    end subroutine set_aspect
 
-   function get_aspect_order(src_spec, dst_spec) result(names)
-      type(StringVector) :: names
-      class(StateItemSpec), intent(in) :: src_spec
-      class(StateItemSpec), intent(in) :: dst_spec
+   ! Delegate to CLASS aspect
+   function get_aspect_order(src_spec, dst_spec, rc) result(ids)
+      type(AspectId), allocatable :: ids(:)
+      class(StateItemSpec), target, intent(in) :: src_spec
+      class(StateItemSpec), target, intent(in) :: dst_spec
+      integer, optional, intent(out) :: rc
 
-      character(:), allocatable :: str
-      character(*), parameter :: SEPARATOR = '::'
-      integer :: idx
+      integer :: status
+      class(ClassAspect), pointer :: src_class_aspect
 
-      str = src_spec%get_aspect_priorities(dst_spec)
-      if (len(str) == 0) then ! empty list
-         return
-      end if
+      src_class_aspect => to_ClassAspect(src_spec%aspects, _RC)
+      ids = src_class_aspect%get_aspect_order(dst_spec%get_aspects(), _RC)
 
-      do
-         idx = index(str, SEPARATOR)
-         if (idx == 0) then
-            call names%push_back(str)
-            exit
-         end if
-         call names%push_back(str(1:idx-1))
-         str = str(idx+len(SEPARATOR):)
-      end do
+      _RETURN(_SUCCESS)
    end function get_aspect_order
 
 
@@ -348,5 +231,238 @@ contains
       
       _RETURN(_SUCCESS)
    end function make_extension
+
+   ! Will use ESMF so cannot be PURE
+   subroutine create(this, rc)
+      class(StateItemSpec), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(ClassAspect), pointer :: class_aspect
+
+      class_aspect => to_ClassAspect(this%aspects, _RC)
+      call class_aspect%create(_RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine create
+
+   subroutine destroy(this, rc)
+      class(StateItemSpec), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(ClassAspect), pointer :: class_aspect
+
+      class_aspect => to_ClassAspect(this%aspects, _RC)
+      call class_aspect%destroy(_RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine destroy
+
+   subroutine allocate(this, rc)
+      class(StateItemSpec), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(ClassAspect), pointer :: class_aspect
+
+      ! Kludge to prevent allocation of import items
+      _RETURN_IF(this%is_allocated())
+
+      class_aspect => to_ClassAspect(this%aspects, _RC)
+      call class_aspect%allocate(this%aspects, _RC)
+      call this%set_allocated()
+
+      _RETURN(_SUCCESS)
+   end subroutine allocate
+
+
+   subroutine connect_to_import(this, import, rc)
+      class(StateItemSpec), target, intent(inout) :: this
+      class(StateItemSpec), target, intent(inout) :: import
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      class(ClassAspect), pointer :: src_class_aspect, dst_class_aspect
+      type(AspectId) :: aspect_id
+
+      src_class_aspect => to_ClassAspect(this%aspects, _RC)
+      dst_class_aspect => to_ClassAspect(import%aspects, _RC)
+
+      aspect_id = src_class_aspect%get_aspect_id()
+      aspect_id = dst_class_aspect%get_aspect_id()
+      call src_class_aspect%connect_to_import(dst_class_aspect, _RC)
+
+      call this%set_active()
+
+      _RETURN(_SUCCESS)
+   end subroutine connect_to_import
+
+   subroutine connect_to_export(this, export, actual_pt, rc)
+      class(StateItemSpec), target, intent(inout) :: this
+      class(StateItemSpec), target, intent(inout) :: export
+      type(ActualConnectionPt), intent(in) :: actual_pt
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      class(ClassAspect), pointer :: src_class_aspect, dst_class_aspect
+
+      src_class_aspect => to_ClassAspect(export%aspects, _RC)
+      dst_class_aspect => to_ClassAspect(this%aspects, _RC)
+      call dst_class_aspect%connect_to_export(src_class_aspect, actual_pt, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine connect_to_export
+
+   subroutine connect(import, export, actual_pt, rc)
+      class(StateItemSpec), intent(inout) :: import
+      class(StateItemSpec), intent(inout) :: export
+      type(ActualConnectionPt), intent(in) :: actual_pt
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call import%connect_to_export(export, actual_pt, _RC)
+      call export%connect_to_import(import, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine connect
+
+   logical function can_connect_to(this, export, rc)
+      import StateItemSpec
+      class(StateItemSpec), intent(in) :: this
+      class(StateItemSpec), intent(in) :: export
+      integer, optional, intent(out) :: rc
+      
+      integer :: status
+      type(AspectMapIterator) :: iter
+      type(AspectId) :: aspect_id
+      class(StateItemAspect), pointer :: dst_aspect, export_aspect
+
+      can_connect_to = .false.
+
+      iter = this%aspects%ftn_begin()
+      associate(e => this%aspects%ftn_end())
+        do while (iter /= e)
+           call iter%next()
+
+           aspect_id = iter%first()
+           dst_aspect => this%aspects%at(aspect_id, _RC)
+           export_aspect => export%aspects%at(aspect_id, _RC)
+           can_connect_to =  export_aspect%can_connect_to(dst_aspect)
+           _RETURN_UNLESS(can_connect_to)
+
+        end do
+      end associate
+
+      _RETURN(_SUCCESS)
+  end function can_connect_to
+
+
+  subroutine add_to_state(this, multi_state, actual_pt, rc)
+     class(StateItemSpec), target, intent(in) :: this
+     type(MultiState), intent(inout) :: multi_state
+     type(ActualConnectionPt), intent(in) :: actual_pt
+     integer, optional, intent(out) :: rc
+  
+      integer :: status
+      class(ClassAspect), pointer :: class_aspect
+
+      class_aspect => to_ClassAspect(this%aspects, _RC)
+      call class_aspect%add_to_state(multi_state, actual_pt, _RC)
+
+      _RETURN(_SUCCESS)
+      
+   end subroutine add_to_state
+
+   subroutine set_geometry(this, geom, vertical_grid, rc)
+      class(StateItemSpec), intent(inout) :: this
+      type(ESMF_Geom), optional, intent(in) :: geom
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call target_set_geom(this, geom, vertical_grid)
+
+      _RETURN(_SUCCESS)
+
+   contains
+
+      ! Helper needed to add target attribute to "this"
+      subroutine target_set_geom(this, geom, vertical_grid)
+         class(StateItemSpec), target, intent(inout) :: this
+         type(ESMF_Geom), optional, intent(in) :: geom
+         class(VerticalGrid), optional, intent(in) :: vertical_grid
+
+         class(StateItemAspect), pointer :: poly_aspect
+         type(GeomAspect) :: geom_aspect
+         type(VerticalGridAspect) :: vertical_grid_aspect
+
+         if (present(geom)) then
+            if (this%aspects%count(GEOM_ASPECT_ID) > 0) then
+               poly_aspect => this%aspects%at(GEOM_ASPECT_ID, _RC)
+
+               select type (poly_aspect)
+               type is (GeomAspect)
+                  call poly_aspect%set_geom(geom)
+               end select
+
+            else
+               call this%aspects%insert(GEOM_ASPECT_ID, GeomAspect(geom))
+            end if
+
+         end if
+
+         if (present(vertical_grid)) then
+            if (this%aspects%count(VERTICAL_GRID_ASPECT_ID) > 0) then
+               poly_aspect => this%aspects%at(VERTICAL_GRID_ASPECT_ID, _RC)
+
+               select type (poly_aspect)
+               type is (VerticalGridAspect)
+                  call poly_aspect%set_vertical_grid(vertical_grid)
+               end select
+            else
+               call this%aspects%insert(VERTICAL_GRID_ASPECT_ID,  VerticalGridAspect(vertical_grid=vertical_grid, geom=geom))
+            end if
+
+         end if
+
+      end subroutine target_set_geom
+
+   end subroutine set_geometry
+
+   recursive subroutine copy_item_spec(a, b)
+      type(StateItemSpec), intent(out) :: a
+      type(StateItemSpec), intent(in) :: b
+
+      a%aspects = b%aspects
+
+      a%active = b%active
+      a%allocated = b%allocated
+      a%raw_dependencies = b%raw_dependencies
+      a%dependencies = b%dependencies
+
+   end subroutine copy_item_spec
+
+   subroutine check(this, file, line)
+      class(StateItemSpec), target, intent(in) :: this
+      character(*), intent(in) :: file
+      integer, intent(in) :: line
+
+      type(AspectMapIterator) :: iter
+      type(AspectId) :: aspect_id
+
+      iter = this%aspects%ftn_begin()
+      associate(e => this%aspects%ftn_end())
+        do while (iter /= e)
+           call iter%next()
+           aspect_id = iter%first()
+        end do
+      end associate
+      
+   end subroutine check
 
 end module mapl3g_StateItemSpec
