@@ -177,49 +177,11 @@ contains
       type(ActualConnectionPt), intent(in) :: actual_pt ! unused
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      integer :: i
 
-      _ASSERT(this%can_connect_to(src_spec), 'illegal connection')
-
-      select type (src_spec)
-      class is (BracketSpec)
-         call this%destroy(_RC) ! use bundle from src
-         this%payload = src_spec%payload
-         call mirror_bracket(dst=this%bracket_size, src=src_spec%bracket_size)
-
-         associate (n => this%bracket_size)
-           this%field_specs = [(this%reference_spec, i=1,n)]
-           src_spec%field_specs = [(src_spec%reference_spec, i=1,n)]
-           
-           do i = 1, this%bracket_size
-              call this%field_specs(i)%create(_RC)
-              call this%field_specs(i)%connect_to(src_spec%field_specs(i), actual_pt, _RC)
-           end do
-         end associate
-
-      class default
-         _FAIL('Cannot connect field spec to non field spec.')
-      end select
+      _FAIL('BracketSpec can only be export (src).')
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(actual_pt)
-
-   contains
-
-      subroutine mirror_bracket(dst, src)
-         integer, allocatable, intent(inout) :: dst
-         integer, allocatable, intent(inout) :: src
-
-         if (.not. allocated(src)) then
-            _ASSERT(allocated(dst), 'cannot mirror unallocated bracket size')
-            src = dst
-         end if
-         if (.not. allocated(dst)) then
-            _ASSERT(allocated(src), 'cannot mirror unallocated bracket size')
-            dst = src
-         end if
-      end subroutine mirror_bracket
 
    end subroutine connect_to
 

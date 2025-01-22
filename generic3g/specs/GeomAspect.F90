@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_GeomAspect
+   use mapl3g_AspectId
    use mapl3g_HorizontalDimsSpec
    use mapl3g_StateItemAspect
    use mapl3g_geom_mgr, only: MAPL_SameGeom
@@ -14,7 +15,12 @@ module mapl3g_GeomAspect
    private
 
    public :: GeomAspect
+   public :: to_GeomAspect ! cast from poly
 
+   interface to_GeomAspect
+      procedure :: to_geom_from_poly
+      procedure :: to_geom_from_map
+   end interface to_GeomAspect
 
    type, extends(StateItemAspect) :: GeomAspect
       type(ESMF_Geom), allocatable :: geom
@@ -23,10 +29,13 @@ module mapl3g_GeomAspect
    contains
       procedure :: matches
       procedure :: make_action
+      procedure :: make_action2
+      procedure :: connect_to_export
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: set_geom
       procedure :: get_geom
+      procedure, nopass :: get_aspect_id
    end type GeomAspect
 
    interface GeomAspect
@@ -113,6 +122,25 @@ contains
       _RETURN(_SUCCESS)
    end function make_action
 
+   function make_action2(src, dst, other_aspects, rc) result(action)
+      class(ExtensionAction), allocatable :: action
+      class(GeomAspect), intent(in) :: src
+      class(StateItemAspect), intent(in)  :: dst
+      type(AspectMap), target, intent(in)  :: other_aspects
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(GeomAspect) :: dst_
+
+      allocate(action,source=NullAction()) ! just in case
+      dst_ = to_GeomAspect(dst, _RC)
+
+      deallocate(action)
+      allocate(action, source=RegridAction(src%geom, dst_%geom, dst_%regridder_param))
+
+      _RETURN(_SUCCESS)
+   end function make_action2
+
    subroutine set_geom(this, geom)
       class(GeomAspect), intent(inout) :: this
       type(ESMF_Geom) :: geom
@@ -132,5 +160,56 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_geom
+
+   subroutine connect_to_export(this, export, rc)
+      class(GeomAspect), intent(inout) :: this
+      class(StateItemAspect), intent(in) :: export
+      integer, optional, intent(out) :: rc
+
+      type(GeomAspect) :: export_
+      integer :: status
+
+      export_ = to_GeomAspect(export, _RC)
+      this%geom = export_%geom
+
+      _RETURN(_SUCCESS)
+   end subroutine connect_to_export
+
+   function to_geom_from_poly(aspect, rc) result(geom_aspect)
+      type(GeomAspect) :: geom_aspect
+      class(StateItemAspect), intent(in) :: aspect
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      select type(aspect)
+      class is (GeomAspect)
+         geom_aspect = aspect
+      class default
+         _FAIL('aspect is not GeomAspect')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function to_geom_from_poly
+
+   function to_geom_from_map(map, rc) result(geom_aspect)
+      type(GeomAspect) :: geom_aspect
+      type(AspectMap), target, intent(in) :: map
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(StateItemAspect), pointer :: poly
+
+      poly => map%at(GEOM_ASPECT_ID, _RC)
+      geom_aspect = to_GeomAspect(poly, _RC)
+
+      _RETURN(_SUCCESS)
+   end function to_geom_from_map
+   
+
+   function get_aspect_id() result(aspect_id)
+      type(AspectId) :: aspect_id
+      aspect_id = GEOM_ASPECT_ID
+   end function get_aspect_id
 
 end module mapl3g_GeomAspect

@@ -1,9 +1,11 @@
 #include "MAPL_Generic.h"
 
 module MockAspect_mod
+   use mapl3g_AspectId
    use mapl3g_StateItemASpect
    use mapl3g_ExtensionAction
    use mapl3g_NullAction
+   use mapl_ErrorHandling
    implicit none
    private
 
@@ -15,8 +17,11 @@ module MockAspect_mod
    contains
       procedure :: matches
       procedure :: make_action
+      procedure :: make_action2
+      procedure :: connect_to_export
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
+      procedure, nopass :: get_aspect_id
    end type MockAspect
 
    interface MockAspect
@@ -73,4 +78,41 @@ contains
       if (present(rc)) rc = 0
    end function make_action
    
+   function make_action2(src, dst, other_aspects, rc) result(action)
+      class(ExtensionAction), allocatable :: action
+      class(MockAspect), intent(in) :: src
+      class(StateItemAspect), intent(in)  :: dst
+      type(AspectMap), target, intent(in)  :: other_aspects
+      integer, optional, intent(out) :: rc
+
+      allocate(action,source=NullAction()) ! just in case
+      if (present(rc)) rc = 0
+
+   end function make_action2
+
+   subroutine connect_to_export(this, export, rc)
+      class(MockAspect), intent(inout) :: this
+      class(StateItemAspect), intent(in) :: export
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      select type (this)
+      type is (MockAspect)
+         select type (export)
+         type is (MockAspect)
+            this = export
+         class default
+            _FAIL('bad subtype')
+         end select
+      end select
+
+      _RETURN(_SUCCESS)
+   end subroutine connect_to_export
+
+   function get_aspect_id() result(aspect_id)
+      type(AspectId) :: aspect_id
+      aspect_id = MOCK_ASPECT_ID
+   end function get_aspect_id
+
 end module MockAspect_mod

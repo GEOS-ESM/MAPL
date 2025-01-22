@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_UngriddedDimsAspect
+   use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_ExtensionAction
    use mapl3g_UngriddedDims
@@ -10,16 +11,24 @@ module mapl3g_UngriddedDimsAspect
    private
 
    public :: UngriddedDimsAspect
-
+   public :: to_UngriddedDimsAspect
+   
+   interface to_UngriddedDimsAspect
+      procedure :: to_ungridded_dims_from_poly
+      procedure :: to_ungridded_dims_from_map
+   end interface to_UngriddedDimsAspect
 
    type, extends(StateItemAspect) :: UngriddedDimsAspect
 !#      private
       type(UngriddedDims), allocatable :: ungridded_dims
    contains
       procedure :: matches
+      procedure :: connect_to_export
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_action
+      procedure :: make_action2
+      procedure, nopass :: get_aspect_id
    end type UngriddedDimsAspect
 
    interface UngriddedDimsAspect
@@ -65,6 +74,39 @@ contains
 
    end function matches
 
+
+   function to_ungridded_dims_from_poly(aspect, rc) result(ungridded_dims_aspect)
+      type(UngriddedDimsAspect) :: ungridded_dims_aspect
+      class(StateItemAspect), intent(in) :: aspect
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      select type(aspect)
+      class is (UngriddedDimsAspect)
+         ungridded_dims_aspect = aspect
+      class default
+         _FAIL('aspect is not UngriddedDimsAspect')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function to_ungridded_dims_from_poly
+
+   function to_ungridded_dims_from_map(map, rc) result(ungridded_dims_aspect)
+      type(UngriddedDimsAspect) :: ungridded_dims_aspect
+      type(AspectMap), target, intent(in) :: map
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(StateItemAspect), pointer :: poly
+
+      poly => map%at(UNGRIDDED_DIMS_ASPECT_ID, _RC)
+      ungridded_dims_aspect = to_UngriddedDimsAspect(poly, _RC)
+
+      _RETURN(_SUCCESS)
+   end function to_ungridded_dims_from_map
+
+
    function make_action(src, dst, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(UngriddedDimsAspect), intent(in) :: src
@@ -75,5 +117,37 @@ contains
 
       _RETURN(_SUCCESS)
    end function make_action
+
+   function make_action2(src, dst, other_aspects, rc) result(action)
+      class(ExtensionAction), allocatable :: action
+      class(UngriddedDimsAspect), intent(in) :: src
+      class(StateItemAspect), intent(in)  :: dst
+      type(AspectMap), target, intent(in)  :: other_aspects
+      integer, optional, intent(out) :: rc
+
+      allocate(action,source=NullAction()) ! just in case
+
+      _RETURN(_SUCCESS)
+   end function make_action2
+
+   subroutine connect_to_export(this, export, rc)
+      class(UngriddedDimsAspect), intent(inout) :: this
+      class(StateItemAspect), intent(in) :: export
+      integer, optional, intent(out) :: rc
+
+      type(UngriddedDimsAspect) :: export_
+      integer :: status
+      
+      export_ = to_UngriddedDimsAspect(export, _RC)
+      this%ungridded_dims = export_%ungridded_dims
+
+      _RETURN(_SUCCESS)
+   end subroutine connect_to_export
+   
+   function get_aspect_id() result(aspect_id)
+      type(AspectId) :: aspect_id
+      aspect_id = UNGRIDDED_DIMS_ASPECT_ID
+   end function get_aspect_id
+
 
 end module mapl3g_UngriddedDimsAspect

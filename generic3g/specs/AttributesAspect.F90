@@ -5,6 +5,7 @@
 ! be unused and/or correspond to attributes needed by other imports.
 
 module mapl3g_AttributesAspect
+   use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_ExtensionAction
    use mapl3g_NullAction
@@ -24,6 +25,9 @@ module mapl3g_AttributesAspect
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_action
+      procedure :: make_action2
+      procedure :: connect_to_export
+      procedure, nopass :: get_aspect_id
    end type AttributesAspect
 
    interface AttributesAspect
@@ -101,5 +105,33 @@ contains
 
       _RETURN(_SUCCESS)
    end function make_action
+
+   function make_action2(src, dst, other_aspects, rc) result(action)
+      class(ExtensionAction), allocatable :: action
+      class(AttributesAspect), intent(in) :: src
+      class(StateItemAspect), intent(in)  :: dst
+      type(AspectMap), target, intent(in)  :: other_aspects
+      integer, optional, intent(out) :: rc
+
+      action = NullAction()
+
+      _RETURN(_SUCCESS)
+   end function make_action2
+
+   function get_aspect_id() result(aspect_id)
+      type(AspectId) :: aspect_id
+      aspect_id = ATTRIBUTES_ASPECT_ID
+   end function get_aspect_id
+
+   ! No-op (cannot mirror)
+   subroutine connect_to_export(this, export, rc)
+      class(AttributesAspect), intent(inout) :: this
+      class(StateItemAspect), intent(in) :: export
+      integer, optional, intent(out) :: rc
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(export)
+   end subroutine connect_to_export
 
 end module mapl3g_AttributesAspect

@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_TypekindAspect
+   use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_ExtensionAction
    use mapl3g_Copyaction
@@ -8,11 +9,16 @@ module mapl3g_TypekindAspect
    use mapl_ErrorHandling
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
    use esmf
-   implicit none
+   implicit none(type,external)
    private
 
    public :: TypekindAspect
-
+   public :: to_TypekindAspect
+   
+   interface to_TypekindAspect
+      procedure :: to_typekind_from_poly
+      procedure :: to_typekind_from_map
+   end interface to_TypekindAspect
 
    type, extends(StateItemAspect) :: TypekindAspect
 !#      private
@@ -22,6 +28,9 @@ module mapl3g_TypekindAspect
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_action
+      procedure :: make_action2
+      procedure :: connect_to_export
+      procedure, nopass :: get_aspect_id
 
       procedure :: set_typekind
       procedure :: get_typekind
@@ -86,7 +95,41 @@ contains
       _RETURN(_SUCCESS)
    end function make_action
 
-   subroutine set_typekind(this, typekind)
+   function make_action2(src, dst, other_aspects, rc) result(action)
+      class(ExtensionAction), allocatable :: action
+      class(TypekindAspect), intent(in) :: src
+      class(StateItemAspect), intent(in)  :: dst
+      type(AspectMap), target, intent(in)  :: other_aspects
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(TypekindAspect) :: dst_
+
+      allocate(action,source=NullAction()) ! just in case
+      dst_ = to_TypekindAspect(dst, _RC)
+
+      deallocate(action)
+      allocate(action, source=CopyAction(src%typekind, dst_%typekind))
+
+      _RETURN(_SUCCESS)
+   end function make_action2
+
+   ! Copy from src - might have been mirror.
+
+   subroutine connect_to_export(this, export, rc)
+      class(TypekindAspect), intent(inout) :: this
+      class(StateItemAspect), intent(in) :: export
+      integer, optional, intent(out) :: rc
+
+      type(TypekindAspect) :: export_
+      integer :: status
+
+      export_ = to_TypekindAspect(export, _RC)
+      this%typekind = export_%typekind
+      _RETURN(_SUCCESS)
+   end subroutine connect_to_export
+
+  subroutine set_typekind(this, typekind)
       class(TypekindAspect), intent(inout) :: this
       type(ESMF_Typekind_Flag), intent(in) :: typekind
 
@@ -100,4 +143,41 @@ contains
       typekind = this%typekind
    end function get_typekind
 
+   function get_aspect_id() result(aspect_id)
+      type(AspectId) :: aspect_id
+      aspect_id = TYPEKIND_ASPECT_ID
+   end function get_aspect_id
+
+   function to_typekind_from_poly(aspect, rc) result(typekind_aspect)
+      type(TypekindAspect) :: typekind_aspect
+      class(StateItemAspect), intent(in) :: aspect
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      select type(aspect)
+      class is (TypekindAspect)
+         typekind_aspect = aspect
+      class default
+         _FAIL('aspect is not TypekindAspect')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function to_typekind_from_poly
+
+   function to_typekind_from_map(map, rc) result(typekind_aspect)
+      type(TypekindAspect) :: typekind_aspect
+      type(AspectMap), target, intent(in) :: map
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(StateItemAspect), pointer :: poly
+
+      poly => map%at(TYPEKIND_ASPECT_ID, _RC)
+      typekind_aspect = to_TypekindAspect(poly, _RC)
+
+      _RETURN(_SUCCESS)
+   end function to_typekind_from_map
+   
+ 
 end module mapl3g_TypekindAspect

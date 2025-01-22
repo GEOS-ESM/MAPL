@@ -83,7 +83,7 @@ contains
       select case (name)
       case ('GEOM')
          aspect => this%get_geom_aspect()
-      case ('VERTICAL')
+      case ('VERTICAL_GRID')
          aspect => this%get_vertical_grid_aspect()
       case ('UNITS')
          aspect => this%get_units_aspect()
@@ -110,7 +110,7 @@ contains
 
       case ('GEOM')
          has_aspect = allocated(this%geom_aspect)
-      case ('VERTICAL')
+      case ('VERTICAL_GRID')
          has_aspect = allocated(this%vertical_grid_aspect)
       case ('UNITS')
          has_aspect = allocated(this%units_aspect)
