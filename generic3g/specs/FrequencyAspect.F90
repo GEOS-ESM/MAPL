@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 #include "unused_dummy.H"
 module mapl3g_FrequencyAspect
+   use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_AccumulatorActionInterface
    use esmf
@@ -19,6 +20,9 @@ module mapl3g_FrequencyAspect
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_action
+      procedure :: make_action2
+      procedure :: connect_to_export
+      procedure, nopass :: get_aspect_id
       ! These are specific to FrequencyAspect.
       procedure :: get_timestep
       procedure :: set_timestep
@@ -139,7 +143,38 @@ contains
 
    end function make_action
 
-   logical function supports_conversion_general(src) result(supports)
+    function make_action2(src, dst, other_aspects, rc) result(action)
+      class(ExtensionAction), allocatable :: action
+      class(FrequencyAspect), intent(in) :: src
+      class(StateItemAspect), intent(in)  :: dst
+      type(AspectMap), target, intent(in)  :: other_aspects
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      select type(dst)
+      class is (FrequencyAspect)
+         call get_accumulator_action(dst%get_accumulation_type(), ESMF_TYPEKIND_R4, action, _RC) 
+         _ASSERT(allocated(action), 'Unable to allocate action')
+      class default
+         allocate(action,source=NullAction())
+         _FAIL('FrequencyAspect cannot convert from other class.')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function make_action2
+
+   subroutine connect_to_export(this, export, rc)
+      class(FrequencyAspect), intent(inout) :: this
+      class(StateItemAspect), intent(in) :: export
+      integer, optional, intent(out) :: rc
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(export)
+   end subroutine connect_to_export
+
+  logical function supports_conversion_general(src) result(supports)
       class(FrequencyAspect), intent(in) :: src
 
       supports = .TRUE.
@@ -189,5 +224,11 @@ contains
       zero => ZERO_TI
 
    end function get_zero
+
+   function get_aspect_id() result(aspect_id)
+      type(AspectId) :: aspect_id
+      aspect_id = FREQUENCY_ASPECT_ID
+   end function get_aspect_id
+
 
 end module mapl3g_FrequencyAspect

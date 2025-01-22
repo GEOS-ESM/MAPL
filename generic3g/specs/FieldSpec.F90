@@ -169,7 +169,7 @@ contains
 
       ! Cannot do a simple copy as some setters have side-effects
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('GEOM'))
-      call field_spec%set_aspect(variable_spec%aspects%get_aspect('VERTICAL'))
+      call field_spec%set_aspect(variable_spec%aspects%get_aspect('VERTICAL_GRID'))
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('UNGRIDDED_DIMS'))
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('ATTRIBUTES'))
       call field_spec%set_aspect(variable_spec%aspects%get_aspect('TYPEKIND'))
@@ -286,7 +286,7 @@ contains
          _FAIL('no geom aspect')
       end select
 
-      aspect => this%get_aspect('VERTICAL', _RC)
+      aspect => this%get_aspect('VERTICAL_GRID', _RC)
 
       select type (aspect)
       class is (VerticalGridAspect)
@@ -407,7 +407,7 @@ contains
 
          aspect => src_spec%get_aspect('GEOM', _RC)
          call this%set_aspect(aspect, _RC)
-         aspect => src_spec%get_aspect('VERTICAL', _RC)
+         aspect => src_spec%get_aspect('VERTICAL_GRID', _RC)
          call this%set_aspect(aspect, _RC)
          aspect => src_spec%get_aspect('UNGRIDDED_DIMS', _RC)
          call this%set_aspect(aspect, _RC)
@@ -528,7 +528,7 @@ contains
       class(FieldSpec), intent(in) :: src_spec
       class(StateItemSpec), intent(in) :: dst_spec
 
-      order = 'ATTRIBUTES::UNGRIDDED_DIMS::GEOM::VERTICAL::UNITS::TYPEKIND'
+      order = 'ATTRIBUTES::UNGRIDDED_DIMS::GEOM::VERTICAL_GRID::UNITS::TYPEKIND'
 
    end function get_aspect_priorities
    

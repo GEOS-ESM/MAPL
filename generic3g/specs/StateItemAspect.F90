@@ -39,9 +39,20 @@
 
 
 module mapl3g_StateItemAspect
+   use mapl3g_AspectId
    use mapl_ErrorHandling
-   implicit none
-   private
+
+#define Key AspectId
+#define Key_LT(a,b) a < b
+#define T StateItemAspect
+#define T_polymorphic
+#define Map AspectMap
+#define MapIterator AspectMapIterator
+#define Pair AspectPair
+
+#include "map/header.inc"
+#include "map/public.inc"
+
 
    public :: StateItemAspect
 
@@ -53,6 +64,12 @@ module mapl3g_StateItemAspect
       ! Subclass must define these
       procedure(I_matches), deferred :: matches
       procedure(I_make_action), deferred :: make_action
+
+      procedure(I_make_action2), deferred :: make_action2
+      procedure :: connect_to_import
+      procedure(I_connect_to_export), deferred :: connect_to_export
+      procedure(I_get_aspect_id), deferred, nopass :: get_aspect_id
+
       procedure(I_supports_conversion_general), deferred :: supports_conversion_general
       procedure(I_supports_conversion_specific), deferred :: supports_conversion_specific
       generic :: supports_conversion => supports_conversion_general, supports_conversion_specific
@@ -66,6 +83,7 @@ module mapl3g_StateItemAspect
       procedure, non_overridable :: set_time_dependent
    end type StateItemAspect
 
+#include "map/specification.inc"
 
    abstract interface
 
@@ -93,9 +111,38 @@ module mapl3g_StateItemAspect
          integer, optional, intent(out) :: rc
       end function I_make_action
 
-   end interface
+      function I_get_aspect_id() result(aspect_id)
+         import StateItemAspect
+         import AspectId
+         type(AspectId) :: aspect_id
+      end function I_get_aspect_id
+
+      function I_make_action2(src, dst, other_aspects, rc) result(action)
+         use mapl3g_ExtensionAction
+         import :: StateItemAspect
+         import :: AspectMap
+         class(ExtensionAction), allocatable :: action
+         class(StateItemAspect), intent(in) :: src
+         class(StateItemAspect), intent(in) :: dst
+         type(AspectMap), target, intent(in) :: other_aspects
+         integer, optional, intent(out) :: rc
+      end function I_make_action2
+
+      subroutine I_connect_to_export(this, export, rc)
+         import :: StateItemAspect
+         class(StateItemAspect), intent(inout) :: this
+         class(StateItemAspect), intent(in) :: export
+         integer, optional, intent(out) :: rc
+      end subroutine I_connect_to_export
+
+end interface
+
 
 contains
+
+#include "map/procedures.inc"
+#include "map/tail.inc"
+
 
    !-------------------------------------------
    ! Two aspects cann connect if and only if:
@@ -185,6 +232,27 @@ contains
       if (present(time_dependent)) this%time_dependent = time_dependent
    end subroutine set_time_dependent
 
+   ! Most subclasses have same behavior (NOOP) so we provide a base
+   ! implementation. 
+   subroutine connect_to_import(this, import, rc)
+      class(StateItemAspect), intent(inout) :: this
+      class(StateItemAspect), intent(in) :: import
+      integer, optional, intent(out) :: rc
+
+      
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(import)
+   end subroutine connect_to_import
+   
+
+#undef AspectPair
+#undef AspectMapIterator
+#undef AspectMap
+#undef T_polymorphic
+#undef T
+#undef Key
+#undef KEY_LT
 end module mapl3g_StateItemAspect
 
 
