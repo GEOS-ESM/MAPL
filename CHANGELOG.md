@@ -81,6 +81,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
+- Updated ExtData so that if files are missing in a sequence the last value will be perisisted if one has not chosen `exact` option
 
 ### Fixed
 
@@ -102,7 +103,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Updated ExtData so that if files are missing in a sequence the last value will be perisisted if one has not chosen `exact` option
 - Changed MAPL_ESMFRegridder to require the dstMaskValues to be added as grid attribute to use fixed masking, fixes UFS issue
 - Increased formatting width of time index in ExtData2G diagnostic print
 - Updated GitHub checkout action to use blobless clones
