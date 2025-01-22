@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_VerticalGridAspect
+   use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_ExtensionAction
@@ -239,9 +240,10 @@ contains
       self%typekind = typekind
    end subroutine set_typekind
 
-   subroutine connect_to_export(this, export, rc)
+   subroutine connect_to_export(this, export, actual_pt, rc)
       class(VerticalGridAspect), intent(inout) :: this
       class(StateItemAspect), intent(in) :: export
+      type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
       type(VerticalGridAspect) :: export_
@@ -251,6 +253,7 @@ contains
       this%vertical_grid = export_%vertical_grid
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
    function to_vertical_grid_from_poly(aspect, rc) result(vertical_grid_aspect)

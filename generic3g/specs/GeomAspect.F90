@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_GeomAspect
+   use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_HorizontalDimsSpec
    use mapl3g_StateItemAspect
@@ -162,9 +163,10 @@ contains
       _RETURN(_SUCCESS)
    end function get_geom
 
-   subroutine connect_to_export(this, export, rc)
+   subroutine connect_to_export(this, export, actual_pt, rc)
       class(GeomAspect), intent(inout) :: this
       class(StateItemAspect), intent(in) :: export
+      type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
       type(GeomAspect) :: export_
@@ -174,6 +176,7 @@ contains
       this%geom = export_%geom
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
    function to_geom_from_poly(aspect, rc) result(geom_aspect)

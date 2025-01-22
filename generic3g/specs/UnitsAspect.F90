@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_UnitsAspect
+   use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_ExtensionAction
@@ -130,9 +131,10 @@ contains
       _RETURN(_SUCCESS)
    end function make_action2
 
-   subroutine connect_to_export(this, export, rc)
+   subroutine connect_to_export(this, export, actual_pt, rc)
       class(UnitsAspect), intent(inout) :: this
       class(StateItemAspect), intent(in) :: export
+      type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
       type(UnitsAspect) :: export_
@@ -142,6 +144,7 @@ contains
       this%units = export_%units
       
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
    function to_units_from_poly(aspect, rc) result(units_aspect)

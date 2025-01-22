@@ -3,6 +3,7 @@ target_sources(MAPL.generic3g PRIVATE
   StateItemAspect.F90
   ClassAspect.F90
   FieldClassAspect.F90
+  WildcardClassAspect.F90
 
   AspectCollection.F90
   AttributesAspect.F90
