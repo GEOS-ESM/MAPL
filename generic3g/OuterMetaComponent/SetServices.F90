@@ -35,8 +35,8 @@ contains
       type(ESMF_Clock) :: user_clock, outer_clock
       type(ESMF_Time) :: reference_time
       type(ESMF_TimeInterval) :: timeStep
-      logical :: timestep_is_allocated
-      logical :: reference_time_is_allocated
+      type(ESMF_Time) :: user_reference_time
+      type(ESMF_TimeInterval) :: user_timestep
 
       call ESMF_GridCompGet(this%self_gridcomp, clock=outer_clock, _RC)
       call ESMF_ClockGet(outer_clock, refTime=reference_time, timeStep=timeStep, _RC)
@@ -44,21 +44,14 @@ contains
       this%component_spec = parse_component_spec(this%hconfig, this%registry, &
            timeStep=timeStep, reference_time=reference_time, _RC)
       user_gridcomp = this%user_gc_driver%get_gridcomp()
+      user_clock = this%user_gc_driver%get_clock()
+      call ESMF_ClockGet(user_clock, refTime=user_reference_time, timeStep=user_timestep, _RC)
 
-      timestep_is_allocated = allocated(this%component_spec%timestep)
-      reference_time_is_allocated = allocated(this%component_spec%reference_time)
-      if(timestep_is_allocated .or. reference_time_is_allocated) user_clock = this%user_gc_driver%get_clock()
-
-      if (allocated(this%component_spec%timestep)) then
-         call ESMF_ClockSet(user_clock, timestep=this%component_spec%timestep, _RC)
-      end if
-
-      if (allocated(this%component_spec%reference_time)) then
-         call ESMF_ClockSet(user_clock, refTime = this%component_spec%reference_time, _RC)
-      end if
+      call check_reference_times_are_compatible(reference_time, user_reference_time, timestep, user_timestep, _RC)
+      call ESMF_ClockSet(user_clock, timeStep=timestep, _RC)
+      call ESMF_ClockSet(user_clock, refTime=reference_time, _RC)
 
       call set_run_user_alarm(this, outer_clock, user_clock, _RC)
-      
 
       call attach_inner_meta(user_gridcomp, this%self_gridcomp, _RC)
       call this%user_setservices%run(user_gridcomp, _RC)
@@ -154,5 +147,83 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine set_run_user_alarm
+
+   subroutine check_timesteps_are_compatible(timestep1, timestep2, rc)
+      type(ESMF_TimeInterval), intent(in) :: timestep1
+      type(ESMF_TimeInterval), intent(in) :: timestep2
+      integer, optional, intent(out) :: rc
+      integer :: status
+      character(len=*), parameter :: ERRMSG = 'Timesteps are not compatible.'
+      
+      call timesteps_are_same_duration_type(timestep1, timestep2, _RC)
+      _ASSERT(mod(timestep2, timestep1) == ZERO, ERRMSG)
+      _ASSERT(mod(timestep1, timestep2) == ZERO, ERRMSG)
+      _RETURN(_SUCCESS)
+
+   end subroutine check_timesteps_are_compatible
+
+   subroutine check_reference_times_are_compatible(reftime1, reftime2, timestep1, timestep2, rc)
+      type(ESMF_Time), intent(in) :: reftime1
+      type(ESMF_Time), intent(in) :: reftime2
+      type(ESMF_TimeInterval), intent(in) :: timestep1
+      type(ESMF_TimeInterval), intent(in) :: timestep2
+      integer, optional, intent(in) :: rc
+      integer :: status
+      logical :: compatible
+      type(ESMF_TimeInterval) :: difference
+
+      call check_timesteps_are_compatible(timestep1, timestep2, _RC)
+      compatible = mod(reftime1 - reftime2, timestep1)
+      if(reftime1 < reftime2) compatible = mod(reftime2 - reftime1, timestep2)
+      _ASSERT(compatible, 'Reference times are not compatible.')
+      _RETURN(_SUCCESS)
+
+   end subroutine check_reference_times_are_compatible
+
+   logical function timestep_is_monthly(timestep, rc)
+      type(ESMF_TimeInterval), intent(in) :: timestep
+      integer, optional, intent(out) :: rc 
+      integer :: status
+      integer :: mm
+      logical :: yearly
+
+      yearly = timestep_is_yearly(timestep, _RC)
+      call ESMF_TimeIntervalGet(timestep, mm=mm, _RC)
+      timestep_is_monthly = mm /= 0 .and. .not. yearly
+      _RETURN(_SUCCESS)
+
+   end function timestep_is_monthly(timestep, rc)
+
+   logical function timestep_is_yearly(timestep, rc)
+      type(ESMF_TimeInterval), intent(in) :: timestep
+      integer, optional, intent(out) :: rc 
+      integer :: status
+      integer :: yy
+
+      call ESMF_TimeIntervalGet(timestep, yy=yy, _RC)
+      timestep_is_yearly = yy /= 0
+      _RETURN(_SUCCESS)
+
+   end function timestep_is_yearly(timestep, rc)
+
+   subroutine timesteps_are_same_duration_type(timestep, timestep2, rc)
+      type(ESMF_TimeInterval), intent(in) :: timestep
+      type(ESMF_TimeInterval), intent(in) :: timestep2
+      integer, optional, intent(out) :: rc 
+      integer :: status
+      logical :: lval
+      logical :: lval2
+      character(len=*), parameter :: ERRMSG = 'Timesteps are different duration types'
+
+      lval = timestep_is_monthly(timestep, _RC)
+      lval2 = timestep_is_monthly(timestep2, _RC)
+      _ASSERT(lval .eqv. lval2, ERRMSG)
+      _RETURN_IF(lval)
+
+      lval = timestep_is_yearly(timestep, _RC)
+      lval2 = timestep_is_yearly(timestep2, _RC)
+      _ASSERT(lval .eqv. lval2, ERRMSG)
+      
+   end subroutine timesteps_are_same_duration_type
 
 end submodule SetServices_smod
