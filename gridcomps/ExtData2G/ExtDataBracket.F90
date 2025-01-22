@@ -188,8 +188,6 @@ contains
 
       right_node_set = this%right_node%check_if_initialized(_RC)
       left_node_set = this%left_node%check_if_initialized(_RC)
-      call ESMF_TimePrint(this%left_node%time,options='string',preString='left bracket time: ')
-      call ESMF_TimePrint(this%right_node%time,options='string',preString='right bracket time: ')
 
       alpha = 0.0
       if ( (.not.this%disable_interpolation) .and. (.not.this%intermittent_disable) .and. right_node_set .and. left_node_set) then
