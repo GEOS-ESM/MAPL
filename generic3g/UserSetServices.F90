@@ -107,10 +107,9 @@ contains
       type(ESMF_GridComp) :: gridComp
       integer, intent(out) :: rc
 
-      integer :: status, userRC
+      integer :: status, user_status
 
-      call ESMF_GridCompSetServices(gridcomp, this%userRoutine, userRC=userRC, _RC)
-      _VERIFY(userRC)
+      call ESMF_GridCompSetServices(gridcomp, this%userRoutine, _USERRC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine run_ProcSetServices
@@ -161,7 +160,7 @@ contains
       _ASSERT(is_supported_dso_name(this%sharedObj), 'unsupported dso name:: <'//this%sharedObj//'>')
       call ESMF_GridCompSetServices(gridcomp, sharedObj=adjust_dso_name(this%sharedObj), &
            userRoutine=this%userRoutine, userRoutinefound=found, _USERRC)
-
+      
       _RETURN(ESMF_SUCCESS)
    end subroutine run_DSOSetServices
 

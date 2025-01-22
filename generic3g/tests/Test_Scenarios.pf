@@ -144,7 +144,7 @@ contains
       integer :: i
       type(ESMF_State) :: importState, exportState
       character(:), allocatable :: file_name
-      type(ESMF_Time) :: t
+      type(ESMF_Time) :: t0, t1
       type(ESMF_TimeInterval) :: dt
       type(ESMF_Clock) :: clock
 
@@ -156,9 +156,10 @@ contains
 
       associate (outer_gc => this%outer_gc, outer_states => this%outer_states, grid => this%grid)
 
-        call ESMF_TimeSet(t, h=0)
+        call ESMF_TimeSet(t0, timeString="2000-04-03T21:00:00", _RC)
+        call ESMF_TimeSet(t1, timeString="2000-04-03T22:00:00", _RC)
         call ESMF_TimeIntervalSet(dt, h=1)
-        clock = ESMF_ClockCreate(dt, t)
+        clock = ESMF_ClockCreate(timestep=dt, startTime=t0, stoptime=t1, refTime=t0, _RC)
 
         outer_gc = create_grid_comp('ROOT', user_setservices('libconfigurable_gridcomp'), config, clock, _RC)
         call ESMF_GridCompSetServices(outer_gc, generic_setServices, userRC=user_status, _RC)
@@ -683,12 +684,13 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
-      character(:), allocatable :: child_name
+      character(:), allocatable :: child_name, new_path
       type(GriddedComponentDriver) :: child
       type(ESMF_GridComp) :: child_gc
       type(OuterMetaComponent), pointer :: outer_meta
       integer :: idx
       type(GriddedComponentDriver), pointer :: user_component
+
 
       rc = 0
 
@@ -696,7 +698,6 @@ contains
          substates = states
          return
       end if
-
       outer_meta => get_outer_meta(gc, _RC)
 
       ! Parse path
@@ -714,8 +715,9 @@ contains
       child = outer_meta%get_child(child_name, _RC)
 
       child_gc = child%get_gridcomp()
+      new_path = component_path(idx+1:)
 
-      call get_substates(child_gc, child%get_states(), component_path(idx+1:), substates, _RC)
+      call get_substates(child_gc, child%get_states(), new_path, substates, _RC)
 
       return
    end subroutine get_substates

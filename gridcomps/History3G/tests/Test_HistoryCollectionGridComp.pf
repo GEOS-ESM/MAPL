@@ -179,7 +179,7 @@ contains
       call ESMF_TimeIntervalSet(dt, h=1, _RC)
       call ESMF_TimeSet(start_time, timeString="2000-04-03T21:00:00", _RC)
       call ESMF_TimeSet(stop_time, timeString="2000-04-22T21:00:00", _RC)
-      clock = ESMF_ClockCreate(timeStep=dt, startTime=start_time, stopTime=stop_time, _RC)
+      clock = ESMF_ClockCreate(timeStep=dt, startTime=start_time, stopTime=stop_time, refTime=start_time, _RC)
 
       hconfig = ESMF_HConfigCreate(content = &
         "{time_spec: {frequency: PT3H}}", _RC)

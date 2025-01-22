@@ -35,7 +35,8 @@ contains
       ! resource file.
       clock = this%user_gc_driver%get_clock()
       child_clock = ESMF_ClockCreate(clock, _RC)
-      child_gc = create_grid_comp(child_name, setservices, hconfig, clock, _RC)
+      call ESMF_ClockSet(child_clock, name=this%get_name()//'_outer', _RC)
+      child_gc = create_grid_comp(child_name, setservices, hconfig, child_clock, _RC)
 
       child_gc_driver = GriddedComponentDriver(child_gc, child_clock, MultiState())
 

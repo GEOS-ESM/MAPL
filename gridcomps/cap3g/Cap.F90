@@ -117,7 +117,7 @@ contains
       end_of_segment = startTime + segment_duration
       if (end_of_segment < stopTime) stopTime = end_of_segment
       call ESMF_TimePrint(stopTime, options='string', prestring='actual stop time set: ', _RC)
-      clock = ESMF_ClockCreate(timeStep=timeStep, startTime=startTime, stopTime=stopTime, _RC)
+      clock = ESMF_ClockCreate(timeStep=timeStep, startTime=startTime, stopTime=stopTime, refTime=startTime, _RC)
       
       _RETURN(_SUCCESS)
    end function create_clock

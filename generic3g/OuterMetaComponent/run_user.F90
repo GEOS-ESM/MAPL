@@ -9,8 +9,9 @@ submodule (mapl3g_OuterMetaComponent) run_user_smod
 
 contains
 
-   module recursive subroutine run_user(this, phase_name, unusable, rc)
+   module recursive subroutine run_user(this, clock, phase_name, unusable, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
+      type(ESMF_Clock), intent(inout) :: clock
       ! optional arguments
       character(len=*), optional, intent(in) :: phase_name
       class(KE), optional, intent(in) :: unusable
@@ -26,6 +27,13 @@ contains
       type(ComponentDriverPtr) :: drvr
       integer :: i
 
+      type(ESMF_Alarm) :: alarm
+      logical :: is_ringing
+
+      call ESMF_ClockGetAlarm(clock, alarm=alarm, alarmName=RUN_USER_ALARM, _RC)
+      is_ringing = ESMF_AlarmIsRinging(alarm, _RC)
+      _RETURN_IF(.not. is_ringing)
+
       run_phases => this%get_phases(ESMF_METHOD_RUN)
       phase = get_phase_index(run_phases, phase_name, found=found)
       _ASSERT(found, 'phase <'//phase_name//'> not found for gridcomp <'//this%get_name()//'>')
@@ -37,7 +45,6 @@ contains
       end do
 
       call this%user_gc_driver%run(phase_idx=phase, _RC)
-
 
       export_couplers = this%registry%get_export_couplers()
       do i = 1, export_couplers%size()
