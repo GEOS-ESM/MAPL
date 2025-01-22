@@ -402,7 +402,6 @@ CONTAINS
          item%pfioCOllection_id = MAPL_DataAddCollection(item%file_template)
          call new_GetLevs(item, time, _RC)
         if (item%vcoord%vertical_type == fixed_height) item%allow_vertical_regrid = .true.
-        if (mapl_am_i_root()) write(*,*)'bmaa vcoord: ',trim(item%var),' ',item%vcoord%vertical_type
       enddo
 
    enddo
@@ -930,6 +929,8 @@ CONTAINS
      integer :: fieldRank, src_lm, dst_lm
      real, pointer :: dst_ptr3d(:,:,:), src_ptr3d(:,:,:)
 
+     _HERE, trim(item%name)
+     _HERE, item%allow_vertical_regrid, item%delivered_item,item%vcoord%vertical_type == NO_COORD
      if (item%vcoord%vertical_type == NO_COORD &
         .or. (.not.item%delivered_item) &
         .or. (.not.item%allow_vertical_regrid)) then
