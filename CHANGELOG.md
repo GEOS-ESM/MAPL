@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
+- Updated ExtData so that if files are missing in a sequence the last value will be perisisted if one has not chosen `exact` option
 
 - Updated ExtData so that if files are missing in a sequence the last value will be perisisted if one has not chosen `exact` option
 - Update `components.yaml`
