@@ -20,7 +20,7 @@ module mapl3g_UnitsAspect
    end interface to_UnitsAspect
 
    type, extends(StateItemAspect) :: UnitsAspect
-!#      private
+      private
       character(:), allocatable :: units
    contains
       procedure :: matches
@@ -30,6 +30,8 @@ module mapl3g_UnitsAspect
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure, nopass :: get_aspect_id
+
+      procedure :: get_units
    end type UnitsAspect
 
    interface UnitsAspect
@@ -177,5 +179,19 @@ contains
       type(AspectId) :: aspect_id
       aspect_id = UNITS_ASPECT_ID
    end function get_aspect_id
+
+   function get_units(this, rc) result(units)
+      character(:), allocatable :: units
+      class(UnitsAspect), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      units = '<unknown>'
+      _ASSERT(allocated(this%units), 'UnitsAspect has no units')
+      units = this%units
+
+      _RETURN(_SUCCESS)
+   end function get_units
 
 end module mapl3g_UnitsAspect

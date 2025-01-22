@@ -19,7 +19,7 @@ module mapl3g_UngriddedDimsAspect
    end interface to_UngriddedDimsAspect
 
    type, extends(StateItemAspect) :: UngriddedDimsAspect
-!#      private
+      private
       type(UngriddedDims), allocatable :: ungridded_dims
    contains
       procedure :: matches
@@ -29,6 +29,8 @@ module mapl3g_UngriddedDimsAspect
       procedure :: make_action
       procedure :: make_action2
       procedure, nopass :: get_aspect_id
+
+      procedure :: get_ungridded_dims
    end type UngriddedDimsAspect
 
    interface UngriddedDimsAspect
@@ -43,6 +45,8 @@ contains
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
 
       call aspect%set_mirror(.true.)
+      aspect%ungridded_dims = UngriddedDims()
+
       if (present(ungridded_dims)) then
          aspect%ungridded_dims = ungridded_dims
          call aspect%set_mirror(.false.)
@@ -149,5 +153,17 @@ contains
       aspect_id = UNGRIDDED_DIMS_ASPECT_ID
    end function get_aspect_id
 
+   function get_ungridded_dims(this, rc)  result(ungridded_dims)
+      type(UngriddedDims) :: ungridded_dims
+      class(UngriddedDimsAspect), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _ASSERT(allocated(this%ungridded_dims), "ungridded_dims not allocated.")
+      ungridded_dims = this%ungridded_dims
+
+      _RETURN(_SUCCESS)
+   end function get_ungridded_dims
 
 end module mapl3g_UngriddedDimsAspect

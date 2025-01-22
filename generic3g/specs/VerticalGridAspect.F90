@@ -27,7 +27,7 @@ module mapl3g_VerticalGridAspect
    end interface to_VerticalGridAspect
 
    type, extends(StateItemAspect) :: VerticalGridAspect
-!#      private
+      private
       class(VerticalGrid), allocatable :: vertical_grid
       type(VerticalRegridMethod) :: regrid_method = VERTICAL_REGRID_LINEAR
 !#      type(VerticalStaggerLoc), allocatable :: vertical_staggerloc
@@ -49,6 +49,8 @@ module mapl3g_VerticalGridAspect
       procedure :: set_vertical_grid
       procedure :: set_geom
       procedure :: set_typekind
+      procedure :: get_vertical_grid
+      procedure :: get_vertical_dim_spec
    end type VerticalGridAspect
 
    interface VerticalGridAspect
@@ -286,5 +288,31 @@ contains
       type(AspectId) :: aspect_id
       aspect_id = VERTICAL_GRID_ASPECT_ID
    end function get_aspect_id
+
+   function get_vertical_grid(this, rc) result(vertical_grid)
+      class(VerticalGridAspect), intent(in) :: this
+      class(VerticalGrid), allocatable :: vertical_grid
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _ASSERT(allocated(this%vertical_grid), "vertical_grid not allocated.")
+      vertical_grid = this%vertical_grid
+
+      _RETURN(_SUCCESS)
+   end function get_vertical_grid
+
+   function get_vertical_dim_spec(this, rc) result(vertical_dim_spec)
+      class(VerticalGridAspect), intent(in) :: this
+      type(VerticalDimSpec) :: vertical_dim_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _ASSERT(allocated(this%vertical_dim_spec), "vertical_dim_spec not allocated.")
+      vertical_dim_spec = this%vertical_dim_spec
+
+      _RETURN(_SUCCESS)
+   end function get_vertical_dim_spec
 
 end module mapl3g_VerticalGridAspect

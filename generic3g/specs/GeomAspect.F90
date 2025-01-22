@@ -23,6 +23,7 @@ module mapl3g_GeomAspect
    end interface to_GeomAspect
 
    type, extends(StateItemAspect) :: GeomAspect
+      private
       type(ESMF_Geom), allocatable :: geom
       type(EsmfRegridderParam) :: regridder_param
       type(HorizontalDimsSpec) :: horizontal_dims_spec = HORIZONTAL_DIMS_GEOM ! none, geom
