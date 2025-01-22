@@ -22,6 +22,8 @@ contains
       _RETURN_UNLESS(has_mapl_section)
       mapl_cfg = ESMF_HConfigCreateAt(hconfig, keyString=MAPL_SECTION, _RC)
 
+      spec%timestep = timestep
+      spec%reference_time = reference_time
       call parse_timestep(mapl_cfg, spec%timestep, spec%reference_time, _RC)
       spec%geometry_spec = parse_geometry_spec(mapl_cfg, registry, _RC)
       spec%var_specs = parse_var_specs(mapl_cfg, spec%timestep, _RC)

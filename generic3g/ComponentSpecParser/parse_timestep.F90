@@ -17,12 +17,13 @@ contains
          type(ESMF_TimeInterval) :: interval
 
          has_timestep = ESMF_HConfigIsDefined(hconfig, keyString=KEY_TIMESTEP, _RC)
-         _RETURN_UNLESS(has_timestep)
-         iso_duration = ESMF_HConfigAsString(hconfig, keyString=KEY_TIMESTEP, _RC)
-         call ESMF_TimeIntervalSet(interval, timeIntervalString=iso_duration, _RC)
-         timestep = interval
-
          has_reference_time = ESMF_HConfigIsDefined(hconfig, keyString=KEY_REFERENCE_TIME, _RC)
+         if(has_timestep) then
+            iso_duration = ESMF_HConfigAsString(hconfig, keyString=KEY_TIMESTEP, _RC)
+            call ESMF_TimeIntervalSet(interval, timeIntervalString=iso_duration, _RC)
+            timestep = interval
+         end if
+
          _RETURN_UNLESS(has_reference_time)
          iso_datetime = ESMF_HConfigAsString(hconfig, keyString=KEY_REFERENCE_TIME, _RC)
          call ESMF_TimeSet(time, timeString=iso_datetime, _RC)

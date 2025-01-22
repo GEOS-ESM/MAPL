@@ -189,33 +189,42 @@ contains
    @test
    subroutine test_parse_timestep()
       type(ESMF_TimeInterval) :: expected_interval
-      type(ESMF_Time) :: expected_reference_time
+      type(ESMF_Time) :: expected_time
       character(len=*), parameter :: ISO_DURATION = 'P3M'
       character(len=*), parameter :: ISO_TIME = '1582-10-15'
       character(len=*), parameter :: NL = new_line('10')
       character(len=:), allocatable :: content
       type(ESMF_HConfig) :: hconfig
-      type(ESMF_TimeInterval), allocatable :: actual_interval
-      type(ESMF_Time), allocatable :: actual_reference_time
+      type(ESMF_TimeInterval) :: actual_interval
+      type(ESMF_Time) :: actual_time
+      integer :: actual_mm
+      integer :: expected_mm
+      integer :: actual_time_array(3)
+      integer :: expected_time_array(3)
       integer :: rc, status
 
       ! Test with correct key for timestep
       call ESMF_TimeIntervalSet(expected_interval, mm=3, _RC)
-      call ESMF_TimeSet(expected_reference_time, yy=1582, mm=10, dd=15, _RC)
+      call ESMF_TimeSet(expected_time, yy=1582, mm=10, dd=15, _RC)
       content = 'timestep: ' // ISO_DURATION // NL // 'reference_time: ' // ISO_TIME
       hconfig = ESMF_HConfigCreate(content=content, _RC)
-      call parse_timestep(hconfig, actual_interval, actual_reference_time, _RC)
+      call parse_timestep(hconfig, actual_interval, actual_time, _RC)
       @assertTrue(actual_interval == expected_interval, MAKE_MESSAGE('timestep'))
-      @assertTrue(actual_reference_time == expected_reference_time, MAKE_MESSAGE('reference time'))
+      @assertTrue(actual_time == expected_time, MAKE_MESSAGE('reference time'))
       call ESMF_HConfigDestroy(hconfig, _RC)
-      deallocate(actual_interval)
-      deallocate(actual_reference_time)
       
       ! Test with incorrect key for timestep; should return without setting actual_interval (invalid)
+      expected_mm = 1
+      expected_time_array = [1583, 11, 16]
+      call ESMF_TimeIntervalSet(actual_interval, mm=expected_mm, _RC)
+      call ESMF_TimeSet(actual_time, yy=expected_time_array(1), mm=expected_time_array(2), dd=expected_time_array(3), _RC)
       content = 'run_dmc: ' // ISO_DURATION
       hconfig = ESMF_HConfigCreate(content=content, _RC)
-      call parse_timestep(hconfig, actual_interval, actual_reference_time, _RC)
-      @assert_that(allocated(actual_interval), is(false()))
+      call parse_timestep(hconfig, actual_interval, actual_time, _RC)
+      call ESMF_TimeIntervalGet(actual_interval, mm=actual_mm, _RC)
+      @assertEqual(expected_mm, actual_mm, 'Expected and actual month intervals do not match.')
+      call ESMF_TimeGet(actual_time, yy=actual_time_array(1), mm=actual_time_array(2), dd=actual_time_array(3), _RC)
+      @assertEqual(expected_time_array, actual_time_array, 'Expected and actual time arrays do not match.')
       call ESMF_HConfigDestroy(hconfig, _RC)
 
    end subroutine test_parse_timestep
