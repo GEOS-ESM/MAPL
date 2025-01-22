@@ -212,7 +212,7 @@ contains
       deallocate(actual_reference_time)
       
       ! Test with incorrect key for timestep; should return without setting actual_interval (invalid)
-      content = 'run_dmc: ' // iso_duration
+      content = 'run_dmc: ' // ISO_DURATION
       hconfig = ESMF_HConfigCreate(content=content, _RC)
       call parse_timestep(hconfig, actual_interval, actual_reference_time, _RC)
       @assert_that(allocated(actual_interval), is(false()))

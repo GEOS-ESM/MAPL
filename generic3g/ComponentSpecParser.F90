@@ -118,8 +118,8 @@ module mapl3g_ComponentSpecParser
 
       module subroutine parse_timestep(hconfig, timestep, reference_time, rc)
          type(ESMF_HConfig), intent(in) :: hconfig
-         type(ESMF_TimeInterval), allocatable, intent(inout) :: timestep
-         type(ESMF_Time), allocatable, intent(inout) :: reference_time
+         type(ESMF_TimeInterval), intent(inout) :: timestep
+         type(ESMF_Time), intent(inout) :: reference_time
          integer, optional, intent(out) :: rc
       end subroutine parse_timestep
 

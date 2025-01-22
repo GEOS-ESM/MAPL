@@ -5,8 +5,8 @@ contains
 
       module subroutine parse_timestep(hconfig, timestep, reference_time, rc)
          type(ESMF_HConfig), intent(in) :: hconfig
-         type(ESMF_TimeInterval), allocatable, intent(inout) :: timestep
-         type(ESMF_Time), allocatable, intent(inout) :: reference_time
+         type(ESMF_TimeInterval), intent(inout) :: timestep
+         type(ESMF_Time), intent(inout) :: reference_time
          integer, optional, intent(out) :: rc
          
          integer :: status
@@ -20,13 +20,13 @@ contains
          _RETURN_UNLESS(has_timestep)
          iso_duration = ESMF_HConfigAsString(hconfig, keyString=KEY_TIMESTEP, _RC)
          call ESMF_TimeIntervalSet(interval, timeIntervalString=iso_duration, _RC)
-         allocate(timestep, source=interval)
+         timestep = interval
 
          has_reference_time = ESMF_HConfigIsDefined(hconfig, keyString=KEY_REFERENCE_TIME, _RC)
          _RETURN_UNLESS(has_reference_time)
          iso_datetime = ESMF_HConfigAsString(hconfig, keyString=KEY_REFERENCE_TIME, _RC)
          call ESMF_TimeSet(time, timeString=iso_datetime, _RC)
-         allocate(reference_time, source=time)
+         reference_time = time
 
          _RETURN(_SUCCESS)
 
