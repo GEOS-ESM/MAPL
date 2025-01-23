@@ -17,6 +17,7 @@ module mapl3g_ClassAspect
 
    type, abstract, extends(StateItemAspect) :: ClassAspect
    contains
+      procedure(I_get_aspect_order), deferred :: get_aspect_order
       procedure(I_create), deferred :: create
       procedure(I_destroy), deferred :: destroy
       procedure(I_allocate), deferred :: allocate
@@ -27,6 +28,14 @@ module mapl3g_ClassAspect
    end type ClassAspect
 
    abstract interface
+
+      function I_get_aspect_order(this, goal_aspects) result(aspect_ids)
+         use mapl3g_StateItemAspect
+         import ClassAspect, AspectId
+         type(AspectId), allocatable :: aspect_ids(:)
+         class(ClassAspect), intent(in) :: this
+         type(AspectMap), intent(in) :: goal_aspects
+      end function I_get_aspect_order
 
       ! Will use ESMF so cannot be PURE
       subroutine I_create(this, rc)

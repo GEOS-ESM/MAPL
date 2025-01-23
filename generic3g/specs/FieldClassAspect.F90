@@ -45,11 +45,12 @@ module mapl3g_FieldClassAspect
       character(:), allocatable :: long_name
       real(kind=ESMF_KIND_R4), allocatable :: default_value
    contains
+      procedure :: get_aspect_order
+      procedure :: supports_conversion_general
+      procedure :: supports_conversion_specific
       procedure :: make_action
       procedure :: make_action2
       procedure :: matches
-      procedure :: supports_conversion_general
-      procedure :: supports_conversion_specific
       procedure :: connect_to_export
 
       procedure :: create
@@ -79,6 +80,25 @@ contains
       end if
       
    end function new_FieldClassAspect
+
+   function get_aspect_order(this, goal_aspects) result(aspect_ids)
+      type(AspectId), allocatable :: aspect_ids(:)
+      class(FieldClassAspect), intent(in) :: this
+      type(AspectMap), intent(in) :: goal_aspects
+
+      aspect_ids = [ &
+           CLASS_ASPECT_ID, &
+           ATTRIBUTES_ASPECT_ID, &
+           UNGRIDDED_DIMS_ASPECT_ID, &
+           GEOM_ASPECT_ID, &
+           VERTICAL_GRID_ASPECT_ID, &
+           UNITS_ASPECT_ID, &
+           TYPEKIND_ASPECT_ID &
+           ]
+
+      _UNUSED_DUMMY(goal_aspects)
+   end function get_aspect_order
+
 
    subroutine create(this, rc)
       class(FieldClassAspect), intent(inout) :: this

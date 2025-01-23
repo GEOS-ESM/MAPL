@@ -30,7 +30,8 @@ module mapl3g_WildcardClassAspect
       procedure :: make_action
       procedure :: make_action2
       procedure :: connect_to_export
-      
+
+      procedure :: get_aspect_order
       procedure :: create
       procedure :: allocate
       procedure :: destroy
@@ -240,5 +241,16 @@ contains
       _UNUSED_DUMMY(dst)
    end function supports_conversion_specific
 
+   ! Cannot be an export - should not call this
+   function get_aspect_order(this, goal_aspects) result(aspect_ids)
+      type(AspectId), allocatable :: aspect_ids(:)
+      class(WildcardClassAspect), intent(in) :: this
+      type(AspectMap), intent(in) :: goal_aspects
+
+      aspect_ids = [AspectId :: ] ! empty
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(goal_aspects)
+   end function get_aspect_order
  
 end module mapl3g_WildcardClassAspect
