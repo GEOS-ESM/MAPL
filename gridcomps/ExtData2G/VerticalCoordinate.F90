@@ -39,6 +39,8 @@ module VerticalCoordinateMod
       character(len=:), allocatable :: level_units
       integer :: stagger
       integer :: vertical_type
+      contains
+         procedure :: compute_ple
    end type
 
    interface VerticalCoordinate
@@ -130,10 +132,10 @@ contains
                   call file_formatter%get_var(ak_name, temp_ak, _RC)
                   call file_formatter%get_var(bk_name, temp_bk, _RC)
                   do i=2,vertical_coord%num_levels
-                     vertical_coord%ak(i-1) = temp_ak(1,i) 
-                     vertical_coord%ak(i) = temp_ak(2,i) 
-                     vertical_coord%bk(i-1) = temp_bk(1,i) 
-                     vertical_coord%bk(i) = temp_bk(2,i) 
+                     vertical_coord%ak(i-1) = temp_ak(1,i-1) 
+                     vertical_coord%ak(i) = temp_ak(2,i-1) 
+                     vertical_coord%bk(i-1) = temp_bk(1,i-1) 
+                     vertical_coord%bk(i) = temp_bk(2,i-1)
                   enddo   
                else
                ! do we not have bounds, if so this is edge
@@ -152,6 +154,7 @@ contains
             else
                _FAIL("unsupported hybrid vertical coordinate")
             end if
+            vertical_coord%vertical_type = model_pressure
             _RETURN(_SUCCESS)
          end if
          ! if this is none of those, then a simple coordinate
@@ -273,5 +276,20 @@ contains
 
        _RETURN(_SUCCESS)
     end function safe_are_convertible
+
+    function compute_ple(this, ps, rc) result(ple)
+       real, allocatable :: ple(:,:,:)
+       class(VerticalCoordinate), intent(in) :: this
+       real, intent(in) :: ps(:,:)
+       integer, optional, intent(out) :: rc
+       integer :: status, im, jm, i
+       im=size(ps,1)
+       jm=size(ps,2)
+       allocate(ple(im,jm,this%num_levels+1))
+       do i=1,this%num_levels+1
+          ple(:,:,i)=this%ak(i)+(ps*this%bk(i))
+       enddo
+       _RETURN(_SUCCESS)
+    end function
 
 end module VerticalCoordinateMod   

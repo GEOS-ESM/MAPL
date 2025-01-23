@@ -674,13 +674,31 @@ CONTAINS
               & trim(current_base_name), trim(item%file_template))
 
          call MAPL_ExtDataInterpField(item,self%ExtDataState,useTime(i),_RC)
-         call MAPL_ExtDataVerticalInterpolate(self,item,import,_RC)
 
       endif
 
       nullify(item)
 
    end do INTERP_LOOP
+
+   VINTERP_LOOP: do i=1,self%primary%import_names%size()
+
+      current_base_name => self%primary%import_names%at(i)
+      idx = self%primary%get_item_index(current_base_name,current_time,_RC)
+      item => self%primary%item_vec%at(idx)
+
+      if (do_pointer_update(i)) then
+
+         call extdata_lgr%debug('ExtData Run_: INTERP_LOOP: interpolating between bracket times, variable: %a, file: %a', &
+              & trim(current_base_name), trim(item%file_template))
+
+         call MAPL_ExtDataVerticalInterpolate(self,item,import,_RC)
+
+      endif
+
+      nullify(item)
+
+   end do VINTERP_LOOP
 
    call extdata_lgr%debug('ExtData Run_: INTERP_LOOP: Done')
 
@@ -858,7 +876,7 @@ CONTAINS
         end if
 
         item%vcoord = verticalCoordinate(metadata, item%var, _RC)
-        if (item%vcoord%vertical_type /= NO_COORD) item%allow_vertical_regrid = .true.
+        if (item%vcoord%vertical_type /= NO_COORD .and. item%vcoord%vertical_type /= SIMPLE_COORD ) item%allow_vertical_regrid = .true.
 
         _RETURN(ESMF_SUCCESS)
 
@@ -926,89 +944,38 @@ CONTAINS
      character(len=:), allocatable :: src_ps_name
      !type(PrimaryExport), pointer      :: ps_item
 
-     integer :: fieldRank, src_lm, dst_lm
-     real, pointer :: dst_ptr3d(:,:,:), src_ptr3d(:,:,:)
+     integer :: fieldRank, src_lm, dst_lm, i
+     real, pointer :: dst_ptr3d(:,:,:), src_ptr3d(:,:,:), src_ps_ptr(:,:)
+     real, allocatable :: src_ple(:,:,:)
 
-     _HERE, trim(item%name)
-     _HERE, item%allow_vertical_regrid, item%delivered_item,item%vcoord%vertical_type == NO_COORD
      if (item%vcoord%vertical_type == NO_COORD &
         .or. (.not.item%delivered_item) &
         .or. (.not.item%allow_vertical_regrid)) then
         _RETURN(_SUCCESS)
      end if
 
-     _RETURN(_SUCCESS)
-     !if (item%allow_vertical_regrid) then
-        !if (mapl_am_i_root()) write(*,*)'bmaa can flip ',item%vcoord%positive /= item%importVDir
-        !if (item%vcoord%positive /= item%importVDir) then
-           !call MAPL_ExtDataFlipVertical(item,_RC)
-        !end if
-        !_RETURN(_SUCCESS)
-     !end if
+     if (item%allow_vertical_regrid .and. (item%vcoord%vertical_type == model_pressure)) then
 
-     call ESMF_StateGet(import, "PLE", dst_ple, _RC)
-     src_ps_name = item%vcoord%surf_name//"_"//trim(item%vcomp1)
-     _HERE, src_ps_name
-     call ESMF_StateGet(MAPLExtState%ExtDataState, src_ps_name, src_ps, _RC)
-     call ESMF_StateGet(MAPLExtState%ExtDataState,trim(item%vcomp1),dst_field,_RC)
-     call ESMF_FieldGet(dst_field,rank=fieldRank,_RC)
-     if (fieldRank==3) then
-        call ESMF_FieldGet(dst_field,farrayPtr=dst_ptr3d,_RC)
-        dst_lm =  size(dst_ptr3d,3)
-        call ESMF_FieldBundleGet(item%t_interp_bundle, trim(item%vcomp1), field=src_field, _RC)
-        call ESMF_FieldGet(src_field,farrayPtr=src_ptr3d,_RC)
-        src_lm = size(src_ptr3d,3)
-        if (src_lm /= dst_lm) then
-           _HERE,src_lm, dst_lm
-           dst_lm = 0.0
-           dst_ptr3d(:,:,1:src_lm) = src_ptr3d
+        call ESMF_StateGet(import, "PLE", dst_ple, _RC)
+        src_ps_name = item%vcoord%surf_name//"_"//trim(item%vcomp1)
+        call ESMF_StateGet(MAPLExtState%ExtDataState, src_ps_name, src_ps, _RC)
+        call ESMF_FieldGet(src_ps, farrayPtr=src_ps_ptr, _RC) 
+        src_ple = item%vcoord%compute_ple(src_ps_ptr, _RC)
+        call ESMF_StateGet(MAPLExtState%ExtDataState,trim(item%vcomp1),dst_field,_RC)
+        call ESMF_FieldGet(dst_field,rank=fieldRank,_RC)
+        if (fieldRank==3) then
+           call ESMF_FieldGet(dst_field,farrayPtr=dst_ptr3d,_RC)
+           dst_lm =  size(dst_ptr3d,3)
+           call ESMF_FieldBundleGet(item%t_interp_bundle, trim(item%vcomp1), field=src_field, _RC)
+           call ESMF_FieldGet(src_field,farrayPtr=src_ptr3d,_RC)
+           src_lm = size(src_ptr3d,3)
+           if (src_lm /= dst_lm) then
+              dst_lm = 0.0
+              dst_ptr3d(:,:,1:src_lm) = src_ptr3d
+           end if
         end if
-     end if
+    end if
 
-     !if (item%do_VertInterp) then
-        !if (trim(item%importVDir)/=trim(item%fileVDir)) then
-           !call MAPL_ExtDataFlipVertical(item,filec,_RC)
-        !end if
-        !if (item%vartype == MAPL_fieldItem) then
-           !call MAPL_ExtDataGetBracket(item,filec,newField,getRL=.true.,_RC)
-           !call MAPL_ExtDataGetBracket(item,filec,Field,_RC)
-           !id_ps = ExtState%primary%get_item_index("PS",current_time,_RC)
-           !ps_item => ExtState%primary%item_vec%at(id_ps)
-           !call MAPL_ExtDataGetBracket(ps_item,filec,field=psF,_RC)
-           !call vertInterpolation_pressKappa(field,newfield,psF,item%levs,MAPL_UNDEF,_RC)
-
-        !else if (item%vartype == MAPL_VectorField) then
-
-           !id_ps = ExtState%primary%get_item_index("PS",current_time,_RC)
-           !ps_item => ExtState%primary%item_vec%at(id_ps)
-           !call MAPL_ExtDataGetBracket(ps_item,filec,field=psF,_RC)
-           !call MAPL_ExtDataGetBracket(item,filec,newField,getRL=.true.,vcomp=1,_RC)
-           !call MAPL_ExtDataGetBracket(item,filec,Field,vcomp=1,_RC)
-           !call vertInterpolation_pressKappa(field,newfield,psF,item%levs,MAPL_UNDEF,_RC)
-           !call MAPL_ExtDataGetBracket(item,filec,newField,getRL=.true.,vcomp=2,_RC)
-           !call MAPL_ExtDataGetBracket(item,filec,Field,vcomp=2,_RC)
-           !call vertInterpolation_pressKappa(field,newfield,psF,item%levs,MAPL_UNDEF,_RC)
-
-        !end if
-
-     !else if (item%do_Fill) then
-        !if (item%vartype == MAPL_fieldItem) then
-           !call MAPL_ExtDataGetBracket(item,filec,newField,getRL=.true.,_RC)
-           !call MAPL_ExtDataGetBracket(item,filec,Field,_RC)
-           !call MAPL_ExtDataFillField(item,field,newfield,_RC)
-        !else if (item%vartype == MAPL_VectorField) then
-           !call MAPL_ExtDataGetBracket(item,filec,newField,getRL=.true.,vcomp=1,_RC)
-           !call MAPL_ExtDataGetBracket(item,filec,Field,vcomp=1,_RC)
-           !call MAPL_ExtDataFillField(item,field,newfield,_RC)
-           !call MAPL_ExtDataGetBracket(item,filec,newField,getRL=.true.,vcomp=2,_RC)
-           !call MAPL_ExtDataGetBracket(item,filec,Field,vcomp=2,_RC)
-           !call MAPL_ExtDataFillField(item,field,newfield,_RC)
-        !end if
-     !else
-        !if (trim(item%importVDir)/=trim(item%fileVDir)) then
-           !call MAPL_ExtDataFlipVertical(item,filec,_RC)
-        !end if
-     !end if
 
      _RETURN(ESMF_SUCCESS)
   end subroutine MAPL_ExtDataVerticalInterpolate
@@ -1489,27 +1456,20 @@ CONTAINS
            else if (item%vcoord%num_levels /= lm .and. lm /= 0 .and. item%vcoord%num_levels /= 0) then
               item%do_Fill = .true.
            end if
-!!!!!!!!!!!!!
+
            bracket_grid = MAPL_ExtDataGridChangeLev(grid,cf,item%vcoord%num_levels,_RC)
            left_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
            right_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
 
-           if (item%vcoord%num_levels /= lm) then
+           
+           if ((item%vcoord%num_levels /= lm) .and. (lm > 0)) then
               temp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%vcomp1),_RC)
               call MAPL_FieldBundleAdd(item%t_interp_bundle, temp_field, _RC)
-              !item%t_interp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%vcomp1),_RC)
            else
               call MAPL_FieldBundleAdd(item%t_interp_bundle, field, _RC)
-              !item%t_interp_field = field
            end if
         
-!!!!!!!!!!!!
-           !left_field = MAPL_FieldCreate(field,item%var,doCopy=.true.,_RC)
-           !right_field = MAPL_FieldCreate(field,item%var,doCopy=.true.,_RC)
            call item%modelGridFields%comp1%set_parameters(left_field=left_field,right_field=right_field, _RC)
-           !if (item%do_fill .or. item%do_vertInterp) then
-              !call createFileLevBracket(item,cf,_RC)
-           !end if
 
         else if (item%vartype == MAPL_VectorField) then
 
