@@ -23,18 +23,18 @@ module mapl3g_ClassAspect
       procedure(I_allocate), deferred :: allocate
 
       procedure(I_add_to_state), deferred :: add_to_state
-      procedure(I_add_to_bundle), deferred :: add_to_bundle
       procedure, non_overridable, nopass :: get_aspect_id
    end type ClassAspect
 
    abstract interface
 
-      function I_get_aspect_order(this, goal_aspects) result(aspect_ids)
+      function I_get_aspect_order(this, goal_aspects, rc) result(aspect_ids)
          use mapl3g_StateItemAspect
          import ClassAspect, AspectId
          type(AspectId), allocatable :: aspect_ids(:)
          class(ClassAspect), intent(in) :: this
          type(AspectMap), intent(in) :: goal_aspects
+         integer, optional, intent(out) :: rc
       end function I_get_aspect_order
 
       ! Will use ESMF so cannot be PURE
@@ -68,14 +68,6 @@ module mapl3g_ClassAspect
          type(ActualConnectionPt), intent(in) :: actual_pt
          integer, optional, intent(out) :: rc
       end subroutine I_add_to_state
-
-      subroutine I_add_to_bundle(this, field_bundle, rc)
-         use ESMF, only: ESMF_FieldBundle
-         import ClassAspect
-         class(ClassAspect), intent(in) :: this
-         type(ESMF_FieldBundle), intent(inout) :: field_bundle
-         integer, optional, intent(out) :: rc
-      end subroutine I_add_to_bundle
 
    end interface
 

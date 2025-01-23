@@ -81,10 +81,11 @@ contains
       
    end function new_FieldClassAspect
 
-   function get_aspect_order(this, goal_aspects) result(aspect_ids)
+   function get_aspect_order(this, goal_aspects, rc) result(aspect_ids)
       type(AspectId), allocatable :: aspect_ids(:)
       class(FieldClassAspect), intent(in) :: this
       type(AspectMap), intent(in) :: goal_aspects
+      integer, optional, intent(out) :: rc
 
       aspect_ids = [ &
            CLASS_ASPECT_ID, &
@@ -95,6 +96,8 @@ contains
            UNITS_ASPECT_ID, &
            TYPEKIND_ASPECT_ID &
            ]
+
+      _RETURN(_SUCCESS)
 
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order

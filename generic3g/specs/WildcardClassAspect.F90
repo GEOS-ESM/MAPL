@@ -36,7 +36,6 @@ module mapl3g_WildcardClassAspect
       procedure :: allocate
       procedure :: destroy
       procedure :: add_to_state
-      procedure :: add_to_bundle
  
    end type WildcardClassAspect
 
@@ -214,18 +213,6 @@ contains
 
    end subroutine add_to_state
 
-   subroutine add_to_bundle(this, field_bundle, rc)
-      class(WildcardClassAspect), intent(in) :: this
-      type(ESMF_FieldBundle), intent(inout) :: field_bundle
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      _FAIL('Wildcard cannot be added to a bundle.')
-
-      _RETURN(_SUCCESS)
-   end subroutine add_to_bundle
-
    ! Wildcard is never an export
    logical function supports_conversion_general(src)
       class(WildcardClassAspect), intent(in) :: src
@@ -242,12 +229,15 @@ contains
    end function supports_conversion_specific
 
    ! Cannot be an export - should not call this
-   function get_aspect_order(this, goal_aspects) result(aspect_ids)
+   function get_aspect_order(this, goal_aspects, rc) result(aspect_ids)
       type(AspectId), allocatable :: aspect_ids(:)
       class(WildcardClassAspect), intent(in) :: this
       type(AspectMap), intent(in) :: goal_aspects
+      integer, optional, intent(out) :: rc
 
       aspect_ids = [AspectId :: ] ! empty
+
+      _RETURN(_SUCCESS)
 
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal_aspects)
