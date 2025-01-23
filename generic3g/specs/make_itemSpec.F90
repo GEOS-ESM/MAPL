@@ -21,6 +21,8 @@ contains
    function make_itemSpec(variable_spec, registry, rc) result(item_spec)
       use mapl3g_VariableSpec, only: VariableSpec
       use mapl3g_ActualPtVector, only: ActualPtVector
+      use mapl3g_VirtualConnectionPt
+      use mapl3g_StateItemExtension
       class(StateItemSpec), allocatable :: item_spec
       class(VariableSpec), intent(in) :: variable_spec
       type(StateRegistry), pointer, intent(in) :: registry
@@ -29,13 +31,27 @@ contains
       integer :: status
       type(FieldSpec) :: field_spec
       type(ActualPtVector) :: dependencies
+      integer :: i, n
+      type(StateItemSpecPtr), allocatable :: spec_ptrs(:)
+      type(VirtualConnectionPt) :: v_pt
+      type(StateItemExtension), pointer :: primary
 
       select case (variable_spec%itemtype%ot)
       case (MAPL_STATEITEM_FIELD%ot)
          allocate(FieldSpec :: item_spec)
          item_spec = FieldSpec(variable_spec)
       case (MAPL_STATEITEM_SERVICE%ot)
+         associate (items => variable_spec%service_items)
+           n = items%size()
+           allocate(spec_ptrs(n))
+           do i = 1, n
+              v_pt = VirtualConnectionPt(ESMF_STATEINTENT_INTERNAL, items%of(i))
+              primary => registry%get_primary_extension(v_pt, _RC)
+              spec_ptrs(i)%ptr => primary%get_spec()
+           end do
+         end associate
          allocate(ServiceSpec :: item_spec)
+!#         item_spec = ServiceSpec(spec_ptrs)
          item_spec = ServiceSpec(variable_spec, registry)
       case (MAPL_STATEITEM_WILDCARD%ot)
          allocate(WildcardSpec :: item_spec)
