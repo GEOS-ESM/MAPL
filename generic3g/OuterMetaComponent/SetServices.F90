@@ -155,7 +155,7 @@ contains
       integer :: status
       character(len=*), parameter :: ERRMSG = 'Timesteps are not compatible.'
       
-      call timesteps_are_same_duration_type(timestep1, timestep2, _RC)
+      call get_duration_type(timestep1, timestep2, _RC)
       _ASSERT(mod(timestep2, timestep1) == ZERO, ERRMSG)
       _ASSERT(mod(timestep1, timestep2) == ZERO, ERRMSG)
       _RETURN(_SUCCESS)
@@ -189,7 +189,7 @@ contains
 
       yearly = timestep_is_yearly(timestep, _RC)
       call ESMF_TimeIntervalGet(timestep, mm=mm, _RC)
-      timestep_is_monthly = mm /= 0 .and. .not. yearly
+      timestep_is_monthly = .not. yearly .and. mm /= 0
       _RETURN(_SUCCESS)
 
    end function timestep_is_monthly(timestep, rc)
@@ -206,7 +206,7 @@ contains
 
    end function timestep_is_yearly(timestep, rc)
 
-   subroutine timesteps_are_same_duration_type(timestep, timestep2, rc)
+   subroutine get_duration_type(timestep, timestep2, rc)
       type(ESMF_TimeInterval), intent(in) :: timestep
       type(ESMF_TimeInterval), intent(in) :: timestep2
       integer, optional, intent(out) :: rc 
@@ -224,6 +224,6 @@ contains
       lval2 = timestep_is_yearly(timestep2, _RC)
       _ASSERT(lval .eqv. lval2, ERRMSG)
       
-   end subroutine timesteps_are_same_duration_type
+   end subroutine get_duration_type
 
 end submodule SetServices_smod

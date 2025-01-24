@@ -1,0 +1,197 @@
+#include "MAPL_TestErr.h"
+module Test_ESMF_Time_Utilities
+   use mapl3g_ESMF_Time_Utilities
+   use esmf
+   use funit
+   implicit none
+
+contains
+
+   !@Test
+   subroutine test_get_zero()
+      type(ESMF_TimeInterval) :: interval
+      integer(ESMF_KIND_I4) :: ns
+      integer(ESMF_KIND_I4), parameter :: EXPECTED_NS = 0
+      integer(ESMF_KIND_I4), parameter :: INITIAL_NS = 1
+
+      call ESMF_TimeIntervalSet(interval, ns=INITIAL_NS, _RC)
+      actual = zero_time_interval()
+      call ESMF_TimeIntervalGet(actual, ns=ns, _RC)
+      @assertEqual(EXPECTED_NS, ns, 'Interval is not zero.')
+
+   end subroutine test_get_zero
+
+   !@Test
+   subroutine test_get_interval_type_yearly()
+      type(ESMF_TimeInterval) :: interval
+      integer :: interval_type
+
+      call ESMF_TimeIntervalSet(interval, yy=3, _RC)
+      interval_type = get_interval_type(interval, _RC)
+      @assertEqual(YEARLY, interval_type, 'The interval should be yearly.')
+      
+      call ESMF_TimeIntervalSet(interval, mm=3, _RC)
+      interval_type = get_interval_type(interval, _RC)
+      @assertFalse(interval_type == YEARLY, 'The interval should not be yearly.')
+      
+      call ESMF_TimeIntervalSet(interval, dd=3, _RC)
+      interval_type = get_interval_type(interval, _RC)
+      @assertFalse(interval_type == YEARLY, 'The interval should not be yearly.')
+
+   end subroutine test_get_interval_type_yearly
+
+   !@Test
+   subroutine test_get_interval_type_monthly()
+      type(ESMF_TimeInterval) :: interval
+      integer :: interval_type
+
+      call ESMF_TimeIntervalSet(interval, mm=3, _RC)
+      interval_type = get_interval_type(interval, _RC)
+      @assertEqual(MONTHLY, interval_type, 'The interval should be monthly.')
+
+      call ESMF_TimeIntervalSet(interval, mm=3, dd=3, _RC)
+      interval_type = get_interval_type(interval, _RC)
+      @assertTrue(MONTHLY, interval_type, 'The interval should be monthly.')
+
+      call ESMF_TimeIntervalSet(interval, dd=3, _RC)
+      interval_type = get_interval_type(interval, _RC)
+      @assertFalse(MONTHLY, interval_type, 'The interval should not be monthly.')
+
+      call ESMF_TimeIntervalSet(interval, yy=3, mm=3, _RC)
+      interval_type = get_interval_type(interval, _RC)
+      @assertFalse(MONTHLY, interval_type, 'The interval should not be monthly.')
+
+   end subroutine test_get_interval_type_monthly
+
+   !@Test
+   subroutine test_get_interval_type_uniform()
+      type(ESMF_TimeInterval) :: interval
+      integer :: interval_type
+
+      call ESMF_TimeIntervalSet(interval, dd=3, _RC)
+      interval_type = get_interval_type(interval, _RC)
+      @assertEqual(UNIFORM, interval_type, 'The interval should be uniform.')
+
+      call ESMF_TimeIntervalSet(interval, dd=3, h=3, _RC)
+      interval_type = get_interval_type(interval, _RC)
+      @assertEqual(UNIFORM, interval_type, 'The interval should be uniform.')
+
+      call ESMF_TimeIntervalSet(interval, mm=3, dd=3, _RC)
+      interval_type = get_interval_type(interval, _RC)
+      @assertFalse(UNIFORM, interval_type, 'The interval should not be uniform.')
+
+      call ESMF_TimeIntervalSet(interval, yy=3, dd=3, _RC)
+      interval_type = get_interval_type(interval, _RC)
+      @assertFalse(UNIFORM, interval_type, 'The interval should not be uniform.')
+
+      call ESMF_TimeIntervalSet(interval, yy=3, mm=3, dd=3, _RC)
+      interval_type = get_interval_type(interval, _RC)
+      @assertFalse(UNIFORM, interval_type, 'The interval should not be uniform.')
+
+   end subroutine test_get_interval_type_uniform
+
+   !@Test
+   subroutine test_interval_is_uniform()
+      type(ESMF_TimeInterval) :: interval
+      logical :: is_uniform
+
+      call ESMF_TimeIntervalSet(interval, dd=3, _RC)
+      is_uniform = interval_is_uniform(interval, _RC)
+      @assertTrue(is_uniform, 'The interval is uniform.')
+
+      call ESMF_TimeIntervalSet(interval, dd=3, h=3, _RC)
+      is_uniform = interval_is_uniform(interval, _RC)
+      @assertTrue(is_uniform, 'The interval is uniform.')
+
+      call ESMF_TimeIntervalSet(interval, yy=3, dd=3, _RC)
+      is_uniform = interval_is_uniform(interval, _RC)
+      @assertFalse(is_uniform, 'The interval is not uniform.')
+
+      call ESMF_TimeIntervalSet(interval, mm=3, dd=3, _RC)
+      is_uniform = interval_is_uniform(interval, _RC)
+      @assertFalse(is_uniform, 'The interval is not uniform.')
+
+   end subroutine test_interval_is_uniform
+
+   !@Test
+   subroutine test_interval_is_yearly()
+      type(ESMF_TimeInterval) :: interval
+      logical :: is_yearly
+
+      call ESMF_TimeIntervalSet(interval, yy=3, _RC)
+      is_yearly = interval_is_yearly(interval, _RC)
+      @assertTrue(is_yearly, 'The interval is yearly.')
+
+      call ESMF_TimeIntervalSet(interval, yy=3, mm=3, _RC)
+      is_yearly = interval_is_yearly(interval, _RC)
+      @assertTrue(is_yearly, 'The interval is yearly.')
+
+      call ESMF_TimeIntervalSet(interval, mm=3, _RC)
+      is_yearly = interval_is_yearly(interval, _RC)
+      @assertFalse(is_yearly, 'The interval is not yearly.')
+
+   end subroutine test_interval_is_yearly
+   
+   !@Test
+   subroutine test_interval_is_monthly()
+      type(ESMF_TimeInterval) :: interval
+      logical :: is_monthly
+
+      call ESMF_TimeIntervalSet(interval, mm=3, _RC)
+      is_monthly = interval_is_monthly(interval, _RC)
+      @assertTrue(is_monthly, 'The interval is monthly.')
+
+      call ESMF_TimeIntervalSet(interval, yy=3, mm=3, _RC)
+      is_monthly = interval_is_monthly(interval, _RC)
+      @assertTrue(is_monthly, 'The interval is monthly.')
+
+      call ESMF_TimeIntervalSet(interval, yy=3, _RC)
+      is_monthly = interval_is_monthly(interval, _RC)
+      @assertFalse(is_monthly, 'The interval is not monthly.')
+
+      call ESMF_TimeIntervalSet(interval, dd=3, _RC)
+      is_monthly = interval_is_monthly(interval, _RC)
+      @assertFalse(is_monthly, 'The interval is not monthly.')
+
+   end subroutine test_interval_is_monthly
+
+   !@Test
+   subroutine test_intervals_are_compatible()
+      type(ESMF_TimeInterval) :: larger
+      type(ESMF_TimeInterval) :: smaller
+      logical :: compatible
+
+      call ESMF_TimeIntervalSet(larger, yy=9, _RC)
+      call ESMF_TimeIntervalSet(smaller, yy=3, _RC)
+      compatible = intervals_are_compatible(larger, smaller, _RC)
+      @assertTrue(compatible, 'The intervals are compatible.')
+
+      compatible = intervals_are_compatible(smaller, larger, _RC)
+      @assertTrue(compatible, 'The intervals are compatible even when switched.')
+
+      call ESMF_TimeIntervalSet(smaller, mm=3, _RC)
+      compatible = intervals_are_compatible(larger, smaller, _RC)
+      @assertFalse(compatible, 'The intervals are different types.')
+
+      call ESMF_TimeIntervalSet(smaller, yy=6, _RC)
+      compatible = intervals_are_compatible(larger, smaller, _RC)
+      @assertFalse(compatible, 'The smaller interval does not divide the larger interval evenly.')
+
+   end subroutine test_intervals_are_compatible
+
+   !@Test
+   subroutine test_times_and_intervals_are_compatible()
+      integer(ESMF_KIND_I4), parameter :: YY = 3
+      integer(ESMF_KIND_I4), parameter :: MM = 3
+      integer(ESMF_KIND_I4), parameter :: DD = 3
+      integer(ESMF_KIND_I4), parameter :: H = 3
+      type(ESMF_TimeInterval) :: larger
+      type(ESMF_TimeInterval) :: smaller
+      type(ESMF_Time) :: time1
+      type(ESMF_Time) :: time2
+      logical :: compatible
+
+
+   end subroutine test_times_and_intervals_are_compatible
+
+end module Test_ESMF_Time_Utilities
