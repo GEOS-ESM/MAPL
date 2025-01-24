@@ -1574,15 +1574,17 @@ contains
     integer :: rc
     logical :: isPresent
     integer :: global_grid_info(10)
+    type(ESMF_Info) :: infoh
 
     i1=-1
     j1=-1
     in=-1
     jn=-1
 
-    call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", isPresent=isPresent, _RC)
+    call ESMF_InfoGetFromHost(grid,infoh,_RC)
+    isPresent = ESMF_InfoIsPresent(infoh,'GLOBAL_GRID_INFO',_RC)
     if (isPresent) then
-      call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", valueList=global_grid_info, _RC)
+      call ESMF_InfoGet(infoh, key="GLOBAL_GRID_INFO", values=global_grid_info, _RC)
       I1 = global_grid_info(7)
       IN = global_grid_info(8)
       j1 = global_grid_info(9)
@@ -2165,15 +2167,17 @@ contains
     integer                               :: rc
     logical                               :: isPresent
     integer                               :: global_grid_info(10)
+    type(ESMF_Info)                       :: infoh
 
     i1=-1
     j1=-1
     in=-1
     jn=-1
 
-    call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", isPresent=isPresent, _RC)
+    call ESMF_InfoGetFromHost(grid,infoh,_RC)
+    isPresent = ESMF_InfoIsPresent(infoh,'GLOBAL_GRID_INFO',_RC)
     if (isPresent) then
-      call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", valueList=global_grid_info, _RC)
+      call ESMF_InfoGet(infoh, key="GLOBAL_GRID_INFO", values=global_grid_info, _RC)
       I1 = global_grid_info(7)
       IN = global_grid_info(8)
       j1 = global_grid_info(9)

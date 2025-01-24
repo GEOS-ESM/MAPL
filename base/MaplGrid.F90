@@ -271,9 +271,10 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
       pglobal = present(globalCellCountPerDim)
       plocal  = present(localCellCountPerDim)
 
-      call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", isPresent=isPresent, _RC)
+      call ESMF_InfoGetFromHost(grid,infoh,_RC)
+      isPresent = ESMF_InfoIsPresent(infoh,'GLOBAL_GRID_INFO',_RC)
       if (isPresent) then
-        call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", valueList=global_grid_info, _RC)
+        call ESMF_InfoGet(infoh, key="GLOBAL_GRID_INFO", values=global_grid_info, _RC)
         if (pglobal) globalCellCountPerDim = global_grid_info(1:3)
         if (plocal)  localCellCountPerDim = global_grid_info(4:6)
         _RETURN(_SUCCESS)
