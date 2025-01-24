@@ -188,10 +188,6 @@ contains
 
       right_node_set = this%right_node%check_if_initialized(_RC)
       left_node_set = this%left_node%check_if_initialized(_RC)
-      call this%right_node%get(file=right_file)
-      call this%left_node%get(file=left_file)
-      right_node_set = right_file /= file_not_found
-      left_node_set = left_file /= file_not_found
 
       alpha = 0.0
       if ( (.not.this%disable_interpolation) .and. (.not.this%intermittent_disable) .and. right_node_set .and. left_node_set) then
@@ -216,7 +212,9 @@ contains
          elsewhere
             var1d = mapl_undef
          endwhere
-      else
+      end if
+ 
+      if (this%exact .and. (.not.(time == this%left_node%time))) then
          var1d = mapl_undef
       end if
 
@@ -243,6 +241,7 @@ contains
 
       left_created  = ESMF_FieldIsCreated(this%left_node%field,_RC)
       right_created = ESMF_FieldIsCreated(this%right_node%field,_RC)
+      left_created  = ESMF_FieldIsCreated(this%left_node%field,_RC)
       if (left_created .and. right_created) then     
          call assign_fptr(this%left_node%field,left_ptr,_RC) 
          call assign_fptr(this%right_node%field,right_ptr,_RC) 

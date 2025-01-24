@@ -17,6 +17,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.53.0] - 2025-01-24
+
+### Changed
+
+- Updated ExtData so that if files are missing in a sequence the last value will be perisisted if one has not chosen `exact` option
+- Update `components.yaml`
+  - `ESMA_env` v4.34.1
+    - Fix GEOSpyD module on GMAO Desktops
+
+### Fixed
+
+- Changes were made to add attributes to the subgrids (i.e. created by dividing the MPI subdomain into smaller subdomains equal to the number of OpenMP threads) such that the correct dimensions for the MPI subdomain could be retrieved from the subgrids where ever needed.
+
 ## [2.52.0] - 2025-01-17
 
 ### Added
@@ -31,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Changed `MAPL_ESMFRegridder` to require the dstMaskValues to be added as grid attribute to use fixed masking, fixes UFS issue
+- Changed MAPL_ESMFRegridder to require the dstMaskValues to be added as grid attribute to use fixed masking, fixes UFS issue
 - Increased formatting width of time index in ExtData2G diagnostic print
 - Updated GitHub checkout action to use blobless clones
 - Update CI to use Baselibs 7.29.0 by default
