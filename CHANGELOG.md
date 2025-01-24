@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Changes were made to add attributes to the subgrids (i.e. created by dividing the MPI subdomain into smaller subdomains equal to the number of OpenMP threads) such that the correct dimensions for the MPI subdomain could be retrieved from the subgrids where ever needed.
+
 ### Removed
 
 ### Deprecated
