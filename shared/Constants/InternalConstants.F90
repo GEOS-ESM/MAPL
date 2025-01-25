@@ -23,6 +23,7 @@ module MAPL_InternalConstantsMod
    character(len=*), parameter  :: MAPL_GRID_NAME_DEFAULT       = 'UNKNOWN'
    character(len=*), parameter  :: MAPL_GRID_FILE_NAME_DEFAULT  = 'UNKNOWN'
    character(len=*), parameter  :: MAPL_CF_COMPONENT_SEPARATOR  = '.'
+   character(len=*), parameter  :: MAPL_DESTINATIONMASK         = "MAPL_DestinationMask"
 
    enum, bind(c)
       enumerator MAPL_TimerModeOld
@@ -182,6 +183,11 @@ module MAPL_InternalConstantsMod
       enumerator MAPL_MASK_OUT
       enumerator MAPL_MASK_IN
    endenum
+
+   integer, parameter :: MAPL_FILETYPE_NC4 = 0
+   integer, parameter :: MAPL_FILETYPE_TXT = 1
+   integer, parameter :: MAPL_FILETYPE_BIN = 2
+   integer, parameter :: MAPL_FILETYPE_UNK = -1
 !EOP
 
 end module MAPL_InternalConstantsMod

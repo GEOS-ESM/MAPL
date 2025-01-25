@@ -1431,13 +1431,13 @@ contains
      real(real64), pointer :: src_dummy_r8(:,:), dst_dummy_r8(:,:)
      type (ESMF_Field) :: src_field, dst_field
 
-     integer :: srcTermProcessing
+     integer :: srcTermProcessing, num_mask_values
      integer, pointer :: factorIndexList(:,:)
      integer, allocatable :: dstMaskValues(:)
      real(ESMF_KIND_R8), pointer :: factorList(:)
      type(ESMF_RouteHandle) :: dummy_rh
      type(ESMF_UnmappedAction_Flag) :: unmappedaction
-     logical :: global, isPresent, has_mask
+     logical :: global, isPresent, has_mask, has_dstMaskValues
      type(RegridderSpecRouteHandleMap), pointer :: route_handles, transpose_route_handles
      type(ESMF_RouteHandle) :: route_handle, transpose_route_handle
      character(len=ESMF_MAXPATHLEN) :: rh_file,rh_trans_file
@@ -1512,6 +1512,13 @@ contains
            end if
            call ESMF_GridGetItem(spec%grid_out,itemflag=ESMF_GRIDITEM_MASK, &
            staggerloc=ESMF_STAGGERLOC_CENTER, isPresent = has_mask, _RC)
+           call ESMF_AttributeGet(spec%grid_out, name=MAPL_DESTINATIONMASK, isPresent=has_dstMaskValues, _RC)
+           if (has_dstMaskValues) then
+              _ASSERT(has_mask, "masking destination values when no masks is present")
+              call ESMF_AttributeGet(spec%grid_out, name=MAPL_DESTINATIONMASK, itemcount=num_mask_values, _RC)
+              allocate(dstMaskValues(num_mask_values), _STAT)
+              call ESMF_AttributeGet(spec%grid_out, name=MAPL_DESTINATIONMASK, valuelist=dstMaskValues, _RC)
+           end if
 
            counter = counter + 1
 
@@ -1521,7 +1528,6 @@ contains
               call ESMF_AttributeGet(spec%grid_in, name='Global',value=global,rc=status)
               if (.not.global) unmappedaction=ESMF_UNMAPPEDACTION_IGNORE
            end if
-           if (has_mask) dstMaskValues = [MAPL_MASK_OUT] ! otherwise unallocated
            select case (spec%regrid_method)
            case (REGRID_METHOD_BILINEAR, REGRID_METHOD_BILINEAR_MONOTONIC)
 
