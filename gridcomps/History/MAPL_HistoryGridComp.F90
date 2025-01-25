@@ -2492,8 +2492,12 @@ ENDDO PARSER
              list(n)%mask_sampler = MaskSampler(cfg,string,clock,genstate=GENSTATE,_RC)
              ! initialize + create metadata
              call list(n)%mask_sampler%set_param(itemOrder=intState%fileOrderAlphabetical,_RC)
+             if (mapl_am_I_root()) write(6,*) 'ck af set_param'
              call list(n)%mask_sampler%initialize(list(n)%duration,list(n)%frequency,items=list(n)%items,&
                   bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
+             if (mapl_am_I_root()) write(6,*) 'ck af initialize'
+             _FAIL('nail 2')
+             
              collection_id = o_Clients%add_hist_collection(list(n)%mask_sampler%metadata, mode = create_mode)
              call list(n)%mask_sampler%set_param(write_collection_id=collection_id)
              call MAPL_TimerOff(GENSTATE,"mask_init")

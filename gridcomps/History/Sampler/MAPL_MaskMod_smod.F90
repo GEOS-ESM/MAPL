@@ -445,8 +445,8 @@ module subroutine  create_metadata(this,global_attributes,rc)
        M = petCount
 
        if (ip==0) then
-          write(6,*) 'ESMF_kind_R8, real32, real64'
-          write(6,*) ESMF_kind_R8, real32, real64
+          write(6,*) 'ESMF_kind_R8, real32, real64, pfio_real32, pfio_real64'
+          write(6,*) ESMF_kind_R8, real32, real64, pfio_real32, pfio_real64
        end if
 
 
@@ -568,8 +568,9 @@ module subroutine  create_metadata(this,global_attributes,rc)
             iroot, mpic, ierr )
        _VERIFY(ierr)
 
-
-!!       if (mapl_am_I_root()) write(6,*) 'nobs tot :', nx
+       !ygyu
+       if (mapl_am_I_root()) write(6,*) 'nobs tot :', nx
+       if (mapl_am_I_root()) write(6,*) 'ck1'
 
        deallocate (this%recvcounts, this%displs, _STAT)
        deallocate (recvcounts_loc, displs_loc, _STAT)
@@ -613,6 +614,8 @@ module subroutine  create_metadata(this,global_attributes,rc)
 
 !!       write(6,*)  'ip, size(lons_ds)=', mypet, size(lons_ds)
 
+       if (mapl_am_I_root()) write(6,*) 'ck s2'       
+
        call MAPL_TimerOff(this%GENSTATE,"2_ABIgrid_LS")
 
        ! __ s3. find n.n. CS pts for LS_ds (halo)
@@ -632,11 +635,13 @@ module subroutine  create_metadata(this,global_attributes,rc)
        call ESMF_FieldDestroy(fieldB,nogarbage=.true.,_RC)
        call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
 
-
+       if (mapl_am_I_root()) write(6,*) 'ck s3.1'
+       
        allocate ( II(nx), JJ(nx), _STAT )
        call MAPL_GetHorzIJIndex(nx,II,JJ,lonR8=obs_lons,latR8=obs_lats,grid=grid,_RC)
        call ESMF_VMBarrier (vm, _RC)
 
+       if (mapl_am_I_root()) write(6,*) 'ck s3.2'
        !
        ! __  halo for mask
        !
@@ -661,8 +666,12 @@ module subroutine  create_metadata(this,global_attributes,rc)
           endif
        enddo
 
+       if (mapl_am_I_root()) write(6,*) 'ck s3.3 halo1'
+
        call ESMF_FieldHaloStore (fieldI4, routehandle=RH_halo, _RC)
        call ESMF_FieldHalo (fieldI4, routehandle=RH_halo, _RC)
+
+       if (mapl_am_I_root()) write(6,*) 'ck s3.3 halo2'
 
 !       !
 !       !-- print out eLB, eUB do they match 1:IM, JM?
@@ -687,6 +696,8 @@ module subroutine  create_metadata(this,global_attributes,rc)
        end do
        allocate( mask(IM, JM), _STAT)
        mask(1:IM, 1:JM) = abs(farrayPtr(1:IM, 1:JM))
+       if (mapl_am_I_root()) write(6,*) 'ck s3.4 bf full reduce'
+
 
        this%npt_mask = k    ! # of masked pts on CS grid
        allocate( this%index_mask(2,k), _STAT )
@@ -706,7 +717,8 @@ module subroutine  create_metadata(this,global_attributes,rc)
        end do
        call MAPL_TimerOff(this%GENSTATE,"3_CS_halo")
 
-
+       if (mapl_am_I_root()) write(6,*) 'ck s3'
+       
        ! ----
        !  regridding is replaced by
        !  - selecting masked data on PET
@@ -736,7 +748,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
        else
           allocate (this%lons(0), this%lats(0), _STAT)
        end if
-
+       if (mapl_am_I_root()) write(6,*) 'ck s4.1'       
 
        ! __ s4.2  find this%recvcounts / this%displs
        !
@@ -760,7 +772,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
        do i=2, petcount
           this%displs(i) = this%displs(i-1) + this%recvcounts(i-1)
        end do
-
+       if (mapl_am_I_root()) write(6,*) 'ck s4.2'       
 
        ! __ s4.3  gatherv lons/lats
        !
@@ -775,57 +787,59 @@ module subroutine  create_metadata(this,global_attributes,rc)
        _VERIFY(ierr)
 
        call MAPL_TimerOff(this%GENSTATE,"4_gatherV")
+       _FAIL('nail 1')
 
 
-       ! __ s4.4  find (i1,in) for masked array
-       write(6,*) 'ip, this%npt_mask, this%recvcounts, this%displs'
-       write(6,'(200i10)')  ip, this%npt_mask
-       write(6,'(200i10)')  this%recvcounts
-       write(6,'(200i10)')  this%displs
-       call MPI_Barrier(mpic,ierr)
-       _VERIFY(ierr)
+!         __ note: s4.4 can be used in the future for pfio
+!         __       for now keep it simple
+!       ! __ s4.4  find (i1,in) for masked array
+!       write(6,*) 'ip, this%npt_mask, this%recvcounts, this%displs'
+!       write(6,'(200i10)')  ip, this%npt_mask
+!       write(6,'(200i10)')  this%recvcounts
+!       write(6,'(200i10)')  this%displs
+!       call MPI_Barrier(mpic,ierr)
+!       _VERIFY(ierr)
+!
+!       if (mapl_am_i_root()) then
+!          print*, 'this%npt_mask_tot=', this%npt_mask_tot
+!          allocate (this%lons_deg(this%npt_mask_tot), this%lats_deg(this%npt_mask_tot), _STAT)
+!          this%lons_deg = this%lons * MAPL_RADIANS_TO_DEGREES
+!          this%lats_deg = this%lats * MAPL_RADIANS_TO_DEGREES
+!       else
+!          allocate (this%lons_deg(0), this%lats_deg(0), _STAT)
+!       end if
+!!!       write(6,'(2x,a,2x,i5,2x,1000f12.2)') 'ip, lons_deg', ip, this%lons_deg
+!!!       write(6,'(2x,a,2x,i5,2x,1000f12.2)') 'ip, lats_deg', ip, this%lats_deg
+!
+!!!       call MAPL_CommsBcast(vm, DATA=, N=1, ROOT=MAPL_Root, _RC)
+!       allocate (sendcounts_loc(petcount))
+!       do i=1, petcount
+!          displs_loc(i)=i-1
+!          sendcounts_loc(i)=1
+!       enddo
+!
+!       call  MPI_Scatterv( this%displs, sendcounts_loc, displs_loc, MPI_INTEGER, &
+!            this%i1, 1, MPI_INTEGER, iroot, mpic, ierr)
+!       if (this%npt_mask > 0) then
+!          this%i1 = this%i1 + 1       ! shift from 0 to 1
+!          this%in =  this%i1 + this%npt_mask - 1
+!       else
+!          this%i1 = 0
+!          this%in = 0
+!       end if
+!
+!       write(6,'(2x,a,2x,200i10)')  'ip, this%npt_mask, this%i1, in:', &
+!            ip, this%npt_mask, this%i1, this%in
+!       call MPI_Barrier(mpic,ierr)
 
-
-       if (mapl_am_i_root()) then
-          print*, 'this%npt_mask_tot=', this%npt_mask_tot
-          allocate (this%lons_deg(this%npt_mask_tot), this%lats_deg(this%npt_mask_tot), _STAT)
-          this%lons_deg = this%lons * MAPL_RADIANS_TO_DEGREES
-          this%lats_deg = this%lats * MAPL_RADIANS_TO_DEGREES
-       else
-          allocate (this%lons_deg(0), this%lats_deg(0), _STAT)
-       end if
-!!       write(6,'(2x,a,2x,i5,2x,1000f12.2)') 'ip, lons_deg', ip, this%lons_deg
-!!       write(6,'(2x,a,2x,i5,2x,1000f12.2)') 'ip, lats_deg', ip, this%lats_deg
-
-!!       call MAPL_CommsBcast(vm, DATA=, N=1, ROOT=MAPL_Root, _RC)
-       allocate (sendcounts_loc(petcount))
-       do i=1, petcount
-          displs_loc(i)=i-1
-          sendcounts_loc(i)=1
-       enddo
-
-       call  MPI_Scatterv( this%displs, sendcounts_loc, displs_loc, MPI_INTEGER, &
-            this%i1, 1, MPI_INTEGER, iroot, mpic, ierr)
-       if (this%npt_mask > 0) then
-          this%i1 = this%i1 + 1       ! shift from 0 to 1
-          this%in =  this%i1 + this%npt_mask - 1
-       else
-          this%i1 = 0
-          this%in = 0
-       end if
-
-       write(6,'(2x,a,2x,200i10)')  'ip, this%npt_mask, this%i1, in:', &
-            ip, this%npt_mask, this%i1, this%in
-       call MPI_Barrier(mpic,ierr)
-
+       
        _RETURN(_SUCCESS)
      end subroutine create_Geosat_grid_find_mask
 
 
  module subroutine regrid_append_file(this,current_time,filename,oClients,rc)
     implicit none
-
-    class(MaskSamplerGeosat), intent(inout) :: this
+    class(MaskSampler), intent(inout) :: this
     type(ESMF_Time), intent(inout)          :: current_time
     character(len=*), intent(in) :: filename
     type (ClientManager), target, optional, intent(inout) :: oClients
