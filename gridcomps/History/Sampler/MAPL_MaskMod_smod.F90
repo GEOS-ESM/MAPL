@@ -254,23 +254,30 @@ module subroutine  create_metadata(this,global_attributes,rc)
     allocate(this%metadata)
 
     call this%metadata%add_dimension('mask_index', this%npt_mask_tot)
-    !- add time dimension to metadata
-    call this%timeinfo%add_time_to_metadata(this%metadata,_RC)
-    
-    v = Variable(type=pFIO_REAL32, dimensions='mask_index')
-    call v%add_attribute('long_name','longitude')
-    call v%add_attribute('unit','degree_east')
-    call this%metadata%add_variable('longitude',v)
 
-    v = Variable(type=pFIO_REAL32, dimensions='mask_index')
-    call v%add_attribute('long_name','latitude')
-    call v%add_attribute('unit','degree_north')
-    call this%metadata%add_variable('latitude',v)
+    !    !- add time dimension to metadata
+!    call this%timeinfo%add_time_to_metadata(this%metadata,_RC)
+
+
+!    v = Variable(type=pFIO_REAL32, dimensions='mask_index')
+!    call v%add_attribute('long_name','time')
+!!!    call v%add_attribute('unit','second')
+!    call this%metadata%add_variable('time',v)
+!
+!    v = Variable(type=pFIO_REAL32, dimensions='mask_index')
+!    call v%add_attribute('long_name','longitude')
+!    call v%add_attribute('unit','degree_east')
+!    call this%metadata%add_variable('longitude',v)
+!
+!    v = Variable(type=pFIO_REAL32, dimensions='mask_index')
+!    call v%add_attribute('long_name','latitude')
+!    call v%add_attribute('unit','degree_north')
+!    call this%metadata%add_variable('latitude',v)
 
     call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC) ! specify lev in fmd
 
-    order = this%metadata%get_order(rc=status)
-    _VERIFY(status)
+!    order = this%metadata%get_order(rc=status)
+!    _VERIFY(status)
     metadataVarsSize = order%size()
 
     !__ 2. filemetadata: extract field from bundle, add_variable to metadata
@@ -313,11 +320,12 @@ module subroutine  create_metadata(this,global_attributes,rc)
     deallocate (fieldNameList, _STAT)
 
 
-    if (this%itemOrderAlphabetical) then
-       call this%alphabatize_variables(metadataVarsSize,rc=status)
-       _VERIFY(status)
-    end if
-
+!!  why add this?    
+!!    if (this%itemOrderAlphabetical) then
+!!       call this%alphabatize_variables(metadataVarsSize,rc=status)
+!!       _VERIFY(status)
+!!    end if
+!!
     s_iter = global_attributes%begin()
     do while(s_iter /= global_attributes%end())
        attr_name => s_iter%key()
@@ -325,6 +333,8 @@ module subroutine  create_metadata(this,global_attributes,rc)
        call this%metadata%add_attribute(attr_name,attr_val,_RC)
        call s_iter%next()
     enddo
+
+
     ! To be added when values are available
     !v = Variable(type=pFIO_INT32, dimensions='mask_index')
     !call v%add_attribute('long_name','The Cubed Sphere Global Face ID')
@@ -899,11 +909,13 @@ module subroutine  create_metadata(this,global_attributes,rc)
     !
     if (allocated (this%times))   deallocate(this%times)
     allocate( this%times(1), _STAT )
-    time_r8 = this%compute_time_for_current(current_time,_RC) ! rtimes: seconds since opening file
-    this%times(1) = time_r8
+!!    time_r8 = this%compute_time_for_current(current_time,_RC) ! rtimes: seconds since opening file
+    !!    this%times(1) = time_r8 * 1.d0
+
+    this%times(1) = 1.0    
     ref = ArrayReference(this%times)
-    call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
-    call this%stage1DLatLon(trim(filename),oClients=oClients,_RC)
+!    call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
+!    call this%stage1DLatLon(trim(filename),oClients=oClients,_RC)
 
 
     !__ 2. put_var: ungridded_dim from src to dst [use index_mask]
@@ -930,14 +942,18 @@ module subroutine  create_metadata(this,global_attributes,rc)
                 iy = this%index_mask(2,j)
                 this%array_scalar_1d(j) = (mypet+11)*1.0
              end do
+             write(6, '(2x,a,i10,500f8.1)') "ip, this%array_scalar_1d", mypet, this%array_scalar_1d
 
+             
              nx_all = 0
              call MPI_Gather(nx, 1, MPI_INTEGER, nx_all, 1, MPI_INTEGER, 0, mpic, status)
              if(mypet==0) then
-                lMemRef = LocalMemReference(pFIO_REAl32,[sum(nx_all)])
-                call c_f_pointer(lMemRef%base_address, array_1d, shape=[sum(nx_all)])
+                !                lMemRef = LocalMemReference(pFIO_REAl32,[sum(nx_all)])
+                lMemRef = LocalMemReference(pFIO_REAl32,[this%npt_mask_tot])                
+                call c_f_pointer(lMemRef%base_address, array_1d, shape=[this%npt_mask_tot])
              else
-                lMemRef = LocalMemReference(pFIO_REAL32,[0])
+                lMemRef = LocalMemReference(pFIO_REAl32,[0])
+!                lMemRef = LocalMemReference(REAL32,[1])                
                 call c_f_pointer(lMemRef%base_address, array_1d, shape=[0])
              endif
 
@@ -946,8 +962,9 @@ module subroutine  create_metadata(this,global_attributes,rc)
                  displ(j) = displ(j-1)+nx_all(j-1)
              enddo
 
-             call MPI_GatherV(this%array_scalar_1d, nx, MPI_REAL, array_1d,  nx_all, displ, MPI_REAL, 0, mpic, status)
-             
+             if (mapl_am_I_root()) then             
+                array_1d(:)=99.0
+             end if             
 
             ! ref = ArrayReference(this%array_scalar_1d)
 
@@ -955,59 +972,12 @@ module subroutine  create_metadata(this,global_attributes,rc)
              if (mapl_am_I_root()) then
                 write(6,*) ' count_scalar=',  count_scalar
                 print*, "sum(nx_all), this%this%npt_mask_tot:", sum(nx_all), this%npt_mask_tot
-                print*, "array_1d:", size(array_1d), array_1d
-             end if
-             print*, "this%array_scalar_1d", this%array_scalar_1d
-
-             !  proc    1  2  3  4  5  6
-             !  nx      19 0  0  0  0  46  def arry(nx)
-             !  i1      1              20
-             !  in      19             65
-             !  nx_tot  65
-
-             if (nx>0) then
-                !! jj=1 is correct
-                jj=1
-                select case(jj)
-                case (1)
-                   ! choice-1
-                   allocate(local_start,source=[this%i1])
-                   allocate(global_start,source=[1])
-                   allocate(global_count,source=[this%npt_mask_tot])
-                case(2)
-                   ! choice-2
-                   allocate(local_start,source=[1])
-                   allocate(global_start,source=[this%i1])
-                   allocate(global_count,source=[this%npt_mask_tot])
-                end select
-                print*, 'mypet, local_start, global_start, global_count', &
-                     mypet, local_start, global_start, global_count
-             else
-                !!  kk=3 is correct
-                kk=3
-                select case(kk)
-                case (1)
-                   ! choice-1
-                   allocate(local_start,source=[1])
-                   allocate(global_start,source=[1])
-                   allocate(global_count,source=[this%npt_mask_tot])
-                case(2)
-                   ! choice-2
-                   allocate(local_start,source=[0])
-                   allocate(global_start,source=[0])
-                   allocate(global_count,source=[this%npt_mask_tot])
-                case(3)
-                   ! choice-3
-                   allocate(local_start,source=[0])
-                   allocate(global_start,source=[0])
-                   allocate(global_count,source=[0])
-                end select
+                write(6,'(2x,a,i10, 500f8.1)') "array_1d:", size(array_1d), array_1d
              end if
 
              call oClients%collective_stage_data(this%write_collection_id,trim(filename),trim(item%xname), &
                   lMemref,start=[1], global_start=[1], global_count=[this%npt_mask_tot])
 
-             deallocate (local_start, global_start, global_count)
 
 
           else if (rank==3) then

@@ -84,7 +84,11 @@ module MaskSamplerMod
      real(kind=REAL32), allocatable :: lons_deg(:)
      real(kind=REAL32), allocatable :: lats_deg(:)
 
-     real, allocatable :: times(:)
+!    real(kind=pFIO_REAl32), allocatable :: lons_deg(:)
+!    real(kind=pFIO_REAl32), allocatable :: lats_deg(:)
+
+!     real, allocatable :: times(:)
+     real(pFIO_REAl32), allocatable :: times(:)
      integer, allocatable :: recvcounts(:)
      integer, allocatable :: displs(:)
      type(MAPL_MetaComp), pointer :: GENSTATE
