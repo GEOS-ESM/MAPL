@@ -2490,14 +2490,12 @@ ENDDO PARSER
              call MAPL_TimerOn(GENSTATE,"mask_init")
              global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
              list(n)%mask_sampler = MaskSampler(cfg,string,clock,genstate=GENSTATE,_RC)
-             ! initialize + create metadata
+             ! initialize : create grid / metadata
+             call list(n)%mask_sampler%set_param(oClients=o_Clients)
              call list(n)%mask_sampler%set_param(itemOrder=intState%fileOrderAlphabetical,_RC)
-             if (mapl_am_I_root()) write(6,*) 'ck af set_param'
              call list(n)%mask_sampler%initialize(list(n)%duration,list(n)%frequency,items=list(n)%items,&
                   bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
-             if (mapl_am_I_root()) write(6,*) 'ck af initialize'
-             _FAIL('nail 2')
-             
+
              collection_id = o_Clients%add_hist_collection(list(n)%mask_sampler%metadata, mode = create_mode)
              call list(n)%mask_sampler%set_param(write_collection_id=collection_id)
              call MAPL_TimerOff(GENSTATE,"mask_init")
@@ -3808,11 +3806,12 @@ ENDDO PARSER
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
             call MAPL_TimerOn(GENSTATE,"Mask_append")
             if (list(n)%unit < 0) then    ! CFIO
-               print*, __LINE__
-               print*, 'list(n)%currentFile',list(n)%currentFile
                call list(n)%mask_sampler%regrid_append_file(current_time,&
                     list(n)%currentFile,oClients=o_Clients,_RC)
-               if (mapl_am_i_root()) write(6,*) 'af list(n)%mask_sampler%regrid_append_file'
+               if (mapl_am_i_root()) then
+                  print*, __LINE__
+                  print*, 'list(n)%currentFile: ',list(n)%currentFile
+               end if
             end if
             call MAPL_TimerOff(GENSTATE,"Mask_append")
          endif
@@ -3837,7 +3836,9 @@ ENDDO PARSER
       call o_Clients%done_collective_stage(_RC)
       call o_Clients%post_wait()
 
-      write(6,*) ' list(1)%mask_sampler%this%array_scalar_1d',      list(1)%mask_sampler%array_scalar_1d
+!      write(6, '(2x,a,2x,500f8.1)') &
+!           'list(1)%mask_sampler%this%array_scalar_1d', &
+!           list(1)%mask_sampler%array_scalar_1d
 
    endif
    call MAPL_TimerOff(GENSTATE,"Done Wait")
@@ -3869,7 +3870,6 @@ ENDDO PARSER
       if( Writing(n) .and. list(n)%unit < 0) then
          ! cleanup times
          if (allocated(list(n)%mGriddedIO%times)) deallocate(list(n)%mGriddedIO%times)
-         if (allocated(list(n)%mask_sampler%times)) deallocate(list(n)%mask_sampler%times)
       end if
 
    enddo WAITLOOP
@@ -3949,6 +3949,12 @@ ENDDO PARSER
     IntState => wrap%ptr
     list => IntState%list
     nlist = size(list)
+
+    do n=1,nlist
+       if (list(n)%sampler_spec == 'mask') then
+          call list(n)%mask_sampler%finalize(_RC)
+       end if
+    end do
 
 ! Close UNITs of GEOSgcm History Data
 ! -----------------------------------

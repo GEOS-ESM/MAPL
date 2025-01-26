@@ -29,8 +29,19 @@ module MaskSamplerMod
   use pflogger, only: Logger, logging
   implicit none
   intrinsic :: size
-  
+
   private
+
+  public :: var2d_unit
+  public :: var3d_unit
+  type :: var2d_unit
+     real(kind=REAL32), allocatable :: array_x(:)
+  end type var2d_unit
+
+  type :: var3d_unit
+     real(kind=REAL32), allocatable :: array_xz(:,:)
+  end type var3d_unit
+
 
   public :: MaskSampler
   type :: MaskSampler
@@ -47,6 +58,8 @@ module MaskSamplerMod
      type(ESMF_FieldBundle) :: bundle
      type(GriddedIOitemVector) :: items
      type(VerticalData) :: vdata
+     type(var2d_unit), allocatable :: var2d(:)
+     type(var3d_unit), allocatable :: var3d(:)
      logical :: do_vertical_regrid
      type(TimeData)           :: timeinfo
      type(ESMF_Clock)         :: clock
@@ -56,6 +69,7 @@ module MaskSamplerMod
      type(NetCDF4_FileFormatter) :: formatter
      character(len=ESMF_MAXSTR)  :: ofile
      integer :: write_collection_id
+     logical :: use_pfio
      !
      integer                        :: nobs
      integer                        :: obs_written
@@ -84,7 +98,8 @@ module MaskSamplerMod
      real(kind=REAL32), allocatable :: lons_deg(:)
      real(kind=REAL32), allocatable :: lats_deg(:)
 
-     real, allocatable :: times(:)
+     real(kind=REAL32) :: rtime
+!     real, allocatable :: times(:)
      integer, allocatable :: recvcounts(:)
      integer, allocatable :: displs(:)
      type(MAPL_MetaComp), pointer :: GENSTATE
@@ -97,7 +112,7 @@ module MaskSamplerMod
      real, allocatable :: array_scalar_2d(:,:)
      real, allocatable :: array_scalar_3d(:,:,:)
      logical :: itemOrderAlphabetical = .true.
-     
+
      integer :: tmax     ! duration / freq
 
      real(kind=ESMF_KIND_R8), pointer:: obsTime(:)
@@ -111,7 +126,9 @@ module MaskSamplerMod
      integer                        :: obsfile_Te_index
      logical                        :: is_valid
    contains
-     procedure :: initialize => initialize_
+
+     procedure :: initialize
+     procedure :: finalize
      procedure :: create_metadata
      procedure :: regrid_append_file
      procedure :: create_Geosat_grid_find_mask
@@ -138,7 +155,7 @@ module MaskSamplerMod
        integer, optional, intent(out)          :: rc
      end function MaskSampler_from_config
 
-     module subroutine initialize_(this,duration,frequency,items,bundle,timeInfo,vdata,global_attributes,reinitialize,rc)
+     module subroutine initialize(this,duration,frequency,items,bundle,timeInfo,vdata,global_attributes,reinitialize,rc)
        class(MaskSampler), intent(inout) :: this
        integer, intent(in) :: duration
        integer, intent(in) :: frequency
@@ -149,7 +166,12 @@ module MaskSamplerMod
        type(StringStringMap), target, intent(in), optional :: global_attributes
        logical, optional, intent(in)           :: reinitialize
        integer, optional, intent(out)          :: rc
-     end subroutine initialize_
+     end subroutine initialize
+
+     module subroutine finalize(this,rc)
+       class(MaskSampler), intent(inout) :: this
+       integer, optional, intent(out)          :: rc
+     end subroutine finalize
 
      module subroutine create_Geosat_grid_find_mask(this, rc)
        use pflogger, only: Logger, logging
@@ -173,7 +195,7 @@ module MaskSamplerMod
      end subroutine regrid_append_file
 
      module subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,&
-          nbits_to_keep,regrid_method,itemOrder,write_collection_id,regrid_hints,rc)
+          nbits_to_keep,regrid_method,itemOrder,write_collection_id,regrid_hints,oClients,rc)
        class (MaskSampler), intent(inout) :: this
        integer, optional, intent(in) :: deflation
        integer, optional, intent(in) :: quantize_algorithm
@@ -184,6 +206,7 @@ module MaskSamplerMod
        logical, optional, intent(in) :: itemOrder
        integer, optional, intent(in) :: write_collection_id
        integer, optional, intent(in) :: regrid_hints
+       type (ClientManager), optional, intent(in) :: oClients
        integer, optional, intent(out) :: rc
      end subroutine set_param
 
@@ -213,6 +236,6 @@ module MaskSamplerMod
       integer, intent(in) :: nFixedVars
       integer, optional, intent(out) :: rc
     end subroutine alphabatize_variables
-    
+
   end interface
 end module MaskSamplerMod
