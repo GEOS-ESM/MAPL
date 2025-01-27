@@ -9,7 +9,6 @@ module mapl3g_ESMF_Time_Utilities
    public :: zero_time_interval
    public :: intervals_are_compatible
    public :: times_and_intervals_are_compatible
-   public :: zero_time_interval
 
    interface zero_time_interval
       module procedure :: get_zero
@@ -30,10 +29,9 @@ contains
       type(ESMF_TimeInterval), intent(inout) :: interval
       integer, optional, intent(out) :: rc
       integer :: status
-      integer :: yy, mm, dd, h, m, s
       integer(kind=I4) :: a(NUM_DATETIME_FIELDS)
 
-      call ESMF_TimeIntervalGet(interval, yy=a(1), mm=a(2), dd=a(3), h=a(4), m=a(5), s=a(6), _RC)
+      call ESMF_TimeIntervalGet(interval, yy=a(1), mm=a(2), d=a(3), h=a(4), m=a(5), s=a(6), _RC)
       units = a /= 0
       _RETURN(_SUCCESS)
 
@@ -47,10 +45,10 @@ contains
       logical, allocatable :: has_units(:)
 
       can_compare_intervals = .FALSE.
-      has_units = units_in(larger)
-      _RETURN_UNLESS(all(has_units(1:2) == 0) 
-      has_units = units_in(smaller)
-      _RETURN_UNLESS(all(has_units(1:2) == 0) 
+      has_units = units_in(larger, _RC)
+      _RETURN_IF(any(has_units(1:2))) 
+      has_units = units_in(smaller, _RC)
+      _RETURN_IF(any(has_units(1:2))) 
       can_compare_intervals = .TRUE.
       _RETURN(_SUCCESS)
 
@@ -69,15 +67,15 @@ contains
    end function get_zero
 
    logical function intervals_are_compatible(larger, smaller, dst, leap_seconds, rc) result(compatible)
-      type(ESMF_TimeInterval), intent(in) :: larger
-      type(ESMF_TimeInterval), intent(in) :: smaller
-      logical, intent(in) :: dst
-      logical, intent(in) :: leap_seconds
+      type(ESMF_TimeInterval), intent(inout) :: larger
+      type(ESMF_TimeInterval), intent(inout) :: smaller
+      logical, optional, intent(in) :: dst
+      logical, optional, intent(in) :: leap_seconds
       integer, optional, intent(out) :: rc
       integer :: status
 
       associate(abs_larger => ESMF_TimeIntervalAbsValue(larger), abs_smaller => ESMF_TimeIntervalAbsValue(smaller))
-         compatible = ESMF_TimeIntervalAbsValue(larger) >= ESMF_TimeIntervalAbsValue(smaller)
+         compatible = abs_larger >= abs_smaller
          _RETURN_UNLESS(compatible)
          compatible = can_compare_intervals(larger, smaller, _RC)
          _RETURN_UNLESS(compatible)
@@ -89,18 +87,17 @@ contains
    end function intervals_are_compatible
 
    logical function times_and_intervals_are_compatible(time1, time2, larger, smaller, rc) result(compatible)
-      type(ESMF_Time), intent(in) :: time1
-      type(ESMF_Time), intent(in) :: time2
-      type(ESMF_TimeInterval), target, intent(in) :: larger
-      type(ESMF_TimeInterval), target, intent(in) :: smaller
-      integer, optional, intent(in) :: rc
+      type(ESMF_Time), intent(inout) :: time1
+      type(ESMF_Time), intent(inout) :: time2
+      type(ESMF_TimeInterval), target, intent(inout) :: larger
+      type(ESMF_TimeInterval), target, intent(inout) :: smaller
+      integer, optional, intent(inout) :: rc
       integer :: status
-      logical :: compatible
       type(ESMF_TimeInterval), pointer :: interval => null()
 
       compatible = intervals_are_compatible(larger, smaller, _RC)
       _RETURN_UNLESS(compatible)
-      compatible = mod(ESMF_TimeIntervalAbsValue(time1 - time2), ESMF_TimeInterval(smaller)) == get_zero()
+      compatible = mod(ESMF_TimeIntervalAbsValue(time1 - time2), ESMF_TimeIntervalAbsValue(smaller)) == get_zero()
       _RETURN(_SUCCESS)
 
    end function times_and_intervals_are_compatible
