@@ -49,7 +49,7 @@ module mapl3g_FieldClassAspect
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_action
-      procedure :: matches
+      procedure :: matches => matches_a
       procedure :: connect_to_import
       procedure :: connect_to_export
 
@@ -62,16 +62,17 @@ module mapl3g_FieldClassAspect
       procedure :: get_payload
    end type FieldClassAspect
 
+   interface
+      module function matches_a(src, dst) result(matches)
+        logical matches
+         class(FieldClassAspect), intent(in) :: src
+         class(StateItemAspect), intent(in) :: dst
+      end function matches_a
+   end interface
+
    interface FieldClassAspect
       procedure :: new_FieldClassAspect
    end interface FieldClassAspect
-
-   interface
-      module logical function matches(src, dst)
-         class(FieldClassAspect), intent(in) :: src
-         class(StateItemAspect), intent(in) :: dst
-      end function matches
-   end interface
 
 
 contains

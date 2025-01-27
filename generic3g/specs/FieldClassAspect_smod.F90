@@ -6,7 +6,8 @@ submodule (mapl3g_FieldClassAspect) FieldClassAspect_smod
 
 contains
 
-   module logical function matches(src, dst)
+  module function matches_a(src, dst) result(matches)
+     logical :: matches
       class(FieldClassAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
 
@@ -17,8 +18,7 @@ contains
       class is (WildcardClassAspect)
          matches = .true.
       end select
-
-   end function matches
+   end function matches_a
 
 end submodule FieldClassAspect_smod
    
