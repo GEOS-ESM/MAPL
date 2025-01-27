@@ -3,7 +3,9 @@
 module mapl3g_ClassAspect
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
+   use mapl3g_MultiState
    use mapl_ErrorHandling
+   use mapl3g_ActualConnectionPt
    implicit none
    private
 
@@ -108,6 +110,5 @@ contains
       type(AspectId) :: aspect_id
       aspect_id = CLASS_ASPECT_ID
    end function get_aspect_id
-
 
 end module mapl3g_ClassAspect
