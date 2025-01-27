@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_WildcardClassAspect
-   use mapl3g_ActualPtStateItemSpecMap
+   use mapl3g_ActualPtFieldAspectMap
    use mapl3g_ActualConnectionPt
    use mapl3g_StateItemSpec
    use mapl3g_AspectId
@@ -20,15 +20,13 @@ module mapl3g_WildcardClassAspect
 
    type, extends(ClassAspect) :: WildcardClassAspect
      private
-      class(StateItemSpec), allocatable :: reference_spec
-      type(ActualPtStateItemSpecMap) :: matched_items
+     type(ActualPtFieldAspectMap) :: matched_items
    contains
 
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: matches
       procedure :: make_action
-      procedure :: make_action2
       procedure :: connect_to_export
 
       procedure :: get_aspect_order
@@ -45,11 +43,8 @@ module mapl3g_WildcardClassAspect
 
 contains
 
-   function new_WildcardClassAspect(reference_spec) result(wildcard_aspect)
+   function new_WildcardClassAspect() result(wildcard_aspect)
       type(WildcardClassAspect) :: wildcard_aspect
-      class(StateItemSpec), intent(in) :: reference_spec
-
-      wildcard_aspect%reference_spec = reference_spec
 
    end function new_WildcardClassAspect
 
@@ -64,18 +59,7 @@ contains
    end function matches
 
    ! Wildcard not permitted as an export.
-   function make_action(src, dst, rc) result(action)
-      class(ExtensionAction), allocatable :: action
-      class(WildcardClassAspect), intent(in) :: src
-      class(StateItemAspect), intent(in) :: dst
-      integer, optional, intent(out) :: rc
-      
-      action = NullAction()
-      _RETURN(_SUCCESS)
-   end function make_action
-
-   ! Wildcard not permitted as an export.
-   function make_action2(src, dst, other_aspects, rc) result(action)
+   function make_action(src, dst, other_aspects, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(WildcardClassAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
@@ -85,7 +69,7 @@ contains
       action = NullAction()
 
       _RETURN(_SUCCESS)
-   end function make_action2
+   end function make_action
 
 
    subroutine connect_to_export(this, export, actual_pt, rc)
@@ -106,7 +90,7 @@ contains
 
    subroutine typesafe_connect_to_export(this, export, actual_pt, rc)
       class(WildcardClassAspect), target, intent(inout) :: this
-      class(FieldClassAspect), intent(in) :: export
+      type(FieldClassAspect), intent(in) :: export
       type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
@@ -114,17 +98,7 @@ contains
       class(StateItemAspect), pointer :: import_class_aspect
       integer :: status
 
-
-      call this%matched_items%insert(actual_pt, this%reference_spec)
-      spec => this%matched_items%of(actual_pt)
-      import_class_aspect => spec%get_aspect(CLASS_ASPECT_ID)
-
-      select type (import_class_aspect)
-      type is (FieldClassAspect)
-         call import_class_aspect%connect_to_export(export, actual_pt, _RC)
-      class default
-         _FAIL("Export ClassAspect must be 'Field' to connect with Wildcard")
-      end select
+      call this%matched_items%insert(actual_pt, export)
       
       _RETURN(_SUCCESS)
    end subroutine typesafe_connect_to_export
@@ -179,12 +153,12 @@ contains
          integer, optional, intent(out) :: rc
          
          integer :: status
-         type(ActualPtStateItemSpecMapIterator) :: iter
-         class(StateItemSpec), pointer :: spec_ptr
          type(ActualConnectionPt), pointer :: effective_pt
          type(ActualConnectionPt) :: use_pt
          character(:), allocatable :: comp_name
          integer :: label
+         type(ActualPtFieldAspectMapIterator) :: iter
+         type(FieldClassAspect), pointer :: ptr
 
          associate (e => this%matched_items%ftn_end())
            iter = this%matched_items%ftn_begin()
@@ -203,8 +177,8 @@ contains
               if (comp_name /= '') then
                  use_pt = use_pt%add_comp_name(comp_name)
               end if
-              spec_ptr => iter%second()
-              call spec_ptr%add_to_state(multi_state, use_pt, _RC)
+              ptr => iter%second()
+              call ptr%add_to_state(multi_state, use_pt, _RC)
            end do
          end associate
          

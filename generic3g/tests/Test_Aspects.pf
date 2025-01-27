@@ -1,0 +1,330 @@
+#include "MAPL_TestErr.h"
+
+module Test_Aspects
+   use funit
+   use mapl3g_geom_mgr
+   use mapl3g_StateItemAspect
+   use mapl3g_TypekindAspect
+   use mapl3g_UnitsAspect
+   use mapl3g_AttributesAspect
+   use mapl3g_UngriddedDimsAspect
+   use mapl3g_FieldClassAspect
+   use mapl3g_BracketClassAspect
+   use mapl3g_AspectId
+   use mapl3g_GeomAspect
+   use mapl3g_UngriddedDims
+   use mapl3g_UngriddedDim
+   use mapl3g_UngriddedDimVector
+   use mapl3g_VerticalDimSpec
+   use mapl3g_BasicVerticalGrid
+   use mapl3g_FrequencyAspect
+   use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
+   use gftl2_StringVector
+   use esmf
+   implicit none
+
+   type(ESMF_Geom) :: geom1, geom2
+
+contains
+
+   
+   @before
+   subroutine setup()
+      type(ESMF_HConfig) :: hconfig
+      type(MaplGeom) :: mapl_geom
+      type(GeomManager), pointer :: geom_mgr
+      integer :: status
+
+      geom_mgr => get_geom_manager()
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}", _RC)
+      mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+      geom1 = mapl_geom%get_geom()
+      call ESMF_HConfigDestroy(hconfig)
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}", _RC)
+      mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+      geom2 = mapl_geom%get_geom()
+      call ESMF_HConfigDestroy(hconfig)
+   end subroutine setup
+
+   
+   @test
+   subroutine test_can_connect_typekind()
+      type(TypekindAspect) :: tk_r4, tk_r8, tk_mirror
+
+      tk_r4 = TypeKindAspect(ESMF_TYPEKIND_R4)
+      tk_r8 = TypeKindAspect(ESMF_TYPEKIND_R8)
+      tk_mirror = TypeKindAspect()
+
+      @assert_that(tk_r4%can_connect_to(tk_r4), is(true()))
+      @assert_that(tk_r4%can_connect_to(tk_r8), is(true()))
+      @assert_that(tk_r8%can_connect_to(tk_r4), is(true()))
+      @assert_that(tk_r8%can_connect_to(tk_r8), is(true()))
+
+      @assert_that(tk_mirror%can_connect_to(tk_r4), is(true()))
+      @assert_that(tk_mirror%can_connect_to(tk_r8), is(true()))
+
+      @assert_that(tk_mirror%can_connect_to(tk_mirror), is(false()))
+
+   end subroutine test_can_connect_typekind
+
+
+   @test
+   ! Verify that framework detects when an export spec does not
+   ! provide mandatory attributes specified by import spec.
+   subroutine test_mismatched_attribute()
+      type(AttributesAspect) :: export, import
+      type(StringVector) :: export_attributes, import_attributes
+
+      call import_attributes%push_back('A')
+      call import_attributes%push_back('B')
+
+      call export_attributes%push_back('A') ! missing 'B'
+
+
+      export = AttributesAspect(export_attributes)
+      import = AttributesAspect(import_attributes)
+      
+      @assert_that(export%can_connect_to(import), is(false()))
+
+   end subroutine test_mismatched_attribute
+
+   @test
+   ! Verify that it is fine to have extra export attributes
+   ! provide mandatory attributes specified by import spec.
+   subroutine test_extra_attribute()
+      type(AttributesAspect) :: export, import
+      type(StringVector) :: export_attributes, import_attributes
+
+      call import_attributes%push_back('A')
+      call import_attributes%push_back('B')
+
+      call export_attributes%push_back('A')
+      call export_attributes%push_back('B')
+      call export_attributes%push_back('C')
+
+
+      export = AttributesAspect(export_attributes)
+      import = AttributesAspect(import_attributes)
+      
+      @assert_that(export%can_connect_to(import), is(true()))
+
+   end subroutine test_extra_attribute
+
+   @test
+   subroutine test_mismatched_units()
+      type(UnitsAspect) :: import
+      type(UnitsAspect) :: export
+
+      import = UnitsAspect('s') ! seconds
+      export = UnitsAspect('m') ! meters
+
+      @assert_that(export%can_connect_to(import), is(false()))
+
+   end subroutine test_mismatched_units
+
+   @test
+   subroutine test_convertible_units()
+      type(UnitsAspect) :: import
+      type(UnitsAspect) :: export
+
+      import = UnitsAspect('cm') ! centimeters
+      export = UnitsAspect('m') ! meters
+
+      @assert_that(export%can_connect_to(import), is(true()))
+
+   end subroutine test_convertible_units
+
+   @test
+   subroutine test_same_but_unknown_units()
+      type(UnitsAspect) :: import
+      type(UnitsAspect) :: export
+
+      import = UnitsAspect('barn') ! centimeters
+      export = UnitsAspect('barn') ! meters
+
+      @assert_that(export%can_connect_to(import), is(true()))
+
+   end subroutine test_same_but_unknown_units
+
+   @test
+   subroutine test_mirror_units_1()
+      type(UnitsAspect) :: import
+      type(UnitsAspect) :: export
+
+      import = UnitsAspect() ! mirror
+      export = UnitsAspect('m') ! meters
+
+      @assert_that(export%can_connect_to(import), is(true()))
+
+   end subroutine test_mirror_units_1
+
+   @test
+   subroutine test_mirror_units_2()
+      type(UnitsAspect) :: import
+      type(UnitsAspect) :: export
+
+      import = UnitsAspect() ! mirror
+      export = UnitsAspect('barn') ! unknown
+
+      @assert_that(export%can_connect_to(import), is(true()))
+
+   end subroutine test_mirror_units_2
+
+   @test
+   subroutine test_double_mirror_units_fail()
+      type(UnitsAspect) :: import
+      type(UnitsAspect) :: export
+
+      import = UnitsAspect() ! mirror
+      export = UnitsAspect() ! mirror
+
+      @assert_that(export%can_connect_to(import), is(false()))
+
+   end subroutine test_double_mirror_units_fail
+
+   @test
+   subroutine test_connect_geoms()
+      type(GeomAspect) :: import, export
+
+      import = GeomAspect(geom2)
+      export = GeomAspect(geom1)
+
+      @assert_that(export%can_connect_to(import), is(true()))
+
+   end subroutine test_connect_geoms
+   
+   @test
+   subroutine test_mirror_geom()
+      type(GeomAspect) :: import, export
+
+      import = GeomAspect()
+      export = GeomAspect(geom1)
+
+      @assert_that(export%can_connect_to(import), is(true()))
+
+   end subroutine test_mirror_geom
+
+   @test
+   subroutine test_double_mirror_geom_fail()
+      type(GeomAspect) :: import, export
+
+      import = GeomAspect()
+      export = GeomAspect()
+
+      @assert_that(export%can_connect_to(import), is(false()))
+
+   end subroutine test_double_mirror_geom_fail
+
+   @test
+   subroutine test_matching_ungridded_dims()
+      type(UngriddedDimsAspect) :: import, export
+      type(UngriddedDims) :: ungridded_dims1, ungridded_dims2
+
+      call ungridded_dims1%add_dim(UngriddedDim(2))
+      call ungridded_dims1%add_dim(UngriddedDim(3))
+
+      call ungridded_dims2%add_dim(UngriddedDim(2))
+      call ungridded_dims2%add_dim(UngriddedDim(3))
+
+      import = UngriddedDimsAspect(ungridded_dims1)
+      export = UngriddedDimsAspect(ungridded_dims2)
+
+      @assert_that(export%can_connect_to(import), is(true()))
+   end subroutine test_matching_ungridded_dims
+
+   @test
+   subroutine test_mismatched_ungridded_dims_fail()
+      type(UngriddedDimsAspect) :: import, export
+      type(UngriddedDims) :: ungridded_dims1, ungridded_dims2
+
+      call ungridded_dims1%add_dim(UngriddedDim(2))
+      call ungridded_dims1%add_dim(UngriddedDim(3))
+
+      call ungridded_dims2%add_dim(UngriddedDim(2))
+      call ungridded_dims2%add_dim(UngriddedDim(1)) ! different
+
+      import = UngriddedDimsAspect(ungridded_dims1)
+      export = UngriddedDimsAspect(ungridded_dims2)
+
+      @assert_that(export%can_connect_to(import), is(false()))
+
+   end subroutine test_mismatched_ungridded_dims_fail
+
+   @test
+   subroutine test_mirror_ungridded_dims()
+      type(UngriddedDimsAspect) :: import, export
+      type(UngriddedDims) :: ungridded_dims
+
+      import = UngriddedDimsAspect()
+      export = UngriddedDimsAspect(ungridded_dims)
+
+      @assert_that(export%can_connect_to(import), is(true()))
+   end subroutine test_mirror_ungridded_dims
+
+
+   @test
+   subroutine test_can_connect_accum_instantaneous()
+      type(FrequencyAspect) :: import, export
+
+      type(ESMF_TimeInterval) :: dt1, dt2
+
+      call ESMF_TimeIntervalSet(dt1, s=2)
+      call ESMF_TimeIntervalSet(dt2, s=3) ! not commensurate
+
+      import = FrequencyAspect(dt1) ! instantaneous
+      export = FrequencyAspect(dt2)
+
+      @assert_that(export%can_connect_to(import), is(true()))
+
+   end subroutine test_can_connect_accum_instantaneous
+
+   @test
+   subroutine test_can_connect_accum_mean()
+      type(FrequencyAspect) :: import, export
+
+      type(ESMF_TimeInterval) :: dt1, dt2
+
+      call ESMF_TimeIntervalSet(dt1, s=4)
+      call ESMF_TimeIntervalSet(dt2, s=2) ! commensurate
+
+      import = FrequencyAspect(dt1, 'mean')
+      export = FrequencyAspect(dt2)
+
+      @assert_that(export%can_connect_to(import), is(true()))
+
+   end subroutine test_can_connect_accum_mean
+
+   @test
+   ! Verify failure when accumulating non commensurate timesteps
+   subroutine test_can_connect_accum_fail()
+      type(FrequencyAspect) :: import, export
+
+      type(ESMF_TimeInterval) :: dt1, dt2
+
+      call ESMF_TimeIntervalSet(dt1, s=4)
+      call ESMF_TimeIntervalSet(dt2, s=3) ! not commensurate
+
+      import = FrequencyAspect(dt1, 'mean')
+      export = FrequencyAspect(dt2)
+
+      @assert_that(export%can_connect_to(import), is(false()))
+
+   end subroutine test_can_connect_accum_fail
+
+   @test
+   subroutine test_can_connect_bracket_to_field()
+      type(BracketClassAspect) :: export
+      type(FieldClassAspect) :: import
+
+      export = BracketClassAspect(2, 'A', 'Abc')
+      import = FieldClassASpect('B','Efg')
+
+      ! cannot connect to another bracket
+      @assert_that(export%can_connect_to(export), is(false()))
+      @assert_that(export%can_connect_to(import), is(true()))
+      
+   end subroutine test_can_connect_bracket_to_field
+
+end module Test_ASpects

@@ -43,7 +43,7 @@ module mapl3g_StateItemAspect
    use mapl_ErrorHandling
 
 #define Key AspectId
-#define Key_LT(a,b) a < b
+#define Key_LT(a,b) (a) < (b)
 #define T StateItemAspect
 #define T_polymorphic
 #define Map AspectMap
@@ -63,9 +63,8 @@ module mapl3g_StateItemAspect
    contains
       ! Subclass must define these
       procedure(I_matches), deferred :: matches
-      procedure(I_make_action), deferred :: make_action
 
-      procedure(I_make_action2), deferred :: make_action2
+      procedure(I_make_action), deferred :: make_action
       procedure :: connect_to_import
       procedure(I_connect_to_export), deferred :: connect_to_export
       procedure(I_get_aspect_id), deferred, nopass :: get_aspect_id
@@ -103,21 +102,13 @@ module mapl3g_StateItemAspect
          class(StateItemAspect), intent(in) :: dst
       end function I_supports_conversion_specific
 
-      function I_make_action(src, dst, rc) result(action)
-         use mapl3g_ExtensionAction
-         import :: StateItemAspect
-         class(ExtensionAction), allocatable :: action
-         class(StateItemAspect), intent(in) :: src, dst
-         integer, optional, intent(out) :: rc
-      end function I_make_action
-
       function I_get_aspect_id() result(aspect_id)
          import StateItemAspect
          import AspectId
          type(AspectId) :: aspect_id
       end function I_get_aspect_id
 
-      function I_make_action2(src, dst, other_aspects, rc) result(action)
+      function I_make_action(src, dst, other_aspects, rc) result(action)
          use mapl3g_ExtensionAction
          import :: StateItemAspect
          import :: AspectMap
@@ -126,7 +117,7 @@ module mapl3g_StateItemAspect
          class(StateItemAspect), intent(in) :: dst
          type(AspectMap), target, intent(in) :: other_aspects
          integer, optional, intent(out) :: rc
-      end function I_make_action2
+      end function I_make_action
 
       subroutine I_connect_to_export(this, export, actual_pt, rc)
          use mapl3g_ActualConnectionPt
@@ -155,8 +146,7 @@ contains
    logical function can_connect_to(src, dst)
       class(StateItemAspect), intent(in) :: src, dst
 
-      can_connect_to = same_type_as(src, dst) ! maybe extends type of?
-      if (.not. can_connect_to) return
+      can_connect_to = .false.
 
       associate (num_mirror => count([src%is_mirror(), dst%is_mirror()]))
         select case (num_mirror)

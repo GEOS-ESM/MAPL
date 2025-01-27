@@ -1,0 +1,72 @@
+#include "MAPL_TestErr.h"
+module Test_BracketClassAspect
+   use mapl3g_StateItem
+   use mapl3g_AspectId
+   use mapl3g_BracketClassAspect
+   use mapl3g_VerticalGridAspect
+   use mapl3g_BasicVerticalGrid
+   use mapl3g_VariableSpec
+   use mapl3g_StateItemAspect
+   use mapl3g_geom_mgr
+   use funit
+   use esmf
+   implicit none
+
+   type(ESMF_Geom) :: geom
+
+contains
+
+   @before
+   subroutine setup()
+      type(ESMF_HConfig) :: hconfig
+      type(MaplGeom) :: mapl_geom
+      type(GeomManager), pointer :: geom_mgr
+      integer :: status
+
+      geom_mgr => get_geom_manager()
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}", _RC)
+      mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+      geom = mapl_geom%get_geom()
+      call ESMF_HConfigDestroy(hconfig)
+
+   end subroutine setup
+
+
+   @test
+   subroutine test_allocate()
+      type(BracketClassAspect) :: bracket_aspect
+      type(VariableSpec), target :: var_spec
+      type(AspectMap), pointer :: aspects
+      type(ESMF_FieldBundle) :: field_bundle
+
+      integer :: status
+      integer :: fieldCount
+      integer, parameter :: BRACKET_SIZE = 2
+      type(VerticalGridAspect) :: vert_aspect
+
+      var_spec = VariableSpec(itemtype=MAPL_STATEITEM_BRACKET, state_intent=ESMF_STATEINTENT_EXPORT, &
+           short_name='a', standard_name='A', geom=geom, units='m')
+
+      aspects => var_spec%aspects
+      vert_aspect = VerticalGridAspect(BasicVerticalGrid(5))
+
+      call aspects%insert(VERTICAL_GRID_ASPECT_ID, vert_aspect)
+      
+      bracket_aspect = BracketClassAspect(bracket_size=BRACKET_SIZE, standard_name='A')
+
+      call bracket_aspect%create(_RC)
+      call bracket_aspect%allocate(aspects, _RC)
+
+      field_bundle = bracket_aspect%get_payload()
+
+      call ESMF_FieldBundleValidate(field_bundle, _RC)
+      call ESMF_FieldBundleGet(field_bundle, fieldCount=fieldCount, _RC)
+      @assert_that(fieldCount, is(BRACKET_SIZE))
+
+      call bracket_aspect%destroy(_RC)
+
+   end subroutine test_allocate
+      
+
+end module Test_BracketClassAspect

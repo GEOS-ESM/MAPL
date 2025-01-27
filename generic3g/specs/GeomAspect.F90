@@ -31,7 +31,6 @@ module mapl3g_GeomAspect
    contains
       procedure :: matches
       procedure :: make_action
-      procedure :: make_action2
       procedure :: connect_to_export
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
@@ -107,24 +106,7 @@ contains
 
    end function matches
 
-   function make_action(src, dst, rc) result(action)
-      class(ExtensionAction), allocatable :: action
-      class(GeomAspect), intent(in) :: src
-      class(StateItemAspect), intent(in)  :: dst
-      integer, optional, intent(out) :: rc
-
-      select type(dst)
-      class is (GeomAspect)
-         allocate(action, source=RegridAction(src%geom, dst%geom, dst%regridder_param))
-      class default
-         allocate(action,source=NullAction())
-         _FAIL('src is GeomAspect but dst is different subclass')
-      end select
-
-      _RETURN(_SUCCESS)
-   end function make_action
-
-   function make_action2(src, dst, other_aspects, rc) result(action)
+   function make_action(src, dst, other_aspects, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(GeomAspect), intent(in) :: src
       class(StateItemAspect), intent(in)  :: dst
@@ -141,7 +123,7 @@ contains
       allocate(action, source=RegridAction(src%geom, dst_%geom, dst_%regridder_param))
 
       _RETURN(_SUCCESS)
-   end function make_action2
+   end function make_action
 
    subroutine set_geom(this, geom)
       class(GeomAspect), intent(inout) :: this

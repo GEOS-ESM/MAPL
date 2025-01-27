@@ -74,15 +74,15 @@ module mapl3g_ClassAspect
 contains
 
    function to_class_from_poly(aspect, rc) result(class_aspect)
-      class(ClassAspect), allocatable :: class_aspect
-      class(StateItemAspect), intent(in) :: aspect
+      class(ClassAspect), pointer :: class_aspect
+      class(StateItemAspect), pointer, intent(in) :: aspect
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       select type(aspect)
       class is (ClassAspect)
-         class_aspect = aspect
+         class_aspect => aspect
       class default
          _FAIL('aspect is not ClassAspect')
       end select
@@ -91,15 +91,15 @@ contains
    end function to_class_from_poly
 
    function to_class_from_map(map, rc) result(class_aspect)
-      class(ClassAspect), allocatable :: class_aspect
-      type(AspectMap), target, intent(in) :: map
+      class(ClassAspect), pointer :: class_aspect
+      type(AspectMap), pointer, intent(in) :: map
       integer, optional, intent(out) :: rc
 
       integer :: status
       class(StateItemAspect), pointer :: poly
 
       poly => map%at(CLASS_ASPECT_ID, _RC)
-      class_aspect = to_ClassAspect(poly, _RC)
+      class_aspect => to_ClassAspect(poly, _RC)
 
       _RETURN(_SUCCESS)
    end function to_class_from_map

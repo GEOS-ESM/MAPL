@@ -5,7 +5,8 @@ module Test_ExtensionFamily
    use mapl3g_ExtensionFamily
    use mapl3g_StateRegistry
    use mapl3g_VirtualConnectionPt
-   use MockItemSpecMod
+   use mapl3g_StateItemSpec
+   use MockAspect_mod
    use mapl3g_StateItemExtension
    use esmf
    use funit
@@ -21,19 +22,19 @@ contains
       type(VirtualConnectionPt) :: v_pt
       type(ExtensionFamily), pointer :: family
       type(StateItemExtension), pointer :: primary
-      type(MockItemSpec) :: goal_spec
+      type(StateItemSpec) :: goal_spec
       type(StateItemExtension), pointer :: closest
 
       integer :: status
       r = StateRegistry('A')
       v_pt = VirtualConnectionPt(state_intent='export', short_name='E1')
 
-      call r%add_primary_spec(v_pt, MockItemSpec('E', typekind=R8))
+      call r%add_primary_spec(v_pt, MockItemSpec(1, typekind=R8))
 
       family => r%get_extension_family(v_pt, _RC)
 
       primary => family%get_primary(_RC)
-      goal_spec = MockItemSpec('E')
+      goal_spec = MockItemSpec(2)
       closest => family%find_closest_extension(goal_spec,_RC)
 
       @assert_that(associated(closest, primary), is(true()))
@@ -48,23 +49,23 @@ contains
       type(ExtensionFamily), pointer :: family
       type(StateItemExtension) :: extension
       type(StateItemExtension), pointer :: ext_1, ext_2
-      type(MockItemSpec) :: goal_spec
+      type(StateItemSpec) :: goal_spec
       type(StateItemExtension), pointer :: closest
 
       integer :: status
       r = StateRegistry('A')
       v_pt = VirtualConnectionPt(state_intent='export', short_name='E1')
 
-      call r%add_primary_spec(v_pt, MockItemSpec('3', typekind=R4, units='m'))
+      call r%add_primary_spec(v_pt, MockItemSpec(3, typekind=R4, units='m'))
 
-      extension = StateItemExtension(MockItemSpec('b',typekind=R8, units='cm'))
+      extension = StateItemExtension(MockItemSpec(4,typekind=R8, units='cm'))
       ext_1 => r%add_extension(v_pt, extension, _RC)
 
-      extension = StateItemExtension(MockItemSpec('b',typekind=R4, units='km'))
+      extension = StateItemExtension(MockItemSpec(4,typekind=R4, units='km'))
       ext_2 => r%add_extension(v_pt, extension, _RC)
 
       family => r%get_extension_family(v_pt, _RC)
-      goal_spec = MockItemSpec('c', typekind=ESMF_TYPEKIND_R8)
+      goal_spec = MockItemSpec(5, typekind=ESMF_TYPEKIND_R8)
 
       closest => family%find_closest_extension(goal_spec,_RC)
 
@@ -80,29 +81,29 @@ contains
       type(StateItemExtension) :: extension
       type(StateItemExtension), pointer :: primary
       type(StateItemExtension), pointer :: ext_1, ext_2
-      type(MockItemSpec) :: goal_spec
+      type(StateItemSpec) :: goal_spec
       type(StateItemExtension), pointer :: closest
 
       integer :: status
       r = StateRegistry('A')
       v_pt = VirtualConnectionPt(state_intent='export', short_name='E1')
 
-      call r%add_primary_spec(v_pt, MockItemSpec('3', typekind=R8, units='m'))
+      call r%add_primary_spec(v_pt, MockItemSpec(3, typekind=R8, units='m'))
 
-      extension = StateItemExtension(MockItemSpec('E',typekind=R4, units='km'))
+      extension = StateItemExtension(MockItemSpec(4,typekind=R4, units='km'))
       ext_1 => r%add_extension(v_pt, extension, _RC)
 
-      extension = StateItemExtension(MockItemSpec('F',typekind=R4, units='m'))
+      extension = StateItemExtension(MockItemSpec(5,typekind=R4, units='m'))
       ext_2 => r%add_extension(v_pt, extension, _RC)
 
       family => r%get_extension_family(v_pt, _RC)
       primary => family%get_primary(_RC)
 
-      goal_spec = MockItemSpec('E', typekind=R8)
+      goal_spec = MockItemSpec(4, typekind=R8)
       closest => family%find_closest_extension(goal_spec,_RC)
       @assert_that(associated(closest, primary), is(true()))
 
-      goal_spec = MockItemSpec('F', typekind=R4, units='m')
+      goal_spec = MockItemSpec(5, typekind=R4, units='m')
       closest => family%find_closest_extension(goal_spec,_RC)
       @assert_that(associated(closest, ext_2), is(true()))
       

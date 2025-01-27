@@ -38,7 +38,6 @@ module mapl3g_ServiceClassAspect
       procedure :: supports_conversion_specific
       procedure :: matches
       procedure :: make_action
-      procedure :: make_action2
       procedure :: connect_to_export
 
       procedure :: get_aspect_order
@@ -46,6 +45,7 @@ module mapl3g_ServiceClassAspect
       procedure :: allocate
       procedure :: destroy
       procedure :: add_to_state
+      procedure :: connect_to_import
    end type ServiceClassAspect
 
    interface ServiceClassAspect
@@ -66,6 +66,8 @@ contains
       if (present(subscriber_item_names)) then
          service_aspect%subscriber_item_names = subscriber_item_names
       end if
+
+      allocate(service_aspect%items_to_service(0))
       
    end function new_ServiceClassAspect
 
@@ -111,7 +113,6 @@ contains
    subroutine allocate(this, other_aspects, rc)
       class(ServiceClassAspect), intent(inout) :: this
       type(AspectMap), intent(in) :: other_aspects
-      
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -128,7 +129,7 @@ contains
            call field_aspect%add_to_bundle(this%payload, _RC)
         end do
       end associate
-    
+
       _RETURN(_SUCCESS)
    end subroutine allocate
 
@@ -168,17 +169,7 @@ contains
 
    end function matches
 
-   function make_action(src, dst, rc) result(action)
-      class(ExtensionAction), allocatable :: action
-      class(ServiceClassAspect), intent(in) :: src
-      class(StateItemAspect), intent(in) :: dst
-      integer, optional, intent(out) :: rc
-      
-      action = NullAction()
-      _RETURN(_SUCCESS)
-   end function make_action
-
-   function make_action2(src, dst, other_aspects, rc) result(action)
+   function make_action(src, dst, other_aspects, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(ServiceClassAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
@@ -188,17 +179,38 @@ contains
       action = NullAction()
 
       _RETURN(_SUCCESS)
-   end function make_action2
+   end function make_action
 
 
+   ! Eventually this ServiceClassAspect should be split into multiple
+   ! classes.  We cheat a bit here to get only the right subset of
+   ! items added to the import payload.
    subroutine connect_to_export(this, export, actual_pt, rc)
       class(ServiceClassAspect), intent(inout) :: this
       class(StateItemAspect), intent(in) :: export
       type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
-      _FAIL('Service cannot be an import.')
+      integer :: status
+      integer :: i
+      type(FieldClassAspect) :: field_aspect
+      class(StateItemAspect), pointer :: aspect
+      class(StateItemSpec), pointer :: spec
+      type(VirtualConnectionPt) :: v_pt
+      type(StateItemExtension), pointer :: primary
 
+      associate (items => this%subscriber_item_names)
+        do i = 1, items%size()
+           v_pt = VirtualConnectionPt(ESMF_STATEINTENT_INTERNAL, items%of(i))
+           primary => this%registry%get_primary_extension(v_pt, _RC)
+           spec => primary%get_spec()
+           aspect => spec%get_aspect(CLASS_ASPECT_ID, _RC)
+           field_aspect = to_FieldClassAspect(aspect, _RC)
+           call field_aspect%add_to_bundle(this%payload, _RC)
+        end do
+      end associate
+      
+      _RETURN(_SUCCESS)
    end subroutine connect_to_export
 
    subroutine connect_to_import(this, import, rc)
@@ -214,7 +226,6 @@ contains
 
       select type (import)
       type is (ServiceClassAspect)
-
          associate (item_names => import%subscriber_item_names)
            n = item_names%size()
            allocate(spec_ptrs(n))
@@ -225,7 +236,6 @@ contains
               spec_ptrs(i)%ptr => primary%get_spec()
            end do
          end associate
-         
          this%items_to_service = [this%items_to_service, spec_ptrs]
       class default
          _FAIL('Import must be a Service')

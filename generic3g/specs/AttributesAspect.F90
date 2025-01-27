@@ -26,7 +26,6 @@ module mapl3g_AttributesAspect
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_action
-      procedure :: make_action2
       procedure :: connect_to_export
       procedure, nopass :: get_aspect_id
    end type AttributesAspect
@@ -96,18 +95,7 @@ contains
 
    end function matches
 
-   function make_action(src, dst, rc) result(action)
-      class(ExtensionAction), allocatable :: action
-      class(AttributesAspect), intent(in) :: src
-      class(StateItemAspect), intent(in)  :: dst
-      integer, optional, intent(out) :: rc
-
-      action = NullAction()
-
-      _RETURN(_SUCCESS)
-   end function make_action
-
-   function make_action2(src, dst, other_aspects, rc) result(action)
+   function make_action(src, dst, other_aspects, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(AttributesAspect), intent(in) :: src
       class(StateItemAspect), intent(in)  :: dst
@@ -117,7 +105,7 @@ contains
       action = NullAction()
 
       _RETURN(_SUCCESS)
-   end function make_action2
+   end function make_action
 
    function get_aspect_id() result(aspect_id)
       type(AspectId) :: aspect_id

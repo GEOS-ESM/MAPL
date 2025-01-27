@@ -55,8 +55,8 @@ contains
       do i = 1, size(EXPECTATIONS)
          write(buf, '(i0)') i
          expect = EXPECTATIONS(i)
-         src = MockAspect(expect%src_mirror, expect%src_time_dependent, expect%src_value, expect%src_supports_conversion)
-         dst = MockAspect(expect%dst_mirror, expect%dst_time_dependent, expect%dst_value, .true.) ! last is unused
+         src = MockAspect(expect%src_value, expect%src_mirror, expect%src_time_dependent, expect%src_supports_conversion)
+         dst = MockAspect(expect%dst_value, expect%dst_mirror, expect%dst_time_dependent, .true.) ! last is unused
          @assert_that('case: '//trim(buf), src%can_connect_to(dst), is(expect%can_connect_to))
       end do
       
@@ -72,8 +72,8 @@ contains
       do i = 1, size(EXPECTATIONS)
          write(buf, '(i0)') i
          expect = EXPECTATIONS(i)
-         src = MockAspect(expect%src_mirror, expect%src_time_dependent, expect%src_value, expect%src_supports_conversion)
-         dst = MockAspect(expect%dst_mirror, expect%dst_time_dependent, expect%dst_value, .true.) ! last is unused
+         src = MockAspect(expect%src_value, expect%src_mirror, expect%src_time_dependent, expect%src_supports_conversion)
+         dst = MockAspect(expect%dst_value, expect%dst_mirror, expect%dst_time_dependent, .true.) ! last is unused
          @assert_that('case: '//trim(buf), src%needs_extension_for(dst), is(expect%needs_extension_for))
       end do
       

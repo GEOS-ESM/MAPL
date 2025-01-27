@@ -28,7 +28,6 @@ module mapl3g_UngriddedDimsAspect
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_action
-      procedure :: make_action2
       procedure, nopass :: get_aspect_id
 
       procedure :: get_ungridded_dims
@@ -112,18 +111,7 @@ contains
    end function to_ungridded_dims_from_map
 
 
-   function make_action(src, dst, rc) result(action)
-      class(ExtensionAction), allocatable :: action
-      class(UngriddedDimsAspect), intent(in) :: src
-      class(StateItemAspect), intent(in)  :: dst
-      integer, optional, intent(out) :: rc
-
-      action = NullAction()
-
-      _RETURN(_SUCCESS)
-   end function make_action
-
-   function make_action2(src, dst, other_aspects, rc) result(action)
+   function make_action(src, dst, other_aspects, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(UngriddedDimsAspect), intent(in) :: src
       class(StateItemAspect), intent(in)  :: dst
@@ -133,7 +121,7 @@ contains
       allocate(action,source=NullAction()) ! just in case
 
       _RETURN(_SUCCESS)
-   end function make_action2
+   end function make_action
 
    subroutine connect_to_export(this, export, actual_pt, rc)
       class(UngriddedDimsAspect), intent(inout) :: this
