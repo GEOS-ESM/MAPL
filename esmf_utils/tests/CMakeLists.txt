@@ -3,6 +3,7 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.esmf_utils.tests")
 set (test_srcs
   Test_InfoUtilities.pf
   Test_Ungridded.pf
+  Test_ESMF_Time_Utilities.F90
   )
 
 add_pfunit_ctest(MAPL.esmf_utils.tests
