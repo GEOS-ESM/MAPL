@@ -10,13 +10,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
-- Updated ExtData so that if files are missing in a sequence the last value will be perisisted if one has not chosen `exact` option
 
 ### Fixed
 
 ### Removed
 
 ### Deprecated
+
+## [2.53.0] - 2025-01-24
+
+### Changed
+
+- Updated ExtData so that if files are missing in a sequence the last value will be perisisted if one has not chosen `exact` option
+- Update `components.yaml`
+  - `ESMA_env` v4.34.1
+    - Fix GEOSpyD module on GMAO Desktops
+
+### Fixed
+
+- Changes were made to add attributes to the subgrids (i.e. created by dividing the MPI subdomain into smaller subdomains equal to the number of OpenMP threads) such that the correct dimensions for the MPI subdomain could be retrieved from the subgrids where ever needed.
 
 ## [2.52.0] - 2025-01-17
 
