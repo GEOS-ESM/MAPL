@@ -331,7 +331,6 @@ contains
    end subroutine connect
 
    logical function can_connect_to(this, export, rc)
-      import StateItemSpec
       class(StateItemSpec), intent(in) :: this
       class(StateItemSpec), intent(in) :: export
       integer, optional, intent(out) :: rc
