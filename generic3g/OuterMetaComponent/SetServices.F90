@@ -46,15 +46,8 @@ contains
            timeStep=timestep, reference_time=reference_time, _RC)
       user_gridcomp = this%user_gc_driver%get_gridcomp()
       user_clock = this%user_gc_driver%get_clock()
-      call ESMF_ClockGet(user_clock, refTime=user_reference_time, timeStep=user_timestep, _RC)
-
-      if (allocated(this%component_spec%timestep)) then
-         call ESMF_ClockSet(user_clock, timeStep=timestep, _RC)
-      end if
-
-      if (allocated(this%component_spec%reference_time)) then
-         call ESMF_ClockSet(user_clock, refTime=reference_time, _RC)
-      end if
+      call ESMF_ClockSet(user_clock, timeStep=timestep, _RC)
+      call ESMF_ClockSet(user_clock, refTime=reference_time, _RC)
 
       call set_run_user_alarm(this, outer_clock, user_clock, _RC)
 
