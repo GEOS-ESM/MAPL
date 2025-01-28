@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed but with MAPL_GetHorzijIndex from previous release when not points are passed on a processor causing a deadlock
+
 ### Removed
 
 ### Deprecated
