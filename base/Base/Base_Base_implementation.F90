@@ -1557,11 +1557,24 @@ contains
     integer                               :: gridRank
     integer,               allocatable    :: localDeToDeMap(:)
     integer :: rc
+    logical :: isPresent
+    integer :: global_grid_info(10)
 
     i1=-1
     j1=-1
     in=-1
     jn=-1
+
+    call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", isPresent=isPresent, _RC)
+    if (isPresent) then
+      call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", valueList=global_grid_info, _RC)
+      I1 = global_grid_info(7)
+      IN = global_grid_info(8)
+      j1 = global_grid_info(9)
+      JN = global_grid_info(10)
+      _RETURN(_SUCCESS)
+    end if
+
     call ESMF_GridGet    (GRID, dimCount=gridRank, distGrid=distGrid, _RC)
     call ESMF_DistGridGet(distGRID, delayout=layout, _RC)
     call ESMF_DELayoutGet(layout, deCount = nDEs, localDeCount=localDeCount,_RC)
@@ -2138,6 +2151,24 @@ contains
     integer                               :: deId
     integer                               :: gridRank
     integer                               :: rc
+    logical                               :: isPresent
+    integer                               :: global_grid_info(10)
+
+    i1=-1
+    j1=-1
+    in=-1
+    jn=-1
+
+    call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", isPresent=isPresent, _RC)
+    if (isPresent) then
+      call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", valueList=global_grid_info, _RC)
+      I1 = global_grid_info(7)
+      IN = global_grid_info(8)
+      j1 = global_grid_info(9)
+      JN = global_grid_info(10)
+      _RETURN(_SUCCESS)
+    end if
+
 
     call ESMF_GridGet    (GRID, dimCount=gridRank, distGrid=distGrid, _RC)
     call ESMF_DistGridGet(distGRID, delayout=layout, _RC)
@@ -2627,9 +2658,7 @@ contains
        tmp_lats = latR8
     end if
 
-!AOO change tusing GridType atribute    if (im_world*6==jm_world) then
-    call ESMF_AttributeGet(grid, name='GridType', value=grid_type, _RC)
-    if(trim(grid_type) == "Cubed-Sphere") then
+    if (im_world*6==jm_world) then
 
       call MAPL_GetGlobalHorzIJIndex(npts, II, JJ, lon=lon, lat=lat, lonR8=lonR8, latR8=latR8, Grid=Grid, _RC)
 
@@ -2868,28 +2897,33 @@ contains
        type(ESMF_Grid), intent(inout) :: grid
        logical :: OK
        integer :: I1, I2, J1, J2, j
-       real(ESMF_KIND_R8), pointer :: corner_lons(:,:), corner_lats(:,:)
+       real(ESMF_KIND_R8), allocatable :: corner_lons(:,:), corner_lats(:,:)
        real(ESMF_KIND_R8), allocatable :: lonRe(:), latRe(:)
        real(ESMF_KIND_R8), allocatable :: accurate_lat(:), accurate_lon(:)
        real(ESMF_KIND_R8) :: stretch_factor, target_lon, target_lat, shift0
        real :: tolerance
+       integer :: local_dims(3)
 
        tolerance = epsilon(1.0)
        call MAPL_GridGetInterior(grid,I1,I2,J1,J2)
+       call MAPL_GridGet(grid, localCellCountPerDim=local_dims, _RC)
        OK = .true.
        ! check the edge of face 1 along longitude
-       call ESMF_GridGetCoord(grid,localDE=0,coordDim=1,staggerloc=ESMF_STAGGERLOC_CORNER, &
-            farrayPtr=corner_lons, rc=status)
-       call ESMF_GridGetCoord(grid,localDE=0,coordDim=2,staggerloc=ESMF_STAGGERLOC_CORNER, &
-            farrayPtr=corner_lats, rc=status)
+       !call ESMF_GridGetCoord(grid,localDE=0,coordDim=1,staggerloc=ESMF_STAGGERLOC_CORNER, &
+       !     farrayPtr=corner_lons, _RC)
+       !call ESMF_GridGetCoord(grid,localDE=0,coordDim=2,staggerloc=ESMF_STAGGERLOC_CORNER, &
+       !     farrayPtr=corner_lats, _RC)
+       allocate(corner_lons(local_dims(1)+1, local_dims(2)+1))
+       allocate(corner_lats(local_dims(1)+1, local_dims(2)+1))
+       call MAPL_GridGetCorners(grid, corner_lons, corner_lats, _RC)
 
 
        if ( I1 == 1 .and. J1 == 1 ) then
-          allocate(lonRe(j2-j1+1),      latRe(j2-j1+1))
-          call MAPL_Reverse_Schmidt(grid, stretched, J2-J1+1, lonR8=corner_lons(1,:), &
-                                   latR8=corner_lats(1,:), lonRe=lonRe, latRe=latRe, _RC)  
+          allocate(lonRe(local_dims(2)),      latRe(local_dims(2)))
+          call MAPL_Reverse_Schmidt(grid, stretched, local_dims(2), lonR8=corner_lons(1,1:local_dims(2)), &
+                                   latR8=corner_lats(1,1:local_dims(2)), lonRe=lonRe, latRe=latRe, _RC)  
 
-          allocate(accurate_lon(j2-j1+1), accurate_lat(j2-j1+1))
+          allocate(accurate_lon(local_dims(2)), accurate_lat(local_dims(2)))
 
           shift0 = shift
           if (stretched) shift0 = 0

@@ -26,6 +26,8 @@ module MAPL_ObsUtilMod
   type :: obs_unit
      integer :: nobs_epoch
      integer :: ngeoval
+     integer :: count_location_until_matching_file
+     integer :: count_location_in_matching_file
      logical :: export_all_geoval
      type(FileMetadata), allocatable :: metadata
      type(NetCDF4_FileFormatter), allocatable :: file_handle
@@ -38,6 +40,7 @@ module MAPL_ObsUtilMod
      real(kind=REAL64), allocatable :: lats(:)
      real(kind=REAL64), allocatable :: times_R8(:)
      integer,           allocatable :: location_index_ioda(:)
+     integer,           allocatable :: restore_index(:)
      real(kind=REAL32), allocatable :: p2d(:)
      real(kind=REAL32), allocatable :: p3d(:,:)
   end type obs_unit
@@ -50,7 +53,7 @@ module MAPL_ObsUtilMod
      character (len=ESMF_MAXSTR) :: var_name_time=''
      character (len=ESMF_MAXSTR) :: file_name_template=''
      integer :: ngeoval=0
-     integer :: nentry_name=0
+     integer :: nfield_name_mx=12
      character (len=ESMF_MAXSTR), allocatable :: field_name(:,:)
      !character (len=ESMF_MAXSTR), allocatable :: field_name(:)
   end type obs_platform
@@ -768,7 +771,7 @@ contains
     copy_platform_nckeys%var_name_lon = a%var_name_lon
     copy_platform_nckeys%var_name_lat = a%var_name_lat
     copy_platform_nckeys%var_name_time = a%var_name_time
-    copy_platform_nckeys%nentry_name = a%nentry_name
+    copy_platform_nckeys%nfield_name_mx = a%nfield_name_mx
     _RETURN(_SUCCESS)
 
   end function copy_platform_nckeys
@@ -781,7 +784,7 @@ contains
     integer, optional, intent(out) :: rc
 
     character (len=ESMF_MAXSTR), allocatable :: field_name_loc(:,:)
-    integer :: nfield, nentry_name
+    integer :: nfield, nfield_name_mx
     integer, allocatable :: tag(:)
     integer :: i, j, k
     integer :: status
@@ -802,9 +805,9 @@ contains
     enddo
     union_platform%ngeoval=k
     nfield=k
-    nentry_name=union_platform%nentry_name
+    nfield_name_mx=union_platform%nfield_name_mx
     if ( allocated (union_platform%field_name) ) deallocate(union_platform%field_name)
-    allocate(union_platform%field_name(nentry_name, nfield))
+    allocate(union_platform%field_name(nfield_name_mx, nfield))
     do i=1, a%ngeoval
        union_platform%field_name(:,i) = a%field_name(:,i)
     enddo
@@ -950,6 +953,7 @@ contains
     if (lenmax < slen) then
        if (MAPL_AM_I_ROOT())  write(6,*) 'pathlen vs filename_max_char_len: ', slen, lenmax
        _FAIL ('PATHLEN is greater than filename_max_char_len')
+       STOP 'lenmax < slen'
     end if
     if (slen>0) filename(1:slen)=c_filename(1:slen)
 

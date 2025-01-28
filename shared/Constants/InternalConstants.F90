@@ -183,6 +183,11 @@ module MAPL_InternalConstantsMod
       enumerator MAPL_MASK_OUT
       enumerator MAPL_MASK_IN
    endenum
+
+   integer, parameter :: MAPL_FILETYPE_NC4 = 0
+   integer, parameter :: MAPL_FILETYPE_TXT = 1
+   integer, parameter :: MAPL_FILETYPE_BIN = 2
+   integer, parameter :: MAPL_FILETYPE_UNK = -1
 !EOP
 
 end module MAPL_InternalConstantsMod
