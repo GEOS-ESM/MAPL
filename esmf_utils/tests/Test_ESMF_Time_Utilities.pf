@@ -8,45 +8,6 @@ module Test_ESMF_Time_Utilities
 contains
 
    @Test
-   subroutine test_units_in()
-      type(ESMF_TimeInterval) :: interval
-      integer :: status
-      logical, allocatable :: has_units(:)
-      integer(kind=ESMF_KIND_I4) :: units(6)
-
-      units = [0, 3, 0, 1, 4, 7]
-      call ESMF_TimeIntervalSet(interval, yy=units(1), mm=units(2), d=units(3), &
-         & h=units(4), m=units(5), s=units(6), _RC)
-      has_units = units_in(interval, _RC)
-      @assertEqual(units /= 0, has_units)
-
-   end subroutine test_units_in
-
-   @Test
-   subroutine test_can_compare_intervals()
-      type(ESMF_TimeInterval) :: interval1, interval2
-      integer :: status
-      logical :: can_compare
-
-      call ESMF_TimeIntervalSet(interval1, d=3, _RC)
-      call ESMF_TimeIntervalSet(interval2, h=7, _RC)
-      can_compare = can_compare_intervals(interval1, interval2, _RC)
-      @assertTrue(can_compare, 'The intervals can be compared.')
-
-      call ESMF_TimeIntervalSet(interval1, mm=2, _RC)
-      can_compare = can_compare_intervals(interval1, interval2, _RC)
-      @assertFalse(can_compare, 'The intervals cannot be compared.')
-
-      can_compare = can_compare_intervals(interval2, interval1, _RC)
-      @assertFalse(can_compare, 'The intervals cannot be compared.')
-
-      call ESMF_TimeIntervalSet(interval1, yy=2, _RC)
-      can_compare = can_compare_intervals(interval2, interval1, _RC)
-      @assertFalse(can_compare, 'The intervals cannot be compared.')
-
-   end subroutine test_can_compare_intervals
-
-   @Test
    subroutine test_get_zero()
       type(ESMF_TimeInterval) :: interval
       integer(ESMF_KIND_I4) :: ns

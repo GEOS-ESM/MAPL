@@ -7,7 +7,6 @@ submodule (mapl3g_OuterMetaComponent) SetServices_smod
    use mapl3g_GenericGridComp
    use mapl3g_BasicVerticalGrid
    use mapl3g_GriddedComponentDriverMap
-   use mapl3g_ESMF_Time_Utilities
    use mapl_ErrorHandling
    implicit none
 
@@ -116,6 +115,7 @@ contains
    end subroutine SetServices_
 
    subroutine set_run_user_alarm(this, outer_clock, user_clock,  rc)
+      use mapl3g_ESMF_Time_Utilities
       use mapl_ErrorHandling
       class(OuterMetaComponent), intent(in) :: this
       type(ESMF_Clock), intent(inout) :: outer_clock
@@ -125,14 +125,18 @@ contains
       integer :: status
       type(ESMF_TimeInterval) :: outer_timestep, user_timestep, zero
       type(ESMF_Time) :: refTime
+      type(ESMF_Time) :: outer_reference_time
       type(ESMF_Alarm) :: alarm
+      logical :: compatible
 
       call ESMF_TimeIntervalSet(zero, s=0, _RC)
 
-      call ESMF_ClockGet(outer_clock, timestep=outer_timestep, _RC)
+      call ESMF_ClockGet(outer_clock, timestep=outer_timestep, refTime=outer_reference_time, _RC)
       call ESMF_ClockGet(user_clock, timestep=user_timestep, refTime=refTime, _RC)
 
-      _ASSERT(mod(user_timestep, outer_timestep) == zero, 'User timestep is not an integer multiple of parent timestep')
+      compatible = times_and_intervals_are_compatible(refTime, outer_reference_time, user_timestep, outer_timestep, _RC)
+      _ASSERT(compatible, 'The user timestep and reference time are not compatible with the outer timestep and reference_time')
+!      _ASSERT(mod(user_timestep, outer_timestep) == zero, 'User timestep is not an integer multiple of parent timestep') !wdb fixme deleteme 
 
       alarm = ESMF_AlarmCreate(outer_clock, &
            name = RUN_USER_ALARM, &
