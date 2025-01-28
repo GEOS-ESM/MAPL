@@ -42,7 +42,8 @@ contains
       _RETURN(_SUCCESS)
 
    end function can_compare_intervals
-
+      !all([syy, smm]==0) .or. all([ld, lh, lm, ls]==0)
+      
    function get_zero() result(zero)
       type(ESMF_TimeInterval), pointer :: zero
       logical, save :: zero_is_uninitialized = .TRUE.
