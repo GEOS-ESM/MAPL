@@ -267,9 +267,11 @@ contains
 
       integer, allocatable :: num_levels_grid
       integer, allocatable :: num_levels
-      type(VerticalStaggerLoc) :: vert_staggerloc
+      type(VerticalStaggerLoc) :: vertical_staggerloc
+      class(VerticalGrid), allocatable :: vertical_grid
+      type(VerticalDimSpec) :: vertical_dim_spec
       class(StateItemAspect), pointer :: aspect
-      type(UngriddedDims), pointer :: ungridded_dims
+      type(UngriddedDims) :: ungridded_dims
       type(ESMF_TypeKind_Flag) :: typekind
       character(:), allocatable :: units
 
@@ -281,7 +283,7 @@ contains
       aspect => this%get_aspect('GEOM', _RC)
       select type (aspect)
       class is (GeomAspect)
-         call ESMF_FieldEmptySet(this%payload, aspect%geom, _RC)
+         call ESMF_FieldEmptySet(this%payload, aspect%get_geom(), _RC)
       class default
          _FAIL('no geom aspect')
       end select
@@ -290,14 +292,17 @@ contains
 
       select type (aspect)
       class is (VerticalGridAspect)
-         num_levels_grid = aspect%vertical_grid%get_num_levels()
-         if (aspect%vertical_dim_spec == VERTICAL_DIM_NONE) then
-            vert_staggerloc = VERTICAL_STAGGER_NONE
-         else if (aspect%vertical_dim_spec == VERTICAL_DIM_EDGE) then
-            vert_staggerloc = VERTICAL_STAGGER_EDGE
+
+         vertical_grid = aspect%get_vertical_grid(_RC)
+         num_levels_grid = vertical_grid%get_num_levels()
+         vertical_dim_spec = aspect%get_vertical_dim_spec(_RC)
+         if (vertical_dim_spec == VERTICAL_DIM_NONE) then
+            vertical_staggerloc = VERTICAL_STAGGER_NONE
+         else if (vertical_dim_spec == VERTICAL_DIM_EDGE) then
+            vertical_staggerloc = VERTICAL_STAGGER_EDGE
             num_levels = num_levels_grid + 1
-         else if (aspect%vertical_dim_spec == VERTICAL_DIM_CENTER) then
-            vert_staggerloc = VERTICAL_STAGGER_CENTER
+         else if (vertical_dim_spec == VERTICAL_DIM_CENTER) then
+            vertical_staggerloc = VERTICAL_STAGGER_CENTER
             num_levels = num_levels_grid
          else
             _FAIL('unknown stagger')
@@ -307,22 +312,19 @@ contains
       end select
 
       aspect => this%get_aspect('UNGRIDDED_DIMS', _RC)
-      ungridded_dims => null()
       if (associated(aspect)) then
          select type (aspect)
          class is (UngriddedDimsAspect)
-            if (allocated(aspect%ungridded_dims)) then
-               ungridded_dims => aspect%ungridded_dims
-            end if
+            ungridded_dims = aspect%get_ungridded_dims(_RC)
          class default
-            _FAIL('no ungrgeom aspect')
+            _FAIL('no ungridded_dims aspect')
          end select
       end if
 
       aspect => this%get_aspect('UNITS', _RC)
       select type(aspect)
       class is (UnitsAspect)
-         units = aspect%units
+         units = aspect%get_units(_RC)
       class default
          _FAIL('no units aspect')
       end select
@@ -339,7 +341,7 @@ contains
            typekind=typekind, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, &
-           vert_staggerLoc=vert_staggerLoc, &
+           vert_staggerLoc=vertical_staggerLoc, &
            units=units, &
            standard_name=this%standard_name, &
            long_name=this%long_name, &

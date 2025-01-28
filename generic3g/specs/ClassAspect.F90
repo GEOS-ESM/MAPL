@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 
-module mapl3_ClassAspect
+module mapl3g_ClassAspect
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl_ErrorHandling
@@ -17,11 +17,61 @@ module mapl3_ClassAspect
 
    type, abstract, extends(StateItemAspect) :: ClassAspect
    contains
-      procedure, nopass :: get_aspect_id
+      procedure(I_get_aspect_order), deferred :: get_aspect_order
+      procedure(I_create), deferred :: create
+      procedure(I_destroy), deferred :: destroy
+      procedure(I_allocate), deferred :: allocate
+
+      procedure(I_add_to_state), deferred :: add_to_state
+      procedure, non_overridable, nopass :: get_aspect_id
    end type ClassAspect
 
-contains
+   abstract interface
 
+      function I_get_aspect_order(this, goal_aspects, rc) result(aspect_ids)
+         use mapl3g_StateItemAspect
+         import ClassAspect, AspectId
+         type(AspectId), allocatable :: aspect_ids(:)
+         class(ClassAspect), intent(in) :: this
+         type(AspectMap), intent(in) :: goal_aspects
+         integer, optional, intent(out) :: rc
+      end function I_get_aspect_order
+
+      ! Will use ESMF so cannot be PURE
+      subroutine I_create(this, rc)
+         import ClassAspect
+         class(ClassAspect), intent(inout) :: this
+         integer, optional, intent(out) :: rc
+      end subroutine I_create
+
+      subroutine I_destroy(this, rc)
+         import ClassAspect
+         class(ClassAspect), intent(inout) :: this
+         integer, optional, intent(out) :: rc
+      end subroutine I_destroy
+
+      ! Will use ESMF so cannot be PURE
+      subroutine I_allocate(this, other_aspects, rc)
+         import ClassAspect
+         import AspectMap
+         class(ClassAspect), intent(inout) :: this
+         type(AspectMap), intent(in) :: other_aspects
+         integer, optional, intent(out) :: rc
+      end subroutine I_allocate
+
+      subroutine I_add_to_state(this, multi_state, actual_pt, rc)
+         use mapl3g_MultiState
+         use mapl3g_ActualConnectionPt
+         import ClassAspect
+         class(ClassAspect), intent(in) :: this
+         type(MultiState), intent(inout) :: multi_state
+         type(ActualConnectionPt), intent(in) :: actual_pt
+         integer, optional, intent(out) :: rc
+      end subroutine I_add_to_state
+
+   end interface
+
+contains
 
    function to_class_from_poly(aspect, rc) result(class_aspect)
       class(ClassAspect), allocatable :: class_aspect
@@ -60,4 +110,4 @@ contains
    end function get_aspect_id
 
 
-end module mapl3_ClassAspect
+end module mapl3g_ClassAspect

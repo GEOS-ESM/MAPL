@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_StateItemSpec
+   use mapl3g_AspectId
    use mapl3g_ActualPtVector
    use mapl3g_ExtensionAction
    use mapl3g_StateItemAspect
@@ -72,7 +73,9 @@ module mapl3g_StateItemSpec
 !#      procedure, non_overridable :: get_aspect
 !#      procedure, non_overridable :: get_aspects
 !#      procedure, non_overridable :: set_aspect
-      procedure :: get_aspect
+      procedure :: get_aspect_by_name
+      procedure :: get_aspect_by_id
+      generic :: get_aspect => get_aspect_by_name, get_aspect_by_id
       procedure :: get_aspects
       procedure :: set_aspect
 
@@ -267,7 +270,7 @@ contains
       this%raw_dependencies = raw_dependencies
    end subroutine set_raw_dependencies
 
-   function get_aspect(this, name, rc) result(aspect)
+   function get_aspect_by_name(this, name, rc) result(aspect)
       class(StateItemAspect), pointer :: aspect
       character(*), intent(in) :: name
       class(StateItemSpec), target, intent(in) :: this
@@ -278,7 +281,20 @@ contains
       aspect => this%aspects%get_aspect(name, _RC)
 
       _RETURN(_SUCCESS)
-   end function get_aspect
+   end function get_aspect_by_name
+
+   function get_aspect_by_id(this, aspect_id, rc) result(aspect)
+      class(StateItemAspect), pointer :: aspect
+      type(AspectId), intent(in) :: aspect_id
+      class(StateItemSpec), target, intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _FAIL('not implemented yet')
+
+      _RETURN(_SUCCESS)
+   end function get_aspect_by_id
 
    function get_aspects(this) result(aspects)
       type(AspectCollection), pointer :: aspects
