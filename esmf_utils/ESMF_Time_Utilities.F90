@@ -38,6 +38,7 @@ contains
       call ESMF_TimeIntervalGet(larger, yy=lyy, mm=lmm, d=ld, h=lh, m=lm, s=ls, _RC)
       call ESMF_TimeIntervalGet(smaller, yy=syy, mm=smm, d=sd, h=sh, m=sm, s=ss, _RC)
       _RETURN_UNLESS(all([lyy, lmm, syy, smm]==0))
+!      _RETURN_UNLESS(all([syy, smm]==0) .or. all([ld, lh, lm, ls]==0))
       can_compare_intervals = .TRUE.
       _RETURN(_SUCCESS)
 
