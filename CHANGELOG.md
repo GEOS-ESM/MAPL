@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- Fixed compiler bug encountered with certain versions of Intel compilers
 
 ### Added
 - Add debug logger call to print out the name of the container being read from `ExtData.rc`
