@@ -3806,6 +3806,7 @@ ENDDO PARSER
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
             call MAPL_TimerOn(GENSTATE,"Mask_append")
             if (list(n)%unit < 0) then    ! CFIO
+               if (mapl_am_i_root()) write(6,*) 'bf call regrid_append_file'
                call list(n)%mask_sampler%regrid_append_file(current_time,&
                     list(n)%currentFile,oClients=o_Clients,_RC)
                if (mapl_am_i_root()) then
@@ -3830,7 +3831,8 @@ ENDDO PARSER
    enddo POSTLOOP
 
 
-
+   if (mapl_am_i_root()) write(6,*) 'bf done_collective_stage ..'
+      
    call MAPL_TimerOn(GENSTATE,"Done Wait")
    if (any(writing)) then
       call o_Clients%done_collective_stage(_RC)
@@ -3842,6 +3844,8 @@ ENDDO PARSER
 
    endif
    call MAPL_TimerOff(GENSTATE,"Done Wait")
+   if (mapl_am_i_root()) write(6,*) 'af done_collective_stage ..'
+
 
   ! destroy ogrid/RH/acc_bundle, regenerate them
   ! swath only

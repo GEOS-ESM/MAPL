@@ -154,7 +154,7 @@ module subroutine initialize(this,duration,frequency,items,bundle,timeInfo,vdata
    _ASSERT (n2>0, "list%frequency ==0, fail!")
    this%tmax =  n1/n2
 
-
+   if (mapl_am_i_root()) write(6,*) 'mask smod init: af metadata'   
 
     if (this%use_pfio) then
        ic_2d=0
@@ -162,7 +162,11 @@ module subroutine initialize(this,duration,frequency,items,bundle,timeInfo,vdata
        iter = this%items%begin()
        do while (iter /= this%items%end())
           item => iter%get()
+          if (mapl_am_i_root()) write(6,*) 'mask smod init: item 1'
+          
           if (item%itemType == ItemTypeScalar) then
+             if (mapl_am_i_root()) write(6,*) 'mask smod init: item%xname:', trim(item%xname)
+             
              call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
              call ESMF_FieldGet(src_field,rank=rank,_RC)
              if (rank==2) then
@@ -170,11 +174,14 @@ module subroutine initialize(this,duration,frequency,items,bundle,timeInfo,vdata
              else if (rank==3) then
                 ic_3d = ic_3d + 1
              end if
-          end if
+          end if 
+          call iter%next()         
        end do
        allocate ( this%var2d(ic_2d), _STAT )
        allocate ( this%var3d(ic_3d), _STAT )
+       if (mapl_am_i_root()) write(6,*) 'mask smod init: af allocate var2d'
 
+       
        do j=1, ic_2d
           if (mapl_am_i_root()) then
              allocate ( this%var2d(j)%array_x(this%npt_mask_tot), _STAT )
@@ -184,13 +191,14 @@ module subroutine initialize(this,duration,frequency,items,bundle,timeInfo,vdata
        end do
        do j=1, ic_3d
           if (mapl_am_i_root()) then
-             allocate ( this%var3d(j)%array_xz(this%npt_mask_tot, this%vdata%lm), _STAT )
+             allocate ( this%var3d(j)%array_zx(this%npt_mask_tot, this%vdata%lm), _STAT )
           else
-             allocate ( this%var3d(j)%array_xz(0,0), _STAT )
+             allocate ( this%var3d(j)%array_zx(0,0), _STAT )
           end if
        end do
     end if
 
+   if (mapl_am_i_root()) write(6,*) 'mask smod init: af this%var3d'       
    !
    ! __ note thse large arrays should be deallocated in the future
    !
@@ -216,10 +224,15 @@ module subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chu
   integer, optional, intent(out) :: rc
   integer :: status
 
-
   if (present(write_collection_id)) this%write_collection_id=write_collection_id
   if (present(itemOrder)) this%itemOrderAlphabetical = itemOrder
-  if (present(oClients)) this%use_pfio = .true.
+  if (present(oClients)) then
+     this%use_pfio = .true.
+     if (mapl_am_i_root()) then
+        write(6, '(2x,a)') 'Mask sampler: use_pfio = .true.;  output to oserver'
+     end if
+  end if
+
 !!  add later on
 !!        if (present(regrid_method)) this%regrid_method=regrid_method
 !!        if (present(nbits_to_keep)) this%nbits_to_keep=nbits_to_keep
@@ -274,6 +287,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
     !- add time dimension to metadata
     call this%timeinfo%add_time_to_metadata(this%metadata,_RC)
 
+
     v = Variable(type=pFIO_REAL32, dimensions='mask_index')
     call v%add_attribute('long_name','longitude')
     call v%add_attribute('unit','degree_east')
@@ -284,11 +298,17 @@ module subroutine  create_metadata(this,global_attributes,rc)
     call v%add_attribute('unit','degree_north')
     call this%metadata%add_variable('latitude',v)
 
+
     call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC) ! specify lev in fmd
 
     order = this%metadata%get_order(rc=status)
     _VERIFY(status)
     metadataVarsSize = order%size()
+
+
+#undef this_debug
+#define this_debug 1 
+#ifdef this_debug
 
     !__ 2. filemetadata: extract field from bundle, add_variable to metadata
     !
@@ -328,7 +348,8 @@ module subroutine  create_metadata(this,global_attributes,rc)
        call this%metadata%add_variable(trim(var_name),v,_RC)
     end do
     deallocate (fieldNameList, _STAT)
-
+#endif
+    
 
     if (this%itemOrderAlphabetical) then
        call this%alphabatize_variables(metadataVarsSize,rc=status)
@@ -342,6 +363,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
        call this%metadata%add_attribute(attr_name,attr_val,_RC)
        call s_iter%next()
     enddo
+
     ! To be added when values are available
     !v = Variable(type=pFIO_INT32, dimensions='mask_index')
     !call v%add_attribute('long_name','The Cubed Sphere Global Face ID')
@@ -630,7 +652,8 @@ module subroutine  create_metadata(this,global_attributes,rc)
        lats_ds = ptB
 
 !!       write(6,*)  'ip, size(lons_ds)=', mypet, size(lons_ds)
-
+       if (mapl_am_I_root()) write(6,*) 'ck2'
+       
        call MAPL_TimerOff(this%GENSTATE,"2_ABIgrid_LS")
 
        ! __ s3. find n.n. CS pts for LS_ds (halo)
@@ -720,7 +743,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
           end do
        end do
        call MAPL_TimerOff(this%GENSTATE,"3_CS_halo")
-
+       if (mapl_am_I_root()) write(6,*) 'ck3'
 
        ! ----
        !  regridding is replaced by
@@ -751,7 +774,9 @@ module subroutine  create_metadata(this,global_attributes,rc)
        else
           allocate (this%lons(0), this%lats(0), _STAT)
        end if
+       if (mapl_am_I_root()) write(6,*) 'ck4.1'
 
+       
        ! __ s4.2  find this%recvcounts / this%displs
        !
        allocate( this%recvcounts(petcount), this%displs(petcount), _STAT )
@@ -788,7 +813,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
        _VERIFY(ierr)
 
        call MAPL_TimerOff(this%GENSTATE,"4_gatherV")
-
+       if (mapl_am_I_root()) write(6,*) 'ck4.3'
 
 
 !         __ note: s4.4 can be used in the future for pfio
@@ -800,18 +825,19 @@ module subroutine  create_metadata(this,global_attributes,rc)
 !       write(6,'(200i10)')  this%displs
 !       call MPI_Barrier(mpic,ierr)
 !       _VERIFY(ierr)
-!
-!       if (mapl_am_i_root()) then
-!          print*, 'this%npt_mask_tot=', this%npt_mask_tot
-!          allocate (this%lons_deg(this%npt_mask_tot), this%lats_deg(this%npt_mask_tot), _STAT)
-!          this%lons_deg = this%lons * MAPL_RADIANS_TO_DEGREES
-!          this%lats_deg = this%lats * MAPL_RADIANS_TO_DEGREES
-!       else
-!          allocate (this%lons_deg(0), this%lats_deg(0), _STAT)
-!       end if
-!!!       write(6,'(2x,a,2x,i5,2x,1000f12.2)') 'ip, lons_deg', ip, this%lons_deg
-!!!       write(6,'(2x,a,2x,i5,2x,1000f12.2)') 'ip, lats_deg', ip, this%lats_deg
-!
+
+       if (mapl_am_i_root()) then
+          print*, 'this%npt_mask_tot=', this%npt_mask_tot
+          allocate (this%lons_deg(this%npt_mask_tot), this%lats_deg(this%npt_mask_tot), _STAT)
+          this%lons_deg = this%lons * MAPL_RADIANS_TO_DEGREES
+          this%lats_deg = this%lats * MAPL_RADIANS_TO_DEGREES
+       else
+          allocate (this%lons_deg(0), this%lats_deg(0), _STAT)
+       end if
+!!       write(6,'(2x,a,2x,i5,2x,1000f12.2)') 'ip, lons_deg', ip, this%lons_deg
+!!       write(6,'(2x,a,2x,i5,2x,1000f12.2)') 'ip, lats_deg', ip, this%lats_deg
+
+       
 !!!       call MAPL_CommsBcast(vm, DATA=, N=1, ROOT=MAPL_Root, _RC)
 !       allocate (sendcounts_loc(petcount))
 !       do i=1, petcount
@@ -871,6 +897,8 @@ module subroutine  create_metadata(this,global_attributes,rc)
     type(ESMF_VM) :: vm
     type(ArrayReference) :: ref
 
+    if (mapl_am_I_root()) write(6,*) 'ck  regrid append pt0'        
+
     this%obs_written=this%obs_written+1
 
     ! -- fixed for all fields
@@ -892,24 +920,29 @@ module subroutine  create_metadata(this,global_attributes,rc)
     recvcounts_3d(:) = nz * this%recvcounts(:)
     displs_3d(:)     = nz * this%displs(:)
 
+    if (mapl_am_I_root()) write(6,*) 'ck  regrid append pt1'    
 
     !__ 1. put_var: time variable
     !
     allocate( rtimes(1), _STAT )
     rtimes(1) = this%compute_time_for_current(current_time,_RC) ! rtimes: seconds since opening file
     if (this%use_pfio) then
+       if (mapl_am_I_root()) write(6,*) 'ck  regrid append pt1.2   write time'
        this%rtime = rtimes(1)*1.0
        ref = ArrayReference(this%rtime)
        call oClients%collective_stage_data(this%write_collection_id,trim(filename),'time', &
-            ref,start=[1], global_start=[1], global_count=[this%npt_mask_tot])
+            ref,start=[1], global_start=[1], global_count=[1])
+       call this%stage2DLatLon(trim(filename),oClients=oClients,_RC)
     else
        if (mapl_am_i_root()) then
           call this%formatter%put_var('time',rtimes(1:1),&
                start=[this%obs_written],count=[1],_RC)
+          call this%formatter%put_var('longitude',this%lons_deg,_RC)
+          call this%formatter%put_var('latitude',this%lats_deg,_RC)
        end if
     end if
-
-    ! write lon/lat
+ 
+    if (mapl_am_I_root()) write(6,*) 'ck  regrid append pt2'       
 
 
     !__ 2. put_var: ungridded_dim from src to dst [use index_mask]
@@ -947,8 +980,8 @@ module subroutine  create_metadata(this,global_attributes,rc)
                 if (mapl_am_i_root()) then
                    this%var2d(ic_2d)%array_x(1:this%npt_mask_tot) = p_dst_2d_full(1:this%npt_mask_tot)
                 endif
-                ref = ArrayReference(this%var2d(ic_2d))
-                call oClients%collective_stage_data(this%write_collection_id,trim(filename),'time', &
+                ref = ArrayReference(this%var2d(ic_2d)%array_x)
+                call oClients%collective_stage_data(this%write_collection_id,trim(filename), item%xname, &
                      ref,start=[1], global_start=[1], global_count=[this%npt_mask_tot])
              else
                 if (mapl_am_i_root()) then
@@ -957,6 +990,8 @@ module subroutine  create_metadata(this,global_attributes,rc)
                 end if
              end if
              call MAPL_TimerOff(this%GENSTATE,"put2D")
+             if (mapl_am_I_root()) write(6,*) 'ck  regrid append pt3'       
+             
           else if (rank==3) then
              call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
              call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
@@ -977,15 +1012,36 @@ module subroutine  create_metadata(this,global_attributes,rc)
                   iroot, mpic, status )
              _VERIFY(status)
              call MAPL_TimerOn(this%GENSTATE,"put3D")
-             if (mapl_am_i_root()) then
-                allocate(arr(nz, this%npt_mask_tot), _STAT)
-                arr=reshape(p_dst_3d_full,[nz,this%npt_mask_tot],order=[1,2])
-                call this%formatter%put_var(item%xname,arr,&
-                     start=[1,1,this%obs_written],count=[nz,this%npt_mask_tot,1],_RC)
-                !note:     lev,station,time
-                deallocate(arr, _STAT)
+
+             if (mapl_am_I_root()) write(6,*) 'ck  regrid append pt4.1'
+             
+             if (this%use_pfio) then
+                ic_3d = ic_3d + 1
+                if (mapl_am_i_root()) then
+                   this%var3d(ic_3d)%array_zx(1:nz, 1:this%npt_mask_tot) = &
+                        reshape(p_dst_3d_full,[nz,this%npt_mask_tot],order=[1,2])                        
+                   this%var3d(ic_3d)%array_zx(1:nz, 1:this%npt_mask_tot) = 99.0
+                endif
+                ref = ArrayReference(this%var3d(ic_3d)%array_zx)
+                if (mapl_am_I_root()) write(6,*) 'ck  regrid append pt4.1.1'                             
+                call oClients%collective_stage_data(this%write_collection_id,trim(filename), item%xname, &
+                     ref,start=[1,1], global_start=[1,1], global_count=[nz, this%npt_mask_tot])
+                     ! 2d: ref,start=[1], global_start=[1], global_count=[this%npt_mask_tot])                
+
+                if (mapl_am_I_root()) write(6,*) 'ck  regrid append pt4.1.2'                             
+             else
+                if (mapl_am_i_root()) then
+                   allocate(arr(nz, this%npt_mask_tot), _STAT)
+                   arr=reshape(p_dst_3d_full,[nz,this%npt_mask_tot],order=[1,2])
+                   call this%formatter%put_var(item%xname,arr,&
+                        start=[1,1,this%obs_written],count=[nz,this%npt_mask_tot,1],_RC)
+                   !note:     lev,station,time
+                   deallocate(arr, _STAT)
+                end if
              end if
              call MAPL_TimerOff(this%GENSTATE,"put3D")
+             if (mapl_am_I_root()) write(6,*) 'ck  regrid append pt4.2'             
+
           else
              _FAIL('grid2LS regridder: rank > 3 not implemented')
           end if
@@ -1060,8 +1116,8 @@ module subroutine  create_metadata(this,global_attributes,rc)
        allocate(global_count,source=[0])
     end if
 
-    print*, __LINE__, 'this%lons_deg(:) on root'
-    write(6,'(100f6.1,2x)')  this%lons_deg(:)
+
+    !! write(6,'(100f6.1,2x)')  this%lons_deg(:)
     ref = ArrayReference(this%lons_deg)
     call oClients%collective_stage_data(this%write_collection_id,trim(filename),'longitude', &
          ref,start=local_start, global_start=global_start, global_count=global_count)
@@ -1179,6 +1235,7 @@ module subroutine finalize(this,rc)
                 ic_3d = ic_3d + 1
              end if
           end if
+          call iter%next()
        end do
 
        do j=1, ic_2d
@@ -1186,7 +1243,7 @@ module subroutine finalize(this,rc)
        end do
        deallocate ( this%var2d, _STAT )
        do j=1, ic_3d
-          deallocate ( this%var3d(j)%array_xz, _STAT )
+          deallocate ( this%var3d(j)%array_zx, _STAT )
        end do
        deallocate ( this%var3d, _STAT )
     end if

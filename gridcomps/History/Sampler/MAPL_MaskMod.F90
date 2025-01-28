@@ -29,7 +29,7 @@ module MaskSamplerMod
   use pflogger, only: Logger, logging
   implicit none
   intrinsic :: size
-
+  
   private
 
   public :: var2d_unit
@@ -37,12 +37,12 @@ module MaskSamplerMod
   type :: var2d_unit
      real(kind=REAL32), allocatable :: array_x(:)
   end type var2d_unit
-
+  
   type :: var3d_unit
-     real(kind=REAL32), allocatable :: array_xz(:,:)
+     real(kind=REAL32), allocatable :: array_zx(:,:)
   end type var3d_unit
-
-
+  
+  
   public :: MaskSampler
   type :: MaskSampler
      !     private
@@ -59,7 +59,7 @@ module MaskSamplerMod
      type(GriddedIOitemVector) :: items
      type(VerticalData) :: vdata
      type(var2d_unit), allocatable :: var2d(:)
-     type(var3d_unit), allocatable :: var3d(:)
+     type(var3d_unit), allocatable :: var3d(:)     
      logical :: do_vertical_regrid
      type(TimeData)           :: timeinfo
      type(ESMF_Clock)         :: clock
@@ -98,8 +98,7 @@ module MaskSamplerMod
      real(kind=REAL32), allocatable :: lons_deg(:)
      real(kind=REAL32), allocatable :: lats_deg(:)
 
-     real(kind=REAL32) :: rtime
-!     real, allocatable :: times(:)
+     real(kind=REAL32) :: rtime     
      integer, allocatable :: recvcounts(:)
      integer, allocatable :: displs(:)
      type(MAPL_MetaComp), pointer :: GENSTATE
@@ -112,7 +111,7 @@ module MaskSamplerMod
      real, allocatable :: array_scalar_2d(:,:)
      real, allocatable :: array_scalar_3d(:,:,:)
      logical :: itemOrderAlphabetical = .true.
-
+     
      integer :: tmax     ! duration / freq
 
      real(kind=ESMF_KIND_R8), pointer:: obsTime(:)
@@ -128,7 +127,7 @@ module MaskSamplerMod
    contains
 
      procedure :: initialize
-     procedure :: finalize
+     procedure :: finalize     
      procedure :: create_metadata
      procedure :: regrid_append_file
      procedure :: create_Geosat_grid_find_mask
@@ -169,10 +168,10 @@ module MaskSamplerMod
      end subroutine initialize
 
      module subroutine finalize(this,rc)
-       class(MaskSampler), intent(inout) :: this
+       class(MaskSampler), intent(inout) :: this     
        integer, optional, intent(out)          :: rc
      end subroutine finalize
-
+     
      module subroutine create_Geosat_grid_find_mask(this, rc)
        use pflogger, only: Logger, logging
        implicit none
@@ -236,6 +235,6 @@ module MaskSamplerMod
       integer, intent(in) :: nFixedVars
       integer, optional, intent(out) :: rc
     end subroutine alphabatize_variables
-
+    
   end interface
 end module MaskSamplerMod
