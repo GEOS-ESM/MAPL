@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.26.1] - 2025-01-28
+
+### Fixed
+
+- Fixes for newer Intel 2021.7+ compilers
+
 ## [2.26.0] - 2022-09-16
 
 ### Fixed
