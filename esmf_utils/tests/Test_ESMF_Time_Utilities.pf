@@ -35,14 +35,14 @@ contains
 
       call ESMF_TimeIntervalSet(larger, d=3*DD, _RC)
       call ESMF_TimeIntervalSet(smaller, d=DD, _RC)
-      compatible = intervals_are_compatible(larger, smaller, _RC)
+      call intervals_are_compatible(larger, smaller, compatible, _RC)
       @assertTrue(compatible, 'The intervals are compatible.')
 
-      compatible = intervals_are_compatible(smaller, larger, _RC)
+      call intervals_are_compatible(smaller, larger, compatible, _RC)
       @assertFalse(compatible, 'The larger unit must come first.')
 
       call ESMF_TimeIntervalSet(smaller, d=2*DD, _RC)
-      compatible = intervals_are_compatible(larger, smaller, _RC)
+      call intervals_are_compatible(larger, smaller, compatible, _RC)
       @assertFalse(compatible, 'The smaller interval does not divide the larger interval evenly.')
 
    end subroutine test_intervals_are_compatible
@@ -60,38 +60,52 @@ contains
       call ESMF_TimeSet(time2, yy=1582, mm=10, dd=15, h=19, _RC)
       call ESMF_TimeIntervalSet(larger, d=1, _RC)
       call ESMF_TimeIntervalSet(smaller, h = 6, _RC)
-      compatible = times_and_intervals_are_compatible(time1, time2, larger, smaller, _RC)
+      call times_and_intervals_are_compatible(larger, time1, smaller, time2, compatible, _RC)
       @assertTrue(compatible, 'The times and intervals are compatible.')
 
       call ESMF_TimeSet(time2, yy=1582, mm=10, dd=15, h=18, _RC)
-      compatible = times_and_intervals_are_compatible(time1, time2, larger, smaller, _RC)
+      call times_and_intervals_are_compatible(larger, time1, smaller, time2, compatible, _RC)
       @assertFalse(compatible, 'The time difference is not evenly divisible by the smaller interval.')
 
       call ESMF_TimeSet(time1, yy=1582, mm=10, dd=16, h=18, _RC)
       call ESMF_TimeIntervalSet(larger, h=6, _RC)
       call ESMF_TimeIntervalSet(smaller, h=4, _RC)
-      compatible = times_and_intervals_are_compatible(time1, time2, larger, smaller, _RC)
+      call times_and_intervals_are_compatible(larger, time1, smaller, time2, compatible, _RC)
       @assertFalse(compatible, 'The larger interval is not evenly divisible by the smaller interval.')
       call ESMF_TimeIntervalSet(larger, mm=1, _RC)
       call ESMF_TimeIntervalSet(smaller, d=1, _RC)
-      compatible = times_and_intervals_are_compatible(time1, time2, larger, smaller, _RC)
+      call times_and_intervals_are_compatible(larger, time1, smaller, time2, compatible, _RC)
       @assertFalse(compatible, 'Larger interval cannot include months.')
 
       call ESMF_TimeIntervalSet(larger, d=90, _RC)
       call ESMF_TimeIntervalSet(smaller, mm=1, _RC)
-      compatible = times_and_intervals_are_compatible(time1, time2, larger, smaller, _RC)
+      call times_and_intervals_are_compatible(larger, time1, smaller, time2, compatible, _RC)
       @assertFalse(compatible, 'Smaller interval cannot include months.')
 
       call ESMF_TimeIntervalSet(larger, yy=1, _RC)
       call ESMF_TimeIntervalSet(smaller, d=1, _RC)
-      compatible = times_and_intervals_are_compatible(time1, time2, larger, smaller, _RC)
+      call times_and_intervals_are_compatible(larger, time1, smaller, time2, compatible, _RC)
       @assertFalse(compatible, 'Larger interval cannot include years.')
 
       call ESMF_TimeIntervalSet(larger, d=365, _RC)
       call ESMF_TimeIntervalSet(smaller, yy=1, _RC)
-      compatible = times_and_intervals_are_compatible(time1, time2, larger, smaller, _RC)
+      call times_and_intervals_are_compatible(larger, time1, smaller, time2, compatible, _RC)
       @assertFalse(compatible, 'Smaller interval cannot include years.')
 
+      call ESMF_TimeSet(time1, yy=1582, mm=10, _RC)
+      call ESMF_TimeSet(time2, yy=1583, mm=10, _RC)
+      call ESMF_TimeIntervalSet(larger, yy=3, _RC)
+      call ESMF_TimeIntervalSet(smaller, yy=1, _RC)
+      call times_and_intervals_are_compatible(larger, time1, smaller, time2, compatible, _RC)
+      @assertTrue(compatible, 'The intervals are compatible.')
+
+      call ESMF_TimeSet(time1, yy=1582, mm=10, _RC)
+      call ESMF_TimeSet(time2, yy=1583, mm=10, _RC)
+      call ESMF_TimeIntervalSet(larger, mm=3, _RC)
+      call ESMF_TimeIntervalSet(smaller, mm=1, _RC)
+      call times_and_intervals_are_compatible(larger, time1, smaller, time2, compatible, _RC)
+      @assertTrue(compatible, 'The intervals are compatible.')
+      
    end subroutine test_times_and_intervals_are_compatible
 
 end module Test_ESMF_Time_Utilities

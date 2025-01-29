@@ -134,9 +134,8 @@ contains
       call ESMF_ClockGet(outer_clock, timestep=outer_timestep, refTime=outer_reference_time, _RC)
       call ESMF_ClockGet(user_clock, timestep=user_timestep, refTime=refTime, _RC)
 
-      compatible = times_and_intervals_are_compatible(refTime, outer_reference_time, user_timestep, outer_timestep, _RC)
-      _ASSERT(compatible, 'The user timestep and reference time are not compatible with the outer timestep and reference_time')
-!      _ASSERT(mod(user_timestep, outer_timestep) == zero, 'User timestep is not an integer multiple of parent timestep') !wdb fixme deleteme 
+      call times_and_intervals_are_compatible(user_timestep, refTime, outer_timestep, outer_reference_time, compatible, _RC)
+      _ASSERT(compatible, 'The user timestep and reference time are not compatible with the outer timestep and reference time')
 
       alarm = ESMF_AlarmCreate(outer_clock, &
            name = RUN_USER_ALARM, &
