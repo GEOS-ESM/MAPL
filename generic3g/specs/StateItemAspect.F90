@@ -128,10 +128,12 @@ module mapl3g_StateItemAspect
          integer, optional, intent(out) :: rc
       end function I_make_action2
 
-      subroutine I_connect_to_export(this, export, rc)
+      subroutine I_connect_to_export(this, export, actual_pt, rc)
+         use mapl3g_ActualConnectionPt
          import :: StateItemAspect
          class(StateItemAspect), intent(inout) :: this
          class(StateItemAspect), intent(in) :: export
+         type(ActualConnectionPt), intent(in) :: actual_pt
          integer, optional, intent(out) :: rc
       end subroutine I_connect_to_export
 

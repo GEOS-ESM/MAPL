@@ -6,6 +6,7 @@ module MAPL_OpenMP_Support
     use MAPL_maplgrid
     use MAPL_ExceptionHandling
     use mapl_KeywordEnforcerMod
+    use MAPL_BaseMod, only : MAPL_Grid_Interior
     !$ use omp_lib
 
     implicit none
@@ -83,7 +84,7 @@ module MAPL_OpenMP_Support
         type(Interval), intent(in) :: bounds(:)
         class(KeywordEnforcer), optional, intent(in) :: unusable
         integer, optional, intent(out) :: rc
-        integer :: local_count(3)
+        integer :: local_count(3), global_count(3)
         integer :: status
         integer :: petMap(1,1,1)
         integer :: myPet, section, i, j, k, count, size_
@@ -103,7 +104,7 @@ module MAPL_OpenMP_Support
         !end do
 
         allocate(subgrids(size(bounds)))
-        call MAPL_GridGet(primary_grid,localcellcountPerDim=local_count, _RC)
+        call MAPL_GridGet(primary_grid,localcellcountPerDim=local_count, globalCellCountPerDim=global_count, _RC)
         call ESMF_VMGetCurrent(vm, _RC)
         call ESMF_VMGet(vm, localPET=myPET, _RC)
 
@@ -179,6 +180,21 @@ module MAPL_OpenMP_Support
                 values=lons1d, _RC)
            call ESMF_InfoSet(infoh, key='GridCornerLats:', &
                 values=lats1d, _RC)
+           block
+              integer :: global_grid_info(10)
+              integer :: i1,i2,j1,j2
+              call MAPL_Grid_Interior(primary_grid,i1,i2,j1,j2)
+              global_grid_info(1:3) = global_count
+              !global_grid_info(4:6) = local_count
+              global_grid_info(4) = size(new_lons,1)
+              global_grid_info(5) = size(new_lons,2)
+              global_grid_info(6) = local_count(3)
+              global_grid_info(7) = i1
+              global_grid_info(8) = i2
+              global_grid_info(9) = j1 + bounds(i)%min - 1
+              global_grid_info(10) = j1 + bounds(i)%max - 1
+              call ESMF_InfoSet(infoh, key="GLOBAL_GRID_INFO", values=global_grid_info, _RC)
+           end block
 
             deallocate(lons1d, lats1d)
             deallocate(new_corner_lons, new_corner_lats)

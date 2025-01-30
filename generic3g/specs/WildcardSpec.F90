@@ -42,7 +42,7 @@ module mapl3g_WildcardSpec
 
       procedure :: get_reference_spec
       ! These might be unnecessary once aspects are fully integrated
-      procedure :: get_aspect 
+      procedure :: get_aspect_by_name
       procedure :: get_aspects
       procedure :: set_aspect
    end type WildcardSpec
@@ -234,7 +234,7 @@ contains
       reference_spec => this%reference_spec
    end function get_reference_spec
 
-   function get_aspect(this, name, rc) result(aspect)
+   function get_aspect_by_name(this, name, rc) result(aspect)
       class(StateItemAspect), pointer :: aspect
       character(*), intent(in) :: name
       class(WildcardSpec), target, intent(in) :: this
@@ -245,7 +245,7 @@ contains
       aspect => this%reference_spec%get_aspect(name, _RC)
 
       _RETURN(_SUCCESS)
-   end function get_aspect
+   end function get_aspect_by_name
 
    function get_aspects(this) result(aspects)
       type(AspectCollection), pointer :: aspects

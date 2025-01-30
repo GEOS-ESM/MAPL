@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_TypekindAspect
+   use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_ExtensionAction
@@ -116,9 +117,10 @@ contains
 
    ! Copy from src - might have been mirror.
 
-   subroutine connect_to_export(this, export, rc)
+   subroutine connect_to_export(this, export, actual_pt, rc)
       class(TypekindAspect), intent(inout) :: this
       class(StateItemAspect), intent(in) :: export
+      type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
       type(TypekindAspect) :: export_
@@ -127,6 +129,7 @@ contains
       export_ = to_TypekindAspect(export, _RC)
       this%typekind = export_%typekind
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
   subroutine set_typekind(this, typekind)

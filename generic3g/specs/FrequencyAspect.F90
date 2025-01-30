@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 #include "unused_dummy.H"
 module mapl3g_FrequencyAspect
+   use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_AccumulatorActionInterface
@@ -164,14 +165,16 @@ contains
       _RETURN(_SUCCESS)
    end function make_action2
 
-   subroutine connect_to_export(this, export, rc)
+   subroutine connect_to_export(this, export, actual_pt, rc)
       class(FrequencyAspect), intent(inout) :: this
       class(StateItemAspect), intent(in) :: export
+      type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(export)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
   logical function supports_conversion_general(src) result(supports)

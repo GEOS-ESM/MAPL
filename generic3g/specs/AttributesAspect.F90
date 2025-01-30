@@ -5,6 +5,7 @@
 ! be unused and/or correspond to attributes needed by other imports.
 
 module mapl3g_AttributesAspect
+   use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_ExtensionAction
@@ -124,14 +125,16 @@ contains
    end function get_aspect_id
 
    ! No-op (cannot mirror)
-   subroutine connect_to_export(this, export, rc)
+   subroutine connect_to_export(this, export, actual_pt, rc)
       class(AttributesAspect), intent(inout) :: this
       class(StateItemAspect), intent(in) :: export
+      type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(export)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
 end module mapl3g_AttributesAspect

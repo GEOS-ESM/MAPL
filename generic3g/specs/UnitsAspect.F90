@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_UnitsAspect
+   use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_ExtensionAction
@@ -20,7 +21,7 @@ module mapl3g_UnitsAspect
    end interface to_UnitsAspect
 
    type, extends(StateItemAspect) :: UnitsAspect
-!#      private
+      private
       character(:), allocatable :: units
    contains
       procedure :: matches
@@ -30,6 +31,8 @@ module mapl3g_UnitsAspect
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure, nopass :: get_aspect_id
+
+      procedure :: get_units
    end type UnitsAspect
 
    interface UnitsAspect
@@ -128,9 +131,10 @@ contains
       _RETURN(_SUCCESS)
    end function make_action2
 
-   subroutine connect_to_export(this, export, rc)
+   subroutine connect_to_export(this, export, actual_pt, rc)
       class(UnitsAspect), intent(inout) :: this
       class(StateItemAspect), intent(in) :: export
+      type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
       type(UnitsAspect) :: export_
@@ -140,6 +144,7 @@ contains
       this%units = export_%units
       
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
    function to_units_from_poly(aspect, rc) result(units_aspect)
@@ -177,5 +182,19 @@ contains
       type(AspectId) :: aspect_id
       aspect_id = UNITS_ASPECT_ID
    end function get_aspect_id
+
+   function get_units(this, rc) result(units)
+      character(:), allocatable :: units
+      class(UnitsAspect), intent(in) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      units = '<unknown>'
+      _ASSERT(allocated(this%units), 'UnitsAspect has no units')
+      units = this%units
+
+      _RETURN(_SUCCESS)
+   end function get_units
 
 end module mapl3g_UnitsAspect

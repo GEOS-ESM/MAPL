@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module MockAspect_mod
+   use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemASpect
    use mapl3g_ExtensionAction
@@ -90,9 +91,10 @@ contains
 
    end function make_action2
 
-   subroutine connect_to_export(this, export, rc)
+   subroutine connect_to_export(this, export, actual_pt, rc)
       class(MockAspect), intent(inout) :: this
       class(StateItemAspect), intent(in) :: export
+      type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -108,6 +110,7 @@ contains
       end select
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(actual_pt)
    end subroutine connect_to_export
 
    function get_aspect_id() result(aspect_id)
