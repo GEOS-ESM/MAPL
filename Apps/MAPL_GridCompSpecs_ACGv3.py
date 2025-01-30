@@ -49,7 +49,7 @@ InternalSpec:
 """
 ################################# CONSTANTS ####################################
 SUCCESS = 0
-CATEGORIES = ("IMPORT","EXPORT","INTERNAL")
+INTENTS = ("IMPORT","EXPORT","INTERNAL")
 LONGNAME_GLOB_PREFIX = "longname_glob_prefix"
 # constants for logicals
 TRUE_VALUE = '.true.'
@@ -327,8 +327,8 @@ class MAPL_DataSpec:
     DELIMITER = ', '
     TERMINATOR = '_RC)'
 
-    def __init__(self, category, spec_values, indent=3):
-        self.category = category
+    def __init__(self, state_intent, spec_values, indent=3):
+        self.state_intent = state_intent
         self.indent = indent
         self.mangled_name = spec_values[Option.MANGLED_NAME]
         self.internal_name = spec_values[Option.INTERNAL_NAME]
@@ -361,7 +361,7 @@ class MAPL_DataSpec:
         """ Creates string by joining list of generated and literal strings """
         """ including if block (emit_header) and 'alloc = value' (emit_pointer_alloc) """
         return MAPL_DataSpec.DELIMITER.join(
-            [ self.emit_header() + "call MAPL_GetPointer(" + self.category,
+            [ self.emit_header() + "call MAPL_GetPointer(" + self.state_intent,
               self.internal_name, self.mangled_name] + self.emit_pointer_alloc() +
             [ MAPL_DataSpec.TERMINATOR + self.emit_trailer(nullify=True) ] )
 
@@ -386,7 +386,7 @@ class MAPL_DataSpec:
 
     def emit_args(self):
         self.indent = self.indent + 5
-        text = "call MAPL_Add" + self.category.capitalize() + "Spec(gc," + self.continue_line()
+        text = "call MAPL_Add" + self.state_intent.capitalize() + "Spec(gc," + self.continue_line()
         for option in self.spec_values: #wdb idea deleteme reduce?
             if option.output:
                 text = text + self.emit_arg(option)
@@ -446,7 +446,7 @@ def get_args():
 
 # READ_SPECS function
 def read_specs(specs_filename):
-    """Returns dict of (category: list of dict of (option name: option value) """
+    """Returns dict of (state_intent: list of dict of (option name: option value) """
     def csv_record_reader(csv_reader):
         """ Read a csv reader iterator until a blank line is found. """
         prev_row_blank = True
@@ -478,11 +478,9 @@ def read_specs(specs_filename):
         while True:
             try:
                 gen = csv_record_reader(specs_reader)
-                category = next(gen)[0].split()[1]
-                bare_columns = next(gen)
-                bare_columns = [c.strip() for c in bare_columns] #wdb TODO DELETEME merge above and below
-                columns = [c.upper() for c in bare_columns]
-                specs[category] = dataframe(gen, columns)
+                state_intent = next(gen)[0].split()[1]
+                columns = [c.strip().upper() for c in next(gen)]
+                specs[state_intent] = dataframe(gen, columns)
             except StopIteration:
                 break
 
@@ -496,9 +494,9 @@ def digest(specs, args):
     mandatory_options = Option.get_mandatory_options()
     digested_specs = dict()
 
-    for category in specs:
-        category_specs = list() # All the specs for the category
-        for spec in specs[category]: # spec from list
+    for state_intent in specs:
+        category_specs = list() # All the specs for the state_intent
+        for spec in specs[state_intent]: # spec from list
             dims = None
             ungridded = None
             option_values = dict() # dict of option values
@@ -531,7 +529,7 @@ def digest(specs, args):
                 raise
 # END CHECKS
             category_specs.append(option_values)
-        digested_specs[category] = category_specs 
+        digested_specs[state_intent] = category_specs 
 
     return digested_specs
     
@@ -548,13 +546,13 @@ def emit_values(specs, args):
 
 # open all output files
     f_specs = {}
-    for category in CATEGORIES:
-        option = args.__dict__[category.lower()+"_specs"]
+    for state_intent in INTENTS:
+        option = args.__dict__[state_intent.lower()+"_specs"]
         if option:
             fname = option.format(component=component)
-            f_specs[category] = open_with_header(fname)
+            f_specs[state_intent] = open_with_header(fname)
         else:
-            f_specs[category] = None
+            f_specs[state_intent] = None
 
     if args.declare_pointers:
         f_declare_pointers = open_with_header(args.declare_pointers.format(component=component))
@@ -566,19 +564,19 @@ def emit_values(specs, args):
         f_get_pointers = None
 
 # Generate code from specs (processed above)
-    for category in CATEGORIES:
-        if category in specs:
-            for spec_values in specs[category]:
-                spec = MAPL_DataSpec(category.lower(), spec_values)
-                if f_specs[category]:
-                    f_specs[category].write(spec.emit_specs())
+    for state_intent in INTENTS:
+        if state_intent in specs:
+            for spec_values in specs[state_intent]:
+                spec = MAPL_DataSpec(state_intent.lower(), spec_values)
+                if f_specs[state_intent]:
+                    f_specs[state_intent].write(spec.emit_specs())
                 if f_declare_pointers:
                     f_declare_pointers.write(spec.emit_declare_pointers())
                 if f_get_pointers:
                     f_get_pointers.write(spec.emit_get_pointers())
 
 # Close output files
-    for category, f in list(f_specs.items()):
+    for state_intent, f in list(f_specs.items()):
         if f:
             f.close()
     if f_declare_pointers:
@@ -592,21 +590,20 @@ def emit_values(specs, args):
 #############################################
 
 if __name__ == "__main__":
-# Process command line arguments NO CHANGE
+# Process command line arguments
     args = get_args()
 
-# Process blocked CSV input file NO CHANGE INITIALLY; NEED YAML EVENTUALLY
-# PARSED_SPECS MAY CHANGE
+# Process blocked CSV input file
     parsed_specs = read_specs(args.input)
 
-# Digest specs from file to output structure DIGEST MAY CHANGE; SPECS MAY CHANGE
+# Digest specs from file to output structure
     try:
         specs = digest(parsed_specs, args)
 
     except Exception:
         raise
 
-# Emit values INITIALLY EMIT_VALUES WILL NOT CHANGE EXCEPT SPECS AND INTERNALS
+# Emit values
     emit_values(specs, args)
 
 # FIN
