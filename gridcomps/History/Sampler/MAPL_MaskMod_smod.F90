@@ -191,9 +191,9 @@ module subroutine initialize(this,duration,frequency,items,bundle,timeInfo,vdata
        end do
        do j=1, ic_3d
           if (mapl_am_i_root()) then
-             allocate ( this%var3d(j)%array_zx(this%npt_mask_tot, this%vdata%lm), _STAT )
+             allocate ( this%var3d(j)%array_xz(this%npt_mask_tot, this%vdata%lm), _STAT )
           else
-             allocate ( this%var3d(j)%array_zx(0,0), _STAT )
+             allocate ( this%var3d(j)%array_xz(0,0), _STAT )
           end if
        end do
     end if
@@ -1018,14 +1018,14 @@ module subroutine  create_metadata(this,global_attributes,rc)
              if (this%use_pfio) then
                 ic_3d = ic_3d + 1
                 if (mapl_am_i_root()) then
-                   this%var3d(ic_3d)%array_zx(1:nz, 1:this%npt_mask_tot) = &
-                        reshape(p_dst_3d_full,[nz,this%npt_mask_tot],order=[1,2])                        
-                   this%var3d(ic_3d)%array_zx(1:nz, 1:this%npt_mask_tot) = 99.0
+                   this%var3d(ic_3d)%array_xz(1:this%npt_mask_tot, 1:nz) = &
+                        reshape(p_dst_3d_full,[this%npt_mask_tot, nz],order=[2,1])                        
+!!                   this%var3d(ic_3d)%array_xz(1:this%npt_mask_tot, 1:nz) = 99.0
                 endif
-                ref = ArrayReference(this%var3d(ic_3d)%array_zx)
+                ref = ArrayReference(this%var3d(ic_3d)%array_xz)
                 if (mapl_am_I_root()) write(6,*) 'ck  regrid append pt4.1.1'                             
                 call oClients%collective_stage_data(this%write_collection_id,trim(filename), item%xname, &
-                     ref,start=[1,1], global_start=[1,1], global_count=[nz, this%npt_mask_tot])
+                     ref,start=[1,1], global_start=[1,1], global_count=[this%npt_mask_tot, nz])
                      ! 2d: ref,start=[1], global_start=[1], global_count=[this%npt_mask_tot])                
 
                 if (mapl_am_I_root()) write(6,*) 'ck  regrid append pt4.1.2'                             
@@ -1035,7 +1035,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
                    arr=reshape(p_dst_3d_full,[nz,this%npt_mask_tot],order=[1,2])
                    call this%formatter%put_var(item%xname,arr,&
                         start=[1,1,this%obs_written],count=[nz,this%npt_mask_tot,1],_RC)
-                   !note:     lev,station,time
+                   !note:     lev,location,time
                    deallocate(arr, _STAT)
                 end if
              end if
@@ -1238,13 +1238,16 @@ module subroutine finalize(this,rc)
           call iter%next()
        end do
 
+       print*, 1
        do j=1, ic_2d
           deallocate ( this%var2d(j)%array_x, _STAT )
        end do
+       print*, 2
        deallocate ( this%var2d, _STAT )
        do j=1, ic_3d
-          deallocate ( this%var3d(j)%array_zx, _STAT )
+          deallocate ( this%var3d(j)%array_xz, _STAT )
        end do
+       print*, 3
        deallocate ( this%var3d, _STAT )
     end if
 

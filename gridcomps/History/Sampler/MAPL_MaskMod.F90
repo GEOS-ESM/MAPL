@@ -39,7 +39,7 @@ module MaskSamplerMod
   end type var2d_unit
   
   type :: var3d_unit
-     real(kind=REAL32), allocatable :: array_zx(:,:)
+     real(kind=REAL32), allocatable :: array_xz(:,:)
   end type var3d_unit
   
   
