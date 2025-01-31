@@ -49,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add ability for child component to specify reference_time for execution.
 - Add reference_time
 - Change `run_dt` to `timestep`
+- Add checks for compatibility between `timestep` and `reference_time` for OuterMetaComponent and user component.
 
 ### Changed
 
@@ -87,12 +88,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
-
-## [2.53.1] - 2025-01-29
-
-### Fixed
-
-- Fixed bug with `MAPL_GetHorzijIndex` when not points are passed on a processor causing a deadlock
 
 ## [2.53.0] - 2025-01-24
 
