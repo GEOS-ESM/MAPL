@@ -147,17 +147,17 @@ class ParameterizedEmitFunction:
 
 
 ##################### EMIT functions for writing AddSpecs ######################
-# Return the value CORRESPONDS TO SCALAR
+# Return the value
 identity_emit = lambda value: value
-# Return value in quotes # CORRESPONDS TO QUOTED
+# Return value in quotes
 string_emit = lambda value: ("'" + value + "'") if value else None
-# Return value in brackets # CORRESPONDS TO ARRAY
+# Return value in brackets
 array_emit = lambda value: ('[' + value + ']') if value else None
 # Strip '.' and ' ' [SPACE]
 lstripped = lambda s: s.lower().strip(' .')
-# emit function for character arrays # CORRESPONDS TO ARRAY OF QUOTED
+# emit function for character arrays
 string_array_emit = lambda value: make_string_array(value) if value else None
-# mangle name for SHORT_NAME #???
+# mangle name for SHORT_NAME
 mangle_name = lambda name: string_emit(name.replace("*","'//trim(comp_name)//'")) if name else None 
 # mangle name for internal use
 make_internal_name = lambda name: name.replace('*','') if name else None
