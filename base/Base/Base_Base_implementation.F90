@@ -170,7 +170,7 @@ contains
     call ESMF_VMGet(vm, ssiSharedMemoryEnabledFlag=ssiSharedMemoryEnabled, _RC)
 
     _ASSERT(ssiSharedMemoryEnabled, 'SSI shared memory is NOT supported')
-    pinflag=ESMF_PIN_DE_TO_SSI_CONTIG  ! requires support for SSI shared memory
+    pinflag=ESMF_PIN_DE_TO_PET ! disable SSI, this should be regular "default"
 ! SSI
 
     Dimensionality: select case(DIMS)
