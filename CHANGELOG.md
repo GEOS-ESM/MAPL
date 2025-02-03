@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
+- Add column for ACG (ALIAS) that set the pointer variable to a different name than the `short_name`
 
 ### Fixed
 
