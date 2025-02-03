@@ -13,22 +13,22 @@ from enum import Enum
 ImportSpec:
       type (ESMF_GridComp)            , intent(inout)   :: gc # 
       character (len=*)               , intent(in)      :: short_name #QUOTED, #MANGLED, #INTERNAL
-      character (len=*)  , optional   , intent(in)      :: long_name #QUOTED
-      character (len=*)  , optional   , intent(in)      :: units
       integer            , optional   , intent(in)      :: dims
-      integer            , optional   , intent(in)      :: datatype
-      integer            , optional   , intent(in)      :: num_subtiles
-      integer            , optional   , intent(in)      :: vlocation
-      integer            , optional   , intent(in)      :: refresh_interval
       integer            , optional   , intent(in)      :: averaging_interval
-      integer            , optional   , intent(in)      :: halowidth
-      integer            , optional   , intent(in)      :: precision
+      integer            , optional   , intent(in)      :: datatype
       real               , optional   , intent(in)      :: default
-      integer            , optional   , intent(in)      :: restart
-      integer            , optional   , intent(in)      :: ungridded_dims(:) # ARRAY
       integer            , optional   , intent(in)      :: field_type
-      integer            , optional   , intent(in)      :: staggering
+      integer            , optional   , intent(in)      :: halowidth
+      character (len=*)  , optional   , intent(in)      :: long_name #QUOTED
+      integer            , optional   , intent(in)      :: num_subtiles
+      integer            , optional   , intent(in)      :: precision
+      integer            , optional   , intent(in)      :: refresh_interval
+      integer            , optional   , intent(in)      :: restart
       integer            , optional   , intent(in)      :: rotation
+      integer            , optional   , intent(in)      :: staggering
+      integer            , optional   , intent(in)      :: ungridded_dims(:) # ARRAY
+      character (len=*)  , optional   , intent(in)      :: units
+      integer            , optional   , intent(in)      :: vlocation
       integer            , optional   , intent(out)     :: rc # skip
 
 ExportSpec:
@@ -57,7 +57,7 @@ FALSE_VALUE = '.false.'
 TRUE_VALUES = {'t', 'true', 'yes', 'y', 'si', 'oui', 'sim'}
 FALSE_VALUES = {'f', 'false', 'no', 'n', 'no', 'non', 'nao'}
 
-# constants used for Option.DIMS and computing rank
+# constants used for DIMS and computing rank
 DIMS_OPTIONS = [('MAPL_DimsVertOnly', 1, 'z'), ('MAPL_DimsHorzOnly', 2, 'xy'), ('MAPL_DimsHorzVert', 3, 'xyz')]
 RANKS = dict([(entry, rank) for entry, rank, _ in DIMS_OPTIONS])
 
@@ -165,13 +165,13 @@ make_internal_name = lambda name: name.replace('*','') if name else None
 mangle_longname = ParameterizedEmitFunction(mangle_name_prefix, LONGNAME_GLOB_PREFIX)
 # emit for function for DIMS
 DIMS_EMIT = make_entry_emit(dict([(alias, entry) for entry, _, alias in DIMS_OPTIONS]))
-# emit function for Option.VLOCATION
+# emit function for VLOCATION
 VLOCATION_EMIT = make_entry_emit({'C': 'MAPL_VlocationCenter', 'E': 'MAPL_VlocationEdge', 'N': 'MAPL_VlocationNone'})
-# emit function for Option.ADD2EXPORT
+# emit function for ADD2EXPORT
 ADD2EXPORT_EMIT = make_entry_emit({'T': '.true.', 'F': '.false.'})
-# emit function for logical-valued options
+# emit function for logical-valued arguments
 logical_emit = lambda s: TRUE_VALUE if lstripped(s) in TRUE_VALUES else FALSE_VALUE if lstripped(s) in FALSE_VALUES else None
-# emit function for Option.RESTART
+# emit function for RESTART
 RESTART_EMIT = make_entry_emit({'OPT'  : 'MAPL_RestartOptional', 'SKIP' : 'MAPL_RestartSkip',
         'REQ'  : 'MAPL_RestartRequired', 'BOOT' : 'MAPL_RestartBoot',
         'SKIPI': 'MAPL_RestartSkipInitial'})
@@ -198,29 +198,19 @@ class OptionType(Enum):
 # uses functional API for creation of members (instances) with multiple word names
 Option = Enum(value = 'Option', names = {
 # MANDATORY
-        'SHORT_NAME': ('short_name', mangle_name, True),
+        'SHORT_NAME': ('short_name', mangle_name, True), #COMMON
         'NAME': ('short_name', mangle_name, True),
-        'DIMS': ('dims', DIMS_EMIT, True),
-        'LONG_NAME': ('long_name', mangle_longname, True),
-        'LONG NAME': ('long_name', mangle_longname, True),
-        'UNITS': ('units', string_emit, True),
+        'DIMS': ('dims', DIMS_EMIT, True), #COMMON
+        'UNITS': ('units', string_emit, True), #COMMON
 # OPTIONAL
-        'ADD2EXPORT': ('add2export', ADD2EXPORT_EMIT),
-        'ADDEXP': ('add2export', ADD2EXPORT_EMIT),
-        'ATTR_INAMES': ('attr_inames', array_emit),
-        'ATTR_IVALUES': ('attr_ivalues', array_emit),
-        'ATTR_RNAMES': ('attr_rnames', array_emit),
-        'ATTR_RVALUES': ('attr_rvalues', array_emit),
         'AVERAGING_INTERVAL': ('averaging_interval',),
         'AVINT': ('averaging_interval',),
         'DATATYPE': ('datatype',),
         'DEFAULT': ('default',),
-        'DEPENDS_ON_CHILDREN': ('depends_on_children', logical_emit),
-        'DEPENDS_ON': ('depends_on', string_array_emit),
         'FIELD_TYPE': ('field_type',),
-        'FRIENDLYTO': ('friendlyto', string_emit),
-        'FRIEND2': ('friendlyto', string_emit),
         'HALOWIDTH': ('halowidth',),
+        'LONG_NAME': ('long_name', mangle_longname, True),
+        'LONG NAME': ('long_name', mangle_longname, True),
         'NUM_SUBTILES': ('num_subtitles',),
         'NUMSUBS': ('num_subtitles',),
         'PRECISION': ('precision',),
@@ -229,12 +219,10 @@ Option = Enum(value = 'Option', names = {
         'RESTART': ('restart', RESTART_EMIT),
         'ROTATION': ('rotation',),
         'STAGGERING': ('staggering',),
+        'STANDARD_NAME', ('standard_name', mangle_longname, True), #EXPORT #INTERNAL
         'UNGRIDDED_DIMS': ('ungridded_dims', array_emit),
         'UNGRID': ('ungridded_dims', array_emit),
         'UNGRIDDED': ('ungridded_dims', array_emit),
-        'UNGRIDDED_COORDS': ('ungridded_coords', array_emit),
-        'UNGRIDDED_NAME': ('ungridded_name',),
-        'UNGRIDDED_UNIT': ('ungridded_unit',),
         'VLOCATION': ('vlocation', VLOCATION_EMIT),
         'VLOC': ('vlocation', VLOCATION_EMIT),
 # these are Options that are not output but used to write 
@@ -244,8 +232,35 @@ Option = Enum(value = 'Option', names = {
         'MANGLED_NAME': ('mangled_name', mangle_name, False, False),
         'INTERNAL_NAME': ('internal_name', make_internal_name, False, False),
         'RANK': ('rank', None, False, False)
-    }, type = OptionType) 
+    }, type = OptionType)
  
+SPEC_COLUMNS = dict(
+        SHORT_NAME=dict(aliases=['NAME'], emit=mangle_name, mandatory=True),
+        DIMS=dict(emit=DIMS_EMIT, mandatory=True),
+        LONG_NAME=dict(aliases=['LONG NAME'], emit=mangle_longname, only='IMPORT', mandatory=True),
+        STANDARD_NAME=dict(emit=mangle_longname, only=('EXPORT', 'INTERNAL'), mandatory=True),
+        UNITS=dict(emit=string_emit, mandatory=True),
+# OPTIONAL
+        AVERAGING_INTERVAL=dict(aliases='AVINT', only='IMPORT'),
+        DATATYPE=dict(only='IMPORT'),
+        DEFAULT=dict(only='IMPORT'),
+        FIELD_TYPE=dict(only='IMPORT'),
+        HALOWIDTH=dict(only='IMPORT'),
+        NUM_SUBTILES=dict(aliases='NUMSUBS'], only='IMPORT'),
+        PRECISION=dict(aliases='PREC', only='IMPORT'),
+        REFRESH_INTERVAL=dict(only='IMPORT'),
+        RESTART=dict(emit=RESTART_EMIT, only='IMPORT'),
+        ROTATION=dict(only='IMPORT'),
+        STAGGERING=dict(only='IMPORT'),
+        UNGRIDDED_DIMS=dict(aliases=['UNGRID', 'UNGRIDDED'], only='IMPORT', emit=array_emit),
+        VLOCATION: dict(aliases=['VLOC'], only='IMPORT', emit=VLOCATION_EMIT),
+# these are columns that are not output but used to write 
+        CONDITION=dict(aliases=['COND'], do_not_print=True),
+        ALLOC=dict(do_not_print=True),
+        MANGLED_NAME=dict(emit=mangle_name, do_not_print=True),
+        INTERNAL_NAME=dict(emit=make_internal_name, do_not_print=True),
+        RANK=dict(emit=None, do_not_print=True)
+)
 
 ###################### RULES to test conditions on Options #####################
 # relations for rules on Options
