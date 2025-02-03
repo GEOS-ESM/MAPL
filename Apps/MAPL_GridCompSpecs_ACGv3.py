@@ -209,8 +209,8 @@ Option = Enum(value = 'Option', names = {
         'DEFAULT': ('default',),
         'FIELD_TYPE': ('field_type',),
         'HALOWIDTH': ('halowidth',),
-        'LONG_NAME': ('long_name', mangle_longname, True),
-        'LONG NAME': ('long_name', mangle_longname, True),
+        'LONG_NAME': ('long_name', mangle_longname),
+        'LONG NAME': ('long_name', mangle_longname),
         'NUM_SUBTILES': ('num_subtitles',),
         'NUMSUBS': ('num_subtitles',),
         'PRECISION': ('precision',),
@@ -219,7 +219,7 @@ Option = Enum(value = 'Option', names = {
         'RESTART': ('restart', RESTART_EMIT),
         'ROTATION': ('rotation',),
         'STAGGERING': ('staggering',),
-        'STANDARD_NAME', ('standard_name', mangle_longname, True), #EXPORT #INTERNAL
+        'STANDARD_NAME': ('standard_name', mangle_longname), #EXPORT #INTERNAL
         'UNGRIDDED_DIMS': ('ungridded_dims', array_emit),
         'UNGRID': ('ungridded_dims', array_emit),
         'UNGRIDDED': ('ungridded_dims', array_emit),
@@ -234,6 +234,11 @@ Option = Enum(value = 'Option', names = {
         'RANK': ('rank', None, False, False)
     }, type = OptionType)
  
+IMPORT_ONLY = {'LONG_NAME', 'AVERAGING_INTERVAL', 'DATATYPE', 'DEFAULT', 'FIELD_TYPE', 
+               'HALOWIDTH', 'NUM_SUBTILES', 'PRECISION', 'REFRESH_INTERVAL', 'RESTART',
+               'ROTATION', 'STAGGERING', 'UNGRIDDED_DIMS', 'VLOCATION'}
+EXPORT_INTERNAL_ONLY = {'STANDARD_NAME'}
+
 SPEC_COLUMNS = dict(
         SHORT_NAME=dict(aliases=['NAME'], emit=mangle_name, mandatory=True),
         DIMS=dict(emit=DIMS_EMIT, mandatory=True),
@@ -246,14 +251,14 @@ SPEC_COLUMNS = dict(
         DEFAULT=dict(only='IMPORT'),
         FIELD_TYPE=dict(only='IMPORT'),
         HALOWIDTH=dict(only='IMPORT'),
-        NUM_SUBTILES=dict(aliases='NUMSUBS'], only='IMPORT'),
+        NUM_SUBTILES=dict(aliases='NUMSUBS', only='IMPORT'),
         PRECISION=dict(aliases='PREC', only='IMPORT'),
         REFRESH_INTERVAL=dict(only='IMPORT'),
         RESTART=dict(emit=RESTART_EMIT, only='IMPORT'),
         ROTATION=dict(only='IMPORT'),
         STAGGERING=dict(only='IMPORT'),
         UNGRIDDED_DIMS=dict(aliases=['UNGRID', 'UNGRIDDED'], only='IMPORT', emit=array_emit),
-        VLOCATION: dict(aliases=['VLOC'], only='IMPORT', emit=VLOCATION_EMIT),
+        VLOCATION=dict(aliases=['VLOC'], only='IMPORT', emit=VLOCATION_EMIT),
 # these are columns that are not output but used to write 
         CONDITION=dict(aliases=['COND'], do_not_print=True),
         ALLOC=dict(do_not_print=True),
