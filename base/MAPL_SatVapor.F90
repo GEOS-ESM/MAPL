@@ -84,12 +84,12 @@ module MAPL_SatVaporMod
 
 ! Table parameters
 
-  real(kind=REAL64),    parameter :: TMINTBL    =  150.0       ! lower T bound of tables
-  real(kind=REAL64),    parameter :: TMAXTBL    =  333.0       ! upper T bound of tables
+  real(kind=REAL64),    parameter :: TMINTBL    =  ZEROC - 160.0  ! lower T bound of tables
+  real(kind=REAL64),    parameter :: TMAXTBL    =  395.0          ! upper T bound of tables
 
 ! Some limits
 
-  real(kind=REAL64),    parameter :: TMINICE    =  ZEROC - 95.
+  real(kind=REAL64),    parameter :: TMINICE    =  ZEROC - 160.
   real(kind=REAL64),    parameter :: TMAXICE    =  ZEROC      
   real(kind=REAL64),    parameter :: TMINLQU    =  ZEROC - 40.
   real(kind=REAL64),    parameter :: TMAXLQU    =  TMAXTBL    

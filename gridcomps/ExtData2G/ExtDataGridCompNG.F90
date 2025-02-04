@@ -109,7 +109,7 @@
                                           !! are not actually required
      type(ESMF_Config)    :: CF
      logical              :: active = .true.
-     logical              :: file_weights = .true.
+     logical              :: file_weights = .false.
   end type MAPL_ExtData_State
 
 ! Hook for the ESMF

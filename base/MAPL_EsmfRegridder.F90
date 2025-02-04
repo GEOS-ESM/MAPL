@@ -1458,7 +1458,7 @@ contains
      spec = this%get_spec()
 
      if (route_handles%count(spec) == 0) then  ! new route_handle
-        file_weights = .true. !IAND(spec%hints,REGRID_HINT_FILE_WEIGHTS) /= 0
+        file_weights = .false. !IAND(spec%hints,REGRID_HINT_FILE_WEIGHTS) /= 0
         compute_transpose = IAND(spec%hints,REGRID_HINT_COMPUTE_TRANSPOSE) /= 0
 
         if (file_weights) then
