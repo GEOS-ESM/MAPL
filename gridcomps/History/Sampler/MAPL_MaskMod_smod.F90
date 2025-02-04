@@ -154,16 +154,12 @@ module subroutine initialize(this,duration,frequency,items,bundle,timeInfo,vdata
    _ASSERT (n2>0, "list%frequency ==0, fail!")
    this%tmax =  n1/n2
 
-   if (mapl_am_i_root()) write(6,*) 'mask smod init: af metadata'   
-
     if (this%use_pfio) then
        ic_2d=0
        ic_3d=0
        iter = this%items%begin()
        do while (iter /= this%items%end())
           item => iter%get()
-          if (mapl_am_i_root()) write(6,*) 'mask smod init: item 1'
-          
           if (item%itemType == ItemTypeScalar) then
              if (mapl_am_i_root()) write(6,*) 'mask smod init: item%xname:', trim(item%xname)
              
@@ -483,12 +479,6 @@ module subroutine  create_metadata(this,global_attributes,rc)
        ip = mypet    ! 0 to M-1
        M = petCount
 
-       if (ip==0) then
-          write(6,*) 'ESMF_kind_R8, real32, real64, pfio_real32, pfio_real64'
-          write(6,*) ESMF_kind_R8, real32, real64, pfio_real32, pfio_real64
-       end if
-
-
        call MAPL_TimerOn(this%GENSTATE,"1_genABIgrid")
        if (mapl_am_i_root()) then
           ! __s1.  SAT file
@@ -652,21 +642,14 @@ module subroutine  create_metadata(this,global_attributes,rc)
        lats_ds = ptB
 
 !!       write(6,*)  'ip, size(lons_ds)=', mypet, size(lons_ds)
-       if (mapl_am_I_root()) write(6,*) 'ck2'
        
        call MAPL_TimerOff(this%GENSTATE,"2_ABIgrid_LS")
 
        ! __ s3. find n.n. CS pts for LS_ds (halo)
        !
        call MAPL_TimerOn(this%GENSTATE,"3_CS_halo")
-!       allocate (obs_lons( size(lons_ds)), _STAT)
-!       allocate (obs_lats( size(lons_ds)), _STAT)
        obs_lons = lons_ds * MAPL_DEGREES_TO_RADIANS_R8
        obs_lats = lats_ds * MAPL_DEGREES_TO_RADIANS_R8
-
-!! ygyu debug
-!!       nx = sizeof ( ptB ) / sizeof (ESMF_KIND_R8)
-!!       nx = size (ptB, 1)
        nx = size ( lons_ds )
 
        call ESMF_FieldDestroy(fieldA,nogarbage=.true.,_RC)
@@ -743,7 +726,6 @@ module subroutine  create_metadata(this,global_attributes,rc)
           end do
        end do
        call MAPL_TimerOff(this%GENSTATE,"3_CS_halo")
-       if (mapl_am_I_root()) write(6,*) 'ck3'
 
        ! ----
        !  regridding is replaced by
@@ -774,7 +756,6 @@ module subroutine  create_metadata(this,global_attributes,rc)
        else
           allocate (this%lons(0), this%lats(0), _STAT)
        end if
-       if (mapl_am_I_root()) write(6,*) 'ck4.1'
 
        
        ! __ s4.2  find this%recvcounts / this%displs
@@ -813,7 +794,6 @@ module subroutine  create_metadata(this,global_attributes,rc)
        _VERIFY(ierr)
 
        call MAPL_TimerOff(this%GENSTATE,"4_gatherV")
-       if (mapl_am_I_root()) write(6,*) 'ck4.3'
 
 
 !         __ note: s4.4 can be used in the future for pfio
@@ -896,8 +876,6 @@ module subroutine  create_metadata(this,global_attributes,rc)
     type(GriddedIOitem), pointer :: item
     type(ESMF_VM) :: vm
     type(ArrayReference) :: ref
-
-    if (mapl_am_I_root()) write(6,*) 'ck  regrid append pt0'        
 
     this%obs_written=this%obs_written+1
 

@@ -3551,7 +3551,7 @@ ENDDO PARSER
             if (intState%allow_overwrite) create_mode = PFIO_CLOBBER
             ! add time to items
             ! true metadata comes here from mGriddedIO%metadata
-            ! list(n)%mgriddedio for swath changed due to grid change
+            ! the list(n)%mGriddedIO below only touches metadata, collection_id etc.
             !
             if (.NOT. list(n)%xsampler%have_initalized) then
                list(n)%xsampler%have_initalized = .true.
@@ -3564,9 +3564,6 @@ ENDDO PARSER
             call list(n)%mGriddedIO%destroy(_RC)
             call list(n)%mGriddedIO%CreateFileMetaData(list(n)%items,list(n)%xsampler%acc_bundle,timeinfo_uninit,vdata=list(n)%vdata,global_attributes=global_attributes,_RC)
             call list(n)%items%pop_back()
-            !
-            ! we may have a memory leakage here:  o_Clients should first delete the old metada
-            !
             collection_id = o_Clients%add_hist_collection(list(n)%mGriddedIO%metadata, mode = create_mode)
             call list(n)%mGriddedIO%set_param(write_collection_id=collection_id)
             call MAPL_TimerOff(GENSTATE,"RegenGriddedio")
@@ -3653,8 +3650,6 @@ ENDDO PARSER
                      inquire (file=trim(filename(n)),exist=file_exists)
                      _ASSERT(.not.file_exists,trim(filename(n))//" being created for History output already exists")
                   end if
-                  !!if (mapl_am_i_root()) write(6,*) 'this line for mask %modifyTime'
-                  !! ygyu
 !!                  call list(n)%mask_sampler%modifyTime(oClients=o_Clients,_RC)
                   list(n)%currentFile = filename(n)
                   list(n)%unit = -1
@@ -3806,13 +3801,9 @@ ENDDO PARSER
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
             call MAPL_TimerOn(GENSTATE,"Mask_append")
             if (list(n)%unit < 0) then    ! CFIO
-               if (mapl_am_i_root()) write(6,*) 'bf call regrid_append_file'
                call list(n)%mask_sampler%regrid_append_file(current_time,&
                     list(n)%currentFile,oClients=o_Clients,_RC)
-               if (mapl_am_i_root()) then
-                  print*, __LINE__
-                  print*, 'list(n)%currentFile: ',list(n)%currentFile
-               end if
+               call lgr%debug('%a %a', 'mask sampler list(n)%currentFile: ', trim(list(n)%currentFile))
             end if
             call MAPL_TimerOff(GENSTATE,"Mask_append")
          endif
@@ -3829,22 +3820,14 @@ ENDDO PARSER
       call MAPL_TimerOff(GENSTATE,"IO Post")
       call MAPL_TimerOff(GENSTATE,trim(list(n)%collection))
    enddo POSTLOOP
-
-
-   if (mapl_am_i_root()) write(6,*) 'bf done_collective_stage ..'
       
+
    call MAPL_TimerOn(GENSTATE,"Done Wait")
    if (any(writing)) then
       call o_Clients%done_collective_stage(_RC)
       call o_Clients%post_wait()
-
-!      write(6, '(2x,a,2x,500f8.1)') &
-!           'list(1)%mask_sampler%this%array_scalar_1d', &
-!           list(1)%mask_sampler%array_scalar_1d
-
    endif
    call MAPL_TimerOff(GENSTATE,"Done Wait")
-   if (mapl_am_i_root()) write(6,*) 'af done_collective_stage ..'
 
 
   ! destroy ogrid/RH/acc_bundle, regenerate them

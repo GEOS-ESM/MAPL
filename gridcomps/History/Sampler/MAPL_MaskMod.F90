@@ -45,8 +45,6 @@ module MaskSamplerMod
   
   public :: MaskSampler
   type :: MaskSampler
-     !     private
-!!     public
      character(len=ESMF_MAXSTR) :: grid_file_name
      !     we need on each PET
      !     npt_mask, index_mask(1:2,npt_mask)=[i,j]
