@@ -131,7 +131,7 @@ contains
                   call file_formatter%open(source_file, PFIO_READ, _RC)
                   call file_formatter%get_var(ak_name, temp_ak, _RC)
                   call file_formatter%get_var(bk_name, temp_bk, _RC)
-                  do i=2,vertical_coord%num_levels
+                  do i=2,vertical_coord%num_levels+1
                      vertical_coord%ak(i-1) = temp_ak(1,i-1) 
                      vertical_coord%ak(i) = temp_ak(2,i-1) 
                      vertical_coord%bk(i-1) = temp_bk(1,i-1) 

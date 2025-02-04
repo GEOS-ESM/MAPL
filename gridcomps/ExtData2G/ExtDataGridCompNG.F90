@@ -66,6 +66,7 @@
    use MAPL_ExtDataPrimaryExportVectorMod
    use MAPL_ExtDataDerivedExportVectorMod
    use VerticalCoordinateMod
+   use GEOS_GmapMod
 
    IMPLICIT NONE
    PRIVATE
@@ -940,12 +941,11 @@ CONTAINS
 
      integer :: status
      integer :: id_ps
-     type(ESMF_Field) :: src_field, dst_field, src_ps, dst_ple !, newfield,psF
+     type(ESMF_Field) :: src_field, dst_field, src_ps, dst_ple
      character(len=:), allocatable :: src_ps_name
-     !type(PrimaryExport), pointer      :: ps_item
 
-     integer :: fieldRank, src_lm, dst_lm, i
-     real, pointer :: dst_ptr3d(:,:,:), src_ptr3d(:,:,:), src_ps_ptr(:,:)
+     integer :: fieldRank, src_lm, dst_lm, im, jm, i
+     real, pointer :: dst_ptr3d(:,:,:), src_ptr3d(:,:,:), src_ps_ptr(:,:), dst_ple_ptr(:,:,:)
      real, allocatable :: src_ple(:,:,:)
 
      if (item%vcoord%vertical_type == NO_COORD &
@@ -957,9 +957,12 @@ CONTAINS
      if (item%allow_vertical_regrid .and. (item%vcoord%vertical_type == model_pressure)) then
 
         call ESMF_StateGet(import, "PLE", dst_ple, _RC)
+        call ESMF_FieldGet(dst_ple,farrayPtr=dst_ple_ptr,_RC)
         src_ps_name = item%vcoord%surf_name//"_"//trim(item%vcomp1)
         call ESMF_StateGet(MAPLExtState%ExtDataState, src_ps_name, src_ps, _RC)
         call ESMF_FieldGet(src_ps, farrayPtr=src_ps_ptr, _RC) 
+        im = size(src_ps_ptr,1)
+        jm = size(src_ps_ptr,2)
         src_ple = item%vcoord%compute_ple(src_ps_ptr, _RC)
         call ESMF_StateGet(MAPLExtState%ExtDataState,trim(item%vcomp1),dst_field,_RC)
         call ESMF_FieldGet(dst_field,rank=fieldRank,_RC)
@@ -968,11 +971,19 @@ CONTAINS
            dst_lm =  size(dst_ptr3d,3)
            call ESMF_FieldBundleGet(item%t_interp_bundle, trim(item%vcomp1), field=src_field, _RC)
            call ESMF_FieldGet(src_field,farrayPtr=src_ptr3d,_RC)
-           src_lm = size(src_ptr3d,3)
-           if (src_lm /= dst_lm) then
-              dst_lm = 0.0
-              dst_ptr3d(:,:,1:src_lm) = src_ptr3d
-           end if
+           call gmap(im, jm, item%vcoord%num_levels, src_ple, src_ptr3d, dst_lm, dst_ple_ptr, dst_ptr3d)
+           do i=1,item%vcoord%num_levels+1
+              write(*,*)'in_ple ',i,src_ple(1,1,i)
+           enddo
+           do i=0,dst_lm
+              write(*,*)'out_ple ',i,dst_ple_ptr(1,1,i)
+           enddo
+           do i=1,item%vcoord%num_levels
+              write(*,*)'in_q ',i,src_ptr3d(1,1,i)
+           enddo
+           do i=1,dst_lm
+              write(*,*)'out_q ',i,dst_ptr3d(1,1,i)
+           enddo
         end if
     end if
 
