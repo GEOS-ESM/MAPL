@@ -404,8 +404,10 @@ contains
           end if
        END DO
        ! now add PS from Root if available
-       call ESMF_StateGet(cap%exports(cap%root_id), 'PLE', field, _RC)
-       call MAPL_StateAdd(cap%imports(cap%extdata_id), field, _RC)
+       call ESMF_StateGet(cap%exports(cap%root_id), 'PLE', field, rc=status)
+       if (status == ESMF_SUCCESS) then
+          call MAPL_StateAdd(cap%imports(cap%extdata_id), field, _RC)
+       end if
        deallocate(itemtypes)
        deallocate(itemnames)
 

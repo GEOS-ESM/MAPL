@@ -656,7 +656,9 @@ MODULE ExtDataUtRoot_GridCompMod
          if (item_type(i) == ESMF_STATEITEM_FIELD) then
             call ESMF_StateGet(outState,trim(outNameList(i)),expf,_RC)
             fexpr => synth%fillDefs%at(trim(outNameList(i)))
-            call MAPL_StateEval(pstate,fexpr,expf,_RC)
+            if (associated(fexpr)) then
+               call MAPL_StateEval(pstate,fexpr,expf,_RC)
+            end if
          end if
       enddo
 
