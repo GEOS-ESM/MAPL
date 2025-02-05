@@ -39,6 +39,7 @@
 
 
 module mapl3g_StateItemAspect
+   use iso_fortran_env, only: INT64
    use mapl3g_AspectId
    use mapl_ErrorHandling
 
@@ -50,6 +51,8 @@ module mapl3g_StateItemAspect
 #define MapIterator AspectMapIterator
 #define Pair AspectPair
 
+#define USE_ALT_SET
+!#include "shared/define_common_macros.inc"
 #include "map/header.inc"
 #include "map/public.inc"
 
@@ -132,6 +135,7 @@ end interface
 
 
 contains
+
 
 #include "map/procedures.inc"
 #include "map/tail.inc"

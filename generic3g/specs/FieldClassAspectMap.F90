@@ -3,7 +3,8 @@ module mapl3g_ActualPtFieldAspectMap
    use mapl3g_ActualConnectionPt
 
 #define MAPL_DEBUG
-   
+
+#define USE_ALT_SET
 #define Key ActualConnectionPt
 #define T FieldClassAspect
 

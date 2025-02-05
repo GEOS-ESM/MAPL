@@ -82,9 +82,12 @@ contains
       character(*), optional, intent(in) :: long_name
       real(kind=ESMF_KIND_R4), intent(in), optional :: default_value
 
+      aspect%standard_name = 'unknown'
       if (present(standard_name)) then
          aspect%standard_name = standard_name
       end if
+
+      aspect%long_name = 'unknown'
       if (present(long_name)) then
          aspect%long_name = long_name
       end if
