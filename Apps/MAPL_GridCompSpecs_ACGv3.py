@@ -7,49 +7,14 @@ from collections import namedtuple
 import operator
 from functools import partial
 
-from enum import Enum
+from enum import Enum, StrEnum
 
-"""
-ImportSpec:
-      type (ESMF_GridComp)            , intent(inout)   :: gc # 
-      character (len=*)               , intent(in)      :: short_name #QUOTED, #MANGLED, #INTERNAL
-      integer            , optional   , intent(in)      :: dims
-      integer            , optional   , intent(in)      :: averaging_interval
-      integer            , optional   , intent(in)      :: datatype
-      real               , optional   , intent(in)      :: default
-      integer            , optional   , intent(in)      :: field_type
-      integer            , optional   , intent(in)      :: halowidth
-      character (len=*)  , optional   , intent(in)      :: long_name #QUOTED
-      integer            , optional   , intent(in)      :: num_subtiles
-      integer            , optional   , intent(in)      :: precision
-      integer            , optional   , intent(in)      :: refresh_interval
-      integer            , optional   , intent(in)      :: restart
-      integer            , optional   , intent(in)      :: rotation
-      integer            , optional   , intent(in)      :: staggering
-      integer            , optional   , intent(in)      :: ungridded_dims(:) # ARRAY
-      character (len=*)  , optional   , intent(in)      :: units
-      integer            , optional   , intent(in)      :: vlocation
-      integer            , optional   , intent(out)     :: rc # skip
+#################################### ENUMS #####################################
+Intent = StrEnum('Intent', [('IMPORT', 'Import'), ('EXPORT', 'Export'), ('INTERNAL', 'Internal')]) 
 
-ExportSpec:
-      type(ESMF_GridComp), intent(inout) :: gridcomp #
-      class(KeywordEnforcer), optional, intent(in) :: unusable #skip
-      character(len=*), intent(in) :: short_name #QUOTED, #MANGLED, #INTERNAL
-      character(len=*), intent(in) :: standard_name #QUOTED
-      character(len=*), optional, intent(in) :: units 
-      integer, optional, intent(out) :: rc # skip
 
-InternalSpec:
-      type(ESMF_GridComp), intent(inout) :: gridcomp #
-      class(KeywordEnforcer), optional, intent(in) :: unusable #skip
-      character(len=*), intent(in) :: short_name #QUOTED, #MANGLED, #INTERNAL
-      character(len=*), intent(in) :: standard_name #QUOTED
-      character(len=*), optional, intent(in) :: units 
-      integer, optional, intent(out) :: rc #skip
-"""
 ################################# CONSTANTS ####################################
 SUCCESS = 0
-INTENTS = ("IMPORT","EXPORT","INTERNAL")
 LONGNAME_GLOB_PREFIX = "longname_glob_prefix"
 # constants for logicals
 TRUE_VALUE = '.true.'
@@ -63,23 +28,23 @@ RANKS = dict([(entry, rank) for entry, rank, _ in DIMS_OPTIONS])
 
 
 ############################### HELPER FUNCTIONS ###############################
+rm_quotes = lambda s: s.__str__().strip().strip('"\'').strip()
+add_quotes = lambda s: "'" + s.__str__() + "'"
+mk_array = lambda s: '[ ' + s.__str__() + ']'
+
 def make_string_array(s):
     """ Returns a string representing a Fortran character array """
-    rm_quotes = lambda s: s.strip().strip('"\'').strip()
-    add_quotes = lambda s: "'" + s + "'"
-    ss = s.strip()
     if ',' in ss:
         ls = [s.strip() for s in s.strip().split(',')]
     else:
         ls = s.strip().split()
-    ls = [rm_quotes(s) for s in ls]
-    ls = [s for s in ls if s]
-    n = max(ls)
+    ls = [rm_quotes(s) for s in ls if s]
+    n = max(list(map(len, ls)))
     ss = ','.join([add_quotes(s) for s in ls])
     return f"[character(len={n}) :: {ss}]"
 
-def make_entry_emit(dictionary):
-    """ Returns a emit function that looks up the value in dictionary """
+def make_entry_writer(dictionary):
+    """ Returns a writer function that looks up the value in dictionary """
     return lambda key: dictionary[key] if key in dictionary else None
 
 def mangle_name_prefix(name, parameters = None):
@@ -87,7 +52,7 @@ def mangle_name_prefix(name, parameters = None):
     if isinstance(parameters, tuple):
         pre = parameters[0] if parameters[0] else pre
     codestring = f"'//trim({pre})//'" 
-    return string_emit(name.replace("*",codestring)) if name else None
+    return string_writer(name.replace("*",codestring)) if name else None
 
 def get_fortran_logical(value_in):
     """ Return string representing Fortran logical from an input string """
@@ -135,44 +100,44 @@ def open_with_header(filename):
     return f
 
 # callable object (function)
-class ParameterizedEmitFunction:
+class ParameterizedWriter:
 
-    def __init__(self, emit, *parameter_keys):
-        self.emit = emit
+    def __init__(self, writer, *parameter_keys):
+        self.writer = writer
         self.parameter_keys = parameter_keys
         
     def __call__(self, name, parameters):
         parameter_values = tuple(parameters.get(key) for key in self.parameter_keys)
-        return self.emit(name, parameter_values)
+        return self.writer(name, parameter_values)
 
 
 ##################### EMIT functions for writing AddSpecs ######################
 # Return the value
-identity_emit = lambda value: value
+identity_writer = lambda value: value
 # Return value in quotes
-string_emit = lambda value: ("'" + value + "'") if value else None
+string_writer = lambda value: add_quotes(value) if value else None
 # Return value in brackets
-array_emit = lambda value: ('[' + value + ']') if value else None
+array_writer = lambda value: mk_array(value) if value else None
 # Strip '.' and ' ' [SPACE]
 lstripped = lambda s: s.lower().strip(' .')
-# emit function for character arrays
-string_array_emit = lambda value: make_string_array(value) if value else None
+# writer for character arrays
+string_array_writer = lambda value: make_string_array(value) if value else None
 # mangle name for SHORT_NAME
-mangle_name = lambda name: string_emit(name.replace("*","'//trim(comp_name)//'")) if name else None 
+mangle_name = lambda name: string_writer(name.replace("*","'//trim(comp_name)//'")) if name else None 
 # mangle name for internal use
 make_internal_name = lambda name: name.replace('*','') if name else None
-# emit function for LONG_NAME
-mangle_longname = ParameterizedEmitFunction(mangle_name_prefix, LONGNAME_GLOB_PREFIX)
-# emit for function for DIMS
-DIMS_EMIT = make_entry_emit(dict([(alias, entry) for entry, _, alias in DIMS_OPTIONS]))
-# emit function for VLOCATION
-VLOCATION_EMIT = make_entry_emit({'C': 'MAPL_VlocationCenter', 'E': 'MAPL_VlocationEdge', 'N': 'MAPL_VlocationNone'})
-# emit function for ADD2EXPORT
-ADD2EXPORT_EMIT = make_entry_emit({'T': '.true.', 'F': '.false.'})
-# emit function for logical-valued arguments
-logical_emit = lambda s: TRUE_VALUE if lstripped(s) in TRUE_VALUES else FALSE_VALUE if lstripped(s) in FALSE_VALUES else None
-# emit function for RESTART
-RESTART_EMIT = make_entry_emit({'OPT'  : 'MAPL_RestartOptional', 'SKIP' : 'MAPL_RestartSkip',
+# writer for LONG_NAME
+mangle_longname = ParameterizedWriter(mangle_name_prefix, LONGNAME_GLOB_PREFIX)
+# writer for DIMS
+DIMS_EMIT = make_entry_writer(dict([(alias, entry) for entry, _, alias in DIMS_OPTIONS]))
+# writer for VLOCATION
+VLOCATION_EMIT = make_entry_writer({'C': 'MAPL_VlocationCenter', 'E': 'MAPL_VlocationEdge', 'N': 'MAPL_VlocationNone'})
+# writer for ADD2EXPORT
+ADD2EXPORT_EMIT = make_entry_writer({'T': '.true.', 'F': '.false.'})
+# writer for logical-valued arguments
+logical_writer = lambda s: TRUE_VALUE if lstripped(s) in TRUE_VALUES else FALSE_VALUE if lstripped(s) in FALSE_VALUES else None
+# writer for RESTART
+RESTART_EMIT = make_entry_writer({'OPT'  : 'MAPL_RestartOptional', 'SKIP' : 'MAPL_RestartSkip',
         'REQ'  : 'MAPL_RestartRequired', 'BOOT' : 'MAPL_RestartBoot',
         'SKIPI': 'MAPL_RestartSkipInitial'})
 
@@ -181,14 +146,14 @@ RESTART_EMIT = make_entry_emit({'OPT'  : 'MAPL_RestartOptional', 'SKIP' : 'MAPL_
 # parent class for class Option
 # defines a few methods
 class OptionType(Enum):
-    def __init__(self, name_key, emit = None, mandatory = False, output = True):
+    def __init__(self, name_key, writer = None, mandatory = False, output = True):
         self.name_key = name_key
-        self.emit = emit if emit else identity_emit
+        self.writer = writer if writer else identity_writer
         self.mandatory = mandatory
         self.output = output
 
     def __call__(self, value):
-        return self.emit(value)
+        return self.writer(value)
 
     @classmethod
     def get_mandatory_options(cls):
@@ -201,7 +166,7 @@ Option = Enum(value = 'Option', names = {
         'SHORT_NAME': ('short_name', mangle_name, True), #COMMON
         'NAME': ('short_name', mangle_name, True),
         'DIMS': ('dims', DIMS_EMIT, True), #COMMON
-        'UNITS': ('units', string_emit, True), #COMMON
+        'UNITS': ('units', string_writer, True), #COMMON
 # OPTIONAL
         'AVERAGING_INTERVAL': ('averaging_interval',),
         'AVINT': ('averaging_interval',),
@@ -220,52 +185,28 @@ Option = Enum(value = 'Option', names = {
         'ROTATION': ('rotation',),
         'STAGGERING': ('staggering',),
         'STANDARD_NAME': ('standard_name', mangle_longname), #EXPORT #INTERNAL
-        'UNGRIDDED_DIMS': ('ungridded_dims', array_emit),
-        'UNGRID': ('ungridded_dims', array_emit),
-        'UNGRIDDED': ('ungridded_dims', array_emit),
+        'UNGRIDDED_DIMS': ('ungridded_dims', array_writer),
+        'UNGRID': ('ungridded_dims', array_writer),
+        'UNGRIDDED': ('ungridded_dims', array_writer),
         'VLOCATION': ('vlocation', VLOCATION_EMIT),
         'VLOC': ('vlocation', VLOCATION_EMIT),
 # these are Options that are not output but used to write 
-        'CONDITION': ('condition', identity_emit, False, False),
-        'COND': ('condition', identity_emit, False, False),
-        'ALLOC': ('alloc', identity_emit, False, False),
+        'CONDITION': ('condition', identity_writer, False, False),
+        'COND': ('condition', identity_writer, False, False),
+        'ALLOC': ('alloc', identity_writer, False, False),
         'MANGLED_NAME': ('mangled_name', mangle_name, False, False),
         'INTERNAL_NAME': ('internal_name', make_internal_name, False, False),
         'RANK': ('rank', None, False, False)
     }, type = OptionType)
  
-IMPORT_ONLY = {'LONG_NAME', 'AVERAGING_INTERVAL', 'DATATYPE', 'DEFAULT', 'FIELD_TYPE', 
-               'HALOWIDTH', 'NUM_SUBTILES', 'PRECISION', 'REFRESH_INTERVAL', 'RESTART',
-               'ROTATION', 'STAGGERING', 'UNGRIDDED_DIMS', 'VLOCATION'}
-EXPORT_INTERNAL_ONLY = {'STANDARD_NAME'}
-
-SPEC_COLUMNS = dict(
-        SHORT_NAME=dict(aliases=['NAME'], emit=mangle_name, mandatory=True),
-        DIMS=dict(emit=DIMS_EMIT, mandatory=True),
-        LONG_NAME=dict(aliases=['LONG NAME'], emit=mangle_longname, only='IMPORT', mandatory=True),
-        STANDARD_NAME=dict(emit=mangle_longname, only=('EXPORT', 'INTERNAL'), mandatory=True),
-        UNITS=dict(emit=string_emit, mandatory=True),
-# OPTIONAL
-        AVERAGING_INTERVAL=dict(aliases='AVINT', only='IMPORT'),
-        DATATYPE=dict(only='IMPORT'),
-        DEFAULT=dict(only='IMPORT'),
-        FIELD_TYPE=dict(only='IMPORT'),
-        HALOWIDTH=dict(only='IMPORT'),
-        NUM_SUBTILES=dict(aliases='NUMSUBS', only='IMPORT'),
-        PRECISION=dict(aliases='PREC', only='IMPORT'),
-        REFRESH_INTERVAL=dict(only='IMPORT'),
-        RESTART=dict(emit=RESTART_EMIT, only='IMPORT'),
-        ROTATION=dict(only='IMPORT'),
-        STAGGERING=dict(only='IMPORT'),
-        UNGRIDDED_DIMS=dict(aliases=['UNGRID', 'UNGRIDDED'], only='IMPORT', emit=array_emit),
-        VLOCATION=dict(aliases=['VLOC'], only='IMPORT', emit=VLOCATION_EMIT),
-# these are columns that are not output but used to write 
-        CONDITION=dict(aliases=['COND'], do_not_print=True),
-        ALLOC=dict(do_not_print=True),
-        MANGLED_NAME=dict(emit=mangle_name, do_not_print=True),
-        INTERNAL_NAME=dict(emit=make_internal_name, do_not_print=True),
-        RANK=dict(emit=None, do_not_print=True)
-)
+COMMON = 'SHORT_NAME DIMS UNITS'.split()
+INCLUDES = {
+    Intent.IMPORT: ('LONG_NAME AVERAGING_INTERVAL DATATYPE DEFAULT FIELD_TYPE ' +
+       'HALOWIDTH NUM_SUBTILES PRECISION REFRESH_INTERVAL RESTART ' +
+       'ROTATION STAGGERING UNGRIDDED_DIMS VLOCATION').split() + COMMON, 
+    Intent.EXPORT: ['STANDARD_NAME'] + COMMON,
+    Intent.INTERNAL: ['STANDARD_NAME'] + COMMON
+}
 
 ###################### RULES to test conditions on Options #####################
 # relations for rules on Options
@@ -520,14 +461,14 @@ def digest(specs, args):
             dims = None
             ungridded = None
             option_values = dict() # dict of option values
-            for column in spec: # for spec emit value
+            for column in spec: # for spec writer value
                 column_value = spec[column]
                 option = Option[column.upper()] # use column name to find Option
-                 # emit value
-                if type(option.emit) is ParameterizedEmitFunction:
-                    option_value = option.emit(column_value, arg_dict)
+                 # writer value
+                if type(option.writer) is ParameterizedWriter:
+                    option_value = option.writer(column_value, arg_dict)
                 else:
-                    option_value = option.emit(column_value)
+                    option_value = option.writer(column_value)
                 option_values[option] = option_value # add value to dict
                 if option == Option.SHORT_NAME:
                     option_values[Option.MANGLED_NAME] = Option.MANGLED_NAME(column_value)
@@ -566,7 +507,7 @@ def emit_values(specs, args):
 
 # open all output files
     f_specs = {}
-    for state_intent in INTENTS:
+    for state_intent in Intent:
         option = args.__dict__[state_intent.lower()+"_specs"]
         if option:
             fname = option.format(component=component)
@@ -584,9 +525,9 @@ def emit_values(specs, args):
         f_get_pointers = None
 
 # Generate code from specs (processed above)
-    for state_intent in INTENTS:
-        if state_intent in specs:
-            for spec_values in specs[state_intent]:
+    for state_intent in Intent:
+        if state_intent.name in specs:
+            for spec_values in specs[state_intent.name]:
                 spec = MAPL_DataSpec(state_intent.lower(), spec_values)
                 if f_specs[state_intent]:
                     f_specs[state_intent].write(spec.emit_specs())
