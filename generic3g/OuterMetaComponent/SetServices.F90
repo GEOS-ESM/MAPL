@@ -34,22 +34,21 @@ contains
       type(ESMF_GridComp) :: user_gridcomp
       type(ESMF_Clock) :: user_clock, outer_clock
       type(ESMF_Time) :: reference_time
-      type(ESMF_TimeInterval) :: timeStep
+      type(ESMF_TimeInterval) :: timestep
+      type(ESMF_Time) :: user_reference_time
+      type(ESMF_TimeInterval) :: user_timestep
 
       call ESMF_GridCompGet(this%self_gridcomp, clock=outer_clock, _RC)
-      call ESMF_ClockGet(outer_clock, refTime=reference_time, timeStep=timeStep, _RC)
+      call ESMF_ClockGet(outer_clock, refTime=reference_time, timeStep=timestep, _RC)
       
       this%component_spec = parse_component_spec(this%hconfig, this%registry, &
-           reference_time=reference_time, timeStep=timeStep, _RC)
+           timeStep=timestep, reference_time=reference_time, _RC)
       user_gridcomp = this%user_gc_driver%get_gridcomp()
-
-      if (allocated(this%component_spec%timestep)) then
-         user_clock = this%user_gc_driver%get_clock()
-         call ESMF_ClockSet(user_clock, timestep=this%component_spec%timestep, _RC)
-      end if
+      user_clock = this%user_gc_driver%get_clock()
+      call ESMF_ClockSet(user_clock, timeStep=timestep, _RC)
+      call ESMF_ClockSet(user_clock, refTime=reference_time, _RC)
 
       call set_run_user_alarm(this, outer_clock, user_clock, _RC)
-      
 
       call attach_inner_meta(user_gridcomp, this%self_gridcomp, _RC)
       call this%user_setservices%run(user_gridcomp, _RC)
@@ -116,6 +115,7 @@ contains
    end subroutine SetServices_
 
    subroutine set_run_user_alarm(this, outer_clock, user_clock,  rc)
+      use mapl3g_ESMF_Time_Utilities
       use mapl_ErrorHandling
       class(OuterMetaComponent), intent(in) :: this
       type(ESMF_Clock), intent(inout) :: outer_clock
@@ -125,14 +125,17 @@ contains
       integer :: status
       type(ESMF_TimeInterval) :: outer_timestep, user_timestep, zero
       type(ESMF_Time) :: refTime
+      type(ESMF_Time) :: outer_reference_time
       type(ESMF_Alarm) :: alarm
+      logical :: compatible
 
       call ESMF_TimeIntervalSet(zero, s=0, _RC)
 
-      call ESMF_ClockGet(outer_clock, timestep=outer_timestep, _RC)
+      call ESMF_ClockGet(outer_clock, timestep=outer_timestep, refTime=outer_reference_time, _RC)
       call ESMF_ClockGet(user_clock, timestep=user_timestep, refTime=refTime, _RC)
 
-      _ASSERT(mod(user_timestep, outer_timestep) == zero, 'User timestep is not an integer multiple of parent timestep')
+      call times_and_intervals_are_compatible(user_timestep, refTime, outer_timestep, outer_reference_time, compatible, _RC)
+      _ASSERT(compatible, 'The user timestep and reference time are not compatible with the outer timestep and reference time')
 
       alarm = ESMF_AlarmCreate(outer_clock, &
            name = RUN_USER_ALARM, &

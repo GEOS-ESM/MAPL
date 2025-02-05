@@ -2664,7 +2664,6 @@ contains
     character(len=ESMF_MAXSTR) :: grid_type
     type(ESMF_Info) :: infoh
 
-    _RETURN_IF(npts == 0 )
     ! if the grid is present then we can just get the prestored edges and the dimensions of the grid
     ! this also means we are running on a distributed grid
     ! if grid not present then the we just be running outside of ESMF and the user must
@@ -2824,9 +2823,6 @@ contains
 
     logical :: good_grid, stretched
 
-    ! Return if no local points
-    _RETURN_IF(npts == 0)
-
     if ( .not. present(grid)) then
       _FAIL("need a cubed-sphere grid")
     endif
@@ -2843,10 +2839,11 @@ contains
 
     ! make sure the grid can be used in this subroutine
     good_grid = grid_is_ok(grid)
-
     if ( .not. good_grid ) then
        _FAIL( "MAPL_GetGlobalHorzIJIndex cannot handle this grid")
     endif
+    ! Return if no local points
+    _RETURN_IF(npts==0)
 
     ! shift the grid away from Japan Fuji Mt.
     shift0 = shift
