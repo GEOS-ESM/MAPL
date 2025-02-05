@@ -20,8 +20,9 @@ module mapl3g_StateItemSpec
    public :: check
    public :: StateItemSpec
    public :: StateItemSpecPtr
+#ifndef __GFORTRAN__
    public :: assignment(=)
-
+#endif
    type :: StateItemSpec
       private
 
@@ -77,10 +78,11 @@ module mapl3g_StateItemSpec
       procedure :: new_StateItemSpec
    end interface StateItemSpec
 
+#ifndef __GFORTRAN__
    interface assignment(=)
       procedure :: copy_item_spec
    end interface assignment(=)
-
+#endif
 
 contains
 

@@ -25,7 +25,7 @@ module mapl3g_ClassAspect
       procedure(I_allocate), deferred :: allocate
 
       procedure(I_add_to_state), deferred :: add_to_state
-      procedure, non_overridable, nopass :: get_aspect_id
+      procedure, nopass :: get_aspect_id
    end type ClassAspect
 
    abstract interface

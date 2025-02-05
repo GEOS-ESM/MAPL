@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module MockAspect_mod
+   use mapl3g_AspectId
    use mapl3g_VariableSpec
    use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
@@ -35,6 +36,7 @@ module MockAspect_mod
       procedure :: add_to_bundle
       procedure :: get_aspect_order
       
+      procedure, nopass :: get_aspect_id
    end type MockAspect
 
    interface MockAspect
@@ -120,7 +122,7 @@ contains
    end function matches
 
    logical function supports_conversion_general(src)
-      class(MockAspect), intent(in) :: src
+     class(MockAspect), intent(in) :: src
       supports_conversion_general = src%supports_conversion_
    end function supports_conversion_general
 
@@ -238,6 +240,11 @@ contains
       end select
 
    end function get_aspect_order
+
+   function get_aspect_id() result(aspect_id)
+      type(AspectId) :: aspect_id
+      aspect_id = CLASS_ASPECT_ID
+   end function get_aspect_id
 
 
 end module MockAspect_mod
