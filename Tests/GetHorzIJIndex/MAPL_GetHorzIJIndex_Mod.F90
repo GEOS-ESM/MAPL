@@ -113,7 +113,6 @@ module MAPL_GetHorzIJIndex_mod
 
 
   subroutine run(gc, import, export, clock, rc)
-     use mpi
      type(ESMF_GridComp), intent(inout) :: gc
      type(ESMF_State), intent(inout) :: import
      type(ESMF_State), intent(inout) :: export
