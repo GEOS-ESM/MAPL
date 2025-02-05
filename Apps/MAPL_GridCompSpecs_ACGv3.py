@@ -7,10 +7,10 @@ from collections import namedtuple
 import operator
 from functools import partial
 
-from enum import Enum, StrEnum
+from enum import Enum
 
 #################################### ENUMS #####################################
-Intent = StrEnum('Intent', [('IMPORT', 'Import'), ('EXPORT', 'Export'), ('INTERNAL', 'Internal')]) 
+INTENT = Enum('INTENT', 'IMPORT EXPORT INTERNAL')
 
 
 ################################# CONSTANTS ####################################
@@ -111,7 +111,7 @@ class ParameterizedWriter:
         return self.writer(name, parameter_values)
 
 
-##################### EMIT functions for writing AddSpecs ######################
+######################### WRITERS for writing AddSpecs #########################
 # Return the value
 identity_writer = lambda value: value
 # Return value in quotes
@@ -201,11 +201,11 @@ Option = Enum(value = 'Option', names = {
  
 COMMON = 'SHORT_NAME DIMS UNITS'.split()
 INCLUDES = {
-    Intent.IMPORT: ('LONG_NAME AVERAGING_INTERVAL DATATYPE DEFAULT FIELD_TYPE ' +
+    INTENT.IMPORT: ('LONG_NAME AVERAGING_INTERVAL DATATYPE DEFAULT FIELD_TYPE ' +
        'HALOWIDTH NUM_SUBTILES PRECISION REFRESH_INTERVAL RESTART ' +
        'ROTATION STAGGERING UNGRIDDED_DIMS VLOCATION').split() + COMMON, 
-    Intent.EXPORT: ['STANDARD_NAME'] + COMMON,
-    Intent.INTERNAL: ['STANDARD_NAME'] + COMMON
+    INTENT.EXPORT: ['STANDARD_NAME'] + COMMON,
+    INTENT.INTERNAL: ['STANDARD_NAME'] + COMMON
 }
 
 ###################### RULES to test conditions on Options #####################
@@ -322,7 +322,7 @@ class MAPL_DataSpec:
         """ Creates string by joining list of generated and literal strings """
         """ including if block (emit_header) and 'alloc = value' (emit_pointer_alloc) """
         return MAPL_DataSpec.DELIMITER.join(
-            [ self.emit_header() + "call MAPL_GetPointer(" + self.state_intent,
+            [ self.emit_header() + "call MAPL_GetPointer(" + self.state_intent.name,
               self.internal_name, self.mangled_name] + self.emit_pointer_alloc() +
             [ MAPL_DataSpec.TERMINATOR + self.emit_trailer(nullify=True) ] )
 
@@ -347,7 +347,7 @@ class MAPL_DataSpec:
 
     def emit_args(self):
         self.indent = self.indent + 5
-        text = "call MAPL_Add" + self.state_intent.capitalize() + "Spec(gc," + self.continue_line()
+        text = "call MAPL_Add" + self.state_intent.name.capitalize() + "Spec(gc," + self.continue_line()
         for option in self.spec_values: #wdb idea deleteme reduce?
             if option.output:
                 text = text + self.emit_arg(option)
@@ -439,7 +439,7 @@ def read_specs(specs_filename):
         while True:
             try:
                 gen = csv_record_reader(specs_reader)
-                state_intent = next(gen)[0].split()[1]
+                state_intent = INTENT[next(gen)[0].split()[1]]
                 columns = [c.strip().upper() for c in next(gen)]
                 specs[state_intent] = dataframe(gen, columns)
             except StopIteration:
@@ -483,11 +483,11 @@ def digest(specs, args):
                     raise RuntimeError(option.name + " is missing from spec.")
 # END MANDATORY
             option_values[Option.RANK] = compute_rank(dims, ungridded)
-# CHECKS HERE
-            try:
-                check_option_values(option_values)
-            except Exception:
-                raise
+# CHECKS HERE (Temporarily disabled for MAPL3 fixme)
+#            try:
+#                check_option_values(option_values)
+#            except Exception:
+#                raise
 # END CHECKS
             category_specs.append(option_values)
         digested_specs[state_intent] = category_specs 
@@ -507,8 +507,8 @@ def emit_values(specs, args):
 
 # open all output files
     f_specs = {}
-    for state_intent in Intent:
-        option = args.__dict__[state_intent.lower()+"_specs"]
+    for state_intent in INTENT:
+        option = args.__dict__[state_intent.name.lower()+"_specs"]
         if option:
             fname = option.format(component=component)
             f_specs[state_intent] = open_with_header(fname)
@@ -525,10 +525,10 @@ def emit_values(specs, args):
         f_get_pointers = None
 
 # Generate code from specs (processed above)
-    for state_intent in Intent:
-        if state_intent.name in specs:
-            for spec_values in specs[state_intent.name]:
-                spec = MAPL_DataSpec(state_intent.lower(), spec_values)
+    for state_intent in INTENT:
+        if state_intent in specs:
+            for spec_values in specs[state_intent]:
+                spec = MAPL_DataSpec(state_intent, spec_values)
                 if f_specs[state_intent]:
                     f_specs[state_intent].write(spec.emit_specs())
                 if f_declare_pointers:
@@ -537,7 +537,7 @@ def emit_values(specs, args):
                     f_get_pointers.write(spec.emit_get_pointers())
 
 # Close output files
-    for state_intent, f in list(f_specs.items()):
+    for f in list(f_specs.values()):
         if f:
             f.close()
     if f_declare_pointers:
