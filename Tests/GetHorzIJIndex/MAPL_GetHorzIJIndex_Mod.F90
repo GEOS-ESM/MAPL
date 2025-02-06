@@ -56,13 +56,15 @@ module MAPL_GetHorzIJIndex_mod
 
     num_threads = MAPL_get_num_threads()
     print *, 'Before ......', num_threads
-    allocate(self%workspaces(0:num_threads-1), __STAT__)
+    allocate(self%workspaces(0:num_threads-1), _STAT)
 
      !   Store internal state in GC
 !   --------------------------
      call ESMF_UserCompSetInternalState ( GC, 'GetHorzIJIndex', wrap, _RC )
      call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_INITIALIZE,  initialize, _RC)
+     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_RUN,  run_check_dim, _RC)
      call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_RUN,  run, _RC)
+     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_FINALIZE, finalize1, _RC)
      call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_FINALIZE, finalize, _RC)
      call MAPL_GenericSetServices(gc, _RC)
 
@@ -92,8 +94,8 @@ module MAPL_GetHorzIJIndex_mod
       call ESMF_UserCompGetInternalState(GC, 'GetHorzIJIndex', wrap, _RC)
       self => wrap%ptr
 
-      write(fname_indx,'(a,i2.2)') 'II_JJ_',pet
-      write(fname_lon_lat,'(a,i2.2)') 'lon_lat_',pet
+      write(fname_indx,'(a,i2.2,a)') 'II_JJ_',pet,'.data'
+      write(fname_lon_lat,'(a)') 'lon_lat.data'
       open(newunit=iunit, form='formatted', file=trim(fname_indx))
       read(iunit, *) self%npts
       allocate(self%II_ref(self%npts), self%JJ_ref(self%npts), _STAT)
@@ -111,6 +113,35 @@ module MAPL_GetHorzIJIndex_mod
 
   end subroutine initialize
 
+  subroutine run_check_dim(gc, import, export, clock, rc)
+     type(ESMF_GridComp) :: gc
+     type(ESMF_State) :: import
+     type(ESMF_State) :: export
+     type(ESMF_Clock) :: clock
+     integer, intent(out) :: rc
+
+! locals
+     type (MAPL_MetaComp), pointer     :: mapl
+     type (ESMF_Grid)                  :: grid
+     integer :: status
+     integer :: dims(3)
+
+      call MAPL_GetObjectFromGC (gc, MAPL, _RC)
+      call MAPL_Get (MAPL, grid=grid, _RC)
+      call ESMF_GridValidate(grid,_RC)
+      call MAPL_GridGet(grid, globalCellCountPerDim=dims,_RC)
+
+      print *, "BEFOREEEEEEEEEEEEEEEEEEEEEEEE..."
+      _ASSERT(dims(1)*6 == dims(2), 'Test failed: Not a cubed sphere grid')
+      print *, "AFTERRRRRRRRRRRRRRRRRRRRRRRRR..."
+
+     _UNUSED_DUMMY(import)
+     _UNUSED_DUMMY(export)
+     _UNUSED_DUMMY(clock)
+
+     _RETURN(_SUCCESS)
+
+  end subroutine run_check_dim
 
   subroutine run(gc, import, export, clock, rc)
      type(ESMF_GridComp), intent(inout) :: gc
@@ -125,10 +156,8 @@ module MAPL_GetHorzIJIndex_mod
      type (MAPL_MetaComp), pointer     :: mapl
      type (ESMF_Grid)                  :: grid
      integer :: status
-     integer :: iunit, thread  !, npts, nthreads, thread
-     integer :: counts(3), dims(3)
+     integer :: thread  !, npts, num_threads, thread
      type(ThreadWorkspace), pointer :: workspace
-     integer :: pet, ierror
      logical :: isPresent
      integer, allocatable  :: global_grid_info(:)
      integer :: itemCount, bounds_min
@@ -169,6 +198,17 @@ module MAPL_GetHorzIJIndex_mod
 
   end subroutine run
 
+  subroutine finalize1(gc, import, export, clock, rc)
+! !ARGUMENTS:
+     type (ESMF_GridComp), intent(inout) :: gc
+     type (ESMF_State),    intent(inout) :: import
+     type (ESMF_State),    intent(inout) :: export
+     type (ESMF_Clock),    intent(inout) :: clock
+     integer, optional,    intent(  out) :: rc
+
+     _RETURN(_SUCCESS)
+  end subroutine finalize1
+
   subroutine finalize(gc, import, export, clock, rc)
 ! !ARGUMENTS:
      type (ESMF_GridComp), intent(inout) :: gc
@@ -181,41 +221,40 @@ module MAPL_GetHorzIJIndex_mod
      integer, allocatable, dimension(:) :: II, JJ
      type(wrap_) :: wrap
      type(GetHorzIJIndex), pointer :: self
-     integer :: nthreads, i, ith, iunit
-     integer :: status, pet
-     type(ESMF_VM) :: vm
-     character(len=ESMF_MAXSTR) :: fname
+     integer :: num_threads, i, ith
+     integer :: status
  
      call ESMF_UserCompGetInternalState(GC, 'GetHorzIJIndex', wrap, _RC)
      self => wrap%ptr
-     nthreads = size(self%workspaces)
-     print *, "HEREEE .....", nthreads, self%npts
+     num_threads = size(self%workspaces)
+     print *, "HEREEE .....", num_threads, self%npts
      allocate(II(self%npts), JJ(self%npts), _STAT)
      do i = 1, self%npts
       II(i) = -1
       JJ(i) = -1
-      do ith = 0, nthreads-1
+      do ith = 0, num_threads-1
          II(i) = max(II(i), self%workspaces(ith)%II(i)) 
          JJ(i) = max(JJ(i), self%workspaces(ith)%JJ(i)) 
       end do
      end do
 
-     call ESMF_VMGetCurrent(vm, _RC)
-     call ESMF_VMGet(vm, localPet=pet, _RC)
-     write(fname,'(a,i2.2)') 'file_', pet
-     open(newunit=iunit, form='formatted', file=trim(fname))
-     write(iunit, *) self%npts
-     write(iunit, *) II
-     write(iunit, *) JJ
-     close(iunit)
-     
+    _ASSERT(all(II == self%II_ref), 'Test failed: Some I index disagrees with baseline')
+     _ASSERT(all(JJ == self%JJ_ref), 'Test failed: some J index disagrees with baseline')
+
      deallocate(II, JJ, _STAT)
+     do ith = 0, num_threads-1
+        deallocate(self%workspaces(ith)%II, _STAT)
+        deallocate(self%workspaces(ith)%JJ, _STAT)
+     end do
+     deallocate(self%II_ref, self%JJ_ref, _STAT)
+     deallocate(self%lon, self%lat, _STAT)
+     deallocate(self%workspaces, _STAT)
 
      _UNUSED_DUMMY(import)
      _UNUSED_DUMMY(export)
      _UNUSED_DUMMY(clock)
 
-     !_RETURN(_SUCCESS)
+     _RETURN(_SUCCESS)
 
   end subroutine finalize
 
