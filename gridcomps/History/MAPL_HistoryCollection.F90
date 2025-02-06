@@ -52,6 +52,7 @@ module MAPL_HistoryCollectionMod
      integer                            :: end_date
      integer                            :: end_time
      integer                            :: duration
+     integer                            :: nobs_platform
      type(ESMF_Alarm)                   :: his_alarm ! when to write file
      type(ESMF_Alarm)                   :: seg_alarm ! segment alarm controls when to write to new file
      type(ESMF_Alarm)                   :: mon_alarm

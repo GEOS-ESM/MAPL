@@ -71,6 +71,7 @@ module HistoryTrajectoryMod
      integer                        :: obsfile_Te_index
      logical                        :: active               ! case: when no obs. exist
      logical                        :: level_by_level = .false.
+     logical                        :: use_pfio
      !
      ! note
      ! for MPI_GATHERV of 3D data in procedure :: append_file
@@ -98,12 +99,13 @@ module HistoryTrajectoryMod
 
 
   interface
-     module function HistoryTrajectory_from_config(config,string,clock,GENSTATE,rc) result(traj)
+     module function HistoryTrajectory_from_config(config,string,clock,GENSTATE,nobs_platform_pfio,rc) result(traj)
        type(HistoryTrajectory) :: traj
        type(ESMF_Config), intent(inout)        :: config
        character(len=*),  intent(in)           :: string
        type(ESMF_Clock),  intent(in)           :: clock
        type(MAPL_MetaComp), pointer, intent(in), optional  :: GENSTATE
+       integer, optional, intent(out)          :: nobs_platform_pfio
        integer, optional, intent(out)          :: rc
      end function HistoryTrajectory_from_config
 

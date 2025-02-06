@@ -729,7 +729,7 @@ contains
     LISTLOOP: do n=1,nlist
 
        list(n)%unit = 0
-
+       list(n)%nobs_platform = 0
        string = trim( list(n)%collection ) // '.'
 
        if (trim(list(n)%filename) == "/dev/null") then
@@ -2483,7 +2483,7 @@ ENDDO PARSER
              list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n),integer_time=intstate%integer_time)
           end if
           if (list(n)%timeseries_output) then
-             list(n)%trajectory = HistoryTrajectory(cfg,string,clock,genstate=GENSTATE,_RC)
+             list(n)%trajectory = HistoryTrajectory(cfg,string,clock,genstate=GENSTATE,nobs_platform_pfio=list(n)%nobs_platform,_RC)
              call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
              IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
           elseif (list(n)%sampler_spec == 'mask') then
@@ -3577,7 +3577,15 @@ ENDDO PARSER
 ! Write Id and time
 ! -----------------
 
-   if (any(writing)) call o_Clients%set_optimal_server(count(writing))
+   if (any(writing)) then
+      m = count(writing)
+      do n=1,nlist
+          if (list(n)%timeseries_output) then
+             m = m + list(n)%nobs_platform -1
+          end if
+      end do
+      call o_Clients%set_optimal_server(m)
+   end if
 
    OPENLOOP: do n=1,nlist
       call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))

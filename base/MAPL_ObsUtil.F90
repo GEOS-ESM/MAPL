@@ -43,6 +43,7 @@ module MAPL_ObsUtilMod
      integer,           allocatable :: restore_index(:)
      real(kind=REAL32), allocatable :: p2d(:)
      real(kind=REAL32), allocatable :: p3d(:,:)
+     integer                        :: write_collection_id
   end type obs_unit
 
   type obs_platform

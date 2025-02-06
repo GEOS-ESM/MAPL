@@ -305,6 +305,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                end if
             end if
          end do
+         
+         if (present(nobs_platform_pfio)) then
+            nobs_platform_pfio = this%nobs_type
+            this%use_pfio = .true.
+         else
+            this%use_pfio = .false.            
+         end if
 
          _RETURN(_SUCCESS)
 
@@ -340,6 +347,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             end if
             !if (mapl_am_i_root())  write(6,'(2x,a,10(2x,L5))') &
             !      'traj initialize_ : initialize : not present '
+            !
+
+            !  we initialize this section only once
+            !
+            
+            
          else
             if (reinitialize) then
                do k=1, this%nobs_type
@@ -352,7 +365,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             !     'traj initialize_ : initialize : TRUE'
             end if
          end if
-
+         
          do k=1, this%nobs_type
             call this%vdata%append_vertical_metadata(this%obs(k)%metadata,this%bundle,_RC)
          end do
