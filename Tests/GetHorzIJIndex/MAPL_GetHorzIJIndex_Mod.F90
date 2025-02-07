@@ -62,9 +62,7 @@ module MAPL_GetHorzIJIndex_mod
 !   --------------------------
      call ESMF_UserCompSetInternalState ( GC, 'GetHorzIJIndex', wrap, _RC )
      call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_INITIALIZE,  initialize, _RC)
-     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_RUN,  run_check_dim, _RC)
      call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_RUN,  run, _RC)
-     call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_FINALIZE, finalize1, _RC)
      call MAPL_GridCompSetEntryPoint ( gc, ESMF_METHOD_FINALIZE, finalize, _RC)
      call MAPL_GenericSetServices(gc, _RC)
 
@@ -113,31 +111,17 @@ module MAPL_GetHorzIJIndex_mod
 
   end subroutine initialize
 
-  subroutine run_check_dim(gc, import, export, clock, rc)
-     type(ESMF_GridComp) :: gc
-     type(ESMF_State) :: import
-     type(ESMF_State) :: export
-     type(ESMF_Clock) :: clock
-     integer, intent(out) :: rc
+  subroutine run_check_dim(grid, rc)
+     type(ESMF_Grid), intent(in) :: grid
+     integer, intent(out), optional :: rc
 
 ! locals
-     type (MAPL_MetaComp), pointer     :: mapl
-     type (ESMF_Grid)                  :: grid
      integer :: status
      integer :: dims(3)
 
-      call MAPL_GetObjectFromGC (gc, MAPL, _RC)
-      call MAPL_Get (MAPL, grid=grid, _RC)
-      call ESMF_GridValidate(grid,_RC)
       call MAPL_GridGet(grid, globalCellCountPerDim=dims,_RC)
 
-      print *, "BEFOREEEEEEEEEEEEEEEEEEEEEEEE..."
-      _ASSERT(dims(1)*6 == dims(2), 'Test failed: Not a cubed sphere grid')
-      print *, "AFTERRRRRRRRRRRRRRRRRRRRRRRRR..."
-
-     _UNUSED_DUMMY(import)
-     _UNUSED_DUMMY(export)
-     _UNUSED_DUMMY(clock)
+      _ASSERT(dims(1)*6 == dims(2), 'Test global dim failed: Not a cubed sphere grid')
 
      _RETURN(_SUCCESS)
 
@@ -166,6 +150,8 @@ module MAPL_GetHorzIJIndex_mod
       call MAPL_Get (MAPL, grid=grid, _RC)
       call ESMF_GridValidate(grid,_RC)
 
+      call run_check_dim(grid, _RC)
+
       call ESMF_UserCompGetInternalState(GC, 'GetHorzIJIndex', wrap, _RC)
       self => wrap%ptr
 
@@ -176,6 +162,7 @@ module MAPL_GetHorzIJIndex_mod
       call MAPL_GetHorzIJIndex(self%npts, workspace%II, workspace%JJ,  &
                 grid = grid, lon = self%lon, lat = self%lat, _RC)
 
+      ! fetch J starting index for this thread
       bounds_min = 1
       call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", isPresent=isPresent, _RC)
       if (isPresent) then
@@ -186,6 +173,7 @@ module MAPL_GetHorzIJIndex_mod
         deallocate(global_grid_info, _STAT)
       end if
 
+      ! normalize with offset = starting J index to march baseline (i.e. that is not threaded)
       where(workspace%JJ > 0) 
          workspace%JJ = workspace%JJ + bounds_min - 1
       end where
@@ -197,17 +185,6 @@ module MAPL_GetHorzIJIndex_mod
      _RETURN(_SUCCESS)
 
   end subroutine run
-
-  subroutine finalize1(gc, import, export, clock, rc)
-! !ARGUMENTS:
-     type (ESMF_GridComp), intent(inout) :: gc
-     type (ESMF_State),    intent(inout) :: import
-     type (ESMF_State),    intent(inout) :: export
-     type (ESMF_Clock),    intent(inout) :: clock
-     integer, optional,    intent(  out) :: rc
-
-     _RETURN(_SUCCESS)
-  end subroutine finalize1
 
   subroutine finalize(gc, import, export, clock, rc)
 ! !ARGUMENTS:
@@ -227,7 +204,7 @@ module MAPL_GetHorzIJIndex_mod
      call ESMF_UserCompGetInternalState(GC, 'GetHorzIJIndex', wrap, _RC)
      self => wrap%ptr
      num_threads = size(self%workspaces)
-     print *, "HEREEE .....", num_threads, self%npts
+     ! merge results from all threads
      allocate(II(self%npts), JJ(self%npts), _STAT)
      do i = 1, self%npts
       II(i) = -1
