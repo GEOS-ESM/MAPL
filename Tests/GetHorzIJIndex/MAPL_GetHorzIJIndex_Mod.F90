@@ -202,6 +202,7 @@ module MAPL_GetHorzIJIndex_mod
      call ESMF_UserCompGetInternalState(GC, 'GetHorzIJIndex', wrap, _RC)
      self => wrap%ptr
      num_threads = size(self%workspaces)
+     print *, 'using ', num_threads, ' threads'
      ! merge results from all threads
      allocate(II(self%npts), JJ(self%npts), _STAT)
      do i = 1, self%npts

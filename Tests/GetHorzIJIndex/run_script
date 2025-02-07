@@ -18,10 +18,11 @@ export INSTALL_DIR=$BUILD_DIR'/install/bin'
 
 if [ ! -d $RUN_DIR  ]; then
    mkdir ${RUN_DIR}
+   cd $RUN_DIR
+else
+   cd $RUN_DIR
+   rm -rf *
 fi
-
-cd $RUN_DIR
-rm -rf *
 
 for f in $(find "${SRC_DIR}"/Tests/GetHorzIJIndex -name "*.data")
 do
@@ -39,7 +40,19 @@ export NY=`grep '^\s*NY:' ${ROOT_RC}  | cut -d: -f2`
 
 export NPES=`expr ${NY} \* ${NX}`
 
-echo ${NPES}
-
 source ${INSTALL_DIR}/g5_modules.sh
-mpirun -np ${NPES} ${INSTALL_DIR}/driver_MAPL_GetHorzIJIndex.x >&  run_log
+
+# Default run - use_threads: .FALSE.
+export OMP_NUM_THREADS=1
+mpirun -np ${NPES} ${INSTALL_DIR}/driver_MAPL_GetHorzIJIndex.x >  run_log 2>&1
+
+# Threaded run - use_threads: .TRUE.
+sed -i 's/FALSE/TRUE/g' GetHorzIJIndex.rc
+
+# 1 thread
+export OMP_NUM_THREADS=1
+mpirun -np ${NPES} ${INSTALL_DIR}/driver_MAPL_GetHorzIJIndex.x >>  run_log 2>&1
+
+# 4 threads
+export OMP_NUM_THREADS=4
+mpirun -np ${NPES} ${INSTALL_DIR}/driver_MAPL_GetHorzIJIndex.x >>  run_log 2>&1
