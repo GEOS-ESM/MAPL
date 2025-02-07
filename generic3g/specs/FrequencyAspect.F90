@@ -14,6 +14,7 @@ module mapl3g_FrequencyAspect
    type, extends(StateItemAspect) :: FrequencyAspect
       private
       type(ESMF_TimeInterval) :: timestep_
+      type(ESMF_Time) :: reference_time_
       character(len=:), allocatable :: accumulation_type_
    contains
       ! These are implementations of extended derived type.
@@ -28,6 +29,8 @@ module mapl3g_FrequencyAspect
       procedure :: set_timestep
       procedure :: get_accumulation_type
       procedure :: set_accumulation_type
+      procedure :: get_reference_time
+      procedure :: set_reference_time
       procedure, private :: zero_timestep
    end type FrequencyAspect
 
@@ -35,15 +38,9 @@ module mapl3g_FrequencyAspect
       module procedure :: construct_frequency_aspect
    end interface FrequencyAspect
 
-   interface operator(.divides.)
-      module procedure :: aspect_divides
-   end interface operator(.divides.)
-
-   ! This value should not be accessed directly. Use get_zero() instead.
-   ! There is no constructor for ESMF_TimeInterval, so the value cannot be initialized
-   ! at construction. The get_zero() function initializes the value the first time
-   ! and returns a pointer to the value.
-   type(ESMF_TimeInterval), target :: ZERO_TI
+   interface check_compatibility
+      module procedure :: check_freq_aspect_compatibility
+   end interface check_compatibility
 
 contains
 
@@ -76,6 +73,22 @@ contains
       this%timestep_ = timestep
 
    end subroutine set_timestep
+
+   function get_reference_time(this) result(rf)
+      type(ESMF_Time) :: rf
+      class(FrequencyAspect), intent(in) :: this
+
+      rf = this%reference_time_
+
+   end function get_reference_time
+
+   subroutine set_reference_time(this, reference_time)
+      class(FrequencyAspect), intent(in) :: this
+      type(ESMF_Time), intent(in) :: reference_time
+
+      this%reference_time_ = reference_time
+
+   end subroutine set_reference_time
 
    subroutine zero_timestep(this)
       class(FrequencyAspect), intent(inout) :: this
@@ -110,7 +123,7 @@ contains
       type(ESMF_TimeInterval), pointer :: zero
 
       does_match = .TRUE.
-      zero => get_zero()
+      zero => zero_time_interval()
       src_timestep = src%get_timestep()
       if(src_timestep == zero) return
       select type(dst)
@@ -118,7 +131,8 @@ contains
          dst_timestep = dst%get_timestep()
          if(dst_timestep == zero) return
          if(.not. accumulation_type_is_valid(dst%get_accumulation_type())) return
-         does_match = dst_timestep == src_timestep
+         does_match = dst_timestep == src_timestep .and. &
+            & src%get_reference_time() == dst%get_reference_time()
       end select
 
    end function matches
@@ -167,50 +181,33 @@ contains
    logical function supports_conversion_specific(src, dst) result(supports)
       class(FrequencyAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
+      integer :: status
 
       select type(dst)
       class is (FrequencyAspect)
-         supports = src .divides. dst
+         call check_compatibility(dst, src, compatible, rc=status)
+         compatible = compatible .and. status == _SUCCESS
       end select
 
    end function supports_conversion_specific
-
-   logical function aspect_divides(factor, base)
-      class(FrequencyAspect), intent(in) :: factor
-      class(FrequencyAspect), intent(in) :: base
-
-      aspect_divides = interval_divides(factor%get_timestep(), base%get_timestep())
-
-   end function aspect_divides
-
-   logical function interval_divides(factor, base) result(lval)
-      type(ESMF_TimeInterval), intent(in) :: factor
-      type(ESMF_TimeInterval), intent(in) :: base
-      type(ESMF_TimeInterval), pointer :: zero
-
-      lval = .FALSE.
-      zero => get_zero()
-      if(factor == zero) return
-      lval = mod(base, factor) == zero
-
-   end function interval_divides
-
-   function get_zero() result(zero)
-      type(ESMF_TimeInterval), pointer :: zero
-      logical, save :: zero_is_uninitialized = .TRUE.
-
-      if(zero_is_uninitialized) then
-         call ESMF_TimeIntervalSet(ZERO_TI, ns=0)
-         zero_is_uninitialized = .FALSE.
-      end if
-      zero => ZERO_TI
-
-   end function get_zero
 
    function get_aspect_id() result(aspect_id)
       type(AspectId) :: aspect_id
       aspect_id = FREQUENCY_ASPECT_ID
    end function get_aspect_id
 
+   subroutine check_freq_aspect_compatibility(child, parent, compatible, rc)
+      class(FrequencyAspect), intent(in) :: child
+      class(FrequencyAspect), intent(in) :: parent 
+      logical, intent(out) :: compatible
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      call times_and_intervals_are_compatible(child%get_timestep(), &
+         & child%get_reference_time(), parent%get_timestep(), &
+         & parent%get_reference_time(), compatible, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine check_freq_aspect_compatibility
 
 end module mapl3g_FrequencyAspect
