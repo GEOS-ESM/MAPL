@@ -3,7 +3,7 @@ module mapl3g_ESMF_Time_Utilities
    use esmf, I4 => ESMF_KIND_I4
    use mapl_ErrorHandling
    implicit none (type, external)
-!   private !wdb fixme deleteme should this be private
+   private
 
    public :: zero_time_interval
    public :: intervals_are_compatible
