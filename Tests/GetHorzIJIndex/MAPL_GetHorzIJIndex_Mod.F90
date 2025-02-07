@@ -51,11 +51,9 @@ module MAPL_GetHorzIJIndex_mod
     call MAPL_GetObjectFromGC (gc, MAPL, _RC)
     call ESMF_GridCompGet(gc, config=cf, _RC)
     call ESMF_ConfigGetAttribute(cf, use_threads, label='use_threads:', default=.FALSE., _RC)
-    print *, 'use_threads ... ', use_threads
     call MAPL%set_use_threads(use_threads)
 
     num_threads = MAPL_get_num_threads()
-    print *, 'Before ......', num_threads
     allocate(self%workspaces(0:num_threads-1), _STAT)
 
      !   Store internal state in GC
