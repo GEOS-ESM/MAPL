@@ -7,6 +7,7 @@
 
 module mapl3g_ExtensionFamily
    use mapl3g_StateItemSpec
+   use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_StateItemExtension
    use mapl3g_StateItemExtensionPtrVector
@@ -120,14 +121,13 @@ contains
       type(StateItemExtensionPtrVector) :: subgroup, new_subgroup
       class(StateItemSpec), pointer :: archetype
       integer :: i, j
-      type(StateItemAdapterWrapper), allocatable :: adapters(:)
       integer :: status
       type(StateItemExtensionPtr) :: extension_ptr
       type(StateItemExtension), pointer :: primary
       class(StateItemSpec), pointer :: spec
       logical :: match
-      type(StringVector), target :: aspect_names
-      character(:), pointer :: aspect_name
+      type(AspectId), allocatable :: aspect_ids(:)
+
       class(StateItemAspect), pointer :: src_aspect, dst_aspect
 
       closest_extension => null()
@@ -135,11 +135,10 @@ contains
       primary => family%get_primary()  ! archetype defines the rules
       archetype => primary%get_spec()
       ! new
-      aspect_names = archetype%get_aspect_order(goal_spec)
-      do i = 1, aspect_names%size()
-         aspect_name => aspect_names%of(i)
-         dst_aspect => goal_spec%get_aspect(aspect_name, _RC)
-         _ASSERT(associated(dst_aspect), 'expected aspect '//aspect_name//' is missing')
+      aspect_ids = archetype%get_aspect_order(goal_spec)
+      do i = 1, size(aspect_ids)
+         dst_aspect => goal_spec%get_aspect(aspect_ids(i), _RC)
+         _ASSERT(associated(dst_aspect), 'expected aspect '// aspect_ids(i)%to_string() //' is missing')
 
          ! Find subset that match current aspect
          new_subgroup = StateItemExtensionPtrVector()
@@ -147,8 +146,8 @@ contains
             extension_ptr = subgroup%of(j)
             spec => extension_ptr%ptr%get_spec()
 
-            src_aspect => spec%get_aspect(aspect_name, _RC)
-            _ASSERT(associated(src_aspect),'aspect '// aspect_name// ' not found')
+            src_aspect => spec%get_aspect(aspect_ids(i), _RC)
+            _ASSERT(associated(src_aspect),'aspect '// aspect_ids(i)%to_string() // ' not found')
 
             if (src_aspect%needs_extension_for(dst_aspect)) cycle
             call new_subgroup%push_back(extension_ptr)

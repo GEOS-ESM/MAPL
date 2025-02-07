@@ -48,10 +48,10 @@ contains
 
       type(VerticalDimSpec) :: vertical_dim_spec
       type(VariableSpec) :: var_spec
-      class(StateItemSpec), allocatable :: fld_spec
+      type(StateItemSpec) :: fld_spec
       type(VirtualConnectionPt) :: v_pt
       type(StateItemExtension), pointer :: extension
-      class(StateItemSpec), pointer :: spec
+      type(StateItemSpec), pointer :: spec
       integer :: status
 
       select case(var_name)
@@ -70,8 +70,9 @@ contains
            units="hPa", &
            vertical_dim_spec=vertical_dim_spec, &
            default_value=3.)
-      allocate(fld_spec, source=make_itemSpec(var_spec, r, rc=status)); _VERIFY(status)
+      fld_spec = make_itemSpec(var_spec, r, rc=status); _VERIFY(status)
       call fld_spec%set_geometry(geom=geom, vertical_grid=vgrid, _RC)
+      call fld_spec%create(_RC)
 
       v_pt = VirtualConnectionPt(state_intent="export", short_name=var_name)
       call registry%add_primary_spec(v_pt, fld_spec)
@@ -79,7 +80,6 @@ contains
       spec => extension%get_spec()
       call spec%set_active()
       call spec%create(_RC)
-      call spec%allocate(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine setup_
@@ -137,15 +137,15 @@ contains
       integer :: rank
       integer, allocatable :: localElementCount(:)
       type(VirtualConnectionPt) :: ple_pt
-      class(StateItemSpec), pointer :: spec
+      type(StateItemSpec), pointer :: spec
       type(MultiState) :: multi_state
       type(StateItemExtension), pointer :: extension
       type(ESMF_Field) :: ple
       type(ESMF_Geom) :: geom
       integer :: rc, status
 
-      call setup(geom, vgrid, _RC)
-
+     call setup(geom, vgrid, _RC)
+     call r%allocate(_RC)
       ple_pt = VirtualConnectionPt(state_intent="export", short_name="PLE")
       extension => r%get_primary_extension(ple_pt, _RC)
       spec => extension%get_spec()
@@ -185,7 +185,8 @@ contains
            vertical_dim_spec=VERTICAL_DIM_EDGE, &
            _RC)
       @assert_that(associated(coupler), is(false()))
-
+      call r%allocate()
+      
       call ESMF_FieldGet(vcoord, fArrayPtr=a, _RC)
       @assert_that(a, every_item(is(equal_to(3.))))
 
@@ -219,7 +220,6 @@ contains
            vertical_dim_spec=VERTICAL_DIM_EDGE, &
            _RC)
       @assert_that(associated(coupler), is(true()))
-
       call r%allocate(_RC)
 
       call ESMF_FieldGet(vcoord, fArrayPtr=a, _RC)

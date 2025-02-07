@@ -4,16 +4,15 @@ add_subdirectory(gridcomps)
 
 set (test_srcs
   Test_BaseAspect.pf
-  Test_BaseItemSpec.pf
+  Test_AspectMap.pf
 
   Test_VirtualConnectionPt.pf
 
   Test_ConfigurableGridComp.pf
 
-  Test_AddFieldSpec.pf
   Test_ComponentSpecParser.pf
-  Test_FieldSpec.pf
-  Test_BracketSpec.pf
+  Test_Aspects.pf
+  Test_BracketClassAspect.pf
   Test_ExtensionFamily.pf
 
   Test_ConnectionPt.pf
@@ -47,7 +46,7 @@ add_pfunit_ctest(
   LINK_LIBRARIES MAPL.generic3g MAPL.shared MAPL.pfunit configurable_gridcomp
   EXTRA_INITIALIZE Initialize
   EXTRA_USE MAPL_pFUnit_Initialize
-  OTHER_SOURCES MockUserGridComp.F90 MockItemSpec.F90 accumulator_action_test_common.F90 MockAspect.F90
+  OTHER_SOURCES MockUserGridComp.F90 accumulator_action_test_common.F90 MockAspect.F90
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )

@@ -2,7 +2,6 @@
 
 module mapl3g_FieldClassAspect
    use mapl3g_ActualConnectionPt
-
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_ClassAspect
@@ -40,6 +39,7 @@ module mapl3g_FieldClassAspect
    
    type, extends(ClassAspect) :: FieldClassAspect
       private
+      logical :: is_created = .false.
       type(ESMF_Field) :: payload
       character(:), allocatable :: standard_name
       character(:), allocatable :: long_name
@@ -49,8 +49,8 @@ module mapl3g_FieldClassAspect
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_action
-      procedure :: make_action2
-      procedure :: matches
+      procedure :: matches => matches_a
+      procedure :: connect_to_import
       procedure :: connect_to_export
 
       procedure :: create
@@ -58,27 +58,45 @@ module mapl3g_FieldClassAspect
       procedure :: destroy
       procedure :: add_to_state
       procedure :: add_to_bundle
-      
+
+      procedure :: get_payload
+      procedure, nopass :: get_aspect_id
    end type FieldClassAspect
+
+   interface
+      module function matches_a(src, dst) result(matches)
+        logical matches
+         class(FieldClassAspect), intent(in) :: src
+         class(StateItemAspect), intent(in) :: dst
+      end function matches_a
+   end interface
 
    interface FieldClassAspect
       procedure :: new_FieldClassAspect
    end interface FieldClassAspect
 
+
 contains
 
    function new_FieldClassAspect(standard_name, long_name, default_value) result(aspect)
       type(FieldClassAspect) :: aspect
-      character(*), intent(in) :: standard_name
-      character(*), intent(in) :: long_name
+      character(*), optional, intent(in) :: standard_name
+      character(*), optional, intent(in) :: long_name
       real(kind=ESMF_KIND_R4), intent(in), optional :: default_value
 
-      aspect%standard_name = standard_name
-      aspect%long_name = long_name
+      aspect%standard_name = 'unknown'
+      if (present(standard_name)) then
+         aspect%standard_name = standard_name
+      end if
+
+      aspect%long_name = 'unknown'
+      if (present(long_name)) then
+         aspect%long_name = long_name
+      end if
       if (present(default_value)) then
          aspect%default_value = default_value
       end if
-      
+
    end function new_FieldClassAspect
 
    function get_aspect_order(this, goal_aspects, rc) result(aspect_ids)
@@ -123,7 +141,6 @@ contains
       integer :: status
       type(ESMF_FieldStatus_Flag) :: fstatus
 
-
       type(GeomAspect) :: geom_aspect
       type(ESMF_Geom) :: geom
 
@@ -162,6 +179,8 @@ contains
       else if (vertical_dim_spec == VERTICAL_DIM_CENTER) then
          vert_staggerloc = VERTICAL_STAGGER_CENTER
          num_levels = num_levels_grid
+      else if (vertical_dim_spec == VERTICAL_DIM_MIRROR) then
+         _FAIL('Mirror vertical spec should have been resolved by here.')
       else
          _FAIL('unknown stagger')
       end if
@@ -184,8 +203,6 @@ contains
            standard_name=this%standard_name, &
            long_name=this%long_name, &
            _RC)
-      _VERIFY(status)
-    
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       _ASSERT(fstatus == ESMF_FIELDSTATUS_COMPLETE, 'ESMF field status problem.')
 
@@ -197,7 +214,7 @@ contains
    end subroutine allocate
 
 
-  subroutine destroy(this, rc)
+   subroutine destroy(this, rc)
       class(FieldClassAspect), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
@@ -209,6 +226,24 @@ contains
    end subroutine destroy
 
 
+   subroutine connect_to_import(this, import, rc)
+      class(FieldClassAspect), intent(inout) :: this
+      class(StateItemAspect), intent(in) :: import
+      integer, optional, intent(out) :: rc
+
+      type(FieldClassAspect) :: import_
+      integer :: status
+
+      _RETURN_IF(allocated(this%default_value))
+
+      import_ = to_FieldClassAspect(import, _RC)
+      if (allocated(import_%default_value)) then ! import wins (for now)
+         this%default_value = import_%default_value
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine connect_to_import
+
    subroutine connect_to_export(this, export, actual_pt, rc)
       class(FieldClassAspect), intent(inout) :: this
       class(StateItemAspect), intent(in) :: export
@@ -219,12 +254,36 @@ contains
       integer :: status
 
       export_ = to_FieldClassAspect(export, _RC)
+      call this%destroy(_RC) ! import is replaced by export/extension
       this%payload = export_%payload
+
+      call mirror(this%default_value, export_%default_value)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)
+
+   contains
+
+     subroutine mirror(dst, src)
+        real, allocatable, intent(inout) :: dst
+        real, allocatable, intent(in) :: src
+
+        if (.not. allocated(src)) return
+
+        if (.not. allocated(dst)) then
+           dst = src
+           return
+        end if
+
+        ! TODO: Problematic case: both allocated with different values.
+        if (dst /= src) then
+           _HERE, 'WARNING: mismatched default values for ', actual_pt
+           _HERE, '    src = ', src, '; dst = ',dst, ' (src value wins)'
+        end if
+
+      end subroutine mirror
+      
    end subroutine connect_to_export
-   
 
    function to_fieldclassaspect_from_poly(aspect, rc) result(field_aspect)
       type(FieldClassAspect) :: field_aspect
@@ -256,19 +315,8 @@ contains
 
       _RETURN(_SUCCESS)
    end function to_fieldclassaspect_from_map
-   
 
-   function make_action(src, dst, rc) result(action)
-      class(ExtensionAction), allocatable :: action
-      class(FieldClassAspect), intent(in) :: src
-      class(StateItemAspect), intent(in) :: dst
-      integer, optional, intent(out) :: rc
-      
-      action = NullAction()
-      _RETURN(_SUCCESS)
-   end function make_action
-
-   function make_action2(src, dst, other_aspects, rc) result(action)
+   function make_action(src, dst, other_aspects, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(FieldClassAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
@@ -278,19 +326,7 @@ contains
       action = NullAction()
 
       _RETURN(_SUCCESS)
-   end function make_action2
-
-   logical function matches(src, dst)
-      class(FieldClassAspect), intent(in) :: src
-      class(StateItemAspect), intent(in) :: dst
-
-      matches = .false.
-      select type(dst)
-      class is (FieldClassAspect)
-         matches = .true.
-      end select
-
-   end function matches
+   end function make_action
 
    logical function supports_conversion_general(src)
       class(FieldClassAspect), intent(in) :: src
@@ -342,5 +378,17 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine add_to_bundle
+
+   function get_payload(this) result(field)
+      type(ESMF_Field) :: field
+      class(FieldClassAspect), intent(in) :: this
+      field = this%payload
+   end function get_payload
+
+   
+   function get_aspect_id() result(aspect_id)
+      type(AspectId) :: aspect_id
+      aspect_id = CLASS_ASPECT_ID
+   end function get_aspect_id
 
 end module mapl3g_FieldClassAspect

@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_BracketClassAspect
+   use mapl3g_FieldBundleGet
    use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
@@ -43,7 +44,7 @@ module mapl3g_BracketClassAspect
    type, extends(ClassAspect) :: BracketClassAspect
       private
       type(ESMF_FieldBundle) :: payload
-      type(FieldClassAspect), allocatable :: field_aspects(:)
+      type(FieldClassAspect), allocatable :: field_aspect ! reference
 
       integer :: bracket_size   ! allocate only if not time dependent
       character(:), allocatable :: standard_name
@@ -54,7 +55,6 @@ module mapl3g_BracketClassAspect
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_action
-      procedure :: make_action2
       procedure :: matches
       procedure :: connect_to_export
 
@@ -62,6 +62,8 @@ module mapl3g_BracketClassAspect
       procedure :: allocate
       procedure :: destroy
       procedure :: add_to_state
+
+      procedure :: get_payload
       
    end type BracketClassAspect
 
@@ -75,11 +77,14 @@ contains
       type(BracketClassAspect) :: aspect
       integer, intent(in) :: bracket_size
       character(*), intent(in) :: standard_name
-      character(*), intent(in) :: long_name
+      character(*), optional, intent(in) :: long_name
 
+      aspect%field_aspect = FieldClassAspect(standard_name, long_name)
       aspect%bracket_size = bracket_size
       aspect%standard_name = standard_name
-      aspect%long_name = long_name
+      if (present(long_name)) then
+         aspect%long_name = long_name
+      end if
       
    end function new_BracketClassAspect
 
@@ -130,17 +135,15 @@ contains
 
       integer :: status
       integer :: i
+      type(FieldClassAspect) :: tmp
 
       associate (n => this%bracket_size)
-        allocate(this%field_aspects(n))
         
         do i = 1, n
-           this%field_aspects(i) = FieldClassAspect(this%standard_name, this%long_name)
-           associate (field => this%field_aspects(i))
-             call field%create(_RC)
-             call field%allocate(other_aspects, _RC)
-             call field%add_to_bundle(this%payload, _RC)
-           end associate
+           tmp = this%field_aspect
+           call tmp%create(_RC)
+           call tmp%allocate(other_aspects, _RC)
+           call tmp%add_to_bundle(this%payload, _RC)
         end do
       end associate
 
@@ -165,9 +168,11 @@ contains
 
       integer :: status
       integer :: i
+      type(ESMF_Field), allocatable :: fieldList(:)
 
-      do i = 1, size(this%field_aspects)
-         call this%field_aspects(i)%destroy(_RC)
+      call MAPL_FieldBundleGet(this%payload, fieldList=fieldList, _RC)
+      do i = 1, size(fieldList)
+         call ESMF_FieldDestroy(fieldList(i), noGarbage=.true., _RC)
       end do
       call ESMF_FieldBundleDestroy(this%payload, noGarbage=.true., _RC)
 
@@ -222,17 +227,7 @@ contains
    end function to_BracketClassAspect_from_map
    
 
-   function make_action(src, dst, rc) result(action)
-      class(ExtensionAction), allocatable :: action
-      class(BracketClassAspect), intent(in) :: src
-      class(StateItemAspect), intent(in) :: dst
-      integer, optional, intent(out) :: rc
-      
-      action = TimeInterpolateAction()
-      _RETURN(_SUCCESS)
-   end function make_action
-
-   function make_action2(src, dst, other_aspects, rc) result(action)
+   function make_action(src, dst, other_aspects, rc) result(action)
       class(ExtensionAction), allocatable :: action
       class(BracketClassAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
@@ -244,7 +239,7 @@ contains
       action = TimeInterpolateAction()
 
       _RETURN(_SUCCESS)
-   end function make_action2
+   end function make_action
 
    ! Should only connect to FieldClassAspect and
    ! then needs a TimeInterpolateAction
@@ -281,24 +276,29 @@ contains
       type(ActualConnectionPt), intent(in) :: actual_pt
       integer, optional, intent(out) :: rc
 
-      type(ESMF_Field) :: alias
+      type(ESMF_FieldBundle) :: alias
       integer :: status
       type(ESMF_State) :: state, substate
       character(:), allocatable :: full_name, inner_name
       integer :: idx
 
-!#      call multi_state%get_state(state, actual_pt%get_state_intent(), _RC)
-!#
-!#      full_name = actual_pt%get_full_name()
-!#      idx = index(full_name, '/', back=.true.)
-!#      call get_substate(state, full_name(:idx-1), substate=substate, _RC)
-!#      inner_name = full_name(idx+1:)
-!#
-!#      alias = ESMF_NamedAlias(this%payload, name=inner_name, _RC)
-!#      call ESMF_StateAdd(substate, [alias], _RC)
+      call multi_state%get_state(state, actual_pt%get_state_intent(), _RC)
+
+      full_name = actual_pt%get_full_name()
+      idx = index(full_name, '/', back=.true.)
+      call get_substate(state, full_name(:idx-1), substate=substate, _RC)
+      inner_name = full_name(idx+1:)
+
+      alias = ESMF_NamedAlias(this%payload, name=inner_name, _RC)
+      call ESMF_StateAdd(substate, [alias], _RC)
 
       _RETURN(_SUCCESS)
    end subroutine add_to_state
 
+   function get_payload(this) result(payload)
+      class(BracketClassAspect), intent(in) :: this
+      type(ESMF_FieldBundle) :: payload
+      payload = this%payload
+   end function get_payload
 
 end module mapl3g_BracketClassAspect

@@ -3,11 +3,12 @@ target_sources(MAPL.generic3g PRIVATE
   StateItemAspect.F90
   ClassAspect.F90
   FieldClassAspect.F90
+  ActualPtFieldAspectMap.F90
+  FieldClassAspect_smod.F90
   WildcardClassAspect.F90
   ServiceClassAspect.F90
   BracketClassAspect.F90
 
-  AspectCollection.F90
   AttributesAspect.F90
   GeomAspect.F90
   TypekindAspect.F90
@@ -28,16 +29,6 @@ target_sources(MAPL.generic3g PRIVATE
   
   StateItemSpec.F90
   StateItemSpecMap.F90
-  InvalidSpec.F90
-  FieldSpec.F90
-  WildcardSpec.F90
-  BracketSpec.F90
-#  FieldSpecVector.F90
-#  ServiceProviderSpec.F90
-#  ServiceRequesterSpec.F90
-  ServiceSpec.F90
-  StateSpec.F90
-#  StateIntentsSpec.F90
 
 
   ChildSpec.F90

@@ -3,7 +3,9 @@
 module mapl3g_ClassAspect
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
+   use mapl3g_MultiState
    use mapl_ErrorHandling
+   use mapl3g_ActualConnectionPt
    implicit none
    private
 
@@ -23,7 +25,7 @@ module mapl3g_ClassAspect
       procedure(I_allocate), deferred :: allocate
 
       procedure(I_add_to_state), deferred :: add_to_state
-      procedure, non_overridable, nopass :: get_aspect_id
+      procedure, nopass :: get_aspect_id
    end type ClassAspect
 
    abstract interface
@@ -74,15 +76,15 @@ module mapl3g_ClassAspect
 contains
 
    function to_class_from_poly(aspect, rc) result(class_aspect)
-      class(ClassAspect), allocatable :: class_aspect
-      class(StateItemAspect), intent(in) :: aspect
+      class(ClassAspect), pointer :: class_aspect
+      class(StateItemAspect), pointer, intent(in) :: aspect
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       select type(aspect)
       class is (ClassAspect)
-         class_aspect = aspect
+         class_aspect => aspect
       class default
          _FAIL('aspect is not ClassAspect')
       end select
@@ -91,15 +93,15 @@ contains
    end function to_class_from_poly
 
    function to_class_from_map(map, rc) result(class_aspect)
-      class(ClassAspect), allocatable :: class_aspect
-      type(AspectMap), target, intent(in) :: map
+      class(ClassAspect), pointer :: class_aspect
+      type(AspectMap), pointer, intent(in) :: map
       integer, optional, intent(out) :: rc
 
       integer :: status
       class(StateItemAspect), pointer :: poly
 
       poly => map%at(CLASS_ASPECT_ID, _RC)
-      class_aspect = to_ClassAspect(poly, _RC)
+      class_aspect => to_ClassAspect(poly, _RC)
 
       _RETURN(_SUCCESS)
    end function to_class_from_map
@@ -108,6 +110,5 @@ contains
       type(AspectId) :: aspect_id
       aspect_id = CLASS_ASPECT_ID
    end function get_aspect_id
-
 
 end module mapl3g_ClassAspect

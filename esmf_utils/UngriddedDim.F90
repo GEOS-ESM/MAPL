@@ -136,7 +136,11 @@ contains
            same_type_as(a, b) .and. &
            (a%name == b%name) .and. &
            (a%units == b%units) .and. &
-           all(a%coordinates == b%coordinates)
+           a%get_extent() == b%get_extent()
+
+      if (equal_to) then
+         equal_to = all(a%coordinates == b%coordinates)
+      end if
 
    end function equal_to
 

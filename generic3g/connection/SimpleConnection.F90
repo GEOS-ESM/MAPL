@@ -73,7 +73,7 @@ contains
       type(ConnectionPt) :: src_pt, dst_pt
       type(StateItemExtensionPtr), target, allocatable :: src_extensions(:), dst_extensions(:)
       type(StateItemExtension), pointer :: src_extension, dst_extension
-      class(StateItemSpec), pointer :: spec
+      type(StateItemSpec), pointer :: spec
       integer :: i
       integer :: status
 
@@ -93,6 +93,7 @@ contains
          dst_extension => dst_extensions(i)%ptr
          spec => dst_extension%get_spec()
          call spec%set_active()
+         call spec%set_allocated()
       end do
 
       do i = 1, size(src_extensions)
@@ -140,13 +141,13 @@ contains
 
       type(StateItemExtensionPtr), target, allocatable :: dst_extensions(:)
       type(StateItemExtension), pointer :: dst_extension
-      class(StateItemSpec), pointer :: dst_spec
+      type(StateItemSpec), pointer :: dst_spec
       integer :: i
       integer :: status
       type(ConnectionPt) :: src_pt, dst_pt
       type(StateItemExtension), pointer :: last_extension
       type(StateItemExtension), pointer :: new_extension
-      class(StateItemSpec), pointer :: new_spec
+      type(StateItemSpec), pointer :: new_spec
       type(ActualConnectionPt) :: effective_pt
       type(GriddedComponentDriver), pointer :: coupler
       type(ActualConnectionPt) :: a_pt
@@ -168,8 +169,8 @@ contains
          effective_pt = ActualConnectionPt(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, &
               src_pt%v_pt%get_comp_name()//'/'//src_pt%v_pt%get_esmf_name()))
          new_spec => new_extension%get_spec()
-         call dst_spec%connect_to(new_spec, effective_pt, _RC)
-         call dst_spec%set_active()
+
+         call dst_spec%connect(new_spec, effective_pt, _RC)
             
          if (new_extension%has_producer()) then
             call dst_extension%set_producer(new_extension%get_producer(), _RC)
@@ -184,7 +185,7 @@ contains
    ! other exports to be computed even when no external connection is made to those
    ! exports.
    subroutine activate_dependencies(extension, registry, rc)
-      type(StateItemExtension), intent(in) :: extension
+      type(StateItemExtension), target, intent(in) :: extension
       type(StateRegistry), target, intent(in) :: registry
       integer, optional, intent(out) :: rc
 
@@ -192,8 +193,8 @@ contains
       integer :: i
       type(StringVector) :: dependencies
       class(StateItemExtension), pointer :: dep_extension
-      class(StateItemSpec), pointer :: spec
-      class(StateItemSpec), pointer :: dep_spec
+      type(StateItemSpec), pointer :: spec
+      type(StateItemSpec), pointer :: dep_spec
 
       spec => extension%get_spec()
       dependencies = spec%get_raw_dependencies()
