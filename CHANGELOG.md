@@ -17,6 +17,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.54.0] - 2025-02-07
+
+### Changed
+
+- Add column for ACG (ALIAS) that set the pointer variable to a different name than the `short_name`
+- Updated CI to use Baselibs 7.31.0
+  - Updates to GFE v1.18.0
+
 ## [2.53.1] - 2025-01-29
 
 ### Fixed
