@@ -5,6 +5,7 @@ module mapl3g_FrequencyAspect
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_AccumulatorActionInterface
+   use mapl3g_ESMF_Time_Utilities
    use esmf
    implicit none
    private
@@ -83,7 +84,7 @@ contains
    end function get_reference_time
 
    subroutine set_reference_time(this, reference_time)
-      class(FrequencyAspect), intent(in) :: this
+      class(FrequencyAspect), intent(inout) :: this
       type(ESMF_Time), intent(in) :: reference_time
 
       this%reference_time_ = reference_time
@@ -182,11 +183,12 @@ contains
       class(FrequencyAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
       integer :: status
+      logical :: compatible
 
       select type(dst)
       class is (FrequencyAspect)
          call check_compatibility(dst, src, compatible, rc=status)
-         compatible = compatible .and. status == _SUCCESS
+         supports = compatible .and. status == _SUCCESS
       end select
 
    end function supports_conversion_specific
@@ -202,10 +204,16 @@ contains
       logical, intent(out) :: compatible
       integer, optional, intent(out) :: rc
       integer :: status
+      type(ESMF_TimeInterval) :: child_step, parent_step
+      type(ESMF_Time) :: child_reference, parent_reference
 
-      call times_and_intervals_are_compatible(child%get_timestep(), &
-         & child%get_reference_time(), parent%get_timestep(), &
-         & parent%get_reference_time(), compatible, _RC)
+      child_step = child%get_timestep()
+      child_reference = child%get_reference_time()
+      parent_step = parent%get_timestep()
+      parent_reference = parent%get_reference_time()
+      
+      call times_and_intervals_are_compatible(child_step, child_reference, &
+         & parent_step, parent_reference, compatible, _RC)
       _RETURN(_SUCCESS)
 
    end subroutine check_freq_aspect_compatibility
