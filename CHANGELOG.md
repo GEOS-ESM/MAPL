@@ -82,7 +82,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
+
 - Add column for ACG (ALIAS) that set the pointer variable to a different name than the `short_name`
+- Updated CI to use Baselibs 7.31.0
+  - Updates to GFE v1.18.0
 
 ### Fixed
 
