@@ -37,7 +37,7 @@
    use MAPL_VarSpecMod
    use MAPL_CFIOMod
    use MAPL_NewArthParserMod
-   use MAPL_ConstantsMod, only: MAPL_RADIANS_TO_DEGREES
+   use MAPL_ConstantsMod, only: MAPL_RADIANS_TO_DEGREES, MAPL_GRAV
    use, intrinsic :: iso_fortran_env, only: REAL32
    use linearVerticalInterpolation_mod
    use ESMF_CFIOCollectionVectorMod
@@ -66,7 +66,6 @@
    use MAPL_ExtDataPrimaryExportVectorMod
    use MAPL_ExtDataDerivedExportVectorMod
    use VerticalCoordinateMod
-   use GEOS_GmapMod
 
    IMPLICIT NONE
    PRIVATE
@@ -944,9 +943,14 @@ CONTAINS
      type(ESMF_Field) :: src_field, dst_field, src_ps, dst_ple
      character(len=:), allocatable :: src_ps_name
 
-     integer :: fieldRank, src_lm, dst_lm, im, jm, i
+     integer :: fieldRank, src_lm, dst_lm, im, jm, i, j
      real, pointer :: dst_ptr3d(:,:,:), src_ptr3d(:,:,:), src_ps_ptr(:,:), dst_ple_ptr(:,:,:)
      real, allocatable :: src_ple(:,:,:)
+     character(len=:), allocatable :: mol_per_mol, kg_per_kg, emission
+     character(len=:), allocatable :: units_in, units_out
+     mol_per_mol = "mol mol-1"
+     kg_per_kg = "kg kg-1"
+     emission = "kg m-2 s-1"
 
      if (item%vcoord%vertical_type == NO_COORD &
         .or. (.not.item%delivered_item) &
@@ -966,29 +970,61 @@ CONTAINS
         src_ple = item%vcoord%compute_ple(src_ps_ptr, _RC)
         call ESMF_StateGet(MAPLExtState%ExtDataState,trim(item%vcomp1),dst_field,_RC)
         call ESMF_FieldGet(dst_field,rank=fieldRank,_RC)
-        if (fieldRank==3) then
-           call ESMF_FieldGet(dst_field,farrayPtr=dst_ptr3d,_RC)
-           dst_lm =  size(dst_ptr3d,3)
-           call ESMF_FieldBundleGet(item%t_interp_bundle, trim(item%vcomp1), field=src_field, _RC)
-           call ESMF_FieldGet(src_field,farrayPtr=src_ptr3d,_RC)
-           call gmap(im, jm, item%vcoord%num_levels, src_ple, src_ptr3d, dst_lm, dst_ple_ptr, dst_ptr3d)
-           do i=1,item%vcoord%num_levels+1
-              write(*,*)'in_ple ',i,src_ple(1,1,i)
-           enddo
-           do i=0,dst_lm
-              write(*,*)'out_ple ',i,dst_ple_ptr(1,1,i)
-           enddo
-           do i=1,item%vcoord%num_levels
-              write(*,*)'in_q ',i,src_ptr3d(1,1,i)
-           enddo
-           do i=1,dst_lm
-              write(*,*)'out_q ',i,dst_ptr3d(1,1,i)
-           enddo
-        end if
-    end if
+        _ASSERT(fieldRank==3, "Trying to regrid non 3D field")
+        call ESMF_FieldGet(dst_field,farrayPtr=dst_ptr3d,_RC)
+        dst_lm =  size(dst_ptr3d,3)
+        call ESMF_FieldBundleGet(item%t_interp_bundle, trim(item%vcomp1), field=src_field, _RC)
+        call ESMF_FieldGet(src_field,farrayPtr=src_ptr3d,_RC)
 
-
+        !units_in = get_field_units(src_field, _RC)
+        !units_out = get_field_units(dst_field, _RC)
+        !_HERE,trim(units_in),' ',trim(units_out),safe_are_convertible('km/s2', 'm/second^2')
+        do i=1,im
+           do j=1,jm
+              call remap_column(src_ple(i,j,:),src_ptr3d(i,j,:),dst_ple_ptr(i,j,:),dst_ptr3d(i,j,:))
+           enddo
+        enddo
+     end if
      _RETURN(ESMF_SUCCESS)
+
+    contains 
+
+    function get_field_units(field, rc) result(field_units)
+       character(len=:), allocatable :: field_units
+       type(ESMF_Field), intent(in) :: field
+       integer, optional, intent(out) :: rc
+       integer :: status
+       character(len=ESMF_MAXSTR) :: temp_char
+
+       call ESMF_AttributeGet(field,name='UNITS',value=temp_char, _RC)
+       field_units = temp_char
+    end function get_field_units
+
+    function safe_are_convertible(from, to, rc) result(convertible)
+       logical :: convertible
+       character(*), intent(in) :: from, to
+       integer, optional, intent(out) :: rc
+
+       integer :: status
+       type(UDUnit) :: unit1, unit2
+       logical :: from_invalid, to_invalid
+
+       unit1 = UDUnit(from)
+       unit2 = UDUnit(to)
+
+       from_invalid = unit1%is_free()
+       to_invalid = unit2%is_free()
+
+       if (from_invalid .or. to_invalid) then
+          convertible = .false.
+          _RETURN(_SUCCESS)
+       end if
+       convertible = UDUNITS_are_convertible(unit1, unit2, _RC)
+
+       _RETURN(_SUCCESS)
+    end function safe_are_convertible
+       
+
   end subroutine MAPL_ExtDataVerticalInterpolate
 
   function MAPL_ExtDataGridChangeLev(Grid,CF,lm,rc) result(NewGrid)

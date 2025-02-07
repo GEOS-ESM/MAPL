@@ -676,19 +676,27 @@ MODULE ExtDataUtRoot_GridCompMod
          type(ESMF_HConfig) :: hconfig, akbk
          character(len=3) :: km_str
          integer :: km, i
-         character(len=ESMF_MAXPATHLEN) :: akbk_file
-         real, allocatable :: ak(:), bk(:)
+         character(len=ESMF_MAXPATHLEN) :: akbk_file, ps_file
+         real, allocatable :: ak(:), bk(:), ps(:,:)
          real :: ps_val
          logical :: has_akbk, has_psval
+         type(NetCDF4_FileFormatter) :: fs
 
          call ESMF_ConfigFindLabel(cf,"akbk_file:",isPresent=has_akbk,_RC)
-         call ESMF_ConfigFindLabel(cf,"ps_val:",isPresent=has_psval,_RC)
+         !call ESMF_ConfigFindLabel(cf,"ps_val:",isPresent=has_psval,_RC)
+         call ESMF_ConfigFindLabel(cf,"ps_file:",isPresent=has_psval,_RC)
          if (has_akbk .and. has_psval) then
             call ESMF_ConfigGetAttribute(cf,label="akbk_file:",value=akbk_file,_RC)
-            call ESMF_ConfigGetAttribute(cf,label="ps_val:",value=ps_val,_RC)
+            !call ESMF_ConfigGetAttribute(cf,label="ps_val:",value=ps_val,_RC)
+            call ESMF_ConfigGetAttribute(cf,label="ps_file:",value=ps_file,_RC)
          else
             _RETURN(_SUCCESS)
          end if
+        
+         allocate(ps(size(ple_ptr,1),size(ple_ptr,2))) 
+         call fs%open(trim(ps_file),pFIO_READ,_RC)
+         call fs%get_var("PS",ps, _RC)
+
          hconfig = ESMF_HConfigCreate(filename=trim(akbk_file), _RC)
          km = size(ple_ptr,3) - 1
          write(km_str,'(i3.3)') km
@@ -696,10 +704,9 @@ MODULE ExtDataUtRoot_GridCompMod
          ak = ESMF_HConfigAsR4Seq(akbk, keyString='ak', _RC)
          bk = ESMF_HConfigAsR4Seq(akbk, keyString='bk', _RC)
   
-         write(*,*)"bmaa bounds ",lbound(ple_ptr,3),ubound(ple_ptr,3),lbound(ak),ubound(ak),ps_val
          do i=1,km+1
-            ple_ptr(:,:,i-1) = ak(i)+ps_val*bk(i)
-            write(*,*)'bmaa max ',i,maxval(ple_ptr(:,:,i-1)),ak(i),bk(i)
+            !ple_ptr(:,:,i-1) = ak(i)+ps_val*bk(i)
+            ple_ptr(:,:,i-1) = ak(i)+ps(:,:)*bk(i)
          enddo
           
          _RETURN(_SUCCESS)
