@@ -30,3 +30,5 @@ if (BUILD_WITH_FARGPARSE)
   set_target_properties(CapDriver.x PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 
 endif ()
+
+add_subdirectory(GetHorzIJIndex)
