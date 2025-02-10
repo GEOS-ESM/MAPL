@@ -53,9 +53,8 @@ contains
          collection_name = ESMF_HConfigAsString(iter, _RC)
          child_hconfig = make_child_hconfig(hconfig, collection_name, _RC)
          child_name = make_child_name(collection_name, _RC)
-         call MAPL_AddChild(gridcomp, child_name, user_setservices(collection_setServices), child_hconfig, _RC)
+         call MAPL_GridCompAddChild(gridcomp, child_name, user_setservices(collection_setServices), child_hconfig, _RC)
          !call ESMF_HConfigDestroy(child_hconfig, _RC)
-         
       end do
       
       _RETURN(_SUCCESS)

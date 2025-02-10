@@ -2,6 +2,7 @@
 
 submodule (mapl3g_ComponentSpecParser) parse_child_smod
 
+   implicit none(type,external)
 contains
 
    module function parse_child(hconfig, rc) result(child)
@@ -19,8 +20,10 @@ contains
       logical :: dso_found, userProcedure_found
       logical :: has_key
       logical :: has_config_file
+      type(ESMF_HConfig), allocatable :: child_hconfig
       character(:), allocatable :: sharedObj, userProcedure, config_file
-
+      type(ESMF_Time), allocatable :: refTime
+      type(ESMF_TimeInterval), allocatable :: timeSTep
 
       dso_found = .false.
       ! Ensure precisely one name is used for dso
@@ -53,10 +56,15 @@ contains
       has_config_file = ESMF_HconfigIsDefined(hconfig, keyString='config_file', _RC)
       if (has_config_file) then
          config_file = ESMF_HconfigAsString(hconfig, keyString='config_file',_RC)
+         child_hconfig = ESMF_HConfigCreate(filename=config_file,_RC)
       end if
 
       setservices = user_setservices(sharedObj, userProcedure)
-      child = ChildSpec(setservices, config_file=config_file)
+
+      call parse_timespec(hconfig, timeStep, refTime, _RC)
+
+      child = ChildSpec(setservices, hconfig=child_hconfig, timeStep=timeStep, refTime=refTime)
+
 
       _RETURN(_SUCCESS)
    end function parse_child

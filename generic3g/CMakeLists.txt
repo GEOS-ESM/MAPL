@@ -77,7 +77,8 @@ esma_add_fortran_submodules(
           initialize_advertise.F90
 	  initialize_modify_advertised.F90 initialize_modify_advertised2.F90
           initialize_realize.F90 recurse.F90 apply_to_children_custom.F90
-          initialize_user.F90 run_custom.F90 run_user.F90 run_clock_advance.F90
+          initialize_user.F90 run_custom.F90 run_user.F90
+	  initialize_set_clock.F90 run_clock_advance.F90
           read_restart.F90 write_restart.F90 get_name.F90 get_gridcomp.F90
           set_geom.F90 set_vertical_grid.F90 get_vertical_grid.F90 get_registry.F90
           get_component_spec.F90 get_internal_state.F90 get_lgr.F90
@@ -102,7 +103,7 @@ esma_add_fortran_submodules(
   SUBDIRECTORY GriddedComponentDriver
   SOURCES initialize.F90 run.F90 finalize.F90 get_states.F90
           get_clock.F90 set_clock.F90 run_export_couplers.F90
-          run_import_couplers.F90 clock_advance.F90 new_GriddedComponentDriver.F90
+          run_import_couplers.F90 clock_advance.F90
           get_gridcomp.F90 get_name.F90 add_export_coupler.F90 
           add_import_coupler.F90 read_restart.F90 write_restart.F90)
 
