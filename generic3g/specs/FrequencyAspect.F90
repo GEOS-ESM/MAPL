@@ -5,7 +5,7 @@ module mapl3g_FrequencyAspect
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_AccumulatorActionInterface
-   use mapl3g_ESMF_Time_Utilities
+   use mapl3g_ESMF_Time_Utilities, only: times_and_intervals_are_compatible, zero_time_interval
    use esmf
    implicit none
    private
