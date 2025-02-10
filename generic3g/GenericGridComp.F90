@@ -23,12 +23,11 @@ module mapl3g_GenericGridComp
 
    ! Procedures
    public :: setServices
-   public :: create_grid_comp
+   public :: MAPL_GridCompCreate
 
-
-   interface create_grid_comp
+   interface MAPL_GridCompCreate
       module procedure create_grid_comp_primary
-   end interface create_grid_comp
+   end interface MAPL_GridCompCreate
 
 contains
 

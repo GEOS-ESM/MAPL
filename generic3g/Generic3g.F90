@@ -2,7 +2,7 @@ module Generic3g
    use mapl3g_GenericPhases
    use mapl3g_Generic
    use mapl3g_OuterMetaComponent
-   use mapl3g_GenericGridComp, only: create_grid_comp
+   use mapl3g_GenericGridComp, only: MAPL_GridCompCreate
    use mapl3g_VerticalGrid
    use mapl3g_VerticalDimSpec
    use mapl3g_ESMF_Interfaces

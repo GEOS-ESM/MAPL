@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 
-submodule (mapl3g_OuterMetaComponent) add_child_by_name_smod
+submodule (mapl3g_OuterMetaComponent) add_child_by_spec_smod
    use mapl3g_ComponentSpecParser
    use mapl3g_GenericGridComp
    use mapl3g_ChildSpec
@@ -30,7 +30,7 @@ contains
       _ASSERT(this%children%count(child_name) == 0, 'duplicate child name: <'//child_name//'>.')
 
       total_hconfig = merge_hconfig(this%hconfig, child_spec%hconfig, _RC)
-      child_outer_gc = create_grid_comp(child_name, child_spec%user_setservices, total_hconfig, _RC)
+      child_outer_gc = MAPL_GridCompCreate(child_name, child_spec%user_setservices, total_hconfig, _RC)
 
       ! Meta stuff
       child_meta => get_outer_meta(child_outer_gc, _RC)
@@ -91,4 +91,4 @@ contains
       _RETURN(_SUCCESS)
    end function merge_hconfig
 
-end submodule add_child_by_name_smod
+end submodule add_child_by_spec_smod

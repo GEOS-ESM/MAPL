@@ -161,7 +161,7 @@ contains
         call ESMF_TimeIntervalSet(dt, h=1)
         clock = ESMF_ClockCreate(timestep=dt, startTime=t0, stoptime=t1, refTime=t0, _RC)
 
-        outer_gc = create_grid_comp('ROOT', user_setservices('libconfigurable_gridcomp'), config, _RC)
+        outer_gc = MAPL_GridCompCreate('ROOT', user_setservices('libconfigurable_gridcomp'), config, _RC)
         call ESMF_GridCompSetServices(outer_gc, generic_setServices, userRC=user_status, _RC)
         _VERIFY(user_status)
 

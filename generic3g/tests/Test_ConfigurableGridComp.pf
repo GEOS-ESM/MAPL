@@ -5,7 +5,7 @@ module Test_ConfigurableGridComp
    use mapl3g_GenericPhases
    use mapl3g_Generic
    use mapl3g_UserSetServices
-   use mapl3g_GenericGridComp, only: create_grid_comp
+   use mapl3g_GenericGridComp, only: MAPL_GridCompCreate
    use mapl3g_GenericGridComp, only: setServices
    use mapl3g_GriddedComponentDriver
    use mapl3g_OuterMetaComponent, only: OuterMetaComponent
@@ -46,7 +46,7 @@ contains
       call ESMF_TimeIntervalSet(dt, h=1)
       clock = ESMF_ClockCreate(dt, t)
 
-      outer_gc = create_grid_comp('P', user_setservices('libconfigurable_gridcomp'), config, _RC)
+      outer_gc = MAPL_GridCompCreate('P', user_setservices('libconfigurable_gridcomp'), config, _RC)
       call ESMF_GridCompSetServices(outer_gc, setServices, userRC=userRC, _RC)
       _VERIFY(userRC)
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)

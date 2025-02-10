@@ -1,6 +1,6 @@
 #include "MAPL_ErrLog.h"
 
-submodule (mapl3g_ComponentSpecParser) parse_timestep_smod
+submodule (mapl3g_ComponentSpecParser) parse_timespec_smod
    implicit none(type,external)
    
 contains
@@ -61,5 +61,4 @@ contains
 
       end subroutine parse_refTime
          
-
-end submodule parse_timestep_smod
+   end submodule parse_timespec_smod

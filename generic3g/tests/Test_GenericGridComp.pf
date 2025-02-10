@@ -22,7 +22,7 @@ contains
 
       hconfig = ESMF_HConfigCreate(content='{}')
 
-      outer_gc = create_grid_comp('ROOT', user_setservices('libsimple_parent_gridcomp'), hconfig, _RC)
+      outer_gc = MAPL_GridCompCreate('ROOT', user_setservices('libsimple_parent_gridcomp'), hconfig, _RC)
 
       call ESMF_InfoGetFromHost(outer_gc, info, _RC)
       call ESMF_InfoGet(info, key='MAPL/GRIDCOMP_IS_GENERIC', value=is_generic, _RC)
