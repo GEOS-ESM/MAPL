@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [develop] - 2025-02-10
+
+### Added
+
+- Added subdirectory GetHorzIJIndex in the Tests directory for testing subroutine MAPL_GetHorzIJIndex to ensure the subroutine fails is teh cubed-sphere assumption is violated and also if the returned I and J indices are not correct.
+
 ## [2.54.1] - 2025-02-07
 
 - Fix typo in ACG: 'num_subtitles' => 'num_subtiles'
