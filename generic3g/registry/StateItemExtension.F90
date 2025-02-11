@@ -10,7 +10,6 @@ module mapl3g_StateItemExtension
    use mapl3g_GenericCoupler
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
-   use mapl3g_MultiState
    use mapl_ErrorHandling
    use esmf
    implicit none
@@ -128,7 +127,6 @@ contains
       class(ComponentDriver), pointer :: producer
       class(ComponentDriver), pointer :: source
       type(ESMF_GridComp) :: coupler_gridcomp
-      type(ESMF_Clock) :: fake_clock
       logical :: match
       type(AspectId), allocatable :: aspect_ids(:)
       class(StateItemAspect), pointer :: src_aspect, dst_aspect
@@ -163,7 +161,7 @@ contains
          call new_spec%set_active()
          source => this%get_producer()
          coupler_gridcomp = make_coupler(action, source, _RC)
-         producer => this%add_consumer(GriddedComponentDriver(coupler_gridcomp, fake_clock, MultiState()))
+         producer => this%add_consumer(GriddedComponentDriver(coupler_gridcomp))
          extension = StateItemExtension(new_spec)
          call extension%set_producer(producer)
          _RETURN(_SUCCESS)

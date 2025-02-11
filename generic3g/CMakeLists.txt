@@ -70,14 +70,15 @@ add_subdirectory(vertical)
 esma_add_fortran_submodules(
   TARGET MAPL.generic3g
   SUBDIRECTORY OuterMetaComponent
-  SOURCES SetServices.F90 add_child_by_name.F90 new_outer_meta.F90 init_meta.F90
+  SOURCES SetServices.F90 add_child_by_spec.F90 new_outer_meta.F90 init_meta.F90
           get_child_by_name.F90 run_child_by_name.F90 run_children.F90
           get_outer_meta_from_outer_gc.F90 attach_outer_meta.F90 free_outer_meta.F90
           get_phases.F90 set_hconfig.F90 get_hconfig.F90 get_geom.F90
           initialize_advertise.F90
 	  initialize_modify_advertised.F90 initialize_modify_advertised2.F90
           initialize_realize.F90 recurse.F90 apply_to_children_custom.F90
-          initialize_user.F90 run_custom.F90 run_user.F90 run_clock_advance.F90
+          initialize_user.F90 run_custom.F90 run_user.F90
+	  initialize_set_clock.F90 run_clock_advance.F90
           read_restart.F90 write_restart.F90 get_name.F90 get_gridcomp.F90
           set_geom.F90 set_vertical_grid.F90 get_vertical_grid.F90 get_registry.F90
           get_component_spec.F90 get_internal_state.F90 get_lgr.F90
@@ -89,7 +90,7 @@ esma_add_fortran_submodules(
   SUBDIRECTORY ComponentSpecParser
   SOURCES parse_child.F90 parse_children.F90 parse_connections.F90
           parse_var_specs.F90 parse_geometry_spec.F90 parse_component_spec.F90
-          parse_setservices.F90 parse_timestep.F90)
+          parse_setservices.F90 parse_timespec.F90)
 
 esma_add_fortran_submodules(
   TARGET MAPL.generic3g
@@ -102,7 +103,7 @@ esma_add_fortran_submodules(
   SUBDIRECTORY GriddedComponentDriver
   SOURCES initialize.F90 run.F90 finalize.F90 get_states.F90
           get_clock.F90 set_clock.F90 run_export_couplers.F90
-          run_import_couplers.F90 clock_advance.F90 new_GriddedComponentDriver.F90
+          run_import_couplers.F90 clock_advance.F90
           get_gridcomp.F90 get_name.F90 add_export_coupler.F90 
           add_import_coupler.F90 read_restart.F90 write_restart.F90)
 

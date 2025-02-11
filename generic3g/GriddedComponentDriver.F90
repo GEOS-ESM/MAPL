@@ -20,8 +20,8 @@ module mapl3g_GriddedComponentDriver
       type(ComponentDriverVector) :: export_couplers
       type(ComponentDriverVector) :: import_couplers
    contains
-      procedure :: run
       procedure :: initialize
+      procedure :: run
       procedure :: finalize
       procedure :: read_restart
       procedure :: write_restart
@@ -42,7 +42,9 @@ module mapl3g_GriddedComponentDriver
    end type GriddedComponentDriver
 
    interface GriddedComponentDriver
-      module procedure new_GriddedComponentDriver
+      module procedure new_GriddedComponentDriver_all
+      module procedure new_GriddedComponentDriver_with_states
+      module procedure new_GriddedComponentDriver_default
    end interface GriddedComponentDriver
 
    interface
@@ -118,13 +120,6 @@ module mapl3g_GriddedComponentDriver
          integer, optional, intent(out) :: rc
       end subroutine clock_advance
 
-      module function new_GriddedComponentDriver(gridcomp, clock, states) result(child)
-         type(GriddedComponentDriver) :: child
-         type(ESMF_GridComp), intent(in) :: gridcomp
-         type(ESMF_Clock), intent(in) :: clock
-         type(MultiState), intent(in) :: states
-      end function new_GriddedComponentDriver
-
       module function get_gridcomp(this) result(gridcomp)
          use esmf, only: ESMF_GridComp
          type(ESMF_GridComp) :: gridcomp 
@@ -148,5 +143,39 @@ module mapl3g_GriddedComponentDriver
       end subroutine add_import_coupler
 
    end interface
+
+contains
+
+
+   function new_GriddedComponentDriver_all(gridcomp, states, clock) result(driver)
+      type(GriddedComponentDriver) :: driver
+      type(ESMF_GridComp), intent(in) :: gridcomp
+      type(MultiState), intent(in) :: states
+      type(ESMF_Clock), intent(in) :: clock
+
+      driver%gridcomp = gridcomp
+      driver%clock = clock
+      driver%states = states
+         
+   end function new_GriddedComponentDriver_all
+
+   function new_GriddedComponentDriver_with_states(gridcomp, states) result(driver)
+      type(GriddedComponentDriver) :: driver
+      type(ESMF_GridComp), intent(in) :: gridcomp
+      type(MultiState), intent(in) :: states
+
+      type(ESMF_Clock) :: clock ! uninitialized
+
+      driver = GriddedComponentDriver(gridcomp, states, clock)
+
+   end function new_GriddedComponentDriver_with_states
+
+   function new_GriddedComponentDriver_default(gridcomp) result(driver)
+      type(GriddedComponentDriver) :: driver
+      type(ESMF_GridComp), intent(in) :: gridcomp
+
+      driver = GriddedComponentDriver(gridcomp, MultiState())
+
+   end function new_GriddedComponentDriver_default
 
 end module mapl3g_GriddedComponentDriver

@@ -3,6 +3,7 @@
 module mapl3g_OuterMetaComponent
    use mapl3g_UserSetServices, only: AbstractUserSetServices
    use mapl3g_ComponentSpec
+   use mapl3g_ChildSpec
    use mapl3g_InnerMetaComponent
    use mapl3g_MethodPhasesMap
    use mapl3g_StateRegistry
@@ -31,6 +32,9 @@ module mapl3g_OuterMetaComponent
       type(ESMF_GridComp)                         :: self_gridcomp
       type(GriddedComponentDriver)                :: user_gc_driver
       class(AbstractUserSetServices), allocatable :: user_setservices
+      type(ESMF_TimeInterval), allocatable        :: user_timeStep
+      ! These are only allocated when parent overrides default timestepping.
+      type(ESMF_Time), allocatable                :: user_refTime
       type(MethodPhasesMap)                       :: user_phases_map
       type(ESMF_HConfig)                          :: hconfig
 
@@ -67,6 +71,7 @@ module mapl3g_OuterMetaComponent
 
       procedure :: run_custom
       procedure :: initialize_user
+      procedure :: initialize_set_clock
       procedure :: initialize_advertise
       procedure :: initialize_modify_advertised
       procedure :: initialize_modify_advertised2
@@ -79,12 +84,12 @@ module mapl3g_OuterMetaComponent
       procedure :: write_restart
 
       ! Hierarchy
-      procedure, private :: add_child_by_name
+      procedure, private :: add_child_by_spec
       procedure, private :: get_child_by_name
       procedure, private :: run_child_by_name
       procedure, private :: run_children_
 
-      generic :: add_child => add_child_by_name
+      generic :: add_child => add_child_by_spec
       generic :: get_child => get_child_by_name
       generic :: run_child => run_child_by_name
       generic :: run_children => run_children_
@@ -132,13 +137,12 @@ module mapl3g_OuterMetaComponent
          integer, intent(out) :: rc
       end subroutine
 
-      module recursive subroutine add_child_by_name(this, child_name, setservices, hconfig, rc)
+      module recursive subroutine add_child_by_spec(this, child_name, child_spec, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
-         character(len=*), intent(in) :: child_name
-         class(AbstractUserSetServices), intent(in) :: setservices
-         type(ESMF_HConfig), intent(in) :: hconfig
+         character(*), intent(in) :: child_name
+         type(ChildSpec), intent(in) :: child_spec
          integer, optional, intent(out) :: rc
-      end subroutine add_child_by_name
+      end subroutine add_child_by_spec
 
       module function new_outer_meta(gridcomp, user_gc_driver, user_setServices, hconfig) result(outer_meta)
          type(OuterMetaComponent) :: outer_meta
@@ -212,12 +216,20 @@ module mapl3g_OuterMetaComponent
          class(OuterMetaComponent), intent(inout) :: this
       end function get_geom
    
+      module recursive subroutine initialize_set_clock(this, outer_clock, unusable, rc)
+         class(OuterMetaComponent), target, intent(inout) :: this
+         type(ESMF_Clock), intent(in) :: outer_clock
+         ! optional arguments
+         class(KE), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
+      end subroutine initialize_set_clock
+   
       module recursive subroutine initialize_advertise(this, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          ! optional arguments
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
-     end subroutine initialize_advertise
+      end subroutine initialize_advertise
    
      module recursive subroutine initialize_modify_advertised(this, importState, exportState, clock, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this

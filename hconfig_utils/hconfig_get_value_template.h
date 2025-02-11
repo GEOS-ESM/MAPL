@@ -12,7 +12,7 @@
       found = ESMF_HConfigIsDefined(params%hconfig, keyString=params%label, _RC)
       if(present(rc)) rc = merge(_SUCCESS, _FAILURE, params%check_value_set)
       params%value_set = .FALSE.
-      if(.not. (found .or. present(default))) return
+      _RETURN_UNLESS(found .or. present(default))
       ! At this point, either the label was found or default is present.
       
       value_equals_default = present(default) .and. .not. found

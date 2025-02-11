@@ -32,24 +32,11 @@ contains
 
       integer :: status
       type(ESMF_GridComp) :: user_gridcomp
-      type(ESMF_Clock) :: user_clock, outer_clock
-      type(ESMF_Time) :: reference_time
-      type(ESMF_TimeInterval) :: timestep
-      type(ESMF_Time) :: user_reference_time
-      type(ESMF_TimeInterval) :: user_timestep
 
-      call ESMF_GridCompGet(this%self_gridcomp, clock=outer_clock, _RC)
-      call ESMF_ClockGet(outer_clock, refTime=reference_time, timeStep=timestep, _RC)
-      
-      this%component_spec = parse_component_spec(this%hconfig, this%registry, &
-           timeStep=timestep, reference_time=reference_time, _RC)
+      ! Note that Parent component should set timestep and refTime in outer meta before calling SetServices.
+      this%component_spec = parse_component_spec(this%hconfig, this%registry, this%user_timeStep, this%user_refTime, _RC)
+
       user_gridcomp = this%user_gc_driver%get_gridcomp()
-      user_clock = this%user_gc_driver%get_clock()
-      call ESMF_ClockSet(user_clock, timeStep=timestep, _RC)
-      call ESMF_ClockSet(user_clock, refTime=reference_time, _RC)
-
-      call set_run_user_alarm(this, outer_clock, user_clock, _RC)
-
       call attach_inner_meta(user_gridcomp, this%self_gridcomp, _RC)
       call this%user_setservices%run(user_gridcomp, _RC)
       call add_children(this, _RC)
@@ -75,12 +62,7 @@ contains
               call iter%next()
               child_name = iter%first()
               child_spec => iter%second()
-
-              if (allocated(child_spec%config_file)) then
-                 child_hconfig = ESMF_HConfigCreate(filename=child_spec%config_file, rc=status)
-                 _ASSERT(status==0,'problem with config file: '//child_spec%config_file)
-              end if
-              call this%add_child(child_name, child_spec%user_setservices, child_hconfig, _RC)
+              call this%add_child(child_name, child_spec, _RC)
            end do
          end associate
 
@@ -98,7 +80,6 @@ contains
          type(ESMF_GridComp) :: child_outer_gc
          type(GriddedComponentDriverMapIterator) :: iter
 
-
          associate ( e => this%children%ftn_end() )
             iter = this%children%ftn_begin()
             do while (iter /= e)
@@ -113,40 +94,5 @@ contains
       end subroutine run_children_setservices
 
    end subroutine SetServices_
-
-   subroutine set_run_user_alarm(this, outer_clock, user_clock,  rc)
-      use mapl3g_ESMF_Time_Utilities
-      use mapl_ErrorHandling
-      class(OuterMetaComponent), intent(in) :: this
-      type(ESMF_Clock), intent(inout) :: outer_clock
-      type(ESMF_Clock), intent(inout) :: user_clock
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ESMF_TimeInterval) :: outer_timestep, user_timestep, zero
-      type(ESMF_Time) :: refTime
-      type(ESMF_Time) :: outer_reference_time
-      type(ESMF_Alarm) :: alarm
-      logical :: compatible
-
-      call ESMF_TimeIntervalSet(zero, s=0, _RC)
-
-      call ESMF_ClockGet(outer_clock, timestep=outer_timestep, refTime=outer_reference_time, _RC)
-      call ESMF_ClockGet(user_clock, timestep=user_timestep, refTime=refTime, _RC)
-
-      call times_and_intervals_are_compatible(user_timestep, refTime, outer_timestep, outer_reference_time, compatible, _RC)
-      _ASSERT(compatible, 'The user timestep and reference time are not compatible with the outer timestep and reference time')
-
-      alarm = ESMF_AlarmCreate(outer_clock, &
-           name = RUN_USER_ALARM, &
-           ringInterval=user_timestep, &
-           refTime=refTime, &
-           sticky=.false., &
-           _RC)
-
-      call ESMF_AlarmRingerOn(alarm, _RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine set_run_user_alarm
 
 end submodule SetServices_smod

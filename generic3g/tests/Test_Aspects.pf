@@ -291,7 +291,7 @@ contains
       call ESMF_TimeIntervalSet(dt1, s=4)
       call ESMF_TimeIntervalSet(dt2, s=2) ! commensurate
 
-      import = FrequencyAspect(dt1, 'mean')
+      import = FrequencyAspect(dt1, accumulation_type='mean')
       call ESMF_TimeSet(ref1, s=0, rc=status)
       @assertEqual(0, status, 'Nonzero status')
       call import%set_reference_time(ref1)

@@ -36,7 +36,7 @@ module mapl3g_FrequencyAspect
    end type FrequencyAspect
 
    interface FrequencyAspect
-      module procedure :: construct_frequency_aspect
+      module procedure :: new_FrequencyAspect
    end interface FrequencyAspect
 
    interface check_compatibility
