@@ -55,8 +55,8 @@ contains
       call aspect%set_time_dependent(.FALSE.)
       call aspect%set_accumulation_type(INSTANTANEOUS)
       call aspect%zero_timestep()
-      if(present(timestep)) call aspect%set_timestep(timestep)
-      if(present(refTime)) call aspect%set_reference_time(refTime)
+      if(present(timeStep)) aspect%timestep_ = timeStep
+      if(present(refTime)) aspect%refTime_ = refTime
       if(present(accumulation_type)) call aspect%set_accumulation_type(accumulation_type)
       
    end function new_FrequencyAspect
@@ -69,11 +69,11 @@ contains
 
    end function get_timestep
 
-   subroutine set_timestep(this, timestep)
+   subroutine set_timestep(this, timeStep)
       class(FrequencyAspect), intent(inout) :: this
-      type(ESMF_TimeInterval), intent(in) :: timestep
+      type(ESMF_TimeInterval), intent(in) :: timeStep
 
-      this%timestep_ = timestep
+      this%timestep_ = timeStep
 
    end subroutine set_timestep
 
