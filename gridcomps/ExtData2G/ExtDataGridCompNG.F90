@@ -946,11 +946,12 @@ CONTAINS
      integer :: fieldRank, src_lm, dst_lm, im, jm, i, j
      real, pointer :: dst_ptr3d(:,:,:), src_ptr3d(:,:,:), src_ps_ptr(:,:), dst_ple_ptr(:,:,:)
      real, allocatable :: src_ple(:,:,:)
-     character(len=:), allocatable :: mol_per_mol, kg_per_kg, emission
+     character(len=:), allocatable :: mol_per_mol, kg_per_kg, emission_units
      character(len=:), allocatable :: units_in, units_out
+     integer :: constituent_type
      mol_per_mol = "mol mol-1"
      kg_per_kg = "kg kg-1"
-     emission = "kg m-2 s-1"
+     emission_units = "kg m-2 s-1"
 
      if (item%vcoord%vertical_type == NO_COORD &
         .or. (.not.item%delivered_item) &
@@ -976,10 +977,14 @@ CONTAINS
         call ESMF_FieldBundleGet(item%t_interp_bundle, trim(item%vcomp1), field=src_field, _RC)
         call ESMF_FieldGet(src_field,farrayPtr=src_ptr3d,_RC)
 
-        !units_in = get_field_units(src_field, _RC)
-        !units_out = get_field_units(dst_field, _RC)
-        !_HERE,trim(units_in),' ',trim(units_out),safe_are_convertible('km/s2', 'm/second^2')
-        call remap_array(src_ple,src_ptr3d,dst_ple_ptr,dst_ptr3d)
+        units_in = get_field_units(src_field, _RC)
+        units_out = get_field_units(dst_field, _RC)
+      
+        if (units_in == mol_per_mol) constituent_type = volume_mixing 
+        if (units_in == kg_per_kg) constituent_type = mass_mixing
+        if (units_in == emission_units) constituent_type = emission
+        
+        call remap_array(src_ple,src_ptr3d,dst_ple_ptr,dst_ptr3d,constituent_type)
      end if
      _RETURN(ESMF_SUCCESS)
 
@@ -1020,7 +1025,6 @@ CONTAINS
        _RETURN(_SUCCESS)
     end function safe_are_convertible
        
-
   end subroutine MAPL_ExtDataVerticalInterpolate
 
   function MAPL_ExtDataGridChangeLev(Grid,CF,lm,rc) result(NewGrid)
@@ -1764,6 +1768,5 @@ CONTAINS
      call ESMF_HConfigDestroy(config)
      _RETURN(_SUCCESS)
   end subroutine get_global_options
-
 
  END MODULE MAPL_ExtDataGridComp2G

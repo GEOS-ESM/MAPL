@@ -387,18 +387,19 @@ contains
           dst_mass = dst_mass + dst_values(i)*delp/MAPL_GRAV
        enddo
        if (src_mass .ne. 0.0) then
+       _HERE, src_mass,dst_mass
        _HERE,(dst_mass-src_mass)/src_mass
        end if
     end subroutine check_conservation
 
-    subroutine remap_array(src_pressure, src_values, dst_pressure, dst_values)
+    subroutine remap_array(src_pressure, src_values, dst_pressure, dst_values, constituent_type)
        real, intent(in) :: src_pressure(:,:,:)
        real, intent(in) :: src_values(:,:,:)
        real, intent(in) :: dst_pressure(:,:,:)
        real, intent(inout) :: dst_values(:,:,:)
+       integer, intent(in) :: constituent_type 
        real, allocatable :: temp_pressures_src(:,:,:), temp_values_src(:,:,:)
        real, allocatable :: temp_pressures_dst(:,:,:), temp_values_dst(:,:,:)
-       real, allocatable :: delp1(:,:), delp2(:,:), bottom_lev(:,:)
        real :: src_max_p
        integer :: lb_src, lb_dst, lm_src, lm_dst, ub_src, ub_dst, i, j, im, jm
 
@@ -410,6 +411,8 @@ contains
        ub_dst = ubound(dst_pressure,3)
        im = size(src_values,1)
        jm = size(src_values,2)
+
+       ! src gets extra level that is zero becasue gmap persists src value in dst below surface
        src_max_p = maxval(src_pressure(:,:,ub_src))
        allocate(temp_pressures_src(im,jm,lb_src:ub_src+1))  
        allocate(temp_values_src(im,jm,lm_src+1))
@@ -418,16 +421,37 @@ contains
        temp_pressures_src(:,:,ub_src+1) = src_pressure(:,:,ub_src)+10.0
        temp_values_src(:,:,lm_src+1) = 0.0
 
+       ! add an extra level on dst because if destination column is her than src
+       ! we need to make sure "extra" stuf from src gets included
        allocate(temp_pressures_dst(im,jm,lb_dst:ub_dst+1))  
        allocate(temp_values_dst(im,jm,lm_dst+1))
-       allocate(delp1(im,jm), delp2(im,jm), bottom_lev(im,jm))
        temp_pressures_dst(:,:,lb_dst:ub_dst) = dst_pressure
        temp_pressures_dst(:,:,ub_dst+1) = src_max_p + 10.0
+
+       ! gmap wants mass mixing
+       if (constituent_type == emission) then
+          do i=1,lm_src
+             temp_values_src(:,:,i) = temp_values_src(:,:,i)*MAPL_GRAV/(temp_pressures_src(:,:,i+1)-temp_pressures_src(:,:,i))
+          enddo
+       end if
+
        call gmap(im, jm, lm_src+1, temp_pressures_src, temp_values_src, lm_dst+1, temp_pressures_dst, temp_values_dst)
-       delp1 = temp_pressures_dst(:,:,lm_dst+2) - temp_pressures_dst(:,:,lm_dst+1)
-       delp2 = temp_pressures_dst(:,:,lm_dst+1) - temp_pressures_dst(:,:,lm_dst)
-       bottom_lev = temp_values_dst(:,:,lm_dst+1)*(delp1/MAPL_GRAV) + temp_values_dst(:,:,lm_dst)*(delp2/MAPL_GRAV)
-       temp_values_dst(:,:,lm_dst) = bottom_lev*MAPL_GRAV/delp2
+
+       ! add back the "extra" level
+       if (constituent_type == mass_mixing) then
+          temp_values_dst(:,:,lm_dst) = temp_values_dst(:,:,lm_dst)*(temp_pressures_dst(:,:,lm_dst+1)-temp_pressures_dst(:,:,lm_dst))/MAPL_GRAV &
+           + temp_values_dst(:,:,lm_dst+1)*(temp_pressures_dst(:,:,lm_dst+2)-temp_pressures_dst(:,:,lm_dst+1))/MAPL_GRAV
+          temp_values_dst(:,:,lm_dst) = temp_values_dst(:,:,lm_dst)*MAPL_GRAV/(temp_pressures_dst(:,:,lm_dst+1)-temp_pressures_dst(:,:,lm_dst))
+       else if (constituent_type == emission) then
+          temp_values_dst(:,:,lm_dst) = temp_values_dst(:,:,lm_dst) + temp_values_dst(:,:,lm_dst+1)
+       end if
+
+       ! if we were emission need to convert back from mass mixing
+       if (constituent_type == emission) then
+          do i=1,lm_dst
+             temp_values_dst(:,:,i) = temp_values_dst(:,:,i)*(temp_pressures_dst(:,:,i+1)-temp_pressures_dst(:,:,i))/MAPL_GRAV
+          enddo
+       end if
        dst_values = temp_values_dst(:,:,1:lm_dst)
 
        do i=1,size(src_pressure,1)
