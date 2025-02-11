@@ -112,10 +112,10 @@ contains
 
       call var_spec%aspects%insert(UNITS_ASPECT_ID, UnitsAspect(units))
 
-      regrid_param_ = get_regrid_param(regrid_param, standard_name)
       call var_spec%aspects%insert(VERTICAL_GRID_ASPECT_ID, &
            VerticalGridAspect(vertical_dim_spec=vertical_dim_spec, geom=geom))
 
+      regrid_param_ = get_regrid_param(regrid_param, standard_name)
       call var_spec%aspects%insert(GEOM_ASPECT_ID, GeomAspect(geom, regrid_param_, horizontal_dims_spec))
 
       call var_spec%aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, UngriddedDimsAspect(ungridded_dims))
@@ -131,7 +131,6 @@ contains
       _SET_OPTIONAL(service_items)
       _SET_OPTIONAL(default_value)
       _SET_OPTIONAL(vertical_dim_spec)
-      _SET_OPTIONAL(attributes)
       _SET_OPTIONAL(bracket_size)
       _SET_OPTIONAL(dependencies)
 
