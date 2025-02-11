@@ -984,6 +984,8 @@ CONTAINS
               call remap_column(src_ple(i,j,:),src_ptr3d(i,j,:),dst_ple_ptr(i,j,:),dst_ptr3d(i,j,:))
            enddo
         enddo
+        write(*,*)"bmaa split"
+        call remap_array(src_ple,src_ptr3d,dst_ple_ptr,dst_ptr3d)
      end if
      _RETURN(ESMF_SUCCESS)
 
