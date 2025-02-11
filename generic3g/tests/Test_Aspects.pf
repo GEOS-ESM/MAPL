@@ -314,7 +314,7 @@ contains
       call ESMF_TimeIntervalSet(dt1, s=4)
       call ESMF_TimeIntervalSet(dt2, s=3) ! not commensurate
 
-      import = FrequencyAspect(dt1, 'mean')
+      import = FrequencyAspect(dt1, accumulation_type='mean')
       export = FrequencyAspect(dt2)
 
       @assert_that(export%can_connect_to(import), is(false()))
