@@ -184,12 +184,14 @@ contains
       class(FrequencyAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
       integer :: status
-      logical :: compatible
 
       select type(dst)
       class is (FrequencyAspect)
-         call check_compatibility(dst, src, compatible, rc=status)
-         supports = compatible .and. status == _SUCCESS
+         call times_and_intervals_are_compatible(dst%get_timestep(),&
+            & dst%get_reference_time(), src%get_timestep(),&
+            & src%get_reference_time(), supports, rc=status)
+!         call check_compatibility(dst, src, supports, rc=status)
+         supports = supports .and. status == _SUCCESS
       end select
 
    end function supports_conversion_specific

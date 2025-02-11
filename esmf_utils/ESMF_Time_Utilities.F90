@@ -27,8 +27,8 @@ contains
    ! smaller interval must divide the larger interval evenly
    ! assumes they have the same sign.
    subroutine intervals_are_compatible(larger, smaller, compatible, rc)
-      type(ESMF_TimeInterval), intent(inout) :: larger
-      type(ESMF_TimeInterval), intent(inout) :: smaller
+      type(ESMF_TimeInterval), intent(in) :: larger
+      type(ESMF_TimeInterval), intent(in) :: smaller
       logical, intent(out) :: compatible
       integer, optional, intent(out) :: rc
       integer :: status
@@ -49,10 +49,10 @@ contains
    ! intervals must be comparable, abs(interval1) >= abs(interval2)
    ! abs(interval2) must evenly divide absolute difference of times
    subroutine times_and_intervals_are_compatible(interval1, time1, interval2, time2, compatible, rc)
-      type(ESMF_Time), intent(inout) :: time1
-      type(ESMF_Time), intent(inout) :: time2
-      type(ESMF_TimeInterval), intent(inout) :: interval1
-      type(ESMF_TimeInterval), intent(inout) :: interval2
+      type(ESMF_Time), intent(in) :: time1
+      type(ESMF_Time), intent(in) :: time2
+      type(ESMF_TimeInterval), intent(in) :: interval1
+      type(ESMF_TimeInterval), intent(in) :: interval2
       logical, intent(out) :: compatible
       integer, optional, intent(inout) :: rc
       integer :: status
@@ -72,8 +72,8 @@ contains
 !   these combinations. Presumably ms, us, and ns for the smaller interval do
 !   not work.
    subroutine can_compare_intervals(larger, smaller, comparable, rc)
-      type(ESMF_TimeInterval), intent(inout) :: larger
-      type(ESMF_TimeInterval), intent(inout) :: smaller
+      type(ESMF_TimeInterval), intent(in) :: larger
+      type(ESMF_TimeInterval), intent(in) :: smaller
       logical, intent(out) :: comparable
       integer, optional, intent(out) :: rc
       integer :: status
@@ -101,7 +101,7 @@ contains
    end function get_zero
 
    subroutine as_array(interval, units, rc)
-      type(ESMF_TimeInterval), intent(inout) :: interval
+      type(ESMF_TimeInterval), intent(in) :: interval
       integer(kind=I4), intent(out) :: units(NUM_INTERVAL_UNITS)
       integer, optional, intent(out) :: rc
       integer :: status
@@ -113,7 +113,7 @@ contains
    end subroutine as_array
 
    logical function has_only_years_and_months(interval, rc)
-      type(ESMF_TimeInterval), intent(inout) :: interval
+      type(ESMF_TimeInterval), intent(in) :: interval
       integer, optional, intent(out) :: rc
       integer :: status
       integer(kind=I4) :: units(NUM_INTERVAL_UNITS)
@@ -125,7 +125,7 @@ contains
    end function has_only_years_and_months
 
    logical function has_no_years_or_months(interval, rc)
-      type(ESMF_TimeInterval), intent(inout) :: interval
+      type(ESMF_TimeInterval), intent(in) :: interval
       integer, optional, intent(out) :: rc
       integer :: status
       integer(kind=I4) :: units(NUM_INTERVAL_UNITS)
