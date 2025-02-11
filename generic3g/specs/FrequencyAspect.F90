@@ -55,9 +55,9 @@ contains
       call aspect%set_time_dependent(.FALSE.)
       call aspect%set_accumulation_type(INSTANTANEOUS)
       call aspect%zero_timestep()
-      if(present(timestep)) aspect%timestep_ = timestep
-      if(present(refTime)) aspect%refTime_ = refTime
-      if(present(accumulation_type)) aspect%accumulation_type_ = accumulation_type
+      if(present(timestep)) call aspect%set_timestep(timestep)
+      if(present(refTime)) call aspect%set_reference_time(refTime)
+      if(present(accumulation_type)) call aspect%set_accumulation_type(accumulation_type)
       
    end function new_FrequencyAspect
 
@@ -77,19 +77,19 @@ contains
 
    end subroutine set_timestep
 
-   function get_reference_time(this) result(rf)
-      type(ESMF_Time) :: rf
+   function get_reference_time(this) result(time)
+      type(ESMF_Time) :: time
       class(FrequencyAspect), intent(in) :: this
 
-      rf = this%reference_time_
+      time = this%refTime_
 
    end function get_reference_time
 
-   subroutine set_reference_time(this, reference_time)
+   subroutine set_reference_time(this, time)
       class(FrequencyAspect), intent(inout) :: this
-      type(ESMF_Time), intent(in) :: reference_time
+      type(ESMF_Time), intent(in) :: time
 
-      this%reference_time_ = reference_time
+      this%refTime_ = time
 
    end subroutine set_reference_time
 
@@ -134,8 +134,7 @@ contains
          dst_timestep = dst%get_timestep()
          if(dst_timestep == zero) return
          if(.not. accumulation_type_is_valid(dst%get_accumulation_type())) return
-         does_match = dst_timestep == src_timestep .and. &
-            & src%get_reference_time() == dst%get_reference_time()
+         does_match = dst_timestep == src_timestep
       end select
 
    end function matches
