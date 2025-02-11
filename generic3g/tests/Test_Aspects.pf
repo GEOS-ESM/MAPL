@@ -285,21 +285,15 @@ contains
       type(FrequencyAspect) :: import, export
 
       type(ESMF_TimeInterval) :: dt1, dt2
-      type(ESMF_Time) :: ref1, ref2 
+      type(ESMF_Time) :: time1, time2 
 
-      integer :: status
       call ESMF_TimeIntervalSet(dt1, s=4)
       call ESMF_TimeIntervalSet(dt2, s=2) ! commensurate
+      call ESMF_TimeSet(time1, s=0)
+      call ESMF_TimeSet(time2, m=0)
 
-      import = FrequencyAspect(dt1, accumulation_type='mean')
-      call ESMF_TimeSet(ref1, s=0, rc=status)
-      @assertEqual(0, status, 'Nonzero status')
-      call import%set_reference_time(ref1)
-      export = FrequencyAspect(dt2)
-      call ESMF_TimeSet(ref2, m=0, rc=status)
-      @assertEqual(0, status, 'Nonzero status')
-      call export%set_reference_time(ref2)
-
+      import = FrequencyAspect(dt1, time1, accumulation_type='mean')
+      export = FrequencyAspect(dt2, time2)
       @assert_that(export%can_connect_to(import), is(true()))
 
    end subroutine test_can_connect_accum_mean
