@@ -399,8 +399,9 @@ contains
        real, allocatable :: temp_pressures_src(:,:,:), temp_values_src(:,:,:)
        real, allocatable :: temp_pressures_dst(:,:,:), temp_values_dst(:,:,:)
        real, allocatable :: delp1(:,:), delp2(:,:), bottom_lev(:,:)
-       real :: src_max_p, dst_max_p, dst_min_p
+       real :: src_max_p
        integer :: lb_src, lb_dst, lm_src, lm_dst, ub_src, ub_dst, i, j, im, jm
+
        lm_src = size(src_values,3)
        lm_dst = size(dst_values,3)
        lb_src = lbound(src_pressure,3)
@@ -410,29 +411,24 @@ contains
        im = size(src_values,1)
        jm = size(src_values,2)
        src_max_p = maxval(src_pressure(:,:,ub_src))
-       dst_max_p = maxval(dst_pressure(:,:,ub_src))
-       dst_min_p = minval(dst_pressure(:,:,ub_src))
        allocate(temp_pressures_src(im,jm,lb_src:ub_src+1))  
        allocate(temp_values_src(im,jm,lm_src+1))
        temp_pressures_src(:,:,lb_src:ub_src) = src_pressure
        temp_values_src(:,:,1:lm_src) = src_values
        temp_pressures_src(:,:,ub_src+1) = src_pressure(:,:,ub_src)+10.0
        temp_values_src(:,:,lm_src+1) = 0.0
-       if (src_max_p .le. dst_max_p) then
-          call gmap(im, jm, lm_src+1, temp_pressures_src, temp_values_src, lm_dst, dst_pressure, dst_values)
-       else
-          allocate(temp_pressures_dst(im,jm,lb_dst:ub_dst+1))  
-          allocate(temp_values_dst(im,jm,lm_dst+1))
-          allocate(delp1(im,jm), delp2(im,jm), bottom_lev(im,jm))
-          temp_pressures_dst(:,:,lb_dst:ub_dst) = dst_pressure
-          temp_pressures_dst(:,:,ub_dst+1) = src_max_p + 10.0
-          call gmap(im, jm, lm_src+1, temp_pressures_src, temp_values_src, lm_dst+1, temp_pressures_dst, temp_values_dst)
-          delp1 = temp_pressures_dst(:,:,lm_dst+2) - temp_pressures_dst(:,:,lm_dst+1)
-          delp2 = temp_pressures_dst(:,:,lm_dst+1) - temp_pressures_dst(:,:,lm_dst)
-          bottom_lev = temp_values_dst(:,:,lm_dst+1)*(delp1/MAPL_GRAV) + temp_values_dst(:,:,lm_dst)*(delp2/MAPL_GRAV)
-          temp_values_dst(:,:,lm_dst) = bottom_lev*MAPL_GRAV/delp2
-          dst_values(:,:,1:lm_dst) = temp_values_dst(:,:,1:lm_dst)
-       end if
+
+       allocate(temp_pressures_dst(im,jm,lb_dst:ub_dst+1))  
+       allocate(temp_values_dst(im,jm,lm_dst+1))
+       allocate(delp1(im,jm), delp2(im,jm), bottom_lev(im,jm))
+       temp_pressures_dst(:,:,lb_dst:ub_dst) = dst_pressure
+       temp_pressures_dst(:,:,ub_dst+1) = src_max_p + 10.0
+       call gmap(im, jm, lm_src+1, temp_pressures_src, temp_values_src, lm_dst+1, temp_pressures_dst, temp_values_dst)
+       delp1 = temp_pressures_dst(:,:,lm_dst+2) - temp_pressures_dst(:,:,lm_dst+1)
+       delp2 = temp_pressures_dst(:,:,lm_dst+1) - temp_pressures_dst(:,:,lm_dst)
+       bottom_lev = temp_values_dst(:,:,lm_dst+1)*(delp1/MAPL_GRAV) + temp_values_dst(:,:,lm_dst)*(delp2/MAPL_GRAV)
+       temp_values_dst(:,:,lm_dst) = bottom_lev*MAPL_GRAV/delp2
+       dst_values = temp_values_dst(:,:,1:lm_dst)
 
        do i=1,size(src_pressure,1)
        do j=1,size(src_pressure,2)
