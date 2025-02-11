@@ -23,6 +23,8 @@ module mapl3g_ComponentSpec
       type(ESMF_HConfig), allocatable :: geom_hconfig ! optional
       type(ESMF_TimeInterval), allocatable :: timestep
       type(ESMF_Time), allocatable :: reference_time
+      logical :: activate_all_exports = .false. ! used for testing in isolation
+
    contains
       procedure :: has_geom_hconfig
       procedure :: add_var_spec
