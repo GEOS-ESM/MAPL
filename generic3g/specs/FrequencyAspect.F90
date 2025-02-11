@@ -39,10 +39,6 @@ module mapl3g_FrequencyAspect
       module procedure :: new_FrequencyAspect
    end interface FrequencyAspect
 
-   interface check_compatibility
-      module procedure :: check_freq_aspect_compatibility
-   end interface check_compatibility
-
 contains
 
    function new_FrequencyAspect(timeStep, refTime, accumulation_type) result(aspect)
@@ -122,19 +118,19 @@ contains
    logical function matches(src, dst) result(does_match)
       class(FrequencyAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
-      type(ESMF_TimeInterval) :: src_timestep, dst_timestep
+      type(ESMF_TimeInterval) :: this_timestep, other_timestep
       type(ESMF_TimeInterval), pointer :: zero
 
       does_match = .TRUE.
       zero => zero_time_interval()
-      src_timestep = src%get_timestep()
-      if(src_timestep == zero) return
+      this_timestep = src%get_timestep()
+      if(this_timestep == zero) return
       select type(dst)
       class is (FrequencyAspect)
-         dst_timestep = dst%get_timestep()
-         if(dst_timestep == zero) return
+         other_timestep = dst%get_timestep()
+         if(other_timestep == zero) return
          if(.not. accumulation_type_is_valid(dst%get_accumulation_type())) return
-         does_match = dst_timestep == src_timestep
+         does_match = other_timestep == this_timestep
       end select
 
    end function matches
@@ -145,12 +141,13 @@ contains
       class(StateItemAspect), intent(in)  :: dst
       type(AspectMap), target, intent(in)  :: other_aspects
       integer, optional, intent(out) :: rc
-
       integer :: status
+      character(len=:), allocatable :: accumulation_type
 
       select type(dst)
       class is (FrequencyAspect)
-         call get_accumulator_action(dst%get_accumulation_type(), ESMF_TYPEKIND_R4, action, _RC) 
+         accumulation_type = dst%get_accumulation_type()
+         call get_accumulator_action(accumulation_type, ESMF_TYPEKIND_R4, action, _RC) 
          _ASSERT(allocated(action), 'Unable to allocate action')
       class default
          allocate(action,source=NullAction())
@@ -158,6 +155,7 @@ contains
       end select
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(src)
    end function make_action
 
    subroutine connect_to_export(this, export, actual_pt, rc)
@@ -187,10 +185,10 @@ contains
 
       select type(dst)
       class is (FrequencyAspect)
-         call times_and_intervals_are_compatible(dst%get_timestep(),&
-            & dst%get_reference_time(), src%get_timestep(),&
-            & src%get_reference_time(), supports, rc=status)
-!         call check_compatibility(dst, src, supports, rc=status)
+         call times_and_intervals_are_compatible(&
+            & dst%get_timestep(), dst%get_reference_time(),&
+            & src%get_timestep(), src%get_reference_time(),&
+            & supports, rc=status)
          supports = supports .and. status == _SUCCESS
       end select
 
@@ -200,25 +198,5 @@ contains
       type(AspectId) :: aspect_id
       aspect_id = FREQUENCY_ASPECT_ID
    end function get_aspect_id
-
-   subroutine check_freq_aspect_compatibility(child, parent, compatible, rc)
-      class(FrequencyAspect), intent(in) :: child
-      class(FrequencyAspect), intent(in) :: parent 
-      logical, intent(out) :: compatible
-      integer, optional, intent(out) :: rc
-      integer :: status
-      type(ESMF_TimeInterval) :: child_step, parent_step
-      type(ESMF_Time) :: child_reference, parent_reference
-
-      child_step = child%get_timestep()
-      child_reference = child%get_reference_time()
-      parent_step = parent%get_timestep()
-      parent_reference = parent%get_reference_time()
-      
-      call times_and_intervals_are_compatible(child_step, child_reference, &
-         & parent_step, parent_reference, compatible, _RC)
-      _RETURN(_SUCCESS)
-
-   end subroutine check_freq_aspect_compatibility
 
 end module mapl3g_FrequencyAspect
