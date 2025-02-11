@@ -61,12 +61,12 @@ contains
 
       cap_gc_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='cap_gc', _RC)
       petList = get_model_pets(is_model_pet, _RC)
-      cap_gridcomp = create_grid_comp(cap_name, user_setservices(cap_setservices), cap_gc_hconfig, clock, petList=petList, _RC)
+      cap_gridcomp = MAPL_GridCompCreate(cap_name, user_setservices(cap_setservices), cap_gc_hconfig, petList=petList, _RC)
 
       call ESMF_GridCompSetServices(cap_gridcomp, generic_setServices, userRC=user_status, _RC)
       _VERIFY(user_status)
 
-      driver = GriddedComponentDriver(cap_gridcomp, clock, MultiState())
+      driver = GriddedComponentDriver(cap_gridcomp, MultiState(), clock)
 
       _RETURN(_SUCCESS)
    end function make_driver

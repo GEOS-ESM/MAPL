@@ -31,6 +31,7 @@ module mapl3g_ComponentSpecParser
    implicit none
    private
 
+   public :: MAPL_SECTION
    public :: parse_component_spec
 
    ! The following interfaces are public only for testing purposes.
@@ -38,10 +39,7 @@ module mapl3g_ComponentSpecParser
    public :: parse_child
    public :: parse_SetServices
    public :: parse_geometry_spec
-   public :: parse_timestep
-
-!!$   public :: parse_ChildSpecMap
-!!$   public :: parse_ChildSpec
+   public :: parse_timespec
 
    character(*), parameter :: MAPL_SECTION = 'mapl'
    character(*), parameter :: COMPONENT_GEOMETRY_SECTION = 'geometry'
@@ -69,12 +67,12 @@ module mapl3g_ComponentSpecParser
    !>
    ! Submodule declarations
    INTERFACE
-      module function parse_component_spec(hconfig, registry, timestep, reference_time, rc) result(spec)
+      module function parse_component_spec(hconfig, registry, timeStep, refTime, rc) result(spec)
          type(ComponentSpec) :: spec
          type(ESMF_HConfig), target, intent(inout) :: hconfig
          type(StateRegistry), target, intent(in) :: registry
-         type(ESMF_TimeInterval), intent(in) :: timestep ! default
-         type(ESMF_Time), intent(in) :: reference_time ! default
+         type(ESMF_TimeInterval), optional, intent(in) :: timeStep
+         type(ESMF_Time), optional, intent(in) :: refTime
          integer, optional, intent(out) :: rc
       end function parse_component_spec
 
@@ -85,10 +83,11 @@ module mapl3g_ComponentSpecParser
          integer, optional, intent(out) :: rc
       end function parse_geometry_spec
 
-      module function parse_var_specs(hconfig, timestep, rc) result(var_specs)
+      module function parse_var_specs(hconfig, timeStep, refTime, rc) result(var_specs)
          type(VariableSpecVector) :: var_specs
          type(ESMF_HConfig), intent(in) :: hconfig
-         type(ESMF_TimeInterval), intent(in) :: timestep
+         type(ESMF_TimeInterval), optional, intent(in) :: timeStep
+         type(ESMF_Time), optional, intent(in) :: refTime
          integer, optional, intent(out) :: rc
       end function parse_var_specs
 
@@ -116,12 +115,12 @@ module mapl3g_ComponentSpecParser
          integer, optional, intent(out) :: rc
       end function parse_child
 
-      module subroutine parse_timestep(hconfig, timestep, reference_time, rc)
+      module subroutine parse_timespec(hconfig, timeStep, refTime, rc)
          type(ESMF_HConfig), intent(in) :: hconfig
-         type(ESMF_TimeInterval), intent(inout) :: timestep
-         type(ESMF_Time), intent(inout) :: reference_time
+         type(ESMF_TimeInterval), allocatable, intent(out) :: timeStep
+         type(ESMF_Time), allocatable, intent(out) :: refTime
          integer, optional, intent(out) :: rc
-      end subroutine parse_timestep
+      end subroutine parse_timespec
 
    END INTERFACE
 

@@ -14,6 +14,7 @@ module mapl3g_FrequencyAspect
    type, extends(StateItemAspect) :: FrequencyAspect
       private
       type(ESMF_TimeInterval) :: timestep_
+      type(ESMF_Time) :: refTime_
       character(len=:), allocatable :: accumulation_type_
    contains
       ! These are implementations of extended derived type.
@@ -32,7 +33,7 @@ module mapl3g_FrequencyAspect
    end type FrequencyAspect
 
    interface FrequencyAspect
-      module procedure :: construct_frequency_aspect
+      module procedure :: new_FrequencyAspect
    end interface FrequencyAspect
 
    interface operator(.divides.)
@@ -47,9 +48,10 @@ module mapl3g_FrequencyAspect
 
 contains
 
-   function construct_frequency_aspect(timestep, accumulation_type) result(aspect)
+   function new_FrequencyAspect(timeStep, refTime, accumulation_type) result(aspect)
       type(FrequencyAspect) :: aspect
-      type(ESMF_TimeInterval), optional, intent(in) :: timestep
+      type(ESMF_TimeInterval), optional, intent(in) :: timeStep
+      type(ESMF_Time), optional, intent(in) :: refTime
       character(len=*), optional, intent(in) :: accumulation_type
 
       call aspect%set_mirror(.FALSE.)
@@ -57,9 +59,10 @@ contains
       call aspect%set_accumulation_type(INSTANTANEOUS)
       call aspect%zero_timestep()
       if(present(timestep)) aspect%timestep_ = timestep
+      if(present(refTime)) aspect%refTime_ = refTime
       if(present(accumulation_type)) aspect%accumulation_type_ = accumulation_type
       
-   end function construct_frequency_aspect
+   end function new_FrequencyAspect
 
    function get_timestep(this) result(ts)
       type(ESMF_TimeInterval) :: ts

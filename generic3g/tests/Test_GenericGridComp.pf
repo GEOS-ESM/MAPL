@@ -15,27 +15,20 @@ contains
       class(MpiTestMethod), intent(inout) :: this
 
       type(ESMF_GridComp) :: outer_gc
-      type(ESMF_Clock) :: clock
       integer :: status
       type(ESMF_Info) :: info
       type(ESMF_HConfig) :: hconfig
       logical :: is_generic
-      type(ESMF_Time) :: t
-      type(ESMF_TimeInterval) :: dt
 
-      call ESMF_TimeSet(t, h=0)
-      call ESMF_TimeIntervalSet(dt, h=1)
-      clock = ESMF_ClockCreate(dt, t)
       hconfig = ESMF_HConfigCreate(content='{}')
 
-      outer_gc = create_grid_comp('ROOT', user_setservices('libsimple_parent_gridcomp'), hconfig, clock, _RC)
+      outer_gc = MAPL_GridCompCreate('ROOT', user_setservices('libsimple_parent_gridcomp'), hconfig, _RC)
 
       call ESMF_InfoGetFromHost(outer_gc, info, _RC)
       call ESMF_InfoGet(info, key='MAPL/GRIDCOMP_IS_GENERIC', value=is_generic, _RC)
       @assert_that(is_generic,is(true()))
 
       call ESMF_HConfigDestroy(hconfig, _RC)
-      call ESMF_ClockDestroy(clock, _RC)
 
       _UNUSED_DUMMY(this)
    end subroutine test_is_generic

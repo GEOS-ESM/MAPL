@@ -20,6 +20,7 @@ module mapl3g_Generic
    use :: mapl3g_InnerMetaComponent, only: get_inner_meta
    use :: mapl3g_OuterMetaComponent, only: OuterMetaComponent
    use :: mapl3g_OuterMetaComponent, only: get_outer_meta
+   use :: mapl3g_ChildSpec, only: ChildSpec
    use :: mapl3g_ComponentSpec, only: ComponentSpec
    use :: mapl3g_VariableSpec, only: VariableSpec
    use :: mapl3g_GriddedComponentDriver, only: GriddedComponentDriver
@@ -55,6 +56,7 @@ module mapl3g_Generic
    use :: esmf, only: ESMF_STATEITEM_STATE, ESMF_STATEITEM_UNKNOWN
    use :: esmf, only: ESMF_KIND_R8, ESMF_KIND_R4, ESMF_NOKIND
    use :: esmf, only: ESMF_TYPEKIND_R8, ESMF_TYPEKIND_R4, ESMF_NOKIND
+   use :: esmf, only: ESMF_Time, ESMF_TimeInterval
    use mapl3g_hconfig_get
    use :: pflogger, only: logger_t => logger
    use mapl_ErrorHandling
@@ -71,7 +73,7 @@ module mapl3g_Generic
    public :: MAPL_GridCompGet
    public :: MAPL_GridCompSetEntryPoint
 
-   public :: MAPL_AddChild
+   public :: MAPL_GridCompAddChild
    public :: MAPL_RunChild
    public :: MAPL_RunChildren
 
@@ -123,9 +125,10 @@ module mapl3g_Generic
 
 
 
-   interface MAPL_AddChild
-      procedure :: add_child_by_name
-   end interface MAPL_AddChild
+   interface MAPL_GridCompAddChild
+      procedure :: add_child_config
+      procedure :: add_child_by_spec
+   end interface MAPL_GridCompAddChild
 
    interface MAPL_RunChild
       procedure :: run_child_by_name
@@ -250,23 +253,45 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_get
 
-   subroutine add_child_by_name(gridcomp, child_name, setservices, config, rc)
+
+   subroutine add_child_config(gridcomp, child_name, setservices, hconfig, unusable, timeStep, refTime, rc)
       use mapl3g_UserSetServices
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name
       class(AbstractUserSetServices), intent(in) :: setservices
-      type(ESMF_HConfig), intent(inout) :: config
+      type(ESMF_HConfig), intent(in) :: hconfig
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      type(ESMF_TimeInterval), optional, intent(in) :: timeStep
+      type(ESMF_Time), optional, intent(in) :: refTime
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ChildSpec) :: child_spec
+
+      _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
+
+      child_spec = ChildSpec(setServices, hconfig=hconfig, timeStep=timeStep, refTime=refTime)
+      call add_child_by_spec(gridcomp, child_name, child_spec, _RC)
+
+      _RETURN(ESMF_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine add_child_config
+
+   subroutine add_child_by_spec(gridcomp, child_name, child_spec, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      character(len=*), intent(in) :: child_name
+      type(ChildSpec), intent(in) :: child_spec
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
-      _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
-      call outer_meta%add_child(child_name, setservices, config, _RC)
+      call outer_meta%add_child(child_name, child_spec, _RC)
 
       _RETURN(ESMF_SUCCESS)
-   end subroutine add_child_by_name
+   end subroutine add_child_by_spec
 
 
    ! In this procedure, gridcomp is actually an _outer_ gridcomp.   The intent is that

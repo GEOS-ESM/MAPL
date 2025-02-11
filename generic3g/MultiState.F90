@@ -26,12 +26,12 @@ module mapl3g_MultiState
    end type MultiState
 
    interface MultiState
-      procedure newMultiState_user
+      procedure new_MultiState_user
    end interface MultiState
 
 contains
 
-   function newMultiState_user(unusable, importState, exportState, internalState) result(multi_state)
+   function new_MultiState_user(unusable, importState, exportState, internalState) result(multi_state)
       type(MultiState) :: multi_state
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_State), optional, intent(in) :: importState
@@ -59,7 +59,7 @@ contains
 
       end function get_state
 
-   end function newMultiState_user
+   end function new_MultiState_user
 
 
    subroutine get_state_by_string_intent(this, state, state_intent, rc)

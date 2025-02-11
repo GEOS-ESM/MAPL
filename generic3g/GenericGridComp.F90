@@ -15,7 +15,6 @@ module mapl3g_GenericGridComp
    use :: mapl3g_OuterMetaComponent, only: attach_outer_meta
    use :: mapl3g_GenericPhases
    use :: mapl3g_GriddedComponentDriver
-   use :: mapl3g_MultiState
    use esmf
    use :: mapl_KeywordEnforcer, only: KeywordEnforcer
    use :: mapl_ErrorHandling
@@ -24,12 +23,11 @@ module mapl3g_GenericGridComp
 
    ! Procedures
    public :: setServices
-   public :: create_grid_comp
+   public :: MAPL_GridCompCreate
 
-
-   interface create_grid_comp
+   interface MAPL_GridCompCreate
       module procedure create_grid_comp_primary
-   end interface create_grid_comp
+   end interface MAPL_GridCompCreate
 
 contains
 
@@ -57,6 +55,7 @@ contains
          integer, parameter :: NUM_GENERIC_RUN_PHASES = 1
 
          ! Mandatory generic initialize phases
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_SET_CLOCK, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_ADVERTISE, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_MODIFY_ADVERTISED, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_MODIFY_ADVERTISED2, _RC)
@@ -86,20 +85,18 @@ contains
 
 
    recursive type(ESMF_GridComp) function create_grid_comp_primary( &
-        name, set_services, config, clock, unusable, petlist, rc) result(gridcomp)
+        name, set_services, config, unusable, petlist, rc) result(gridcomp)
       use :: mapl3g_UserSetServices, only: AbstractUserSetServices
 
       character(*), intent(in) :: name
       class(AbstractUserSetServices), intent(in) :: set_services
       type(ESMF_HConfig), intent(in) :: config
-      type(ESMF_Clock), intent(in) :: clock
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: petlist(:)
       integer, optional, intent(out) :: rc
 
       type(ESMF_GridComp) :: user_gridcomp
       type(OuterMetaComponent), pointer :: outer_meta
-      type(ESMF_Clock) :: user_clock
       type(GriddedComponentDriver) :: user_gc_driver
       type(ESMF_Context_Flag) :: contextFlag
       integer :: status
@@ -107,7 +104,7 @@ contains
       contextFlag = ESMF_CONTEXT_PARENT_VM
       if(present(petlist)) contextFlag = ESMF_CONTEXT_OWN_VM
       gridcomp = ESMF_GridCompCreate(name=outer_name(name), &
-           petlist=petlist, contextFlag=contextFlag, clock=clock, _RC)
+           petlist=petlist, contextFlag=contextFlag, _RC)
       call set_is_generic(gridcomp, _RC)
 
       user_gridcomp = ESMF_GridCompCreate(name=name, petlist=petlist, contextFlag=contextFlag, _RC)
@@ -118,9 +115,8 @@ contains
 
       ! We copy the outer gridcomp here.  If the user gridcomp runs at a different (slower!) timestep, that
       ! must be processed later as the information gets stored in the ComponentSpec.
-      user_clock = ESMF_ClockCreate(clock, _RC)
-      
-      user_gc_driver = GriddedComponentDriver(user_gridcomp, user_clock, MultiState())
+
+      user_gc_driver = GriddedComponentDriver(user_gridcomp)
 #ifndef __GFORTRAN__
       outer_meta = OuterMetaComponent(gridcomp, user_gc_driver, set_services, config)
 #else
@@ -131,7 +127,6 @@ contains
       call ridiculous(outer_meta, OuterMetaComponent(gridcomp, user_gc_driver, set_services, config))
 #endif
       call outer_meta%init_meta(_RC)
-
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -163,6 +158,8 @@ contains
       outer_meta => get_outer_meta(gridcomp, _RC)
       call ESMF_GridCompGet(gridcomp, currentPhase=phase, _RC)
       select case (phase)
+      case (GENERIC_INIT_SET_CLOCK)
+         call outer_meta%initialize_set_clock(clock, _RC)
       case (GENERIC_INIT_ADVERTISE)
          call outer_meta%initialize_advertise(_RC)
       case (GENERIC_INIT_MODIFY_ADVERTISED)

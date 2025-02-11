@@ -76,18 +76,18 @@ contains
       
       ss = user_setservices('libA', 'setservices_')
 
-      a = ChildSpec(ss, config_file='a.yml')
+      a = ChildSpec(ss, hconfig=ESMF_HConfigCreate(content='{a: 5}'))
 
       b = ChildSpec(ss)
       @assert_that(a == b, is(false()))
 
-      b = ChildSpec(ss, config_file='a2.yml')
+      b = ChildSpec(ss, hconfig=ESMF_HConfigCreate(content='{b: 7}'))
       @assert_that(a == b, is(false()))
 
       b = ChildSpec(ss)
       @assert_that(a == b, is(false()))
 
-      b = ChildSpec(ss, config_file='a2.yml')
+      b = ChildSpec(ss, hconfig=ESMF_HConfigCreate(content='{b: 7}'))
       @assert_that(a == b, is(false()))
           
 
@@ -118,19 +118,33 @@ contains
 
    @test
    subroutine test_parse_childSpec_with_config_file()
-      type(ESMF_HConfig) :: config
+      type(ESMF_HConfig) :: hconfig, child_hconfig
+      character(*), parameter :: CHILD_HCONFIG_CONTENT = '{a: 8}'
       type(ChildSpec) :: found
       integer :: status, rc
 
       class(AbstractUserSetServices), allocatable :: ss
       type(ChildSpec) :: expected
+      integer :: unit
 
-      config = ESMF_HConfigCreate(content='{setServices: setservices_, sharedObj: libA, config_file: a.yml}')
+      open(newunit=unit,file='a.yml',form='formatted', status='unknown')
+      write(unit,'(a)')CHILD_HCONFIG_CONTENT
+      close(unit)
+
+      hconfig = ESMF_HConfigCreate(content='{setServices: setservices_, sharedObj: libA, config_file: a.yml}')
+      child_hconfig = ESMF_HConfigCreate(content=CHILD_HCONFIG_CONTENT)
 
       ss = user_setservices('libA', 'setservices_')
-      expected = ChildSpec(ss, config_file='a.yml')
-      found = parse_child(config, _RC)
+      expected = ChildSpec(ss, hconfig=child_hconfig)
+      found = parse_child(hconfig, _RC)
       @assert_that(expected == found, is(true()))
+
+      open(newunit=unit,file='a.yml',form='formatted', status='unknown')
+      close(unit,status='delete')
+
+      call ESMF_HConfigDestroy(hconfig, _RC)
+      call ESMF_HConfigDestroy(child_hconfig, _RC)
+      
 
    end subroutine test_parse_childSpec_with_config_file
 
@@ -187,7 +201,7 @@ contains
    end subroutine test_parse_ChildSpecMap_2
 
    @test
-   subroutine test_parse_timestep()
+   subroutine test_parse_timespec()
       type(ESMF_TimeInterval) :: expected_interval
       type(ESMF_Time) :: expected_time
       character(len=*), parameter :: ISO_DURATION = 'P3M'
@@ -195,8 +209,8 @@ contains
       character(len=*), parameter :: NL = new_line('10')
       character(len=:), allocatable :: content
       type(ESMF_HConfig) :: hconfig
-      type(ESMF_TimeInterval) :: actual_interval
-      type(ESMF_Time) :: actual_time
+      type(ESMF_TimeInterval), allocatable :: actual_interval
+      type(ESMF_Time), allocatable :: actual_time
       integer :: actual_mm
       integer :: expected_mm
       integer :: actual_time_array(3)
@@ -208,25 +222,24 @@ contains
       call ESMF_TimeSet(expected_time, yy=1582, mm=10, dd=15, _RC)
       content = 'timestep: ' // ISO_DURATION // NL // 'reference_time: ' // ISO_TIME
       hconfig = ESMF_HConfigCreate(content=content, _RC)
-      call parse_timestep(hconfig, actual_interval, actual_time, _RC)
+      call parse_timespec(hconfig, actual_interval, actual_time, _RC)
+      @assert_that(allocated(actual_interval), is(true()))
       @assertTrue(actual_interval == expected_interval, MAKE_MESSAGE('timestep'))
       @assertTrue(actual_time == expected_time, MAKE_MESSAGE('reference time'))
       call ESMF_HConfigDestroy(hconfig, _RC)
       
-      ! Test with incorrect key for timestep; should return without setting actual_interval (invalid)
+      ! Test with incorrect key for timestep; should return without allocating actual_interval (invalid)
       expected_mm = 1
       expected_time_array = [1583, 11, 16]
       call ESMF_TimeIntervalSet(actual_interval, mm=expected_mm, _RC)
       call ESMF_TimeSet(actual_time, yy=expected_time_array(1), mm=expected_time_array(2), dd=expected_time_array(3), _RC)
       content = 'run_dmc: ' // ISO_DURATION
       hconfig = ESMF_HConfigCreate(content=content, _RC)
-      call parse_timestep(hconfig, actual_interval, actual_time, _RC)
-      call ESMF_TimeIntervalGet(actual_interval, mm=actual_mm, _RC)
-      @assertEqual(expected_mm, actual_mm, 'Expected and actual month intervals do not match.')
-      call ESMF_TimeGet(actual_time, yy=actual_time_array(1), mm=actual_time_array(2), dd=actual_time_array(3), _RC)
-      @assertEqual(expected_time_array, actual_time_array, 'Expected and actual time arrays do not match.')
+      call parse_timespec(hconfig, actual_interval, actual_time, _RC)
+      @assert_that(allocated(actual_interval), is(false()))
+      @assert_that(allocated(actual_time), is(false()))
       call ESMF_HConfigDestroy(hconfig, _RC)
 
-   end subroutine test_parse_timestep
+   end subroutine test_parse_timespec
 
 end module Test_ComponentSpecParser
