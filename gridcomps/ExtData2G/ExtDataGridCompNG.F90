@@ -1001,30 +1001,6 @@ CONTAINS
        field_units = temp_char
     end function get_field_units
 
-    function safe_are_convertible(from, to, rc) result(convertible)
-       logical :: convertible
-       character(*), intent(in) :: from, to
-       integer, optional, intent(out) :: rc
-
-       integer :: status
-       type(UDUnit) :: unit1, unit2
-       logical :: from_invalid, to_invalid
-
-       unit1 = UDUnit(from)
-       unit2 = UDUnit(to)
-
-       from_invalid = unit1%is_free()
-       to_invalid = unit2%is_free()
-
-       if (from_invalid .or. to_invalid) then
-          convertible = .false.
-          _RETURN(_SUCCESS)
-       end if
-       convertible = UDUNITS_are_convertible(unit1, unit2, _RC)
-
-       _RETURN(_SUCCESS)
-    end function safe_are_convertible
-       
   end subroutine MAPL_ExtDataVerticalInterpolate
 
   function MAPL_ExtDataGridChangeLev(Grid,CF,lm,rc) result(NewGrid)
