@@ -83,7 +83,7 @@ contains
            iter = this%component_spec%var_specs%begin()
            do while (iter /= e)
               var_spec => iter%of()
-              call advertise_variable (var_spec, this%registry,  _RC)
+              call advertise_variable (var_spec, this%registry, this%component_spec%activate_all_exports, _RC)
               call iter%next()
            end do
          end associate
@@ -93,9 +93,10 @@ contains
       end subroutine self_advertise
 
 
-      subroutine advertise_variable(var_spec, registry, unusable, rc)
+      subroutine advertise_variable(var_spec, registry, activate_all_exports, unusable, rc)
          type(VariableSpec), intent(in) :: var_spec
          type(StateRegistry), target, intent(inout) :: registry
+         logical, intent(in) :: activate_all_exports
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
 
@@ -108,8 +109,19 @@ contains
          item_spec = make_ItemSpec(var_spec, registry, _RC)
          call item_spec%create(_RC)
 
+         if (activate_all_exports) then
+            if (var_spec%state_intent == ESMF_STATEINTENT_EXPORT) then
+               call item_spec%set_active()
+            end if
+         end if
+               
+         if (var_spec%state_intent == ESMF_STATEINTENT_INTERNAL) then
+            call item_spec%set_active()
+         end if
+
          virtual_pt = var_spec%make_virtualPt()
          call registry%add_primary_spec(virtual_pt, item_spec)
+
 
          _RETURN(_SUCCESS)
          _UNUSED_DUMMY(unusable)

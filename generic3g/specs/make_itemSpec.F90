@@ -65,10 +65,6 @@ contains
       call aspects%insert(CLASS_ASPECT_ID, class_aspect)
       item_spec = StateItemSpec(aspects)
 
-      if (variable_spec%state_intent == ESMF_STATEINTENT_INTERNAL) then
-         call item_spec%set_active()
-      end if
-
       dependencies = variable_spec%make_dependencies(_RC)
       call item_spec%set_dependencies(dependencies)
       call item_spec%set_raw_dependencies(variable_spec%dependencies)
