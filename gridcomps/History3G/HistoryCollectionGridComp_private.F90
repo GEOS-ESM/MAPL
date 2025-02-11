@@ -253,7 +253,7 @@ contains
       do while (ftn_iter /= ftn_end)
          call ftn_iter%next()
          short_name = ftn_iter%of()
-         varspec = VariableSpec(ESMF_STATEINTENT_IMPORT, short_name, vertical_dim_spec=VERTICAL_DIM_MIRROR)
+         varspec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name, vertical_dim_spec=VERTICAL_DIM_MIRROR, _RC)
          call MAPL_AddSpec(gridcomp, varspec, _RC)
       end do
 
