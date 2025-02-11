@@ -61,6 +61,7 @@ module mapl3g_OuterMetaComponent
       procedure :: get_geom
       procedure :: get_registry
       procedure :: get_lgr
+      procedure :: set
 
       procedure :: get_phases
 
@@ -434,5 +435,18 @@ module mapl3g_OuterMetaComponent
    integer, save :: counter = 0
 
    character(*), parameter :: RUN_USER_ALARM = 'run_user'
+
+contains
+
+   subroutine set(this, unusable, activate_all_exports)
+      class(OuterMetaComponent), intent(inout) :: this
+      class(KE), optional, intent(in) :: unusable
+      logical, optional, intent(in) :: activate_all_exports
+
+      if (present(activate_all_exports)) then
+         this%component_spec%activate_all_exports = activate_all_exports
+      end if
+
+   end subroutine set
 
 end module mapl3g_OuterMetaComponent
