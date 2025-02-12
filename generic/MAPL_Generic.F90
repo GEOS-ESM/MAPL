@@ -2421,8 +2421,6 @@ contains
          call report_generic_profile()
       end if
 
-!      call t_p%stop(trim(state%compname),_RC)
-
       ! Clean-up
       !---------
       !ALT
