@@ -22,8 +22,8 @@ module mapl3g_MaplFramework
    private
 
    public :: MaplFramework
-   public :: MAPL_initialize
-   public :: MAPL_finalize
+   public :: MAPL_Initialize
+   public :: MAPL_Finalize
    public :: MAPL_Get
 
    type :: MaplFramework

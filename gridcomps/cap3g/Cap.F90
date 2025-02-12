@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_Cap
+
    use mapl3g_CapGridComp, only: cap_setservices => setServices
    use generic3g
    use mapl3g_GenericPhases
@@ -9,6 +10,7 @@ module mapl3g_Cap
    use mapl_ErrorHandling
    use esmf
    use MAPL_TimeStringConversion, only: hconfig_to_esmf_timeinterval
+
    implicit none
    private
 
