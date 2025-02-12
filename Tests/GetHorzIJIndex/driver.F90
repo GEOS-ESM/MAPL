@@ -2,9 +2,9 @@
 
 #include "MAPL_Generic.h"
 
-program driver_MAPL_GetHorzIJIndex
+program driver_GetHorzIJIndex
    use MAPL
-   use MAPL_GetHorzIJIndex_mod, only: SetServices
+   use GridComp, only: SetServices
    implicit none
 
    type (MAPL_Cap) :: cap
@@ -17,4 +17,4 @@ program driver_MAPL_GetHorzIJIndex
    cap = MAPL_Cap('GetHorzIJIndex', SetServices, cap_options = cap_options)
    call cap%run(_RC)
 
-end program driver_MAPL_GetHorzIJIndex
+end program driver_GetHorzIJIndex

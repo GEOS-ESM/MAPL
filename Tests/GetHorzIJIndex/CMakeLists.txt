@@ -1,11 +1,38 @@
 set (SRCS
-  MAPL_GetHorzIJIndex_Mod.F90
-  driver_MAPL_GetHorzIJIndex.F90
+  GridComp.F90
+  driver.F90
   )
 
 #set(dependencies MAPL GFTL_SHARED::gftl-shared esmf OpenMP::OpenMP_Fortran)
 
 ecbuild_add_executable (
-  TARGET driver_MAPL_GetHorzIJIndex.x
+  TARGET GetHorzIJIndexDriver.x
   SOURCES ${SRCS} )
-target_link_libraries(driver_MAPL_GetHorzIJIndex.x  PRIVATE MAPL FARGPARSE::fargparse ESMF::ESMF  OpenMP::OpenMP_Fortran)
+target_link_libraries(GetHorzIJIndexDriver.x  PRIVATE MAPL FARGPARSE::fargparse ESMF::ESMF  OpenMP::OpenMP_Fortran)
+
+# Detect if we are using Open MPI and add oversubscribe
+string(REPLACE " " ";" MPI_Fortran_LIBRARY_VERSION_LIST ${MPI_Fortran_LIBRARY_VERSION_STRING})
+list(GET MPI_Fortran_LIBRARY_VERSION_LIST 0 MPI_Fortran_LIBRARY_VERSION_FIRSTWORD)
+if(MPI_Fortran_LIBRARY_VERSION_FIRSTWORD MATCHES "Open")
+  list(APPEND MPIEXEC_PREFLAGS "-oversubscribe")
+endif()
+
+set (TEST_CASES 
+  NO_OMP
+  OMP_1_thread
+  OMP_4_thread
+  )
+
+foreach(TEST_CASE ${TEST_CASES})
+
+  add_test(
+    NAME "GetHorzIJIndex_${TEST_CASE}"
+    COMMAND ${CMAKE_COMMAND}
+      -DTEST_CASE=${TEST_CASE}
+      -DMPIEXEC_EXECUTABLE=${MPIEXEC_EXECUTABLE}
+      -DMPIEXEC_NUMPROC_FLAG=${MPIEXEC_NUMPROC_FLAG}
+      -DMY_BINARY_DIR=${CMAKE_BINARY_DIR}/bin
+      -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS}
+      -P ${CMAKE_CURRENT_SOURCE_DIR}/run_gethorzijindex.cmake
+  )
+endforeach()
