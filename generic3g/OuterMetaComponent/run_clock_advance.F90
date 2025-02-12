@@ -24,20 +24,19 @@ contains
       logical :: is_ringing
       integer :: phase
 
+      call ESMF_ClockGetAlarm(clock, alarm=alarm, alarmName=RUN_USER_ALARM, _RC)
+      is_ringing = ESMF_AlarmIsRinging(alarm, _RC)
+      _RETURN_IF(.not. is_ringing)
 
       associate(e => this%children%ftn_end())
         iter = this%children%ftn_begin()
         do while (iter /= e)
            call iter%next()
            child => iter%second()
-           call child%clock_advance()
            call child%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
+           call child%clock_advance()
         end do
       end associate
-
-      call ESMF_ClockGetAlarm(clock, alarm=alarm, alarmName=RUN_USER_ALARM, _RC)
-      is_ringing = ESMF_AlarmIsRinging(alarm, _RC)
-      _RETURN_IF(.not. is_ringing)
 
       call this%user_gc_driver%clock_advance(_RC)
 

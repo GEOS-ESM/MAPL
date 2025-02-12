@@ -101,11 +101,9 @@ contains
       alarm = ESMF_AlarmCreate(outer_clock, &
            name = RUN_USER_ALARM, &
            ringInterval=user_timestep, &
-           refTime=user_refTime, &
+           ringTime=user_refTime, &
            sticky=.false., &
            _RC)
-
-      call ESMF_AlarmRingerOn(alarm, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine set_run_user_alarm
