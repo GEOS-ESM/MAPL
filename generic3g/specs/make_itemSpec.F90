@@ -10,13 +10,6 @@ module mapl3g_make_itemSpec
    use mapl3g_WildcardClassAspect
    use mapl3g_ServiceClassAspect
    use mapl3g_BracketClassAspect
-   
-!#   use mapl3g_FieldSpec, only: FieldSpec
-!#   use mapl3g_ServiceSpec, only: ServiceSpec
-!#   use mapl3g_WildcardSpec, only: WildcardSpec
-!#   use mapl3g_BracketSpec, only: BracketSpec
-!#   use mapl3g_StateSpec, only: StateSpec
-!#   use mapl3g_InvalidSpec, only: InvalidSpec
    use mapl3g_StateRegistry, only: StateRegistry
    use mapl_ErrorHandling
    use esmf, only: ESMF_STATEINTENT_INTERNAL, operator(==)
@@ -43,9 +36,8 @@ contains
       type(VirtualConnectionPt) :: v_pt
       type(StateItemExtension), pointer :: primary
 
-      class(ClassAspect), allocatable :: class_aspect, ref_class_aspect
-      type(StateItemSpec), target:: ref_spec
-      type(AspectMap), target :: ref_aspects, aspects
+      class(ClassAspect), allocatable :: class_aspect
+      type(AspectMap), target :: aspects
 
       select case (variable_spec%itemtype%ot)
       case (MAPL_STATEITEM_FIELD%ot)

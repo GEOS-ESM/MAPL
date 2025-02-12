@@ -22,7 +22,7 @@ module mapl3g_Generic
    use :: mapl3g_OuterMetaComponent, only: get_outer_meta
    use :: mapl3g_ChildSpec, only: ChildSpec
    use :: mapl3g_ComponentSpec, only: ComponentSpec
-   use :: mapl3g_VariableSpec, only: VariableSpec
+   use :: mapl3g_VariableSpec, only: VariableSpec, make_VariableSpec
    use :: mapl3g_GriddedComponentDriver, only: GriddedComponentDriver
    use :: mapl3g_UngriddedDims, only: UngriddedDims
    use :: mapl3g_Validation, only: is_valid_name
@@ -435,7 +435,7 @@ contains
       integer :: status
       type(VariableSpec) :: var_spec
 
-      var_spec = VariableSpec( &
+      var_spec = make_VariableSpec( &
            state_intent=state_intent, &
            short_name=short_name, &
            standard_name=standard_name, &
@@ -485,7 +485,7 @@ contains
          typekind = to_typekind(precision)
       end if
 
-      var_spec = VariableSpec( &
+      var_spec = make_VariableSpec( &
            state_intent=ESMF_STATEINTENT_IMPORT, &
            short_name=short_name, &
            typekind=typekind, &
@@ -568,11 +568,13 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
       type(ComponentSpec), pointer :: component_spec
+      type(VariableSpec) :: var_spec
 
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
-      call component_spec%var_specs%push_back(VariableSpec(ESMF_STATEINTENT_EXPORT, &
-           short_name=short_name, standard_name=standard_name))
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name=short_name, &
+           standard_name=standard_name, _RC)
+      call component_spec%var_specs%push_back(var_spec)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine add_export_spec
@@ -588,14 +590,16 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
       type(ComponentSpec), pointer :: component_spec
+      type(VariableSpec) :: var_spec
 
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
-      call component_spec%var_specs%push_back(VariableSpec( &
+      var_spec = make_VariableSpec( &
            ESMF_STATEINTENT_INTERNAL, &
            short_name=short_name, &
            standard_name=standard_name, &
-           units=units))
+           units=units, _RC)
+      call component_spec%var_specs%push_back(var_spec)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)

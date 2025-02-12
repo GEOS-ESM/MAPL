@@ -84,7 +84,7 @@ contains
       units_ = 'barn'
       if (present(units)) units_ = units
 
-      var_spec = VariableSpec(state_intent=state_intent_, short_name=short_name_, typekind=typekind, units=units_)
+      var_spec = make_VariableSpec(state_intent=state_intent_, short_name=short_name_, typekind=typekind, units=units_)
       aspects => var_spec%aspects
 
       mock_aspect = MockAspect(value, mirror_, time_dependent_, supports_conversion_)

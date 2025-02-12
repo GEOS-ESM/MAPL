@@ -104,19 +104,19 @@ contains
             dependencies = to_dependencies(attributes, _RC)
 
             esmf_state_intent = to_esmf_state_intent(state_intent)
-            var_spec = VariableSpec(esmf_state_intent, short_name=short_name, &
-                 itemtype=itemtype, &
-                 service_items=service_items, &
-                 standard_name=standard_name, &
+            var_spec = make_VariableSpec(esmf_state_intent, short_name=short_name, &
                  units=units, &
+                 itemtype=itemtype, &
                  typekind=typekind, &
-                 default_value=default_value, &
                  vertical_dim_spec=vertical_dim_spec, &
                  ungridded_dims=ungridded_dims, &
+                 default_value=default_value, &
+                 service_items=service_items, &
+                 standard_name=standard_name, &
                  dependencies=dependencies, &
                  accumulation_type=accumulation_type, &
                  timestep=timestep, &
-                 refTime=refTime)
+                 refTime=refTime, _RC)
 
             if (allocated(units)) deallocate(units)
             if (allocated(standard_name)) deallocate(standard_name)
