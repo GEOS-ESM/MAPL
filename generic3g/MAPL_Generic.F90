@@ -71,6 +71,7 @@ module mapl3g_Generic
    public :: get_outer_meta_from_inner_gc
 
    public :: MAPL_GridCompGet
+   public :: MAPL_GridCompSet
    public :: MAPL_GridCompSetEntryPoint
 
    public :: MAPL_GridCompAddChild
@@ -105,7 +106,7 @@ module mapl3g_Generic
    interface MAPL_GridCompGetOuterMeta
       procedure :: gridcomp_get_outer_meta
    end interface MAPL_GridCompGetOuterMeta
-   
+
    interface MAPL_GridCompSetGeom
       procedure MAPL_GridCompSetGeom
       procedure MAPL_GridCompSetGeomGrid
@@ -118,6 +119,9 @@ module mapl3g_Generic
       procedure :: gridcomp_get
    end interface MAPL_GridCompGet
 
+   interface MAPL_GridCompSet
+      procedure :: gridcomp_set
+   end interface MAPL_GridCompSet
 
 !!$   interface MAPL_GetInternalState
 !!$      procedure :: get_internal_state
@@ -253,6 +257,21 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_get
 
+   subroutine gridcomp_set(gridcomp, unusable, activate_all_exports, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(in) :: activate_all_exports
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call outer_meta%set(activate_all_exports=activate_all_exports)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine gridcomp_set
 
    subroutine add_child_config(gridcomp, child_name, setservices, hconfig, unusable, timeStep, refTime, rc)
       use mapl3g_UserSetServices
