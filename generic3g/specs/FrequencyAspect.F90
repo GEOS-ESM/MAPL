@@ -129,7 +129,7 @@ contains
       class is (FrequencyAspect)
          other_timestep = dst%get_timestep()
          if(other_timestep == zero) return
-         if(.not. accumulation_type_is_valid(dst%get_accumulation_type())) return
+         if(.not. accumulation_type_is_valid(src%get_accumulation_type())) return
          does_match = other_timestep == this_timestep
       end select
 
