@@ -35,4 +35,7 @@ foreach(TEST_CASE ${TEST_CASES})
       -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS}
       -P ${CMAKE_CURRENT_SOURCE_DIR}/run_gethorzijindex.cmake
   )
+
+    set_tests_properties ("GetHorzIJIndex_${TEST_CASE}" PROPERTIES LABELS "THREADING_TESTS;ESSENTIAL")
+
 endforeach()

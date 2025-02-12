@@ -29,6 +29,7 @@ if (BUILD_WITH_FARGPARSE)
   target_link_libraries (CapDriver.x PRIVATE MAPL MAPL.test_utilities FARGPARSE::fargparse ESMF::ESMF OpenMP::OpenMP_Fortran)
   set_target_properties(CapDriver.x PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 
+  add_subdirectory(GetHorzIJIndex)
+
 endif ()
 
-add_subdirectory(GetHorzIJIndex)
