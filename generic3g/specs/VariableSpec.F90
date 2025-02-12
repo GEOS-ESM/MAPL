@@ -7,6 +7,7 @@ module mapl3g_VariableSpec
    use mapl3g_TypekindAspect
    use mapl3g_UngriddedDimsAspect
    use mapl3g_AttributesAspect
+   use mapl3g_BracketClassAspect
    use mapl3g_FrequencyAspect
    use mapl3g_UngriddedDims
    use mapl3g_VerticalDimSpec
@@ -31,6 +32,7 @@ module mapl3g_VariableSpec
    private
 
    public :: VariableSpec
+   public :: make_VariableSpec
 
    ! This type provides components that might be needed for _any_
    ! state item.  This is largely to support legacy interfaces, but it
@@ -46,33 +48,25 @@ module mapl3g_VariableSpec
       character(:), allocatable :: standard_name
       type(ESMF_StateItem_Flag) :: itemtype = MAPL_STATEITEM_FIELD
       type(StringVector), allocatable :: service_items
-      character(:), allocatable :: substate
       real, allocatable :: default_value
       type(StringVector) :: attributes
       integer, allocatable :: bracket_size
 
-      ! Geometry
-      type(VerticalDimSpec) :: vertical_dim_spec = VERTICAL_DIM_UNKNOWN ! none, center, edge
-      type(HorizontalDimsSpec) :: horizontal_dims_spec = HORIZONTAL_DIMS_GEOM ! none, geom
       type(StringVector) :: dependencies
    contains
       procedure :: make_virtualPt
       procedure :: make_dependencies
    end type VariableSpec
 
-   interface VariableSpec
-      module procedure :: new_VariableSpec
-   end interface VariableSpec
-
 contains
 
-   function new_VariableSpec( &
+   function make_VariableSpec( &
         state_intent, short_name, unusable, standard_name, geom, &
-        units, substate, itemtype, typekind, vertical_dim_spec, ungridded_dims, default_value, &
+        units, itemtype, typekind, vertical_dim_spec, ungridded_dims, default_value, &
         service_items, attributes, &
         bracket_size, &
         dependencies, regrid_param, horizontal_dims_spec, &
-        accumulation_type, timeStep, refTime) result(var_spec)
+        accumulation_type, timeStep, refTime, rc) result(var_spec)
 
       type(VariableSpec) :: var_spec
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
@@ -84,7 +78,6 @@ contains
       type(ESMF_StateItem_Flag), optional, intent(in) :: itemtype
       type(StringVector), optional :: service_items
       character(*), optional, intent(in) :: units
-      character(*), optional, intent(in) :: substate
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       type(VerticalDimSpec), optional, intent(in) :: vertical_dim_spec
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
@@ -97,6 +90,7 @@ contains
       character(len=*), optional, intent(in) :: accumulation_type
       type(ESMF_TimeInterval), optional, intent(in) :: timestep
       type(ESMF_Time), optional, intent(in) :: refTime
+      integer, optional, intent(out) :: rc
 
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
       type(EsmfRegridderParam) :: regrid_param_
@@ -112,40 +106,34 @@ contains
 
       call var_spec%aspects%insert(UNITS_ASPECT_ID, UnitsAspect(units))
 
-      regrid_param_ = get_regrid_param(regrid_param, standard_name)
       call var_spec%aspects%insert(VERTICAL_GRID_ASPECT_ID, &
            VerticalGridAspect(vertical_dim_spec=vertical_dim_spec, geom=geom))
 
+      regrid_param_ = get_regrid_param(regrid_param, standard_name)
       call var_spec%aspects%insert(GEOM_ASPECT_ID, GeomAspect(geom, regrid_param_, horizontal_dims_spec))
 
       call var_spec%aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, UngriddedDimsAspect(ungridded_dims))
       call var_spec%aspects%insert(ATTRIBUTES_ASPECT_ID, AttributesAspect(attributes))
       call var_spec%aspects%insert(TYPEKIND_ASPECT_ID, TypekindAspect(typekind))
-
       call var_spec%aspects%insert(FREQUENCY_ASPECT_ID, FrequencyAspect(timestep=timestep, refTime=refTime, accumulation_type=accumulation_type))
 
       _SET_OPTIONAL(standard_name)
       _SET_OPTIONAL(itemtype)
 
-      _SET_OPTIONAL(substate)
       _SET_OPTIONAL(service_items)
       _SET_OPTIONAL(default_value)
-      _SET_OPTIONAL(vertical_dim_spec)
-      _SET_OPTIONAL(attributes)
       _SET_OPTIONAL(bracket_size)
       _SET_OPTIONAL(dependencies)
 
+      _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end function new_VariableSpec
+   end function make_VariableSpec
 
 
    function make_virtualPt(this) result(v_pt)
       type(VirtualConnectionPt) :: v_pt
       class(VariableSpec), intent(in) :: this
       v_pt = VirtualConnectionPt(this%state_intent, this%short_name)
-      if (allocated(this%substate)) then
-         v_pt = v_pt%add_comp_name(this%substate)
-      end if
    end function make_virtualPt
 
    function make_dependencies(this, rc) result(dependencies)

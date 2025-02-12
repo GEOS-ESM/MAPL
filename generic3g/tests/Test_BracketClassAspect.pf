@@ -45,8 +45,8 @@ contains
       integer, parameter :: BRACKET_SIZE = 2
       type(VerticalGridAspect) :: vert_aspect
 
-      var_spec = VariableSpec(itemtype=MAPL_STATEITEM_BRACKET, state_intent=ESMF_STATEINTENT_EXPORT, &
-           short_name='a', standard_name='A', geom=geom, units='m')
+      var_spec = make_VariableSpec(itemtype=MAPL_STATEITEM_BRACKET, state_intent=ESMF_STATEINTENT_EXPORT, &
+           short_name='a', standard_name='A', geom=geom, units='m', _RC)
 
       aspects => var_spec%aspects
       vert_aspect = VerticalGridAspect(BasicVerticalGrid(5))
