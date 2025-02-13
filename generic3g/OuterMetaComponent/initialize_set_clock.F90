@@ -90,12 +90,12 @@ contains
       integer :: status
       type(ESMF_TimeInterval) :: outer_timestep, user_timestep, zero
       type(ESMF_Time) :: user_refTime
-      type(ESMF_Time) :: outer_refTime
+      type(ESMF_Time) :: currTime
       type(ESMF_Alarm) :: alarm
 
       call ESMF_TimeIntervalSet(zero, s=0, _RC)
 
-      call ESMF_ClockGet(outer_clock, timestep=outer_timestep, refTime=outer_refTime, _RC)
+      call ESMF_ClockGet(outer_clock, timestep=outer_timestep, currTime=currTime, _RC)
       call ESMF_ClockGet(user_clock, timestep=user_timestep, refTime=user_refTime, _RC)
 
       alarm = ESMF_AlarmCreate(outer_clock, &
@@ -104,6 +104,10 @@ contains
            ringTime=user_refTime, &
            sticky=.false., &
            _RC)
+
+      if (user_refTime < currTime) then
+         call ESMF_AlarmRingerOff(alarm, _RC)
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine set_run_user_alarm
