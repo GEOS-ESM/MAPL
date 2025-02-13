@@ -1901,9 +1901,9 @@ contains
             call state%t_profiler%stop(trim(sbrtn),_RC)
             call state%t_profiler%stop(_RC)
          end if
-         call t_p%stop(trim(state%compname),_RC)
-         call m_p%stop(trim(state%compname),_RC)
       endif
+      call t_p%stop(trim(state%compname),_RC)
+      call m_p%stop(trim(state%compname),_RC)
 
 
       _RETURN(ESMF_SUCCESS)
@@ -2446,9 +2446,6 @@ contains
       if (.not. MAPL_ProfIsDisabled()) then
          call report_generic_profile()
       end if
-
-      call t_p%stop(trim(state%compname),_RC)
-      call m_p%stop(trim(state%compname),_RC)
 
       ! Clean-up
       !---------
@@ -6103,7 +6100,7 @@ contains
 
       nwrgt1 = (mpl%grid%num_readers > 1)
 
-      isNC4 = MAPL_FILETYPE_UNK 
+      isNC4 = MAPL_FILETYPE_UNK
       if (on_tiles) mpl%grid%split_restart = .false.
       if(INDEX(FNAME,'*') == 0) then
          if (AmIRoot) then

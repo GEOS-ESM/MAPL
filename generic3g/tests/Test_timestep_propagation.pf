@@ -1,0 +1,265 @@
+#include "MAPL_TestErr.h"
+
+module Test_timestep_propagation
+   use mapl3g_Generic
+   use mapl3g_ComponentSpecParser
+   use mapl3g_ChildSpec
+   use mapl3g_GenericPhases
+   use mapl3g_GenericGridComp, generic_setservices => setServices
+   use mapl3g_ComponentDriver
+   use mapl3g_GriddedComponentDriver
+   use mapl3g_UserSetServices
+   use mapl3g_MultiState
+   use mapl_ErrorHandling
+   use esmf
+   use funit
+   implicit none
+
+   type(ESMF_TimeInterval) :: child_timeStep
+   type(ESMF_Time) :: child_refTime
+   integer :: child_run_count
+
+contains
+
+  @test
+   subroutine test_default_timeStep()
+
+      type(ESMF_Time) :: t0, t1, expected_refTime
+      type(ESMF_TimeInterval) :: timeStep, expected_timeStep
+      type(ESMF_Clock) :: clock
+      integer :: status, user_status
+      type(ESMF_HConfig) :: cap_hconfig
+      type(ESMF_GridComp) :: cap_gridcomp
+      type(GriddedComponentDriver) :: driver
+      
+      call ESMF_TimeSet(t0, timeString="2000-04-03T21:00:00", _RC)
+      call ESMF_TimeSet(t1, timeString="2000-04-03T22:00:00", _RC)
+      call ESMF_TimeIntervalSet(timestep, s=900)
+
+      clock = ESMF_ClockCreate(timeStep=timeStep, startTime=t0, stoptime=t1, refTime=t0, _RC)
+      cap_hconfig = ESMF_HConfigCreate(content='{use_default_timestep: true}', _RC)
+
+      cap_gridcomp = MAPL_GridCompCreate('CAP', user_setservices(parent_ss), cap_hconfig, _RC)
+      call ESMF_GridCompSetServices(cap_gridcomp, generic_setservices, userRC=user_status, _RC)
+
+      driver = GriddedComponentDriver(cap_gridcomp, MultiState(), clock)
+      call initialize_phases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
+      call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
+      call driver%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
+
+      call ESMF_TimeIntervalSet(expected_timeStep, s=900)
+      expected_refTime = t0
+
+      @assert_that(child_timestep == expected_timestep, is(true()))
+      @assert_that(child_reftime == expected_reftime, is(true()))
+      
+   end subroutine test_default_timeStep
+
+   @test
+   subroutine test_double_timeStep()
+
+      type(ESMF_Time) :: t0, t1
+      type(ESMF_TimeInterval) :: timeStep, expected_timeStep
+      type(ESMF_Clock) :: clock
+      integer :: status, user_status
+      type(ESMF_HConfig) :: cap_hconfig
+      type(ESMF_GridComp) :: cap_gridcomp
+      type(GriddedComponentDriver) :: driver
+      
+      call ESMF_TimeSet(t0, timeString="2000-04-03T21:00:00", _RC)
+      call ESMF_TimeSet(t1, timeString="2000-04-03T22:00:00", _RC)
+      call ESMF_TimeIntervalSet(timestep, s=1800)
+
+      clock = ESMF_ClockCreate(timeStep=timeStep, startTime=t0, stoptime=t1, refTime=t0, _RC)
+      cap_hconfig = ESMF_HConfigCreate(content='{use_default_timestep: true}', _RC)
+
+      cap_gridcomp = MAPL_GridCompCreate('CAP', user_setservices(parent_ss), cap_hconfig, _RC)
+      call ESMF_GridCompSetServices(cap_gridcomp, generic_setservices, userRC=user_status, _RC)
+
+      driver = GriddedComponentDriver(cap_gridcomp, MultiState(), clock)
+      call initialize_phases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
+      call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
+      call driver%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
+
+      call ESMF_TimeIntervalSet(expected_timeStep, s=1800)
+      @assert_that(child_timestep == expected_timestep, is(true()))
+      
+   end subroutine test_double_timeStep
+
+   @test
+   ! This test verifies that a child with a doubledtimestep only runs
+   ! on alternate timesteps of the parent.
+   subroutine test_child_call_frequency()
+
+      type(ESMF_Time) :: t0, t1
+      type(ESMF_TimeInterval) :: timeStep
+      type(ESMF_Clock) :: clock
+      integer :: status, user_status
+      type(ESMF_HConfig) :: cap_hconfig
+      type(ESMF_GridComp) :: cap_gridcomp
+      type(GriddedComponentDriver) :: driver
+      
+      call ESMF_TimeSet(t0, timeString="2000-04-03T21:00:00", _RC)
+      call ESMF_TimeSet(t1, timeString="2000-04-03T22:00:00", _RC)
+      call ESMF_TimeIntervalSet(timestep, s=900)
+
+      clock = ESMF_ClockCreate(timeStep=timeStep, startTime=t0, stoptime=t1, refTime=t0, _RC)
+      cap_hconfig = ESMF_HConfigCreate(content='{use_default_timestep: false}', _RC)
+
+
+      cap_gridcomp = MAPL_GridCompCreate('CAP', user_setservices(parent_ss), cap_hconfig, _RC)
+      call ESMF_GridCompSetServices(cap_gridcomp, generic_setservices, userRC=user_status, _RC)
+
+      driver = GriddedComponentDriver(cap_gridcomp, MultiState(), clock)
+      call initialize_phases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
+
+      child_run_count = 0
+
+      call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
+      call driver%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
+      @assert_that(child_run_count, is(equal_to(1)))
+
+      call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
+      call driver%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
+      @assert_that(child_run_count, is(equal_to(1)))
+
+
+      call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
+      call driver%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
+      @assert_that(child_run_count, is(equal_to(2)))
+      
+   end subroutine test_child_call_frequency
+
+  @test
+   ! This test verifies that a child with a doubledtimestep only runs
+   ! on alternate timesteps of the parent.
+   subroutine test_child_call_frequency_with_offset()
+
+      type(ESMF_Time) :: t0, t1
+      type(ESMF_TimeInterval) :: timeStep
+      type(ESMF_Clock) :: clock
+      integer :: status, user_status
+      type(ESMF_HConfig) :: cap_hconfig
+      type(ESMF_GridComp) :: cap_gridcomp
+      type(GriddedComponentDriver) :: driver
+      
+      call ESMF_TimeSet(t0, timeString="2000-04-03T21:00:00", _RC)
+      call ESMF_TimeSet(t1, timeString="2000-04-03T22:00:00", _RC)
+      call ESMF_TimeIntervalSet(timestep, s=900)
+
+      clock = ESMF_ClockCreate(timeStep=timeStep, startTime=t0, stoptime=t1, refTime=t0, _RC)
+      cap_hconfig = ESMF_HConfigCreate(content='{use_default_timestep: false, use_default_refTime: false}', _RC)
+
+
+      cap_gridcomp = MAPL_GridCompCreate('CAP', user_setservices(parent_ss), cap_hconfig, _RC)
+      call ESMF_GridCompSetServices(cap_gridcomp, generic_setservices, userRC=user_status, _RC)
+
+      driver = GriddedComponentDriver(cap_gridcomp, MultiState(), clock)
+      call initialize_phases(driver, phases=GENERIC_INIT_PHASE_SEQUENCE, _RC)
+
+      child_run_count = 0
+
+      call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
+      call driver%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
+      @assert_that(child_run_count, is(equal_to(0)))
+
+      call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
+      call driver%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
+      @assert_that(child_run_count, is(equal_to(1)))
+
+      call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
+      call driver%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
+      @assert_that(child_run_count, is(equal_to(1)))
+      
+      call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
+      call driver%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
+      @assert_that(child_run_count, is(equal_to(2)))
+ 
+      call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
+      call driver%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
+      @assert_that(child_run_count, is(equal_to(2)))
+ 
+ end subroutine test_child_call_frequency_with_offset
+
+   !-------------------------------
+   ! test gridcomps implementation
+   !-------------------------------
+
+
+   subroutine parent_ss(gridcomp, rc)
+      type(ESMF_Gridcomp) :: gridcomp
+      integer, intent(out) :: rc
+
+      type(ChildSpec) :: child_spec
+      integer :: status
+      logical :: use_default_timestep
+      logical :: use_default_refTime
+      type(ESMF_TimeInterval), allocatable :: timeStep
+      type(ESMF_Time), allocatable :: refTime
+      type(ESMF_HConfig) :: hconfig
+
+      rc=0
+      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run_parent, _RC)
+
+      call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
+
+      call MAPL_ResourceGet(gridcomp, keystring='use_default_timestep', value=use_default_timestep, default=.true., _RC)
+      if (.not. use_default_timestep) then
+         allocate(timeStep)
+         call ESMF_TimeIntervalSet(timeStep, s=1800)
+      end if
+
+      call MAPL_ResourceGet(gridcomp, keystring='use_default_refTime', value=use_default_refTime, default=.true., _RC)
+      if (.not. use_default_refTime) then
+         allocate(refTime)
+         ! offset by 900 seconds
+         call ESMF_TimeSet(refTime, timeString="2000-04-03T20:45:00", _RC)
+      end if
+
+      child_spec = ChildSpec(user_SetServices(child_ss), timeStep=timeStep, refTime=refTime)
+      call MAPL_GridCompAddChild(gridcomp, 'child', child_spec, _RC)
+      
+   end subroutine parent_ss
+   
+  subroutine run_parent(gridcomp, importState, exportState, clock, rc)
+      type(ESMF_GridComp)   :: gridcomp
+      type(ESMF_State)      :: importState
+      type(ESMF_State)      :: exportState
+      type(ESMF_Clock)      :: clock      
+      integer, intent(out)  :: rc
+
+      integer :: status
+      
+      rc=0
+      call MAPL_RunChild(gridcomp, 'child', _RC)
+
+   end subroutine run_parent
+
+   subroutine child_ss(gridcomp, rc)
+      type(ESMF_Gridcomp) :: gridcomp
+      integer, intent(out) :: rc
+
+      integer :: status
+
+      rc=0
+      call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_RUN, run_child, _RC)
+      
+   end subroutine child_ss
+
+   subroutine run_child(gridcomp, importState, exportState, clock, rc)
+      type(ESMF_GridComp)   :: gridcomp
+      type(ESMF_State)      :: importState
+      type(ESMF_State)      :: exportState
+      type(ESMF_Clock)      :: clock      
+      integer, intent(out)  :: rc
+
+      integer :: status
+      
+      rc=0
+      call ESMF_ClockGet(clock, timeStep=child_timeStep, refTime=child_refTime, _RC)
+
+      child_run_count = child_run_count + 1
+
+    end subroutine run_child
+
+end module Test_timestep_propagation

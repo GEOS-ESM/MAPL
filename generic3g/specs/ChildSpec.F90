@@ -15,7 +15,7 @@ module mapl3g_ChildSpec
    
    type :: ChildSpec
       class(AbstractUserSetServices), allocatable :: user_setservices
-      type(ESMF_HConfig), allocatable :: hconfig
+      type(ESMF_HConfig) :: hconfig
       type(ESMF_TimeInterval), allocatable :: timeStep
       type(ESMF_Time), allocatable :: refTime
    contains
@@ -47,7 +47,11 @@ contains
       type(ESMF_Time), optional, intent(in) :: refTime
 
       spec%user_setservices = user_setservices
-      if (present(hconfig)) spec%hconfig = hconfig
+      if (present(hconfig)) then
+         spec%hconfig = hconfig
+      else
+         spec%hconfig = ESMF_HConfigCreate(content='{}')
+      end if
 
       if (present(timeStep)) spec%timeStep = timeStep
       if (present(refTime)) spec%refTime = refTime
@@ -63,7 +67,7 @@ contains
       equal = (a%user_setservices == b%user_setservices)
       if (.not. equal) return
       
-      equal = equal_alloc_hconfig(a%hconfig, b%hconfig)
+      equal = equal_hconfig(a%hconfig, b%hconfig)
       if (.not. equal) return
 
       equal = equal_timestep(a%timeStep, b%timestep)
@@ -74,22 +78,16 @@ contains
 
    contains
 
-      logical function equal_alloc_hconfig(a, b) result(equal)
-         type(ESMF_HConfig), allocatable, intent(in) :: a
-         type(ESMF_HConfig), allocatable, intent(in) :: b
-
+      logical function equal_hconfig(a, b) result(equal)
+         type(ESMF_HConfig), intent(in) :: a
+         type(ESMF_HConfig), intent(in) :: b
 
          type(ESMF_HConfigMatch_Flag) :: match_flag
          
-         equal = (allocated(a) .eqv. allocated(b))
-         if (.not. equal) return
+         match_flag = ESMF_HConfigMatch(a, b)
+         equal = (match_flag == ESMF_HCONFIGMATCH_EXACT)
 
-         if (allocated(a)) then
-            match_flag = ESMF_HConfigMatch(a, b)
-            equal = (match_flag == ESMF_HCONFIGMATCH_EXACT)
-         end if
-
-      end function equal_alloc_hconfig
+      end function equal_hconfig
 
       logical function equal_timestep(a, b) result(equal)
          type(ESMF_TimeInterval), allocatable, intent(in) :: a
