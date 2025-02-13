@@ -141,63 +141,71 @@ RESTART_EMIT = make_entry_writer({'OPT'  : 'MAPL_RestartOptional', 'SKIP' : 'MAP
         'REQ'  : 'MAPL_RestartRequired', 'BOOT' : 'MAPL_RestartBoot',
         'SKIPI': 'MAPL_RestartSkipInitial'})
 
-
-################################### OPTIONS ####################################
-# parent class for class Option
-# defines a few methods
-class OptionType(Enum):
-    def __init__(self, name_key, writer = None, mandatory = False, output = True):
-        self.name_key = name_key
-        self.writer = writer if writer else identity_writer
-        self.mandatory = mandatory
-        self.output = output
-
-    def __call__(self, value):
-        return self.writer(value)
-
     @classmethod
     def get_mandatory_options(cls):
         return list(filter(lambda m: m.mandatory, list(cls))) 
 
-# class for the possible options in a spec
-# uses functional API for creation of members (instances) with multiple word names
-Option = Enum(value = 'Option', names = {
+def make_argument(values):
+    match values:
+        case str:
+            return values:
+        case (function as writer, bool as mandatory, bool as nooutput):
+            return {'writer': writer, 'mandatory': mandatory, 'nooutput': nooutput}
+        case (function as writer, bool as mandatory):
+            return {'writer': writer, 'mandatory': mandatory}
+        case (mandatory as bool, 
+    if isinstanceof(values, str):
+        return values
+    argument = {}
+    writer, mandatory, output = values
+    if writer is None:
+        argument['writer'] = identity_writer
+    if nooutput:
+        argument['nooutput'] = nooutput
+
+def make_argument(writer=identity_writer, mandatory=False, output=True):
+    if isinstanceof(writer
+def make_arguments(values):
+    arguments = {name: make_argument(value) for (name, value) if isinstanceof(value, tuple)}
+    aliases = {alias: value for (alias, value) if isinstanceof(value, str)}
+
+arguments = {
 # MANDATORY
-        'SHORT_NAME': ('short_name', mangle_name, True), #COMMON
-        'NAME': ('short_name', mangle_name, True),
-        'DIMS': ('dims', DIMS_EMIT, True), #COMMON
-        'UNITS': ('units', string_writer, True), #COMMON
+        'short_name': {'writer:' mangle_name, 'mandatory': True}, #COMMON
+        'name': 'short_name',
+        'dims': {'writer': DIMS_EMIT, 'mandatory': True}, #COMMON
+        'units': {'writer': string_writer, 'mandatory': True}, #COMMON
 # OPTIONAL
-        'AVERAGING_INTERVAL': ('averaging_interval',),
-        'AVINT': ('averaging_interval',),
-        'DATATYPE': ('datatype',),
-        'DEFAULT': ('default',),
-        'FIELD_TYPE': ('field_type',),
-        'HALOWIDTH': ('halowidth',),
-        'LONG_NAME': ('long_name', mangle_longname),
-        'LONG NAME': ('long_name', mangle_longname),
-        'NUM_SUBTILES': ('num_subtitles',),
-        'NUMSUBS': ('num_subtitles',),
-        'PRECISION': ('precision',),
-        'PREC': ('precision',),
-        'REFRESH_INTERVAL': ('refresh_interval',),
-        'RESTART': ('restart', RESTART_EMIT),
-        'ROTATION': ('rotation',),
-        'STAGGERING': ('staggering',),
-        'STANDARD_NAME': ('standard_name', mangle_longname), #EXPORT #INTERNAL
-        'UNGRIDDED_DIMS': ('ungridded_dims', array_writer),
-        'UNGRID': ('ungridded_dims', array_writer),
-        'UNGRIDDED': ('ungridded_dims', array_writer),
-        'VLOCATION': ('vlocation', VLOCATION_EMIT),
-        'VLOC': ('vlocation', VLOCATION_EMIT),
-# these are Options that are not output but used to write 
-        'CONDITION': ('condition', identity_writer, False, False),
-        'COND': ('condition', identity_writer, False, False),
-        'ALLOC': ('alloc', identity_writer, False, False),
-        'MANGLED_NAME': ('mangled_name', mangle_name, False, False),
-        'INTERNAL_NAME': ('internal_name', make_internal_name, False, False),
-        'RANK': ('rank', None, False, False)
-    }, type = OptionType)
+        'averaging_interval': {},
+        'avint': 'averaging_interval',
+        'datatype': {},
+        'default': {},
+        'field_type': {},
+        'halowidth': {},
+        'long_name': {'writer': mangle_longname},
+        'long name': 'long_name',
+        'num_subtiles': {},
+        'numsubs': 'num_subtitles',
+        'precision': {},
+        'prec': 'precision',
+        'refresh_interval': {},
+        'restart': {'writer': RESTART_EMIT},
+        'rotation': {},
+        'staggering': {},
+        'standard_name': {'writer': mangle_longname}, #EXPORT #INTERNAL
+        'ungridded_dims': {'writer': array_writer},
+        'ungrid': 'ungridded_dims',
+        'ungridded': 'ungridded_dims',
+        'vlocation': {'writer': VLOCATION_EMIT},
+        'vloc': 'vlocation',
+# these are arguments are not output but used to write 
+        'condition': {'writer': identity_writer, 'mandatory': False, 'output': False},
+        'cond': 'condition',
+        'alloc': {'writer': identity_writer, 'mandatory': False, 'output': False},
+        'mangled_name': {'writer': mangle_name, 'mandatory': False, 'output': False},
+        'internal_name': {'writer': make_internal_name, 'mandatory': False, 'output': False},
+        'rank': {'writer': None, 'mandatory': False, 'output': False}
+}
  
 COMMON = 'SHORT_NAME DIMS UNITS'.split()
 INCLUDES = {
@@ -207,6 +215,9 @@ INCLUDES = {
     INTENT.EXPORT: ['STANDARD_NAME'] + COMMON,
     INTENT.INTERNAL: ['STANDARD_NAME'] + COMMON
 }
+
+def get_mandatory_arguments(arguments):
+    return {name:value for (name, value) in arguments.items() if value['mandatory']}
 
 ###################### RULES to test conditions on Options #####################
 # relations for rules on Options
@@ -221,22 +232,22 @@ equals = partial(relation, operator.eq)
 does_not_equal = partial(relation, operator.ne)
 
 # simple class to group information for a condition in a Rule
-# compare option value against expected, produce logical value and message
-condition = namedtuple('condition', 'option rel expected message')
+# compare argument value against expected, produce logical value and message
+condition = namedtuple('condition', 'argument rel expected message')
 
 class Rule:
     """ rule for testing conditions on Options  """
 
     @classmethod
-    def predicate(cls, option, rel, expected):
-        return partial(rel, option, expected)
+    def predicate(cls, argument, rel, expected):
+        return partial(rel, argument, expected)
 
     def __init__(self, conditions, joiner = all):
         """ creates rule conditions from tuples (conditions) joined by joiner function """
         """ set the check function (rule_check) """
         joiners = {all: (' and ', False), any: (' or ', True)}
 
-        processed_conditions = tuple([condition(option, rel, expected, message) for option, rel, expected, message in conditions]) 
+        processed_conditions = tuple([condition(argument, rel, expected, message) for argument, rel, expected, message in conditions]) 
 
         # break_on_true sets behavior one condition is met
         try:
@@ -248,13 +259,13 @@ class Rule:
             messages = []
             results = []
             for next_condition in processed_conditions:
-                option, rel, expected, message = next_condition
-                test = Rule.predicate(option, rel, expected)
+                argument, rel, expected, message = next_condition
+                test = Rule.predicate(argument, rel, expected)
                 test_result = test(values)
                 results.append(test_result)
                 if test_result:
                     # add message and break conditionally
-                    messages.append(option.name_key + " " + message) 
+                    messages.append(argument.name_key + " " + message) 
                     if break_on_true:
                         break
                     
@@ -268,7 +279,7 @@ class Rule:
         return self.rule(values)
 
 # These are the CURRENT RULES of Option (column) values
-def check_option_values(values):
+def check_argument_values(values):
 
     rules = [Rule(conditions = [(Option.DIMS, equals, 'MAPL_DimsHorzVert', 'is equal to MAPL_DimsHorzVert'),
             (Option.VLOCATION, equals, 'MAPL_VlocationNone', 'is equal to MAPL_VlocationNone')], joiner = all),
@@ -348,17 +359,18 @@ class MAPL_DataSpec:
     def emit_args(self):
         self.indent = self.indent + 5
         text = "call MAPL_Add" + self.state_intent.name.capitalize() + "Spec(gc," + self.continue_line()
-        for option in self.spec_values: #wdb idea deleteme reduce?
-            if option.output:
-                text = text + self.emit_arg(option)
+#        for argument in self.spec_values: #wdb idea deleteme reduce?
+#            if self.spec_values[argument].['output']:
+#                text = text + self.emit_arg(argument)
+        text = reduce(lambda t, a: t = t + self.emit_arg(a), filter(lambda a: self.spec_values[a].['output'], self.spec_values), text)
         text = text + MAPL_DataSpec.TERMINATOR + self.newline()
         self.indent = self.indent - 5
         return text
 
-    def emit_arg(self, option):
-        value = self.spec_values.get(option)
+    def emit_arg(self, argument):
+        value = self.spec_values.get(argument)
         if value:
-            text = option.name_key + "=" + value + MAPL_DataSpec.DELIMITER + self.continue_line()
+            text = argument.name_key + "=" + value + MAPL_DataSpec.DELIMITER + self.continue_line()
         else:
             text = ''
         return text
@@ -407,7 +419,7 @@ def get_args():
 
 # READ_SPECS function
 def read_specs(specs_filename):
-    """Returns dict of (state_intent: list of dict of (option name: option value) """
+    """Returns dict of (state_intent: list of dict of (column name: row value) """
     def csv_record_reader(csv_reader):
         """ Read a csv reader iterator until a blank line is found. """
         prev_row_blank = True
@@ -445,53 +457,56 @@ def read_specs(specs_filename):
             except StopIteration:
                 break
 
+    # dict[Intent|list[dict[str,str]]]
     return specs
 
 
 # DIGEST
-def digest(specs, args):
+def digest(specs, arguments, args):
     """ Set Option values from parsed specs """
     arg_dict = vars(args)
-    mandatory_options = Option.get_mandatory_options()
+    mandatory_arguments = get_mandatory_arguments(arguments)
     digested_specs = dict()
 
-    for state_intent in specs:
-        category_specs = list() # All the specs for the state_intent
-        for spec in specs[state_intent]: # spec from list
+    for state_intent, spec_list in specs.items():
+        intent_specs = list() # All the specs for the state_intent
+        for spec in spec_list: # spec from list #wdb fixme Need to get all specs according to state_intent
             dims = None
             ungridded = None
-            option_values = dict() # dict of option values
-            for column in spec: # for spec writer value
-                column_value = spec[column]
-                option = Option[column.upper()] # use column name to find Option
-                 # writer value
-                if type(option.writer) is ParameterizedWriter:
-                    option_value = option.writer(column_value, arg_dict)
+            argument_values = dict() # dict of argument values
+            for spec_name, spec_value in spec.items(): # for spec writer value
+                argument_name = spec_name.lower()
+                argument = arguments[argument_name] # use spec name (lower) to find argument
+                # writer value
+                writer = argument['writer']
+                if type(writer) is ParameterizedWriter:
+                    argument_value = writer(spec_value, arg_dict)
                 else:
-                    option_value = option.writer(column_value)
-                option_values[option] = option_value # add value to dict
-                if option == Option.SHORT_NAME:
-                    option_values[Option.MANGLED_NAME] = Option.MANGLED_NAME(column_value)
-                    option_values[Option.INTERNAL_NAME] = Option.INTERNAL_NAME(column_value)
-                elif option == Option.DIMS:
-                    dims = option_value
-                elif option == Option.UNGRIDDED:
-                    ungridded = option_value
+                    argument_value = writer(spec_value)
+                argument_values[argument_name] = argument_value # add value to dict
+                if argument_name == 'short_name':
+                    argument_values['mangled_name'] = mangle_name(spec_value)
+                    argument_values['internal_name'] = make_internal_name(spec_value)
+                elif argument_name == 'dims':
+                    dims = argument_value
+                elif argument_name == 'ungridded':
+                    ungridded = argument_value
 # MANDATORY
-            for option in mandatory_options:
-                if option not in option_values:
-                    raise RuntimeError(option.name + " is missing from spec.")
+            for argument in mandatory_arguments:
+                if argument not in argument_values:
+                    raise RuntimeError(argument + " is missing from spec.")
 # END MANDATORY
-            option_values[Option.RANK] = compute_rank(dims, ungridded)
+            argument_values['rank'] = compute_rank(dims, ungridded)
 # CHECKS HERE (Temporarily disabled for MAPL3 fixme)
 #            try:
-#                check_option_values(option_values)
+#                check_argument_values(argument_values)
 #            except Exception:
 #                raise
 # END CHECKS
-            category_specs.append(option_values)
-        digested_specs[state_intent] = category_specs 
+            intent_specs.append(argument_values)
+        digested_specs[state_intent] = intent_specs 
 
+    # dict[Intent, list[dict[str,str]]]
     return digested_specs
     
 
