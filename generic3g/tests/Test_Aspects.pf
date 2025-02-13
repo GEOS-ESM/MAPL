@@ -292,8 +292,8 @@ contains
       call ESMF_TimeSet(time1, s=0)
       call ESMF_TimeSet(time2, s=0)
 
-      import = FrequencyAspect(dt1, time1, accumulation_type='mean')
-      export = FrequencyAspect(dt2, time2)
+      import = FrequencyAspect(dt2, time2, accumulation_type='mean')
+      export = FrequencyAspect(dt1, time1)
       @assert_that(export%can_connect_to(import), is(true()))
 
    end subroutine test_can_connect_accum_mean
@@ -309,10 +309,10 @@ contains
       call ESMF_TimeIntervalSet(dt1, s=4)
       call ESMF_TimeIntervalSet(dt2, s=3) ! not commensurate
       call ESMF_TimeSet(time1, s=0)
-      call ESMF_TimeSet(time2, s=12)
+      call ESMF_TimeSet(time2, s=0)
 
-      import = FrequencyAspect(dt1, time1, accumulation_type='mean')
-      export = FrequencyAspect(dt2, time2)
+      import = FrequencyAspect(dt2, time2, accumulation_type='mean')
+      export = FrequencyAspect(dt1, time1)
       @assert_that(export%can_connect_to(import), is(false()))
 
    end subroutine test_can_connect_accum_fail
