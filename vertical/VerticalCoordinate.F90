@@ -7,19 +7,15 @@ module VerticalCoordinateMod
    use gFTL_StringVector
    use udunits2f, UDUNITS_are_convertible => are_convertible, &
       initialize_udunits => initialize, finalize_udunits => finalize
-   use GEOS_GmapMod
-   use MAPL_ConstantsMod, only: MAPL_GRAV
 
    implicit none
+   private
    public VerticalCoordinate
    public model_pressure
    public simple_coord
    public no_coord
-   public check_conservation
-   public remap_column
-   public mass_mixing
-   public volume_mixing
-   public emission
+   public fixed_height
+   public fixed_pressure
 
    enum, bind(C)
       enumerator :: no_coord
@@ -27,13 +23,6 @@ module VerticalCoordinateMod
       enumerator :: fixed_pressure
       enumerator :: fixed_height
       enumerator :: model_pressure
-   end enum
-
-   enum, bind(c)
-      enumerator :: mass_mixing 
-      enumerator :: volume_mixing
-      enumerator :: emission
-      
    end enum
 
    enum, bind(C)
@@ -304,162 +293,5 @@ contains
        enddo
        _RETURN(_SUCCESS)
     end function
-
-    subroutine remap_column(src_pressure, src_values, dst_pressure, dst_values)
-       real, intent(in) :: src_pressure(:)
-       real, intent(in) :: src_values(:)
-       real, intent(in) :: dst_pressure(:)
-       real, intent(inout) :: dst_values(:)
-       real, allocatable :: temp_pressures_src(:,:,:), temp_values_src(:,:,:)
-       real, allocatable :: temp_pressures_dst(:,:,:), temp_values_dst(:,:,:)
-       real :: bottom_lev,delp1,delp2
-       integer :: lb_src, lb_dst, lm_src, lm_dst, im ,jm, ub_src, ub_dst
-       lm_src = size(src_values)
-       lm_dst = size(dst_values)
-       lb_src = lbound(src_pressure,1)
-       lb_dst = lbound(dst_pressure,1)
-       ub_src = ubound(src_pressure,1)
-       ub_dst = ubound(dst_pressure,1)
-       im = 1
-       jm = 1
-       if (src_pressure(ub_src) < dst_pressure(ub_dst)) then
-
-          allocate(temp_pressures_dst(1,1,lm_dst+1))
-          allocate(temp_values_dst(1,1,lm_dst))
-          temp_pressures_dst(1,1,1:lm_dst+1)=dst_pressure(lb_dst:ub_dst)
-
-          allocate(temp_values_src(1,1,lm_src+1),source=0.0)
-          allocate(temp_pressures_src(1,1,lm_src+2),source=0.0)
-          temp_values_src(1,1,1:lm_src) = src_values(:)
-          temp_pressures_src(1,1,1:lm_src+1) = src_pressure(lb_src:ub_src)
-          temp_pressures_src(1,1,lm_src+2) = temp_pressures_src(1,1,lm_src+1)+10.0
-          call gmap(im, jm, lm_src+1, temp_pressures_src, temp_values_src, lm_dst, temp_pressures_dst, temp_values_dst)
-          dst_values(:)=temp_values_dst(1,1,:)
-
-       else if (src_pressure(ub_src) > dst_pressure(ub_dst)) then
-
-          allocate(temp_pressures_src(1,1,lm_src+1))
-          allocate(temp_values_src(1,1,lm_src))
-          temp_pressures_src(1,1,1:lm_src+1)=src_pressure(lb_src:ub_src)
-          temp_values_src(1,1,:) = src_values(:)
-
-          allocate(temp_values_dst(1,1,lm_dst+1),source=0.0)
-          allocate(temp_pressures_dst(1,1,lm_dst+2),source=0.0)
-
-          temp_values_dst(1,1,1:lm_dst)=dst_values(:)
-          temp_pressures_dst(1,1,1:lm_dst+1) = dst_pressure(lb_dst:ub_dst)
-
-          temp_pressures_dst(1,1,lm_dst+2) = temp_pressures_src(1,1,lm_src+1)
-
-          call gmap(im, jm, lm_src, temp_pressures_src, temp_values_src, lm_dst+1, temp_pressures_dst, temp_values_dst)
-          delp1 = temp_pressures_dst(1,1,lm_dst+2) - temp_pressures_dst(1,1,lm_dst+1)
-          delp2 = temp_pressures_dst(1,1,lm_dst+1) - temp_pressures_dst(1,1,lm_dst)
-          bottom_lev = temp_values_dst(1,1,lm_dst+1)*(delp1/MAPL_GRAV) + temp_values_dst(1,1,lm_dst)*(delp2/MAPL_GRAV)
-          temp_values_dst(1,1,lm_dst) = bottom_lev*MAPL_GRAV/delp2
-          dst_values(1:lm_dst)=temp_values_dst(1,1,1:lm_dst)
-
-       else if (src_pressure(ub_src) == dst_pressure(ub_dst)) then
-
-       end if
-       call check_conservation(src_pressure, src_values, dst_pressure, dst_values)
-
-    end subroutine remap_column
-
-    subroutine check_conservation(src_pressure, src_values, dst_pressure, dst_values)
-       real, intent(in) :: src_pressure(:)
-       real, intent(in) :: src_values(:)
-       real, intent(in) :: dst_pressure(:)
-       real, intent(inout) :: dst_values(:)
-       real :: src_mass, dst_mass, delp
-       integer :: lb_src, lb_dst, lm_src, lm_dst, i
-       lm_src = size(src_values)
-       lm_dst = size(dst_values)
-       lb_src = lbound(src_pressure,1)
-       lb_dst = lbound(dst_pressure,1)
-       src_mass=0.0
-       dst_mass=0.0
-       do i=1,lm_src
-          delp = src_pressure(lb_src+i)-src_pressure(lb_src+i-1)
-          src_mass = src_mass + src_values(i)*delp/MAPL_GRAV
-       enddo
-       do i=1,lm_dst
-          delp = dst_pressure(lb_dst+i)-dst_pressure(lb_dst+i-1)
-          dst_mass = dst_mass + dst_values(i)*delp/MAPL_GRAV
-       enddo
-       if (src_mass .ne. 0.0) then
-       _HERE, src_mass,dst_mass
-       _HERE,(dst_mass-src_mass)/src_mass
-       end if
-    end subroutine check_conservation
-
-    subroutine remap_array(src_pressure, src_values, dst_pressure, dst_values, constituent_type)
-       real, intent(in) :: src_pressure(:,:,:)
-       real, intent(in) :: src_values(:,:,:)
-       real, intent(in) :: dst_pressure(:,:,:)
-       real, intent(inout) :: dst_values(:,:,:)
-       integer, intent(in) :: constituent_type 
-       real, allocatable :: temp_pressures_src(:,:,:), temp_values_src(:,:,:)
-       real, allocatable :: temp_pressures_dst(:,:,:), temp_values_dst(:,:,:)
-       real :: src_max_p
-       integer :: lb_src, lb_dst, lm_src, lm_dst, ub_src, ub_dst, i, j, im, jm
-
-       lm_src = size(src_values,3)
-       lm_dst = size(dst_values,3)
-       lb_src = lbound(src_pressure,3)
-       lb_dst = lbound(dst_pressure,3)
-       ub_src = ubound(src_pressure,3)
-       ub_dst = ubound(dst_pressure,3)
-       im = size(src_values,1)
-       jm = size(src_values,2)
-
-       ! src gets extra level that is zero becasue gmap persists src value in dst below surface
-       src_max_p = maxval(src_pressure(:,:,ub_src))
-       allocate(temp_pressures_src(im,jm,lb_src:ub_src+1))  
-       allocate(temp_values_src(im,jm,lm_src+1))
-       temp_pressures_src(:,:,lb_src:ub_src) = src_pressure
-       temp_values_src(:,:,1:lm_src) = src_values
-       temp_pressures_src(:,:,ub_src+1) = src_pressure(:,:,ub_src)+10.0
-       temp_values_src(:,:,lm_src+1) = 0.0
-
-       ! add an extra level on dst because if destination column is her than src
-       ! we need to make sure "extra" stuf from src gets included
-       allocate(temp_pressures_dst(im,jm,lb_dst:ub_dst+1))  
-       allocate(temp_values_dst(im,jm,lm_dst+1))
-       temp_pressures_dst(:,:,lb_dst:ub_dst) = dst_pressure
-       temp_pressures_dst(:,:,ub_dst+1) = src_max_p + 10.0
-
-       ! gmap wants mass mixing
-       if (constituent_type == emission) then
-          do i=1,lm_src
-             temp_values_src(:,:,i) = temp_values_src(:,:,i)*MAPL_GRAV/(temp_pressures_src(:,:,i+1)-temp_pressures_src(:,:,i))
-          enddo
-       end if
-
-       call gmap(im, jm, lm_src+1, temp_pressures_src, temp_values_src, lm_dst+1, temp_pressures_dst, temp_values_dst)
-
-       ! add back the "extra" level
-       if (constituent_type == mass_mixing) then
-          temp_values_dst(:,:,lm_dst) = temp_values_dst(:,:,lm_dst)*(temp_pressures_dst(:,:,lm_dst+1)-temp_pressures_dst(:,:,lm_dst))/MAPL_GRAV &
-           + temp_values_dst(:,:,lm_dst+1)*(temp_pressures_dst(:,:,lm_dst+2)-temp_pressures_dst(:,:,lm_dst+1))/MAPL_GRAV
-          temp_values_dst(:,:,lm_dst) = temp_values_dst(:,:,lm_dst)*MAPL_GRAV/(temp_pressures_dst(:,:,lm_dst+1)-temp_pressures_dst(:,:,lm_dst))
-       else if (constituent_type == emission) then
-          temp_values_dst(:,:,lm_dst) = temp_values_dst(:,:,lm_dst) + temp_values_dst(:,:,lm_dst+1)
-       end if
-
-       ! if we were emission need to convert back from mass mixing
-       if (constituent_type == emission) then
-          do i=1,lm_dst
-             temp_values_dst(:,:,i) = temp_values_dst(:,:,i)*(temp_pressures_dst(:,:,i+1)-temp_pressures_dst(:,:,i))/MAPL_GRAV
-          enddo
-       end if
-       dst_values = temp_values_dst(:,:,1:lm_dst)
-
-       do i=1,size(src_pressure,1)
-       do j=1,size(src_pressure,2)
-          call check_conservation(src_pressure(i,j,:), src_values(i,j,:), dst_pressure(i,j,:), dst_values(i,j,:))
-       enddo
-       enddo
-
-    end subroutine remap_array
 
 end module VerticalCoordinateMod   

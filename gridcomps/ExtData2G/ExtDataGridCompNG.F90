@@ -66,6 +66,7 @@
    use MAPL_ExtDataPrimaryExportVectorMod
    use MAPL_ExtDataDerivedExportVectorMod
    use VerticalCoordinateMod
+   use VerticalRegridInterfaceMod
 
    IMPLICIT NONE
    PRIVATE
@@ -256,7 +257,7 @@ CONTAINS
    type(DerivedExport), allocatable :: derived_item
    integer, pointer :: i_start
    integer :: new_size
-   logical :: rules_with_ps
+   logical, allocatable :: rules_with_ps(:)
    !class(logger), pointer :: lgr
 
 !  Get my name and set-up traceback handle
@@ -432,15 +433,16 @@ CONTAINS
    do i=1,num_primary
       
       i_start => self%primary%export_id_start%at(i)
-      rules_with_ps = .false.
+      num_rules = self%primary%number_of_rules%at(i)
+      if (allocated(rules_with_ps)) deallocate(rules_with_ps)
+      allocate(rules_with_ps(num_rules), source=.false.)
       
       do j=1,self%primary%number_of_rules%at(i)
          item => self%primary%item_vec%at(i_start+j-1)
-         rules_with_ps = allocated(item%vcoord%surf_name)
-         if (rules_with_ps) exit
+         rules_with_ps(j) = allocated(item%vcoord%surf_name)
       enddo
 
-      if (.not.rules_with_ps) cycle 
+      if (.not.(any(rules_with_ps))) cycle 
 
       import_name => self%primary%import_names%at(i)
       call self%primary%import_names%push_back("PS_"//import_name)
@@ -924,7 +926,6 @@ CONTAINS
      end if
 
      if (item%allow_vertical_regrid) then
-        if (mapl_am_i_root()) write(*,*)'bmaa can flip ',trim(item%vcomp1),' ',item%vcoord%positive /= item%importVDir
         if (item%vcoord%positive /= item%importVDir) then
            call MAPL_ExtDataFlipVertical(item,bracket_side,_RC)
         end if
@@ -943,7 +944,7 @@ CONTAINS
      type(ESMF_Field) :: src_field, dst_field, src_ps, dst_ple
      character(len=:), allocatable :: src_ps_name
 
-     integer :: fieldRank, src_lm, dst_lm, im, jm, i, j
+     integer :: fieldRank
      real, pointer :: dst_ptr3d(:,:,:), src_ptr3d(:,:,:), src_ps_ptr(:,:), dst_ple_ptr(:,:,:)
      real, allocatable :: src_ple(:,:,:)
      character(len=:), allocatable :: mol_per_mol, kg_per_kg, emission_units
@@ -966,14 +967,11 @@ CONTAINS
         src_ps_name = item%vcoord%surf_name//"_"//trim(item%vcomp1)
         call ESMF_StateGet(MAPLExtState%ExtDataState, src_ps_name, src_ps, _RC)
         call ESMF_FieldGet(src_ps, farrayPtr=src_ps_ptr, _RC) 
-        im = size(src_ps_ptr,1)
-        jm = size(src_ps_ptr,2)
         src_ple = item%vcoord%compute_ple(src_ps_ptr, _RC)
         call ESMF_StateGet(MAPLExtState%ExtDataState,trim(item%vcomp1),dst_field,_RC)
         call ESMF_FieldGet(dst_field,rank=fieldRank,_RC)
         _ASSERT(fieldRank==3, "Trying to regrid non 3D field")
         call ESMF_FieldGet(dst_field,farrayPtr=dst_ptr3d,_RC)
-        dst_lm =  size(dst_ptr3d,3)
         call ESMF_FieldBundleGet(item%t_interp_bundle, trim(item%vcomp1), field=src_field, _RC)
         call ESMF_FieldGet(src_field,farrayPtr=src_ptr3d,_RC)
 
@@ -984,7 +982,7 @@ CONTAINS
         if (units_in == kg_per_kg) constituent_type = mass_mixing
         if (units_in == emission_units) constituent_type = emission
         
-        call remap_array(src_ple,src_ptr3d,dst_ple_ptr,dst_ptr3d,constituent_type)
+        call remap_array_mass_mixing(src_ple,src_ptr3d,dst_ple_ptr,dst_ptr3d)
      end if
      _RETURN(ESMF_SUCCESS)
 

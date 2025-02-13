@@ -22,12 +22,10 @@ set (srcs
      ExtDataMasking.F90
      ExtDataPrimaryExportVector.F90
      ExtDataDerivedExportVector.F90
-     VerticalCoordinate.F90
-     MAPL_Eta2Eta.F90
     )
 
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.base MAPL.generic MAPL.griddedio udunits2f TYPE ${MAPL_LIBRARY_TYPE})
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.base MAPL.generic MAPL.griddedio udunits2f MAPL.vertical TYPE ${MAPL_LIBRARY_TYPE})
 target_link_libraries (${this} PUBLIC GFTL::gftl GFTL_SHARED::gftl-shared ESMF::ESMF NetCDF::NetCDF_Fortran
                                PRIVATE MPI::MPI_Fortran)
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
