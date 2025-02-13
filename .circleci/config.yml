@@ -28,13 +28,14 @@ workflows:
     jobs:
       # Builds MAPL in a "default" way
       - ci/build:
-          name: build-and-test-MAPL-on-<< matrix.compiler >>-using-<< matrix.cmake_generator >>
+          name: build-and-test-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>-using-<< matrix.cmake_generator >>
           context:
             - docker-hub-creds
           matrix:
             parameters:
               compiler: [gfortran, ifort, ifx]
               cmake_generator: ['Unix Makefiles','Ninja']
+              build_type: ['Debug', 'Release']
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
@@ -44,12 +45,13 @@ workflows:
 
       # Builds MAPL like UFS does (no FLAP and pFlogger, static)
       - ci/build:
-          name: build-UFS-MAPL-on-<< matrix.compiler >>
+          name: build-UFS-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>
           context:
             - docker-hub-creds
           matrix:
             parameters:
               compiler: [gfortran, ifort, ifx]
+              build_type: ['Debug', 'Release']
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
@@ -62,12 +64,13 @@ workflows:
 
       # Builds MAPL without pFUnit support
       - ci/build:
-          name: build-MAPL-without-pFUnit-on-<< matrix.compiler >>
+          name: build-MAPL-without-pFUnit-as-<< matrix.build_type>>-on-<< matrix.compiler >>
           context:
             - docker-hub-creds
           matrix:
             parameters:
               compiler: [ifort, ifx]
+              build_type: ['Debug', 'Release']
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
@@ -77,12 +80,13 @@ workflows:
 
       # Run MAPL Tutorials
       - ci/run_mapl_tutorial:
-          name: run-<< matrix.tutorial_name >>-Tutorial-with-<< matrix.compiler >>
+          name: run-<< matrix.tutorial_name >>-Tutorial-with-<< matrix.compiler >>-built-with-<< matrix.build_type >>
           context:
             - docker-hub-creds
           matrix:
             parameters:
               compiler: [gfortran, ifort, ifx]
+              build_type: ['Debug', 'Release']
               tutorial_name:
                 - hello_world
                 - parent_no_children
@@ -92,7 +96,7 @@ workflows:
           # We will only run the tutorials with GNU make. No need to double up
           # as Ninja is a build test only
           requires:
-            - build-and-test-MAPL-on-<< matrix.compiler >>-using-Unix Makefiles
+            - build-and-test-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>-using-Unix Makefiles
           baselibs_version: *baselibs_version
 
   build-and-run-GEOSgcm:

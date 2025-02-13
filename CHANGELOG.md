@@ -9,10 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added `Release` build CI tests for MAPL
+
 ### Changed
 
 ### Fixed
 Fixed nesting of internal timers (issue #3412)
+
+- Fix ExtData2G unit test for GNU on Discover
 
 ### Removed
 
