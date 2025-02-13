@@ -15,7 +15,8 @@ module mapl3g_FrequencyAspect
    type, extends(StateItemAspect) :: FrequencyAspect
       private
       type(ESMF_TimeInterval) :: timestep
-      type(ESMF_Time) :: refTime
+      type(ESMF_Time) :: refTime !wdb fixme deleteme 
+      type(ESMF_TimeInterval) :: refTime_offset
       character(len=:), allocatable :: accumulation_type
    contains
       ! These are implementations of extended derived type.
@@ -28,8 +29,8 @@ module mapl3g_FrequencyAspect
       ! These are specific to FrequencyAspect.
       procedure :: get_timestep
       procedure :: get_accumulation_type
-      procedure :: get_reference_time
-      procedure, private :: zero_timestep
+      procedure :: get_reference_time !wdb fixme deleteme 
+      procedure :: get_reference_time_offset
    end type FrequencyAspect
 
    interface FrequencyAspect
@@ -38,18 +39,22 @@ module mapl3g_FrequencyAspect
 
 contains
 
-   function new_FrequencyAspect(timeStep, refTime, accumulation_type) result(aspect)
+   function new_FrequencyAspect(timeStep, refTime, refTime_offset, accumulation_type) result(aspect)
       type(FrequencyAspect) :: aspect
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
-      type(ESMF_Time), optional, intent(in) :: refTime
+      type(ESMF_Time), optional, intent(in) :: refTime !wdb fixme deleteme 
+      type(ESMF_TimeInterval), optional, intent(in) :: refTime_offset
       character(len=*), optional, intent(in) :: accumulation_type
+      integer :: status
 
       call aspect%set_mirror(.FALSE.)
       call aspect%set_time_dependent(.FALSE.)
       call set_accumulation_type(aspect, INSTANTANEOUS)
-      call aspect%zero_timestep()
+      call zero_timestep(aspect, rc=status)
+      call zero_interval(aspect%refTime_offset, rc=status) 
       if(present(timeStep)) aspect%timestep = timeStep
-      if(present(refTime)) aspect%refTime = refTime
+      if(present(refTime)) aspect%refTime = refTime !wdb fixme deleteme 
+      if(present(refTime_offset)) aspect%refTime_offset = refTime_offset
       if(present(accumulation_type)) call set_accumulation_type(aspect, accumulation_type)
       
    end function new_FrequencyAspect
@@ -62,20 +67,38 @@ contains
 
    end function get_timestep
 
-   function get_reference_time(this) result(time)
+   function get_reference_time(this) result(time) !wdb fixme deleteme 
       type(ESMF_Time) :: time
       class(FrequencyAspect), intent(in) :: this
 
       time = this%refTime
 
-   end function get_reference_time
+   end function get_reference_time !wdb fixme deleteme END
 
-   subroutine zero_timestep(this)
-      class(FrequencyAspect), intent(inout) :: this
+   function get_reference_time_offset(this) result(off)
+      type(ESMF_TimeInterval) :: off
+      class(FrequencyAspect), intent(in) :: this
 
-      call ESMF_TimeIntervalSet(this%timestep, ns=0)
+      off = this%refTime_offset
+
+   end function get_reference_time_offset
+
+   subroutine zero_timestep(aspect, rc)
+      class(FrequencyAspect), intent(inout) :: aspect
+      integer, intent(out) :: rc
+
+      call zero_interval(aspect%timestep, rc=rc)
 
    end subroutine zero_timestep
+
+   subroutine zero_interval(interval, rc)
+      type(ESMF_TimeInterval), intent(inout) :: interval
+      integer, intent(out) :: rc
+      integer :: status
+
+      call ESMF_TimeIntervalSet(interval, ns=0, rc=rc)
+
+   end subroutine zero_interval
 
    function get_accumulation_type(this) result(at)
       character(len=:), allocatable :: at
