@@ -83,7 +83,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Update to `ESMA_env` v4.35.0 --> Baselibs 7.32.0
+  - This brings in GFE v1.19.0 (which has gFTL v1.15.2 needed for MAPL3 work)
+
 ### Fixed
+
+- Fixed nesting of internal timers (issue #3412)
 
 ### Removed
 
