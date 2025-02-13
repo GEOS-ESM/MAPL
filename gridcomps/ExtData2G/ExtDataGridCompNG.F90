@@ -66,7 +66,7 @@
    use MAPL_ExtDataPrimaryExportVectorMod
    use MAPL_ExtDataDerivedExportVectorMod
    use VerticalCoordinateMod
-   use VerticalRegridInterfaceMod
+   use VerticalRegridConserveInterfaceMod
 
    IMPLICIT NONE
    PRIVATE
@@ -402,7 +402,6 @@ CONTAINS
          item => self%primary%item_vec%at(i_start+j-1)
          item%pfioCOllection_id = MAPL_DataAddCollection(item%file_template)
          call new_GetLevs(item, time, _RC)
-        if (item%vcoord%vertical_type == fixed_height) item%allow_vertical_regrid = .true.
       enddo
 
    enddo
@@ -981,8 +980,13 @@ CONTAINS
         if (units_in == mol_per_mol) constituent_type = volume_mixing 
         if (units_in == kg_per_kg) constituent_type = mass_mixing
         if (units_in == emission_units) constituent_type = emission
-        
-        call remap_array_mass_mixing(src_ple,src_ptr3d,dst_ple_ptr,dst_ptr3d)
+       
+        select case (constituent_type)
+        case(mass_mixing)
+           call vremap_conserve_mass_mixing(src_ple,src_ptr3d,dst_ple_ptr,dst_ptr3d)
+        case(emission) 
+           call vremap_conserve_emission(src_ple,src_ptr3d,dst_ple_ptr,dst_ptr3d)
+        end select
      end if
      _RETURN(ESMF_SUCCESS)
 

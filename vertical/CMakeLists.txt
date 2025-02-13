@@ -3,7 +3,8 @@ esma_set_this (OVERRIDE MAPL.vertical)
 set (srcs
      Eta2Eta.F90  
      VerticalCoordinate.F90
-     VerticalRegridInterface.F90
+	  VerticalRegridConserveInterface.F90
+	  VerticalRegridUtilities.F90
      )
 
 esma_add_library(${this}
