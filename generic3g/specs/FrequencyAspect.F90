@@ -14,9 +14,9 @@ module mapl3g_FrequencyAspect
 
    type, extends(StateItemAspect) :: FrequencyAspect
       private
-      type(ESMF_TimeInterval) :: timestep_
-      type(ESMF_Time) :: refTime_
-      character(len=:), allocatable :: accumulation_type_
+      type(ESMF_TimeInterval) :: timestep
+      type(ESMF_Time) :: refTime
+      character(len=:), allocatable :: accumulation_type
    contains
       ! These are implementations of extended derived type.
       procedure :: matches
@@ -27,11 +27,8 @@ module mapl3g_FrequencyAspect
       procedure, nopass :: get_aspect_id
       ! These are specific to FrequencyAspect.
       procedure :: get_timestep
-      procedure :: set_timestep
       procedure :: get_accumulation_type
-      procedure :: set_accumulation_type
       procedure :: get_reference_time
-      procedure :: set_reference_time
       procedure, private :: zero_timestep
    end type FrequencyAspect
 
@@ -49,11 +46,11 @@ contains
 
       call aspect%set_mirror(.FALSE.)
       call aspect%set_time_dependent(.FALSE.)
-      call aspect%set_accumulation_type(INSTANTANEOUS)
+      call set_accumulation_type(aspect, INSTANTANEOUS)
       call aspect%zero_timestep()
-      if(present(timeStep)) aspect%timestep_ = timeStep
-      if(present(refTime)) aspect%refTime_ = refTime
-      if(present(accumulation_type)) call aspect%set_accumulation_type(accumulation_type)
+      if(present(timeStep)) aspect%timestep = timeStep
+      if(present(refTime)) aspect%refTime = refTime
+      if(present(accumulation_type)) call set_accumulation_type(aspect, accumulation_type)
       
    end function new_FrequencyAspect
 
@@ -61,38 +58,22 @@ contains
       type(ESMF_TimeInterval) :: ts
       class(FrequencyAspect), intent(in) :: this
 
-      ts = this%timestep_
+      ts = this%timestep
 
    end function get_timestep
-
-   subroutine set_timestep(this, timeStep)
-      class(FrequencyAspect), intent(inout) :: this
-      type(ESMF_TimeInterval), intent(in) :: timeStep
-
-      this%timestep_ = timeStep
-
-   end subroutine set_timestep
 
    function get_reference_time(this) result(time)
       type(ESMF_Time) :: time
       class(FrequencyAspect), intent(in) :: this
 
-      time = this%refTime_
+      time = this%refTime
 
    end function get_reference_time
-
-   subroutine set_reference_time(this, time)
-      class(FrequencyAspect), intent(inout) :: this
-      type(ESMF_Time), intent(in) :: time
-
-      this%refTime_ = time
-
-   end subroutine set_reference_time
 
    subroutine zero_timestep(this)
       class(FrequencyAspect), intent(inout) :: this
 
-      call ESMF_TimeIntervalSet(this%timestep_, ns=0)
+      call ESMF_TimeIntervalSet(this%timestep, ns=0)
 
    end subroutine zero_timestep
 
@@ -101,16 +82,16 @@ contains
       class(FrequencyAspect), intent(in) :: this
 
       at = ''
-      if(allocated(this%accumulation_type_)) at = this%accumulation_type_
+      if(allocated(this%accumulation_type)) at = this%accumulation_type
 
    end function get_accumulation_type
 
-   subroutine set_accumulation_type(this, accumulation_type)
-      class(FrequencyAspect), intent(inout) :: this
+   subroutine set_accumulation_type(aspect, accumulation_type)
+      class(FrequencyAspect), intent(inout) :: aspect
       character(len=*), intent(in) :: accumulation_type
 
       if(accumulation_type == INSTANTANEOUS .or. accumulation_type_is_valid(accumulation_type)) then
-         this%accumulation_type_ = accumulation_type
+         aspect%accumulation_type = accumulation_type
       end if
 
    end subroutine set_accumulation_type
