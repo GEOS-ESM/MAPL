@@ -944,8 +944,7 @@ CONTAINS
      emission_units = "kg m-2 s-1"
 
      if (item%vcoord%vertical_type == NO_COORD &
-        .or. (.not.item%delivered_item) &
-        .or. (.not.item%allow_vertical_regrid)) then
+        .or. (.not.item%delivered_item)) then
         _RETURN(_SUCCESS)
      end if
 
@@ -976,7 +975,13 @@ CONTAINS
            call vremap_conserve_mass_mixing(src_ple,src_ptr3d,dst_ple_ptr,dst_ptr3d)
         case(emission) 
            call vremap_conserve_emission(src_ple,src_ptr3d,dst_ple_ptr,dst_ptr3d)
+        case default
+           _FAIL(units_in//" not supported for vertical regridding")
         end select
+     else if (item%vcoord%vertical_type == simple_coord .and. item%do_fill) then
+        call ESMF_FieldBundleGet(item%t_interp_bundle, trim(item%vcomp1), field=src_field, _RC)
+        call ESMF_StateGet(MAPLExtState%ExtDataState,trim(item%vcomp1),dst_field,_RC)
+        call MAPL_ExtDataFillField(item, dst_field, src_field, _RC) 
      end if
      _RETURN(ESMF_SUCCESS)
 
@@ -1107,14 +1112,7 @@ CONTAINS
               _RETURN(ESMF_SUCCESS)
            end if
         else if (present(bundle)) then
-           !if (Bside == MAPL_ExtDataLeft) then
-              !bundle = item%binterp1
-              !_RETURN(ESMF_SUCCESS)
-           !else if (Bside == MAPL_ExtDataRight) then
-              !bundle = item%binterp2
-              !_RETURN(ESMF_SUCCESS)
-           !end if
-
+           _RETURN(ESMF_FAILURE)
         end if
 
      end if
@@ -1139,6 +1137,7 @@ CONTAINS
   ptrF = 0.0
   lm_in= size(ptrR,3)
   lm_out = size(ptrF,3)
+  _ASSERT(lm_out > lm_in, "trying to fillin but destination has less levels than source")
   if (trim(item%importVDir)=="down") then
 
      if (trim(item%vcoord%positive)=="down") then
@@ -1453,7 +1452,6 @@ CONTAINS
      end if
 
      if (found_file) then
-        !call GetLevs(item,_RC)
         item%iclient_collection_id=i_clients%add_ext_collection(trim(item%file_template))
         item%t_interp_bundle = ESMF_FieldBundleCreate(_RC)
         if (item%vartype == MAPL_FieldItem) then
@@ -1501,7 +1499,6 @@ CONTAINS
            else if (item%vcoord%num_levels /= lm .and. lm /= 0 .and. item%vcoord%num_levels /= 0) then
               item%do_Fill = .true.
            end if
-!!!!!!!!!!!!!
 
            bracket_grid = MAPL_ExtDataGridChangeLev(grid,cf,item%vcoord%num_levels,_RC)
            left_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
@@ -1526,16 +1523,6 @@ CONTAINS
               call MAPL_FieldBundleAdd(item%t_interp_bundle, field, _RC)
            end if
         
-!!!!!!!!!!!!
-
-           !left_field = MAPL_FieldCreate(field,item%fcomp1,doCopy=.true.,_RC)
-           !right_field = MAPL_FieldCreate(field,item%fcomp1,doCopy=.true.,_RC)
-           !call item%modelGridFields%comp1%set_parameters(left_field=left_field,right_field=right_field, _RC)
-           !call ESMF_StateGet(ExtDataState, trim(item%vcomp2), field,_RC)
-           !left_field = MAPL_FieldCreate(field,item%fcomp2,doCopy=.true.,_RC)
-           !right_field = MAPL_FieldCreate(field,item%fcomp2,doCopy=.true.,_RC)
-           !call item%modelGridFields%comp2%set_parameters(left_field=left_field,right_field=right_field, _RC)
-
         end if
 
      end if
@@ -1633,7 +1620,6 @@ CONTAINS
      metadata => collection%find(filename,_RC)
      item%file_metadata = metadata
 
-     !call GetLevs(item,_RC)
      if (item%vartype == MAPL_FieldItem) then
         field = create_simple_field(item%name,grid,item%vcoord%num_levels,_RC)
         call MAPL_StateAdd(ExtDataState,field,_RC)
