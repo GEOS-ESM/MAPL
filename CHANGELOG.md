@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added experimental capabiltiy to regrid from constituents in mass mixing or emissions units from one set of hybrid sigma levels to model levels in ExtData2G
+
 ### Changed
 
 ### Fixed
