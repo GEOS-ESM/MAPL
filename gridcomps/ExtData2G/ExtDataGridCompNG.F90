@@ -300,6 +300,18 @@ CONTAINS
     allocate(ITEMNAMES(ITEMCOUNT), _STAT)
     allocate(ITEMTYPES(ITEMCOUNT), _STAT)
 
+    !block
+       !character(len=ESMF_MAXSTR), allocatable :: imp_names(:)
+       !integer :: imp_count
+       !call ESMF_StateGet(import, ItemCount=imp_count, _RC)
+       !allocate(imp_names(imp_count))
+       !call ESMF_StateGet(IMPORT, ITEMNAMELIST=imp_names, _RC)
+       !if (mapl_am_i_root()) then
+          !do i =1,imp_count
+            !write(*,*)'bmaa imp names ',i,trim(imp_names(i))
+          !enddo
+       !end if
+    !end block
     call ESMF_StateGet(EXPORT, ITEMNAMELIST=ITEMNAMES, ITEMTYPELIST=ITEMTYPES, _RC)
 
 !                               --------
@@ -451,13 +463,15 @@ CONTAINS
          call copy_primary(item,new_item)
          call self%primary%item_vec%push_back(new_item)
          ! make a new name ps_importname, if that's not already in import names
-         call create_ps_field(new_item, self%ExtDataState, item, time, _RC)
+         call create_ps_field(new_item, self%ExtDataState, item, _RC)
       enddo
 
       num_rules = self%primary%number_of_rules%of(i)
       call self%primary%export_id_start%push_back(new_size+1)
       call self%primary%number_of_rules%push_back(num_rules)
    enddo
+
+   call confirm_imports_for_vregrid(self%primary, import, _RC)
 
    call extdata_lgr%info('*******************************************************')
    call extdata_lgr%info('** Variables to be provided by the ExtData Component **')
@@ -753,16 +767,7 @@ CONTAINS
 
 !-------------------------------------------------------------------------
 
-   type(MAPL_ExtData_state), pointer :: self        ! Legacy state
-   type(ESMF_Config)                 :: CF          ! Universal Config
-
-   character(len=ESMF_MAXSTR)        :: comp_name
    integer                           :: status
-
-
-!  Get my name and set-up traceback handle
-!  ---------------------------------------
-   call ESMF_GridCompGet( GC, name=comp_name, _RC )
 
 !  Finalize MAPL Generic
 !  ---------------------
@@ -851,8 +856,6 @@ CONTAINS
 
         type(Variable), pointer :: var
 
-        integer :: i
-        logical :: file_found
         type(FileMetadataUtils), pointer :: metadata
         type(MAPLDataCollection), pointer :: collection
         character(len=:), allocatable :: filename
@@ -939,7 +942,6 @@ CONTAINS
      integer, optional,   intent(out  )     :: rc
 
      integer :: status
-     integer :: id_ps
      type(ESMF_Field) :: src_field, dst_field, src_ps, dst_ple
      character(len=:), allocatable :: src_ps_name
 
@@ -1141,36 +1143,36 @@ CONTAINS
 
   integer :: status
 
-  !real, pointer :: ptrF(:,:,:),ptrR(:,:,:)
-  !integer :: lm_in,lm_out,i
+  real, pointer :: ptrF(:,:,:),ptrR(:,:,:)
+  integer :: lm_in,lm_out,i
 
-  !call ESMF_FieldGet(FieldF,0,farrayPtr=ptrF,_RC)
-  !call ESMF_FieldGet(FieldR,0,farrayPtr=ptrR,_RC)
-  !ptrF = 0.0
-  !lm_in= size(ptrR,3)
-  !lm_out = size(ptrF,3)
-  !if (trim(item%importVDir)=="down") then
+  call ESMF_FieldGet(FieldF,0,farrayPtr=ptrF,_RC)
+  call ESMF_FieldGet(FieldR,0,farrayPtr=ptrR,_RC)
+  ptrF = 0.0
+  lm_in= size(ptrR,3)
+  lm_out = size(ptrF,3)
+  if (trim(item%importVDir)=="down") then
 
-     !if (trim(item%fileVDir)=="down") then
-        !do i=1,lm_in
-           !ptrF(:,:,lm_out-lm_in+i)=ptrR(:,:,i)
-        !enddo
-     !else if (trim(item%fileVDir)=="up") then
-        !do i=1,lm_in
-           !ptrF(:,:,lm_out-i+1)=ptrR(:,:,i)
-        !enddo
-     !end if
-  !else if (trim(item%importVDir)=="up") then
-     !if (trim(item%fileVDir)=="down") then
-        !do i=1,lm_in
-           !ptrF(:,:,lm_in-i+1)=ptrR(:,:,i)
-        !enddo
-     !else if (trim(item%fileVDir)=="up") then
-        !do i=1,lm_in
-           !ptrF(:,:,i)=ptrR(:,:,i)
-        !enddo
-     !end if
-  !end if
+     if (trim(item%vcoord%positive)=="down") then
+        do i=1,lm_in
+           ptrF(:,:,lm_out-lm_in+i)=ptrR(:,:,i)
+        enddo
+     else if (trim(item%vcoord%positive)=="up") then
+        do i=1,lm_in
+           ptrF(:,:,lm_out-i+1)=ptrR(:,:,i)
+        enddo
+     end if
+  else if (trim(item%importVDir)=="up") then
+     if (trim(item%vcoord%positive)=="down") then
+        do i=1,lm_in
+           ptrF(:,:,lm_in-i+1)=ptrR(:,:,i)
+        enddo
+     else if (trim(item%vcoord%positive)=="up") then
+        do i=1,lm_in
+           ptrF(:,:,i)=ptrR(:,:,i)
+        enddo
+     end if
+  end if
 
   _RETURN(ESMF_SUCCESS)
 
@@ -1569,18 +1571,16 @@ CONTAINS
      _RETURN(_SUCCESS)
   end subroutine
 
-  subroutine create_ps_field(item,ExtDataState,old_item,current_time,rc)
+  subroutine create_ps_field(item,ExtDataState,old_item,rc)
      type(PrimaryExport), intent(inout) :: item
      type(ESMF_State), intent(inout) :: extDataState
      type(PrimaryExport), intent(inout) :: old_item
-     type(ESMF_Time), intent(in) :: current_time
      integer, intent(out), optional :: rc
 
      integer :: status
      type(ESMF_Field) :: field,new_field
      type(ESMF_Grid)  :: grid
      real, pointer :: ptr2d(:,:)
-     logical :: has_ps
      type(ESMF_StateItem_Flag) :: item_type
 
      call ESMF_StateGet(ExtDataState,trim(old_item%name),field,_RC)
@@ -1746,5 +1746,38 @@ CONTAINS
      call ESMF_HConfigDestroy(config)
      _RETURN(_SUCCESS)
   end subroutine get_global_options
+
+  subroutine confirm_imports_for_vregrid(primary_exports, import_state, rc)
+     type(PrimaryExports), intent(in) :: primary_exports
+     type(ESMF_State), intent(in) :: import_state
+     integer, intent(out), optional :: rc
+
+     integer :: status, i, num_items
+     logical :: found_allowed
+     type(PrimaryExport), pointer      :: item
+     character(len=*), parameter :: PLE_IMPORT = 'PLE'
+     ! for now only required import is PLE, but this will grow, hence array
+     character(len=3), parameter :: required_imports(1) = [character(len=3) :: &
+          PLE_IMPORT]
+     type(ESMF_StateItem_Flag) :: item_type
+
+     found_allowed = .false.
+     num_items = primary_exports%item_vec%size()
+     do i=1,num_items
+        item => primary_exports%item_Vec%at(i)
+        found_allowed = item%allow_vertical_regrid
+        if (found_allowed) exit         
+     end do
+     if (found_allowed) then
+        do i=1,size(required_imports)
+           call ESMF_StateGet(import_state, required_imports(i), item_type, _RC)
+           _ASSERT(item_type == ESMF_STATEITEM_FIELD, "Vertically regridding in extdata is allowed but required import "//trim(required_imports(i))//" not present, modify cap to import PLE")
+        enddo
+     end if
+     _RETURN(_SUCCESS)
+
+  end subroutine confirm_imports_for_vregrid
+
+     
 
  END MODULE MAPL_ExtDataGridComp2G
