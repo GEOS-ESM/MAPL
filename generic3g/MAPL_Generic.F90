@@ -174,7 +174,7 @@ module mapl3g_Generic
 
 contains
 
-   subroutine gridcomp_get_outer_meta(gridcomp, outer_meta, rc)
+   recursive subroutine gridcomp_get_outer_meta(gridcomp, outer_meta, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       type(OuterMetaComponent), pointer, intent(out) :: outer_meta
       integer, optional, intent(out) :: rc
