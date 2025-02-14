@@ -5,7 +5,7 @@ module mapl3g_FrequencyAspect
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_AccumulatorActionInterface
-   use mapl3g_ESMF_Time_Utilities, only: times_and_intervals_are_compatible, zero_time_interval
+   use mapl3g_ESMF_Time_Utilities, only: intervals_and_offset_are_compatible, zero_time_interval
    use esmf
    implicit none
    private
@@ -189,10 +189,14 @@ contains
 
       select type(dst)
       class is (FrequencyAspect)
-         call times_and_intervals_are_compatible(&
-            & src%get_timestep(), src%get_reference_time(),&
-            & dst%get_timestep(), dst%get_reference_time(),&
-            & supports, rc=status)
+         call intervals_and_offset_are_compatible(src%get_timestep(), &
+            & src%get_reference_time_offset(), dst%get_timestep(), &
+            & supports)
+!            & supports, rc=status)
+!         call times_and_intervals_are_compatible(& !wdb fixme deleteme 
+!            & src%get_timestep(), src%get_reference_time(),&
+!            & dst%get_timestep(), dst%get_reference_time(),&
+!            & supports, rc=status)
          supports = supports .and. status == _SUCCESS
       end select
 

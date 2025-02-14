@@ -27,6 +27,7 @@ contains
       type(ESMF_Clock) :: user_clock
       type(ESMF_Time) :: user_refTime, default_refTime
       type(ESMF_TimeInterval) :: user_timeStep, default_timeStep
+      type(ESMF_TimeInterval), allocatable :: user_offset
       logical :: compatible
       
 
@@ -36,9 +37,13 @@ contains
       if (allocated(this%user_timeStep)) user_timeStep = this%user_timeStep
 
       user_refTime = default_refTime
-      if (allocated(this%user_refTime)) user_refTime = this%user_refTime
-  
-      call times_and_intervals_are_compatible(user_timestep, user_refTime, default_timestep, default_refTime, compatible, _RC)
+      if (allocated(this%user_refTime_offset)) then
+         user_offset = this%user_refTime_offset
+         user_refTime = user_refTime + user_offset
+      end if
+         
+      call intervals_and_offset_are_compatible(user_timestep, default_timestep, user_offset, compatible, _RC)
+!      call times_and_intervals_are_compatible(user_timestep, user_refTime, default_timestep, default_refTime, compatible, _RC) !wdb fixme deleteme 
       _ASSERT(compatible, 'The user timestep and refTime are not compatible with the outer timestep and refTime')
 
       user_clock = ESMF_ClockCreate(outer_clock, _RC)

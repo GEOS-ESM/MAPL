@@ -273,7 +273,7 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_set
 
-   subroutine add_child_config(gridcomp, child_name, setservices, hconfig, unusable, timeStep, refTime, rc)
+   subroutine add_child_config(gridcomp, child_name, setservices, hconfig, unusable, timeStep, refTime_offset, rc)
       use mapl3g_UserSetServices
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name
@@ -281,7 +281,7 @@ contains
       type(ESMF_HConfig), intent(in) :: hconfig
       class(KeywordEnforcer), optional, intent(out) :: unusable
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
-      type(ESMF_Time), optional, intent(in) :: refTime
+      type(ESMF_TimeInterval), optional, intent(in) :: refTime_offset
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -290,7 +290,7 @@ contains
 
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
 
-      child_spec = ChildSpec(setServices, hconfig=hconfig, timeStep=timeStep, refTime=refTime)
+      child_spec = ChildSpec(setServices, hconfig=hconfig, timeStep=timeStep, refTime_offset=refTime_offset)
       call add_child_by_spec(gridcomp, child_name, child_spec, _RC)
 
       _RETURN(ESMF_SUCCESS)
