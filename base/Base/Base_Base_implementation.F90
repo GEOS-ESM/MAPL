@@ -1585,9 +1585,7 @@ contains
     call ESMF_InfoGetFromHost(grid,infoh,_RC)
     isPresent = ESMF_InfoIsPresent(infoh,'GLOBAL_GRID_INFO',_RC)
     if (isPresent) then
-      call ESMF_InfoGet(infoh, key="GLOBAL_GRID_INFO", itemCount=itemCount, _RC)
-      allocate(global_grid_info(itemCount), _STAT)
-      call ESMF_InfoGet(infoh, key="GLOBAL_GRID_INFO", values=global_grid_info, _RC)
+      call ESMF_InfoGetAlloc(infoh, key="GLOBAL_GRID_INFO", values=global_grid_info, _RC)
       I1 = global_grid_info(7)
       IN = global_grid_info(8)
       j1 = global_grid_info(9)
@@ -2182,9 +2180,7 @@ contains
     call ESMF_InfoGetFromHost(grid,infoh,_RC)
     isPresent = ESMF_InfoIsPresent(infoh,'GLOBAL_GRID_INFO',_RC)
     if (isPresent) then
-      call ESMF_InfoGet(infoh, key="GLOBAL_GRID_INFO", itemCount=itemCount, _RC)
-      allocate(global_grid_info(itemCount), _STAT)
-      call ESMF_InfoGet(infoh, key="GLOBAL_GRID_INFO", values=global_grid_info, _RC)
+      call ESMF_InfoGetAlloc(infoh, key="GLOBAL_GRID_INFO", values=global_grid_info, _RC)
       I1 = global_grid_info(7)
       IN = global_grid_info(8)
       j1 = global_grid_info(9)
