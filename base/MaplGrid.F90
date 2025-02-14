@@ -265,6 +265,8 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
       type(ESMF_DistGrid) :: distGrid
       integer, allocatable :: maxindex(:,:),minindex(:,:)
       integer, pointer :: ims(:),jms(:)
+      integer, allocatable  :: global_grid_info(:)
+      integer :: itemCount
       type(ESMF_Info) :: infoh
 
       pglobal = present(globalCellCountPerDim)
