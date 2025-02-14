@@ -10,14 +10,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added experimental capabiltiy to regrid from constituents in mass mixing or emissions units from one set of hybrid sigma levels to model levels in ExtData2G
+- Added subdirectory GetHorzIJIndex in the Tests directory for testing subroutine MAPL_GetHorzIJIndex to ensure the subroutine fails is teh cubed-sphere assumption is violated and also if the returned I and J indices are not correct.
 
 ### Changed
 
+- Update to `ESMA_env` v4.35.0 --> Baselibs 7.32.0
+  - This brings in GFE v1.19.0 (which has gFTL v1.15.2 needed for MAPL3 work)
+
 ### Fixed
+
+- Fixed nesting of internal timers (issue #3412)
 
 ### Removed
 
 ### Deprecated
+
+## [2.54.1] - 2025-02-07
+
+- Fix typo in ACG: 'num_subtitles' => 'num_subtiles'
+
+## [2.54.0] - 2025-02-07
+
+### Changed
+
+- Add column for ACG (ALIAS) that set the pointer variable to a different name than the `short_name`
+- Updated CI to use Baselibs 7.31.0
+  - Updates to GFE v1.18.0
+
+## [2.53.1] - 2025-01-29
+
+### Fixed
+
+- Fixed bug with `MAPL_GetHorzijIndex` when not points are passed on a processor causing a deadlock
 
 ## [2.53.0] - 2025-01-24
 

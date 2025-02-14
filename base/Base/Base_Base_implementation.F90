@@ -1562,7 +1562,8 @@ contains
     integer,               allocatable    :: localDeToDeMap(:)
     integer :: rc
     logical :: isPresent
-    integer :: global_grid_info(10)
+    integer, allocatable  :: global_grid_info(:)
+    integer :: itemCount
 
     i1=-1
     j1=-1
@@ -1571,11 +1572,14 @@ contains
 
     call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", isPresent=isPresent, _RC)
     if (isPresent) then
+      call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", itemCount=itemCount, _RC)
+      allocate(global_grid_info(itemCount), _STAT)
       call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", valueList=global_grid_info, _RC)
       I1 = global_grid_info(7)
       IN = global_grid_info(8)
       j1 = global_grid_info(9)
       JN = global_grid_info(10)
+      deallocate(global_grid_info, _STAT)
       _RETURN(_SUCCESS)
     end if
 
@@ -2156,7 +2160,8 @@ contains
     integer                               :: gridRank
     integer                               :: rc
     logical                               :: isPresent
-    integer                               :: global_grid_info(10)
+    integer, allocatable                  :: global_grid_info(:)
+    integer                               :: itemCount
 
     i1=-1
     j1=-1
@@ -2165,11 +2170,14 @@ contains
 
     call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", isPresent=isPresent, _RC)
     if (isPresent) then
+      call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", itemCount=itemCount, _RC)
+      allocate(global_grid_info(itemCount), _STAT)
       call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", valueList=global_grid_info, _RC)
       I1 = global_grid_info(7)
       IN = global_grid_info(8)
       j1 = global_grid_info(9)
       JN = global_grid_info(10)
+      deallocate(global_grid_info, _STAT)
       _RETURN(_SUCCESS)
     end if
 
@@ -2636,7 +2644,6 @@ contains
     type(ESMF_CoordSys_Flag) :: coordSys
     character(len=ESMF_MAXSTR) :: grid_type
 
-    _RETURN_IF(npts == 0 )
     ! if the grid is present then we can just get the prestored edges and the dimensions of the grid
     ! this also means we are running on a distributed grid
     ! if grid not present then the we just be running outside of ESMF and the user must
@@ -2793,9 +2800,6 @@ contains
 
     logical :: good_grid, stretched
 
-    ! Return if no local points
-    _RETURN_IF(npts == 0)
-
     if ( .not. present(grid)) then
       _FAIL("need a cubed-sphere grid")
     endif
@@ -2812,10 +2816,11 @@ contains
 
     ! make sure the grid can be used in this subroutine
     good_grid = grid_is_ok(grid)
-
     if ( .not. good_grid ) then
        _FAIL( "MAPL_GetGlobalHorzIJIndex cannot handle this grid")
     endif
+    ! Return if no local points
+    _RETURN_IF(npts==0)
 
     ! shift the grid away from Japan Fuji Mt.
     shift0 = shift
