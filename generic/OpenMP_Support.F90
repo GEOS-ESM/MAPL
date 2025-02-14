@@ -96,6 +96,7 @@ module MAPL_OpenMP_Support
         real(kind=ESMF_KIND_R8), allocatable :: lats1d(:), lons1d(:)
         character(len=ESMF_MAXSTR) :: name
         type(ESMF_Info) :: info_in, info_out, infoh
+        logical :: isPresent
 
         call ESMF_GridGet(primary_grid, name=name, _RC)
          !print*, 'Printing bounds for ', trim(name)
@@ -129,8 +130,14 @@ module MAPL_OpenMP_Support
            call ESMF_InfoSet(info_out, key="", value=info_in, _RC)
 
            ! delete corner lon/lat atttributes in the subgrid
-           call ESMF_InfoRemove(info_out,'GridCornerLons:',_RC)
-           call ESMF_InfoRemove(info_out,'GridCornerLats:',_RC)
+           isPresent = ESMF_InfoIsPresent(info_out,'GridCornerLons:',_RC)
+           if (isPresent) then
+              call ESMF_InfoRemove(info_out,'GridCornerLons:',_RC)
+           end if
+           isPresent = ESMF_InfoIsPresent(info_out,'GridCornerLats:',_RC)
+           if (isPresent) then
+              call ESMF_InfoRemove(info_out,'GridCornerLats:',_RC)
+           endif
         end do
 
         ! get lons/lats from original grid
