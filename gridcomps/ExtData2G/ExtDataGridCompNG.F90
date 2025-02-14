@@ -1517,7 +1517,7 @@ CONTAINS
            right_field = MAPL_FieldCreate(field,item%fcomp2,doCopy=.true.,_RC)
            call item%modelGridFields%comp2%set_parameters(left_field=left_field,right_field=right_field, _RC)
            if (item%vcoord%num_levels /= lm) then
-              temp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%vcomp1),_RC)
+              temp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%vcomp2),_RC)
               call MAPL_FieldBundleAdd(item%t_interp_bundle, temp_field, _RC)
            else
               call MAPL_FieldBundleAdd(item%t_interp_bundle, field, _RC)
