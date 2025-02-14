@@ -8,7 +8,7 @@ module mapl3g_HistoryGridComp
    use pFlogger, only: logger
    use esmf
    use pfio
-   implicit none
+   implicit none(type,external)
    private
 
    public :: setServices
@@ -82,7 +82,7 @@ contains
 
       integer :: status
 
-      call MAPL_RunChildren(gridcomp, phase_name='run', _RC)
+      call MAPL_GridCompRunChildren(gridcomp, phase_name='run', _RC)
 
       call o_Clients%done_collective_stage()
       call o_Clients%post_wait()

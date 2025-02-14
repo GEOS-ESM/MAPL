@@ -63,7 +63,8 @@ contains
       type(StateItemExtension), pointer :: primary
       type(StateItemExtensionPtr), target, allocatable :: extensions(:)
 
-      call MAPL_GridCompGet(gc, hconfig=hconfig, registry=registry, _RC)
+      call MAPL_GridCompGet(gc, hconfig=hconfig, _RC)
+      call MAPL_GridCompGetRegistry(gc, registry, _RC)
 
       ! We would do this quite differently in an actual ExtData implementation.
       ! Here we are using information from the generic spec.
@@ -122,7 +123,8 @@ contains
       character(:), allocatable :: var_name
       type(StateItemExtension), pointer :: primary
 
-      call MAPL_GridCompGet(gc, hconfig=hconfig, registry=registry, _RC)
+      call MAPL_GridCompGet(gc, hconfig=hconfig, _RC)
+      call MAPL_GridCompGetRegistry(gc, registry, _RC)
 
       ! We would do this quite differently in an actual ExtData implementation.
       ! Here we are using information from the generic spec.
@@ -181,7 +183,8 @@ contains
       integer :: status
 
 
-     call MAPL_GridCompGet(gc, hconfig=hconfig, outer_meta=outer_meta, _RC)
+     call MAPL_GridCompGet(gc, hconfig=hconfig, _RC)
+     call MAPL_GridCompGetOuterMeta(gc, outer_meta, _RC)
      call outer_meta%run_children(_RC)
 
      mapl_config = ESMF_HConfigCreateAt(hconfig, keystring='mapl', _RC)

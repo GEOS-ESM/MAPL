@@ -13,7 +13,7 @@ module mapl3g_HistoryCollectionGridComp_private
    use mapl3g_UngriddedDims
    use gFTL2_StringSet
 
-   implicit none
+   implicit none(type,external)
    private
 
    public :: make_geom
@@ -254,7 +254,7 @@ contains
          call ftn_iter%next()
          short_name = ftn_iter%of()
          varspec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name, vertical_dim_spec=VERTICAL_DIM_MIRROR, _RC)
-         call MAPL_AddSpec(gridcomp, varspec, _RC)
+         call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
       end do
 
       _RETURN(_SUCCESS)
