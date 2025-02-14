@@ -7,7 +7,7 @@ module mapl3g_ExtDataGridComp
    use esmf
    use pfio
    use mapl3g_ExtDataGridComp_private
-   implicit none
+   implicit none(type,external)
    private
 
    public :: setServices
@@ -53,7 +53,7 @@ contains
 
       integer :: status
 
-      call MAPL_RunChildren(gridcomp, phase_name='run', _RC)
+      call MAPL_GridcompRunChildren(gridcomp, phase_name='run', _RC)
 
       _RETURN(_SUCCESS)
    end subroutine run

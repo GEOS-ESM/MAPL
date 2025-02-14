@@ -203,13 +203,13 @@ contains
 
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
 
-      call MAPL_ResourceGet(gridcomp, keystring='use_default_timestep', value=use_default_timestep, default=.true., _RC)
+      call MAPL_GridCompResourceGet(gridcomp, keystring='use_default_timestep', value=use_default_timestep, default=.true., _RC)
       if (.not. use_default_timestep) then
          allocate(timeStep)
          call ESMF_TimeIntervalSet(timeStep, s=1800)
       end if
 
-      call MAPL_ResourceGet(gridcomp, keystring='use_default_refTime', value=use_default_refTime, default=.true., _RC)
+      call MAPL_GridCompResourceGet(gridcomp, keystring='use_default_refTime', value=use_default_refTime, default=.true., _RC)
       if (.not. use_default_refTime) then
          allocate(refTime)
          ! offset by 900 seconds
@@ -231,7 +231,7 @@ contains
       integer :: status
       
       rc=0
-      call MAPL_RunChild(gridcomp, 'child', _RC)
+      call MAPL_GridCompRunChild(gridcomp, 'child', _RC)
 
    end subroutine run_parent
 

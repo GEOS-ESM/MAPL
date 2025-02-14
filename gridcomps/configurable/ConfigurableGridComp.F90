@@ -3,7 +3,7 @@
 module mapl3g_ConfigurableGridComp
 
    use mapl_ErrorHandling
-   use mapl3g_Generic, only: MAPL_GridCompSetEntryPoint, MAPL_RunChildren
+   use mapl3g_Generic, only: MAPL_GridCompSetEntryPoint, MAPL_GridCompRunChildren
    use mapl3g_Generic, only: MAPL_GridCompGet
    use mapl, only: MAPL_GetPointer
    use esmf
@@ -90,7 +90,7 @@ contains
 
       integer :: status
 
-      call MAPL_RunChildren(gridcomp, phase_name="run", _RC)
+      call MAPL_GridcompRunChildren(gridcomp, phase_name="run", _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(importState)
