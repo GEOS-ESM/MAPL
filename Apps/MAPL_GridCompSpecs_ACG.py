@@ -183,8 +183,8 @@ Option = Enum(value = 'Option', names = {
         'FRIENDLYTO': ('friendlyto', string_emit),
         'FRIEND2': ('friendlyto', string_emit),
         'HALOWIDTH': ('halowidth',),
-        'NUM_SUBTILES': ('num_subtitles',),
-        'NUMSUBS': ('num_subtitles',),
+        'NUM_SUBTILES': ('num_subtiles',),
+        'NUMSUBS': ('num_subtiles',),
         'PRECISION': ('precision',),
         'PREC': ('precision',),
         'REFRESH_INTERVAL': ('refresh_interval',),
@@ -200,6 +200,7 @@ Option = Enum(value = 'Option', names = {
         'VLOCATION': ('vlocation', VLOCATION_EMIT),
         'VLOC': ('vlocation', VLOCATION_EMIT),
 # these are Options that are not output but used to write 
+        'ALIAS': ('alias', identity_emit, False, False),
         'CONDITION': ('condition', identity_emit, False, False),
         'COND': ('condition', identity_emit, False, False),
         'ALLOC': ('alloc', identity_emit, False, False),
@@ -463,6 +464,7 @@ def digest(specs, args):
         for spec in specs[category]: # spec from list
             dims = None
             ungridded = None
+            alias = None
             option_values = dict() # dict of option values
             for column in spec: # for spec emit value
                 column_value = spec[column]
@@ -480,6 +482,10 @@ def digest(specs, args):
                     dims = option_value
                 elif option == Option.UNGRIDDED:
                     ungridded = option_value
+                elif option == Option.ALIAS:
+                    alias = Option.ALIAS(column_value)
+            if alias:
+                option_values[Option.INTERNAL_NAME] = alias
 # MANDATORY
             for option in mandatory_options:
                 if option not in option_values:

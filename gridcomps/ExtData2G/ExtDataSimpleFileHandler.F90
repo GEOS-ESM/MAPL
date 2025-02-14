@@ -105,8 +105,10 @@ contains
 
             call bracket%set_node('L',file=current_file,time_index=time_index,time=time,was_set=.true.,_RC)
             if (in_range .and. (bracket%left_node == bracket%right_node)) then
-               call bracket%swap_node_fields(_RC)
-               bracket%new_file_left = .false.
+               if (.not. (current_file == file_not_found)) then
+                  call bracket%swap_node_fields(_RC)
+                  bracket%new_file_left = .false.
+               end if
             else
                if (time_index == time_not_found ) then
                   call this%get_file(current_file,target_time,-1,allow_missing_file,_RC)
