@@ -1360,7 +1360,7 @@ CONTAINS
            io_bundle = ExtDataNG_IOBundle(MAPL_ExtDataLeft, entry_num, current_file, time_index, item%trans, item%fracval, item%file_template, &
                item%pfioCollection_id,item%iclient_collection_id,itemsL,on_tiles,_RC)
            call IOBundles%push_back(io_bundle)
-           call extdata_lgr%info('%a updated L bracket with: %a at time index %i3 ',item%name, current_file, time_index)
+           call extdata_lgr%info('%a updated L bracket with: %a at time index %i0 ',item%name, current_file, time_index)
         end if
      end if
      call item%modelGridFields%comp1%get_parameters('R',update=update,file=current_file,time_index=time_index)
@@ -1370,7 +1370,7 @@ CONTAINS
            io_bundle = ExtDataNG_IOBundle(MAPL_ExtDataRight, entry_num, current_file, time_index, item%trans, item%fracval, item%file_template, &
                item%pfioCollection_id,item%iclient_collection_id,itemsR,on_tiles,_RC)
            call IOBundles%push_back(io_bundle)
-           call extdata_lgr%info('%a updated R bracket with: %a at time index %i3 ',item%name,current_file, time_index)
+           call extdata_lgr%info('%a updated R bracket with: %a at time index %i0 ',item%name,current_file, time_index)
         end if
      end if
 
@@ -1463,10 +1463,6 @@ CONTAINS
            end if
 
         else if (item%vartype == MAPL_VectorField) then
-
-           if (item%Trans /= REGRID_METHOD_BILINEAR) then
-              _FAIL('No conservative re-gridding with vectors')
-           end if
 
            call ESMF_StateGet(ExtDataState, trim(item%vcomp1), field,_RC)
            call ESMF_FieldGet(field,grid=grid,rank=fieldRank,_RC)

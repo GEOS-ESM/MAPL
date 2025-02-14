@@ -324,11 +324,12 @@ contains
       logical, optional, intent(in) :: multi_rule
       integer, intent(out), optional :: rc
 
-      integer :: semi_pos,status
+      integer :: semi_pos,status,rule_n_pos
       type(ExtDataRule) :: rule,ucomp,vcomp
       type(ExtDataRule), pointer :: temp_rule
-      character(len=:), allocatable :: uname,vname
+      character(len=:), allocatable :: uname,vname,original_key
       logical :: usable_multi_rule
+      character(len=1) :: rule_num
 
       if (present(multi_rule)) then
          usable_multi_rule = multi_rule
@@ -341,14 +342,24 @@ contains
       rule = ExtDataRule(export_rule,this%sample_map,key,multi_rule=usable_multi_rule,_RC)
       semi_pos = index(key,";")
       if (semi_pos > 0) then
-         call rule%split_vector(key,ucomp,vcomp,rc=status)
+         rule_n_pos = index(key,rule_sep)
+         original_key = key
+         if (rule_n_pos > 0) original_key = key(1:rule_n_pos-1)
+
+         call rule%split_vector(original_key,ucomp,vcomp,rc=status)
          uname = key(1:semi_pos-1)
          vname = key(semi_pos+1:len_trim(key))
+
+         if (rule_n_pos > 0) then
+            rule_num = key(rule_n_pos+1:rule_n_pos+1)
+            uname=uname//rule_sep//rule_num
+         end if
+
          temp_rule => this%rule_map%at(trim(uname))
-         _ASSERT(.not.associated(temp_rule),"duplicated export entry key: "//trim(key))
+         _ASSERT(.not.associated(temp_rule),"duplicated export entry key: "//trim(uname))
          call this%rule_map%insert(trim(uname),ucomp)
          temp_rule => this%rule_map%at(trim(vname))
-         _ASSERT(.not.associated(temp_rule),"duplicated export entry key: "//trim(key))
+         _ASSERT(.not.associated(temp_rule),"duplicated export entry key: "//trim(vname))
          call this%rule_map%insert(trim(vname),vcomp)
       else
          temp_rule => this%rule_map%at(trim(key))

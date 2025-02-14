@@ -17,6 +17,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
 
       - name: Build and Deploy Docs
         uses: ./.github/actions/deploy-ford-docs
@@ -34,6 +37,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
 
       - name: Build and Deploy Dev Docs
         uses: ./.github/actions/deploy-ford-docs

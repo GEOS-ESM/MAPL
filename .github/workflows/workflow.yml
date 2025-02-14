@@ -19,6 +19,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
 
       - name: Build and Deploy Docs
         uses: ./.github/actions/deploy-ford-docs
@@ -35,7 +38,7 @@ jobs:
     name: Build and Test MAPL GNU
     runs-on: ubuntu-latest
     container:
-      image: gmao/ubuntu20-geos-env-mkl:v7.27.0-openmpi_5.0.5-gcc_14.2.0
+      image: gmao/ubuntu24-geos-env-mkl:v7.29.0-openmpi_5.0.5-gcc_14.2.0
       # Per https://github.com/actions/virtual-environments/issues/1445#issuecomment-713861495
       # It seems like we might not need secrets on GitHub Actions which is good for forked
       # pull requests
@@ -86,7 +89,7 @@ jobs:
     name: Build and Test MAPL Intel
     runs-on: ubuntu-latest
     container:
-      image: gmao/ubuntu20-geos-env:v7.27.0-intelmpi_2021.13-ifort_2021.13
+      image: gmao/ubuntu24-geos-env:v7.29.0-intelmpi_2021.13-ifort_2021.13
       # Per https://github.com/actions/virtual-environments/issues/1445#issuecomment-713861495
       # It seems like we might not need secrets on GitHub Actions which is good for forked
       # pull requests
@@ -102,6 +105,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          filter: blob:none
       - name: Set all directories as git safe
         run: |
           git config --global --add safe.directory '*'
