@@ -300,18 +300,6 @@ CONTAINS
     allocate(ITEMNAMES(ITEMCOUNT), _STAT)
     allocate(ITEMTYPES(ITEMCOUNT), _STAT)
 
-    !block
-       !character(len=ESMF_MAXSTR), allocatable :: imp_names(:)
-       !integer :: imp_count
-       !call ESMF_StateGet(import, ItemCount=imp_count, _RC)
-       !allocate(imp_names(imp_count))
-       !call ESMF_StateGet(IMPORT, ITEMNAMELIST=imp_names, _RC)
-       !if (mapl_am_i_root()) then
-          !do i =1,imp_count
-            !write(*,*)'bmaa imp names ',i,trim(imp_names(i))
-          !enddo
-       !end if
-    !end block
     call ESMF_StateGet(EXPORT, ITEMNAMELIST=ITEMNAMES, ITEMTYPELIST=ITEMTYPES, _RC)
 
 !                               --------
