@@ -35,7 +35,7 @@ module main_mod
          ! 2. a procedure to cast the options
          cap_options = FargparseCLI(extra_options=extra_options, cast_extras=cast_extras)
 
-         write(*,*) "done with MAPL_FargparseCLI"
+         write(*,*) "done with FargparseCLI"
          write(*,*) "  cap_options%with_esmf_moab = ", cap_options%with_esmf_moab
          write(*,*) "  cap_options%npes_input_server = ", cap_options%npes_input_server
          write(*,*) "  cap_options%nodes_input_server = ", cap_options%nodes_input_server
