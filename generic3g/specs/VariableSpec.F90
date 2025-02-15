@@ -61,12 +61,25 @@ module mapl3g_VariableSpec
 contains
 
    function make_VariableSpec( &
-        state_intent, short_name, unusable, standard_name, geom, &
-        units, itemtype, typekind, vertical_dim_spec, ungridded_dims, default_value, &
-        service_items, attributes, &
+        state_intent, short_name, unusable, &
+        standard_name, &
+        geom, &
+        units, &
+        itemtype, &
+        typekind, &
+        vertical_dim_spec, &
+        ungridded_dims, &
+        default_value, &
+        service_items, &
+        attributes, &
         bracket_size, &
-        dependencies, regrid_param, horizontal_dims_spec, &
-        accumulation_type, timeStep, refTime, rc) result(var_spec)
+        dependencies, &
+        regrid_param, &
+        horizontal_dims_spec, &
+        accumulation_type, &
+        timeStep, &
+        refTime, &
+        rc) result(var_spec)
 
       type(VariableSpec) :: var_spec
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
