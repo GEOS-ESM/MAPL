@@ -257,10 +257,11 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_get
 
-   subroutine gridcomp_set(gridcomp, unusable, activate_all_exports, rc)
+   subroutine gridcomp_set(gridcomp, unusable, activate_all_exports, activate_all_imports, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       class(KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(in) :: activate_all_exports
+      logical, optional, intent(in) :: activate_all_imports
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -268,6 +269,7 @@ contains
 
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%set(activate_all_exports=activate_all_exports)
+      call outer_meta%set(activate_all_imports=activate_all_imports)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

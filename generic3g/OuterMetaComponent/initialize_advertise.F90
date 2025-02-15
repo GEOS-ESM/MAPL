@@ -83,7 +83,12 @@ contains
            iter = this%component_spec%var_specs%begin()
            do while (iter /= e)
               var_spec => iter%of()
-              call advertise_variable (var_spec, this%registry, this%component_spec%activate_all_exports, _RC)
+              call advertise_variable( &
+                   var_spec, &
+                   this%registry, &
+                   this%component_spec%activate_all_exports, &
+                   this%component_spec%activate_all_imports, &
+                   _RC)
               call iter%next()
            end do
          end associate
@@ -92,11 +97,11 @@ contains
          _UNUSED_DUMMY(unusable)
       end subroutine self_advertise
 
-
-      subroutine advertise_variable(var_spec, registry, activate_all_exports, unusable, rc)
+      subroutine advertise_variable(var_spec, registry, activate_all_exports, activate_all_imports, unusable, rc)
          type(VariableSpec), intent(in) :: var_spec
          type(StateRegistry), target, intent(inout) :: registry
          logical, intent(in) :: activate_all_exports
+         logical, intent(in) :: activate_all_imports
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
 
@@ -111,6 +116,11 @@ contains
 
          if (activate_all_exports) then
             if (var_spec%state_intent == ESMF_STATEINTENT_EXPORT) then
+               call item_spec%set_active()
+            end if
+         end if
+         if (activate_all_imports) then
+            if (var_spec%state_intent == ESMF_STATEINTENT_IMPORT) then
                call item_spec%set_active()
             end if
          end if
