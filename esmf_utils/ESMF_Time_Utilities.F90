@@ -6,8 +6,6 @@ module mapl3g_ESMF_Time_Utilities
    private
 
    public :: zero_time_interval
-   public :: intervals_are_compatible !wdb fixme deleteme 
-   public :: times_and_intervals_are_compatible !wdb fixme deleteme  
    public :: intervals_and_offset_are_compatible
 
    interface zero_time_interval
@@ -87,7 +85,8 @@ contains
       _RETURN_IF(cannot_compare(units == 0, units2 == 0))
       associate(abs1 => ESMF_TimeIntervalAbsValue(interval), &
             & abs2 => ESMF_TimeIntervalAbsValue(interval2))
-         compatible = (abs1 < abs2 .or. mod(abs1, abs2) /= zero)
+         _RETURN_IF(abs1 < abs2 .or. mod(abs1, abs2) /= zero)
+         compatible = abs1 >= abs2 .and. mod(abs1, abs2) == zero
          _RETURN_UNLESS(present(offset))
          compatible = compatible .and. mod(ESMF_TimeIntervalAbsValue(offset), abs2) == zero
       end associate
@@ -111,28 +110,6 @@ contains
 
    end subroutine intervals_and_offset_are_compatible
 
-!   These combinations (larger, smaller): (yy and/or mm, d), (yy and/or mm, h),
-!   (yy and/or mm, m), and (yy and/or mm, s) do not work because the
-!   ESMF_TimeInterval overload of the mod function gives incorrect results for
-!   these combinations. Presumably ms, us, and ns for the smaller interval do
-!   not work.
-   subroutine can_compare_intervals(larger, smaller, comparable, rc) !wdb fixme deleteme 
-      type(ESMF_TimeInterval), intent(in) :: larger
-      type(ESMF_TimeInterval), intent(in) :: smaller
-      logical, intent(out) :: comparable
-      integer, optional, intent(out) :: rc
-      integer :: status
-
-      comparable = has_only_years_and_months(larger, _RC)
-      comparable = comparable .and. has_only_years_and_months(smaller, _RC)
-      _RETURN_IF(comparable)
-
-      comparable = has_no_years_or_months(larger, _RC)
-      comparable = comparable .and. has_no_years_or_months(smaller, _RC)
-      _RETURN(_SUCCESS)
-
-   end subroutine can_compare_intervals
-      
    function get_zero() result(zero)
       type(ESMF_TimeInterval), pointer :: zero
       logical, save :: zero_is_uninitialized = .TRUE.
@@ -145,18 +122,6 @@ contains
 
    end function get_zero
 
-   subroutine as_array(interval, units, rc) !wdb fixme deleteme 
-      type(ESMF_TimeInterval), intent(in) :: interval
-      integer(kind=I4), intent(out) :: units(NUM_INTERVAL_UNITS)
-      integer, optional, intent(out) :: rc
-      integer :: status
-
-      call ESMF_TimeIntervalGet(interval, yy=units(1), mm=units(2), d=units(3), &
-         & h=units(4), m=units(5), s=units(6), ms=units(7), us=units(8), ns=units(9), _RC)
-      _RETURN(_SUCCESS)
-
-   end subroutine as_array
-
    function to_array(interval, rc) result(units)
       integer(kind=I4) :: units(NUM_INTERVAL_UNITS)
       type(ESMF_TimeInterval), intent(in) :: interval
@@ -168,30 +133,5 @@ contains
       _RETURN(_SUCCESS)
 
    end function to_array
-
-
-   logical function has_only_years_and_months(interval, rc) !wdb fixme deleteme 
-      type(ESMF_TimeInterval), intent(in) :: interval
-      integer, optional, intent(out) :: rc
-      integer :: status
-      integer(kind=I4) :: units(NUM_INTERVAL_UNITS)
-
-      call as_array(interval, units, _RC)
-      has_only_years_and_months = all(units(3:) == 0)
-      _RETURN(_SUCCESS)
-
-   end function has_only_years_and_months
-
-   logical function has_no_years_or_months(interval, rc) !wdb fixme deleteme 
-      type(ESMF_TimeInterval), intent(in) :: interval
-      integer, optional, intent(out) :: rc
-      integer :: status
-      integer(kind=I4) :: units(NUM_INTERVAL_UNITS)
-
-      call as_array(interval, units, _RC)
-      has_no_years_or_months = all(units(1:2) == 0)
-      _RETURN(_SUCCESS)
-
-   end function has_no_years_or_months
 
 end module mapl3g_ESMF_Time_Utilities

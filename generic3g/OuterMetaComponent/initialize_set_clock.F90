@@ -31,6 +31,7 @@ contains
       logical :: compatible
       
 
+      if(allocated(user_offset)) deallocate(user_offset)
       call ESMF_ClockGet(outer_clock, timeStep=default_timeStep, refTime=default_refTime, _RC)
 
       user_timeStep = default_timeStep
@@ -43,8 +44,7 @@ contains
       end if
          
       call intervals_and_offset_are_compatible(user_timestep, default_timestep, user_offset, compatible, _RC)
-!      call times_and_intervals_are_compatible(user_timestep, user_refTime, default_timestep, default_refTime, compatible, _RC) !wdb fixme deleteme 
-      _ASSERT(compatible, 'The user timestep and refTime are not compatible with the outer timestep and refTime')
+      _ASSERT(compatible, 'The user timestep and refTime_offset are not compatible with the outer timestep.')
 
       user_clock = ESMF_ClockCreate(outer_clock, _RC)
       call ESMF_ClockSet(user_clock, timestep=user_timeStep, reftime=user_refTime, _RC)

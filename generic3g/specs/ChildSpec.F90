@@ -100,17 +100,6 @@ contains
 
       end function equal_timestep
 
-      logical function equal_refTime(a, b) result(equal) !wdb fixme deleteme 
-         type(ESMF_Time), allocatable, intent(in) :: a
-         type(ESMF_Time), allocatable, intent(in) :: b
-
-         equal = (allocated(a) .eqv. allocated(b))
-         if (.not. equal) return
-
-         if (allocated(a)) equal = (a == b)
-
-      end function equal_refTime
-
       logical function equal_refTime_offset(a, b) result(equal)
          type(ESMF_TimeInterval), allocatable, intent(in) :: a
          type(ESMF_TimeInterval), allocatable, intent(in) :: b

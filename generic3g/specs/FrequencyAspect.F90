@@ -15,7 +15,6 @@ module mapl3g_FrequencyAspect
    type, extends(StateItemAspect) :: FrequencyAspect
       private
       type(ESMF_TimeInterval) :: timestep
-      type(ESMF_Time) :: refTime !wdb fixme deleteme 
       type(ESMF_TimeInterval) :: refTime_offset
       character(len=:), allocatable :: accumulation_type
    contains
@@ -29,7 +28,6 @@ module mapl3g_FrequencyAspect
       ! These are specific to FrequencyAspect.
       procedure :: get_timestep
       procedure :: get_accumulation_type
-      procedure :: get_reference_time !wdb fixme deleteme 
       procedure :: get_reference_time_offset
    end type FrequencyAspect
 
@@ -42,7 +40,6 @@ contains
    function new_FrequencyAspect(timeStep, refTime, refTime_offset, accumulation_type) result(aspect)
       type(FrequencyAspect) :: aspect
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
-      type(ESMF_Time), optional, intent(in) :: refTime !wdb fixme deleteme 
       type(ESMF_TimeInterval), optional, intent(in) :: refTime_offset
       character(len=*), optional, intent(in) :: accumulation_type
       integer :: status
@@ -53,7 +50,6 @@ contains
       call zero_timestep(aspect, rc=status)
       call zero_interval(aspect%refTime_offset, rc=status) 
       if(present(timeStep)) aspect%timestep = timeStep
-      if(present(refTime)) aspect%refTime = refTime !wdb fixme deleteme 
       if(present(refTime_offset)) aspect%refTime_offset = refTime_offset
       if(present(accumulation_type)) call set_accumulation_type(aspect, accumulation_type)
       
@@ -66,14 +62,6 @@ contains
       ts = this%timestep
 
    end function get_timestep
-
-   function get_reference_time(this) result(time) !wdb fixme deleteme 
-      type(ESMF_Time) :: time
-      class(FrequencyAspect), intent(in) :: this
-
-      time = this%refTime
-
-   end function get_reference_time !wdb fixme deleteme END
 
    function get_reference_time_offset(this) result(off)
       type(ESMF_TimeInterval) :: off
@@ -190,13 +178,8 @@ contains
       select type(dst)
       class is (FrequencyAspect)
          call intervals_and_offset_are_compatible(src%get_timestep(), &
-            & src%get_reference_time_offset(), dst%get_timestep(), &
-            & supports)
-!            & supports, rc=status)
-!         call times_and_intervals_are_compatible(& !wdb fixme deleteme 
-!            & src%get_timestep(), src%get_reference_time(),&
-!            & dst%get_timestep(), dst%get_reference_time(),&
-!            & supports, rc=status)
+            & dst%get_timestep(), src%get_reference_time_offset(), &
+            & supports, rc=status)
          supports = supports .and. status == _SUCCESS
       end select
 
