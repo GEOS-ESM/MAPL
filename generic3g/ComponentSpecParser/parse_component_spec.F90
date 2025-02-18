@@ -1,6 +1,5 @@
 #include "MAPL_ErrLog.h"
 
-
 submodule (mapl3g_ComponentSpecParser) parse_component_spec_smod
    implicit none(type,external)
 
@@ -44,17 +43,19 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: has_activate_all_exports
+      logical :: has_activate_all_exports, has_activate_all_imports
 
       has_activate_all_exports = ESMF_HConfigIsDefined(hconfig,keyString=COMPONENT_ACTIVATE_ALL_EXPORTS, _RC)
       if (has_activate_all_exports) then
          spec%activate_all_exports = ESMF_HConfigASLogical(hconfig, keyString=COMPONENT_ACTIVATE_ALL_EXPORTS, _RC)
       end if
-
+      has_activate_all_imports = ESMF_HConfigIsDefined(hconfig,keyString=COMPONENT_ACTIVATE_ALL_IMPORTS, _RC)
+      if (has_activate_all_imports) then
+         spec%activate_all_imports = ESMF_HConfigASLogical(hconfig, keyString=COMPONENT_ACTIVATE_ALL_IMPORTS, _RC)
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine parse_misc
-
 
 end submodule parse_component_spec_smod
 
