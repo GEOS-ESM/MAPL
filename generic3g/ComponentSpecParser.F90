@@ -63,7 +63,6 @@ module mapl3g_ComponentSpecParser
    character(*), parameter :: KEY_VERTICAL_DIM_SPEC = 'vertical_dim_spec'
    character(*), parameter :: KEY_ACCUMULATION_TYPE = 'accumulation_type'
    character(*), parameter :: KEY_TIMESTEP = 'timestep'
-   character(*), parameter :: KEY_REFERENCE_TIME = 'reference_time' !wdb fixme deleteme 
    character(*), parameter :: KEY_REFERENCE_TIME_OFFSET = 'reference_time_offset'
 
    !>

@@ -40,27 +40,6 @@ contains
          _RETURN(_SUCCESS)
       end subroutine parse_timestep
 
-      subroutine parse_refTime(hconfig, refTime, rc)
-         type(ESMF_HConfig), intent(in) :: hconfig
-         type(ESMF_Time), allocatable, intent(out) :: refTime
-         integer, optional, intent(out) :: rc
-
-         integer :: status
-         logical :: has_refTime
-         character(len=32) :: iso_datetime
-         type(ESMF_Time) :: time
-
-         has_refTime = ESMF_HConfigIsDefined(hconfig, keyString=KEY_REFERENCE_TIME, _RC)
-         _RETURN_UNLESS(has_refTime)
-
-         iso_datetime = ESMF_HConfigAsString(hconfig, keyString=KEY_REFERENCE_TIME, _RC)
-         call ESMF_TimeSet(time, timeString=iso_datetime, _RC)
-         refTime = time
-
-         _RETURN(_SUCCESS)
-
-      end subroutine parse_refTime
-
       subroutine parse_refTime_offset(hconfig, refTime_offset, rc)
          type(ESMF_HConfig), intent(in) :: hconfig
          type(ESMF_TimeInterval), allocatable, intent(out) :: refTime_offset
