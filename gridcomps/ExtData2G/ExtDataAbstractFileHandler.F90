@@ -19,7 +19,7 @@ module MAPL_ExtdataAbstractFileHandler
    private
    public :: ExtDataAbstractFileHandler
 
-   integer, parameter :: max_trials = 10
+   integer, parameter :: MAX_TRIALS = 10
    type, abstract :: ExtDataAbstractFileHandler
       character(:), allocatable :: file_template
       type(ESMF_TimeInterval) :: frequency
