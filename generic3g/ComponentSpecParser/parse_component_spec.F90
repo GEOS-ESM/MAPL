@@ -6,12 +6,12 @@ submodule (mapl3g_ComponentSpecParser) parse_component_spec_smod
 
 contains
 
-   module function parse_component_spec(hconfig, registry, timeStep, refTime, rc) result(spec)
+   module function parse_component_spec(hconfig, registry, timeStep, refTime_offset, rc) result(spec)
       type(ComponentSpec) :: spec
       type(ESMF_HConfig), target, intent(inout) :: hconfig
       type(StateRegistry), target, intent(in) :: registry
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
-      type(ESMF_Time), optional, intent(in) :: refTime
+      type(ESMF_TimeInterval), optional, intent(in) :: refTime_offset
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -23,7 +23,7 @@ contains
       mapl_cfg = ESMF_HConfigCreateAt(hconfig, keyString=MAPL_SECTION, _RC)
 
       spec%geometry_spec = parse_geometry_spec(mapl_cfg, registry, _RC)
-      spec%var_specs = parse_var_specs(mapl_cfg, timeStep, refTime, _RC)
+      spec%var_specs = parse_var_specs(mapl_cfg, timeStep, refTime_offset, _RC)
       spec%connections = parse_connections(mapl_cfg, _RC)
       spec%children = parse_children(mapl_cfg, _RC)
 
