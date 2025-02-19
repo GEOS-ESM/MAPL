@@ -42,3 +42,4 @@ path_to_script/run_extdatadriver_cases.py --builddir path_to_geos_install/bin --
 35. Case1 with zstandard compression (only enabled if netcdf built with zstandard support)
 36. Case1 with zstandard compression and NetCDF granular_bitround quantization (only enabled if netcdf built with quantization
     support and zstandard support)
+37. Test that when time interpolation is off, missing files is allowed, that the last read value is persisted during the period of the missing file
