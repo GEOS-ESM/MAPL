@@ -24,6 +24,7 @@ module mapl3g_ComponentSpec
       type(ESMF_TimeInterval), allocatable :: timestep
       type(ESMF_Time), allocatable :: reference_time
       logical :: activate_all_exports = .false. ! used for testing in isolation
+      logical :: activate_all_imports = .false. ! used for testing in isolation
 
    contains
       procedure :: has_geom_hconfig

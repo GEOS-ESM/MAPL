@@ -40,7 +40,6 @@ contains
       integer :: status
 
       type(BasicVerticalGrid) :: vertical_grid
-      type(OuterMetaComponent), pointer :: outer_meta
 
       ! Set entry points
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init_geom, phase_name='GENERIC::INIT_ADVERTISE', _RC)
@@ -50,9 +49,8 @@ contains
       ! Attach private state
       _SET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE)
 
-      outer_meta => get_outer_meta_from_inner_gc(gridcomp,_RC)
       vertical_grid = BasicVerticalGrid(4)
-      call outer_meta%set_vertical_grid(vertical_grid)
+      call MAPL_GRidCompSetVerticalGrid(gridcomp, vertical_grid, _RC)
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       call register_imports(gridcomp,hconfig,_RC)
 
