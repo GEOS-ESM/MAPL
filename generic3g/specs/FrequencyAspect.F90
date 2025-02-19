@@ -37,7 +37,7 @@ module mapl3g_FrequencyAspect
 
 contains
 
-   function new_FrequencyAspect(timeStep, refTime, refTime_offset, accumulation_type) result(aspect)
+   function new_FrequencyAspect(timeStep, refTime_offset, accumulation_type) result(aspect)
       type(FrequencyAspect) :: aspect
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
       type(ESMF_TimeInterval), optional, intent(in) :: refTime_offset

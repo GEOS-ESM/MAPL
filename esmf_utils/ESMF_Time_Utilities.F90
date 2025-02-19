@@ -22,49 +22,6 @@ module mapl3g_ESMF_Time_Utilities
 
 contains
 
-   ! must be possible to compare intervals, based on their nonzero units
-   ! smaller interval must divide the larger interval evenly
-   ! assumes they have the same sign.
-   subroutine intervals_are_compatible(larger, smaller, compatible, rc)
-      type(ESMF_TimeInterval), intent(in) :: larger
-      type(ESMF_TimeInterval), intent(in) :: smaller
-      logical, intent(out) :: compatible
-      integer, optional, intent(out) :: rc
-      integer :: status
-
-      _ASSERT(smaller /= get_zero(), 'The smaller unit must be nonzero.')
-      associate(abs_larger => ESMF_TimeIntervalAbsValue(larger), abs_smaller => ESMF_TimeIntervalAbsValue(smaller))
-         compatible = abs_larger >= abs_smaller
-         _RETURN_UNLESS(compatible)
-         call can_compare_intervals(larger, smaller, compatible, _RC)
-         _RETURN_UNLESS(compatible)
-         compatible = mod(abs_larger, abs_smaller) == get_zero()
-      end associate
-
-      _RETURN(_SUCCESS)
-
-   end subroutine intervals_are_compatible
-
-   ! intervals must be comparable, abs(interval1) >= abs(interval2)
-   ! abs(interval2) must evenly divide absolute difference of times
-   subroutine times_and_intervals_are_compatible(interval1, time1, interval2, time2, compatible, rc)
-      type(ESMF_Time), intent(in) :: time1
-      type(ESMF_Time), intent(in) :: time2
-      type(ESMF_TimeInterval), intent(in) :: interval1
-      type(ESMF_TimeInterval), intent(in) :: interval2
-      logical, intent(out) :: compatible
-      integer, optional, intent(inout) :: rc
-      integer :: status
-      type(ESMF_TimeInterval) :: absdiff
-
-      call intervals_are_compatible(interval1, interval2, compatible, _RC)
-      _RETURN_UNLESS(compatible)
-      absdiff = ESMF_TimeIntervalAbsValue(time1 - time2)
-      compatible = mod(absdiff, ESMF_TimeIntervalAbsValue(interval2)) == zero_time_interval()
-      _RETURN(_SUCCESS)
-
-   end subroutine times_and_intervals_are_compatible
-
    ! intervals must be comparable, abs(interval1) >= abs(interval2)
    ! abs(interval2) must evenly divide absolute difference of times
    subroutine intervals_and_offset_are_compatible(interval, interval2, offset, compatible, rc)
