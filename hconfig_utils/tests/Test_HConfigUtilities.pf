@@ -1,0 +1,46 @@
+module Test_HConfigUtilities
+   use mapl3g_HConfigUtilities
+   use esmf, only: ESMF_HConfig, ESMF_HConfigIter, ESMF_HConfigIterBegin
+   use esmf, only: ESMF_HConfigIterEnd, ESMF_HConfigIterLoop 
+   use esmf, only: ESMF_HConfigCreate, ESMF_HConfigIsMap, ESMF_HConfigAsStringMapKey
+   use esmf, only: ESMF_HConfigIsDefined, ESMF_HConfigCreateAtMapVal, ESMF_HConfigSet
+   use pfunit
+   implicit none(type, external)
+
+   type(ESMF_HConfig) :: parent
+   type(ESMF_HConfig) :: child
+
+contains
+
+   @Before
+   subroutine set_up()
+      call ESMF_HConfigCreate()
+   end subroutine set_up
+
+   @After
+   subroutine tear_down()
+      call ESMF_HConfigDestroy()
+   end subroutine tear_down
+
+   @Test
+   subroutine test_merge_hconfig_basic()
+
+   end subroutine test_merge_hconfig_basic
+
+   @Test
+   subroutine test_merge_hconfig_bad_parent()
+   end subroutine test_merge_hconfig_bad_parent
+
+   @Test
+   subroutine test_merge_hconfig_bad_child()
+   end subroutine test_merge_hconfig_bad_child
+
+   @Test
+   subroutine test_merge_hconfig_no_mapl()
+   end subroutine test_merge_hconfig_no_mapl
+
+   @Test
+   subroutine test_merge_hconfig_duplicate()
+   end subroutine test_merge_hconfig_duplicate
+
+end module Test_HConfigUtilities
