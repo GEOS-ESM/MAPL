@@ -190,7 +190,7 @@ contains
         filename = trial_file
         _RETURN(_SUCCESS)
      end if
-     do i=1, max_trials
+     do i=1, MAX_TRIALS
         useable_time = useable_time + this%frequency
         call fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
         inquire(file=trim(trial_file),exist=file_found)
