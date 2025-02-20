@@ -983,6 +983,8 @@ CONTAINS
         call ESMF_FieldBundleGet(item%t_interp_bundle, trim(item%vcomp1), field=src_field, _RC)
         call ESMF_StateGet(MAPLExtState%ExtDataState,trim(item%vcomp1),dst_field,_RC)
         call MAPL_ExtDataFillField(item, dst_field, src_field, _RC) 
+     else
+        _FAIL("input and output levels do not match for item "//trim(item%name)//" and you have not enabled vertical regridding")
      end if
      _RETURN(ESMF_SUCCESS)
 
