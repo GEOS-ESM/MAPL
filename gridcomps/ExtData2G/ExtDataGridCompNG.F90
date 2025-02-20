@@ -868,7 +868,8 @@ CONTAINS
         end if
 
         item%vcoord = verticalCoordinate(metadata, item%var, _RC)
-        if (item%vcoord%vertical_type /= NO_COORD .and. item%vcoord%vertical_type /= SIMPLE_COORD ) item%allow_vertical_regrid = .true.
+        if (item%vcoord%vertical_type /= NO_COORD .and. item%vcoord%vertical_type /= SIMPLE_COORD .and. &
+            (item%disable_vertical_regrid .eqv. .false.)) item%allow_vertical_regrid = .true.
 
         _RETURN(ESMF_SUCCESS)
 
