@@ -1,12 +1,16 @@
+#include "MAPL_Generic.h"
 module mapl3g_HConfigUtilities
    use esmf, only: ESMF_HConfig, ESMF_HConfigIter, ESMF_HConfigIterBegin
    use esmf, only: ESMF_HConfigIterEnd, ESMF_HConfigIterLoop 
    use esmf, only: ESMF_HConfigCreate, ESMF_HConfigIsMap, ESMF_HConfigAsStringMapKey
    use esmf, only: ESMF_HConfigIsDefined, ESMF_HConfigCreateAtMapVal, ESMF_HConfigSet
+   use mapl_ErrorHandling
    implicit none(type,external)
    private
 
    public :: merge_hconfig
+
+   character(*), parameter :: MAPL_SECTION = 'mapl'
 
 contains
 
@@ -27,7 +31,6 @@ contains
 
       _ASSERT(ESMF_HConfigIsMap(parent_hconfig), 'parent hconfig must be a mapping.')
       _ASSERT(ESMF_HConfigIsMap(child_hconfig), 'child hconfig must be a mapping.')
-
       total_hconfig = ESMF_HConfigCreate(child_hconfig, _RC)
 
       iter_begin = ESMF_HConfigIterBegin(parent_hconfig, rc=rc)
