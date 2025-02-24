@@ -3,6 +3,8 @@
 module mapl3g_HistoryGridComp
    use mapl3g_HistoryGridComp_private
    use mapl3g_HistoryCollectionGridComp, only: collection_setServices => setServices
+   use MAPL_TimeStringConversion
+   use mapl3g_ChildSpec
    use generic3g
    use mapl_ErrorHandling
    use pFlogger, only: logger
@@ -24,7 +26,10 @@ contains
       type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
       logical :: has_active_collections
       class(logger), pointer :: lgr
+      type(ChildSpec) :: child_spec
       integer :: num_collections, status
+      type(ESMF_TimeInterval), allocatable :: timeStep
+      type(ESMF_Time), allocatable :: refTime
 
       ! Set entry points
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name="GENERIC::INIT_USER", _RC)
@@ -53,12 +58,33 @@ contains
          collection_name = ESMF_HConfigAsString(iter, _RC)
          child_hconfig = make_child_hconfig(hconfig, collection_name, _RC)
          child_name = make_child_name(collection_name, _RC)
-         call MAPL_GridCompAddChild(gridcomp, child_name, user_setservices(collection_setServices), child_hconfig, _RC)
-         !call ESMF_HConfigDestroy(child_hconfig, _RC)
+
+         call get_child_timestep(child_hconfig, timeStep, _RC)
+         child_spec = ChildSpec(user_setservices(collection_setServices), child_hconfig, timeStep, refTime)
+         call MAPL_GridCompAddChild(gridcomp, child_name, child_spec,_RC)
       end do
       
       _RETURN(_SUCCESS)
    end subroutine setServices
+
+   subroutine get_child_timestep(hconfig, timestep, rc)
+      type(ESMF_HConfig), intent(in) :: hconfig
+      type(ESMF_TimeInterval), allocatable, intent(out) :: timestep
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: has_frequency
+      type(ESMF_HConfig) :: time_hconfig
+
+      time_hconfig = ESMF_HConfigCreateAt(hconfig, keyString='time_spec', _RC)
+      has_frequency = ESMF_HConfigIsDefined(time_hconfig, keyString='frequency', _RC)
+      if (has_frequency) then
+         timeStep = hconfig_to_esmf_timeinterval(time_hconfig, 'frequency', _RC)
+      end if
+      call ESMF_HConfigDestroy(time_hconfig)
+      
+      _RETURN(_SUCCESS)
+   end subroutine get_child_timestep
 
    subroutine init(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp)   :: gridcomp
