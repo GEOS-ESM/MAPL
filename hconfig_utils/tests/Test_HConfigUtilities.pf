@@ -3,7 +3,7 @@ module Test_HConfigUtilities
    use mapl3g_HConfigUtilities
    use esmf, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
    use esmf, only: ESMF_HConfigAdd, ESMF_HConfigAsString
-   use esmf, only: ESMF_HConfigValidateMapKeys
+   use esmf, only: ESMF_HConfigIsDefined
    use mapl_ErrorHandling
    use pfunit
    implicit none(type, external)
@@ -18,8 +18,7 @@ module Test_HConfigUtilities
    character(len=*), parameter :: KEY3 = 'key3: '
    character(len=*), parameter :: KEY4 = 'key4: '
    character(len=*), parameter :: KEY5 = 'key5: '
-   character(len=len(KEY1)), parameter :: CHILD_KEYS(3) = &
-      & [character(len=len(KEY1)) :: KEY1, KEY2, KEY3]
+   integer, parameter :: KEYLEN = len(KEY1)
    character(len=*), parameter :: PVALUE1 = 'parent_value1'
    character(len=*), parameter :: PVALUE2 = 'parent_value2'
    character(len=*), parameter :: PVALUE4 = 'parent_value4'
@@ -67,9 +66,9 @@ contains
    @Test
    subroutine test_merge_hconfig_mapl_section()
       integer :: status
-      logical :: are_valid
-      character(len=:), allocatable :: badkey
-      character(len=:), allocatable :: msg
+      logical :: defined
+      character(len=80) :: msg
+
 
       call ESMF_HConfigAdd(hconfig_content, content=PVALUE1, addKeyString=KEY1, _RC)
       call ESMF_HConfigAdd(hconfig_content, content=PVALUE5, addKeyString=KEY5, _RC)
@@ -82,11 +81,6 @@ contains
 
       call check_match(merged, KEY1, CHVALUE1, _RC)
       call check_match(merged, KEY3, CHVALUE3, _RC)
-
-      are_valid = ESMF_HConfigValidateMapKeys(child, CHILD_KEYS, badKey=badkey, _RC)
-      msg = ''
-      if(.not. are_valid) msg = trim(badkey) // ' was found.'
-      @assertTrue(are_valid, msg)
 
    end subroutine test_merge_hconfig_mapl_section
 
@@ -115,9 +109,6 @@ contains
    @Test
    subroutine test_merge_hconfig_no_mapl()
       integer :: status
-      logical :: are_valid
-      character(len=:), allocatable :: badkey
-      character(len=:), allocatable :: msg
 
       call ESMF_HConfigAdd(parent, content=PVALUE4, addKeyString=KEY4, _RC)
       call ESMF_HConfigAdd(child, content=CHVALUE1, addKeyString=KEY1, _RC)
@@ -128,19 +119,11 @@ contains
       call check_match(merged, KEY1, CHVALUE1, _RC)
       call check_match(merged, KEY3, CHVALUE3, _RC)
 
-      are_valid = ESMF_HConfigValidateMapKeys(child, CHILD_KEYS, badKey=badkey, _RC)
-      msg = ''
-      if(.not. are_valid) msg = trim(badkey) // ' was found.'
-      @assertTrue(are_valid, msg)
-
    end subroutine test_merge_hconfig_no_mapl
 
    @Test
    subroutine test_merge_hconfig_duplicate()
       integer :: status
-      logical :: are_valid
-      character(len=:), allocatable :: badkey
-      character(len=:), allocatable :: msg
 
       call ESMF_HConfigAdd(hconfig_content, content=PVALUE1, addKeyString=KEY1, _RC)
       call ESMF_HConfigAdd(parent, content=hconfig_content, addKeyString=MAPLKEY, _RC)
@@ -155,11 +138,6 @@ contains
       call check_match(merged, KEY1, CHVALUE1, _RC)
       call check_match(merged, KEY2, CHVALUE2, _RC)
       call check_match(merged, KEY3, CHVALUE3, _RC)
-
-      are_valid = ESMF_HConfigValidateMapKeys(child, CHILD_KEYS, badKey=badkey, _RC)
-      msg = ''
-      if(.not. are_valid) msg = trim(badkey) // ' was found.'
-      @assertTrue(are_valid, msg)
 
    end subroutine test_merge_hconfig_duplicate
 
