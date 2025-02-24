@@ -59,7 +59,7 @@ contains
          child_hconfig = make_child_hconfig(hconfig, collection_name, _RC)
          child_name = make_child_name(collection_name, _RC)
 
-         call get_child_timestep(child_hconfig, timeStep, _RC)
+         call get_child_timespec(child_hconfig, timeStep, refTime, _RC)
          child_spec = ChildSpec(user_setservices(collection_setServices), hconfig=child_hconfig, timeStep=timeStep, refTime=refTime)
          call MAPL_GridCompAddChild(gridcomp, child_name, child_spec,_RC)
          _HERE
@@ -68,24 +68,33 @@ contains
       _RETURN(_SUCCESS)
    end subroutine setServices
 
-   subroutine get_child_timestep(hconfig, timestep, rc)
+   subroutine get_child_timespec(hconfig, timeStep, refTime, rc)
       type(ESMF_HConfig), intent(in) :: hconfig
-      type(ESMF_TimeInterval), allocatable, intent(out) :: timestep
-      integer, optional, intent(out) :: rc
+      type(ESMF_TimeInterval), allocatable, intent(out) :: timeStep
+      type(ESMF_Time), allocatable, intent(out) :: refTime
+      integer, intent(out), optional :: rc
 
       integer :: status
-      logical :: has_frequency
       type(ESMF_HConfig) :: time_hconfig
+      character(len=:), allocatable :: iso_time
+      logical :: has_ref_time, has_frequency
 
       time_hconfig = ESMF_HConfigCreateAt(hconfig, keyString='time_spec', _RC)
+
       has_frequency = ESMF_HConfigIsDefined(time_hconfig, keyString='frequency', _RC)
       if (has_frequency) then
          timeStep = hconfig_to_esmf_timeinterval(time_hconfig, 'frequency', _RC)
       end if
-      call ESMF_HConfigDestroy(time_hconfig)
-      
+
+      has_ref_time = ESMF_HConfigIsDefined(time_hconfig, keyString='ref_time', _RC)
+      if (has_ref_time) then
+         iso_time = ESMF_HConfigAsString(time_hconfig, keyString='ref_time', _RC)
+         refTime = string_to_esmf_time(iso_time, _RC)
+      end if
+
       _RETURN(_SUCCESS)
-   end subroutine get_child_timestep
+   end subroutine get_child_timespec
+
 
    subroutine init(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp)   :: gridcomp
