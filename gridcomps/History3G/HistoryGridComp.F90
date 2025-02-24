@@ -60,8 +60,9 @@ contains
          child_name = make_child_name(collection_name, _RC)
 
          call get_child_timestep(child_hconfig, timeStep, _RC)
-         child_spec = ChildSpec(user_setservices(collection_setServices), child_hconfig, timeStep, refTime)
+         child_spec = ChildSpec(user_setservices(collection_setServices), hconfig=child_hconfig, timeStep=timeStep, refTime=refTime)
          call MAPL_GridCompAddChild(gridcomp, child_name, child_spec,_RC)
+         _HERE
       end do
       
       _RETURN(_SUCCESS)
