@@ -13,9 +13,8 @@ module mapl3g_FrequencyAspect
    public :: FrequencyAspect
 
    type, extends(StateItemAspect) :: FrequencyAspect
-      private
-      type(ESMF_TimeInterval) :: timestep
-      type(ESMF_TimeInterval) :: refTime_offset
+      type(ESMF_TimeInterval), allocatable :: timeStep
+      type(ESMF_Time), allocatable :: refTime
       character(len=:), allocatable :: accumulation_type
    contains
       ! These are implementations of extended derived type.
@@ -25,10 +24,6 @@ module mapl3g_FrequencyAspect
       procedure :: make_action
       procedure :: connect_to_export
       procedure, nopass :: get_aspect_id
-      ! These are specific to FrequencyAspect.
-      procedure :: get_timestep
-      procedure :: get_accumulation_type
-      procedure :: get_reference_time_offset
    end type FrequencyAspect
 
    interface FrequencyAspect
@@ -37,65 +32,21 @@ module mapl3g_FrequencyAspect
 
 contains
 
-   function new_FrequencyAspect(timeStep, refTime_offset, accumulation_type) result(aspect)
+   function new_FrequencyAspect(timeStep, refTime, accumulation_type) result(aspect)
       type(FrequencyAspect) :: aspect
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
-      type(ESMF_TimeInterval), optional, intent(in) :: refTime_offset
+      type(ESMF_Time), optional, intent(in) :: refTime
       character(len=*), optional, intent(in) :: accumulation_type
       integer :: status
 
       call aspect%set_mirror(.FALSE.)
       call aspect%set_time_dependent(.FALSE.)
       call set_accumulation_type(aspect, INSTANTANEOUS)
-      call zero_timestep(aspect, rc=status)
-      call zero_interval(aspect%refTime_offset, rc=status) 
-      if(present(timeStep)) aspect%timestep = timeStep
-      if(present(refTime_offset)) aspect%refTime_offset = refTime_offset
+      if(present(timeStep)) aspect%timeStep = timeStep
+      if(present(refTime)) aspect%refTime = refTime
       if(present(accumulation_type)) call set_accumulation_type(aspect, accumulation_type)
       
    end function new_FrequencyAspect
-
-   function get_timestep(this) result(ts)
-      type(ESMF_TimeInterval) :: ts
-      class(FrequencyAspect), intent(in) :: this
-
-      ts = this%timestep
-
-   end function get_timestep
-
-   function get_reference_time_offset(this) result(off)
-      type(ESMF_TimeInterval) :: off
-      class(FrequencyAspect), intent(in) :: this
-
-      off = this%refTime_offset
-
-   end function get_reference_time_offset
-
-   subroutine zero_timestep(aspect, rc)
-      class(FrequencyAspect), intent(inout) :: aspect
-      integer, intent(out) :: rc
-
-      call zero_interval(aspect%timestep, rc=rc)
-
-   end subroutine zero_timestep
-
-   subroutine zero_interval(interval, rc)
-      type(ESMF_TimeInterval), intent(inout) :: interval
-      integer, intent(out) :: rc
-      integer :: status
-
-      call ESMF_TimeIntervalSet(interval, ns=0, rc=rc)
-
-   end subroutine zero_interval
-
-   function get_accumulation_type(this) result(at)
-      character(len=:), allocatable :: at
-      class(FrequencyAspect), intent(in) :: this
-
-      at = ''
-      if(allocated(this%accumulation_type)) at = this%accumulation_type
-
-   end function get_accumulation_type
 
    subroutine set_accumulation_type(aspect, accumulation_type)
       class(FrequencyAspect), intent(inout) :: aspect
@@ -110,19 +61,21 @@ contains
    logical function matches(src, dst) result(does_match)
       class(FrequencyAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
-      type(ESMF_TimeInterval) :: this_timestep, other_timestep
+      type(ESMF_TimeInterval) :: this_timeStep, other_timeStep
       type(ESMF_TimeInterval), pointer :: zero
 
       does_match = .TRUE.
+      if(.not. allocated(src%timeStep)) return
       zero => zero_time_interval()
-      this_timestep = src%get_timestep()
-      if(this_timestep == zero) return
+      this_timeStep = src%timeStep
+      if(this_timeStep == zero) return
       select type(dst)
       class is (FrequencyAspect)
-         other_timestep = dst%get_timestep()
-         if(other_timestep == zero) return
-         if(.not. accumulation_type_is_valid(dst%get_accumulation_type())) return
-         does_match = other_timestep == this_timestep
+         if(.not. allocated(dst%timeStep)) return
+         other_timeStep = dst%timeStep
+         if(other_timeStep == zero) return
+         if(.not. accumulation_type_is_valid(dst%accumulation_type)) return
+         does_match = other_timeStep == this_timeStep
       end select
 
    end function matches
@@ -138,7 +91,7 @@ contains
 
       select type(dst)
       class is (FrequencyAspect)
-         accumulation_type = dst%get_accumulation_type()
+         accumulation_type = dst%accumulation_type
          call get_accumulator_action(accumulation_type, ESMF_TYPEKIND_R4, action, _RC) 
          _ASSERT(allocated(action), 'Unable to allocate action')
       class default
@@ -175,11 +128,13 @@ contains
       class(StateItemAspect), intent(in) :: dst
       integer :: status
 
+      supports = .FALSE.
+      if(.not. (allocated(src%timeStep) .and. allocated(src%refTime))) return
       select type(dst)
       class is (FrequencyAspect)
-         call intervals_and_offset_are_compatible(src%get_timestep(), &
-            & dst%get_timestep(), src%get_reference_time_offset(), &
-            & supports, rc=status)
+         if(.not. (allocated(dst%timeStep) .and. allocated(dst%refTime))) return
+         call intervals_and_offset_are_compatible(src%timeStep, dst%timeStep, &
+            & src%refTime-dst%refTime, supports, rc=status)
          supports = supports .and. status == _SUCCESS
       end select
 

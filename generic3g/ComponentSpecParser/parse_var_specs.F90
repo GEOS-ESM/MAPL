@@ -8,11 +8,11 @@ contains
    ! A component is not required to have var_specs.   E.g, in theory GCM gridcomp will not
    ! have var specs in MAPL3, as it does not really have a preferred geom on which to declare
    ! imports and exports.
-   module function parse_var_specs(hconfig, timestep, refTime_offset, rc) result(var_specs)
+   module function parse_var_specs(hconfig, timeStep, refTime, rc) result(var_specs)
       type(VariableSpecVector) :: var_specs
       type(ESMF_HConfig), intent(in) :: hconfig
-      type(ESMF_TimeInterval), optional, intent(in) :: timestep
-      type(ESMF_TimeInterval), optional, intent(in) :: refTime_offset
+      type(ESMF_TimeInterval), optional, intent(in) :: timeStep
+      type(ESMF_Time), optional, intent(in) :: refTime
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -24,21 +24,21 @@ contains
 
       subcfg = ESMF_HConfigCreateAt(hconfig,keyString=COMPONENT_STATES_SECTION, _RC)
 
-      call parse_state_specs(var_specs, subcfg, COMPONENT_INTERNAL_STATE_SECTION,  timestep, refTime_offset, _RC)
-      call parse_state_specs(var_specs, subcfg, COMPONENT_EXPORT_STATE_SECTION, timestep, refTime_offset, _RC)
-      call parse_state_specs(var_specs, subcfg, COMPONENT_IMPORT_STATE_SECTION, timestep, refTime_offset, _RC)
+      call parse_state_specs(var_specs, subcfg, COMPONENT_INTERNAL_STATE_SECTION,  timeStep, refTime, _RC)
+      call parse_state_specs(var_specs, subcfg, COMPONENT_EXPORT_STATE_SECTION, timeStep, refTime, _RC)
+      call parse_state_specs(var_specs, subcfg, COMPONENT_IMPORT_STATE_SECTION, timeStep, refTime, _RC)
 
       call ESMF_HConfigDestroy(subcfg, _RC)
 
       _RETURN(_SUCCESS)
    contains
 
-      subroutine parse_state_specs(var_specs, hconfig, state_intent, timestep, refTime_offset, rc)
+      subroutine parse_state_specs(var_specs, hconfig, state_intent, timeStep, refTime, rc)
          type(VariableSpecVector), intent(inout) :: var_specs
          type(ESMF_HConfig), target, intent(in) :: hconfig
          character(*), intent(in) :: state_intent
-         type(ESMF_TimeInterval), optional, intent(in) :: timestep
-         type(ESMF_TimeInterval), optional, intent(in) :: refTime_offset
+         type(ESMF_TimeInterval), optional, intent(in) :: timeStep
+         type(ESMF_Time), optional, intent(in) :: refTime
          integer, optional, intent(out) :: rc
 
          type(VariableSpec) :: var_spec
@@ -115,8 +115,8 @@ contains
                  standard_name=standard_name, &
                  dependencies=dependencies, &
                  accumulation_type=accumulation_type, &
-                 timestep=timestep, &
-                 refTime_offset=refTime_offset, _RC)
+                 timeStep=timeStep, &
+                 refTime=refTime, _RC)
 
             if (allocated(units)) deallocate(units)
             if (allocated(standard_name)) deallocate(standard_name)

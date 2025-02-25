@@ -41,7 +41,7 @@ contains
       end if
 
       if (allocated(child_spec%refTime_offset)) then
-         child_meta%user_refTime_offset = child_spec%refTime_offset
+         child_meta%user_refTime_offset = this%user_refTime_offset + child_spec%refTime_offset
       end if
 
       child_driver = GriddedComponentDriver(child_outer_gc)
