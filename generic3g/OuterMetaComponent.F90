@@ -34,7 +34,7 @@ module mapl3g_OuterMetaComponent
       class(AbstractUserSetServices), allocatable :: user_setservices
       type(ESMF_TimeInterval), allocatable        :: user_timeStep
       ! These are only allocated when parent overrides default timestepping.
-      type(ESMF_TimeInterval), allocatable        :: user_refTime_offset
+      type(ESMF_Time), allocatable                :: user_runTime
       type(MethodPhasesMap)                       :: user_phases_map
       type(ESMF_HConfig)                          :: hconfig
 

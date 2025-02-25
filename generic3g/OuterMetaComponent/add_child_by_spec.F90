@@ -36,13 +36,11 @@ contains
       child_meta => get_outer_meta(child_outer_gc, _RC)
       call this%registry%add_subregistry(child_meta%get_registry())
 
-      if (allocated(child_spec%timeStep)) then
-         child_meta%user_timeStep = child_spec%timeStep
-      end if
+      child_meta%user_timeStep = this%timeStep
+      if (allocated(child_spec%timeStep)) child_meta%user_timeStep = child_spec%timeStep
 
-      if (allocated(child_spec%refTime_offset)) then
-         child_meta%user_refTime_offset = this%user_refTime_offset + child_spec%refTime_offset
-      end if
+      child_meta%user_runTime = this%user_runTime
+      if (allocated(child_spec%offset)) child_meta%user_runTime = this%user_runTime + child_spec%offset
 
       child_driver = GriddedComponentDriver(child_outer_gc)
       call this%children%insert(child_name, child_driver)

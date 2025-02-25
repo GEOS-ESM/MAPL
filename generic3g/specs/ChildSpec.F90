@@ -17,7 +17,7 @@ module mapl3g_ChildSpec
       class(AbstractUserSetServices), allocatable :: user_setservices
       type(ESMF_HConfig) :: hconfig
       type(ESMF_TimeInterval), allocatable :: timeStep
-      type(ESMF_TimeInterval), allocatable :: refTime_offset
+      type(ESMF_TimeInterval), allocatable :: offset
    contains
       procedure :: write_formatted
       generic :: write(formatted) => write_formatted
@@ -38,13 +38,13 @@ module mapl3g_ChildSpec
 
 contains
 
-   function new_ChildSpec(user_setservices, unusable, hconfig, timeStep, refTime_offset) result(spec)
+   function new_ChildSpec(user_setservices, unusable, hconfig, timeStep, offset) result(spec)
       type(ChildSpec) :: spec
       class(AbstractUserSetServices), intent(in) :: user_setservices
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_HConfig), optional, intent(in) :: hconfig
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
-      type(ESMF_TimeInterval), optional, intent(in) :: refTime_offset
+      type(ESMF_TimeInterval), optional, intent(in) :: offset
 
       spec%user_setservices = user_setservices
       if (present(hconfig)) then
@@ -54,7 +54,7 @@ contains
       end if
 
       if (present(timeStep)) spec%timeStep = timeStep
-      if (present(refTime_offset)) spec%refTime_offset = refTime_offset
+      if (present(offset)) spec%offset = offset
 
       _UNUSED_DUMMY(unusable)
    end function new_ChildSpec
@@ -73,7 +73,7 @@ contains
       equal = equal_timestep(a%timeStep, b%timestep)
       if (.not. equal) return
       
-      equal = equal_refTime_offset(a%refTime_offset, b%refTime_offset)
+      equal = equal_offset(a%offset, b%offset)
       if (.not. equal) return
 
    contains
@@ -100,7 +100,7 @@ contains
 
       end function equal_timestep
 
-      logical function equal_refTime_offset(a, b) result(equal)
+      logical function equal_offset(a, b) result(equal)
          type(ESMF_TimeInterval), allocatable, intent(in) :: a
          type(ESMF_TimeInterval), allocatable, intent(in) :: b
 
@@ -109,7 +109,7 @@ contains
 
          if (allocated(a)) equal = (a == b)
 
-      end function equal_refTime_offset
+      end function equal_offset
 
    end function equal
 

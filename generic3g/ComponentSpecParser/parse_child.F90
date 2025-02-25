@@ -22,7 +22,7 @@ contains
       logical :: has_config_file
       type(ESMF_HConfig), allocatable :: child_hconfig
       character(:), allocatable :: sharedObj, userProcedure, config_file
-      type(ESMF_TimeInterval), allocatable :: refTime_offset
+      type(ESMF_TimeInterval), allocatable :: offset
       type(ESMF_TimeInterval), allocatable :: timeStep
 
       dso_found = .false.
@@ -61,9 +61,9 @@ contains
 
       setservices = user_setservices(sharedObj, userProcedure)
 
-      call parse_timespec(hconfig, timeStep, refTime_offset, _RC)
+      call parse_timespec(hconfig, timeStep, offset, _RC)
 
-      child = ChildSpec(setservices, hconfig=child_hconfig, timeStep=timeStep, refTime_offset=refTime_offset)
+      child = ChildSpec(setservices, hconfig=child_hconfig, timeStep=timeStep, offset=offset)
 
 
       _RETURN(_SUCCESS)

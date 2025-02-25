@@ -13,8 +13,9 @@ module mapl3g_FrequencyAspect
    public :: FrequencyAspect
 
    type, extends(StateItemAspect) :: FrequencyAspect
+      private
       type(ESMF_TimeInterval), allocatable :: timeStep
-      type(ESMF_Time), allocatable :: refTime
+      type(ESMF_Time), allocatable :: runTime
       character(len=:), allocatable :: accumulation_type
    contains
       ! These are implementations of extended derived type.
@@ -32,10 +33,10 @@ module mapl3g_FrequencyAspect
 
 contains
 
-   function new_FrequencyAspect(timeStep, refTime, accumulation_type) result(aspect)
+   function new_FrequencyAspect(timeStep, runTime, accumulation_type) result(aspect)
       type(FrequencyAspect) :: aspect
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
-      type(ESMF_Time), optional, intent(in) :: refTime
+      type(ESMF_Time), optional, intent(in) :: runTime
       character(len=*), optional, intent(in) :: accumulation_type
       integer :: status
 
@@ -43,7 +44,7 @@ contains
       call aspect%set_time_dependent(.FALSE.)
       call set_accumulation_type(aspect, INSTANTANEOUS)
       if(present(timeStep)) aspect%timeStep = timeStep
-      if(present(refTime)) aspect%refTime = refTime
+      if(present(runTime)) aspect%runTime = runTime
       if(present(accumulation_type)) call set_accumulation_type(aspect, accumulation_type)
       
    end function new_FrequencyAspect
@@ -129,12 +130,12 @@ contains
       integer :: status
 
       supports = .FALSE.
-      if(.not. (allocated(src%timeStep) .and. allocated(src%refTime))) return
+      if(.not. (allocated(src%timeStep) .and. allocated(src%runTime))) return
       select type(dst)
       class is (FrequencyAspect)
-         if(.not. (allocated(dst%timeStep) .and. allocated(dst%refTime))) return
+         if(.not. (allocated(dst%timeStep) .and. allocated(dst%runTime))) return
          call intervals_and_offset_are_compatible(src%timeStep, dst%timeStep, &
-            & src%refTime-dst%refTime, supports, rc=status)
+            & src%runTime-dst%runTime, supports, rc=status)
          supports = supports .and. status == _SUCCESS
       end select
 

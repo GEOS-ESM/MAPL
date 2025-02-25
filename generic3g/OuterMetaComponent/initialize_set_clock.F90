@@ -25,29 +25,23 @@ contains
 
       integer :: status
       type(ESMF_Clock) :: user_clock
-      type(ESMF_Time) :: user_refTime, default_refTime
-      type(ESMF_TimeInterval) :: user_timeStep, default_timeStep
-      type(ESMF_TimeInterval), allocatable :: user_offset
+      type(ESMF_Time) :: refTime, user_runTime
+      type(ESMF_TimeInterval) :: timeStep, user_timeStep
       logical :: compatible
       
+      call ESMF_ClockGet(outer_clock, timeStep=timeStep, refTime=refTime, _RC)
 
-      if(allocated(user_offset)) deallocate(user_offset)
-      call ESMF_ClockGet(outer_clock, timeStep=default_timeStep, refTime=default_refTime, _RC)
-
-      user_timeStep = default_timeStep
+      user_timeStep = timeStep
       if (allocated(this%user_timeStep)) user_timeStep = this%user_timeStep
 
-      user_refTime = default_refTime
-      if (allocated(this%user_refTime_offset)) then
-         user_offset = this%user_refTime_offset
-         user_refTime = user_refTime + user_offset
-      end if
-         
-      call intervals_and_offset_are_compatible(user_timestep, default_timestep, user_offset, compatible, _RC)
-      _ASSERT(compatible, 'The user timestep and refTime_offset are not compatible with the outer timestep.')
+      user_runTime = refTime
+      if (allocated(this%user_runTime)) user_runTime = this%user_runTime
+
+      call intervals_and_offset_are_compatible(user_timestep, timeStep, user_runTime-refTime, compatible, _RC)
+      _ASSERT(compatible, 'The user timestep and runTime are not compatible with the outer timestep.')
 
       user_clock = ESMF_ClockCreate(outer_clock, _RC)
-      call ESMF_ClockSet(user_clock, timestep=user_timeStep, reftime=user_refTime, _RC)
+      call ESMF_ClockSet(user_clock, timestep=user_timeStep, _RC)
       call set_run_user_alarm(this, outer_clock, user_clock, _RC)
 
       call this%user_gc_driver%set_clock(user_clock)
@@ -94,23 +88,22 @@ contains
 
       integer :: status
       type(ESMF_TimeInterval) :: outer_timestep, user_timestep, zero
-      type(ESMF_Time) :: user_refTime
       type(ESMF_Time) :: currTime
       type(ESMF_Alarm) :: alarm
 
       call ESMF_TimeIntervalSet(zero, s=0, _RC)
 
       call ESMF_ClockGet(outer_clock, timestep=outer_timestep, currTime=currTime, _RC)
-      call ESMF_ClockGet(user_clock, timestep=user_timestep, refTime=user_refTime, _RC)
+      call ESMF_ClockGet(user_clock, timestep=user_timestep, _RC)
 
       alarm = ESMF_AlarmCreate(outer_clock, &
            name = RUN_USER_ALARM, &
            ringInterval=user_timestep, &
-           ringTime=user_refTime, &
+           ringTime=this%user_runTime, &
            sticky=.false., &
            _RC)
 
-      if (user_refTime < currTime) then
+      if (this%user_runTime < currTime) then
          call ESMF_AlarmRingerOff(alarm, _RC)
       end if
 
