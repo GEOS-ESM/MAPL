@@ -126,7 +126,7 @@ contains
       integer :: status, time_index
       type(HistoryCollectionGridComp), pointer :: collection_gridcomp
       character(*), parameter :: PRIVATE_STATE = "HistoryCollectionGridComp"
-      logical :: time_to_write, run_collection
+      logical :: run_collection
       type(ESMF_Time) :: current_time
       character(len=ESMF_MAXSTR) :: name
       character(len=128) :: current_file
@@ -138,7 +138,7 @@ contains
       run_collection = (current_time >= collection_gridcomp%start_stop_times(1)) .and. &
                            (current_time <= collection_gridcomp%start_stop_times(2))
 
-      _RETURN_UNLESS(run_collection .and. time_to_write)
+      _RETURN_UNLESS(run_collection)
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
 
