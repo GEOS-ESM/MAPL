@@ -177,7 +177,7 @@ module MAPL_OpenMP_Support
            call ESMF_AttributeSet(subgrids(i), name='GridCornerLats:', &
                 itemCount = count, valueList=lats1d, _RC)
            block
-              integer :: global_grid_info(10)
+              integer :: global_grid_info(11)
               integer :: i1,i2,j1,j2
               call MAPL_Grid_Interior(primary_grid,i1,i2,j1,j2)
               global_grid_info(1:3) = global_count
@@ -189,8 +189,9 @@ module MAPL_OpenMP_Support
               global_grid_info(8) = i2
               global_grid_info(9) = j1 + bounds(i)%min - 1
               global_grid_info(10) = j1 + bounds(i)%max - 1
+              global_grid_info(11) = bounds(i)%min
               call ESMF_AttributeSet(subgrids(i), name="GLOBAL_GRID_INFO",  &
-                   itemCount=10, valueList=global_grid_info, _RC)
+                   itemCount=11, valueList=global_grid_info, _RC)
            end block
 
             deallocate(lons1d, lats1d)
