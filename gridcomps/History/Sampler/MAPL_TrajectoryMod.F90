@@ -8,7 +8,7 @@ module HistoryTrajectoryMod
   use MAPL_LocstreamRegridderMod
   use MAPL_ObsUtilMod
   use MAPL_GenericMod, only : MAPL_MetaComp
-
+  use pfio
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit none
 
@@ -26,6 +26,7 @@ module HistoryTrajectoryMod
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
      real(kind=REAL64), allocatable :: times_R8(:)
+     real(kind=REAL64), allocatable :: times_R4(:)
      integer,           allocatable :: obstype_id(:)
      integer,           allocatable :: location_index_ioda(:)   ! location index in its own ioda file
      type(MAPL_MetaComp), pointer   :: GENSTATE
@@ -97,7 +98,6 @@ module HistoryTrajectoryMod
      module procedure HistoryTrajectory_from_config
   end interface HistoryTrajectory
 
-
   interface
      module function HistoryTrajectory_from_config(config,string,clock,GENSTATE,nobs_platform_pfio,rc) result(traj)
        type(HistoryTrajectory) :: traj
@@ -109,13 +109,15 @@ module HistoryTrajectoryMod
        integer, optional, intent(out)          :: rc
      end function HistoryTrajectory_from_config
 
-     module subroutine initialize_(this,items,bundle,timeInfo,vdata,reinitialize,rc)
+     module subroutine initialize_(this,items,bundle,timeInfo,vdata,reinitialize,oClients,create_mode,rc)
        class(HistoryTrajectory), intent(inout) :: this
        type(GriddedIOitemVector), optional, intent(inout) :: items
        type(ESMF_FieldBundle), optional, intent(inout)   :: bundle
        type(TimeData), optional, intent(inout)           :: timeInfo
        type(VerticalData), optional, intent(inout) :: vdata
        logical, optional, intent(in)           :: reinitialize
+       type (ClientManager), optional, intent(inout) :: oClients
+       integer, optional, intent(inout)        :: create_mode 
        integer, optional, intent(out)          :: rc
      end subroutine initialize_
 
@@ -142,9 +144,10 @@ module HistoryTrajectoryMod
        integer, optional, intent(out)          :: rc
      end subroutine close_file_handle
 
-     module subroutine append_file(this,current_time,rc)
+     module subroutine append_file(this,current_time,oClients,rc)
        class(HistoryTrajectory), intent(inout) :: this
        type(ESMF_Time), intent(inout)          :: current_time
+       type (ClientManager), optional, intent(in) :: oClients
        integer, optional, intent(out)          :: rc
      end subroutine append_file
 

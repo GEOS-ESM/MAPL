@@ -2484,7 +2484,8 @@ ENDDO PARSER
           end if
           if (list(n)%timeseries_output) then
              list(n)%trajectory = HistoryTrajectory(cfg,string,clock,genstate=GENSTATE,nobs_platform_pfio=list(n)%nobs_platform,_RC)
-             call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
+             call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,&
+                  vdata=list(n)%vdata,oClients=o_Clients,_RC)
              IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
           elseif (list(n)%sampler_spec == 'mask') then
              call MAPL_TimerOn(GENSTATE,"mask_init")
@@ -3880,8 +3881,16 @@ ENDDO PARSER
          call MAPL_TimerOff(GENSTATE,"RegridAccum")
          if( ESMF_AlarmIsRinging ( list(n)%trajectory%alarm ) ) then
             call MAPL_TimerOn(GENSTATE,"AppendFile")
-            call list(n)%trajectory%append_file(current_time,_RC)
-            call list(n)%trajectory%close_file_handle(_RC)
+            if (list(n)%trajectory%use_pfio) then
+               call list(n)%trajectory%append_file(current_time,oClients=o_Clients,_RC)
+            else
+               call list(n)%trajectory%append_file(current_time,_RC)
+               call list(n)%trajectory%close_file_handle(_RC)
+            end if
+
+            _FAIL('nail 1')
+
+            
             call MAPL_TimerOff(GENSTATE,"AppendFile")
             if ( .not. ESMF_AlarmIsRinging(list(n)%end_alarm) ) then
                call MAPL_TimerOn(GENSTATE,"RegenLS")

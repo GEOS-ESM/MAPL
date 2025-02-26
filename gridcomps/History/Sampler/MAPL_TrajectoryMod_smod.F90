@@ -307,10 +307,10 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          end do
          
          if (present(nobs_platform_pfio)) then
-            nobs_platform_pfio = this%nobs_type
-            this%use_pfio = .true.
+            nobs_platform_pfio = traj%nobs_type
+            traj%use_pfio = .true.
          else
-            this%use_pfio = .false.            
+            traj%use_pfio = .false.            
          end if
 
          _RETURN(_SUCCESS)
@@ -318,7 +318,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
 105      format (1x,a,2x,a)
 106      format (1x,a,2x,i8)
        end procedure HistoryTrajectory_from_config
-
 
 
        !
@@ -352,7 +351,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             !  we initialize this section only once
             !
             
-            
          else
             if (reinitialize) then
                do k=1, this%nobs_type
@@ -365,6 +363,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             !     'traj initialize_ : initialize : TRUE'
             end if
          end if
+
          
          do k=1, this%nobs_type
             call this%vdata%append_vertical_metadata(this%obs(k)%metadata,this%bundle,_RC)
@@ -436,6 +435,25 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             call iter%next()
          enddo
 
+
+         if (.not. present(reinitialize)) then
+            !  again, do it only once
+            !
+            ! ygyu add
+            ! oclients
+            ! 1. add write_id
+            ! 2. add metadata, after md is created in init
+            !
+            !
+            if (this%use_pfio) then
+               if (.NOT. present(oClients)) then
+                  _FAIL('input failure, use_pfio with missing o_Clients')
+               end if
+               do k=1, this%nobs_type
+                  this%obs(k)%write_collection_id = oClients%add_hist_collection(this%obs(k)%metadata, mode=create_mode)
+               end do
+            end if
+         end if
 
          _RETURN(_SUCCESS)
 
@@ -1081,7 +1099,11 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer :: nsend_v
          integer, allocatable :: recvcount_v(:), displs_v(:)
          integer :: ip, M, N
+         character(len=ESMF_MAXSTR) :: filename
+         
+         type(ArrayReference) :: ref
 
+         filename='a'
          if (.NOT. this%active) then
             _RETURN(ESMF_SUCCESS)
          endif
@@ -1113,15 +1135,31 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                           start=[is], count=[nx], _RC)
                      deallocate (aux_R8, vec)
                   else
-                     ! default:  location in time sequence
-                     call this%obs(k)%file_handle%put_var(this%var_name_time, this%obs(k)%times_R8, &
-                          start=[is], count=[nx], _RC)
-                     call this%obs(k)%file_handle%put_var(this%var_name_lon, this%obs(k)%lons, &
-                          start=[is], count=[nx], _RC)
-                     call this%obs(k)%file_handle%put_var(this%var_name_lat, this%obs(k)%lats, &
-                          start=[is], count=[nx], _RC)
-                     call this%obs(k)%file_handle%put_var(this%location_index_name, this%obs(k)%location_index_ioda, &
-                          start=[is], count=[nx], _RC)
+                     if (this%use_pfio) then
+                        ref = ArrayReference(this%obs(k)%times_R8)
+                        call oClients%collective_stage_data(this%obs(k)%write_collection_id,trim(filename),'time', &
+            ref,start=[1], global_start=[1], global_count=[1])
+                        
+                        ! default:  location in time sequence
+                        call this%obs(k)%file_handle%put_var(this%var_name_time, this%obs(k)%times_R8, &
+                             start=[is], count=[nx], _RC)
+                        call this%obs(k)%file_handle%put_var(this%var_name_lon, this%obs(k)%lons, &
+                             start=[is], count=[nx], _RC)
+                        call this%obs(k)%file_handle%put_var(this%var_name_lat, this%obs(k)%lats, &
+                             start=[is], count=[nx], _RC)
+                        call this%obs(k)%file_handle%put_var(this%location_index_name, this%obs(k)%location_index_ioda, &
+                             start=[is], count=[nx], _RC)
+                     else
+                        ! default:  location in time sequence
+                        call this%obs(k)%file_handle%put_var(this%var_name_time, this%obs(k)%times_R8, &
+                             start=[is], count=[nx], _RC)
+                        call this%obs(k)%file_handle%put_var(this%var_name_lon, this%obs(k)%lons, &
+                             start=[is], count=[nx], _RC)
+                        call this%obs(k)%file_handle%put_var(this%var_name_lat, this%obs(k)%lats, &
+                             start=[is], count=[nx], _RC)
+                        call this%obs(k)%file_handle%put_var(this%location_index_name, this%obs(k)%location_index_ioda, &
+                             start=[is], count=[nx], _RC)
+                     end if
                   end if
                end if
             end if
@@ -1190,7 +1228,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             allocate ( p_acc_rt_3d(1,lm) )
             allocate ( p_dst_rt(lm, 1) )
          end if
-
 
          iter = this%items%begin()
          do while (iter /= this%items%end())
