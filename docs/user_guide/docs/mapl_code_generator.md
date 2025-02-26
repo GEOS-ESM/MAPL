@@ -1,8 +1,4 @@
-Automatic code generation is the process of using software tools to create code automatically. 
-Code generators automate the creation of source code based on specific inputs (templates, configurations, patterns, etc.).
-This automation reduces manual coding effort, minimizes human error, increases efficiency, 
-helps maintain consistency across software components (having the same coding standard), 
-and improves the code quality.
+The automatic code genarator is a tool to automatically generate the appropriate MAPL calls for specifying import/export variables in a GEOS gridcomp.    This automation reduces manual coding effort, minimizes human error, increases efficiency, helps maintain consistency across software components (having the same coding standard), and improves the code quality.
 
 The GEOS code can be seen as a collection of ESMF components working together to run specified simulations.
 The components need to exchange variables among themselves during the model integration.
