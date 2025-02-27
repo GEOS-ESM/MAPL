@@ -29,7 +29,7 @@ contains
       type(ChildSpec) :: child_spec
       integer :: num_collections, status
       type(ESMF_TimeInterval), allocatable :: timeStep
-      type(ESMF_Time), allocatable :: refTime
+      type(ESMF_TimeInterval), allocatable :: offset
 
       ! Set entry points
       call MAPL_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, init, phase_name="GENERIC::INIT_USER", _RC)
@@ -59,8 +59,8 @@ contains
          child_hconfig = make_child_hconfig(hconfig, collection_name, _RC)
          child_name = make_child_name(collection_name, _RC)
 
-         call get_child_timespec(child_hconfig, timeStep, refTime, _RC)
-         child_spec = ChildSpec(user_setservices(collection_setServices), hconfig=child_hconfig, timeStep=timeStep, refTime=refTime)
+         call get_child_timespec(child_hconfig, timeStep, offset, _RC)
+         child_spec = ChildSpec(user_setservices(collection_setServices), hconfig=child_hconfig, timeStep=timeStep, offset=offset)
          call MAPL_GridCompAddChild(gridcomp, child_name, child_spec,_RC)
          _HERE
       end do
@@ -68,16 +68,15 @@ contains
       _RETURN(_SUCCESS)
    end subroutine setServices
 
-   subroutine get_child_timespec(hconfig, timeStep, refTime, rc)
+   subroutine get_child_timespec(hconfig, timeStep, offset, rc)
       type(ESMF_HConfig), intent(in) :: hconfig
       type(ESMF_TimeInterval), allocatable, intent(out) :: timeStep
-      type(ESMF_Time), allocatable, intent(out) :: refTime
+      type(ESMF_TimeInterval), allocatable, intent(out) :: offset
       integer, intent(out), optional :: rc
 
       integer :: status
       type(ESMF_HConfig) :: time_hconfig
-      character(len=:), allocatable :: iso_time
-      logical :: has_ref_time, has_frequency
+      logical :: has_offset, has_frequency
 
       time_hconfig = ESMF_HConfigCreateAt(hconfig, keyString='time_spec', _RC)
 
@@ -86,10 +85,9 @@ contains
          timeStep = hconfig_to_esmf_timeinterval(time_hconfig, 'frequency', _RC)
       end if
 
-      has_ref_time = ESMF_HConfigIsDefined(time_hconfig, keyString='ref_time', _RC)
-      if (has_ref_time) then
-         iso_time = ESMF_HConfigAsString(time_hconfig, keyString='ref_time', _RC)
-         refTime = string_to_esmf_time(iso_time, _RC)
+      has_offset = ESMF_HConfigIsDefined(time_hconfig, keyString='offset', _RC)
+      if (has_offset) then
+         offset = hconfig_to_esmf_timeinterval(time_hconfig, 'offset', _RC)
       end if
 
       _RETURN(_SUCCESS)
