@@ -23,6 +23,8 @@ module mapl3g_HistoryCollectionGridComp
       class(GeomPFIO), allocatable :: writer
       type(ESMF_Time) :: start_stop_times(2)
       type(ESMF_Time) :: initial_file_time
+      type(ESMF_TimeInterval) :: timeStep
+      type(ESMF_TimeInterval) :: time_offstep
       character(len=:), allocatable :: template
       character(len=:), allocatable :: current_file
    end type HistoryCollectionGridComp
@@ -69,7 +71,6 @@ contains
       type(HistoryCollectionGridComp), pointer :: collection_gridcomp
       type(ESMF_HConfig) :: hconfig
       type(ESMF_Geom) :: geom
-      type(ESMF_Alarm) :: alarm
       character(len=ESMF_MAXSTR) :: name
       type(FileMetadata) :: metadata
       type(MaplGeom), pointer :: mapl_geom
@@ -87,7 +88,6 @@ contains
       _VERIFY(STATUS)
       call collection_gridcomp%writer%initialize(metadata, mapl_geom, _RC)
 
-      call create_output_alarm(clock, hconfig, trim(name), _RC)
       collection_gridcomp%start_stop_times = set_start_stop_time(clock, hconfig, _RC)
 
       collection_gridcomp%current_file = null_file
@@ -126,26 +126,22 @@ contains
       integer :: status, time_index
       type(HistoryCollectionGridComp), pointer :: collection_gridcomp
       character(*), parameter :: PRIVATE_STATE = "HistoryCollectionGridComp"
-      logical :: time_to_write, run_collection
+      logical :: run_collection
       type(ESMF_Time) :: current_time
-      type(ESMF_TimeInterval) :: write_frequency
-      type(ESMF_Alarm) :: write_alarm
       character(len=ESMF_MAXSTR) :: name
       character(len=128) :: current_file
 
       call ESMF_GridCompGet(gridcomp, name=name, _RC)
       call ESMF_ClockGet(clock, currTime=current_time, _RC)
-      call ESMF_ClockGetAlarm(clock, trim(name)//"_write_alarm", write_alarm, _RC)
       _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
-      time_to_write = ESMF_AlarmIsRinging(write_alarm, _RC)
+
       run_collection = (current_time >= collection_gridcomp%start_stop_times(1)) .and. &
                            (current_time <= collection_gridcomp%start_stop_times(2))
 
-      _RETURN_UNLESS(run_collection .and. time_to_write)
+      _RETURN_UNLESS(run_collection)
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
 
-      call ESMF_AlarmGet(write_alarm, ringInterval=write_frequency, _RC)
       call fill_grads_template_esmf(current_file, collection_gridcomp%template, collection_id=name, time=current_time, _RC)
       if (trim(current_file) /= collection_gridcomp%current_file) then
          collection_gridcomp%current_file = current_file
@@ -153,7 +149,7 @@ contains
          collection_gridcomp%initial_file_time = current_time
       end if
 
-      time_index = get_current_time_index(collection_gridcomp%initial_file_time, current_time, write_frequency)
+      time_index = get_current_time_index(collection_gridcomp%initial_file_time, current_time, collection_gridcomp%timeStep)
       call collection_gridcomp%writer%stage_data_to_file(collection_gridcomp%output_bundle, collection_gridcomp%current_file, time_index, _RC)
       _RETURN(_SUCCESS)
 
