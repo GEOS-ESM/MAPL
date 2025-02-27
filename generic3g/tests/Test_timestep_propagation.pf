@@ -91,19 +91,22 @@ contains
    ! on alternate timesteps of the parent.
    subroutine test_child_call_frequency()
 
-      type(ESMF_Time) :: t0, t1
+      type(ESMF_Time) :: t0, t1, tref,currTime
       type(ESMF_TimeInterval) :: timeStep
       type(ESMF_Clock) :: clock
       integer :: status, user_status
       type(ESMF_HConfig) :: cap_hconfig
       type(ESMF_GridComp) :: cap_gridcomp
       type(GriddedComponentDriver) :: driver
-      
-      call ESMF_TimeSet(t0, timeString="2000-04-03T21:00:00", _RC)
-      call ESMF_TimeSet(t1, timeString="2000-04-03T22:00:00", _RC)
+     
+      call ESMF_TimeSet(tref, timeString=    "2000-04-03T00:00:00", _RC)
+      call ESMF_TimeSet(t0, timeString=      "2000-04-03T00:00:00", _RC)
+      call ESMF_TimeSet(t1, timeString=      "2000-04-05T00:00:00", _RC)
+      call ESMF_TimeSet(currTime, timeString="2000-04-03T21:00:00", _RC)
       call ESMF_TimeIntervalSet(timestep, s=900)
 
-      clock = ESMF_ClockCreate(timeStep=timeStep, startTime=t0, stoptime=t1, refTime=t0, _RC)
+      clock = ESMF_ClockCreate(timeStep=timeStep, startTime=t0, stoptime=t1, refTime=tref, _RC)
+      call ESMF_ClockSet(clock,currTime=currTime,_RC)
       cap_hconfig = ESMF_HConfigCreate(content='{use_default_timestep: false, use_default_runTime: true}', _RC)
 
 
@@ -118,6 +121,7 @@ contains
       call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
       call driver%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
       @assert_that(child_run_count, is(equal_to(1)))
+      call ESMF_ClockGet(clock,currTime=currTime,_RC)
 
       call driver%run(phase_idx=GENERIC_RUN_USER, _RC)
       call driver%run(phase_idx=GENERIC_RUN_CLOCK_ADVANCE, _RC)
