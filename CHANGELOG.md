@@ -50,6 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add reference_time
 - Change `run_dt` to `timestep`
 - Add checks for compatibility between `timestep` and `reference_time` for OuterMetaComponent and user component.
+- Changed `refTime` (`reference_time`) to `offset` and runTime = refTime + offset
 
 ### Changed
 
@@ -64,6 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed `get_fptr_shape` in `FieldCondensedArray*.F90`
 - Change name of ExtensionAction%run to ExtensionAction%update in the abstract type and derived types.
 - Add invalid method to ExtensionAction with a no-op implementation in the abstract type
+- Change refTime to refTime_offset for several MAPL derived types
 
 ### Fixed
 

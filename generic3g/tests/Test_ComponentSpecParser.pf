@@ -202,42 +202,37 @@ contains
 
    @test
    subroutine test_parse_timespec()
-      type(ESMF_TimeInterval) :: expected_interval
-      type(ESMF_Time) :: expected_time
+      type(ESMF_TimeInterval) :: expected_duration
+      type(ESMF_TimeInterval) :: expected_offset
       character(len=*), parameter :: ISO_DURATION = 'P3M'
-      character(len=*), parameter :: ISO_TIME = '1582-10-15'
+      character(len=*), parameter :: ISO_OFFSET = 'P1D'
       character(len=*), parameter :: NL = new_line('10')
       character(len=:), allocatable :: content
       type(ESMF_HConfig) :: hconfig
-      type(ESMF_TimeInterval), allocatable :: actual_interval
-      type(ESMF_Time), allocatable :: actual_time
-      integer :: actual_mm
+      type(ESMF_TimeInterval), allocatable :: actual_duration
+      type(ESMF_TimeInterval), allocatable :: actual_offset
       integer :: expected_mm
-      integer :: actual_time_array(3)
-      integer :: expected_time_array(3)
       integer :: rc, status
 
       ! Test with correct key for timestep
-      call ESMF_TimeIntervalSet(expected_interval, mm=3, _RC)
-      call ESMF_TimeSet(expected_time, yy=1582, mm=10, dd=15, _RC)
-      content = 'timestep: ' // ISO_DURATION // NL // 'reference_time: ' // ISO_TIME
+      call ESMF_TimeIntervalSet(expected_duration, mm=3, _RC)
+      call ESMF_TimeIntervalSet(expected_offset, d=1, _RC)
+      content = 'timestep: ' // ISO_DURATION // NL // 'run_time_offset: ' // ISO_OFFSET
       hconfig = ESMF_HConfigCreate(content=content, _RC)
-      call parse_timespec(hconfig, actual_interval, actual_time, _RC)
-      @assert_that(allocated(actual_interval), is(true()))
-      @assertTrue(actual_interval == expected_interval, MAKE_MESSAGE('timestep'))
-      @assertTrue(actual_time == expected_time, MAKE_MESSAGE('reference time'))
+      call parse_timespec(hconfig, actual_duration, actual_offset, _RC)
+      @assert_that(allocated(actual_duration), is(true()))
+      @assertTrue(actual_duration == expected_duration, MAKE_MESSAGE('timestep'))
+      @assertTrue(actual_offset == expected_offset, MAKE_MESSAGE('reference time offset'))
       call ESMF_HConfigDestroy(hconfig, _RC)
       
-      ! Test with incorrect key for timestep; should return without allocating actual_interval (invalid)
+      ! Test with incorrect key for timestep; should return without allocating actual_duration (invalid)
       expected_mm = 1
-      expected_time_array = [1583, 11, 16]
-      call ESMF_TimeIntervalSet(actual_interval, mm=expected_mm, _RC)
-      call ESMF_TimeSet(actual_time, yy=expected_time_array(1), mm=expected_time_array(2), dd=expected_time_array(3), _RC)
+      call ESMF_TimeIntervalSet(actual_duration, mm=expected_mm, _RC)
       content = 'run_dmc: ' // ISO_DURATION
       hconfig = ESMF_HConfigCreate(content=content, _RC)
-      call parse_timespec(hconfig, actual_interval, actual_time, _RC)
-      @assert_that(allocated(actual_interval), is(false()))
-      @assert_that(allocated(actual_time), is(false()))
+      call parse_timespec(hconfig, actual_duration, actual_offset, _RC)
+      @assert_that(allocated(actual_duration), is(false()))
+      @assert_that(allocated(actual_offset), is(false()))
       call ESMF_HConfigDestroy(hconfig, _RC)
 
    end subroutine test_parse_timespec
