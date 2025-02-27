@@ -141,37 +141,9 @@ RESTART_EMIT = make_entry_writer({'OPT'  : 'MAPL_RestartOptional', 'SKIP' : 'MAP
         'REQ'  : 'MAPL_RestartRequired', 'BOOT' : 'MAPL_RestartBoot',
         'SKIPI': 'MAPL_RestartSkipInitial'})
 
-    @classmethod
-    def get_mandatory_options(cls):
-        return list(filter(lambda m: m.mandatory, list(cls))) 
-
-def make_argument(values):
-    match values:
-        case str:
-            return values:
-        case (function as writer, bool as mandatory, bool as nooutput):
-            return {'writer': writer, 'mandatory': mandatory, 'nooutput': nooutput}
-        case (function as writer, bool as mandatory):
-            return {'writer': writer, 'mandatory': mandatory}
-        case (mandatory as bool, 
-    if isinstanceof(values, str):
-        return values
-    argument = {}
-    writer, mandatory, output = values
-    if writer is None:
-        argument['writer'] = identity_writer
-    if nooutput:
-        argument['nooutput'] = nooutput
-
-def make_argument(writer=identity_writer, mandatory=False, output=True):
-    if isinstanceof(writer
-def make_arguments(values):
-    arguments = {name: make_argument(value) for (name, value) if isinstanceof(value, tuple)}
-    aliases = {alias: value for (alias, value) if isinstanceof(value, str)}
-
 arguments = {
 # MANDATORY
-        'short_name': {'writer:' mangle_name, 'mandatory': True}, #COMMON
+        'short_name': {'writer': mangle_name, 'mandatory': True}, #COMMON
         'name': 'short_name',
         'dims': {'writer': DIMS_EMIT, 'mandatory': True}, #COMMON
         'units': {'writer': string_writer, 'mandatory': True}, #COMMON
@@ -199,6 +171,7 @@ arguments = {
         'vlocation': {'writer': VLOCATION_EMIT},
         'vloc': 'vlocation',
 # these are arguments are not output but used to write 
+        'alias': ('alias', identity_emit, False, False),
         'condition': {'writer': identity_writer, 'mandatory': False, 'output': False},
         'cond': 'condition',
         'alloc': {'writer': identity_writer, 'mandatory': False, 'output': False},
@@ -217,7 +190,8 @@ INCLUDES = {
 }
 
 def get_mandatory_arguments(arguments):
-    return {name:value for (name, value) in arguments.items() if value['mandatory']}
+    is_mandatory = lambda v: False if isinstanceof(v, str) else v.get('mandatory', False)
+    return [name for (name, value) in arguments.items() if is_mandatory(value)]
 
 ###################### RULES to test conditions on Options #####################
 # relations for rules on Options
@@ -358,11 +332,12 @@ class MAPL_DataSpec:
 
     def emit_args(self):
         self.indent = self.indent + 5
+        output_keys = [k for (k, v) in self.spec_values.items() if v.get('output', True)]
         text = "call MAPL_Add" + self.state_intent.name.capitalize() + "Spec(gc," + self.continue_line()
+        text = reduce(lambda t, k: t + self.emit_arg(k), output_keys, text)
 #        for argument in self.spec_values: #wdb idea deleteme reduce?
 #            if self.spec_values[argument].['output']:
 #                text = text + self.emit_arg(argument)
-        text = reduce(lambda t, a: t = t + self.emit_arg(a), filter(lambda a: self.spec_values[a].['output'], self.spec_values), text)
         text = text + MAPL_DataSpec.TERMINATOR + self.newline()
         self.indent = self.indent - 5
         return text
@@ -491,6 +466,8 @@ def digest(specs, arguments, args):
                     dims = argument_value
                 elif argument_name == 'ungridded':
                     ungridded = argument_value
+                elif argument_name == 'alias':
+                    alias = writer(spec_value)
 # MANDATORY
             for argument in mandatory_arguments:
                 if argument not in argument_values:
