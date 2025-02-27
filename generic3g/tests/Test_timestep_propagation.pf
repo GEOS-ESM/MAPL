@@ -37,7 +37,7 @@ contains
       call ESMF_TimeIntervalSet(timestep, s=900)
 
       clock = ESMF_ClockCreate(timeStep=timeStep, startTime=t0, stoptime=t1, refTime=t0, _RC)
-      cap_hconfig = ESMF_HConfigCreate(content='{use_default_timestep: true}', _RC)
+      cap_hconfig = ESMF_HConfigCreate(content='{use_default_timestep: true, use_default_runTime: true}', _RC)
 
       cap_gridcomp = MAPL_GridCompCreate('CAP', user_setservices(parent_ss), cap_hconfig, _RC)
       call ESMF_GridCompSetServices(cap_gridcomp, generic_setservices, userRC=user_status, _RC)
@@ -71,7 +71,7 @@ contains
       call ESMF_TimeIntervalSet(timestep, s=1800)
 
       clock = ESMF_ClockCreate(timeStep=timeStep, startTime=t0, stoptime=t1, refTime=t0, _RC)
-      cap_hconfig = ESMF_HConfigCreate(content='{use_default_timestep: true}', _RC)
+      cap_hconfig = ESMF_HConfigCreate(content='{use_default_timestep: true, use_default_runTime: true}', _RC)
 
       cap_gridcomp = MAPL_GridCompCreate('CAP', user_setservices(parent_ss), cap_hconfig, _RC)
       call ESMF_GridCompSetServices(cap_gridcomp, generic_setservices, userRC=user_status, _RC)
@@ -104,7 +104,7 @@ contains
       call ESMF_TimeIntervalSet(timestep, s=900)
 
       clock = ESMF_ClockCreate(timeStep=timeStep, startTime=t0, stoptime=t1, refTime=t0, _RC)
-      cap_hconfig = ESMF_HConfigCreate(content='{use_default_timestep: false}', _RC)
+      cap_hconfig = ESMF_HConfigCreate(content='{use_default_timestep: false, use_default_runTime: true}', _RC)
 
 
       cap_gridcomp = MAPL_GridCompCreate('CAP', user_setservices(parent_ss), cap_hconfig, _RC)
@@ -148,7 +148,7 @@ contains
       call ESMF_TimeIntervalSet(timestep, s=900)
 
       clock = ESMF_ClockCreate(timeStep=timeStep, startTime=t0, stoptime=t1, refTime=t0, _RC)
-      cap_hconfig = ESMF_HConfigCreate(content='{use_default_timestep: false, use_default_refTime: false}', _RC)
+      cap_hconfig = ESMF_HConfigCreate(content='{use_default_timestep: false, use_default_runTime: false}', _RC)
 
 
       cap_gridcomp = MAPL_GridCompCreate('CAP', user_setservices(parent_ss), cap_hconfig, _RC)
@@ -193,9 +193,9 @@ contains
       type(ChildSpec) :: child_spec
       integer :: status
       logical :: use_default_timestep
-      logical :: use_default_refTime
+      logical :: use_default_runTime
       type(ESMF_TimeInterval), allocatable :: timeStep
-      type(ESMF_Time), allocatable :: refTime
+      type(ESMF_TimeInterval), allocatable :: offset
       type(ESMF_HConfig) :: hconfig
 
       rc=0
@@ -209,14 +209,14 @@ contains
          call ESMF_TimeIntervalSet(timeStep, s=1800)
       end if
 
-      call MAPL_GridCompResourceGet(gridcomp, keystring='use_default_refTime', value=use_default_refTime, default=.true., _RC)
-      if (.not. use_default_refTime) then
-         allocate(refTime)
+      call MAPL_GridCompResourceGet(gridcomp, keystring='use_default_runTime', value=use_default_runTime, default=.true., _RC)
+      if (.not. use_default_runTime) then
+         allocate(offset)
          ! offset by 900 seconds
-         call ESMF_TimeSet(refTime, timeString="2000-04-03T20:45:00", _RC)
+         call ESMF_TimeIntervalSet(offset, timeIntervalString="PT900S", _RC)
       end if
 
-      child_spec = ChildSpec(user_SetServices(child_ss), timeStep=timeStep, refTime=refTime)
+      child_spec = ChildSpec(user_SetServices(child_ss), timeStep=timeStep, offset=offset)
       call MAPL_GridCompAddChild(gridcomp, 'child', child_spec, _RC)
       
    end subroutine parent_ss

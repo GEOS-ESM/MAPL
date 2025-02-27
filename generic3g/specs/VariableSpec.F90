@@ -78,7 +78,7 @@ contains
         horizontal_dims_spec, &
         accumulation_type, &
         timeStep, &
-        refTime, &
+        offset, &
         rc) result(var_spec)
 
       type(VariableSpec) :: var_spec
@@ -101,8 +101,8 @@ contains
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
       type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
       character(len=*), optional, intent(in) :: accumulation_type
-      type(ESMF_TimeInterval), optional, intent(in) :: timestep
-      type(ESMF_Time), optional, intent(in) :: refTime
+      type(ESMF_TimeInterval), optional, intent(in) :: timeStep
+      type(ESMF_TimeInterval), optional, intent(in) :: offset
       integer, optional, intent(out) :: rc
 
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
@@ -128,7 +128,8 @@ contains
       call var_spec%aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, UngriddedDimsAspect(ungridded_dims))
       call var_spec%aspects%insert(ATTRIBUTES_ASPECT_ID, AttributesAspect(attributes))
       call var_spec%aspects%insert(TYPEKIND_ASPECT_ID, TypekindAspect(typekind))
-      call var_spec%aspects%insert(FREQUENCY_ASPECT_ID, FrequencyAspect(timestep=timestep, refTime=refTime, accumulation_type=accumulation_type))
+      call var_spec%aspects%insert(FREQUENCY_ASPECT_ID, FrequencyAspect(timeStep=timeStep, &
+         & offset=offset, accumulation_type=accumulation_type))
 
       _SET_OPTIONAL(standard_name)
       _SET_OPTIONAL(itemtype)

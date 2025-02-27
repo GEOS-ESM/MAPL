@@ -199,42 +199,4 @@ contains
 
    end subroutine test_set_start_stop_time
 
-   @Test
-   subroutine test_create_output_alarm()
-      type(ESMF_HConfig) :: hconfig
-      type(ESMF_Time) :: time,start_stop_time(2)
-      integer :: status
-      type(ESMF_Time) :: start_time, stop_time
-      type(ESMF_TimeInterval) :: dt
-      type(ESMF_Clock) :: clock
-      type(ESMF_Alarm) :: alarm
-      logical :: is_ringing
-      type(ESMF_Time) currTime
-      character(len=:), allocatable :: comp_name
-
-      comp_name = "coll1"
-      call ESMF_TimeIntervalSet(dt, h=1, _RC)
-      call ESMF_TimeSet(start_time, timeString="2000-04-03T21:00:00", _RC)
-      call ESMF_TimeSet(stop_time, timeString="2000-04-22T21:00:00", _RC)
-      clock = ESMF_ClockCreate(timeStep=dt, startTime=start_time, stopTime=stop_time, _RC)
-      hconfig = ESMF_HConfigCreate(content = &
-        "{time_spec: {frequency: PT3H}}", _RC)
-
-      call create_output_alarm(clock, hconfig, comp_name, _RC)
-      call ESMF_ClockGetAlarm(clock, comp_name//"_write_alarm", alarm, _RC)
-     
-      call ESMF_ClockAdvance(clock, _RC)
-      is_ringing = ESMF_AlarmIsRinging(alarm, _RC) 
-      @assert_that(is_ringing, is(false()))
-
-      call ESMF_ClockAdvance(clock, _RC)
-      is_ringing = ESMF_AlarmIsRinging(alarm, _RC) 
-      @assert_that(is_ringing, is(false()))
-
-      call ESMF_ClockAdvance(clock, _RC) 
-      is_ringing = ESMF_AlarmIsRinging(alarm, _RC) 
-      @assert_that(is_ringing, is(true()))
- 
-   end subroutine test_create_output_alarm
-
 end module Test_HistoryCollectionGridComp
