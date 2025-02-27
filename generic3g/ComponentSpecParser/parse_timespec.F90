@@ -50,15 +50,15 @@ contains
          character(len=32) :: iso_duration
          type(ESMF_TimeInterval) :: duration
 
-         has_offset = ESMF_HConfigIsDefined(hconfig, keyString=KEY_REFERENCE_TIME_OFFSET, _RC)
+         has_offset = ESMF_HConfigIsDefined(hconfig, keyString=KEY_RUN_TIME_OFFSET, _RC)
          _RETURN_UNLESS(has_offset)
 
-         iso_duration = ESMF_HConfigAsString(hconfig, keyString=KEY_REFERENCE_TIME_OFFSET, _RC)
+         iso_duration = ESMF_HConfigAsString(hconfig, keyString=KEY_RUN_TIME_OFFSET, _RC)
          call ESMF_TimeIntervalSet(duration, timeIntervalString=iso_duration, _RC)
          offset = duration
 
          _RETURN(_SUCCESS)
 
       end subroutine parse_offset
-         
+
    end submodule parse_timespec_smod

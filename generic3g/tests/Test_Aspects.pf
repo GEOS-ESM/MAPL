@@ -285,15 +285,15 @@ contains
       type(FrequencyAspect) :: import, export
 
       type(ESMF_TimeInterval) :: dt1, dt2
-      type(ESMF_Time) :: runTime1, runTime2
+      type(ESMF_TimeInterval) :: offset1, offset2
 
       call ESMF_TimeIntervalSet(dt1, s=4)
       call ESMF_TimeIntervalSet(dt2, s=2) ! commensurate
-      call ESMF_TimeSet(runTime1, s=0)
-      call ESMF_TimeSet(runTime2, s=0)
+      call ESMF_TimeIntervalSet(offset1, s=0)
+      call ESMF_TimeIntervalSet(offset2, s=0)
 
-      import = FrequencyAspect(timeStep=dt2, runTime=runTime2, accumulation_type='mean')
-      export = FrequencyAspect(timeStep=dt1, runTime=runTime1)
+      import = FrequencyAspect(timeStep=dt2, offset=offset2, accumulation_type='mean')
+      export = FrequencyAspect(timeStep=dt1, offset=offset1)
       @assert_that(export%can_connect_to(import), is(true()))
 
    end subroutine test_can_connect_accum_mean
@@ -304,15 +304,15 @@ contains
       type(FrequencyAspect) :: import, export
 
       type(ESMF_TimeInterval) :: dt1, dt2
-      type(ESMF_Time) :: runTime1, runTime2
+      type(ESMF_TimeInterval) :: offset1, offset2
 
       call ESMF_TimeIntervalSet(dt1, s=4)
       call ESMF_TimeIntervalSet(dt2, s=3) ! not commensurate
-      call ESMF_TimeSet(runTime1, s=0)
-      call ESMF_TimeSet(runTime2, s=0)
+      call ESMF_TimeIntervalSet(offset1, s=0)
+      call ESMF_TimeIntervalSet(offset2, s=0)
 
-      import = FrequencyAspect(timeStep=dt2, runTime=runTime2, accumulation_type='mean')
-      export = FrequencyAspect(timeStep=dt1, runTime=runTime1)
+      import = FrequencyAspect(timeStep=dt2, offset=offset2, accumulation_type='mean')
+      export = FrequencyAspect(timeStep=dt1, offset=offset1)
       @assert_that(export%can_connect_to(import), is(false()))
 
    end subroutine test_can_connect_accum_fail

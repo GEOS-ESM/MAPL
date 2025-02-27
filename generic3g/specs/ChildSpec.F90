@@ -17,7 +17,7 @@ module mapl3g_ChildSpec
       class(AbstractUserSetServices), allocatable :: user_setservices
       type(ESMF_HConfig) :: hconfig
       type(ESMF_TimeInterval), allocatable :: timeStep
-      type(ESMF_TimeInterval), allocatable :: offset
+      type(ESMF_TimeInterval) :: offset
    contains
       procedure :: write_formatted
       generic :: write(formatted) => write_formatted
@@ -53,6 +53,7 @@ contains
          spec%hconfig = ESMF_HConfigCreate(content='{}')
       end if
 
+      call ESMF_TimeIntervalSet(spec%offset, s=0)
       if (present(timeStep)) spec%timeStep = timeStep
       if (present(offset)) spec%offset = offset
 
@@ -101,13 +102,10 @@ contains
       end function equal_timestep
 
       logical function equal_offset(a, b) result(equal)
-         type(ESMF_TimeInterval), allocatable, intent(in) :: a
-         type(ESMF_TimeInterval), allocatable, intent(in) :: b
+         type(ESMF_TimeInterval), intent(in) :: a
+         type(ESMF_TimeInterval), intent(in) :: b
 
-         equal = (allocated(a) .eqv. allocated(b))
-         if (.not. equal) return
-
-         if (allocated(a)) equal = (a == b)
+         equal = (a == b)
 
       end function equal_offset
 

@@ -211,16 +211,13 @@ contains
       type(ESMF_HConfig) :: hconfig
       type(ESMF_TimeInterval), allocatable :: actual_duration
       type(ESMF_TimeInterval), allocatable :: actual_offset
-      integer :: actual_mm
       integer :: expected_mm
-      integer :: actual_time_array(3)
-      integer :: expected_time_array(3)
       integer :: rc, status
 
       ! Test with correct key for timestep
       call ESMF_TimeIntervalSet(expected_duration, mm=3, _RC)
       call ESMF_TimeIntervalSet(expected_offset, d=1, _RC)
-      content = 'timestep: ' // ISO_DURATION // NL // 'reference_time_offset: ' // ISO_OFFSET
+      content = 'timestep: ' // ISO_DURATION // NL // 'run_time_offset: ' // ISO_OFFSET
       hconfig = ESMF_HConfigCreate(content=content, _RC)
       call parse_timespec(hconfig, actual_duration, actual_offset, _RC)
       @assert_that(allocated(actual_duration), is(true()))
@@ -230,7 +227,6 @@ contains
       
       ! Test with incorrect key for timestep; should return without allocating actual_duration (invalid)
       expected_mm = 1
-      expected_time_array = [1583, 11, 16]
       call ESMF_TimeIntervalSet(actual_duration, mm=expected_mm, _RC)
       content = 'run_dmc: ' // ISO_DURATION
       hconfig = ESMF_HConfigCreate(content=content, _RC)

@@ -24,7 +24,7 @@ contains
       type(GriddedComponentDriver) :: child_driver
       type(ESMF_GridComp) :: child_outer_gc
       type(OuterMetaComponent), pointer :: child_meta
-      type(ESMF_HConfig) :: child_hconfig, total_hconfig
+      type(ESMF_HConfig) :: total_hconfig
       
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
       _ASSERT(this%children%count(child_name) == 0, 'duplicate child name: <'//child_name//'>.')
@@ -36,11 +36,9 @@ contains
       child_meta => get_outer_meta(child_outer_gc, _RC)
       call this%registry%add_subregistry(child_meta%get_registry())
 
-      child_meta%user_timeStep = this%timeStep
       if (allocated(child_spec%timeStep)) child_meta%user_timeStep = child_spec%timeStep
 
-      child_meta%user_runTime = this%user_runTime
-      if (allocated(child_spec%offset)) child_meta%user_runTime = this%user_runTime + child_spec%offset
+      child_meta%user_offset = this%user_offset + child_spec%offset
 
       child_driver = GriddedComponentDriver(child_outer_gc)
       call this%children%insert(child_name, child_driver)

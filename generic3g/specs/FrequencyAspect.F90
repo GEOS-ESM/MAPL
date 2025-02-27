@@ -15,7 +15,7 @@ module mapl3g_FrequencyAspect
    type, extends(StateItemAspect) :: FrequencyAspect
       private
       type(ESMF_TimeInterval), allocatable :: timeStep
-      type(ESMF_Time), allocatable :: runTime
+      type(ESMF_TimeInterval) :: offset
       character(len=:), allocatable :: accumulation_type
    contains
       ! These are implementations of extended derived type.
@@ -33,18 +33,19 @@ module mapl3g_FrequencyAspect
 
 contains
 
-   function new_FrequencyAspect(timeStep, runTime, accumulation_type) result(aspect)
+   function new_FrequencyAspect(timeStep, offset, accumulation_type) result(aspect)
       type(FrequencyAspect) :: aspect
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
-      type(ESMF_Time), optional, intent(in) :: runTime
+      type(ESMF_TimeInterval), optional, intent(in) :: offset
       character(len=*), optional, intent(in) :: accumulation_type
       integer :: status
 
       call aspect%set_mirror(.FALSE.)
       call aspect%set_time_dependent(.FALSE.)
       call set_accumulation_type(aspect, INSTANTANEOUS)
+      call ESMF_TimeIntervalSet(aspect%offset, s=0)
       if(present(timeStep)) aspect%timeStep = timeStep
-      if(present(runTime)) aspect%runTime = runTime
+      if(present(offset)) aspect%offset = offset
       if(present(accumulation_type)) call set_accumulation_type(aspect, accumulation_type)
       
    end function new_FrequencyAspect
@@ -93,7 +94,7 @@ contains
       select type(dst)
       class is (FrequencyAspect)
          accumulation_type = dst%accumulation_type
-         call get_accumulator_action(accumulation_type, ESMF_TYPEKIND_R4, action, _RC) 
+         call get_accumulator_action(accumulation_type, ESMF_TYPEKIND_R4, action) 
          _ASSERT(allocated(action), 'Unable to allocate action')
       class default
          allocate(action,source=NullAction())
@@ -130,12 +131,12 @@ contains
       integer :: status
 
       supports = .FALSE.
-      if(.not. (allocated(src%timeStep) .and. allocated(src%runTime))) return
+      if(.not. allocated(src%timeStep)) return
       select type(dst)
       class is (FrequencyAspect)
-         if(.not. (allocated(dst%timeStep) .and. allocated(dst%runTime))) return
+         if(.not. allocated(dst%timeStep)) return
          call intervals_and_offset_are_compatible(src%timeStep, dst%timeStep, &
-            & src%runTime-dst%runTime, supports, rc=status)
+            & src%offset-dst%offset, supports, rc=status)
          supports = supports .and. status == _SUCCESS
       end select
 

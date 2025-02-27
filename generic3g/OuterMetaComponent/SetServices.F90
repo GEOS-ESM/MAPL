@@ -33,8 +33,8 @@ contains
       integer :: status
       type(ESMF_GridComp) :: user_gridcomp
 
-      ! Note that Parent component should set timestep and refTime in outer meta before calling SetServices.
-      this%component_spec = parse_component_spec(this%hconfig, this%registry, this%user_timeStep, this%user_runTime, _RC)
+      ! Note that Parent component should set timestep and offset in outer meta before calling SetServices.
+      this%component_spec = parse_component_spec(this%hconfig, this%registry, this%user_timeStep, this%user_offset, _RC)
 
       user_gridcomp = this%user_gc_driver%get_gridcomp()
       call attach_inner_meta(user_gridcomp, this%self_gridcomp, _RC)

@@ -64,17 +64,17 @@ module mapl3g_ComponentSpecParser
    character(*), parameter :: KEY_VERTICAL_DIM_SPEC = 'vertical_dim_spec'
    character(*), parameter :: KEY_ACCUMULATION_TYPE = 'accumulation_type'
    character(*), parameter :: KEY_TIMESTEP = 'timestep'
-   character(*), parameter :: KEY_REFERENCE_TIME_OFFSET = 'reference_time_offset'
+   character(*), parameter :: KEY_RUN_TIME_OFFSET = 'run_time_offset'
 
    !>
    ! Submodule declarations
    INTERFACE
-      module function parse_component_spec(hconfig, registry, timeStep, runTime, rc) result(spec)
+      module function parse_component_spec(hconfig, registry, timeStep, offset, rc) result(spec)
          type(ComponentSpec) :: spec
          type(ESMF_HConfig), target, intent(inout) :: hconfig
          type(StateRegistry), target, intent(in) :: registry
          type(ESMF_TimeInterval), optional, intent(in) :: timeStep
-         type(ESMF_Time), optional, intent(in) :: runTime
+         type(ESMF_TimeInterval), optional, intent(in) :: offset
          integer, optional, intent(out) :: rc
       end function parse_component_spec
 
@@ -85,11 +85,11 @@ module mapl3g_ComponentSpecParser
          integer, optional, intent(out) :: rc
       end function parse_geometry_spec
 
-      module function parse_var_specs(hconfig, timeStep, runTime, rc) result(var_specs)
+      module function parse_var_specs(hconfig, timeStep, offset, rc) result(var_specs)
          type(VariableSpecVector) :: var_specs
          type(ESMF_HConfig), intent(in) :: hconfig
          type(ESMF_TimeInterval), optional, intent(in) :: timeStep
-         type(ESMF_Time), optional, intent(in) :: runTime
+         type(ESMF_TimeInterval), optional, intent(in) :: offset
          integer, optional, intent(out) :: rc
       end function parse_var_specs
 
