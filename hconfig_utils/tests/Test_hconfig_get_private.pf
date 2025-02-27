@@ -115,7 +115,7 @@ contains
       params = HConfigParams(hconfig, LABEL)
       call get_value(params, actual, rc=status_)
       found = params%value_set
-      @assertFalse(status_ == 0, 'get_value should have failed.')
+      @assertFalse(found, 'get_value should have failed.')
 
    end subroutine test_get_i4_not_found_no_default
 
@@ -540,7 +540,7 @@ contains
          hconfig = ESMF_HConfigCreate(rc=status)
          hconfig_is_created = (status == 0)
          call ESMF_HConfigAdd(hconfig, 0, addKeyString='null', rc=status)
-         @assertEqual(0, status, 'Failed to add null vallue')
+         @assertEqual(0, status, 'Failed to add null value')
       end if
       @assertTrue(hconfig_is_created, 'HConfig was not created.')
 
