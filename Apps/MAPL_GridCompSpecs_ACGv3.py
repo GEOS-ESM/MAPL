@@ -171,7 +171,7 @@ arguments = {
         'vlocation': {'writer': VLOCATION_EMIT},
         'vloc': 'vlocation',
 # these are arguments are not output but used to write 
-        'alias': ('alias', identity_emit, False, False),
+        'alias': {'writer': identity_writer, 'mandatory': False, 'output': False},
         'condition': {'writer': identity_writer, 'mandatory': False, 'output': False},
         'cond': 'condition',
         'alloc': {'writer': identity_writer, 'mandatory': False, 'output': False},
@@ -189,9 +189,20 @@ INCLUDES = {
     INTENT.INTERNAL: ['STANDARD_NAME'] + COMMON
 }
 
+def is_mandatory(v):
+    if isinstance(v, str):
+        return False
+    return v.get('mandatory', False)
+
 def get_mandatory_arguments(arguments):
-    is_mandatory = lambda v: False if isinstanceof(v, str) else v.get('mandatory', False)
-    return [name for (name, value) in arguments.items() if is_mandatory(value)]
+#    is_mandatory = lambda v: False if isinstance(v, str) else v.get('mandatory', False)
+    mandatory_arguments = []
+    for key in arguments.keys():
+        value = arguments[key]
+        if is_mandatory(value):
+            mandatory_arguments.append(key)
+    return mandatory_arguments
+#    return [key for key in arguments.keys() if is_mandatory(arguments[key])]
 
 ###################### RULES to test conditions on Options #####################
 # relations for rules on Options
@@ -448,12 +459,13 @@ def digest(specs, arguments, args):
         for spec in spec_list: # spec from list #wdb fixme Need to get all specs according to state_intent
             dims = None
             ungridded = None
+            alias = None
             argument_values = dict() # dict of argument values
             for spec_name, spec_value in spec.items(): # for spec writer value
                 argument_name = spec_name.lower()
                 argument = arguments[argument_name] # use spec name (lower) to find argument
                 # writer value
-                writer = argument['writer']
+                writer = spec_value['writer']
                 if type(writer) is ParameterizedWriter:
                     argument_value = writer(spec_value, arg_dict)
                 else:
@@ -551,7 +563,7 @@ if __name__ == "__main__":
 
 # Digest specs from file to output structure
     try:
-        specs = digest(parsed_specs, args)
+        specs = digest(parsed_specs, arguments, args)
 
     except Exception:
         raise
