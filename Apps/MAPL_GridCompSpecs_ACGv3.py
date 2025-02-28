@@ -551,12 +551,8 @@ def emit_values(specs, args):
     if f_get_pointers:
         f_get_pointers.close()
 
-
-#############################################
-# MAIN program begins here
-#############################################
-
-if __name__ == "__main__":
+# Main Procedure (Added to facilitate testing.)
+def main():
 # Process command line arguments
     args = get_args()
 
@@ -573,5 +569,12 @@ if __name__ == "__main__":
 # Emit values
     emit_values(specs, args)
 
+#############################################
+# MAIN program begins here
+#############################################
+
+if __name__ == "__main__":
+    main()
 # FIN
     sys.exit(SUCCESS)
+
