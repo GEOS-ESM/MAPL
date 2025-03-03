@@ -5559,7 +5559,7 @@ ENDDO PARSER
     rewind(unitr)
     do k=1, nplf
        call scan_begin(unitr, 'PLATFORM.', .false.)
-       call scan_contain(unitr, 'geovals_fields:', .false.)
+       call scan_contain(unitr, 'fields:', .false.)
        ios=0
        ngeoval=0
        nseg_ub=0
@@ -5597,7 +5597,7 @@ ENDDO PARSER
        marker=line(1:j)
        !
        call scan_begin(unitr, marker, .true.)
-       call scan_contain(unitr, 'geovals_fields:', .false.)
+       call scan_contain(unitr, 'fields:', .false.)
        ios=0
        ngeoval=0
        do while (ios == 0)
