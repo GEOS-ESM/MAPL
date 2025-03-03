@@ -191,7 +191,7 @@ Option = Enum(value = 'Option', names = {
         'VLOCATION': ('vlocation', VLOCATION_EMIT),
         'VLOC': ('vlocation', VLOCATION_EMIT),
 # these are Options that are not output but used to write 
-        'ALIAS': {'writer': identity_writer, 'mandatory': False, 'output': False},
+        'ALIAS': ('alias', identity_writer, False, False),
         'CONDITION': ('condition', identity_writer, False, False),
         'COND': ('condition', identity_writer, False, False),
         'ALLOC': ('alloc', identity_writer, False, False),
