@@ -28,9 +28,9 @@ RANKS = dict([(entry, rank) for entry, rank, _ in DIMS_OPTIONS])
 
 
 ############################### HELPER FUNCTIONS ###############################
-rm_quotes = lambda s: s.__str__().strip().strip('"\'').strip()
-add_quotes = lambda s: "'" + s.__str__() + "'"
-mk_array = lambda s: '[ ' + s.__str__() + ']'
+rm_quotes = lambda s: str(s).strip().strip('"\'').strip()
+add_quotes = lambda s: "'" + str(s) + "'"
+mk_array = lambda s: '[ ' + str(s).strip().strip('[]') + ']'
 
 def make_string_array(s):
     """ Returns a string representing a Fortran character array """
