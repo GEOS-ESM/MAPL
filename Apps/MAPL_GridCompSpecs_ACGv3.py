@@ -191,6 +191,7 @@ Option = Enum(value = 'Option', names = {
         'VLOCATION': ('vlocation', VLOCATION_EMIT),
         'VLOC': ('vlocation', VLOCATION_EMIT),
 # these are Options that are not output but used to write 
+        'ALIAS': ('alias', identity_writer, False, False),
         'CONDITION': ('condition', identity_writer, False, False),
         'COND': ('condition', identity_writer, False, False),
         'ALLOC': ('alloc', identity_writer, False, False),
@@ -460,6 +461,7 @@ def digest(specs, args):
         for spec in specs[state_intent]: # spec from list
             dims = None
             ungridded = None
+            alias = None
             option_values = dict() # dict of option values
             for column in spec: # for spec writer value
                 column_value = spec[column]
@@ -477,6 +479,10 @@ def digest(specs, args):
                     dims = option_value
                 elif option == Option.UNGRIDDED:
                     ungridded = option_value
+                elif option == Option.ALIAS:
+                    alias = option_value
+            if alias:
+                option_values[Option.INTERNAL_NAME] = alias
 # MANDATORY
             for option in mandatory_options:
                 if option not in option_values:
@@ -545,12 +551,8 @@ def emit_values(specs, args):
     if f_get_pointers:
         f_get_pointers.close()
 
-
-#############################################
-# MAIN program begins here
-#############################################
-
-if __name__ == "__main__":
+# Main Procedure (Added to facilitate testing.)
+def main():
 # Process command line arguments
     args = get_args()
 
@@ -567,5 +569,12 @@ if __name__ == "__main__":
 # Emit values
     emit_values(specs, args)
 
+#############################################
+# MAIN program begins here
+#############################################
+
+if __name__ == "__main__":
+    main()
 # FIN
     sys.exit(SUCCESS)
+
