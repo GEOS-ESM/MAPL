@@ -51,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Change `run_dt` to `timestep`
 - Add checks for compatibility between `timestep` and `reference_time` for OuterMetaComponent and user component.
 - Changed `refTime` (`reference_time`) to `offset` and runTime = refTime + offset
+- Add ALIAS column for ACG for MAPL3
 
 ### Changed
 
