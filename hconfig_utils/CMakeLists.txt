@@ -7,6 +7,7 @@ set(srcs
   hconfig_get_private.F90
   generalized_equality.F90
   get_hconfig.F90
+  HConfigUtilities.F90
   )
 
 if (BUILD_WITH_PFLOGGER)
