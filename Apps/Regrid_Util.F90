@@ -212,7 +212,7 @@
     integer :: status
     type(ESMF_CONFIG) :: cfoutput
 
-    filename = this%filenames%at_32(1)
+    filename = this%filenames%at(1)
 
     call formatter%open(trim(filename),pFIO_Read,_RC)
     basic_metadata=formatter%read(_RC)
