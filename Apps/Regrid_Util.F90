@@ -212,7 +212,7 @@
     integer :: status
     type(ESMF_CONFIG) :: cfoutput
 
-    filename = this%filenames%at(1)
+    filename = this%filenames%at_32(1)
 
     call formatter%open(trim(filename),pFIO_Read,_RC)
     basic_metadata=formatter%read(_RC)
@@ -388,7 +388,7 @@ CONTAINS
 
    call io_server%initialize(mpi_comm_world)
 
-   filename = support%filenames%at(1)
+   filename = support%filenames%at_32(1)
    if (allocated(tSeries)) deallocate(tSeries)
    call get_file_times(filename,support%itime,support%allTimes,tseries,timeInterval,tint,tsteps,_RC)
    has_vertical_level = support%has_level(_RC)
@@ -405,12 +405,12 @@ CONTAINS
    writer_created=.false.
    do j=1,support%filenames%size()
 
-      filename = support%filenames%at(j)
+      filename = support%filenames%at_32(j)
       if (j>1) then
          if (allocated(tSeries)) deallocate(tSeries)
          call get_file_times(filename,support%itime,support%allTimes,tseries,timeInterval,tint,tsteps,_RC)
       end if
-      outputfile = support%outputfiles%at(j)
+      outputfile = support%outputfiles%at_32(j)
 
       inquire(file=trim(outputfile),exist=file_exists)
       _ASSERT(.not.file_exists,"output file already exists: exiting!")
