@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Added 'target' attributes to dummy argument object that is pointed to by a pointer in the procedure. 
+- Allocate integer array of size 1 in statements with usingthe 'transfer' function to hold the bit pattern of the source object (in OpenMP_Support.F90)
+
 ### Added
 
 - Added experimental capabiltiy to regrid from constituents in mass mixing or emissions units from one set of hybrid sigma levels to model levels in ExtData2G

@@ -229,7 +229,7 @@ contains
     _UNUSED_DUMMY(export_state)
     _UNUSED_DUMMY(clock)
 
-    cap => get_CapGridComp_from_gc(gc)
+    cap => get_CapGridComp_from_gc(gc, _RC)
     call MAPL_InternalStateRetrieve(gc, maplobj, _RC)
 
     t_p => get_global_time_profiler()
@@ -768,7 +768,7 @@ contains
     _UNUSED_DUMMY(export_state)
     _UNUSED_DUMMY(clock)
 
-    cap => get_CapGridComp_from_gc(gc)
+    cap => get_CapGridComp_from_gc(gc, _RC)
     call MAPL_GetObjectFromGC(gc, maplobj, _RC)
 
     t_p => get_global_time_profiler()
@@ -824,7 +824,7 @@ contains
     integer :: status, phase
     type(MAPL_CapGridComp), pointer :: cap
 
-    cap => get_CapGridComp_from_gc(gc)
+    cap => get_CapGridComp_from_gc(gc, _RC)
     call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_INITIALIZE, userRoutine = initialize_gc, _RC)
 
     do phase = 1, cap%n_run_phases
