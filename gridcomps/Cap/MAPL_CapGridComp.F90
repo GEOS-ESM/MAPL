@@ -956,7 +956,7 @@ contains
     step_counter = this%step_counter
   end function get_step_counter
 
-  function get_CapGridComp_from_gc(gc) result(cap)
+  function get_CapGridComp_from_gc(gc, rc) result(cap)
     type(ESMF_GridComp), intent(inout) :: gc
     integer, optional, intent(out) :: rc
     type(MAPL_CapGridComp), pointer :: cap
