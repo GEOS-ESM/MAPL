@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Added 'target' attributes to dummy argument object that is pointed to by a pointer in the procedure. 
-- Allocate integer array of size 1 in statements with usingthe 'transfer' function to hold the bit pattern of the source object (in OpenMP_Support.F90)
+- Fixed problem related to stale pointers to temp copies of dummy arguments in MAPL_Cap.F90.  Fix is to add TARGET attributein select locations.
+- Fix for case where 2nd argument to `transfer()` was not allocated in the OpenMP support layer.  Was not detected by other compilers.  The fix is to use a literal integer array instead.
 
 ### Added
 
