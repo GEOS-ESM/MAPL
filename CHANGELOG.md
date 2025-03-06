@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed problem related to stale pointers to temp copies of dummy arguments in MAPL_Cap.F90.  Fix is to add TARGET attributein select locations.
+- Fix for case where 2nd argument to `transfer()` was not allocated in the OpenMP support layer.  Was not detected by other compilers.  The fix is to use a literal integer array instead.
+
 ### Added
 
 - Added experimental capabiltiy to regrid from constituents in mass mixing or emissions units from one set of hybrid sigma levels to model levels in ExtData2G
