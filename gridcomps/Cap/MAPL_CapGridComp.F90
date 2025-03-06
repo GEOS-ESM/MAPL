@@ -151,6 +151,7 @@ contains
     call MAPL_InternalStateCreate(cap%gc, meta, _RC)
     call MAPL_Set(meta, CF=cap%config, _RC)
 
+
     call MAPL_Set(meta, name=cap_name, component=stub_component, _RC)
 
     cap_wrapper%ptr => cap
@@ -957,11 +958,17 @@ contains
 
   function get_CapGridComp_from_gc(gc) result(cap)
     type(ESMF_GridComp), intent(inout) :: gc
+    integer, optional, intent(out) :: rc
     type(MAPL_CapGridComp), pointer :: cap
+
     type(MAPL_CapGridComp_Wrapper) :: cap_wrapper
-    integer :: rc
-    call ESMF_UserCompGetInternalState(gc, internal_cap_name, cap_wrapper, rc)
+    integer :: status
+
+    call ESMF_UserCompGetInternalState(gc, internal_cap_name, cap_wrapper, status)
+    _VERIFY(status)
+
     cap => cap_wrapper%ptr
+    _RETURN(_SUCCESS)
   end function get_CapGridComp_from_gc
 
 
@@ -1024,7 +1031,7 @@ contains
     type (MAPL_MetaComp), pointer :: MAPLOBJ
     procedure(), pointer :: root_set_services
 
-    cap => get_CapGridComp_from_gc(gc)
+    cap => get_CapGridComp_from_gc(gc, _RC)
     call MAPL_GetObjectFromGC(gc, maplobj, _RC)
 
     phase_ = 1
