@@ -913,12 +913,10 @@ CONTAINS
         _RETURN(_SUCCESS)
      end if
 
-     if (item%allow_vertical_regrid) then
-        if (item%vcoord%positive /= item%importVDir) then
-           call MAPL_ExtDataFlipVertical(item,bracket_side,_RC)
-        end if
-        _RETURN(_SUCCESS)
+     if (item%vcoord%positive /= item%importVDir) then
+        call MAPL_ExtDataFlipVertical(item,bracket_side,_RC)
      end if
+     _RETURN(_SUCCESS)
   end subroutine MAPL_ExtDataFlipBracketSide
 
   subroutine MAPL_ExtDataVerticalInterpolate(MAPLExtState,item,import,rc)
