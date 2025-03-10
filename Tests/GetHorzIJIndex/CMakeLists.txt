@@ -10,6 +10,9 @@ ecbuild_add_executable (
   SOURCES ${SRCS} )
 target_link_libraries(GetHorzIJIndexDriver.x  PRIVATE MAPL FARGPARSE::fargparse ESMF::ESMF  OpenMP::OpenMP_Fortran)
 
+# GetHorzIJIndexDriver.x is needed for 'make tests'
+add_dependencies(build-tests GetHorzIJIndexDriver.x)
+
 # Detect if we are using Open MPI and add oversubscribe
 string(REPLACE " " ";" MPI_Fortran_LIBRARY_VERSION_LIST ${MPI_Fortran_LIBRARY_VERSION_STRING})
 list(GET MPI_Fortran_LIBRARY_VERSION_LIST 0 MPI_Fortran_LIBRARY_VERSION_FIRSTWORD)
@@ -17,7 +20,7 @@ if(MPI_Fortran_LIBRARY_VERSION_FIRSTWORD MATCHES "Open")
   list(APPEND MPIEXEC_PREFLAGS "-oversubscribe")
 endif()
 
-set (TEST_CASES 
+set (TEST_CASES
   NO_OMP
   OMP_1_thread
   OMP_4_thread
