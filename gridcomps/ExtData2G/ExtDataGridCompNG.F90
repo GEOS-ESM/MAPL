@@ -993,8 +993,10 @@ CONTAINS
        integer, optional, intent(out) :: rc
        integer :: status
        character(len=ESMF_MAXSTR) :: temp_char
+       type(ESMF_Info) :: infoh
 
-       call ESMF_AttributeGet(field,name='UNITS',value=temp_char, _RC)
+       call ESMF_InfoGetFromHost(field,infoh,_RC)
+       call ESMF_InfoGet(infoh,key='UNITS',value=temp_char,_RC)
        field_units = temp_char
     end function get_field_units
 
