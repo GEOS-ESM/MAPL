@@ -1,4 +1,8 @@
 #include "MAPL_Generic.h"
+#if defined(_SET_OPTIONAL)
+#  undef _SET_OPTIONAL
+#endif
+#define _SET_OPTIONAL(attr) if (present(attr)) var_spec%attr = attr
 
 module mapl3g_VariableSpec
    use mapl3g_GeomAspect
@@ -33,6 +37,7 @@ module mapl3g_VariableSpec
 
    public :: VariableSpec
    public :: make_VariableSpec
+   public :: make_AspectMap
 
    ! This type provides components that might be needed for _any_
    ! state item.  This is largely to support legacy interfaces, but it
@@ -58,9 +63,16 @@ module mapl3g_VariableSpec
       procedure :: make_dependencies
    end type VariableSpec
 
+   interface make_VariableSpec
+      module procedure :: make_VariableSpecWithParameters
+      module procedure :: make_VariableSpecWithAspects
+   end interface make_VariableSpec
+
+   generic :: make_AspectMap => make_aspect_map
+
 contains
 
-   function make_VariableSpec( &
+   function make_VariableSpecWithParameters( &
         state_intent, short_name, unusable, &
         standard_name, &
         geom, &
@@ -112,11 +124,6 @@ contains
       var_spec%state_intent = state_intent
       var_spec%short_name = short_name
 
-#if defined(_SET_OPTIONAL)
-#  undef _SET_OPTIONAL
-#endif
-#define _SET_OPTIONAL(attr) if (present(attr)) var_spec%attr = attr
-
       call var_spec%aspects%insert(UNITS_ASPECT_ID, UnitsAspect(units))
 
       call var_spec%aspects%insert(VERTICAL_GRID_ASPECT_ID, &
@@ -141,8 +148,7 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end function make_VariableSpec
-
+   end function make_VariableSpecWithParameters
 
    function make_virtualPt(this) result(v_pt)
       type(VirtualConnectionPt) :: v_pt
@@ -223,5 +229,90 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_regrid_method_from_field_dict_
+
+   function make_aspect_map(standard_name, geom, units, typekind, vertical_dim_spec, &
+         & ungridded_dims, attributes, regrid_param, horizontal_dims_spec, &
+         & accumulation_type, timeStep, offset) result(aspects)
+      type(AspectMap) :: aspects
+      character(*), optional, intent(in) :: standard_name
+      type(ESMF_Geom), optional, intent(in) :: geom
+      character(*), optional, intent(in) :: units
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
+      type(VerticalDimSpec), optional, intent(in) :: vertical_dim_spec
+      type(UngriddedDims), optional, intent(in) :: ungridded_dims
+      type(EsmfRegridderParam), optional, intent(in) :: regrid_param
+      type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
+      character(len=*), optional, intent(in) :: accumulation_type
+      type(ESMF_TimeInterval), optional, intent(in) :: timeStep
+      type(ESMF_TimeInterval), optional, intent(in) :: offset
+      type(EsmfRegridderParam) :: regrid_param_
+
+      call aspects%insert(UNITS_ASPECT_ID, UnitsAspect(units))
+      call aspects%insert(VERTICAL_GRID_ASPECT_ID, &
+           VerticalGridAspect(vertical_dim_spec=vertical_dim_spec, geom=geom))
+      regrid_param_ = get_regrid_param(regrid_param, standard_name)
+      call aspects%insert(GEOM_ASPECT_ID, GeomAspect(geom, regrid_param_, horizontal_dims_spec))
+      call aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, UngriddedDimsAspect(ungridded_dims))
+      call aspects%insert(ATTRIBUTES_ASPECT_ID, AttributesAspect(attributes))
+      call aspects%insert(TYPEKIND_ASPECT_ID, TypekindAspect(typekind))
+      call aspects%insert(FREQUENCY_ASPECT_ID, FrequencyAspect(timeStep=timeStep, &
+         & offset=offset, accumulation_type=accumulation_type))
+
+   end function make_aspect_map
+
+   subroutine set_common_VariableSpec(var_spec, state_intent, short_name, unusable, &
+         & standard_name, itemtype, service_items, default_value, bracket_size, &
+         & dependencies, rc)
+      class(VariableSpec), intent(inout) :: var_spec
+      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
+      character(*), intent(in) :: short_name
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(*), optional, intent(in) :: standard_name
+      type(ESMF_StateItem_Flag), optional, intent(in) :: itemtype
+      type(StringVector), optional :: service_items
+      real, optional, intent(in) :: default_value
+      integer, optional, intent(in) :: bracket_size
+      type(StringVector), optional, intent(in) :: dependencies
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      var_spec%state_intent = state_intent
+      var_spec%short_name = short_name
+      _SET_OPTIONAL(standard_name)
+      _SET_OPTIONAL(itemtype)
+      _SET_OPTIONAL(service_items)
+      _SET_OPTIONAL(default_value)
+      _SET_OPTIONAL(bracket_size)
+      _SET_OPTIONAL(dependencies)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+
+   end subroutine set_common_VariableSpec
+
+   function make_VariableSpecWithAspects(state_intent, short_name, aspects, &
+         & unusable, standard_name, itemtype, service_items, default_value, &
+         & bracket_size, dependencies, rc) result(var_spec)
+      type(VariableSpec) :: var_spec
+      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
+      character(*), intent(in) :: short_name
+      class(AspectMap), intent(in) :: aspects
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(*), optional, intent(in) :: standard_name
+      type(ESMF_StateItem_Flag), optional, intent(in) :: itemtype
+      type(StringVector), optional :: service_items
+      real, optional, intent(in) :: default_value
+      integer, optional, intent(in) :: bracket_size
+      type(StringVector), optional, intent(in) :: dependencies
+      integer, optional, intent(out) :: rc
+      integer :: status
+      
+      call set_common_VariableSpec(var_spec, state_intent, short_name, standard_name, &
+         & itemtype, service_items, default_value, bracket_size, dependencies, _RC)
+      var_spec%aspects = aspects
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end function make_VariableSpecWithAspects
 
 end module mapl3g_VariableSpec
