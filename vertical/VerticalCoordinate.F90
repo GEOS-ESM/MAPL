@@ -4,7 +4,7 @@ module VerticalCoordinateMod
    use MAPL_ExceptionHandling
    use MAPL_FileMetadataUtilsMod
    use MAPL_CommsMod
-   use gFTL_StringVector
+   use gFTL2_StringVector
    use udunits2f, UDUNITS_are_convertible => are_convertible, &
       initialize_udunits => initialize, finalize_udunits => finalize
    use iso_fortran_env, only: REAL64, REAL32, INT64, INT32
@@ -75,7 +75,7 @@ contains
       iter = dimensions%begin()
       dimensions => var%get_dimensions()
       do while(iter /= dimensions%end())
-         dim_name => iter%get()
+         dim_name => iter%of()
          if (metadata%has_variable(dim_name)) then
             dim_var => metadata%get_variable(dim_name)
             is_vertical_coord_var = detect_cf_vertical_coord_var(dim_var, _RC)
