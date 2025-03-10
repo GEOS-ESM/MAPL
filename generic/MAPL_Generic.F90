@@ -1883,8 +1883,8 @@ contains
             call state%t_profiler%stop(trim(sbrtn),_RC)
             call state%t_profiler%stop(_RC)
          end if
-         call t_p%stop(trim(state%compname),_RC)
       endif
+      call t_p%stop(trim(state%compname),_RC)
 
 
       _RETURN(ESMF_SUCCESS)
@@ -2420,8 +2420,6 @@ contains
       if (.not. MAPL_ProfIsDisabled()) then
          call report_generic_profile()
       end if
-
-      call t_p%stop(trim(state%compname),_RC)
 
       ! Clean-up
       !---------
