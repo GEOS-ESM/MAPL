@@ -7,6 +7,7 @@ module VerticalCoordinateMod
    use gFTL_StringVector
    use udunits2f, UDUNITS_are_convertible => are_convertible, &
       initialize_udunits => initialize, finalize_udunits => finalize
+   use iso_fortran_env, only: REAL64, REAL32, INT64, INT32
 
    implicit none
    private
@@ -67,7 +68,7 @@ contains
       character(len=:), allocatable :: lev_name, temp_units, formula_terms, standard_name, bounds_var, ak_name, bk_name, ps_name, source_file
       type(NETCDF4_FileFormatter) :: file_formatter
       real, allocatable :: temp_ak(:,:), temp_bk(:,:)
-   
+
       var => metadata%get_variable(var_name, _RC)
       dimensions => var%get_dimensions()
       lev_name = ''
@@ -80,7 +81,7 @@ contains
             is_vertical_coord_var = detect_cf_vertical_coord_var(dim_var, _RC)
             if (is_vertical_coord_var) then
                lev_name = dim_name
-               exit 
+               exit
             end if
          end if
          call iter%next()
@@ -88,7 +89,7 @@ contains
       ! if not blank, we found something that "looks" like a vertical coordinate according to cf, now lets fill it out
       if (lev_name /= '') then
          coord_var => metadata%get_coordinate_variable(lev_name, _RC)
-         vertical_coord%levels = get_coords(coord_var,_RC) 
+         vertical_coord%levels = get_coords(coord_var,_RC)
          vertical_coord%num_levels = size(vertical_coord%levels)
 
          if (coord_var%is_attribute_present("positive")) vertical_coord%positive = coord_var%get_attribute_string("positive")
@@ -102,7 +103,7 @@ contains
             if (vertical_coord%levels(1) > vertical_coord%levels(2)) vertical_coord%positive = "up" !bmaa
             _RETURN(_SUCCESS)
          end if
-         ! now test if this is a "fixed" height level, if has height units, then dimensioanl coordinate, but must have positive 
+         ! now test if this is a "fixed" height level, if has height units, then dimensioanl coordinate, but must have positive
          has_height_units = safe_are_convertible(temp_units, 'm', _RC)
          if (has_height_units) then
             _ASSERT(allocated(vertical_coord%positive),"non pressure veritcal dimensional coordinates must have positive attribute")
@@ -112,13 +113,13 @@ contains
          end if
          ! now test if this is a model pressure, the positive says is vertical and formula_terms says, this is a parametric quantity
          if (coord_var%is_attribute_present("positive") .and. coord_var%is_attribute_present("formula_terms")) then
-            standard_name = coord_var%get_attribute_string("standard_name") 
+            standard_name = coord_var%get_attribute_string("standard_name")
             formula_terms = coord_var%get_attribute_string("formula_terms")
             if (standard_name == "atmosphere_hybrid_sigma_pressure_coordinate") then
                ! do we have bounds, if so this is centers
                source_file = metadata%get_source_file()
                if (coord_var%is_attribute_present('bounds')) then
-                  bounds_var = coord_var%get_attribute_string("bounds") 
+                  bounds_var = coord_var%get_attribute_string("bounds")
                   var => metadata%get_variable(bounds_var, _RC)
                   formula_terms = var%get_attribute_string("formula_terms")
                   call parse_formula_terms(formula_terms, ps_name, ak_name, bk_name, _RC)
@@ -134,11 +135,11 @@ contains
                   call file_formatter%get_var(ak_name, temp_ak, _RC)
                   call file_formatter%get_var(bk_name, temp_bk, _RC)
                   do i=2,vertical_coord%num_levels+1
-                     vertical_coord%ak(i-1) = temp_ak(1,i-1) 
-                     vertical_coord%ak(i) = temp_ak(2,i-1) 
-                     vertical_coord%bk(i-1) = temp_bk(1,i-1) 
+                     vertical_coord%ak(i-1) = temp_ak(1,i-1)
+                     vertical_coord%ak(i) = temp_ak(2,i-1)
+                     vertical_coord%bk(i-1) = temp_bk(1,i-1)
                      vertical_coord%bk(i) = temp_bk(2,i-1)
-                  enddo   
+                  enddo
                else
                ! do we not have bounds, if so this is edge
                   vertical_coord%num_levels = vertical_coord%num_levels - 1
@@ -165,7 +166,7 @@ contains
          vertical_coord%vertical_type = no_coord
       end if
       _RETURN(_SUCCESS)
-      
+
     end function new_VerticalCoordinate
 
     ! this is what CF says makes a vertical coordinate
@@ -190,7 +191,7 @@ contains
        has_units = var%is_attribute_present("units", _RC)
        has_pressure_units = .false.
        if (has_units) then
-          units = var%get_attribute_string("units", _RC) 
+          units = var%get_attribute_string("units", _RC)
           has_pressure_units = safe_are_convertible(units, pressure_hpa, _RC)
        end if
        is_vertical_coord_var = has_pressure_units .or. has_positive
@@ -244,13 +245,13 @@ contains
        character(len=:), allocatable :: temp_string
        key_pos = index(string, key)
        key_len = len_trim(key)
-       temp_string = string(key_pos+key_len:) 
+       temp_string = string(key_pos+key_len:)
        temp_string = adjustl(trim(temp_string))
        space_pos = index(temp_string," ")
        if (space_pos > 0) then
-          string_value = temp_string(1:space_pos-1) 
+          string_value = temp_string(1:space_pos-1)
        else
-          string_value = temp_string 
+          string_value = temp_string
        end if
 
     end function find_term
@@ -266,7 +267,7 @@ contains
 
        unit1 = UDUnit(from)
        unit2 = UDUnit(to)
-    
+
        from_invalid = unit1%is_free()
        to_invalid = unit2%is_free()
 
@@ -294,4 +295,4 @@ contains
        _RETURN(_SUCCESS)
     end function
 
-end module VerticalCoordinateMod   
+end module VerticalCoordinateMod
