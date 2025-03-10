@@ -17,7 +17,11 @@ contains
    module recursive subroutine add_child_by_spec(this, child_name, child_spec, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: child_name
+#if defined(ESMF_HCONFIGSET_HAS_INTENT_INOUT)
+      type(ChildSpec), intent(inout) :: child_spec
+#else
       type(ChildSpec), intent(in) :: child_spec
+#endif
       integer, optional, intent(out) :: rc
 
       integer :: status
