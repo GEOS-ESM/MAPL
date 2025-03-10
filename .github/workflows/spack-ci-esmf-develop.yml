@@ -91,6 +91,5 @@ jobs:
           cmake -B build -S . -DCMAKE_INSTALL_PREFIX=$PWD/install -DCMAKE_BUILD_TYPE=Debug -DUSE_F2PY=OFF -DCMAKE_Fortran_COMPILER=${FC} -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX}
           cmake --build build -j 4
           cmake --install build
-          cd build
-          make -j4 tests
+          cmake --build build --target tests -j 4
 
