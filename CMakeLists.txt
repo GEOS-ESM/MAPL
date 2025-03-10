@@ -153,6 +153,7 @@ endif ()
 # set a variable
 if(ESMF_VERSION VERSION_GREATER_EQUAL 8.9.0)
   set (ESMF_HCONFIGSET_HAS_INTENT_INOUT TRUE)
+  message(STATUS "ESMF_HConfig has intent(inout) in ESMF 8.9.0 or later")
 else()
   set (ESMF_HCONFIGSET_HAS_INTENT_INOUT FALSE)
 endif()
