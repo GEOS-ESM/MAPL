@@ -17,6 +17,9 @@ if (BUILD_WITH_FARGPARSE)
   target_compile_definitions (ExtDataDriver.x PRIVATE $<$<BOOL:${USE_EXTDATA2G}>:BUILD_WITH_EXTDATA2G>)
   add_subdirectory(ExtData_Testing_Framework EXCLUDE_FROM_ALL)
 
+  # ExtDataDriver.x is needed for 'make tests'
+  add_dependencies(build-tests ExtDataDriver.x)
+
   ecbuild_add_executable (TARGET pfio_MAPL_demo.x SOURCES pfio_MAPL_demo.F90)
   target_link_libraries (pfio_MAPL_demo.x PRIVATE MAPL FARGPARSE::fargparse ESMF::ESMF OpenMP::OpenMP_Fortran)
   set_target_properties(pfio_MAPL_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})

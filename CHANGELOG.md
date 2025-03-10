@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed nesting of internal timers (issue #3412)
+- Fixed issue of `make tests` not building all needed executables
 
 ### Removed
 
