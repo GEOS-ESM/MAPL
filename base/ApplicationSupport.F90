@@ -6,6 +6,7 @@ module MAPL_ApplicationSupport
  use MAPL_KeywordEnforcerMod
  use pflogger, only: logging
  use pflogger, only: Logger
+ use udunits2f, initialize_udunits => initialize, finalize_udunits => finalize
  use MAPL_Profiler, initialize_profiler =>initialize, finalize_profiler =>finalize
 
  implicit none
@@ -45,6 +46,7 @@ module MAPL_ApplicationSupport
 #ifdef BUILD_WITH_PFLOGGER
       call initialize_pflogger(comm=comm_world,logging_config=logging_configuration_file, _RC)
 #endif
+      call initialize_udunits(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine MAPL_Initialize
@@ -58,6 +60,7 @@ module MAPL_ApplicationSupport
 
       _UNUSED_DUMMY(unusable)
 
+      call finalize_udunits()
       if (present(comm)) then
          comm_world = comm
       else

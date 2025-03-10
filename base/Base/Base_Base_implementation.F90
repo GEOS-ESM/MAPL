@@ -1277,6 +1277,7 @@ contains
     integer                 :: lbnds(ESMF_MAXDIM), ubnds(ESMF_MAXDIM)
     character(len=ESMF_MAXSTR) :: newName_
     character(len=ESMF_MAXSTR), parameter :: Iam='MAPL_FieldCreateNewgrid'
+    real, pointer :: ptr1d(:)
 
     call ESMF_FieldGet(FIELD, grid=fgrid, _RC)
 
@@ -1362,6 +1363,9 @@ contains
     ! otherwise we will overwrite it
     call ESMF_InfoGetFromHost(F,infoh,_RC)
     call ESMF_InfoSet(infoh,'DIMS',DIMS,_RC)
+
+    call assign_fptr(f, ptr1d, _RC)
+    ptr1d = 0.0    
 
     _RETURN(ESMF_SUCCESS)
   end function MAPL_FieldCreateNewgrid
