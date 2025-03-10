@@ -692,9 +692,6 @@ CONTAINS
 
       if (do_pointer_update(i)) then
 
-         call extdata_lgr%debug('ExtData Run_: INTERP_LOOP: interpolating between bracket times, variable: %a, file: %a', &
-              & trim(current_base_name), trim(item%file_template))
-
          call MAPL_ExtDataVerticalInterpolate(self,item,import,_RC)
 
       endif
@@ -868,7 +865,8 @@ CONTAINS
         end if
 
         item%vcoord = verticalCoordinate(metadata, item%var, _RC)
-        if (item%vcoord%vertical_type /= NO_COORD .and. item%vcoord%vertical_type /= SIMPLE_COORD ) item%allow_vertical_regrid = .true.
+        if (item%vcoord%vertical_type /= NO_COORD .and. item%vcoord%vertical_type /= SIMPLE_COORD .and. &
+            (item%disable_vertical_regrid .eqv. .false.)) item%allow_vertical_regrid = .true.
 
         _RETURN(ESMF_SUCCESS)
 
@@ -915,12 +913,10 @@ CONTAINS
         _RETURN(_SUCCESS)
      end if
 
-     if (item%allow_vertical_regrid) then
-        if (item%vcoord%positive /= item%importVDir) then
-           call MAPL_ExtDataFlipVertical(item,bracket_side,_RC)
-        end if
-        _RETURN(_SUCCESS)
+     if (item%vcoord%positive /= item%importVDir) then
+        call MAPL_ExtDataFlipVertical(item,bracket_side,_RC)
      end if
+     _RETURN(_SUCCESS)
   end subroutine MAPL_ExtDataFlipBracketSide
 
   subroutine MAPL_ExtDataVerticalInterpolate(MAPLExtState,item,import,rc)
@@ -950,6 +946,7 @@ CONTAINS
 
      if (item%allow_vertical_regrid .and. (item%vcoord%vertical_type == model_pressure)) then
 
+        call extdata_lgr%info('ExtData vertical conservative regridding of '//trim(item%name))
         call ESMF_StateGet(import, "PLE", dst_ple, _RC)
         call ESMF_FieldGet(dst_ple,farrayPtr=dst_ple_ptr,_RC)
         src_ps_name = item%vcoord%surf_name//"_"//trim(item%vcomp1)
@@ -979,6 +976,7 @@ CONTAINS
            _FAIL(units_in//" not supported for vertical regridding")
         end select
      else if (item%vcoord%vertical_type == simple_coord .and. item%do_fill) then
+        call extdata_lgr%info('ExtData filling destination with available layers of source for '//trim(item%name))
         call ESMF_FieldBundleGet(item%t_interp_bundle, trim(item%vcomp1), field=src_field, _RC)
         call ESMF_StateGet(MAPLExtState%ExtDataState,trim(item%vcomp1),dst_field,_RC)
         call MAPL_ExtDataFillField(item, dst_field, src_field, _RC) 
