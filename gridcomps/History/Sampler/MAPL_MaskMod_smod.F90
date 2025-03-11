@@ -1,14 +1,14 @@
 #include "MAPL_ErrLog.h"
 #include "unused_dummy.H"
 
-submodule (MaskSamplerGeosatMod)  MaskSamplerGeosat_implement
+submodule (MaskSamplerMod)  MaskSampler_implement
   implicit none
 contains
 
-module function MaskSamplerGeosat_from_config(config,string,clock,GENSTATE,rc) result(mask)
+module function MaskSampler_from_config(config,string,clock,GENSTATE,rc) result(mask)
   use BinIOMod
   use pflogger, only         :  Logger, logging
-  type(MaskSamplerGeosat) :: mask
+  type(MaskSampler) :: mask
   type(ESMF_Config), intent(inout)        :: config
   character(len=*),  intent(in)           :: string
   type(ESMF_Clock),  intent(in)           :: clock
@@ -37,8 +37,7 @@ module function MaskSamplerGeosat_from_config(config,string,clock,GENSTATE,rc) r
   if (present(GENSTATE)) mask%GENSTATE => GENSTATE
 
   call ESMF_ClockGet ( clock, CurrTime=currTime, _RC )
-  if (mapl_am_I_root()) write(6,*) 'string', string
-
+  if (mapl_am_I_root()) write(6,*) 'sampler type: ', string
 
   call ESMF_ConfigGetAttribute(config, value=mask%grid_file_name,label=trim(string)//'obs_files:',    default="",  _RC)
   call ESMF_ConfigGetAttribute(config, value=mask%index_name_x,  label=trim(string)//'index_name_x:', default="x", _RC)
@@ -48,7 +47,6 @@ module function MaskSamplerGeosat_from_config(config,string,clock,GENSTATE,rc) r
   call ESMF_ConfigGetAttribute(config, value=mask%var_name_proj, label=trim(string)//'var_name_proj:',default="",  _RC)
   call ESMF_ConfigGetAttribute(config, value=mask%att_name_proj, label=trim(string)//'att_name_proj:',default="",  _RC)
   call ESMF_ConfigGetAttribute(config, value=mask%thin_factor,   label=trim(string)//'thin_factor:',  default=-1,  _RC)
-
 
   if (mapl_am_I_root()) write(6,*) 'thin_factor:', mask%thin_factor
   call ESMF_ConfigGetAttribute(config, value=STR1, label=trim(string)//'obs_file_begin:', default="", _RC)
@@ -86,7 +84,6 @@ module function MaskSamplerGeosat_from_config(config,string,clock,GENSTATE,rc) r
   _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
   if (mapl_am_I_root()) write(6,105) 'obs_file_interval:', trim(STR1)
 
-
   i= index( trim(STR1), ' ' )
   if (i>0) then
      symd=STR1(1:i-1)
@@ -98,23 +95,27 @@ module function MaskSamplerGeosat_from_config(config,string,clock,GENSTATE,rc) r
   call convert_twostring_2_esmfinterval (symd, shms,  mask%obsfile_interval, _RC)
 
   mask%is_valid = .true.
+  mask%use_pfio = .false.   ! activate in set_param
 
   _RETURN(_SUCCESS)
 
 105 format (1x,a,2x,a)
 106 format (1x,a,2x,i8)
-end function MaskSamplerGeosat_from_config
+end function MaskSampler_from_config
 
 
    !
    !-- integrate both initialize and reinitialize
    !
-module subroutine initialize_(this,items,bundle,timeInfo,vdata,reinitialize,rc)
-   class(MaskSamplerGeosat), intent(inout) :: this
+module subroutine initialize(this,duration,frequency,items,bundle,timeInfo,vdata,global_attributes,reinitialize,rc)
+   class(MaskSampler), intent(inout) :: this
+   integer, intent(in) :: duration
+   integer, intent(in) :: frequency
    type(GriddedIOitemVector), optional, intent(inout) :: items
    type(ESMF_FieldBundle), optional, intent(inout)   :: bundle
    type(TimeData), optional, intent(inout)           :: timeInfo
    type(VerticalData), optional, intent(inout)       :: vdata
+   type(StringStringMap), target, intent(in), optional :: global_attributes
    logical, optional, intent(in)           :: reinitialize
    integer, optional, intent(out)          :: rc
 
@@ -124,38 +125,251 @@ module subroutine initialize_(this,items,bundle,timeInfo,vdata,reinitialize,rc)
    type(GriddedIOitemVectorIterator) :: iter
    type(GriddedIOitem), pointer :: item
    type(ESMF_Time)            :: currTime
-   integer :: k
+   integer :: n1, n2, k, j
+   integer :: ic_2d, ic_3d, rank
+   type(ESMF_Field) :: src_field
+
 
    if (.not. present(reinitialize)) then
       if(present(bundle))   this%bundle=bundle
       if(present(items))    this%items=items
-      if(present(timeInfo)) this%time_info=timeInfo
-      if (present(vdata)) then
+      if(present(timeInfo)) this%timeinfo=timeInfo
+      if(present(vdata)) then
          this%vdata=vdata
       else
          this%vdata=VerticalData(_RC)
       end if
    end if
+   _ASSERT(present(global_attributes), 'PFIO needs global_attributes')
+
 
 !   this%do_vertical_regrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
 !   if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
 
-   this%ofile = ''
    this%obs_written = 0
+   call this%create_Geosat_grid_find_mask(_RC)
+   call this%create_metadata(global_attributes,_RC)
+   n1 = MAPL_nsecf( duration )
+   n2 = MAPL_nsecf( frequency )
+   _ASSERT (n2>0, "list%frequency ==0, fail!")
+   this%tmax =  n1/n2
 
-   call this%create_grid(_RC)
-   call this%add_metadata(_RC)
+   if (this%use_pfio) then
+      ic_2d=0
+      ic_3d=0
+      iter = this%items%begin()
+      do while (iter /= this%items%end())
+         item => iter%get()
+         if (item%itemType == ItemTypeScalar) then
+            !! if (mapl_am_i_root()) write(6,*) 'mask smod init: item%xname:', trim(item%xname)
+            call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
+            call ESMF_FieldGet(src_field,rank=rank,_RC)
+            if (rank==2) then
+               ic_2d = ic_2d + 1
+            else if (rank==3) then
+               ic_3d = ic_3d + 1
+            end if
+         end if
+         call iter%next()
+      end do
+      allocate ( this%var2d(ic_2d), _STAT )
+      allocate ( this%var3d(ic_3d), _STAT )
+
+      do j=1, ic_2d
+         if (mapl_am_i_root()) then
+            allocate ( this%var2d(j)%array_x(this%npt_mask_tot), _STAT )
+         else
+            allocate ( this%var2d(j)%array_x(0), _STAT )
+         end if
+      end do
+      do j=1, ic_3d
+         if (mapl_am_i_root()) then
+            allocate ( this%var3d(j)%array_xz(this%npt_mask_tot, this%vdata%lm), _STAT )
+         else
+            allocate ( this%var3d(j)%array_xz(0,0), _STAT )
+         end if
+      end do
+   end if
 
    _RETURN(_SUCCESS)
 
-end subroutine initialize_
+end subroutine initialize
+
+
+module subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,&
+     nbits_to_keep,regrid_method,itemOrder,write_collection_id,regrid_hints,oClients,rc)
+  class (MaskSampler), intent(inout) :: this
+  integer, optional, intent(in) :: deflation
+  integer, optional, intent(in) :: quantize_algorithm
+  integer, optional, intent(in) :: quantize_level
+  integer, optional, intent(in) :: chunking(:)
+  integer, optional, intent(in) :: nbits_to_keep
+  integer, optional, intent(in) :: regrid_method
+  logical, optional, intent(in) :: itemOrder
+  integer, optional, intent(in) :: write_collection_id
+  integer, optional, intent(in) :: regrid_hints
+  type (ClientManager), optional, intent(in) :: oClients
+  integer, optional, intent(out) :: rc
+  integer :: status
+
+  if (present(write_collection_id)) this%write_collection_id=write_collection_id
+  if (present(itemOrder)) this%itemOrderAlphabetical = itemOrder
+  if (present(oClients)) then
+     this%use_pfio = .true.
+     if (mapl_am_i_root()) then
+        write(6, '(2x,a)') 'Mask sampler: use_pfio = .true.;  output to oserver'
+     end if
+  end if
+
+!!  add later on
+!!        if (present(regrid_method)) this%regrid_method=regrid_method
+!!        if (present(nbits_to_keep)) this%nbits_to_keep=nbits_to_keep
+!!        if (present(deflation)) this%deflateLevel = deflation
+!!        if (present(quantize_algorithm)) this%quantizeAlgorithm = quantize_algorithm
+!!        if (present(quantize_level)) this%quantizeLevel = quantize_level
+!!        if (present(chunking)) then
+!!           allocate(this%chunking,source=chunking,stat=status)
+!!           _VERIFY(status)
+!!        end if
+!!        if (present(regrid_hints)) this%regrid_hints = regrid_hints
+
+  _RETURN(ESMF_SUCCESS)
+
+end subroutine set_param
+
+
+module subroutine  create_metadata(this,global_attributes,rc)
+    class(MaskSampler), intent(inout) :: this
+    type(StringStringMap), target, intent(in) :: global_attributes
+    integer, optional, intent(out)          :: rc
+
+    type(variable)   :: v
+    type(ESMF_Field) :: field
+    integer          :: fieldCount
+    integer          :: field_rank
+    integer          :: nstation
+    logical          :: is_present
+    integer          :: ub(ESMF_MAXDIM)
+    integer          :: lb(ESMF_MAXDIM)
+    logical          :: do_vertical_regrid
+    integer          :: status
+    integer          :: i
+
+    character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
+    character(len=ESMF_MAXSTR) :: var_name, long_name, units, vdims
+    character(len=40) :: datetime_units
+
+    type(StringStringMapIterator) :: s_iter
+    type(stringVector) :: order
+    integer :: metadataVarsSize
+    character(len=:), pointer :: attr_name, attr_val
+
+    !__ 1. metadata add_dimension,
+    !     add_variable for time, mask_points, latlon,
+    !
+
+    if ( allocated (this%metadata) ) deallocate(this%metadata)
+    allocate(this%metadata)
+
+    call this%metadata%add_dimension('mask_index', this%npt_mask_tot)
+    !- add time dimension to metadata
+    call this%timeinfo%add_time_to_metadata(this%metadata,_RC)
+
+
+    v = Variable(type=pFIO_REAL32, dimensions='mask_index')
+    call v%add_attribute('long_name','longitude')
+    call v%add_attribute('unit','degree_east')
+    call this%metadata%add_variable('longitude',v)
+
+    v = Variable(type=pFIO_REAL32, dimensions='mask_index')
+    call v%add_attribute('long_name','latitude')
+    call v%add_attribute('unit','degree_north')
+    call this%metadata%add_variable('latitude',v)
+
+
+    call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC) ! specify lev in fmd
+
+    order = this%metadata%get_order(rc=status)
+    _VERIFY(status)
+    metadataVarsSize = order%size()
+
+
+    !__ 2. filemetadata: extract field from bundle, add_variable to metadata
+    !
+    call ESMF_FieldBundleGet(this%bundle, fieldCount=fieldCount, _RC)
+    allocate (fieldNameList(fieldCount), _STAT)
+    call ESMF_FieldBundleGet(this%bundle, fieldNameList=fieldNameList, _RC)
+    do i=1, fieldCount
+       var_name=trim(fieldNameList(i))
+       call ESMF_FieldBundleGet(this%bundle,var_name,field=field,_RC)
+       call ESMF_FieldGet(field,rank=field_rank,_RC)
+       call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=is_present,_RC)
+       if ( is_present ) then
+          call ESMF_AttributeGet(field, NAME="LONG_NAME",VALUE=long_name, _RC)
+       else
+          long_name = var_name
+       endif
+       call ESMF_AttributeGet(field,name="UNITS",isPresent=is_present,_RC)
+       if ( is_present ) then
+          call ESMF_AttributeGet(field, NAME="UNITS",VALUE=units, _RC)
+       else
+          units = 'unknown'
+       endif
+
+       if (field_rank==2) then
+          vdims = "mask_index"
+          v = variable(type=pfio_REAL32,dimensions=trim(vdims))
+       else if (field_rank==3) then
+          vdims = "mask_index,lev"
+          v = variable(type=pfio_REAL32,dimensions=trim(vdims))
+       end if
+
+       call v%add_attribute('units',         trim(units))
+       call v%add_attribute('long_name',     trim(long_name))
+       call v%add_attribute('missing_value', MAPL_UNDEF)
+       call v%add_attribute('_FillValue',    MAPL_UNDEF)
+       call v%add_attribute('valid_range',   (/-MAPL_UNDEF,MAPL_UNDEF/))
+       call this%metadata%add_variable(trim(var_name),v,_RC)
+    end do
+    deallocate (fieldNameList, _STAT)
+
+
+    if (this%itemOrderAlphabetical) then
+       call this%alphabatize_variables(metadataVarsSize,rc=status)
+       _VERIFY(status)
+    end if
+
+    s_iter = global_attributes%begin()
+    do while(s_iter /= global_attributes%end())
+       attr_name => s_iter%key()
+       attr_val => s_iter%value()
+       call this%metadata%add_attribute(attr_name,attr_val,_RC)
+       call s_iter%next()
+    enddo
+
+    ! To be added when values are available
+    !v = Variable(type=pFIO_INT32, dimensions='mask_index')
+    !call v%add_attribute('long_name','The Cubed Sphere Global Face ID')
+    !call this%metadata%add_variable('mask_CS_Face_ID',v)
+    !
+    !v = Variable(type=pFIO_INT32, dimensions='mask_index')
+    !call v%add_attribute('long_name','The Cubed Sphere Global Index I')
+    !call this%metadata%add_variable('mask_CS_global_index_I',v)
+    !
+    !v = Variable(type=pFIO_INT32, dimensions='mask_index')
+    !call v%add_attribute('long_name','The Cubed Sphere Global Index J')
+    !call this%metadata%add_variable('mask_CS_global_index_J',v)
+
+
+    _RETURN(_SUCCESS)
+  end subroutine create_metadata
 
 
      module subroutine create_Geosat_grid_find_mask(this, rc)
        use pflogger, only: Logger, logging
        implicit none
 
-       class(MaskSamplerGeosat), intent(inout) :: this
+       class(MaskSampler), intent(inout) :: this
        integer, optional, intent(out)          :: rc
 
        type(Logger), pointer :: lgr
@@ -223,7 +437,7 @@ end subroutine initialize_
 
        real(ESMF_kind_R8), pointer :: lons_ptr(:,:), lats_ptr(:,:)
        integer :: nsend
-       integer, allocatable :: recvcounts_loc(:)
+       integer, allocatable :: recvcounts_loc(:), sendcounts_loc(:)
        integer, allocatable :: displs_loc(:)
 
        integer, allocatable :: sendcount(:), displs(:)
@@ -282,7 +496,7 @@ end subroutine initialize_
        ydim_red  = n2 / this%thin_factor
        _ASSERT ( xdim_red * ydim_red > M, 'mask reduced points after thin_factor is less than Nproc!')
 
-       ! get nx2
+       ! get nx2: local on each ip
        nx2=0
        k=0
        do i=1, xdim_red
@@ -342,6 +556,16 @@ end subroutine initialize_
             this%recvcounts, recvcounts_loc, displs_loc, MPI_INTEGER,&
             iroot, mpic, ierr )
        _VERIFY(ierr)
+       !!debug
+       !!write(6,*) 'ip, nx2, this%recvcounts, recvcounts_loc, displs_loc'
+       !!write(6,'(200i5)')  ip, nx2
+       !!write(6,'(200i5)')  this%recvcounts
+       !!write(6,'(200i5)')  recvcounts_loc
+       !!write(6,'(200i5)')  displs_loc
+       call MPI_Barrier(mpic,ierr)
+       _VERIFY(ierr)
+
+
        if (.not. mapl_am_i_root()) then
           this%recvcounts(:) = 0
        end if
@@ -354,14 +578,11 @@ end subroutine initialize_
        call MPI_gatherv ( lons_chunk, nsend, MPI_REAL8, &
             lons, this%recvcounts, this%displs, MPI_REAL8,&
             iroot, mpic, ierr )
-       _VERIFY(ierr) 
+       _VERIFY(ierr)
        call MPI_gatherv ( lats_chunk, nsend, MPI_REAL8, &
             lats, this%recvcounts, this%displs, MPI_REAL8,&
             iroot, mpic, ierr )
-       _VERIFY(ierr) 
-
-
-!!       if (mapl_am_I_root()) write(6,*) 'nobs tot :', nx
+       _VERIFY(ierr)
 
        deallocate (this%recvcounts, this%displs, _STAT)
        deallocate (recvcounts_loc, displs_loc, _STAT)
@@ -393,24 +614,17 @@ end subroutine initialize_
        ptA(:) = lons_chunk(:)
        call ESMF_FieldRedistStore (fieldA, fieldB, RH, _RC)
        call MPI_Barrier(mpic,ierr)
-       _VERIFY(ierr) 
+       _VERIFY(ierr)
        call ESMF_FieldRedist      (fieldA, fieldB, RH, _RC)
        lons_ds = ptB
 
        ptA(:) = lats_chunk(:)
        call MPI_Barrier(mpic,ierr)
-       _VERIFY(ierr) 
+       _VERIFY(ierr)
        call ESMF_FieldRedist      (fieldA, fieldB, RH, _RC)
        lats_ds = ptB
 
-!!       write(6,*)  'ip, size(lons_ds)=', mypet, size(lons_ds)
-
-       call ESMF_FieldDestroy(fieldA,nogarbage=.true.,_RC)
-       call ESMF_FieldDestroy(fieldB,nogarbage=.true.,_RC)
-       call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
-
        call MAPL_TimerOff(this%GENSTATE,"2_ABIgrid_LS")
-
 
        ! __ s3. find n.n. CS pts for LS_ds (halo)
        !
@@ -418,6 +632,10 @@ end subroutine initialize_
        obs_lons = lons_ds * MAPL_DEGREES_TO_RADIANS_R8
        obs_lats = lats_ds * MAPL_DEGREES_TO_RADIANS_R8
        nx = size ( lons_ds )
+
+       call ESMF_FieldDestroy(fieldA,nogarbage=.true.,_RC)
+       call ESMF_FieldDestroy(fieldB,nogarbage=.true.,_RC)
+       call ESMF_FieldRedistRelease(RH, noGarbage=.true., _RC)
        allocate ( II(nx), JJ(nx), _STAT )
        call MAPL_GetHorzIJIndex(nx,II,JJ,lonR8=obs_lons,latR8=obs_lats,grid=grid,_RC)
        call ESMF_VMBarrier (vm, _RC)
@@ -449,6 +667,13 @@ end subroutine initialize_
        call ESMF_FieldHaloStore (fieldI4, routehandle=RH_halo, _RC)
        call ESMF_FieldHalo (fieldI4, routehandle=RH_halo, _RC)
 
+!       !
+!       !-- print out eLB, eUB do they match 1:IM, JM?
+!       !
+!       write(6,*) 'IM,JM', IM,JM
+!       write(6,*) 'eLB(1), eUB(1)', eLB(1), eUB(1)
+!       write(6,*) 'eLB(2), eUB(2)', eLB(2), eUB(2)
+
        k=0
        do i=eLB(1), eUB(1)
           do j=eLB(2), eUB(2)
@@ -465,7 +690,7 @@ end subroutine initialize_
        allocate( mask(IM, JM), _STAT)
        mask(1:IM, 1:JM) = abs(farrayPtr(1:IM, 1:JM))
 
-       this%npt_mask = k
+       this%npt_mask = k    ! # of masked pts on CS grid
        allocate( this%index_mask(2,k), _STAT )
        arr(1)=k
        call ESMF_VMAllFullReduce(vm, sendData=arr, recvData=this%npt_mask_tot, &
@@ -482,7 +707,6 @@ end subroutine initialize_
           end do
        end do
        call MAPL_TimerOff(this%GENSTATE,"3_CS_halo")
-
 
        ! ----
        !  regridding is replaced by
@@ -507,7 +731,6 @@ end subroutine initialize_
           lats(i) = lats_ptr (ix, jx)
        end do
 
-
        iroot=0
        if (mapl_am_i_root()) then
           allocate (this%lons(this%npt_mask_tot), this%lats(this%npt_mask_tot), _STAT)
@@ -528,7 +751,9 @@ end subroutine initialize_
        call MPI_gatherv ( this%npt_mask, 1, MPI_INTEGER, &
             this%recvcounts, recvcounts_loc, displs_loc, MPI_INTEGER,&
             iroot, mpic, ierr )
-       _VERIFY(ierr) 
+       _VERIFY(ierr)
+       !
+       ! set nonroot to zero for s4.3
        if (.not. mapl_am_i_root()) then
           this%recvcounts(:) = 0
        end if
@@ -537,126 +762,76 @@ end subroutine initialize_
           this%displs(i) = this%displs(i-1) + this%recvcounts(i-1)
        end do
 
-
        ! __ s4.3  gatherv lons/lats
        !
        nsend=this%npt_mask
        call MPI_gatherv ( lons, nsend, MPI_REAL8, &
             this%lons, this%recvcounts, this%displs, MPI_REAL8,&
             iroot, mpic, ierr )
-       _VERIFY(ierr) 
+       _VERIFY(ierr)
        call MPI_gatherv ( lats, nsend, MPI_REAL8, &
             this%lats, this%recvcounts, this%displs, MPI_REAL8,&
             iroot, mpic, ierr )
-       _VERIFY(ierr) 
+       _VERIFY(ierr)
 
        call MAPL_TimerOff(this%GENSTATE,"4_gatherV")
+
+
+!         __ note: s4.4 can be used in the future for pfio
+!         __       for now keep it simple
+!       ! __ s4.4  find (i1,in) for masked array
+!       write(6,*) 'ip, this%npt_mask, this%recvcounts, this%displs'
+!       write(6,'(200i10)')  ip, this%npt_mask
+!       write(6,'(200i10)')  this%recvcounts
+!       write(6,'(200i10)')  this%displs
+!       call MPI_Barrier(mpic,ierr)
+!       _VERIFY(ierr)
+
+       if (mapl_am_i_root()) then
+          print*, 'this%npt_mask_tot=', this%npt_mask_tot
+          allocate (this%lons_deg(this%npt_mask_tot), this%lats_deg(this%npt_mask_tot), _STAT)
+          this%lons_deg = this%lons * MAPL_RADIANS_TO_DEGREES
+          this%lats_deg = this%lats * MAPL_RADIANS_TO_DEGREES
+       else
+          allocate (this%lons_deg(0), this%lats_deg(0), _STAT)
+       end if
+!!       write(6,'(2x,a,2x,i5,2x,1000f12.2)') 'ip, lons_deg', ip, this%lons_deg
+!!       write(6,'(2x,a,2x,i5,2x,1000f12.2)') 'ip, lats_deg', ip, this%lats_deg
+
+!
+!
+!       call MAPL_CommsBcast(vm, DATA=, N=1, ROOT=MAPL_Root, _RC)
+!       allocate (sendcounts_loc(petcount))
+!       do i=1, petcount
+!          displs_loc(i)=i-1
+!          sendcounts_loc(i)=1
+!       enddo
+!
+!       call  MPI_Scatterv( this%displs, sendcounts_loc, displs_loc, MPI_INTEGER, &
+!            this%i1, 1, MPI_INTEGER, iroot, mpic, ierr)
+!       if (this%npt_mask > 0) then
+!          this%i1 = this%i1 + 1       ! shift from 0 to 1
+!          this%in =  this%i1 + this%npt_mask - 1
+!       else
+!          this%i1 = 0
+!          this%in = 0
+!       end if
+!
+!       write(6,'(2x,a,2x,200i10)')  'ip, this%npt_mask, this%i1, in:', &
+!            ip, this%npt_mask, this%i1, this%in
+!       call MPI_Barrier(mpic,ierr)
+
 
        _RETURN(_SUCCESS)
      end subroutine create_Geosat_grid_find_mask
 
 
-module subroutine  add_metadata(this,rc)
-    class(MaskSamplerGeosat), intent(inout) :: this
-    integer, optional, intent(out)          :: rc
-
-    type(variable)   :: v
-    type(ESMF_Field) :: field
-    integer          :: fieldCount
-    integer          :: field_rank
-    integer          :: nstation
-    logical          :: is_present
-    integer          :: ub(ESMF_MAXDIM)
-    integer          :: lb(ESMF_MAXDIM)
-    logical          :: do_vertical_regrid
-    integer          :: status
-    integer          :: i
-
-    character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
-    character(len=ESMF_MAXSTR) :: var_name, long_name, units, vdims
-    character(len=40) :: datetime_units
-
-    type(ESMF_Info) :: infoh
-
-    !__ 1. metadata add_dimension,
-    !     add_variable for time, latlon, mask_points
-    !
-    call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC) ! specify lev in fmd
-    call this%time_info%add_time_to_metadata(this%metadata,_RC)
-    call this%metadata%add_dimension('mask_index', this%npt_mask_tot)
-
-    v = Variable(type=pFIO_REAL64, dimensions='mask_index')
-    call v%add_attribute('long_name','longitude')
-    call v%add_attribute('unit','degree_east')
-    call this%metadata%add_variable('longitude',v)
-
-    v = Variable(type=pFIO_REAL64, dimensions='mask_index')
-    call v%add_attribute('long_name','latitude')
-    call v%add_attribute('unit','degree_north')
-    call this%metadata%add_variable('latitude',v)
-
-    ! To be added when values are available
-    !v = Variable(type=pFIO_INT32, dimensions='mask_index')
-    !call v%add_attribute('long_name','The Cubed Sphere Global Face ID')
-    !call this%metadata%add_variable('mask_CS_Face_ID',v)
-    !
-    !v = Variable(type=pFIO_INT32, dimensions='mask_index')
-    !call v%add_attribute('long_name','The Cubed Sphere Global Index I')
-    !call this%metadata%add_variable('mask_CS_global_index_I',v)
-    !
-    !v = Variable(type=pFIO_INT32, dimensions='mask_index')
-    !call v%add_attribute('long_name','The Cubed Sphere Global Index J')
-    !call this%metadata%add_variable('mask_CS_global_index_J',v)
-
-
-    !__ 2. filemetadata: extract field from bundle, add_variable to metadata
-    !
-    call ESMF_FieldBundleGet(this%bundle, fieldCount=fieldCount, _RC)
-    allocate (fieldNameList(fieldCount), _STAT)
-    call ESMF_FieldBundleGet(this%bundle, fieldNameList=fieldNameList, _RC)
-    do i=1, fieldCount
-       var_name=trim(fieldNameList(i))
-       call ESMF_FieldBundleGet(this%bundle,var_name,field=field,_RC)
-       call ESMF_FieldGet(field,rank=field_rank,_RC)
-       call ESMF_InfoGetFromHost(field,infoh,_RC)
-       is_present = ESMF_InfoIsPresent(infoh,"LONG_NAME",_RC)
-       if ( is_present ) then
-          call ESMF_InfoGet(infoh,"LONG_NAME",long_name, _RC)
-       else
-          long_name = var_name
-       endif
-       is_present = ESMF_InfoIsPresent(infoh,"UNITS",_RC)
-       if ( is_present ) then
-          call ESMF_InfoGet(infoh,"UNITS",units, _RC)
-       else
-          units = 'unknown'
-       endif
-       if (field_rank==2) then
-          vdims = "mask_index,time"
-          v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
-       else if (field_rank==3) then
-          vdims = "lev,mask_index,time"
-          call ESMF_FieldGet(field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-          v = variable(type=PFIO_REAL32,dimensions=trim(vdims))
-       end if
-       call v%add_attribute('units',         trim(units))
-       call v%add_attribute('long_name',     trim(long_name))
-       call v%add_attribute('missing_value', MAPL_UNDEF)
-       call v%add_attribute('_FillValue',    MAPL_UNDEF)
-       call v%add_attribute('valid_range',   (/-MAPL_UNDEF,MAPL_UNDEF/))
-       call this%metadata%add_variable(trim(var_name),v,_RC)
-    end do
-    deallocate (fieldNameList, _STAT)
-
-    _RETURN(_SUCCESS)
-  end subroutine add_metadata
-
-
- module subroutine regrid_append_file(this,current_time,rc)
+ module subroutine regrid_append_file(this,current_time,filename,oClients,rc)
     implicit none
-
-    class(MaskSamplerGeosat), intent(inout) :: this
+    class(MaskSampler), intent(inout) :: this
     type(ESMF_Time), intent(inout)          :: current_time
+    character(len=*), intent(in) :: filename
+    type (ClientManager), target, optional, intent(inout) :: oClients
     integer, optional, intent(out)          :: rc
     !
     integer :: status
@@ -676,11 +851,13 @@ module subroutine  add_metadata(this,rc)
     integer :: mypet, petcount, nsend
     integer :: iroot, ierr
     integer :: mpic
+    integer :: ic_2d, ic_3d
     integer, allocatable :: recvcounts_3d(:)
     integer, allocatable :: displs_3d(:)
     type(GriddedIOitemVectorIterator) :: iter
     type(GriddedIOitem), pointer :: item
     type(ESMF_VM) :: vm
+    type(ArrayReference) :: ref
 
     this%obs_written=this%obs_written+1
 
@@ -708,9 +885,19 @@ module subroutine  add_metadata(this,rc)
     !
     allocate( rtimes(1), _STAT )
     rtimes(1) = this%compute_time_for_current(current_time,_RC) ! rtimes: seconds since opening file
-    if (mapl_am_i_root()) then
-       call this%formatter%put_var('time',rtimes(1:1),&
-            start=[this%obs_written],count=[1],_RC)
+    if (this%use_pfio) then
+       this%rtime = rtimes(1)*1.0
+       ref = ArrayReference(this%rtime)
+       call oClients%collective_stage_data(this%write_collection_id,trim(filename),'time', &
+            ref,start=[1], global_start=[1], global_count=[1])
+       call this%stage2DLatLon(trim(filename),oClients=oClients,_RC)
+    else
+       if (mapl_am_i_root()) then
+          call this%formatter%put_var('time',rtimes(1:1),&
+               start=[this%obs_written],count=[1],_RC)
+          call this%formatter%put_var('longitude',this%lons_deg,_RC)
+          call this%formatter%put_var('latitude',this%lats_deg,_RC)
+       end if
     end if
 
 
@@ -724,6 +911,8 @@ module subroutine  add_metadata(this,rc)
     !endif
 
     iter = this%items%begin()
+    ic_2d = 0
+    ic_3d = 0
     do while (iter /= this%items%end())
        item => iter%get()
        if (item%itemType == ItemTypeScalar) then
@@ -742,11 +931,22 @@ module subroutine  add_metadata(this,rc)
                   iroot, mpic, status )
              _VERIFY(status)
              call MAPL_TimerOn(this%GENSTATE,"put2D")
-             if (mapl_am_i_root()) then
-                call this%formatter%put_var(item%xname,p_dst_2d_full,&
-                     start=[1,this%obs_written],count=[this%npt_mask_tot,1],_RC)
+             if (this%use_pfio) then
+                ic_2d = ic_2d + 1
+                if (mapl_am_i_root()) then
+                   this%var2d(ic_2d)%array_x(1:this%npt_mask_tot) = p_dst_2d_full(1:this%npt_mask_tot)
+                endif
+                ref = ArrayReference(this%var2d(ic_2d)%array_x)
+                call oClients%collective_stage_data(this%write_collection_id,trim(filename), item%xname, &
+                     ref,start=[1], global_start=[1], global_count=[this%npt_mask_tot])
+             else
+                if (mapl_am_i_root()) then
+                   call this%formatter%put_var(item%xname,p_dst_2d_full,&
+                        start=[1,this%obs_written],count=[this%npt_mask_tot,1],_RC)
+                end if
              end if
              call MAPL_TimerOff(this%GENSTATE,"put2D")
+
           else if (rank==3) then
              call ESMF_FieldGet(src_field,farrayptr=p_src_3d,_RC)
              call ESMF_FieldGet(src_field,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
@@ -767,15 +967,31 @@ module subroutine  add_metadata(this,rc)
                   iroot, mpic, status )
              _VERIFY(status)
              call MAPL_TimerOn(this%GENSTATE,"put3D")
-             if (mapl_am_i_root()) then
-                allocate(arr(nz, this%npt_mask_tot), _STAT)
-                arr=reshape(p_dst_3d_full,[nz,this%npt_mask_tot],order=[1,2])
-                call this%formatter%put_var(item%xname,arr,&
-                     start=[1,1,this%obs_written],count=[nz,this%npt_mask_tot,1],_RC)
-                !note:     lev,station,time
-                deallocate(arr, _STAT)
+
+             if (this%use_pfio) then
+                ic_3d = ic_3d + 1
+                if (mapl_am_i_root()) then
+                   this%var3d(ic_3d)%array_xz(1:this%npt_mask_tot, 1:nz) = &
+                        reshape(p_dst_3d_full,[this%npt_mask_tot, nz],order=[2,1])
+!!                   this%var3d(ic_3d)%array_xz(1:this%npt_mask_tot, 1:nz) = 99.0
+                endif
+                ref = ArrayReference(this%var3d(ic_3d)%array_xz)
+                call oClients%collective_stage_data(this%write_collection_id,trim(filename), item%xname, &
+                     ref,start=[1,1], global_start=[1,1], global_count=[this%npt_mask_tot, nz])
+                     ! 2d: ref,start=[1], global_start=[1], global_count=[this%npt_mask_tot])
+
+             else
+                if (mapl_am_i_root()) then
+                   allocate(arr(nz, this%npt_mask_tot), _STAT)
+                   arr=reshape(p_dst_3d_full,[nz,this%npt_mask_tot],order=[1,2])
+                   call this%formatter%put_var(item%xname,arr,&
+                        start=[1,1,this%obs_written],count=[nz,this%npt_mask_tot,1],_RC)
+                   !note:     lev,location,time
+                   deallocate(arr, _STAT)
+                end if
              end if
              call MAPL_TimerOff(this%GENSTATE,"put3D")
+
           else
              _FAIL('grid2LS regridder: rank > 3 not implemented')
           end if
@@ -788,58 +1004,9 @@ module subroutine  add_metadata(this,rc)
   end subroutine regrid_append_file
 
 
-
-  module subroutine create_file_handle(this,filename,rc)
-    class(MaskSamplerGeosat), intent(inout) :: this
-    character(len=*), intent(in)            :: filename
-    integer, optional, intent(out)          :: rc
-    type(variable) :: v
-    integer :: status, j
-    real(kind=REAL64), allocatable :: x(:)
-    integer :: nx
-
-    this%ofile = trim(filename)
-    v = this%time_info%define_time_variable(_RC)
-    call this%metadata%modify_variable('time',v,_RC)
-    this%obs_written = 0
-
-    if (.not. mapl_am_I_root()) then
-       _RETURN(_SUCCESS)
-    end if
-
-    call this%formatter%create(trim(filename),_RC)
-    call this%formatter%write(this%metadata,_RC)
-
-    nx = size (this%lons)
-    allocate ( x(nx), _STAT )
-    x(:) = this%lons(:) * MAPL_RADIANS_TO_DEGREES
-    call this%formatter%put_var('longitude',x,_RC)
-    x(:) = this%lats(:) * MAPL_RADIANS_TO_DEGREES
-    call this%formatter%put_var('latitude',x,_RC)
-!    call this%formatter%put_var('mask_id',this%mask_id,_RC)
-!    call this%formatter%put_var('mask_name',this%mask_name,_RC)
-
-    _RETURN(_SUCCESS)
-  end subroutine create_file_handle
-
-
-   module subroutine close_file_handle(this,rc)
-    class(MaskSamplerGeosat), intent(inout) :: this
-    integer, optional, intent(out)          :: rc
-
-    integer :: status
-    if (trim(this%ofile) /= '') then
-       if (mapl_am_i_root()) then
-          call this%formatter%close(_RC)
-       end if
-    end if
-    _RETURN(_SUCCESS)
-  end subroutine close_file_handle
-
-
   module function compute_time_for_current(this,current_time,rc) result(rtime)
     use  MAPL_NetCDF, only : convert_NetCDF_DateTime_to_ESMF
-    class(MaskSamplerGeosat), intent(inout) :: this
+    class(MaskSampler), intent(inout) :: this
     type(ESMF_Time), intent(in) :: current_time
     integer, optional, intent(out) :: rc
     real(kind=ESMF_KIND_R8) :: rtime
@@ -871,6 +1038,166 @@ module subroutine  add_metadata(this,rc)
     _RETURN(_SUCCESS)
   end function compute_time_for_current
 
+  module subroutine stage2dlatlon(this,filename,oClients,rc)
+    implicit none
+
+    class(MaskSampler), intent(inout) :: this
+    character(len=*), intent(in) :: fileName
+    type (ClientManager), optional, target, intent(inout) :: oClients
+    integer, optional, intent(out) :: rc
+
+    integer, allocatable :: local_start(:)
+    integer, allocatable :: global_start(:)
+    integer, allocatable :: global_count(:)
+    integer :: n
+    type(ArrayReference), target :: ref
+    integer :: status
+
+    ! Note: we have already gatherV to root the lon/lat
+    !       in sub. create_Geosat_grid_find_mask
+    !
+    if (mapl_am_i_root()) then
+       allocate(local_start,source=[1])
+       allocate(global_start,source=[1])
+       allocate(global_count,source=[this%npt_mask_tot])
+    else
+       allocate(local_start,source=[0])
+       allocate(global_start,source=[0])
+       allocate(global_count,source=[0])
+    end if
+
+    ref = ArrayReference(this%lons_deg)
+    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'longitude', &
+         ref,start=local_start, global_start=global_start, global_count=global_count)
+
+    ref = ArrayReference(this%lats_deg)
+    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'latitude', &
+         ref,start=local_start, global_start=global_start, global_count=global_count)
+
+    _RETURN(_SUCCESS)
+ end subroutine stage2dlatlon
 
 
-end submodule MaskSamplerGeosat_implement
+     module subroutine modifyTime(this, oClients, rc)
+        class(MaskSampler), intent(inout) :: this
+        type (ClientManager), optional, intent(inout) :: oClients
+        integer, optional, intent(out) :: rc
+
+        type(Variable) :: v
+        type(StringVariableMap) :: var_map
+        integer :: status
+
+        if (this%timeInfo%is_initialized) then
+           v = this%timeInfo%define_time_variable(_RC)
+           call this%metadata%modify_variable('time',v,rc=status)
+           _VERIFY(status)
+           if (present(oClients)) then
+              call var_map%insert('time',v)
+              call oClients%modify_metadata(this%write_collection_id, var_map=var_map, rc=status)
+              _VERIFY(status)
+           end if
+        else
+           _FAIL("Time was not initialized for the GriddedIO class instance")
+        end if
+        _RETURN(ESMF_SUCCESS)
+
+     end subroutine modifyTime
+
+
+
+   module subroutine alphabatize_variables(this,nfixedVars,rc)
+     class (masksampler), intent(inout) :: this
+     integer, intent(in) :: nFixedVars
+     integer, optional, intent(out) :: rc
+
+     type(StringVector) :: order
+     type(StringVector) :: newOrder
+     character(len=:), pointer :: v1
+     character(len=ESMF_MAXSTR) :: c1,c2
+     character(len=ESMF_MAXSTR), allocatable :: temp(:)
+     logical :: swapped
+     integer :: n,i
+     integer :: status
+
+     order = this%metadata%get_order(rc=status)
+     _VERIFY(status)
+     n = Order%size()
+     allocate(temp(nFixedVars+1:n))
+     do i=1,n
+        v1 => order%at(i)
+        if ( i > nFixedVars) temp(i)=trim(v1)
+     enddo
+
+     swapped = .true.
+     do while(swapped)
+        swapped = .false.
+        do i=nFixedVars+1,n-1
+           c1 = temp(i)
+           c2 = temp(i+1)
+           if (c1 > c2) then
+              temp(i+1)=c1
+              temp(i)=c2
+              swapped =.true.
+           end if
+        enddo
+     enddo
+
+     do i=1,nFixedVars
+        v1 => Order%at(i)
+        call newOrder%push_back(v1)
+     enddo
+     do i=nFixedVars+1,n
+        call newOrder%push_back(trim(temp(i)))
+     enddo
+     call this%metadata%set_order(newOrder,rc=status)
+     _VERIFY(status)
+     deallocate(temp)
+
+     _RETURN(_SUCCESS)
+
+  end subroutine alphabatize_variables
+
+
+module subroutine finalize(this,rc)
+   class(MaskSampler), intent(inout) :: this
+   integer, optional, intent(out)          :: rc
+   type(GriddedIOitemVectorIterator) :: iter
+   type(GriddedIOitem), pointer :: item
+   type(ESMF_Field) :: src_field
+   integer :: ic_2d, ic_3d, rank, j
+   integer :: status
+
+
+    if (this%use_pfio) then
+       ic_2d=0
+       ic_3d=0
+       iter = this%items%begin()
+       do while (iter /= this%items%end())
+          item => iter%get()
+          if (item%itemType == ItemTypeScalar) then
+             call ESMF_FieldBundleGet(this%bundle,trim(item%xname),field=src_field,_RC)
+             call ESMF_FieldGet(src_field,rank=rank,_RC)
+             if (rank==2) then
+                ic_2d = ic_2d + 1
+             else if (rank==3) then
+                ic_3d = ic_3d + 1
+             end if
+          end if
+          call iter%next()
+       end do
+
+       do j=1, ic_2d
+          deallocate ( this%var2d(j)%array_x, _STAT )
+       end do
+       deallocate ( this%var2d, _STAT )
+       do j=1, ic_3d
+          deallocate ( this%var3d(j)%array_xz, _STAT )
+       end do
+       deallocate ( this%var3d, _STAT )
+    end if
+
+    _RETURN(_SUCCESS)
+  end subroutine finalize
+
+   end submodule MaskSampler_implement
+

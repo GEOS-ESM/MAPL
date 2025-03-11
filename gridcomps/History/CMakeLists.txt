@@ -4,8 +4,8 @@ set (srcs
      MAPL_HistoryCollection.F90
      MAPL_HistoryGridComp.F90
      Sampler/MAPL_EpochSwathMod.F90
-     Sampler/MAPL_GeosatMaskMod.F90
-     Sampler/MAPL_GeosatMaskMod_smod.F90
+     Sampler/MAPL_MaskMod.F90
+     Sampler/MAPL_MaskMod_smod.F90
      Sampler/MAPL_StationSamplerMod.F90
      Sampler/MAPL_TrajectoryMod.F90
      Sampler/MAPL_TrajectoryMod_smod.F90
