@@ -264,6 +264,8 @@ module subroutine  create_metadata(this,global_attributes,rc)
     integer :: metadataVarsSize
     character(len=:), pointer :: attr_name, attr_val
 
+    type(ESMF_Info) :: infoh
+
     !__ 1. metadata add_dimension,
     !     add_variable for time, mask_points, latlon,
     !
@@ -303,15 +305,17 @@ module subroutine  create_metadata(this,global_attributes,rc)
        var_name=trim(fieldNameList(i))
        call ESMF_FieldBundleGet(this%bundle,var_name,field=field,_RC)
        call ESMF_FieldGet(field,rank=field_rank,_RC)
-       call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=is_present,_RC)
+
+       call ESMF_InfoGetFromHost(field,infoh,_RC)
+       isPresent = ESMF_InfoIsPresent(infoh,"LONG_NAME",_RC)
        if ( is_present ) then
-          call ESMF_AttributeGet(field, NAME="LONG_NAME",VALUE=long_name, _RC)
+          call ESMF_InfoGet(infoh,key="LONG_NAME",value=long_name, _RC)
        else
           long_name = var_name
        endif
-       call ESMF_AttributeGet(field,name="UNITS",isPresent=is_present,_RC)
+       isPresent = ESMF_InfoIsPresent(infoh,"UNITS",_RC)
        if ( is_present ) then
-          call ESMF_AttributeGet(field, NAME="UNITS",VALUE=units, _RC)
+          call ESMF_InfoGet(infoh, key="UNITS", value=units, _RC)
        else
           units = 'unknown'
        endif
