@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added `Release` build CI tests for MAPL
 - Added new option to rule for ExtData2G to disable vertical regridding, default is true, vertical regridding is disabled
 - Added experimental capabiltiy to regrid from constituents in mass mixing or emissions units from one set of hybrid sigma levels to model levels in ExtData2G
 - Added subdirectory GetHorzIJIndex in the Tests directory for testing subroutine MAPL_GetHorzIJIndex to ensure the subroutine fails is teh cubed-sphere assumption is violated and also if the returned I and J indices are not correct.
