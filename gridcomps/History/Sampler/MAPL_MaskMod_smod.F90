@@ -307,13 +307,13 @@ module subroutine  create_metadata(this,global_attributes,rc)
        call ESMF_FieldGet(field,rank=field_rank,_RC)
 
        call ESMF_InfoGetFromHost(field,infoh,_RC)
-       isPresent = ESMF_InfoIsPresent(infoh,"LONG_NAME",_RC)
+       is_present = ESMF_InfoIsPresent(infoh,"LONG_NAME",_RC)
        if ( is_present ) then
           call ESMF_InfoGet(infoh,key="LONG_NAME",value=long_name, _RC)
        else
           long_name = var_name
        endif
-       isPresent = ESMF_InfoIsPresent(infoh,"UNITS",_RC)
+       is_present = ESMF_InfoIsPresent(infoh,"UNITS",_RC)
        if ( is_present ) then
           call ESMF_InfoGet(infoh, key="UNITS", value=units, _RC)
        else
