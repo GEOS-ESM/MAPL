@@ -38,6 +38,7 @@ module mapl3g_VariableSpec
    public :: VariableSpec
    public :: make_VariableSpec
    public :: make_AspectMap
+   public :: make_VariableSpecFromAspects
 
    ! This type provides components that might be needed for _any_
    ! state item.  This is largely to support legacy interfaces, but it
@@ -63,16 +64,9 @@ module mapl3g_VariableSpec
       procedure :: make_dependencies
    end type VariableSpec
 
-   interface make_VariableSpec
-      module procedure :: make_VariableSpecWithParameters
-      module procedure :: make_VariableSpecWithAspects
-   end interface make_VariableSpec
-
-   generic :: make_AspectMap => make_aspect_map
-
 contains
 
-   function make_VariableSpecWithParameters( &
+   function make_VariableSpec( &
         state_intent, short_name, unusable, &
         standard_name, &
         geom, &
@@ -148,7 +142,7 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end function make_VariableSpecWithParameters
+   end function make_VariableSpec
 
    function make_virtualPt(this) result(v_pt)
       type(VirtualConnectionPt) :: v_pt
@@ -230,7 +224,7 @@ contains
       _RETURN(_SUCCESS)
    end function get_regrid_method_from_field_dict_
 
-   function make_aspect_map(standard_name, geom, units, typekind, vertical_dim_spec, &
+   function make_AspectMap(standard_name, geom, units, typekind, vertical_dim_spec, &
          & ungridded_dims, attributes, regrid_param, horizontal_dims_spec, &
          & accumulation_type, timeStep, offset) result(aspects)
       type(AspectMap) :: aspects
@@ -240,6 +234,7 @@ contains
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       type(VerticalDimSpec), optional, intent(in) :: vertical_dim_spec
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
+      type(StringVector), optional, intent(in) :: attributes
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
       type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
       character(len=*), optional, intent(in) :: accumulation_type
@@ -258,7 +253,7 @@ contains
       call aspects%insert(FREQUENCY_ASPECT_ID, FrequencyAspect(timeStep=timeStep, &
          & offset=offset, accumulation_type=accumulation_type))
 
-   end function make_aspect_map
+   end function make_AspectMap
 
    subroutine set_common_VariableSpec(var_spec, state_intent, short_name, unusable, &
          & standard_name, itemtype, service_items, default_value, bracket_size, &
@@ -290,7 +285,7 @@ contains
 
    end subroutine set_common_VariableSpec
 
-   function make_VariableSpecWithAspects(state_intent, short_name, aspects, &
+   function make_VariableSpecFromAspects(state_intent, short_name, aspects, &
          & unusable, standard_name, itemtype, service_items, default_value, &
          & bracket_size, dependencies, rc) result(var_spec)
       type(VariableSpec) :: var_spec
@@ -307,12 +302,14 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       
-      call set_common_VariableSpec(var_spec, state_intent, short_name, standard_name, &
-         & itemtype, service_items, default_value, bracket_size, dependencies, _RC)
+      call set_common_VariableSpec(var_spec, state_intent, short_name, &
+         & standard_name=standard_name, itemtype=itemtype, service_items=service_items, &
+         default_value=default_value, bracket_size=bracket_size, &
+         & dependencies=dependencies, _RC)
       var_spec%aspects = aspects
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end function make_VariableSpecWithAspects
+   end function make_VariableSpecFromAspects
 
 end module mapl3g_VariableSpec

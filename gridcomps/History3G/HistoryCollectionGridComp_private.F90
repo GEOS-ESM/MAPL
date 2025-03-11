@@ -2,7 +2,7 @@
 module mapl3g_HistoryCollectionGridComp_private
 
    use generic3g
-   use mapl3g_VariableSpec, only: make_VariableSpec, make_AspectMap
+   use mapl3g_VariableSpec, only: VariableSpec, make_VariableSpec, make_AspectMap, make_VariableSpecFromAspects
    use esmf
    use Mapl_ErrorHandling
    use gFTL2_StringVector
@@ -22,25 +22,29 @@ module mapl3g_HistoryCollectionGridComp_private
    public :: create_output_bundle
    public :: set_start_stop_time
    public :: get_current_time_index
+   public :: register_imports_extended
    ! These are public for testing.
    public :: parse_item_common
    public :: replace_delimiter
    public :: get_expression_variables
 
    type :: HistoryOptions
+      character(len=:), allocatable :: units
+      type(ESMF_TypeKind_Flag), allocatable :: typekind
       type(ESMF_TimeInterval), allocatable :: timeStep
       type(ESMF_TimeInterval), allocatable :: runTime_offset
-      character(len=:), allocatable :: allocation_type
+      character(len=:), allocatable :: accumulation_type
    end type HistoryOptions
-
-   interface operator(=)
-      module procedure :: copy_history_options
-   end interface operator(=)
 
    interface parse_item
       module procedure :: parse_item_expression
       module procedure :: parse_item_simple
    end interface parse_item
+
+   interface parse_options
+      module procedure :: parse_options_hconfig
+      module procedure :: parse_options_iter
+   end interface parse_options
 
    character(len=*), parameter :: VAR_LIST_KEY = 'var_list'
    character, parameter :: KEY_TIMESTEP = 'frequency'
@@ -296,7 +300,7 @@ contains
       type(HistoryOptions) :: options
       integer :: status
 
-      ! Get Options for collection !wdb fixme deleteme 
+      ! Get Options for collection
       call parse_options(hconfig, options, _RC)
 
       ! Get variable list
@@ -329,14 +333,14 @@ contains
       type(StringVectorIterator) :: ftn_iter, ftn_end
       type(VariableSpec) :: varspec
       character(len=:), allocatable :: short_name
-      type(HistoryOptions) :: local_options
+      type(HistoryOptions) :: loptions
       type(AspectMap) :: aspects
 
-      if(present(options)) local_options = options
-      call parse_options(iter, local_options, _RC)
-      associate (o => local_options)
-      aspects = make_AspectMap(accumulation_type=o%accumulation_type, &
-         timeStep=o%timeStep, offset=o%runTime_offset)
+      if(present(options)) loptions = options
+      call parse_options(iter, loptions, _RC)
+      aspects = make_AspectMap(units=loptions%units, typekind=options%typekind &
+         & accumulation_type=loptions%accumulation_type, &
+         & timeStep=loptions%timeStep, offset=loptions%runTime_offset)
       call parse_item(iter, item_name, variable_names, _RC)
       
       ftn_end = variable_names%ftn_end()
@@ -344,14 +348,28 @@ contains
       do while (ftn_iter /= ftn_end)
          call ftn_iter%next()
          short_name = ftn_iter%of()
-         varspec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name, aspects=aspects, _RC)
+         varspec = make_VariableSpecFromAspects(ESMF_STATEINTENT_IMPORT, short_name, aspects=aspects, _RC)
          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
       end do
       _RETURN(_SUCCESS)
 
    end subroutine add_var_specs
 
-   subroutine parse_options(hconfig, options, rc)
+   subroutine parse_options_iter(iter, options, rc)
+      type(ESMF_HConfigIter), intent(in) :: iter
+      class(HistoryOptions), intent(inout) :: options
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_HConfig) :: hconfig
+
+      hconfig = ESMF_HConfigCreateAt(iter)
+      call parse_frequency_aspect_options(hconfig, options, _RC)
+      call ESMF_HConfigDestroy(hconfig, _RC)
+      _RETURN(_SUCCESS)
+
+   end subroutine parse_options_iter
+
+   subroutine parse_options_hconfig(hconfig, options, rc)
       type(ESMF_HConfig), intent(in) :: hconfig
       class(HistoryOptions), intent(inout) :: options
       integer, optional, intent(out) :: rc
@@ -360,19 +378,21 @@ contains
       call parse_frequency_aspect_options(hconfig, options, _RC)
       _RETURN(_SUCCESS)
 
-   end subroutine parse_options
+   end subroutine parse_options_hconfig
 
    subroutine parse_frequency_aspect_options(hconfig, options, rc)
       type(ESMF_HConfig), intent(in) :: hconfig
       class(HistoryOptions), intent(inout) :: options
       integer, optional, intent(out) :: rc
       integer :: status
-      type(ESMF_HConfig), intent(in) :: time_hconfig
+      type(ESMF_HConfig) :: time_hconfig
       logical :: OK
       character(len=:), allocatable :: mapVal
 
       OK = ESMF_HConfigIsDefined(hconfig, keyString=KEY_TIME_SPEC, _RC)
-      if(.not. OK) return
+      if(.not. OK) then
+         return
+      end if
 
       mapVal = ESMF_HConfigAsString(time_hconfig, keyString=KEY_ACCUMULATION_TYPE, asOkay=OK, _RC)
       if(OK) options%accumulation_type = mapVal
@@ -386,15 +406,5 @@ contains
       end if
 
    end subroutine parse_frequency_aspect_options
-
-   function copy_history_options(original) result(copy)
-      type(HistoryOptions) :: copy
-      class(HistoryOptions) :: original
-
-      copy%accumulation_type = original%accumulation_type
-      copy%timeStep = original%timeStep
-      copy%runTime_offset = original%runTime_offset
-
-   end function copy_history_options
 
 end module mapl3g_HistoryCollectionGridComp_private
