@@ -338,7 +338,7 @@ contains
 
       if(present(options)) loptions = options
       call parse_options(iter, loptions, _RC)
-      aspects = make_AspectMap(units=loptions%units, typekind=options%typekind &
+      aspects = make_AspectMap(units=loptions%units, typekind=options%typekind, &
          & accumulation_type=loptions%accumulation_type, &
          & timeStep=loptions%timeStep, offset=loptions%runTime_offset)
       call parse_item(iter, item_name, variable_names, _RC)
