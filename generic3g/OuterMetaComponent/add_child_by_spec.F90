@@ -17,7 +17,11 @@ contains
    module recursive subroutine add_child_by_spec(this, child_name, child_spec, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: child_name
+#if defined(ESMF_HCONFIGSET_HAS_INTENT_INOUT)
+      type(ChildSpec), intent(inout) :: child_spec
+#else
       type(ChildSpec), intent(in) :: child_spec
+#endif
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -25,7 +29,7 @@ contains
       type(ESMF_GridComp) :: child_outer_gc
       type(OuterMetaComponent), pointer :: child_meta
       type(ESMF_HConfig) :: total_hconfig
-      
+
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
       _ASSERT(this%children%count(child_name) == 0, 'duplicate child name: <'//child_name//'>.')
 
@@ -52,7 +56,11 @@ contains
    function merge_hconfig(parent_hconfig, child_hconfig, rc) result(total_hconfig)
       type(ESMF_HConfig) :: total_hconfig
       type(ESMF_HConfig), intent(in) :: parent_hconfig
+#if defined(ESMF_HCONFIGSET_HAS_INTENT_INOUT)
+      type(ESMF_HConfig), intent(inout) :: child_hconfig
+#else
       type(ESMF_HConfig), intent(in) :: child_hconfig
+#endif
       integer, optional, intent(out) :: rc
 
       integer :: status

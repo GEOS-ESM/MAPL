@@ -11,6 +11,10 @@ esma_add_library(${this}
   SRCS ${srcs}
   DEPENDENCIES MAPL.generic3g MAPL.GeomIO PFLOGGER::pflogger TYPE SHARED)
 
+if(ESMF_HCONFIGSET_HAS_INTENT_INOUT)
+  target_compile_definitions(${this} PRIVATE ESMF_HCONFIGSET_HAS_INTENT_INOUT)
+endif()
+
 if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()
