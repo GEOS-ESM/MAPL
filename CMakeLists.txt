@@ -150,7 +150,9 @@ endif ()
 
 # There is an interface change in ESMF_HConfig in ESMF 8.9.0,
 # so we need to check the version and if it is 8.9.0 or later,
-# set a variable
+# set a variable.
+# NOTE: When we move to requiring ESMF 8.9.0 we can
+#       remove all this code and use the updated interface!
 if(ESMF_VERSION VERSION_GREATER_EQUAL 8.9.0)
   set (ESMF_HCONFIGSET_HAS_INTENT_INOUT TRUE)
   message(STATUS "ESMF_HConfig has intent(inout) in ESMF 8.9.0 or later")
