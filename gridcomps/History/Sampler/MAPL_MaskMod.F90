@@ -15,8 +15,8 @@ module MaskSamplerMod
   use MAPL_SortMod
   use MAPL_NetCDF
   use MAPL_StringTemplate
-  use gFTL_StringVector
-  use gFTL_StringStringMap
+  use gFTL2_StringVector
+  use gFTL2_StringStringMap
   use Plain_netCDF_Time
   use MAPL_ObsUtilMod
   use MPI
