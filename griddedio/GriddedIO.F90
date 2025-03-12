@@ -20,7 +20,7 @@ module MAPL_GriddedIOMod
   use MAPL_DataCollectionMod
   use MAPL_DataCollectionManagerMod
   use gFTL2_StringVector
-  use gFTL_StringStringMap
+  use gFTL2_StringStringMap
   use MAPL_FileMetadataUtilsMod
   use MAPL_DownbitMod
   use, intrinsic :: ISO_C_BINDING
@@ -224,8 +224,8 @@ module MAPL_GriddedIOMod
         if (present(global_attributes)) then
            s_iter = global_attributes%begin()
            do while(s_iter /= global_attributes%end())
-              attr_name => s_iter%key()
-              attr_val => s_iter%value()
+              attr_name => s_iter%first()
+              attr_val => s_iter%second()
               call this%metadata%add_attribute(attr_name,attr_val,_RC)
               call s_iter%next()
            enddo

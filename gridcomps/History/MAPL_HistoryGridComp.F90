@@ -57,7 +57,7 @@
   use MAPL_StringTemplate
   use regex_module
   use MAPL_TimeUtilsMod, only: is_valid_time, is_valid_date, MAPL_UndefInt
-  use gFTL_StringStringMap
+  use gFTL2_StringStringMap
   !use ESMF_CFIOMOD
   use MAPL_EpochSwathMod
 
@@ -659,8 +659,8 @@ contains
 
        field_set_iter = intState%field_sets%begin()
        do while (field_set_iter /= intState%field_sets%end())
-          key => field_set_iter%key()
-          field_set => field_set_iter%value()
+          key => field_set_iter%first()
+          field_set => field_set_iter%second()
           call parse_fields(config, key, field_set, _RC)
           call field_set_iter%next()
        end do
