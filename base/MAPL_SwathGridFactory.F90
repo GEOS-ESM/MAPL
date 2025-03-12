@@ -531,6 +531,8 @@ contains
       endif
       call convert_twostring_2_esmfinterval (symd, shms,  this%obsfile_interval, _RC)
 
+! __ read from netCDF like python
+!
       call ESMF_ConfigGetAttribute(config, value=this%index_name_lon, default="", &
            label=prefix // 'index_name_lon:', _RC)
       call ESMF_ConfigGetAttribute(config, value=this%index_name_lat, default="", &
@@ -544,7 +546,9 @@ contains
       call ESMF_ConfigGetAttribute(config, this%tunit, default="", &
            label=prefix//'tunit:',  _RC)
 
+
       call lgr%debug(' %a  %a', 'input_template =', trim(this%input_template))
+
 
 
       !__ s2. find obsFile even if missing on disk and get array: this%t_alongtrack(:)
