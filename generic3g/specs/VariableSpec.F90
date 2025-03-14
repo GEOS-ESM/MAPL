@@ -247,14 +247,22 @@ contains
 #if defined(_SET_ASPECT)
 #  undef _SET_ASPECT
 #endif
-#define _SET_ASPECT(A) if(present(A)) call add_item(var_spec%aspects, A)
-         _SET_ASPECT(geom_aspect)
-         _SET_ASPECT(units_aspect)
-         _SET_ASPECT(attributes_aspect)
-         _SET_ASPECT(ungridded_aspect)
-         _SET_ASPECT(vertical_aspect)
-         _SET_ASPECT(frequency_aspect)
-         _SET_ASPECT(typekind_aspect)
+#define _SET_ASPECT(A) call add_item(var_spec%aspects, A)
+
+#if defined(_SET_ASPECT_IF)
+#  undef
+#endif
+#define _SET_ASPECT_IF(A, D) if(present(A)) then; _SET_ASPECT(A); else; _SET_ASPECT(D); end if
+
+         _SET_ASPECT_IF(geom_aspect, GeomAspect())
+         _SET_ASPECT_IF(units_aspect, UnitsAspect())
+         _SET_ASPECT_IF(attributes_aspect, AttributesAspect())
+         _SET_ASPECT_IF(ungridded_aspect, UngriddedDimsAspect())
+         _SET_ASPECT_IF(vertical_aspect, VerticalGridAspect())
+         _SET_ASPECT_IF(frequency_aspect, FrequencyAspect())
+         _SET_ASPECT_IF(typekind_aspect, TypekindAspect())
+
+#undef _SET_ASPECT_IF         
 #undef _SET_ASPECT
 
       _RETURN(_SUCCESS)

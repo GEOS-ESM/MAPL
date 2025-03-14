@@ -166,12 +166,7 @@ contains
 
       integer :: status
 
-      _HERE, 'aspect_id:', aspect_id.to_string()
-      _HERE, '# aspects:', this%aspects%size()
-!      aspect => this%aspects%at(aspect_id, _RC)
-      aspect => this%aspects%at(aspect_id,rc=status)
-      _HERE, 'status:', status
-      _VERIFY(status)
+      aspect => this%aspects%at(aspect_id, _RC)
 
       _RETURN(_SUCCESS)
    end function get_aspect_by_id

@@ -1,8 +1,8 @@
 #include "MAPL_Generic.h"
-!#define USE_UNITS
+#define USE_UNITS
 !#define USE_FREQUENCY
 !#define USE_TYPEKIND
-!#define USE_EXTENDED
+#define USE_EXTENDED
 module mapl3g_HistoryCollectionGridComp_private
 
    use generic3g
@@ -133,7 +133,6 @@ contains
       bundle = ESMF_FieldBundleCreate(_RC)
       do while (ESMF_HConfigIterLoop(iter,iter_begin,iter_end,rc=status))
          call parse_item(iter, alias, short_name, _RC)
-         _HERE, 'alias: ' // trim(alias) // ', short_name: ' // trim(short_name) // ' (create_output_bundle)'
          call ESMF_StateGet(import_state, short_name, field, _RC)
          new_field = ESMF_FieldCreate(field, dataCopyFlag=ESMF_DATACOPY_REFERENCE, name=alias,  _RC)
          call ESMF_InfoGetFromHost(field, info, _RC)
@@ -325,13 +324,13 @@ contains
       iter = iter_begin
 
       ! Get Options for collection
-      ! call parse_options(iter, options, _RC)
+      call parse_options(iter, options, _RC)
 
       ! Add VariableSpec objects
       do while (ESMF_HConfigIterLoop(iter,iter_begin,iter_end,rc=status))
          _VERIFY(status)
          call parse_item(iter, item_name, variable_names, _RC)
-         !call parse_options(iter, options, _RC)
+         call parse_options(iter, options, _RC)
          call add_var_specs(gridcomp, variable_names, options, _RC)
       end do
 
@@ -394,24 +393,24 @@ contains
 
 #if defined(USE_FREQUENCY)
    subroutine parse_frequency_aspect_options(iter, options, rc)
-      type(ESMF_iterIter), intent(in) :: iter
+      type(ESMF_HConfigIter), intent(in) :: iter
       class(HistoryOptions), intent(inout) :: options
       integer, optional, intent(out) :: rc
       integer :: status
-      type(ESMF_iterIter) :: time_iter
+      type(ESMF_HConfigIter) :: time_iter
       logical :: OK
       character(len=:), allocatable :: mapVal
 
-      OK = ESMF_iterIterIsDefined(iter, keyString=KEY_TIME_SPEC, _RC)
+      OK = ESMF_HConfigIterIsDefined(iter, keyString=KEY_TIME_SPEC, _RC)
       _RETURN_UNLESS(OK)
 
-      mapVal = ESMF_iterIterAsString(time_iter, keyString=KEY_ACCUMULATION_TYPE, asOkay=OK, _RC)
+      mapVal = ESMF_HConfigAsString(time_iter, keyString=KEY_ACCUMULATION_TYPE, asOkay=OK, _RC)
       if(OK) options%accumulation_type = mapVal
-      mapVal = ESMF_iterIterAsString(time_iter, keyString=KEY_TIMESTEP, asOkay=OK, _RC)
+      mapVal = ESMF_HConfigAsString(time_iter, keyString=KEY_TIMESTEP, asOkay=OK, _RC)
       if(OK) then
          call ESMF_TimeIntervalSet(options%timeStep, timeIntervalString=mapVal, _RC)
       end if
-      mapVal = ESMF_iterIterAsString(time_iter, keyString=KEY_OFFSET, asOkay=OK, _RC)
+      mapVal = ESMF_HConfigAsString(time_iter, keyString=KEY_OFFSET, asOkay=OK, _RC)
       if(OK) then
          call ESMF_TimeIntervalSet(options%runTime_offset, timeIntervalString=mapVal, _RC)
       end if
@@ -421,14 +420,14 @@ contains
 
 #if defined(USE_UNITS)
    subroutine parse_units_aspect_options(iter, options, rc)
-      type(ESMF_iterIter), intent(in) :: iter
+      type(ESMF_HConfigIter), intent(in) :: iter
       class(HistoryOptions), intent(inout) :: options
       integer, optional, intent(out) :: rc
       integer :: status
       logical :: OK
       character(len=:), allocatable :: mapVal
 
-      mapVal = ESMF_iterIterAsString(iter, keyString=KEY_UNITS, asOkay=OK, _RC)
+      mapVal = ESMF_HConfigAsString(iter, keyString=KEY_UNITS, asOkay=OK, _RC)
       _RETURN_UNLESS(OK)
       options%units = mapVal
       _RETURN(_SUCCESS)
@@ -438,7 +437,7 @@ contains
 
 #if defined(USE_TYPEKIND)
    subroutine parse_typekind_aspect_options(iter, options, rc)
-      type(ESMF_iterIter), intent(in) :: iter
+      type(ESMF_HConfigIter), intent(in) :: iter
       class(HistoryOptions), intent(inout) :: options
       integer, optional, intent(out) :: rc
       integer :: status
@@ -447,7 +446,7 @@ contains
       logical :: found
       type(ESMF_TypeKind_Flag) :: tk
 
-      mapVal = ESMF_iterIterAsString(iter, keyString=KEY_TYPEKIND, asOkay=OK, _RC)
+      mapVal = ESMF_HConfigAsString(iter, keyString=KEY_TYPEKIND, asOkay=OK, _RC)
       _RETURN_UNLESS(OK)
 
       tk = get_typekind(mapVal, found, _RC)
