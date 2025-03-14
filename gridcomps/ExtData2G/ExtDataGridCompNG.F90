@@ -79,6 +79,9 @@
   integer, parameter         :: MAPL_ExtDataLeft          = 1
   integer, parameter         :: MAPL_ExtDataRight         = 2
   integer, parameter         :: MAPL_ExtDataResult        = 3
+  character(len=9), parameter :: mol_per_mol = 'mol mol-1'
+  character(len=7), parameter :: kg_per_kg = 'kg kg-1'
+  character(len=10), parameter :: emission_units = 'kg m-2 s-1'
   logical                    :: hasRun
   character(len=ESMF_MAXSTR) :: error_msg_str
 
@@ -257,7 +260,7 @@ CONTAINS
    type(DerivedExport), allocatable :: derived_item
    integer, pointer :: i_start
    integer :: new_size
-   logical, allocatable :: rules_with_ps(:)
+   logical, allocatable :: rules_with_ps(:), rules_with_q(:)
    !class(logger), pointer :: lgr
 
 !  Get my name and set-up traceback handle
@@ -401,7 +404,7 @@ CONTAINS
       do j=1,self%primary%number_of_rules%at(i)
          item => self%primary%item_vec%at(i_start+j-1)
          item%pfioCOllection_id = MAPL_DataAddCollection(item%file_template)
-         call new_GetLevs(item, time, _RC)
+         call GetLevs(item, time, _RC)
       enddo
 
    enddo
@@ -435,28 +438,52 @@ CONTAINS
       num_rules = self%primary%number_of_rules%at(i)
       if (allocated(rules_with_ps)) deallocate(rules_with_ps)
       allocate(rules_with_ps(num_rules), source=.false.)
+      if (allocated(rules_with_q)) deallocate(rules_with_q)
+      allocate(rules_with_q(num_rules), source=.false.)
       
       do j=1,self%primary%number_of_rules%at(i)
          item => self%primary%item_vec%at(i_start+j-1)
-         rules_with_ps(j) = allocated(item%vcoord%surf_name)
+         rules_with_ps(j) = allocated(item%aux_ps)
+         rules_with_q(j) = allocated(item%aux_q)
       enddo
 
-      if (.not.(any(rules_with_ps))) cycle 
+      if (any(rules_with_ps)) then
 
-      import_name => self%primary%import_names%at(i)
-      call self%primary%import_names%push_back("PS_"//import_name)
-      new_size = self%primary%item_vec%size()
-      do j=1,self%primary%number_of_rules%at(i)
-         item => self%primary%item_vec%at(i_start+j-1)
-         call copy_primary(item,new_item)
-         call self%primary%item_vec%push_back(new_item)
-         ! make a new name ps_importname, if that's not already in import names
-         call create_ps_field(new_item, self%ExtDataState, item, _RC)
-      enddo
+         import_name => self%primary%import_names%at(i)
+         call self%primary%import_names%push_back("PS_"//import_name)
+         new_size = self%primary%item_vec%size()
+         do j=1,self%primary%number_of_rules%at(i)
+            item => self%primary%item_vec%at(i_start+j-1)
+            call copy_primary(item,new_item,'PS')
+            call self%primary%item_vec%push_back(new_item)
+            ! make a new name ps_importname, if that's not already in import names
+            call create_aux_field(new_item, self%ExtDataState, item, 2, _RC)
+         enddo
 
-      num_rules = self%primary%number_of_rules%of(i)
-      call self%primary%export_id_start%push_back(new_size+1)
-      call self%primary%number_of_rules%push_back(num_rules)
+         num_rules = self%primary%number_of_rules%of(i)
+         call self%primary%export_id_start%push_back(new_size+1)
+         call self%primary%number_of_rules%push_back(num_rules)
+
+      end if
+
+      if (any(rules_with_q)) then
+
+         import_name => self%primary%import_names%at(i)
+         call self%primary%import_names%push_back("Q_"//import_name)
+         new_size = self%primary%item_vec%size()
+         do j=1,self%primary%number_of_rules%at(i)
+            item => self%primary%item_vec%at(i_start+j-1)
+            call copy_primary(item,new_item,'Q')
+            call self%primary%item_vec%push_back(new_item)
+            ! make a new name ps_importname, if that's not already in import names
+            call create_aux_field(new_item, self%ExtDataState, item, 3, _RC)
+         enddo
+
+         num_rules = self%primary%number_of_rules%of(i)
+         call self%primary%export_id_start%push_back(new_size+1)
+         call self%primary%number_of_rules%push_back(num_rules)
+
+      end if
    enddo
 
    call confirm_imports_for_vregrid(self%primary, import, _RC)
@@ -831,19 +858,18 @@ CONTAINS
 
    end function DerivedExportIsConstant_
 
-     subroutine new_GetLevs(item, current_time, rc)
+     subroutine GetLevs(item, current_time, rc)
 
         type(PrimaryExport)      , intent(inout) :: item
         type(ESMF_Time)          , intent(in) :: current_time
         integer, optional        , intent(out  ) :: rc
-
         integer :: status
 
         type(Variable), pointer :: var
 
         type(FileMetadataUtils), pointer :: metadata
         type(MAPLDataCollection), pointer :: collection
-        character(len=:), allocatable :: filename
+        character(len=:), allocatable :: filename, q_name
 
         if (trim(item%file_template) == "/dev/null") then
            _RETURN(_SUCCESS)
@@ -852,6 +878,7 @@ CONTAINS
         collection => DataCollections%at(item%pfioCollection_id)
         metadata => collection%find(filename,_RC)
         item%file_metadata = metadata
+        item%units = metadata%get_var_attr_string(item%var,'units',_RC) 
 
         if (item%vartype == MAPL_VectorField) then
            var=>item%file_metadata%get_variable(trim(item%fcomp1))
@@ -867,10 +894,42 @@ CONTAINS
         item%vcoord = verticalCoordinate(metadata, item%var, _RC)
         if (item%vcoord%vertical_type /= NO_COORD .and. item%vcoord%vertical_type /= SIMPLE_COORD .and. &
             (item%disable_vertical_regrid .eqv. .false.)) item%allow_vertical_regrid = .true.
-
+        
+        if (item%allow_vertical_regrid) then
+           item%aux_ps = item%vcoord%surf_name
+           if (item%units == mol_per_mol) then
+              item%molecular_weight = metadata%get_var_attr_string(item%var, 'molecular_weight', _RC) 
+              q_name = find_q(metadata, _RC)
+              item%aux_q = q_name
+           end if
+        end if
         _RETURN(ESMF_SUCCESS)
 
-     end subroutine new_GetLevs
+     contains 
+
+     function find_q(metadata, rc) result(q_name)
+        character(len=:), allocatable :: q_name
+        type(FileMetadataUtils), intent(inout) :: metadata
+        integer, optional, intent(out) :: rc
+        type (StringVariableMap), pointer :: vars
+        type (StringVariableMapIterator) :: var_iter
+        character(len=:), pointer :: var_name
+        character(len=:), allocatable :: units
+        integer :: status
+
+        vars => metadata%get_variables()
+        var_iter = vars%begin()
+        do while (var_iter /= vars%end())
+           var_name => var_iter%key()
+           units = metadata%get_var_attr_string(var_name,'units',_RC) 
+           if (units == "specific_humidity") q_name = var_name 
+           call var_iter%next()
+        enddo
+        _ASSERT(allocated(q_name), "could not find specific humidity in source file needed for volume mixing regridding")
+        _RETURN(_SUCCESS)
+     end function find_q
+
+     end subroutine GetLevs
 
   subroutine MAPL_ExtDataInterpField(item,state,time,rc)
      type(PrimaryExport), intent(inout) :: item
@@ -932,12 +991,8 @@ CONTAINS
      integer :: fieldRank
      real, pointer :: dst_ptr3d(:,:,:), src_ptr3d(:,:,:), src_ps_ptr(:,:), dst_ple_ptr(:,:,:)
      real, allocatable :: src_ple(:,:,:)
-     character(len=:), allocatable :: mol_per_mol, kg_per_kg, emission_units
      character(len=:), allocatable :: units_in, units_out
      integer :: constituent_type
-     mol_per_mol = "mol mol-1"
-     kg_per_kg = "kg kg-1"
-     emission_units = "kg m-2 s-1"
 
      if (item%vcoord%vertical_type == NO_COORD &
         .or. (.not.item%delivered_item)) then
@@ -962,6 +1017,7 @@ CONTAINS
 
         units_in = get_field_units(src_field, _RC)
         units_out = get_field_units(dst_field, _RC)
+        _ASSERT(units_in == units_out, "Going to vertical regrid and units of source and destination do not match")
       
         if (units_in == mol_per_mol) constituent_type = volume_mixing 
         if (units_in == kg_per_kg) constituent_type = mass_mixing
@@ -1470,11 +1526,14 @@ CONTAINS
 
            bracket_grid = MAPL_ExtDataGridChangeLev(grid,cf,item%vcoord%num_levels,_RC)
            left_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
+           call set_field_units(left_field, item%units, _RC)
            right_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
+           call set_field_units(right_field, item%units, _RC)
 
            
            if ((item%vcoord%num_levels /= lm) .and. (lm > 0)) then
               temp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%vcomp1),_RC)
+              call set_field_units(temp_field, item%units, _RC)
               call MAPL_FieldBundleAdd(item%t_interp_bundle, temp_field, _RC)
            else
               call MAPL_FieldBundleAdd(item%t_interp_bundle, field, _RC)
@@ -1500,10 +1559,13 @@ CONTAINS
 
            bracket_grid = MAPL_ExtDataGridChangeLev(grid,cf,item%vcoord%num_levels,_RC)
            left_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
+           call set_field_units(left_field, item%units, _RC)
            right_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
+           call set_field_units(right_field, item%units, _RC)
            call item%modelGridFields%comp1%set_parameters(left_field=left_field,right_field=right_field, _RC)
            if (item%vcoord%num_levels /= lm) then
               temp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%vcomp1),_RC)
+              call set_field_units(temp_field, item%units, _RC)
               call MAPL_FieldBundleAdd(item%t_interp_bundle, temp_field, _RC)
            else
               call MAPL_FieldBundleAdd(item%t_interp_bundle, field, _RC)
@@ -1512,10 +1574,13 @@ CONTAINS
 
            call ESMF_StateGet(ExtDataState, trim(item%vcomp2), field,_RC)
            left_field = MAPL_FieldCreate(field,item%fcomp2,doCopy=.true.,_RC)
+           call set_field_units(left_field, item%units, _RC)
            right_field = MAPL_FieldCreate(field,item%fcomp2,doCopy=.true.,_RC)
+           call set_field_units(right_field, item%units, _RC)
            call item%modelGridFields%comp2%set_parameters(left_field=left_field,right_field=right_field, _RC)
            if (item%vcoord%num_levels /= lm) then
               temp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%vcomp2),_RC)
+              call set_field_units(temp_field, item%units, _RC)
               call MAPL_FieldBundleAdd(item%t_interp_bundle, temp_field, _RC)
            else
               call MAPL_FieldBundleAdd(item%t_interp_bundle, field, _RC)
@@ -1526,6 +1591,19 @@ CONTAINS
      end if
 
      _RETURN(_SUCCESS)
+
+     contains
+
+     subroutine set_field_units(field, units, rc)
+        type(ESMF_Field), intent(inout) :: field
+        character(len=*), intent(in) :: units
+        integer, optional, intent(out) :: rc
+        integer :: status
+
+        call ESMF_AttributeSet(field,name='UNITS',value=units, _RC)
+        _RETURN(_SUCCESS)
+     end subroutine set_field_units
+
   end subroutine create_bracketing_fields
 
   subroutine create_holding_field(state,primary_name,derived_name,rc)
@@ -1544,16 +1622,16 @@ CONTAINS
      _RETURN(_SUCCESS)
   end subroutine
 
-  subroutine create_ps_field(item,ExtDataState,old_item,rc)
+  subroutine create_aux_field(item,ExtDataState,old_item,rank,rc)
      type(PrimaryExport), intent(inout) :: item
      type(ESMF_State), intent(inout) :: extDataState
      type(PrimaryExport), intent(inout) :: old_item
+     integer, intent(in) :: rank
      integer, intent(out), optional :: rc
 
      integer :: status
      type(ESMF_Field) :: field,new_field
      type(ESMF_Grid)  :: grid
-     real, pointer :: ptr2d(:,:)
      type(ESMF_StateItem_Flag) :: item_type
 
      call ESMF_StateGet(ExtDataState,trim(old_item%name),field,_RC)
@@ -1567,15 +1645,18 @@ CONTAINS
      end if     
 
      call ESMF_FieldGet(field,grid=grid,_RC)
-
-     new_field=ESMF_FieldCreate(grid,name=item%name,typekind=ESMF_TYPEKIND_R4,_RC)
-     call ESMF_FieldGet(new_field,0,farrayPtr=ptr2d,_RC)
-     ptr2d=0.0
+  
+     if (rank==2) then
+        new_field=ESMF_FieldCreate(grid,name=item%name,typekind=ESMF_TYPEKIND_R4,_RC)
+     else if (rank==3) then
+        new_field=ESMF_FieldCreate(grid,name=item%name,typekind=ESMF_TYPEKIND_R4, &
+         ungriddedLBound=[1], ungriddedUBound=[item%vcoord%num_levels],_RC)
+     end if
      call MAPL_StateAdd(ExtDataState,new_field,_RC)
 
      _RETURN(_SUCCESS)
 
-  end subroutine create_ps_field
+  end subroutine create_aux_field
 
   subroutine create_primary_field(item,ExtDataState,current_time,rc)
      type(PrimaryExport), intent(inout) :: item
