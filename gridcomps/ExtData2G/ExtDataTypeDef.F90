@@ -77,7 +77,8 @@ module MAPL_ExtDataTypeDef
      character(len=4) :: importVDir = "down"
      logical :: disable_vertical_regrid = .true.
      logical :: allow_vertical_regrid = .false.
-     character(len=:), allocatable :: molecular_weight, aux_ps, aux_q
+     character(len=:), allocatable :: aux_ps, aux_q
+     real :: molecular_weight
 
   end type PrimaryExport
   

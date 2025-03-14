@@ -449,6 +449,8 @@ CONTAINS
 
       if (any(rules_with_ps)) then
 
+         i_start => self%primary%export_id_start%at(i)
+         num_rules = self%primary%number_of_rules%at(i)
          import_name => self%primary%import_names%at(i)
          call self%primary%import_names%push_back("PS_"//import_name)
          new_size = self%primary%item_vec%size()
@@ -468,6 +470,8 @@ CONTAINS
 
       if (any(rules_with_q)) then
 
+         i_start => self%primary%export_id_start%at(i)
+         num_rules = self%primary%number_of_rules%at(i)
          import_name => self%primary%import_names%at(i)
          call self%primary%import_names%push_back("Q_"//import_name)
          new_size = self%primary%item_vec%size()
@@ -898,7 +902,7 @@ CONTAINS
         if (item%allow_vertical_regrid) then
            item%aux_ps = item%vcoord%surf_name
            if (item%units == mol_per_mol) then
-              item%molecular_weight = metadata%get_var_attr_string(item%var, 'molecular_weight', _RC) 
+              item%molecular_weight = metadata%get_var_attr_real32(item%var, 'molecular_weight', _RC) 
               q_name = find_q(metadata, _RC)
               item%aux_q = q_name
            end if
@@ -915,14 +919,21 @@ CONTAINS
         type (StringVariableMapIterator) :: var_iter
         character(len=:), pointer :: var_name
         character(len=:), allocatable :: units
+        character(len=:), allocatable :: long_name
         integer :: status
+        logical :: has_units, has_longname
 
         vars => metadata%get_variables()
         var_iter = vars%begin()
         do while (var_iter /= vars%end())
            var_name => var_iter%key()
-           units = metadata%get_var_attr_string(var_name,'units',_RC) 
-           if (units == "specific_humidity") q_name = var_name 
+           has_longname = metadata%var_has_attr(var_name,'long_name',_RC)
+           has_units = metadata%var_has_attr(var_name,'units',_RC)
+           if (has_longname .and. has_units) then
+              long_name = metadata%get_var_attr_string(var_name,'long_name',_RC) 
+              units = metadata%get_var_attr_string(var_name,'units',_RC) 
+              if (long_name == "specific_humidity" .and. units == "kg kg-1") q_name = var_name 
+           end if
            call var_iter%next()
         enddo
         _ASSERT(allocated(q_name), "could not find specific humidity in source file needed for volume mixing regridding")
