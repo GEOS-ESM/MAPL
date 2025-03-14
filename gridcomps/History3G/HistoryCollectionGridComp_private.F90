@@ -1,8 +1,12 @@
 #include "MAPL_Generic.h"
+#define USE_UNITS
+!#define USE_FREQUENCY
+!#define USE_TYPEKIND
+#define USE_EXTENDED
 module mapl3g_HistoryCollectionGridComp_private
 
    use generic3g
-   use mapl3g_VariableSpec
+   use mapl3g_VariableSpec, only: VariableSpec, make_VariableSpec, make_VariableSpecFromAspects
    use esmf
    use Mapl_ErrorHandling
    use gFTL2_StringVector
@@ -11,6 +15,10 @@ module mapl3g_HistoryCollectionGridComp_private
    use MAPL_TimeStringConversion
    use MAPL_BaseMod, only: MAPL_UnpackTime
    use mapl3g_UngriddedDims
+   use mapl3g_FrequencyAspect, only: FrequencyAspect
+   use mapl3g_TypekindAspect, only: TypekindAspect
+   use mapl3g_UnitsAspect, only: UnitsAspect
+   use mapl3g_VerticalGridAspect, only: VerticalGridAspect
    use gFTL2_StringSet
 
    implicit none(type,external)
@@ -26,12 +34,32 @@ module mapl3g_HistoryCollectionGridComp_private
    public :: replace_delimiter
    public :: get_expression_variables
 
+   type :: HistoryOptions
+      character(len=:), allocatable :: units
+      type(ESMF_TypeKind_Flag), allocatable :: typekind
+      type(ESMF_TimeInterval), allocatable :: timeStep
+      type(ESMF_TimeInterval), allocatable :: runTime_offset
+      character(len=:), allocatable :: accumulation_type
+   end type HistoryOptions
+
    interface parse_item
       module procedure :: parse_item_expression
       module procedure :: parse_item_simple
    end interface parse_item
 
+#if defined(USE_EXTENDED)
+   interface parse_options
+      module procedure :: parse_options_iter
+   end interface parse_options
+#endif
+
    character(len=*), parameter :: VAR_LIST_KEY = 'var_list'
+   character(len=*), parameter :: KEY_TIMESTEP = 'frequency'
+   character(len=*), parameter :: KEY_OFFSET = 'ref_time'
+   character(len=*), parameter :: KEY_ACCUMULATION_TYPE = 'mode'
+   character(len=*), parameter :: KEY_TIME_SPEC = 'time_spec'
+   character(len=*), parameter :: KEY_TYPEKIND = 'typekind'
+   character(len=*), parameter :: KEY_UNITS = 'units'
 
 contains
 
@@ -53,6 +81,7 @@ contains
       _RETURN(_SUCCESS)
    end function make_geom
 
+#if !defined(USE_EXTENDED)
    subroutine register_imports(gridcomp, hconfig, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       type(ESMF_HConfig), intent(in) :: hconfig
@@ -80,6 +109,7 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine register_imports
+#endif
 
    function create_output_bundle(hconfig, import_state, rc) result(bundle)
       type(ESMF_FieldBundle) :: bundle
@@ -270,4 +300,208 @@ contains
       enddo
    end function get_current_time_index
 
+#if defined(USE_EXTENDED)
+   subroutine register_imports(gridcomp, hconfig, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(ESMF_HConfig), intent(in) :: hconfig
+      integer, optional, intent(out) :: rc
+      type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
+      type(ESMF_HConfig) :: var_list
+      character(len=:), allocatable :: item_name
+      type(StringVector) :: variable_names
+      type(HistoryOptions) :: options
+      integer :: status
+
+      ! Get variable list
+      var_list = ESMF_HConfigCreateAt(hconfig, keystring=VAR_LIST_KEY, rc=status)
+      if(status==ESMF_RC_NOT_FOUND) then
+         _FAIL(VAR_LIST_KEY // ' was not found.')
+      end if
+      _VERIFY(status)
+
+      iter_begin = ESMF_HConfigIterBegin(var_list,_RC)
+      iter_end = ESMF_HConfigIterEnd(var_list,_RC)
+      iter = iter_begin
+
+      ! Get Options for collection
+      call parse_options(iter, options, _RC)
+
+      ! Add VariableSpec objects
+      do while (ESMF_HConfigIterLoop(iter,iter_begin,iter_end,rc=status))
+         _VERIFY(status)
+         call parse_item(iter, item_name, variable_names, _RC)
+         call parse_options(iter, options, _RC)
+         call add_var_specs(gridcomp, variable_names, options, _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine register_imports
+
+   subroutine add_var_specs(gridcomp, variable_names, opts, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(StringVector), intent(in) :: variable_names
+      type(HistoryOptions), intent(in) :: opts
+      integer, optional, intent(out) :: rc
+      integer :: status
+      character(len=:), allocatable :: item_name
+      type(StringVectorIterator) :: ftn_iter, ftn_end
+      type(VariableSpec) :: varspec
+      character(len=:), allocatable :: short_name
+
+      ftn_end = variable_names%ftn_end()
+      ftn_iter = variable_names%ftn_begin()
+      do while (ftn_iter /= ftn_end)
+         call ftn_iter%next()
+         short_name = ftn_iter%of()
+         varspec = make_VariableSpecFromAspects(ESMF_STATEINTENT_IMPORT, short_name, &
+            & vertical_aspect=VerticalGridAspect(vertical_dim_spec=VERTICAL_DIM_MIRROR), &
+#if defined(USE_UNITS)
+            & units_aspect=UnitsAspect(opts%units), &
+#endif
+#if defined(USE_TYPEKIND)
+            & typekind_aspect=TypekindAspect(opts%typekind), &
+#endif
+#if defined(USE_FREQUENCY)
+            & frequency_aspect=FrequencyAspect(accumulation_type=opts%accumulation_type, &
+               & timeStep=opts%timeStep, offset=opts%runTime_offset), &
+#endif
+         & _RC)
+         call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
+      end do
+      _RETURN(_SUCCESS)
+
+   end subroutine add_var_specs
+
+   subroutine parse_options_iter(iter, options, rc)
+      type(ESMF_HConfigIter), intent(in) :: iter
+      class(HistoryOptions), intent(inout) :: options
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+#if defined(USE_FREQUENCY)
+      call parse_frequency_aspect_options(iter, options, _RC)
+#endif
+#if defined(USE_UNITS)
+      call parse_units_aspect_options(iter, options, _RC)
+#endif
+#if defined(USE_TYPEKIND)
+      call parse_typekind_aspect_options(iter, options, _RC)
+#endif
+      _RETURN(_SUCCESS)
+
+   end subroutine parse_options_iter
+
+#if defined(USE_FREQUENCY)
+   subroutine parse_frequency_aspect_options(iter, options, rc)
+      type(ESMF_HConfigIter), intent(in) :: iter
+      class(HistoryOptions), intent(inout) :: options
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_HConfigIter) :: time_iter
+      logical :: OK
+      character(len=:), allocatable :: mapVal
+
+      OK = ESMF_HConfigIterIsDefined(iter, keyString=KEY_TIME_SPEC, _RC)
+      _RETURN_UNLESS(OK)
+
+      mapVal = ESMF_HConfigAsString(time_iter, keyString=KEY_ACCUMULATION_TYPE, asOkay=OK, _RC)
+      if(OK) options%accumulation_type = mapVal
+      mapVal = ESMF_HConfigAsString(time_iter, keyString=KEY_TIMESTEP, asOkay=OK, _RC)
+      if(OK) then
+         call ESMF_TimeIntervalSet(options%timeStep, timeIntervalString=mapVal, _RC)
+      end if
+      mapVal = ESMF_HConfigAsString(time_iter, keyString=KEY_OFFSET, asOkay=OK, _RC)
+      if(OK) then
+         call ESMF_TimeIntervalSet(options%runTime_offset, timeIntervalString=mapVal, _RC)
+      end if
+
+   end subroutine parse_frequency_aspect_options
+#endif
+
+#if defined(USE_UNITS)
+   subroutine parse_units_aspect_options(iter, options, rc)
+      type(ESMF_HConfigIter), intent(in) :: iter
+      class(HistoryOptions), intent(inout) :: options
+      integer, optional, intent(out) :: rc
+      integer :: status
+      logical :: OK
+      character(len=:), allocatable :: mapVal
+
+      mapVal = ESMF_HConfigAsString(iter, keyString=KEY_UNITS, asOkay=OK, _RC)
+      _RETURN_UNLESS(OK)
+      options%units = mapVal
+      _RETURN(_SUCCESS)
+
+   end subroutine parse_units_aspect_options
+#endif
+
+#if defined(USE_TYPEKIND)
+   subroutine parse_typekind_aspect_options(iter, options, rc)
+      type(ESMF_HConfigIter), intent(in) :: iter
+      class(HistoryOptions), intent(inout) :: options
+      integer, optional, intent(out) :: rc
+      integer :: status
+      logical :: OK
+      character(len=:), allocatable :: mapVal
+      logical :: found
+      type(ESMF_TypeKind_Flag) :: tk
+
+      mapVal = ESMF_HConfigAsString(iter, keyString=KEY_TYPEKIND, asOkay=OK, _RC)
+      _RETURN_UNLESS(OK)
+
+      tk = get_typekind(mapVal, found, _RC)
+      if(found) options%typekind = tk
+      _RETURN(_SUCCESS)
+
+   end subroutine parse_typekind_aspect_options
+#endif
+
+#if defined(TK_)
+#  undef TK_
+#endif
+#define TK_(S) ESMF_TYPEKIND_##S
+
+#if defined(USE_TYPEKIND)
+   function get_typekind(tk_string, found, rc) result(typekind)
+      type(ESMF_TypeKind_Flag) :: typekind
+      character(len=*), intent(in) :: tk_string
+      logical, optional, intent(in) :: found
+      integer, optional, intent(out) :: rc
+      integer :: status
+      integer, parameter :: L = 10
+      integer, parameter :: ML = 2
+      character(len=L), parameter :: CODES(*) = [character(len=L) :: &
+         & 'I1', 'I2', 'I4', 'I8', 'R1', 'R2', 'R4', 'R8', &
+         & 'LOGICAL', 'CHARACTER']
+      type(ESMF_TypeKind_Flag), parameter :: TK(size(CODES)) = [ &
+         & TK_(I1), TK_(I2), TK_(I4), TK_(I8), TK_(R1), TK_(R2), &
+         & TK_(R4), TK_(R8), TK_(LOGICAL), TK_(CHARACTER)]
+      integer :: i
+      logical, pointer :: tk_found => null()
+
+      if(present(found)) then
+         tk_found => found
+      else
+         allocate(tk_found)
+      end if
+
+      _ASSERT(len(tk_string) >= ML, 'tk_string is too short.')
+      do i=1, size(CODES)
+         tk_found = index(tk_string, trim(CODES(i))) > 0
+         if(tk_found) typekind = TK(i)
+         _RETURN_IF(tk_found)
+      end do
+
+      _RETURN_IF(present(found))
+      _ASSERT(tk_found, 'Typekind was not found.')
+
+   end function get_typekind
+#endif
+#undef TK_
+#endif
+
 end module mapl3g_HistoryCollectionGridComp_private
+#undef USE_TYPEKIND
+#undef USE_EXTENDED
+#undef USE_UNITS
+#undef USE_FREQUENCY
