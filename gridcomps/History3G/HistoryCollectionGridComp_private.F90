@@ -2,7 +2,7 @@
 !#define USE_UNITS
 !#define USE_FREQUENCY
 !#define USE_TYPEKIND
-#define USE_EXTENDED
+!#define USE_EXTENDED
 module mapl3g_HistoryCollectionGridComp_private
 
    use generic3g
