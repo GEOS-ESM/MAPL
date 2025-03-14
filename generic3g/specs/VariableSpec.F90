@@ -108,6 +108,7 @@ contains
       type(EsmfRegridderParam) :: regrid_param_
       integer :: status
 
+      regrid_param_ = get_regrid_param(regrid_param, standard_name)
       var_spec = make_VariableSpecFromAspects(state_intent, short_name, &
          & standard_name=standard_name, itemType=itemType, service_items=service_items, &
          & default_value=default_value, bracket_size=bracket_size, dependencies=dependencies, &

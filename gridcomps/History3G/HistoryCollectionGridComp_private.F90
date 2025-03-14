@@ -2,7 +2,7 @@
 !#define USE_UNITS
 !#define USE_FREQUENCY
 !#define USE_TYPEKIND
-!#define USE_EXTENDED
+#define USE_EXTENDED
 module mapl3g_HistoryCollectionGridComp_private
 
    use generic3g
@@ -92,7 +92,6 @@ contains
       type(StringVector) :: variable_names
       integer :: status
 
-      _HERE, 'NOT EXTENDED'
       var_list = ESMF_HConfigCreateAt(hconfig, keystring=VAR_LIST_KEY, rc=status)
       if(status==ESMF_RC_NOT_FOUND) then
          _FAIL(VAR_LIST_KEY // ' was not found.')
@@ -314,7 +313,6 @@ contains
       type(HistoryOptions) :: options
       integer :: status
 
-      _HERE, 'EXTENDED'
       ! Get variable list
       var_list = ESMF_HConfigCreateAt(hconfig, keystring=VAR_LIST_KEY, rc=status)
       if(status==ESMF_RC_NOT_FOUND) then
@@ -327,49 +325,46 @@ contains
       iter = iter_begin
 
       ! Get Options for collection
-      call parse_options(iter, options, _RC)
+      ! call parse_options(iter, options, _RC)
 
       ! Add VariableSpec objects
       do while (ESMF_HConfigIterLoop(iter,iter_begin,iter_end,rc=status))
          _VERIFY(status)
-         call add_var_specs(gridcomp, iter, options, _RC)
+         call parse_item(iter, item_name, variable_names, _RC)
+         !call parse_options(iter, options, _RC)
+         call add_var_specs(gridcomp, variable_names, options, _RC)
       end do
 
       _RETURN(_SUCCESS)
    end subroutine register_imports
 
-   subroutine add_var_specs(gridcomp, iter, options, rc)
+   subroutine add_var_specs(gridcomp, variable_names, opts, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
-      type(ESMF_HConfigIter), intent(inout) :: iter
-      type(HistoryOptions), optional, intent(in) :: options
+      type(StringVector), intent(in) :: variable_names
+      type(HistoryOptions), intent(in) :: opts
       integer, optional, intent(out) :: rc
       integer :: status
       character(len=:), allocatable :: item_name
-      type(StringVector) :: variable_names
       type(StringVectorIterator) :: ftn_iter, ftn_end
       type(VariableSpec) :: varspec
       character(len=:), allocatable :: short_name
-      type(HistoryOptions) :: loptions
 
-      if(present(options)) loptions = options
-      call parse_options(iter, loptions, _RC)
       ftn_end = variable_names%ftn_end()
       ftn_iter = variable_names%ftn_begin()
       do while (ftn_iter /= ftn_end)
          call ftn_iter%next()
          short_name = ftn_iter%of()
-         _HERE, 'short_name: ' // trim(short_name) // ' (add_var_specs)'
          varspec = make_VariableSpecFromAspects(ESMF_STATEINTENT_IMPORT, short_name, &
             & vertical_aspect=VerticalGridAspect(vertical_dim_spec=VERTICAL_DIM_MIRROR), &
 #if defined(USE_UNITS)
-            & units_aspect=UnitsAspect(loptions%units), &
+            & units_aspect=UnitsAspect(opts%units), &
 #endif
 #if defined(USE_TYPEKIND)
-            & typekind_aspect=TypekindAspect(loptions%typekind), &
+            & typekind_aspect=TypekindAspect(opts%typekind), &
 #endif
 #if defined(USE_FREQUENCY)
-            & frequency_aspect=FrequencyAspect(accumulation_type=loptions%accumulation_type, &
-               & timeStep=loptions%timeStep, offset=loptions%runTime_offset), &
+            & frequency_aspect=FrequencyAspect(accumulation_type=opts%accumulation_type, &
+               & timeStep=opts%timeStep, offset=opts%runTime_offset), &
 #endif
          & _RC)
          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
@@ -377,21 +372,6 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine add_var_specs
-
-!   subroutine parse_options_iter(iter, options, rc)
-!      type(ESMF_HConfigIter), intent(in) :: iter
-!      class(HistoryOptions), intent(inout) :: options
-!      integer, optional, intent(out) :: rc
-!      integer :: status
-!
-!      hconfig = ESMF_HConfigCreate(iter, _RC)
-!#if defined(USE_FREQUENCY)
-!      call parse_frequency_aspect_options(hconfig, options, _RC)
-!#endif
-!      call ESMF_HConfigDestroy(hconfig, _RC)
-!      _RETURN(_SUCCESS)
-!
-!   end subroutine parse_options_iter
 
    subroutine parse_options_iter(iter, options, rc)
       type(ESMF_HConfigIter), intent(in) :: iter

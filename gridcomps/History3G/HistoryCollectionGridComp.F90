@@ -79,7 +79,6 @@ contains
       call ESMF_GridCompGet(gridcomp, name=name, _RC)
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, HistoryCollectionGridComp, PRIVATE_STATE, collection_gridcomp)
-      _HERE
       collection_gridcomp%output_bundle = create_output_bundle(hconfig, importState, _RC)
 
       call MAPL_GridCompGet(gridcomp, geom=geom, _RC)
