@@ -19,9 +19,9 @@ module mapl3g_BracketClassAspect
    use mapl3g_VerticalStaggerLoc
    use mapl3g_UngriddedDims
 
-   use mapl3g_NullAction
-   use mapl3g_TimeInterpolateAction
-   use mapl3g_ExtensionAction
+   use mapl3g_NullTransform
+   use mapl3g_TimeInterpolateTransform
+   use mapl3g_ExtensionTransform
    use mapl3g_MultiState
    use mapl3g_ESMF_Utilities, only: get_substate
 
@@ -54,7 +54,7 @@ module mapl3g_BracketClassAspect
       procedure :: get_aspect_order
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
-      procedure :: make_action
+      procedure :: make_transform
       procedure :: matches
       procedure :: connect_to_export
 
@@ -227,8 +227,8 @@ contains
    end function to_BracketClassAspect_from_map
    
 
-   function make_action(src, dst, other_aspects, rc) result(action)
-      class(ExtensionAction), allocatable :: action
+   function make_transform(src, dst, other_aspects, rc) result(transform)
+      class(ExtensionTransform), allocatable :: transform
       class(BracketClassAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
       type(AspectMap), target, intent(in) :: other_aspects
@@ -236,13 +236,13 @@ contains
 
       ! No arguments to constructor - it uses ESMF_Info
       ! and FieldBundle structure to determine what to do
-      action = TimeInterpolateAction()
+      transform = TimeInterpolateTransform()
 
       _RETURN(_SUCCESS)
-   end function make_action
+   end function make_transform
 
    ! Should only connect to FieldClassAspect and
-   ! then needs a TimeInterpolateAction
+   ! then needs a TimeInterpolateTransform
    logical function matches(src, dst)
       class(BracketClassAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst

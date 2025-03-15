@@ -16,8 +16,8 @@ module mapl3g_FieldClassAspect
    use mapl3g_VerticalStaggerLoc
    use mapl3g_UngriddedDims
 
-   use mapl3g_NullAction
-   use mapl3g_ExtensionAction
+   use mapl3g_NullTransform
+   use mapl3g_ExtensionTransform
    use mapl3g_MultiState
    use mapl3g_ESMF_Utilities, only: get_substate
 
@@ -48,7 +48,7 @@ module mapl3g_FieldClassAspect
       procedure :: get_aspect_order
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
-      procedure :: make_action
+      procedure :: make_transform
       procedure :: matches => matches_a
       procedure :: connect_to_import
       procedure :: connect_to_export
@@ -316,17 +316,17 @@ contains
       _RETURN(_SUCCESS)
    end function to_fieldclassaspect_from_map
 
-   function make_action(src, dst, other_aspects, rc) result(action)
-      class(ExtensionAction), allocatable :: action
+   function make_transform(src, dst, other_aspects, rc) result(transform)
+      class(ExtensionTransform), allocatable :: transform
       class(FieldClassAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
       type(AspectMap), target, intent(in) :: other_aspects
       integer, optional, intent(out) :: rc
       
-      action = NullAction()
+      transform = NullTransform()
 
       _RETURN(_SUCCESS)
-   end function make_action
+   end function make_transform
 
    logical function supports_conversion_general(src)
       class(FieldClassAspect), intent(in) :: src

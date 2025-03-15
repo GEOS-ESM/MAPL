@@ -26,18 +26,18 @@ set (test_srcs
 
   Test_GenericGridComp.pf
 
-  Test_TimeInterpolateAction.pf
+  Test_TimeInterpolateTransform.pf
   
   Test_ModelVerticalGrid.pf
   Test_FixedLevelsVerticalGrid.pf
   Test_VerticalLinearMap.pf
 
   Test_CSR_SparseMatrix.pf
-  Test_AccumulatorAction.pf
-  Test_MeanAction.pf
-  Test_MaxAction.pf
-  Test_MinAction.pf
-  Test_ExtensionAction.pf
+  Test_AccumulatorTransform.pf
+  Test_MeanTransform.pf
+  Test_MaxTransform.pf
+  Test_MinTransform.pf
+  Test_ExtensionTransform.pf
 
   Test_timestep_propagation.pf
 )
@@ -48,7 +48,7 @@ add_pfunit_ctest(
   LINK_LIBRARIES MAPL.generic3g MAPL.shared MAPL.pfunit configurable_gridcomp
   EXTRA_INITIALIZE Initialize
   EXTRA_USE MAPL_pFUnit_Initialize
-  OTHER_SOURCES MockUserGridComp.F90 accumulator_action_test_common.F90 MockAspect.F90
+  OTHER_SOURCES MockUserGridComp.F90 accumulator_transform_test_common.F90 MockAspect.F90
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )

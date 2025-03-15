@@ -2,14 +2,14 @@
 
 ! A copy might be between different kinds and precisions, so is really
 ! a converter.  But ... what is a better name.
-module mapl3g_CopyAction
-   use mapl3g_ExtensionAction
+module mapl3g_CopyTransform
+   use mapl3g_ExtensionTransform
    use mapl_ErrorHandling
    use esmf
    use MAPL_FieldUtils
    implicit none
 
-   type, extends(ExtensionAction) :: CopyAction
+   type, extends(ExtensionTransform) :: CopyTransform
       private
       type(ESMF_TypeKind_Flag) :: src_typekind
       type(ESMF_TypeKind_Flag) :: dst_typekind
@@ -17,30 +17,30 @@ module mapl3g_CopyAction
    contains
       procedure :: initialize
       procedure :: update
-   end type CopyAction
+   end type CopyTransform
 
-   interface CopyAction
-       module procedure new_CopyAction
-   end interface CopyAction
+   interface CopyTransform
+       module procedure new_CopyTransform
+   end interface CopyTransform
 
 contains
 
    ! We don't really need to know the typekind as the low level conversion routines
    ! will accept whatever is handed. So these arguments are more to preserve
-   ! a consistent form for constructions across Action subclasses.
-   function new_CopyAction(src_typekind, dst_typekind) result(action)
-      type(CopyAction) :: action
+   ! a consistent form for constructions across Transform subclasses.
+   function new_CopyTransform(src_typekind, dst_typekind) result(transform)
+      type(CopyTransform) :: transform
       type(ESMF_Typekind_Flag), intent(in) :: src_typekind
       type(ESMF_Typekind_Flag), intent(in) :: dst_typekind
 
-      action%src_typekind = src_typekind
-      action%dst_typekind = dst_typekind
+      transform%src_typekind = src_typekind
+      transform%dst_typekind = dst_typekind
 
-   end function new_CopyAction
+   end function new_CopyTransform
 
    subroutine initialize(this, importState, exportState, clock, rc)
       use esmf
-      class(CopyAction), intent(inout) :: this
+      class(CopyTransform), intent(inout) :: this
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
       type(ESMF_Clock)      :: clock      
@@ -57,7 +57,7 @@ contains
 
    subroutine update(this, importState, exportState, clock, rc)
       use esmf
-      class(CopyAction), intent(inout) :: this
+      class(CopyTransform), intent(inout) :: this
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
       type(ESMF_Clock)      :: clock      
@@ -75,4 +75,4 @@ contains
    end subroutine update
 
 
-end module mapl3g_CopyAction
+end module mapl3g_CopyTransform

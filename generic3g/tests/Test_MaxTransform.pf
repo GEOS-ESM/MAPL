@@ -1,7 +1,7 @@
 #include "MAPL_TestErr.h"
-module Test_MinAction
-   use mapl3g_MinAction
-   use accumulator_action_test_common
+module Test_MaxTransform
+   use mapl3g_MaxTransform
+   use accumulator_transform_test_common
    use esmf
    use MAPL_FieldUtils
    use pfunit
@@ -11,9 +11,9 @@ module Test_MinAction
 contains
 
    @Test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_min_accumulate_R4(this)
+   subroutine test_max_accumulate_R4(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(MinAction) :: acc
+      type(MaxTransform) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
       integer :: status
@@ -36,12 +36,12 @@ contains
       i = n - 3
       accPtr(i:n) = [undef_value, ACCUMULATED_VALUE, ACCUMULATED_VALUE, ACCUMULATED_VALUE]
       upPtr(i:n) = [UPDATE_VALUE, undef_value, UPDATE_VALUE, UPDATE_VALUE+ACCUMULATED_VALUE]
-      expected = [UPDATE_VALUE, ACCUMULATED_VALUE, UPDATE_VALUE, ACCUMULATED_VALUE]
+      expected = [UPDATE_VALUE, ACCUMULATED_VALUE, ACCUMULATED_VALUE, UPDATE_VALUE+ACCUMULATED_VALUE]
       call acc%accumulate_R4(update_field, _RC)
       @assertEqual(expected, accPtr(i:n), 'accumulation_field not equal to expected values')
       call ESMF_FieldDestroy(update_field, _RC)
       call destroy_objects(importState, exportState, clock, _RC)
 
-   end subroutine test_min_accumulate_R4
+   end subroutine test_max_accumulate_R4
 
-end module Test_MinAction
+end module Test_MaxTransform

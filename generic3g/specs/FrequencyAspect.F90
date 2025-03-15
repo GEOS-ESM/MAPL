@@ -4,7 +4,7 @@ module mapl3g_FrequencyAspect
    use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
-   use mapl3g_AccumulatorActionInterface
+   use mapl3g_AccumulatorTransformInterface
    use mapl3g_ESMF_Time_Utilities, only: intervals_and_offset_are_compatible, zero_time_interval
    use esmf
    implicit none
@@ -22,7 +22,7 @@ module mapl3g_FrequencyAspect
       procedure :: matches
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
-      procedure :: make_action
+      procedure :: make_transform
       procedure :: connect_to_export
       procedure, nopass :: get_aspect_id
    end type FrequencyAspect
@@ -82,8 +82,8 @@ contains
 
    end function matches
 
-   function make_action(src, dst, other_aspects, rc) result(action)
-      class(ExtensionAction), allocatable :: action
+   function make_transform(src, dst, other_aspects, rc) result(transform)
+      class(ExtensionTransform), allocatable :: transform
       class(FrequencyAspect), intent(in) :: src
       class(StateItemAspect), intent(in)  :: dst
       type(AspectMap), target, intent(in)  :: other_aspects
@@ -94,16 +94,16 @@ contains
       select type(dst)
       class is (FrequencyAspect)
          accumulation_type = dst%accumulation_type
-         call get_accumulator_action(accumulation_type, ESMF_TYPEKIND_R4, action) 
-         _ASSERT(allocated(action), 'Unable to allocate action')
+         call get_accumulator_transform(accumulation_type, ESMF_TYPEKIND_R4, transform) 
+         _ASSERT(allocated(transform), 'Unable to allocate transform')
       class default
-         allocate(action,source=NullAction())
+         allocate(transform,source=NullTransform())
          _FAIL('FrequencyAspect cannot convert from other class.')
       end select
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(src)
-   end function make_action
+   end function make_transform
 
    subroutine connect_to_export(this, export, actual_pt, rc)
       class(FrequencyAspect), intent(inout) :: this

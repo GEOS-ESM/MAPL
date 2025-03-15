@@ -1,33 +1,33 @@
 #include "MAPL_Generic.h"
-module mapl3g_MinAction
-   use mapl3g_AccumulatorAction
+module mapl3g_MinTransform
+   use mapl3g_AccumulatorTransform
    use MAPL_ExceptionHandling
    use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
    use MAPL_FieldPointerUtilities, only: assign_fptr
    use ESMF
    implicit none
    private
-   public :: MinAction
-   public :: construct_MinAction
+   public :: MinTransform
+   public :: construct_MinTransform
 
-   type, extends(AccumulatorAction) :: MinAction
+   type, extends(AccumulatorTransform) :: MinTransform
    contains
       procedure :: accumulate_R4 => min_accumulate_R4
-   end type MinAction
+   end type MinTransform
 
 contains
 
-   function construct_MinAction(typekind) result(acc)
-      type(MinAction) :: acc
+   function construct_MinTransform(typekind) result(acc)
+      type(MinTransform) :: acc
       type(ESMF_TypeKind_Flag), intent(in) :: typekind
 
       acc%typekind = typekind
       acc%CLEAR_VALUE_R4 = MAPL_UNDEFINED_REAL
 
-   end function construct_MinAction
+   end function construct_MinTransform
 
    subroutine min_accumulate_R4(this, update_field, rc)
-      class(MinAction), intent(inout) :: this
+      class(MinTransform), intent(inout) :: this
       type(ESMF_Field), intent(inout) :: update_field
       integer, optional, intent(out) :: rc
 
@@ -47,4 +47,4 @@ contains
 
    end subroutine min_accumulate_R4
 
-end module mapl3g_MinAction
+end module mapl3g_MinTransform

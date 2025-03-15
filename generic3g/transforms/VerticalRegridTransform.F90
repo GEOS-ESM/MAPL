@@ -1,9 +1,9 @@
 #include "MAPL_Generic.h"
 
-module mapl3g_VerticalRegridAction
+module mapl3g_VerticalRegridTransform
 
    use mapl_ErrorHandling
-   use mapl3g_ExtensionAction
+   use mapl3g_ExtensionTransform
    use mapl3g_ComponentDriver
    use mapl3g_CouplerPhases, only: GENERIC_COUPLER_UPDATE
    use mapl3g_VerticalRegridMethod
@@ -15,13 +15,13 @@ module mapl3g_VerticalRegridAction
    implicit none
    private
 
-   public :: VerticalRegridAction
+   public :: VerticalRegridTransform
    public :: VERTICAL_REGRID_UNKNOWN
    public :: VERTICAL_REGRID_LINEAR
    public :: VERTICAL_REGRID_CONSERVATIVE
    public :: operator(==), operator(/=)
 
-   type, extends(ExtensionAction) :: VerticalRegridAction
+   type, extends(ExtensionTransform) :: VerticalRegridTransform
       type(ESMF_Field) :: v_in_coord, v_out_coord
       type(SparseMatrix_sp), allocatable :: matrix(:)
       class(ComponentDriver), pointer :: v_in_coupler => null()
@@ -32,35 +32,35 @@ module mapl3g_VerticalRegridAction
       procedure :: update
       procedure :: write_formatted
       generic :: write(formatted) => write_formatted
-   end type VerticalRegridAction
+   end type VerticalRegridTransform
 
-   interface VerticalRegridAction
-      procedure :: new_VerticalRegridAction
-   end interface VerticalRegridAction
+   interface VerticalRegridTransform
+      procedure :: new_VerticalRegridTransform
+   end interface VerticalRegridTransform
 
 contains
 
-   function new_VerticalRegridAction(v_in_coord, v_in_coupler, v_out_coord, v_out_coupler, method) result(action)
-      type(VerticalRegridAction) :: action
+   function new_VerticalRegridTransform(v_in_coord, v_in_coupler, v_out_coord, v_out_coupler, method) result(transform)
+      type(VerticalRegridTransform) :: transform
       type(ESMF_Field), intent(in) :: v_in_coord
       class(ComponentDriver), pointer, intent(in) :: v_in_coupler
       type(ESMF_Field), intent(in) :: v_out_coord
       class(ComponentDriver), pointer, intent(in) :: v_out_coupler
       type(VerticalRegridMethod), optional, intent(in) :: method
 
-      action%v_in_coord = v_in_coord
-      action%v_out_coord = v_out_coord
+      transform%v_in_coord = v_in_coord
+      transform%v_out_coord = v_out_coord
 
-      action%v_in_coupler => v_in_coupler
-      action%v_out_coupler => v_out_coupler
+      transform%v_in_coupler => v_in_coupler
+      transform%v_out_coupler => v_out_coupler
 
       if (present(method)) then
-         action%method = method
+         transform%method = method
       end if
-   end function new_VerticalRegridAction
+   end function new_VerticalRegridTransform
 
    subroutine initialize(this, importState, exportState, clock, rc)
-      class(VerticalRegridAction), intent(inout) :: this
+      class(VerticalRegridTransform), intent(inout) :: this
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
       type(ESMF_Clock) :: clock
@@ -75,7 +75,7 @@ contains
    end subroutine initialize
 
    subroutine update(this, importState, exportState, clock, rc)
-      class(VerticalRegridAction), intent(inout) :: this
+      class(VerticalRegridTransform), intent(inout) :: this
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
       type(ESMF_Clock) :: clock
@@ -118,7 +118,7 @@ contains
    end subroutine update
 
    subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
-      class(VerticalRegridAction), intent(in) :: this
+      class(VerticalRegridTransform), intent(in) :: this
       integer, intent(in) :: unit
       character(*), intent(in) :: iotype
       integer, intent(in) :: v_list(:)
@@ -131,7 +131,7 @@ contains
       call ESMF_FieldGet(this%v_in_coord, fArrayPtr=v_in, _RC)
       call ESMF_FieldGet(this%v_out_coord, fArrayPtr=v_out, _RC)
 
-      write(unit, "(a, a)", iostat=iostat, iomsg=iomsg) "VerticalRegridAction(", new_line("a")
+      write(unit, "(a, a)", iostat=iostat, iomsg=iomsg) "VerticalRegridTransform(", new_line("a")
       if (iostat /= 0) return
       write(unit, "(4x, a, l1, a, 4x, a, l1, a)", iostat=iostat, iomsg=iomsg) &
            "v_in_coupler: ", associated(this%v_in_coupler), new_line("a"), &
@@ -183,4 +183,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine compute_interpolation_matrix_
 
-end module mapl3g_VerticalRegridAction
+end module mapl3g_VerticalRegridTransform

@@ -36,6 +36,5 @@ target_sources(MAPL.generic3g PRIVATE
 
   ComponentSpec.F90
 
-  AbstractActionSpec.F90
   make_itemSpec.F90
 )
