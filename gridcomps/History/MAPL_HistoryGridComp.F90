@@ -3175,6 +3175,20 @@ ENDDO PARSER
        end if
        call ESMF_ConfigFindLabel ( cfg, label=label//':', _RC)
 
+       if( MAPL_AM_I_ROOT(vm) ) then
+          print *, 'Working on Collection: ',trim( label )
+       end if
+       m = ESMF_ConfigGetLen(cfg, _RC)
+       call ESMF_ConfigFindLabel ( cfg, label=label//':', _RC)
+       if (m == 0) then
+          ! allow for no entries on the fields: line
+          if( MAPL_AM_I_ROOT(vm) ) then
+             print *, 'Empty line collection: ',trim( label ),m
+          end if
+          call ESMF_ConfigNextLine  ( cfg,tableEnd=table_end,_RC )
+          _ASSERT(.not.table_end, 'Premature end of fields list')
+       end if
+
        table_end = .false.
        m = 0
        do while (.not.table_end)
