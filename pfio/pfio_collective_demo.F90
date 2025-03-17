@@ -322,7 +322,7 @@ program main
 !$   integer :: num_threads
    type (FakeExtData), target :: extData
 
-   required = MPI_THREAD_MULTIPLE
+   required = MPI_THREAD_SINGLE
    call MPI_init_thread(required, provided,  ierror)
    _VERIFY(ierror)
    call MPI_Comm_rank(MPI_COMM_WORLD, rank,  ierror)

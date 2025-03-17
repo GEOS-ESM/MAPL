@@ -291,7 +291,7 @@ program main
    type (FakeExtData), target :: extData
    class(AbstractDirectoryService), pointer :: d_s=>null()
 
-   call MPI_init_thread(MPI_THREAD_MULTIPLE, provided, ierror)
+   call MPI_init_thread(MPI_THREAD_SINGLE, provided, ierror)
    _VERIFY(ierror)
    call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierror)
    _VERIFY(ierror)

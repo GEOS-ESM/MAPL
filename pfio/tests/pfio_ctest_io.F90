@@ -480,7 +480,7 @@ program main
    integer,allocatable :: local_comm_world(:), app_comms(:)
    integer :: md_id, exit_code
    
-   required = MPI_THREAD_MULTIPLE
+   required = MPI_THREAD_SINGLE
    !call MPI_init_thread(required, provided, ierror)
    call MPI_init(ierror)
    call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierror)
