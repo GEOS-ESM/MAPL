@@ -1,6 +1,6 @@
 #include "MAPL_TestErr.h"
-module Test_TimeInterpolateAction
-   use mapl3g_TimeInterpolateAction
+module Test_TimeInterpolateTransform
+   use mapl3g_TimeInterpolateTransform
    use mapl3g_InfoUtilities
    use MAPL_FieldPointerUtilities
    use mapl3g_FieldBundleGet
@@ -21,7 +21,7 @@ contains
       type(ESMF_State) :: importState, exportState
       type(ESMF_FieldBundle) :: bracket
       type(ESMF_Field) :: f
-      type(TimeinterpolateAction) :: action
+      type(TimeinterpolateTransform) :: transform
       type(ESMF_Clock) :: clock
       type(ESMF_Geom) :: geom
       type(ESMF_Grid) :: grid
@@ -43,7 +43,7 @@ contains
       call ESMF_FieldEmptyComplete(f, typekind=ESMF_TYPEKIND_R4, _RC)
       call ESMF_StateAdd(exportState, [f], _RC)
 
-      call action%update(importState, exportState, clock, _RC)
+      call transform%update(importState, exportState, clock, _RC)
 
       call assign_fptr(f, x, _RC)
       @assert_that(x, every_item(is(equal_to(7.))))
@@ -67,7 +67,7 @@ contains
       type(ESMF_State) :: importState, exportState
       type(ESMF_FieldBundle) :: bracket
       type(ESMF_Field) :: f
-      type(TimeinterpolateAction) :: action
+      type(TimeinterpolateTransform) :: transform
       type(ESMF_Clock) :: clock
       type(ESMF_Geom) :: geom
       type(ESMF_Grid) :: grid
@@ -98,7 +98,7 @@ contains
       call ESMF_FieldEmptyComplete(f, typekind=ESMF_TYPEKIND_R4, _RC)
       call ESMF_StateAdd(exportState, [f], _RC)
 
-      call action%update(importState, exportState, clock, _RC)
+      call transform%update(importState, exportState, clock, _RC)
 
       call assign_fptr(f, x, _RC)
       @assert_that(x, every_item(is(equal_to(4.))))
@@ -122,7 +122,7 @@ contains
       type(ESMF_State) :: importState, exportState
       type(ESMF_FieldBundle) :: bracket
       type(ESMF_Field) :: f
-      type(TimeinterpolateAction) :: action
+      type(TimeinterpolateTransform) :: transform
       type(ESMF_Clock) :: clock
       type(ESMF_Geom) :: geom
       type(ESMF_Grid) :: grid
@@ -157,7 +157,7 @@ contains
       call ESMF_FieldEmptyComplete(f, typekind=ESMF_TYPEKIND_R4, _RC)
       call ESMF_StateAdd(exportState, [f], _RC)
 
-      call action%update(importState, exportState, clock, _RC)
+      call transform%update(importState, exportState, clock, _RC)
 
       call assign_fptr(f, x, _RC)
       @assert_that(x(1), is(equal_to(4.)))
@@ -175,4 +175,4 @@ contains
       
    end subroutine test_mapl_undef
 
-end module Test_TimeInterpolateAction
+end module Test_TimeInterpolateTransform

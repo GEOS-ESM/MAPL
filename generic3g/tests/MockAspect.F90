@@ -7,9 +7,9 @@ module MockAspect_mod
    use mapl3g_AspectId
    use mapl3g_StateItemSpec
    use mapl3g_StateItemAspect
-   use mapl3g_ExtensionAction
+   use mapl3g_ExtensionTransform
    use mapl3g_ClassAspect
-   use mapl3g_NullAction
+   use mapl3g_NullTransform
    use mapl3g_MultiState
    use mapl_ErrorHandling
    use esmf
@@ -24,7 +24,7 @@ module MockAspect_mod
       logical :: supports_conversion_ = .false.
    contains
       procedure :: matches
-      procedure :: make_action
+      procedure :: make_transform
       procedure :: connect_to_export
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
@@ -132,17 +132,17 @@ contains
       supports_conversion_specific = src%supports_conversion_
    end function supports_conversion_specific
 
-   function make_action(src, dst, other_aspects, rc) result(action)
-      class(ExtensionAction), allocatable :: action
+   function make_transform(src, dst, other_aspects, rc) result(transform)
+      class(ExtensionTransform), allocatable :: transform
       class(MockAspect), intent(in) :: src
       class(StateItemAspect), intent(in)  :: dst
       type(AspectMap), target, intent(in)  :: other_aspects
       integer, optional, intent(out) :: rc
 
-      allocate(action,source=NullAction()) ! just in case
+      allocate(transform,source=NullTransform()) ! just in case
       if (present(rc)) rc = 0
 
-   end function make_action
+   end function make_transform
 
    subroutine connect_to_export(this, export, actual_pt, rc)
       class(MockAspect), intent(inout) :: this

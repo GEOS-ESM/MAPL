@@ -10,9 +10,9 @@ module mapl3g_ServiceClassAspect
    use mapl3g_Multistate
    use mapl3g_VirtualConnectionPt
    use mapl3g_ActualConnectionPt
-   use mapl3g_ExtensionAction
+   use mapl3g_ExtensionTransform
    use mapl3g_StateItemExtension
-   use mapl3g_NullAction
+   use mapl3g_NullTransform
    use mapl3g_ESMF_Utilities, only: get_substate
    use mapl_ErrorHandling
    use gftl2_StringVector
@@ -37,7 +37,7 @@ module mapl3g_ServiceClassAspect
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: matches
-      procedure :: make_action
+      procedure :: make_transform
       procedure :: connect_to_export
 
       procedure :: get_aspect_order
@@ -169,17 +169,17 @@ contains
 
    end function matches
 
-   function make_action(src, dst, other_aspects, rc) result(action)
-      class(ExtensionAction), allocatable :: action
+   function make_transform(src, dst, other_aspects, rc) result(transform)
+      class(ExtensionTransform), allocatable :: transform
       class(ServiceClassAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
       type(AspectMap), target, intent(in) :: other_aspects
       integer, optional, intent(out) :: rc
       
-      action = NullAction()
+      transform = NullTransform()
 
       _RETURN(_SUCCESS)
-   end function make_action
+   end function make_transform
 
 
    ! Eventually this ServiceClassAspect should be split into multiple

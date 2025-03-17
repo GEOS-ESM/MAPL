@@ -8,8 +8,8 @@ module mapl3g_WildcardClassAspect
    use mapl3g_StateItemAspect
    use mapl3g_ClassAspect
    use mapl3g_FieldClassAspect
-   use mapl3g_ExtensionAction
-   use mapl3g_NullAction
+   use mapl3g_ExtensionTransform
+   use mapl3g_NullTransform
    use mapl3g_MultiState
    use mapl_ErrorHandling
    use esmf
@@ -26,7 +26,7 @@ module mapl3g_WildcardClassAspect
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: matches
-      procedure :: make_action
+      procedure :: make_transform
       procedure :: connect_to_export
 
       procedure :: get_aspect_order
@@ -59,17 +59,17 @@ contains
    end function matches
 
    ! Wildcard not permitted as an export.
-   function make_action(src, dst, other_aspects, rc) result(action)
-      class(ExtensionAction), allocatable :: action
+   function make_transform(src, dst, other_aspects, rc) result(transform)
+      class(ExtensionTransform), allocatable :: transform
       class(WildcardClassAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
       type(AspectMap), target, intent(in) :: other_aspects
       integer, optional, intent(out) :: rc
       
-      action = NullAction()
+      transform = NullTransform()
 
       _RETURN(_SUCCESS)
-   end function make_action
+   end function make_transform
 
 
    subroutine connect_to_export(this, export, actual_pt, rc)

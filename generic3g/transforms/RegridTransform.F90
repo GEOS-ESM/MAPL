@@ -1,8 +1,8 @@
 #include "MAPL_Generic.h"
 
-module mapl3g_RegridAction
+module mapl3g_RegridTransform
 
-   use mapl3g_ExtensionAction
+   use mapl3g_ExtensionTransform
    use mapl3g_regridder_mgr
    use mapl_ErrorHandling
    use esmf
@@ -10,9 +10,9 @@ module mapl3g_RegridAction
    implicit none
    private
 
-   public :: RegridAction
+   public :: RegridTransform
 
-   type, extends(ExtensionAction) :: ScalarRegridAction
+   type, extends(ExtensionTransform) :: ScalarRegridTransform
       type(ESMF_Geom) :: src_geom
       type(ESMF_Geom) :: dst_geom
       type(EsmfRegridderParam) :: dst_param
@@ -21,16 +21,16 @@ module mapl3g_RegridAction
    contains
       procedure :: initialize
       procedure :: update
-   end type ScalarRegridAction
+   end type ScalarRegridTransform
 
-   interface RegridAction
-      module procedure :: new_ScalarRegridAction
-   end interface RegridAction
+   interface RegridTransform
+      module procedure :: new_ScalarRegridTransform
+   end interface RegridTransform
 
 contains
 
-   function new_ScalarRegridAction(src_geom, dst_geom, dst_param) result(action)
-      type(ScalarRegridAction) :: action
+   function new_ScalarRegridTransform(src_geom, dst_geom, dst_param) result(transform)
+      type(ScalarRegridTransform) :: transform
       type(ESMF_Geom), intent(in) :: src_geom
       type(ESMF_Geom), intent(in) :: dst_geom
       type(EsmfRegridderParam), intent(in) :: dst_param
@@ -38,14 +38,14 @@ contains
       type(RegridderSpec) :: spec
       type(RegridderManager), pointer :: regridder_manager
 
-      action%src_geom = src_geom
-      action%dst_geom = dst_geom
-      action%dst_param = dst_param
+      transform%src_geom = src_geom
+      transform%dst_geom = dst_geom
+      transform%dst_param = dst_param
 
-   end function new_ScalarRegridAction
+   end function new_ScalarRegridTransform
 
    subroutine initialize(this, importState, exportState, clock, rc)
-      class(ScalarRegridAction), intent(inout) :: this
+      class(ScalarRegridTransform), intent(inout) :: this
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
       type(ESMF_Clock)      :: clock      
@@ -68,7 +68,7 @@ contains
 
 
    subroutine update(this, importState, exportState, clock, rc)
-      class(ScalarRegridAction), intent(inout) :: this
+      class(ScalarRegridTransform), intent(inout) :: this
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
       type(ESMF_Clock)      :: clock      
@@ -86,4 +86,4 @@ contains
       _UNUSED_DUMMY(clock)
    end subroutine update
 
-end module mapl3g_RegridAction
+end module mapl3g_RegridTransform

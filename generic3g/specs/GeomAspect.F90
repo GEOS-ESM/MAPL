@@ -7,9 +7,9 @@ module mapl3g_GeomAspect
    use mapl3g_StateItemAspect
    use mapl3g_geom_mgr, only: MAPL_SameGeom
    use mapl3g_regridder_mgr, only: EsmfRegridderParam
-   use mapl3g_ExtensionAction
-   use mapl3g_RegridAction
-   use mapl3g_NullAction
+   use mapl3g_ExtensionTransform
+   use mapl3g_RegridTransform
+   use mapl3g_NullTransform
    use mapl_ErrorHandling
    use ESMF, only: ESMF_Geom
    implicit none
@@ -30,7 +30,7 @@ module mapl3g_GeomAspect
       type(HorizontalDimsSpec) :: horizontal_dims_spec = HORIZONTAL_DIMS_GEOM ! none, geom
    contains
       procedure :: matches
-      procedure :: make_action
+      procedure :: make_transform
       procedure :: connect_to_export
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
@@ -106,8 +106,8 @@ contains
 
    end function matches
 
-   function make_action(src, dst, other_aspects, rc) result(action)
-      class(ExtensionAction), allocatable :: action
+   function make_transform(src, dst, other_aspects, rc) result(transform)
+      class(ExtensionTransform), allocatable :: transform
       class(GeomAspect), intent(in) :: src
       class(StateItemAspect), intent(in)  :: dst
       type(AspectMap), target, intent(in)  :: other_aspects
@@ -116,14 +116,14 @@ contains
       integer :: status
       type(GeomAspect) :: dst_
 
-      allocate(action,source=NullAction()) ! just in case
+      allocate(transform,source=NullTransform()) ! just in case
       dst_ = to_GeomAspect(dst, _RC)
 
-      deallocate(action)
-      allocate(action, source=RegridAction(src%geom, dst_%geom, dst_%regridder_param))
+      deallocate(transform)
+      allocate(transform, source=RegridTransform(src%geom, dst_%geom, dst_%regridder_param))
 
       _RETURN(_SUCCESS)
-   end function make_action
+   end function make_transform
 
    subroutine set_geom(this, geom)
       class(GeomAspect), intent(inout) :: this

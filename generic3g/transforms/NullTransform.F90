@@ -1,36 +1,36 @@
 #include "MAPL_Generic.h"
 
-! A NullAction object is just used so that a function that returns an
-! ExtensionAction can allocate its return value in the presence of
+! A NullTransform object is just used so that a function that returns an
+! ExtensionTransform can allocate its return value in the presence of
 ! error conditions.
 
-module mapl3g_NullAction
-   use mapl3g_ExtensionAction
+module mapl3g_NullTransform
+   use mapl3g_ExtensionTransform
    use mapl_ErrorHandling
    implicit none
    private
 
-   public :: NullAction
+   public :: NullTransform
 
-   type, extends(ExtensionAction) :: NullAction
+   type, extends(ExtensionTransform) :: NullTransform
    contains
       procedure :: initialize
       procedure :: update
-   end type NullAction
+   end type NullTransform
 
-   interface NullAction
-      procedure new_NullAction
+   interface NullTransform
+      procedure new_NullTransform
    end interface
 
 contains
 
-   function new_NullAction() result(action)
-      type(NullAction) :: action
-   end function new_NullAction
+   function new_NullTransform() result(transform)
+      type(NullTransform) :: transform
+   end function new_NullTransform
 
    subroutine initialize(this, importState, exportState, clock, rc)
       use esmf
-      class(NullAction), intent(inout) :: this
+      class(NullTransform), intent(inout) :: this
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
       type(ESMF_Clock)      :: clock      
@@ -44,7 +44,7 @@ contains
 
    subroutine update(this, importState, exportState, clock, rc)
       use esmf
-      class(NullAction), intent(inout) :: this
+      class(NullTransform), intent(inout) :: this
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
       type(ESMF_Clock)      :: clock      
@@ -56,4 +56,4 @@ contains
       _UNUSED_DUMMY(clock)
   end subroutine update
 
-end module mapl3g_NullAction
+end module mapl3g_NullTransform

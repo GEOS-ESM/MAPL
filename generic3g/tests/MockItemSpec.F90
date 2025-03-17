@@ -5,7 +5,6 @@ module MockItemSpecMod
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use mapl3g_StateItemSpec
-   use mapl3g_AbstractActionSpec
    use mapl3g_VariableSpec
    use mapl3g_MultiState
    use mapl3g_ActualConnectionPt

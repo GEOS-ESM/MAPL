@@ -4,7 +4,7 @@ module mapl3g_StateItemSpec
    use mapl3g_AspectId
    use mapl3g_ActualConnectionPt
    use mapl3g_ActualPtVector
-   use mapl3g_ExtensionAction
+   use mapl3g_ExtensionTransform
    use mapl3g_MultiState
    use mapl3g_StateItemAspect
    use mapl3g_GeomAspect

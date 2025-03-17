@@ -4,9 +4,9 @@ module mapl3g_TypekindAspect
    use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
-   use mapl3g_ExtensionAction
-   use mapl3g_Copyaction
-   use mapl3g_NullAction
+   use mapl3g_ExtensionTransform
+   use mapl3g_Copytransform
+   use mapl3g_NullTransform
    use mapl_ErrorHandling
    use mapl3g_ESMF_Utilities, only: MAPL_TYPEKIND_MIRROR
    use esmf
@@ -15,7 +15,7 @@ module mapl3g_TypekindAspect
 
    public :: TypekindAspect
    public :: to_TypekindAspect
-   
+
    interface to_TypekindAspect
       procedure :: to_typekind_from_poly
       procedure :: to_typekind_from_map
@@ -28,7 +28,7 @@ module mapl3g_TypekindAspect
       procedure :: matches
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
-      procedure :: make_action
+      procedure :: make_transform
       procedure :: connect_to_export
       procedure, nopass :: get_aspect_id
 
@@ -38,7 +38,7 @@ module mapl3g_TypekindAspect
 
    interface TypekindAspect
       procedure new_TypekindAspect
-   end interface
+   end interface TypekindAspect
 
 contains
 
@@ -79,8 +79,8 @@ contains
 
    end function matches
 
-  function make_action(src, dst, other_aspects, rc) result(action)
-      class(ExtensionAction), allocatable :: action
+   function make_transform(src, dst, other_aspects, rc) result(transform)
+      class(ExtensionTransform), allocatable :: transform
       class(TypekindAspect), intent(in) :: src
       class(StateItemAspect), intent(in)  :: dst
       type(AspectMap), target, intent(in)  :: other_aspects
@@ -89,14 +89,14 @@ contains
       integer :: status
       type(TypekindAspect) :: dst_
 
-      allocate(action,source=NullAction()) ! just in case
+      allocate(transform,source=NullTransform()) ! just in case
       dst_ = to_TypekindAspect(dst, _RC)
 
-      deallocate(action)
-      allocate(action, source=CopyAction(src%typekind, dst_%typekind))
+      deallocate(transform)
+      allocate(transform, source=CopyTransform(src%typekind, dst_%typekind))
 
       _RETURN(_SUCCESS)
-   end function make_action
+   end function make_transform
 
    ! Copy from src - might have been mirror.
 

@@ -8,8 +8,8 @@ module mapl3g_AttributesAspect
    use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
-   use mapl3g_ExtensionAction
-   use mapl3g_NullAction
+   use mapl3g_ExtensionTransform
+   use mapl3g_NullTransform
    use mapl_ErrorHandling
    use gftl2_StringVector
    implicit none
@@ -25,7 +25,7 @@ module mapl3g_AttributesAspect
       procedure :: matches
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
-      procedure :: make_action
+      procedure :: make_transform
       procedure :: connect_to_export
       procedure, nopass :: get_aspect_id
    end type AttributesAspect
@@ -95,17 +95,17 @@ contains
 
    end function matches
 
-   function make_action(src, dst, other_aspects, rc) result(action)
-      class(ExtensionAction), allocatable :: action
+   function make_transform(src, dst, other_aspects, rc) result(transform)
+      class(ExtensionTransform), allocatable :: transform
       class(AttributesAspect), intent(in) :: src
       class(StateItemAspect), intent(in)  :: dst
       type(AspectMap), target, intent(in)  :: other_aspects
       integer, optional, intent(out) :: rc
 
-      action = NullAction()
+      transform = NullTransform()
 
       _RETURN(_SUCCESS)
-   end function make_action
+   end function make_transform
 
    function get_aspect_id() result(aspect_id)
       type(AspectId) :: aspect_id

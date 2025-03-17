@@ -1,27 +1,27 @@
 #include "MAPL_Generic.h"
-module mapl3g_AccumulatorActionInterface
-   use mapl3g_AccumulatorAction
-   use mapl3g_MeanAction
-   use mapl3g_MaxAction
-   use mapl3g_MinAction
-   use mapl3g_ExtensionAction
-   use mapl3g_NullAction
+module mapl3g_AccumulatorTransformInterface
+   use mapl3g_AccumulatorTransform
+   use mapl3g_MeanTransform
+   use mapl3g_MaxTransform
+   use mapl3g_MinTransform
+   use mapl3g_ExtensionTransform
+   use mapl3g_NullTransform
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use esmf, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R4, operator(/=)
    implicit none
 
-   public :: AccumulatorAction
-   public :: MeanAction
-   public :: MaxAction
-   public :: MinAction
+   public :: AccumulatorTransform
+   public :: MeanTransform
+   public :: MaxTransform
+   public :: MinTransform
    public :: MAX_ACCUMULATION
    public :: MEAN_ACCUMULATION
    public :: MIN_ACCUMULATION
    public :: SIMPLE_ACCUMULATION
    public :: INSTANTANEOUS
    public :: accumulation_type_is_valid
-   public :: get_accumulator_action
+   public :: get_accumulator_transform
 
    ! This is the default case where accumulation_type is not set.
    character(len=*), parameter :: INSTANTANEOUS =''
@@ -45,15 +45,15 @@ contains
 
    end function accumulation_type_is_valid
 
-   subroutine get_accumulator_action(accumulation_type, typekind, action, rc)
+   subroutine get_accumulator_transform(accumulation_type, typekind, transform, rc)
       character(len=*), intent(in) :: accumulation_type
       type(ESMF_TypeKind_Flag), intent(in) :: typekind
-      class(ExtensionAction), allocatable, intent(out) :: action
+      class(ExtensionTransform), allocatable, intent(out) :: transform
       integer, optional, intent(out) :: rc 
 
       integer :: status
 
-      allocate(action, source=NullAction())
+      allocate(transform, source=NullTransform())
 
       if(typekind /= ESMF_TYPEKIND_R4) then
          _FAIL('Unsupported typekind')
@@ -61,21 +61,21 @@ contains
 
       select case(accumulation_type)
       case (SIMPLE_ACCUMULATION)
-         allocate(action, source=AccumulatorAction(typekind))
+         allocate(transform, source=AccumulatorTransform(typekind))
       case (MEAN_ACCUMULATION)
-         allocate(action, source=MeanAction(typekind))
+         allocate(transform, source=MeanTransform(typekind))
       case (MAX_ACCUMULATION)
-         allocate(action, source=MaxAction(typekind))
+         allocate(transform, source=MaxTransform(typekind))
       case (MIN_ACCUMULATION)
-         allocate(action, source=MinAction(typekind))
+         allocate(transform, source=MinTransform(typekind))
       case (INSTANTANEOUS)
-         _FAIL('No AccumulatorAction for instantaneous.')
+         _FAIL('No AccumulatorTransform for instantaneous.')
       case default
-         _FAIL('Unsupported AccumulatorAction')
+         _FAIL('Unsupported AccumulatorTransform')
       end select
 
       _RETURN(_SUCCESS)
 
-   end subroutine get_accumulator_action
+   end subroutine get_accumulator_transform
 
-end module mapl3g_AccumulatorActionInterface
+end module mapl3g_AccumulatorTransformInterface
