@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 #define USE_UNITS
-!#define USE_FREQUENCY
-!#define USE_TYPEKIND
+#define USE_FREQUENCY
+#define USE_TYPEKIND
 #define USE_EXTENDED
 module mapl3g_HistoryCollectionGridComp_private
 
@@ -49,6 +49,7 @@ module mapl3g_HistoryCollectionGridComp_private
 
 #if defined(USE_EXTENDED)
    interface parse_options
+      module procedure :: parse_options_hconfig
       module procedure :: parse_options_iter
    end interface parse_options
 #endif
@@ -312,6 +313,9 @@ contains
       type(HistoryOptions) :: options
       integer :: status
 
+      ! Get Options for collection
+      call parse_options(hconfig, options, _RC)
+
       ! Get variable list
       var_list = ESMF_HConfigCreateAt(hconfig, keystring=VAR_LIST_KEY, rc=status)
       if(status==ESMF_RC_NOT_FOUND) then
@@ -322,9 +326,6 @@ contains
       iter_begin = ESMF_HConfigIterBegin(var_list,_RC)
       iter_end = ESMF_HConfigIterEnd(var_list,_RC)
       iter = iter_begin
-
-      ! Get Options for collection
-      call parse_options(iter, options, _RC)
 
       ! Add VariableSpec objects
       do while (ESMF_HConfigIterLoop(iter,iter_begin,iter_end,rc=status))
@@ -372,63 +373,90 @@ contains
 
    end subroutine add_var_specs
 
+   subroutine parse_options_hconfig(hconfig, options, rc)
+      type(ESMF_HConfig), intent(in) :: hconfig
+      class(HistoryOptions), intent(inout) :: options
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+#if defined(USE_FREQUENCY)
+      call parse_frequency_aspect_options(hconfig, options, _RC)
+#endif
+#if defined(USE_UNITS)
+      call parse_units_aspect_options(hconfig, options, _RC)
+#endif
+#if defined(USE_TYPEKIND)
+      call parse_typekind_aspect_options(hconfig, options, _RC)
+#endif
+      _RETURN(_SUCCESS)
+
+   end subroutine parse_options_hconfig
+
    subroutine parse_options_iter(iter, options, rc)
       type(ESMF_HConfigIter), intent(in) :: iter
       class(HistoryOptions), intent(inout) :: options
       integer, optional, intent(out) :: rc
       integer :: status
+      type(ESMF_HConfig) :: hconfig
 
-#if defined(USE_FREQUENCY)
-      call parse_frequency_aspect_options(iter, options, _RC)
-#endif
-#if defined(USE_UNITS)
-      call parse_units_aspect_options(iter, options, _RC)
-#endif
-#if defined(USE_TYPEKIND)
-      call parse_typekind_aspect_options(iter, options, _RC)
-#endif
-      _RETURN(_SUCCESS)
+      hconfig = ESMF_HConfigCreateAtMapVal(iter, _RC)
+      call parse_options(hconfig, options, _RC)
+      call ESMF_HConfigDestroy(hconfig)
 
    end subroutine parse_options_iter
 
 #if defined(USE_FREQUENCY)
-   subroutine parse_frequency_aspect_options(iter, options, rc)
-      type(ESMF_HConfigIter), intent(in) :: iter
+   subroutine parse_frequency_aspect_options(hconfig, options, rc)
+      type(ESMF_HConfig), intent(in) :: hconfig
       class(HistoryOptions), intent(inout) :: options
       integer, optional, intent(out) :: rc
       integer :: status
-      type(ESMF_HConfigIter) :: time_iter
-      logical :: OK
+      type(ESMF_HConfig) :: time_iter
+      logical :: hasKey
       character(len=:), allocatable :: mapVal
+      type(ESMF_TimeInterval) :: timeStep, offset
 
-      OK = ESMF_HConfigIterIsDefined(iter, keyString=KEY_TIME_SPEC, _RC)
-      _RETURN_UNLESS(OK)
+      hasKey = ESMF_HConfigIsDefined(hconfig, keyString=KEY_TIME_SPEC, _RC)
+      _RETURN_UNLESS(hasKey)
+      time_iter = ESMF_HConfigCreateAt(hconfig, keyString=KEY_TIME_SPEC, _RC)
 
-      mapVal = ESMF_HConfigAsString(time_iter, keyString=KEY_ACCUMULATION_TYPE, asOkay=OK, _RC)
-      if(OK) options%accumulation_type = mapVal
-      mapVal = ESMF_HConfigAsString(time_iter, keyString=KEY_TIMESTEP, asOkay=OK, _RC)
-      if(OK) then
-         call ESMF_TimeIntervalSet(options%timeStep, timeIntervalString=mapVal, _RC)
+      hasKey = ESMF_HConfigIsDefined(time_iter, keyString=KEY_ACCUMULATION_TYPE, _RC)
+      if(hasKey) then
+         options%accumulation_type = ESMF_HConfigAsString(time_iter, keyString=KEY_ACCUMULATION_TYPE, _RC)
       end if
-      mapVal = ESMF_HConfigAsString(time_iter, keyString=KEY_OFFSET, asOkay=OK, _RC)
-      if(OK) then
-         call ESMF_TimeIntervalSet(options%runTime_offset, timeIntervalString=mapVal, _RC)
+
+      hasKey = ESMF_HConfigIsDefined(time_iter, keyString=KEY_TIMESTEP, _RC)
+      if(hasKey) then
+         mapVal = ESMF_HConfigAsString(time_iter, keyString=KEY_TIMESTEP, _RC)
+         call ESMF_TimeIntervalSet(timeStep, timeIntervalString=mapVal, _RC)
+         options%timeStep = timeStep
       end if
+
+      hasKey = ESMF_HConfigIsDefined(time_iter, keyString=KEY_OFFSET, _RC)
+      if(hasKey) then
+         mapVal = ESMF_HConfigAsString(time_iter, keyString=KEY_OFFSET, _RC)
+         call ESMF_TimeIntervalSet(offset, timeIntervalString=mapVal, _RC)
+         options%runTime_offset = offset
+      end if
+
+      call ESMF_HConfigDestroy(time_iter, _RC)
+      _RETURN(_SUCCESS)
 
    end subroutine parse_frequency_aspect_options
 #endif
 
 #if defined(USE_UNITS)
-   subroutine parse_units_aspect_options(iter, options, rc)
-      type(ESMF_HConfigIter), intent(in) :: iter
+   subroutine parse_units_aspect_options(hconfig, options, rc)
+      type(ESMF_HConfig), intent(in) :: hconfig
       class(HistoryOptions), intent(inout) :: options
       integer, optional, intent(out) :: rc
       integer :: status
-      logical :: OK
+      logical :: hasKey
       character(len=:), allocatable :: mapVal
 
-      mapVal = ESMF_HConfigAsString(iter, keyString=KEY_UNITS, asOkay=OK, _RC)
-      _RETURN_UNLESS(OK)
+      hasKey = ESMF_HConfigIsDefined(hconfig, keyString=KEY_UNITS, _RC)
+      _RETURN_UNLESS(hasKey)
+      mapVal = ESMF_HConfigAsString(hconfig, keyString=KEY_UNITS, _RC)
       options%units = mapVal
       _RETURN(_SUCCESS)
 
@@ -436,21 +464,22 @@ contains
 #endif
 
 #if defined(USE_TYPEKIND)
-   subroutine parse_typekind_aspect_options(iter, options, rc)
-      type(ESMF_HConfigIter), intent(in) :: iter
+   subroutine parse_typekind_aspect_options(hconfig, options, rc)
+      type(ESMF_HConfig), intent(in) :: hconfig
       class(HistoryOptions), intent(inout) :: options
       integer, optional, intent(out) :: rc
       integer :: status
-      logical :: OK
+      logical :: hasKey
       character(len=:), allocatable :: mapVal
       logical :: found
       type(ESMF_TypeKind_Flag) :: tk
 
-      mapVal = ESMF_HConfigAsString(iter, keyString=KEY_TYPEKIND, asOkay=OK, _RC)
-      _RETURN_UNLESS(OK)
-
+      hasKey = ESMF_HConfigIsDefined(hconfig, keyString=KEY_TYPEKIND, _RC)
+      _RETURN_UNLESS(hasKey)
+      mapVal = ESMF_HConfigAsString(hconfig, keyString=KEY_TYPEKIND, _RC)
       tk = get_typekind(mapVal, found, _RC)
-      if(found) options%typekind = tk
+      _ASSERT(found, 'Unknown typekind')
+      options%typekind = tk
       _RETURN(_SUCCESS)
 
    end subroutine parse_typekind_aspect_options
@@ -465,34 +494,30 @@ contains
    function get_typekind(tk_string, found, rc) result(typekind)
       type(ESMF_TypeKind_Flag) :: typekind
       character(len=*), intent(in) :: tk_string
-      logical, optional, intent(in) :: found
+      logical, optional, intent(out) :: found
       integer, optional, intent(out) :: rc
       integer :: status
       integer, parameter :: L = 10
       integer, parameter :: ML = 2
       character(len=L), parameter :: CODES(*) = [character(len=L) :: &
-         & 'I1', 'I2', 'I4', 'I8', 'R1', 'R2', 'R4', 'R8', &
-         & 'LOGICAL', 'CHARACTER']
+         & 'I4', 'I8', 'R4', 'R8', 'LOGICAL', 'CHARACTER']
       type(ESMF_TypeKind_Flag), parameter :: TK(size(CODES)) = [ &
-         & TK_(I1), TK_(I2), TK_(I4), TK_(I8), TK_(R1), TK_(R2), &
-         & TK_(R4), TK_(R8), TK_(LOGICAL), TK_(CHARACTER)]
+         & TK_(I4), TK_(I8), TK_(R4), TK_(R8), TK_(LOGICAL), TK_(CHARACTER)]
       integer :: i
-      logical, pointer :: tk_found => null()
-
-      if(present(found)) then
-         tk_found => found
-      else
-         allocate(tk_found)
-      end if
+      logical :: tk_found
 
       _ASSERT(len(tk_string) >= ML, 'tk_string is too short.')
       do i=1, size(CODES)
          tk_found = index(tk_string, trim(CODES(i))) > 0
          if(tk_found) typekind = TK(i)
-         _RETURN_IF(tk_found)
+         exit
       end do
 
-      _RETURN_IF(present(found))
+      if(present(found)) then
+         found = tk_found
+         _RETURN(_SUCCESS)
+      end if
+
       _ASSERT(tk_found, 'Typekind was not found.')
 
    end function get_typekind
