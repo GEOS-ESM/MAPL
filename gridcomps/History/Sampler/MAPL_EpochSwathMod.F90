@@ -23,7 +23,7 @@ module MAPL_EpochSwathMod
   use MAPL_DataCollectionMod
   use MAPL_DataCollectionManagerMod
   use gFTL2_StringVector
-  use gFTL_StringStringMap
+  use gFTL2_StringStringMap
   use MAPL_StringGridMapMod
   use MAPL_FileMetadataUtilsMod
   use MAPL_DownbitMod

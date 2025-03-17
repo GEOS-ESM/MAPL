@@ -15,9 +15,9 @@ module mapl3g_ChildSpec
    
    type :: ChildSpec
       class(AbstractUserSetServices), allocatable :: user_setservices
-      type(ESMF_HConfig), allocatable :: hconfig
+      type(ESMF_HConfig) :: hconfig
       type(ESMF_TimeInterval), allocatable :: timeStep
-      type(ESMF_Time), allocatable :: refTime
+      type(ESMF_TimeInterval) :: offset
    contains
       procedure :: write_formatted
       generic :: write(formatted) => write_formatted
@@ -38,19 +38,24 @@ module mapl3g_ChildSpec
 
 contains
 
-   function new_ChildSpec(user_setservices, unusable, hconfig, timeStep, refTime) result(spec)
+   function new_ChildSpec(user_setservices, unusable, hconfig, timeStep, offset) result(spec)
       type(ChildSpec) :: spec
       class(AbstractUserSetServices), intent(in) :: user_setservices
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_HConfig), optional, intent(in) :: hconfig
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
-      type(ESMF_Time), optional, intent(in) :: refTime
+      type(ESMF_TimeInterval), optional, intent(in) :: offset
 
       spec%user_setservices = user_setservices
-      if (present(hconfig)) spec%hconfig = hconfig
+      if (present(hconfig)) then
+         spec%hconfig = hconfig
+      else
+         spec%hconfig = ESMF_HConfigCreate(content='{}')
+      end if
 
+      call ESMF_TimeIntervalSet(spec%offset, s=0)
       if (present(timeStep)) spec%timeStep = timeStep
-      if (present(refTime)) spec%refTime = refTime
+      if (present(offset)) spec%offset = offset
 
       _UNUSED_DUMMY(unusable)
    end function new_ChildSpec
@@ -63,33 +68,27 @@ contains
       equal = (a%user_setservices == b%user_setservices)
       if (.not. equal) return
       
-      equal = equal_alloc_hconfig(a%hconfig, b%hconfig)
+      equal = equal_hconfig(a%hconfig, b%hconfig)
       if (.not. equal) return
 
       equal = equal_timestep(a%timeStep, b%timestep)
       if (.not. equal) return
       
-      equal = equal_refTime(a%refTime, b%refTime)
+      equal = equal_offset(a%offset, b%offset)
       if (.not. equal) return
 
    contains
 
-      logical function equal_alloc_hconfig(a, b) result(equal)
-         type(ESMF_HConfig), allocatable, intent(in) :: a
-         type(ESMF_HConfig), allocatable, intent(in) :: b
-
+      logical function equal_hconfig(a, b) result(equal)
+         type(ESMF_HConfig), intent(in) :: a
+         type(ESMF_HConfig), intent(in) :: b
 
          type(ESMF_HConfigMatch_Flag) :: match_flag
          
-         equal = (allocated(a) .eqv. allocated(b))
-         if (.not. equal) return
+         match_flag = ESMF_HConfigMatch(a, b)
+         equal = (match_flag == ESMF_HCONFIGMATCH_EXACT)
 
-         if (allocated(a)) then
-            match_flag = ESMF_HConfigMatch(a, b)
-            equal = (match_flag == ESMF_HCONFIGMATCH_EXACT)
-         end if
-
-      end function equal_alloc_hconfig
+      end function equal_hconfig
 
       logical function equal_timestep(a, b) result(equal)
          type(ESMF_TimeInterval), allocatable, intent(in) :: a
@@ -102,16 +101,13 @@ contains
 
       end function equal_timestep
 
-      logical function equal_refTime(a, b) result(equal)
-         type(ESMF_Time), allocatable, intent(in) :: a
-         type(ESMF_Time), allocatable, intent(in) :: b
+      logical function equal_offset(a, b) result(equal)
+         type(ESMF_TimeInterval), intent(in) :: a
+         type(ESMF_TimeInterval), intent(in) :: b
 
-         equal = (allocated(a) .eqv. allocated(b))
-         if (.not. equal) return
+         equal = (a == b)
 
-         if (allocated(a)) equal = (a == b)
-
-      end function equal_refTime
+      end function equal_offset
 
    end function equal
 

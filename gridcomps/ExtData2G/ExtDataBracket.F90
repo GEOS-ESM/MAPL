@@ -184,7 +184,6 @@ contains
       real, pointer              :: var1d_right(:)   => null()
       integer :: status
       logical :: right_node_set, left_node_set
-      character(len=ESMF_MAXPATHLEN) :: left_file, right_file
 
       right_node_set = this%right_node%check_if_initialized(_RC)
       left_node_set = this%left_node%check_if_initialized(_RC)

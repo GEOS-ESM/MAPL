@@ -38,6 +38,8 @@ set (test_srcs
   Test_MaxAction.pf
   Test_MinAction.pf
   Test_ExtensionAction.pf
+
+  Test_timestep_propagation.pf
 )
 
 add_pfunit_ctest(

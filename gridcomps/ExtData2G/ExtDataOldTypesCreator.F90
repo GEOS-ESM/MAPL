@@ -164,6 +164,7 @@ module MAPL_ExtDataOldTypesCreator
       end if
 
       primary_item%fail_on_missing_file = rule%fail_on_missing_file
+      primary_item%disable_vertical_regrid= rule%disable_vertical_regrid
 
       _RETURN(_SUCCESS)
 

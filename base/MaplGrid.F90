@@ -265,7 +265,8 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
       type(ESMF_DistGrid) :: distGrid
       integer, allocatable :: maxindex(:,:),minindex(:,:)
       integer, pointer :: ims(:),jms(:)
-      integer :: global_grid_info(10)
+      integer, allocatable  :: global_grid_info(:)
+      integer :: itemCount
       type(ESMF_Info) :: infoh
 
       pglobal = present(globalCellCountPerDim)
@@ -274,9 +275,10 @@ subroutine GridCoordGet(GRID, coord, name, Location, Units, rc)
       call ESMF_InfoGetFromHost(grid,infoh,_RC)
       isPresent = ESMF_InfoIsPresent(infoh,'GLOBAL_GRID_INFO',_RC)
       if (isPresent) then
-        call ESMF_InfoGet(infoh, key="GLOBAL_GRID_INFO", values=global_grid_info, _RC)
+        call ESMF_InfoGetAlloc(infoh, key="GLOBAL_GRID_INFO", values=global_grid_info, _RC)
         if (pglobal) globalCellCountPerDim = global_grid_info(1:3)
         if (plocal)  localCellCountPerDim = global_grid_info(4:6)
+        deallocate(global_grid_info, _STAT)
         _RETURN(_SUCCESS)
       end if
 

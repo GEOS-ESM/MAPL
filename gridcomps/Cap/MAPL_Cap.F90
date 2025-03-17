@@ -265,7 +265,7 @@ contains
 
    subroutine run_model(this, comm, unusable, rc)
       use pFlogger, only: logging, Logger
-      class (MAPL_Cap), intent(inout) :: this
+      class (MAPL_Cap), target, intent(inout) :: this
       integer, intent(in) :: comm
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) ::rc
@@ -394,7 +394,7 @@ contains
    end subroutine run_model
 
    subroutine initialize_cap_gc(this, unusable, n_run_phases, rc)
-     class(MAPL_Cap), intent(inout) :: this
+     class(MAPL_Cap), target, intent(inout) :: this
      class (KeywordEnforcer), optional, intent(in) :: unusable
      integer, optional, intent(in) :: n_run_phases
      integer, optional, intent(out) :: rc

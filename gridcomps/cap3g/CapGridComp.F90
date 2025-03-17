@@ -46,19 +46,19 @@ contains
       _GET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, PRIVATE_STATE, cap)
 
       ! Disable extdata or history
-      call MAPL_ResourceGet(gridcomp, keystring='run_extdata', value=cap%run_extdata, default=.true., _RC)
-      call MAPL_ResourceGet(gridcomp, keystring='run_history', value=cap%run_history, default=.true., _RC)
+      call MAPL_GridCompResourceGet(gridcomp, keystring='run_extdata', value=cap%run_extdata, default=.true., _RC)
+      call MAPL_GridCompResourceGet(gridcomp, keystring='run_history', value=cap%run_history, default=.true., _RC)
 
       ! Get Names of children
-      call MAPL_ResourceGet(gridcomp, keystring='extdata_name', value=cap%extdata_name, default='EXTDATA', _RC)
-      call MAPL_ResourceGet(gridcomp, keystring='root_name', value=cap%root_name, _RC)
-      call MAPL_ResourceGet(gridcomp, keystring='history_name', value=cap%history_name, default='HIST', _RC)
+      call MAPL_GridCompResourceGet(gridcomp, keystring='extdata_name', value=cap%extdata_name, default='EXTDATA', _RC)
+      call MAPL_GridCompResourceGet(gridcomp, keystring='root_name', value=cap%root_name, _RC)
+      call MAPL_GridCompResourceGet(gridcomp, keystring='history_name', value=cap%history_name, default='HIST', _RC)
 
       if (cap%run_extdata) then 
-         call MAPL_ConnectAll(gridcomp, src_comp=cap%extdata_name, dst_comp=cap%root_name, _RC)
+         call MAPL_GridCompConnectAll(gridcomp, src_comp=cap%extdata_name, dst_comp=cap%root_name, _RC)
       end if
       if (cap%run_history) then
-         call MAPL_ConnectAll(gridcomp, src_comp=cap%root_name, dst_comp=cap%history_name, _RC)
+         call MAPL_GridCompConnectAll(gridcomp, src_comp=cap%root_name, dst_comp=cap%history_name, _RC)
       end if
       _RETURN(_SUCCESS)
    end subroutine setServices
@@ -92,11 +92,11 @@ contains
       _GET_NAMED_PRIVATE_STATE(gridcomp, CapGridComp, PRIVATE_STATE, cap)
 
       if (cap%run_extdata) then
-         call MAPL_RunChild(gridcomp, cap%extdata_name, _RC)
+         call MAPL_GridCompRunChild(gridcomp, cap%extdata_name, _RC)
       end if
-      call MAPL_RunChild(gridcomp, cap%root_name, _RC)
+      call MAPL_GridCompRunChild(gridcomp, cap%root_name, _RC)
       if (cap%run_history) then
-         call MAPL_RunChild(gridcomp, cap%history_name, phase_name='run', _RC)
+         call MAPL_GridCompRunChild(gridcomp, cap%history_name, phase_name='run', _RC)
       end if
 
       _RETURN(_SUCCESS)

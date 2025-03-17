@@ -19,3 +19,6 @@ target_include_directories (${this} PUBLIC
 
 ecbuild_add_executable(TARGET GEOS.x SOURCES GEOS.F90 DEPENDS MAPL.generic3g MAPL.cap3g ESMF::ESMF)
 target_link_libraries(GEOS.x PRIVATE ${this})
+
+# GEOS.x is needed for 'make tests'
+add_dependencies(build-tests GEOS.x)
