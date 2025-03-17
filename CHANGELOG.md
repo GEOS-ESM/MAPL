@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Replace MPI_THREAD_MULTIPLE with MPI_THREAD_SINGLE. This is done to address https://github.com/ufs-community/ufs-weather-model/issues/2637#issuecomment-2722008171. This replacement appears not to cause any problem with the the different thread scenarios and the use of PFIO
+
 ### Fixed
 
 - Fixed problem related to stale pointers to temp copies of dummy arguments in MAPL_Cap.F90.  Fix is to add TARGET attributein select locations.
