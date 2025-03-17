@@ -13,11 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed bug when proccessing history collection list identified by NAG
-
 ### Removed
 
 ### Deprecated
+
+## [2.54.2] - 2025-03-18
+
+### Fixed
+
+- Fixed bug when proccessing history collection list identified by NAG
 
 ## [2.54.1] - 2025-02-07
 
