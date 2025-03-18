@@ -14,7 +14,7 @@ contains
 
       call ESMF_GridGetCoord(grid, localDE=0, coordDim=1, farrayPtr=longitudes, &
            staggerloc=ESMF_STAGGERLOC_CENTER, _RC)
-      call ESMF_GridGetCoord(grid, localDE=1, coordDim=2, farrayPtr=latitudes, &
+      call ESMF_GridGetCoord(grid, localDE=0, coordDim=2, farrayPtr=latitudes, &
            staggerloc=ESMF_STAGGERLOC_CENTER, _RC)
 
       _RETURN(ESMF_SUCCESS)
