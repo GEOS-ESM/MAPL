@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
-module mapl3g_AccumulatorAction
-   use mapl3g_ExtensionAction
+module mapl3g_AccumulatorTransform
+   use mapl3g_ExtensionTransform
    use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
    use MAPL_FieldUtilities, only: FieldSet 
    use MAPL_FieldPointerUtilities
@@ -8,10 +8,10 @@ module mapl3g_AccumulatorAction
    use ESMF
    implicit none
    private
-   public :: AccumulatorAction
-   public :: construct_AccumulatorAction
+   public :: AccumulatorTransform
+   public :: construct_AccumulatorTransform
 
-   type, extends(ExtensionAction) :: AccumulatorAction
+   type, extends(ExtensionTransform) :: AccumulatorTransform
       type(ESMF_TypeKind_Flag) :: typekind = ESMF_TYPEKIND_R4
       type(ESMF_Field), allocatable :: accumulation_field
       type(ESMF_Field), allocatable :: result_field
@@ -31,20 +31,20 @@ module mapl3g_AccumulatorAction
       procedure :: clear
       procedure :: create_fields
       procedure :: update_result
-   end type AccumulatorAction
+   end type AccumulatorTransform
 
 contains
 
-   function construct_AccumulatorAction(typekind) result(acc)
-      type(AccumulatorAction) :: acc
+   function construct_AccumulatorTransform(typekind) result(acc)
+      type(AccumulatorTransform) :: acc
       type(ESMF_TypeKind_Flag), intent(in) :: typekind
 
       acc%typekind = typekind
 
-   end function construct_AccumulatorAction
+   end function construct_AccumulatorTransform
 
    subroutine clear(this, rc)
-      class(AccumulatorAction), intent(inout) :: this
+      class(AccumulatorTransform), intent(inout) :: this
       integer, optional, intent(out) :: rc
       
       integer :: status
@@ -59,7 +59,7 @@ contains
    end subroutine clear
 
    subroutine initialize(this, importState, exportState, clock, rc)
-      class(AccumulatorAction), intent(inout) :: this
+      class(AccumulatorTransform), intent(inout) :: this
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
       type(ESMF_Clock) :: clock
@@ -97,7 +97,7 @@ contains
    end subroutine initialize
 
    subroutine create_fields(this, import_field, export_field, rc)
-      class(AccumulatorAction), intent(inout) :: this
+      class(AccumulatorTransform), intent(inout) :: this
       type(ESMF_Field), intent(inout) :: import_field
       type(ESMF_Field), intent(inout) :: export_field
       integer, optional, intent(out) :: rc
@@ -112,7 +112,7 @@ contains
    end subroutine create_fields
 
    subroutine update(this, importState, exportState, clock, rc)
-      class(AccumulatorAction), intent(inout) :: this
+      class(AccumulatorTransform), intent(inout) :: this
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
       type(ESMF_Clock) :: clock
@@ -136,7 +136,7 @@ contains
    end subroutine update
 
    subroutine update_result(this, rc)
-      class(AccumulatorAction), intent(inout) :: this
+      class(AccumulatorTransform), intent(inout) :: this
       integer, optional, intent(out) :: rc
       
       integer :: status
@@ -148,7 +148,7 @@ contains
    end subroutine update_result
 
    subroutine invalidate(this, importState, exportState, clock, rc)
-      class(AccumulatorAction), intent(inout) :: this
+      class(AccumulatorTransform), intent(inout) :: this
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
       type(ESMF_Clock) :: clock
@@ -188,7 +188,7 @@ contains
    end subroutine get_field
 
    subroutine accumulate(this, update_field, rc)
-      class(AccumulatorAction), intent(inout) :: this
+      class(AccumulatorTransform), intent(inout) :: this
       type(ESMF_Field), intent(inout) :: update_field
       integer, optional, intent(out) :: rc
       
@@ -208,7 +208,7 @@ contains
    end subroutine accumulate
 
    subroutine accumulate_R4(this, update_field, rc)
-      class(AccumulatorAction), intent(inout) :: this
+      class(AccumulatorTransform), intent(inout) :: this
       type(ESMF_Field), intent(inout) :: update_field
       integer, optional, intent(out) :: rc
 
@@ -231,8 +231,8 @@ contains
    end subroutine accumulate_R4
 
    logical function runs_invalidate(this)
-      class(AccumulatorAction), intent(in) :: this
+      class(AccumulatorTransform), intent(in) :: this
       runs_invalidate = .TRUE.
    end function runs_invalidate
       
-end module mapl3g_AccumulatorAction
+end module mapl3g_AccumulatorTransform

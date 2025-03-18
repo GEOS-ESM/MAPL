@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 module mapl3g_HConfigUtilities
    use esmf, only: ESMF_HConfig, ESMF_HConfigIter, ESMF_HConfigIterBegin
-   use esmf, only: ESMF_HConfigIterEnd, ESMF_HConfigIterLoop 
+   use esmf, only: ESMF_HConfigIterEnd, ESMF_HConfigIterLoop
    use esmf, only: ESMF_HConfigCreate, ESMF_HConfigIsMap, ESMF_HConfigAsStringMapKey
    use esmf, only: ESMF_HConfigIsDefined, ESMF_HConfigCreateAtMapVal, ESMF_HConfigSet
    use mapl_ErrorHandling
@@ -20,7 +20,11 @@ contains
    function merge_hconfig(parent_hconfig, child_hconfig, rc) result(total_hconfig)
       type(ESMF_HConfig) :: total_hconfig
       type(ESMF_HConfig), intent(in) :: parent_hconfig
+#if defined(ESMF_HCONFIGSET_HAS_INTENT_INOUT)
+      type(ESMF_HConfig), intent(inout) :: child_hconfig
+#else
       type(ESMF_HConfig), intent(in) :: child_hconfig
+#endif
       integer, optional, intent(out) :: rc
 
       integer :: status

@@ -7,8 +7,8 @@ module mapl3g_CouplerMetaComponent
    use mapl3g_GriddedComponentDriver, only: GriddedComponentDriver
    use mapl3g_ComponentDriverVector, only: ComponentDriverVector
    use mapl3g_ComponentDriverPtrVector, only: ComponentDriverPtrVector
-   use mapl3g_ExtensionAction
-   use mapl3g_VerticalRegridAction
+   use mapl3g_ExtensionTransform
+   use mapl3g_VerticalRegridTransform
    use mapl_ErrorHandlingMod
    use mapl3g_ESMF_Interfaces
    use esmf
@@ -26,7 +26,7 @@ module mapl3g_CouplerMetaComponent
 
    type :: CouplerMetaComponent
       private
-      class(ExtensionAction), allocatable :: action
+      class(ExtensionTransform), allocatable :: transform
       type(ComponentDriverPtrVector) :: sources
       type(ComponentDriverVector) :: consumers
       logical :: stale = .true.
@@ -62,14 +62,14 @@ module mapl3g_CouplerMetaComponent
 
 contains
 
-   function new_CouplerMetaComponent(action, source) result (this)
+   function new_CouplerMetaComponent(transform, source) result (this)
       type(CouplerMetaComponent) :: this
-      class(ExtensionAction), intent(in) :: action
+      class(ExtensionTransform), intent(in) :: transform
       class(ComponentDriver), target, optional, intent(in) :: source
 
       type(ComponentDriverPtr) :: source_wrapper
 
-      this%action = action
+      this%transform = transform
       if (present(source)) then
          source_wrapper%ptr => source
          call this%sources%push_back(source_wrapper)
@@ -86,7 +86,7 @@ contains
 
       integer :: status
 
-      call this%action%initialize(importState, exportState, clock, _RC)
+      call this%transform%initialize(importState, exportState, clock, _RC)
       
       _RETURN(_SUCCESS)
    end subroutine initialize
@@ -107,7 +107,7 @@ contains
       call ESMF_StateGet(importState, itemName='import[1]', field=f_in, _RC)
       call ESMF_StateGet(exportState, itemName='export[1]', field=f_out, _RC)
 
-!#      call FieldUpdate(f_in, from=f_out, ignore=this%action%get_ignore(), _RC)
+!#      call FieldUpdate(f_in, from=f_out, ignore=this%transform%get_ignore(), _RC)
       
       _RETURN(_SUCCESS)
    end subroutine update_time_varying
@@ -125,7 +125,7 @@ contains
       !# call this%propagate_attributes(_RC)
       call this%update_sources(_RC)
       
-      call this%action%update(importState, exportState, clock, _RC)
+      call this%transform%update(importState, exportState, clock, _RC)
       call this%set_up_to_date()
 
       _RETURN(_SUCCESS)
@@ -163,7 +163,7 @@ contains
       call ESMF_StateGet(importState, itemName='import[1]', field=f_in, _RC)
       call ESMF_StateGet(exportState, itemName='export[1]', field=f_out, _RC)
 
-!#      call FieldUpdate(f_out, from=f_in, ignore=this%action%get_ignore(), _RC)
+!#      call FieldUpdate(f_out, from=f_in, ignore=this%transform%get_ignore(), _RC)
       
       _RETURN(_SUCCESS)
    end subroutine invalidate_time_varying
@@ -177,9 +177,9 @@ contains
 
       integer :: status
 
-      if(this%action%runs_invalidate()) then
+      if(this%transform%runs_invalidate()) then
          call this%update_sources(_RC)
-         call this%action%invalidate(importState, exportState, clock, _RC)
+         call this%transform%invalidate(importState, exportState, clock, _RC)
       end if
       _RETURN_IF(this%is_stale())
 

@@ -141,7 +141,11 @@ module mapl3g_OuterMetaComponent
       module recursive subroutine add_child_by_spec(this, child_name, child_spec, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          character(*), intent(in) :: child_name
+#if defined(ESMF_HCONFIGSET_HAS_INTENT_INOUT)
+         type(ChildSpec), intent(inout) :: child_spec
+#else
          type(ChildSpec), intent(in) :: child_spec
+#endif
          integer, optional, intent(out) :: rc
       end subroutine add_child_by_spec
 
@@ -152,19 +156,19 @@ module mapl3g_OuterMetaComponent
          class(AbstractUserSetServices), intent(in) :: user_setservices
          type(ESMF_HConfig), intent(in) :: hconfig
       end function new_outer_meta
-   
+
       module subroutine init_meta(this, rc)
          class(OuterMetaComponent), intent(inout) :: this
          integer, optional, intent(out) :: rc
       end subroutine init_meta
-   
+
       module function get_child_by_name(this, child_name, rc) result(child_component)
          type(GriddedComponentDriver) :: child_component
          class(OuterMetaComponent), intent(in) :: this
          character(len=*), intent(in) :: child_name
          integer, optional, intent(out) :: rc
       end function get_child_by_name
-   
+
       module recursive subroutine run_child_by_name(this, child_name, unusable, phase_name, rc)
          class(OuterMetaComponent), intent(inout) :: this
          character(len=*), intent(in) :: child_name
@@ -172,51 +176,51 @@ module mapl3g_OuterMetaComponent
          character(len=*), optional, intent(in) :: phase_name
          integer, optional, intent(out) :: rc
       end subroutine run_child_by_name
-   
+
       module recursive subroutine run_children_(this, unusable, phase_name, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          class(KE), optional, intent(in) :: unusable
          character(len=*), optional, intent(in) :: phase_name
          integer, optional, intent(out) :: rc
       end subroutine run_children_
-   
+
       module function get_outer_meta_from_outer_gc(gridcomp, rc) result(outer_meta)
          type(OuterMetaComponent), pointer :: outer_meta
          type(ESMF_GridComp), intent(inout) :: gridcomp
          integer, optional, intent(out) :: rc
       end function get_outer_meta_from_outer_gc
-   
+
       module subroutine attach_outer_meta(gridcomp, rc)
          type(ESMF_GridComp), intent(inout) :: gridcomp
          integer, optional, intent(out) :: rc
       end subroutine attach_outer_meta
-   
+
       module subroutine free_outer_meta(gridcomp, rc)
          type(ESMF_GridComp), intent(inout) :: gridcomp
          integer, optional, intent(out) :: rc
       end subroutine free_outer_meta
-   
+
       module function get_phases(this, method_flag) result(phases)
          type(StringVector), pointer :: phases
          class(OuterMetaComponent), target, intent(inout):: this
          type(ESMF_Method_Flag), intent(in) :: method_flag
       end function get_phases
-   
+
       module subroutine set_hconfig(this, hconfig)
          class(OuterMetaComponent), intent(inout) :: this
          type(ESMF_HConfig), intent(in) :: hconfig
       end subroutine set_hconfig
-   
+
       module function get_hconfig(this) result(hconfig)
          type(ESMF_Hconfig) :: hconfig
          class(OuterMetaComponent), intent(inout) :: this
       end function get_hconfig
-   
+
       module function get_geom(this) result(geom)
          type(ESMF_Geom) :: geom
          class(OuterMetaComponent), intent(inout) :: this
       end function get_geom
-   
+
       module recursive subroutine initialize_set_clock(this, outer_clock, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          type(ESMF_Clock), intent(in) :: outer_clock
@@ -224,14 +228,14 @@ module mapl3g_OuterMetaComponent
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_set_clock
-   
+
       module recursive subroutine initialize_advertise(this, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          ! optional arguments
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_advertise
-   
+
      module recursive subroutine initialize_modify_advertised(this, importState, exportState, clock, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          ! optional arguments
@@ -241,7 +245,7 @@ module mapl3g_OuterMetaComponent
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_modify_advertised
-   
+
      module recursive subroutine initialize_modify_advertised2(this, importState, exportState, clock, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          ! optional arguments
@@ -251,20 +255,20 @@ module mapl3g_OuterMetaComponent
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_modify_advertised2
-   
+
       module recursive subroutine initialize_realize(this, unusable, rc)
          class(OuterMetaComponent), intent(inout) :: this
          ! optional arguments
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_realize
-   
+
       module recursive subroutine recurse_(this, phase_idx, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          integer :: phase_idx
          integer, optional, intent(out) :: rc
       end subroutine recurse_
-   
+
       module recursive subroutine recurse_read_restart_(this, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          integer, optional, intent(out) :: rc
@@ -280,21 +284,21 @@ module mapl3g_OuterMetaComponent
          procedure(I_child_op) :: oper
          integer, optional, intent(out) :: rc
       end subroutine apply_to_children_custom
-   
+
       module recursive subroutine initialize_user(this, unusable, rc)
          class(OuterMetaComponent), intent(inout) :: this
          ! optional arguments
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_user
-   
+
       module subroutine run_custom(this, method_flag, phase_name, rc)
          class(OuterMetaComponent), intent(inout) :: this
          type(ESMF_METHOD_FLAG), intent(in) :: method_flag
          character(*), intent(in) :: phase_name
          integer, optional, intent(out) :: rc
       end subroutine run_custom
-   
+
       module recursive subroutine run_user(this, clock, phase_name, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          type(ESMF_Clock), intent(inout) :: clock
@@ -303,7 +307,7 @@ module mapl3g_OuterMetaComponent
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine run_user
-   
+
       module recursive subroutine run_clock_advance(this, clock, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          type(ESMF_Clock), intent(inout) :: clock
@@ -311,7 +315,7 @@ module mapl3g_OuterMetaComponent
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine run_clock_advance
-   
+
       module recursive subroutine finalize(this, importState, exportState, clock, unusable, rc)
          class(OuterMetaComponent), intent(inout) :: this
          type(ESMF_State) :: importState
@@ -321,7 +325,7 @@ module mapl3g_OuterMetaComponent
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine finalize
-   
+
       module recursive subroutine read_restart(this, importState, exportState, clock, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          type(ESMF_State) :: importState
@@ -331,7 +335,7 @@ module mapl3g_OuterMetaComponent
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine read_restart
-   
+
       module recursive subroutine write_restart(this, importState, exportState, clock, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          type(ESMF_State) :: importState
@@ -341,28 +345,28 @@ module mapl3g_OuterMetaComponent
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine write_restart
-   
+
       module function get_name(this, rc) result(name)
          character(:), allocatable :: name
          class(OuterMetaComponent), intent(in) :: this
          integer, optional, intent(out) :: rc
       end function get_name
-   
+
       module function get_gridcomp(this) result(gridcomp)
          type(ESMF_GridComp) :: gridcomp
          class(OuterMetaComponent), intent(in) :: this
       end function get_gridcomp
-   
+
       module subroutine set_geom(this, geom)
          class(OuterMetaComponent), intent(inout) :: this
          type(ESMF_Geom), intent(in) :: geom
       end subroutine set_geom
-   
+
       module subroutine set_vertical_grid(this, vertical_grid)
          class(OuterMetaComponent), intent(inout) :: this
          class(VerticalGrid), intent(in) :: verticaL_grid
       end subroutine set_vertical_grid
-    
+
       module function get_vertical_grid(this) result(vertical_grid)
          class(VerticalGrid), allocatable :: verticaL_grid
          class(OuterMetaComponent), intent(inout) :: this
@@ -372,12 +376,12 @@ module mapl3g_OuterMetaComponent
          type(StateRegistry), pointer :: registry
          class(OuterMetaComponent), target, intent(in) :: this
       end function get_registry
-   
+
       module function get_component_spec(this) result(component_spec)
          type(ComponentSpec), pointer :: component_spec
          class(OuterMetaComponent), target, intent(in) :: this
       end function get_component_spec
-   
+
       module function get_internal_state(this) result(internal_state)
          type(ESMF_State) :: internal_state
          class(OuterMetaComponent), intent(in) :: this
@@ -387,19 +391,19 @@ module mapl3g_OuterMetaComponent
          class(Logger), pointer :: lgr
          class(OuterMetaComponent), target, intent(in) :: this
       end function get_lgr
-   
+
       module function get_user_gc_driver(this) result(user_gc_driver)
          type(GriddedComponentDriver), pointer :: user_gc_driver
          class(OuterMetaComponent), target, intent(in) :: this
       end function get_user_gc_driver
-   
+
       module subroutine connect_all(this, src_comp, dst_comp, rc)
          class(OuterMetaComponent), intent(inout) :: this
          character(*), intent(in) :: src_comp
          character(*), intent(in) :: dst_comp
          integer, optional, intent(out) :: rc
       end subroutine connect_all
-   
+
       module subroutine set_entry_point(this, method_flag, userProcedure, unusable, phase_name, rc)
          class(OuterMetaComponent), intent(inout) :: this
          type(ESMF_Method_Flag), intent(in) :: method_flag
@@ -408,7 +412,7 @@ module mapl3g_OuterMetaComponent
          character(len=*), optional, intent(in) :: phase_name
          integer, optional, intent(out) ::rc
       end subroutine set_entry_point
-   
+
    end interface
 
    interface OuterMetaComponent

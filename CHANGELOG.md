@@ -110,6 +110,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.54.2] - 2025-03-18
+
+### Fixed
+
+- Fixed bug when proccessing history collection list identified by NAG
+
 ## [2.54.1] - 2025-02-07
 
 - Fix typo in ACG: 'num_subtitles' => 'num_subtiles'
@@ -121,6 +127,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add column for ACG (ALIAS) that set the pointer variable to a different name than the `short_name`
 - Updated CI to use Baselibs 7.31.0
   - Updates to GFE v1.18.0
+- Use oserver for Mask sampler
 
 ## [2.53.1] - 2025-01-29
 

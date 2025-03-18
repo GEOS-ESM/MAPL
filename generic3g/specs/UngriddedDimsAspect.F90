@@ -4,9 +4,9 @@ module mapl3g_UngriddedDimsAspect
    use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
-   use mapl3g_ExtensionAction
+   use mapl3g_ExtensionTransform
    use mapl3g_UngriddedDims
-   use mapl3g_NullAction
+   use mapl3g_NullTransform
    use mapl_ErrorHandling
    implicit none
    private
@@ -27,7 +27,7 @@ module mapl3g_UngriddedDimsAspect
       procedure :: connect_to_export
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
-      procedure :: make_action
+      procedure :: make_transform
       procedure, nopass :: get_aspect_id
 
       procedure :: get_ungridded_dims
@@ -111,17 +111,17 @@ contains
    end function to_ungridded_dims_from_map
 
 
-   function make_action(src, dst, other_aspects, rc) result(action)
-      class(ExtensionAction), allocatable :: action
+   function make_transform(src, dst, other_aspects, rc) result(transform)
+      class(ExtensionTransform), allocatable :: transform
       class(UngriddedDimsAspect), intent(in) :: src
       class(StateItemAspect), intent(in)  :: dst
       type(AspectMap), target, intent(in)  :: other_aspects
       integer, optional, intent(out) :: rc
 
-      allocate(action,source=NullAction()) ! just in case
+      allocate(transform,source=NullTransform()) ! just in case
 
       _RETURN(_SUCCESS)
-   end function make_action
+   end function make_transform
 
    subroutine connect_to_export(this, export, actual_pt, rc)
       class(UngriddedDimsAspect), intent(inout) :: this

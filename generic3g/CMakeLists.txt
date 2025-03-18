@@ -63,7 +63,7 @@ esma_add_library(${this}
 add_subdirectory(specs)
 add_subdirectory(registry)
 add_subdirectory(connection)
-add_subdirectory(actions)
+add_subdirectory(transforms)
 add_subdirectory(couplers)
 add_subdirectory(vertical)
 
@@ -104,12 +104,15 @@ esma_add_fortran_submodules(
   SOURCES initialize.F90 run.F90 finalize.F90 get_states.F90
           get_clock.F90 set_clock.F90 run_export_couplers.F90
           run_import_couplers.F90 clock_advance.F90
-          get_gridcomp.F90 get_name.F90 add_export_coupler.F90 
+          get_gridcomp.F90 get_name.F90 add_export_coupler.F90
           add_import_coupler.F90 read_restart.F90 write_restart.F90)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
+if(ESMF_HCONFIGSET_HAS_INTENT_INOUT)
+  target_compile_definitions(${this} PRIVATE ESMF_HCONFIGSET_HAS_INTENT_INOUT)
+endif()
 
 if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)

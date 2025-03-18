@@ -1,26 +1,26 @@
 #include "MAPL_Generic.h"
-module mapl3g_ExtensionAction
+module mapl3g_ExtensionTransform
    use mapl_ErrorHandling
    use ESMF
    implicit none
    private
 
-   public :: ExtensionAction
+   public :: ExtensionTransform
 
-   type, abstract :: ExtensionAction
+   type, abstract :: ExtensionTransform
    contains
       procedure(I_run), deferred :: initialize
       procedure(I_run), deferred :: update
       procedure :: runs_invalidate
       procedure :: invalidate
-   end type ExtensionAction
+   end type ExtensionTransform
 
 
    abstract interface
       subroutine I_run(this, importState, exportState, clock, rc)
          use ESMF
-         import ExtensionAction
-         class(ExtensionAction), intent(inout) :: this
+         import ExtensionTransform
+         class(ExtensionTransform), intent(inout) :: this
          type(ESMF_State) :: importState
          type(ESMF_State) :: exportState
          type(ESMF_Clock) :: clock
@@ -31,10 +31,10 @@ module mapl3g_ExtensionAction
 contains
 
    ! This is a default no-op implementation of invalidate. Types derived from
-   ! ExtensionAction should overload it as needed.
+   ! ExtensionTransform should overload it as needed.
    subroutine invalidate(this, importState, exportState, clock, rc)
       use ESMF
-      class(ExtensionAction), intent(inout) :: this
+      class(ExtensionTransform), intent(inout) :: this
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
       type(ESMF_Clock) :: clock
@@ -50,8 +50,8 @@ contains
    ! (override the invalidate subroutine nontrivially) need to implement
    ! a nontrivial override of this function.
    logical function runs_invalidate(this)
-      class(ExtensionAction), intent(in) :: this
+      class(ExtensionTransform), intent(in) :: this
       runs_invalidate = .FALSE.
    end function runs_invalidate
 
-end module mapl3g_ExtensionAction
+end module mapl3g_ExtensionTransform

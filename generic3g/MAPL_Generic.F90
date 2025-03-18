@@ -54,7 +54,7 @@ module mapl3g_Generic
    ! These should not be needed by users
    public :: MAPL_GridCompGetOuterMeta
    public :: MAPL_GridCompGetRegistry
-   
+
 
    ! These should be available to users
    public :: MAPL_GridCompAddVarSpec
@@ -201,13 +201,13 @@ contains
       type(ESMF_GridComp) function get_outer_gridcomp(gridcomp, rc) result(outer_gc)
          type(ESMF_GridComp), intent(inout) :: gridcomp
          integer, optional, intent(out) :: rc
-         
+
          integer :: status
          type(InnerMetaComponent), pointer :: inner_meta
 
          inner_meta => get_inner_meta(gridcomp, _RC)
          outer_gc = inner_meta%get_outer_gridcomp()
-         
+
          _RETURN(_SUCCESS)
       end function get_outer_gridcomp
 
@@ -226,7 +226,7 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine gridcomp_get_registry
-      
+
   subroutine gridcomp_get(gridcomp, unusable, &
         hconfig, &
         logger, &
@@ -246,7 +246,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta_, outer_meta_from_inner_gc
 
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta_, _RC)
-      
+
       if (present(hconfig)) hconfig = outer_meta_%get_hconfig()
       if (present(logger)) logger => outer_meta_%get_lgr()
       if (present(geom)) geom = outer_meta_%get_geom()
@@ -300,7 +300,11 @@ contains
    subroutine gridcomp_add_child_by_spec(gridcomp, child_name, child_spec, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       character(len=*), intent(in) :: child_name
+#if defined(ESMF_HCONFIGSET_HAS_INTENT_INOUT)
+      type(ChildSpec), intent(inout) :: child_spec
+#else
       type(ChildSpec), intent(in) :: child_spec
+#endif
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -502,7 +506,7 @@ contains
 
       call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
-      call MAPL_HConfigGet(params, value, default, _RC) 
+      call MAPL_HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
 
       _RETURN(_SUCCESS)
@@ -525,14 +529,14 @@ contains
 
       call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
-      call MAPL_HConfigGet(params, value, default, _RC) 
+      call MAPL_HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
    end subroutine gridcomp_resource_get_i8
-   
+
    subroutine gridcomp_resource_get_r4(gc, keystring, value, unusable, default, value_set, rc)
       real(kind=ESMF_KIND_R4), intent(inout) :: value
       real(kind=ESMF_KIND_R4), optional, intent(in) :: default
@@ -548,7 +552,7 @@ contains
 
       call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
-      call MAPL_HConfigGet(params, value, default, _RC) 
+      call MAPL_HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
 
       _RETURN(_SUCCESS)
@@ -571,7 +575,7 @@ contains
 
       call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
-      call MAPL_HConfigGet(params, value, default, _RC) 
+      call MAPL_HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
 
       _RETURN(_SUCCESS)
@@ -594,7 +598,7 @@ contains
 
       call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
-      call MAPL_HConfigGet(params, value, default, _RC) 
+      call MAPL_HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
 
       _RETURN(_SUCCESS)
@@ -617,7 +621,7 @@ contains
 
       call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger=logger)
-      call MAPL_HConfigGet(params, value, default, _RC) 
+      call MAPL_HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
 
       _RETURN(_SUCCESS)
@@ -640,7 +644,7 @@ contains
 
       call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
-      call MAPL_HConfigGet(params, value, default, _RC) 
+      call MAPL_HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
 
       _RETURN(_SUCCESS)
@@ -663,7 +667,7 @@ contains
 
       call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
-      call MAPL_HConfigGet(params, value, default, _RC) 
+      call MAPL_HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
 
       _RETURN(_SUCCESS)
@@ -686,7 +690,7 @@ contains
 
       call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
-      call MAPL_HConfigGet(params, value, default, _RC) 
+      call MAPL_HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
 
       _RETURN(_SUCCESS)
@@ -709,7 +713,7 @@ contains
 
       call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
-      call MAPL_HConfigGet(params, value, default, _RC) 
+      call MAPL_HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
 
       _RETURN(_SUCCESS)
@@ -732,7 +736,7 @@ contains
 
       call MAPL_GridCompGet(gc, hconfig=hconfig, logger=logger, _RC)
       params = HConfigParams(hconfig, keystring, value_set, logger)
-      call MAPL_HConfigGet(params, value, default, _RC) 
+      call MAPL_HConfigGet(params, value, default, _RC)
       if(present(value_set)) value_set = params%value_set
 
       _RETURN(_SUCCESS)
@@ -786,7 +790,7 @@ contains
       type(ExtensionFamily), pointer :: family
       type(StateItemExtension), pointer :: primary
       class(StateItemSpec), pointer :: spec
-      
+
       call MAPL_GridCompGetRegistry(gridcomp, registry=registry, _RC)
       v_pt = VirtualConnectionPt(state_intent, short_name)
 

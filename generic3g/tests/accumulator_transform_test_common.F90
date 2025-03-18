@@ -3,7 +3,7 @@
 #define _SUCCESS 0
 #define _FAILURE _SUCCESS-1
 #include "MAPL_TestErr.h"
-module accumulator_action_test_common
+module accumulator_transform_test_common
    use esmf
    use funit
    use MAPL_FieldUtils
@@ -154,4 +154,4 @@ contains
 
    end subroutine destroy_objects
 
-end module accumulator_action_test_common
+end module accumulator_transform_test_common

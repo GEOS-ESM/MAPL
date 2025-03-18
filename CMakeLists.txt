@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.54.1
+  VERSION 2.54.2
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
@@ -147,6 +147,18 @@ else ()
     message(FATAL_ERROR "ESMF must be at least 8.8.0")
   endif ()
 endif ()
+
+# There is an interface change in ESMF_HConfig in ESMF 8.9.0,
+# so we need to check the version and if it is 8.9.0 or later,
+# set a variable.
+# NOTE: When we move to requiring ESMF 8.9.0 we can
+#       remove all this code and use the updated interface!
+if(ESMF_VERSION VERSION_GREATER_EQUAL 8.9.0)
+  set (ESMF_HCONFIGSET_HAS_INTENT_INOUT TRUE)
+  message(STATUS "ESMF_HConfig has intent(inout) in ESMF 8.9.0 or later")
+else()
+  set (ESMF_HCONFIGSET_HAS_INTENT_INOUT FALSE)
+endif()
 
 # We wish to add extra flags when compiling as Debug. We should only
 # do this if we are using esma_cmake since the flags are defined

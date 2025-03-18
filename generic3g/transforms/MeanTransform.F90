@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
-module mapl3g_MeanAction
-   use mapl3g_AccumulatorAction
+module mapl3g_MeanTransform
+   use mapl3g_AccumulatorTransform
    use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
    use MAPL_ExceptionHandling
    use MAPL_FieldPointerUtilities, only: assign_fptr
@@ -10,10 +10,10 @@ module mapl3g_MeanAction
    use ESMF
    implicit none
    private
-   public :: MeanAction
-   public :: construct_MeanAction
+   public :: MeanTransform
+   public :: construct_MeanTransform
 
-   type, extends(AccumulatorAction) :: MeanAction
+   type, extends(AccumulatorTransform) :: MeanTransform
       type(ESMF_Field), allocatable :: counter_field
    contains
       procedure :: clear => clear_mean
@@ -22,23 +22,23 @@ module mapl3g_MeanAction
       procedure :: calculate_mean
       procedure :: calculate_mean_R4
       procedure :: accumulate_R4
-   end type MeanAction
+   end type MeanTransform
 
    type(ESMF_TypeKind_Flag), parameter :: COUNTER_TYPEKIND = ESMF_TYPEKIND_I4
    integer, parameter :: COUNTER_KIND = ESMF_KIND_I4
 
 contains
 
-   function construct_MeanAction(typekind) result(acc)
-      type(MeanAction) :: acc
+   function construct_MeanTransform(typekind) result(acc)
+      type(MeanTransform) :: acc
       type(ESMF_TypeKind_Flag), intent(in) :: typekind
 
       acc%typekind = typekind
 
-   end function construct_MeanAction
+   end function construct_MeanTransform
 
    subroutine create_fields_mean(this, import_field, export_field, rc)
-      class(MeanAction), intent(inout) :: this
+      class(MeanTransform), intent(inout) :: this
       type(ESMF_Field), intent(inout) :: import_field
       type(ESMF_Field), intent(inout) :: export_field
       integer, optional, intent(out) :: rc
@@ -49,7 +49,7 @@ contains
       integer :: ndims
 
       _RETURN_IF(this%initialized)
-      call this%AccumulatorAction%create_fields(import_field, export_field, _RC)
+      call this%AccumulatorTransform%create_fields(import_field, export_field, _RC)
       associate(f => this%accumulation_field)
          call ESMF_FieldGet(f, dimCount=ndims, _RC)
          allocate(gmap(ndims))
@@ -61,13 +61,13 @@ contains
    end subroutine create_fields_mean
 
    subroutine clear_mean(this, rc)
-      class(MeanAction), intent(inout) :: this
+      class(MeanTransform), intent(inout) :: this
       integer, optional, intent(out) :: rc
       
       integer :: status
       integer(COUNTER_KIND), pointer :: counter(:)
 
-      call this%AccumulatorAction%clear(_RC)
+      call this%AccumulatorTransform%clear(_RC)
       counter => null()
       call assign_fptr(this%counter_field, counter, _RC)
       counter = 0_COUNTER_KIND
@@ -76,7 +76,7 @@ contains
    end subroutine clear_mean
 
    subroutine calculate_mean(this, rc)
-      class(MeanAction), intent(inout) :: this
+      class(MeanTransform), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -91,19 +91,19 @@ contains
    end subroutine calculate_mean
 
    subroutine update_result_mean(this, rc)
-      class(MeanAction), intent(inout) :: this
+      class(MeanTransform), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       call this%calculate_mean(_RC)
-      call this%AccumulatorAction%update_result(_RC)
+      call this%AccumulatorTransform%update_result(_RC)
       _RETURN(_SUCCESS)
 
    end subroutine update_result_mean
 
    subroutine calculate_mean_R4(this, rc)
-      class(MeanAction), intent(inout) :: this
+      class(MeanTransform), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -125,7 +125,7 @@ contains
    end subroutine calculate_mean_R4
 
    subroutine accumulate_R4(this, update_field, rc)
-      class(MeanAction), intent(inout) :: this
+      class(MeanTransform), intent(inout) :: this
       type(ESMF_Field), intent(inout) :: update_field
       integer, optional, intent(out) :: rc
 
@@ -149,4 +149,4 @@ contains
 
    end subroutine accumulate_R4
 
-end module mapl3g_MeanAction
+end module mapl3g_MeanTransform

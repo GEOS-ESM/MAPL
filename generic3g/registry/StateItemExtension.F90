@@ -6,7 +6,7 @@ module mapl3g_StateItemExtension
    use mapl3g_GriddedComponentDriver
    use mapl3g_ComponentDriverVector
    use mapl3g_ComponentDriverVector
-   use mapl3g_ExtensionAction
+   use mapl3g_ExtensionTransform
    use mapl3g_GenericCoupler
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
@@ -123,7 +123,7 @@ contains
       integer :: status
       integer :: i
       type(StateItemSpec), target :: new_spec
-      class(ExtensionAction), allocatable :: action
+      class(ExtensionTransform), allocatable :: transform
       class(ComponentDriver), pointer :: producer
       class(ComponentDriver), pointer :: source
       type(ESMF_GridComp) :: coupler_gridcomp
@@ -148,7 +148,7 @@ contains
 
          if (src_aspect%needs_extension_for(dst_aspect)) then
             other_aspects => new_spec%get_aspects()
-            allocate(action, source=src_aspect%make_action(dst_aspect, other_aspects, rc=status))
+            allocate(transform, source=src_aspect%make_transform(dst_aspect, other_aspects, rc=status))
             _VERIFY(status)
             call new_spec%set_aspect(dst_aspect, _RC)
             exit
@@ -156,11 +156,11 @@ contains
 
       end do
 
-      if (allocated(action)) then
+      if (allocated(transform)) then
          call new_spec%create(_RC)
          call new_spec%set_active()
          source => this%get_producer()
-         coupler_gridcomp = make_coupler(action, source, _RC)
+         coupler_gridcomp = make_coupler(transform, source, _RC)
          producer => this%add_consumer(GriddedComponentDriver(coupler_gridcomp))
          extension = StateItemExtension(new_spec)
          call extension%set_producer(producer)
