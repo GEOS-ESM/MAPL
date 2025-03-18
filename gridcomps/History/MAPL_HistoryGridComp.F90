@@ -578,7 +578,7 @@ contains
 
              nlist = nlist + 1
              allocate( list(nlist), _STAT )
-             list(1:nlist-1)=IntState%list
+             if (nlist > 1) list(1:nlist-1)=IntState%list
              list(nlist)%collection = tmpstring
              list(nlist)%filename = list(nlist)%collection
              deallocate(IntState%list)
