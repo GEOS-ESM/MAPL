@@ -485,11 +485,6 @@ contains
    end subroutine parse_typekind_aspect_options
 #endif
 
-#if defined(TK_)
-#  undef TK_
-#endif
-#define TK_(S) ESMF_TYPEKIND_##S
-
 #if defined(USE_TYPEKIND)
    function get_typekind(tk_string, found, rc) result(typekind)
       type(ESMF_TypeKind_Flag) :: typekind
@@ -502,7 +497,8 @@ contains
       character(len=L), parameter :: CODES(*) = [character(len=L) :: &
          & 'I4', 'I8', 'R4', 'R8', 'LOGICAL', 'CHARACTER']
       type(ESMF_TypeKind_Flag), parameter :: TK(size(CODES)) = [ &
-         & TK_(I4), TK_(I8), TK_(R4), TK_(R8), TK_(LOGICAL), TK_(CHARACTER)]
+         & ESMF_TYPEKIND_I4, ESMF_TYPEKIND_I8, ESMF_TYPEKIND_R4, &
+         & ESMF_TYPEKIND_R8, ESMF_TYPEKIND_LOGICAL, ESMF_TYPEKIND_CHARACTER]
       integer :: i
       logical :: tk_found
 
@@ -522,7 +518,6 @@ contains
 
    end function get_typekind
 #endif
-#undef TK_
 #endif
 
 end module mapl3g_HistoryCollectionGridComp_private
