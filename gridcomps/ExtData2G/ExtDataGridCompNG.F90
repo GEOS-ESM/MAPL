@@ -1002,6 +1002,7 @@ CONTAINS
      integer :: fieldRank
      real, pointer :: dst_ptr3d(:,:,:), src_ptr3d(:,:,:), src_ps_ptr(:,:), dst_ple_ptr(:,:,:)
      real, allocatable :: src_ple(:,:,:)
+     real :: src_mw, dst_mw
      character(len=:), allocatable :: units_in, units_out
      integer :: constituent_type
 
@@ -1040,7 +1041,8 @@ CONTAINS
         case(emission) 
            call vremap_conserve_emission(src_ple,src_ptr3d,dst_ple_ptr,dst_ptr3d)
         case default
-           _FAIL(units_in//" not supported for vertical regridding")
+           call ESMF_AttributeGet(dst_field,name='molecular_weight',value=dst_mw, _RC)
+           _FAIL(trim(units_in)//" not supported for vertical regridding")
         end select
      else if (item%vcoord%vertical_type == simple_coord .and. item%do_fill) then
         call extdata_lgr%info('ExtData filling destination with available layers of source for '//trim(item%name))
