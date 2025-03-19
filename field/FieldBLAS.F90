@@ -156,9 +156,10 @@ contains
 
    ! [x,y,z] = A * [u,v]
    ! single precision (R4) gemv
-   subroutine gemv_r4(alpha, A, x, beta, y, rc)
+   subroutine gemv_r4(trans, alpha, A, x, beta, y, rc)
+      character(len=1), intent(in) :: trans
       real(kind=ESMF_KIND_R4), intent(in) :: alpha
-      real(kind=ESMF_KIND_R4), intent(in) :: A(:,:,:)
+      type(ESMF_Field), intent(inout) :: A(:,:)
       type(ESMF_Field), intent(inout) :: x(:)
       real(kind=ESMF_KIND_R4), intent(in) :: beta
       type(ESMF_Field), intent(inout) :: y(:)
@@ -169,19 +170,29 @@ contains
       integer, allocatable :: local_element_count(:)
       integer(kind=ESMF_KIND_I8) :: n_gridded, n_ungridded
       integer(kind=ESMF_KIND_I8) :: fp_shape(2)
-      real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:), y_ptr(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:), y_ptr(:,:) ! gridded x ungridded
+      real(kind=ESMF_KIND_R8), pointer :: A_ptr(:) ! gridded
+      integer :: n_A
       integer :: ix, jy, kv
       integer :: status
 
-      _ASSERT(size(A,3) == size(x), 'FieldGEMV() - array A not nonformable with x.')
-      _ASSERT(size(A,2) == size(y), 'FieldGEMV() - array A not nonformable with y.')
+      select case (trans)
+      case ('n','N')
+         _ASSERT(size(A,2) == size(x), 'FieldGEMV() - array A not nonformable with x.')
+         _ASSERT(size(A,1) == size(y), 'FieldGEMV() - array A not nonformable with y.')
+      case ('t','T')
+         _ASSERT(size(A,1) == size(x), 'FieldGEMV() - array A not nonformable with x.')
+         _ASSERT(size(A,2) == size(y), 'FieldGEMV() - array A not nonformable with y.')
+      case default
+         _FAIL("unsupponted option for trans: '"//trans//"'")
+      end select
 
       call verify_typekind(x, ESMF_TYPEKIND_R4)
       call verify_typekind(y, ESMF_TYPEKIND_R4)
 
       conformable = FieldsAreConformable(x(1), x(2:))
       _ASSERT(conformable, 'FieldGEMV() - fields not conformable.')
-      conformable = FieldsAreConformable(x(1), y)
+      conformable = FieldsAreConformable(x(1), y(:))
       _ASSERT(conformable, 'FieldGEMV() - fields not conformable.')
 
       ! Reference dimensions
@@ -190,20 +201,25 @@ contains
 
       n_gridded = product(local_element_count(1:dimcount))
       n_ungridded = product(local_element_count(dimcount+1:))
-      _ASSERT(size(A,1) == n_gridded, 'FieldGEMV() - array A not nonformable with gridded dims.')
       fp_shape = [n_gridded, n_ungridded]
 
 !      y = matmul(A, x)
       do jy = 1, size(y)
          call assign_fptr(y(jy), fp_shape, y_ptr, _RC)
-         y_ptr(:,jy) = beta * y_ptr(:,jy)
-!         call FieldSCAL(beta, y_ptr(:,jy), _RC)
+         y_ptr(:,:) = beta * y_ptr(:,:)
 
          do ix = 1, size(x)
             call assign_fptr(x(ix), fp_shape, x_ptr, _RC)
+            select case (trans)
+            case ('n','N')
+               call assign_fptr(A(jy,ix), A_ptr, _RC) ! 1D - no shape arg
+            case ('t','T')
+               call assign_fptr(A(ix,jy), A_ptr, _RC) ! 1D - no shape arg
+            end select
             do kv = 1, n_ungridded
-               y_ptr(:,jy) = y_ptr(:,jy) + alpha * A(:,ix,jy) * x_ptr(:,kv)
+               y_ptr(:,kv) = y_ptr(:,kv) + alpha * A_ptr(:)*x_ptr(:,kv)
             end do
+
          end do
       end do
 

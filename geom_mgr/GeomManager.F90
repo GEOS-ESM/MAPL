@@ -20,7 +20,7 @@ module mapl3g_GeomManager
    public :: get_geom_manager
 
    type GeomManager
-      private
+!#      private
       type(GeomFactoryVector) :: factories
 
       ! A GeomSpecId map would be more elegant here, but imposing an ordering

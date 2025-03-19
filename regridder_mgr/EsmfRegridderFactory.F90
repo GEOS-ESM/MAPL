@@ -60,16 +60,16 @@ contains
       associate (p => spec%get_param())
         select type (p)
         type is (EsmfRegridderParam)
-!#           routehandle = make_routehandle(spec%get_geom_in(), spec%get_geom_out(), p%get_routehandle_param(), _RC)
            rh_spec = RoutehandleSpec(spec%get_geom_in(), spec%get_geom_out(), p%get_routehandle_param())
            routehandle = this%rh_manager%get_routehandle(rh_spec, _RC)
+           deallocate(regriddr) ! workaround for gfortran 12.3
+           regriddr = EsmfRegridder(p, routehandle)
         class default
            _FAIL('Wrong RegridderParam subclass passed to EsmfRegridderFactory.')
         end select
       end associate
-      deallocate(regriddr) ! workaround for gfortran 12.3
-      regriddr = EsmfRegridder(routehandle=routehandle, regridder_spec=spec)
-      
+
+
       _RETURN(_SUCCESS)
    end function make_regridder_typesafe
    
