@@ -118,7 +118,8 @@ make_internal_name = lambda name: name.replace('*','') if name else None
 # writer for LONG_NAME
 mangle_longname = ParameterizedWriter(mangle_name_prefix, LONGNAME_GLOB_PREFIX)
 # writer for DIMS
-DIMS_WRITER = make_validated_writer(lambda v: v in DIMS_RANK.keys() if v else False)
+L = make_validated_writer(lambda v: v in DIMS_RANK.keys())
+DIMS_WRITER = lambda value: string_writer(L(value)) if value else None 
 # writer for VLOCATION
 VLOCATION_WRITER = make_entry_writer({'C': 'MAPL_VlocationCenter', 'E': 'MAPL_VlocationEdge', 'N': 'MAPL_VlocationNone'})
 # writer for RESTART
