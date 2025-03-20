@@ -16,36 +16,37 @@
 !---------------------------------------------------------------------
 
 module mapl3g_Generic
-   use :: mapl3g_InnerMetaComponent, only: InnerMetaComponent
-   use :: mapl3g_InnerMetaComponent, only: get_inner_meta
-   use :: mapl3g_OuterMetaComponent, only: OuterMetaComponent
-   use :: mapl3g_OuterMetaComponent, only: get_outer_meta
-   use :: mapl3g_ChildSpec, only: ChildSpec
-   use :: mapl3g_ComponentSpec, only: ComponentSpec
-   use :: mapl3g_VariableSpec, only: VariableSpec
-   use :: mapl3g_Validation, only: is_valid_name
-   use :: mapl3g_ESMF_Interfaces, only: I_Run
-   use :: mapl3g_StateItemSpec
-   use :: mapl3g_VerticalGrid
+   use mapl3g_InnerMetaComponent, only: InnerMetaComponent
+   use mapl3g_InnerMetaComponent, only: get_inner_meta
+   use mapl3g_OuterMetaComponent, only: OuterMetaComponent
+   use mapl3g_OuterMetaComponent, only: get_outer_meta
+   use mapl3g_ChildSpec, only: ChildSpec
+   use mapl3g_ComponentSpec, only: ComponentSpec
+   use mapl3g_VariableSpec, only: VariableSpec
+   use mapl3g_Validation, only: is_valid_name
+   use mapl3g_ESMF_Interfaces, only: I_Run
+   use mapl3g_StateItemSpec
+   use mapl3g_VerticalGrid
    use mapl3g_StateRegistry, only: StateRegistry
    use mapl_InternalConstantsMod
-   use :: esmf, only: ESMF_Info
-   use :: esmf, only: ESMF_InfoGetFromHost
-   use :: esmf, only: ESMF_InfoGet
-   use :: esmf, only: ESMF_InfoIsSet
-   use :: esmf, only: ESMF_GridComp
-   use :: esmf, only: ESMF_Geom, ESMF_GeomCreate
-   use :: esmf, only: ESMF_Grid, ESMF_Mesh, ESMF_Xgrid, ESMF_LocStream
-   use :: esmf, only: ESMF_STAGGERLOC_INVALID
-   use :: esmf, only: ESMF_HConfig
-   use :: esmf, only: ESMF_Method_Flag
-   use :: esmf, only: ESMF_STAGGERLOC_INVALID
-   use :: esmf, only: ESMF_StateIntent_Flag
-   use :: esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
-   use :: esmf, only: ESMF_KIND_R8, ESMF_KIND_R4
-   use :: esmf, only: ESMF_Time, ESMF_TimeInterval
+   use esmf, only: ESMF_Info
+   use esmf, only: ESMF_InfoGetFromHost
+   use esmf, only: ESMF_InfoGet
+   use esmf, only: ESMF_InfoIsSet
+   use esmf, only: ESMF_GridComp
+   use esmf, only: ESMF_Geom, ESMF_GeomCreate
+   use esmf, only: ESMF_Grid, ESMF_Mesh, ESMF_Xgrid, ESMF_LocStream
+   use esmf, only: ESMF_STAGGERLOC_INVALID
+   use esmf, only: ESMF_HConfig
+   use esmf, only: ESMF_Method_Flag
+   use esmf, only: ESMF_STAGGERLOC_INVALID
+   use esmf, only: ESMF_StateIntent_Flag
+   use esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
+   use esmf, only: ESMF_KIND_R8, ESMF_KIND_R4
+   use esmf, only: ESMF_Time, ESMF_TimeInterval
+   use esmf, only: ESMF_State
    use mapl3g_hconfig_get
-   use :: pflogger, only: logger_t => logger
+   use pflogger, only: logger_t => logger
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    implicit none
@@ -69,11 +70,11 @@ module mapl3g_Generic
    public :: MAPL_GridCompRunChild
    public :: MAPL_GridCompRunChildren
 
-!!$   public :: MAPL_GetInternalState
+   public :: MAPL_GridCompGetInternalState
 
    public :: MAPL_GridCompSetGeometry
-!!$
-    public :: MAPL_GridcompResourceGet
+
+    public :: MAPL_GridcompGetResource
 
    ! Accessors
 !!$   public :: MAPL_GetOrbit
@@ -114,11 +115,9 @@ module mapl3g_Generic
       procedure :: gridcomp_set
    end interface MAPL_GridCompSet
 
-!!$   interface MAPL_GetInternalState
-!!$      procedure :: get_internal_state
-!!$   end interface MAPL_GetInternalState
-
-
+   interface MAPL_GridCompGetInternalState
+      procedure :: get_internal_state
+   end interface MAPL_GridCompGetInternalState
 
    interface MAPL_GridCompAddChild
       procedure :: gridcomp_add_child_config
@@ -150,19 +149,19 @@ module mapl3g_Generic
       procedure :: gridcomp_connect_all
    end interface MAPL_GridCompConnectAll
 
-   interface MAPL_GridCompResourceGet
-      procedure :: gridcomp_resource_get_i4
-      procedure :: gridcomp_resource_get_i8
-      procedure :: gridcomp_resource_get_r4
-      procedure :: gridcomp_resource_get_r8
-      procedure :: gridcomp_resource_get_logical
-      procedure :: gridcomp_resource_get_i4seq
-      procedure :: gridcomp_resource_get_i8seq
-      procedure :: gridcomp_resource_get_r4seq
-      procedure :: gridcomp_resource_get_r8seq
-      procedure :: gridcomp_resource_get_logical_seq
-      procedure :: gridcomp_resource_get_string
-   end interface MAPL_GridCompResourceGet
+   interface MAPL_GridCompGetResource
+      procedure :: gridcomp_get_resource_i4
+      procedure :: gridcomp_get_resource_i8
+      procedure :: gridcomp_get_resource_r4
+      procedure :: gridcomp_get_resource_r8
+      procedure :: gridcomp_get_resource_logical
+      procedure :: gridcomp_get_resource_i4seq
+      procedure :: gridcomp_get_resource_i8seq
+      procedure :: gridcomp_get_resource_r4seq
+      procedure :: gridcomp_get_resource_r8seq
+      procedure :: gridcomp_get_resource_logical_seq
+      procedure :: gridcomp_get_resource_string
+   end interface MAPL_GridCompGetResource
 
    interface MAPL_GridCompIsGeneric
       procedure :: gridcomp_is_generic
@@ -273,6 +272,20 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine gridcomp_set
+
+   subroutine get_internal_state(gridcomp, internal_state, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(ESMF_State), intent(out) :: internal_state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      internal_state = outer_meta%get_internal_state()
+
+      _RETURN(_SUCCESS)
+   end subroutine get_internal_state
 
    subroutine gridcomp_add_child_config(gridcomp, child_name, setservices, hconfig, unusable, timeStep, refTime_offset, rc)
       use mapl3g_UserSetServices
@@ -491,14 +504,15 @@ contains
       _RETURN(_SUCCESS)
    end subroutine gridcomp_connect_all
 
-   subroutine gridcomp_resource_get_i4(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine gridcomp_get_resource_i4(gc, keystring, value, unusable, default, value_set, rc)
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
       integer(kind=ESMF_KIND_I4), intent(inout) :: value
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer(kind=ESMF_KIND_I4), optional, intent(in) :: default
-      type(ESMF_GridComp), intent(inout) :: gc
-      character(len=*), intent(in) :: keystring
-      class(KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(out) :: value_set
       integer, optional, intent(out) :: rc
+
       class(Logger_t), pointer :: logger
       type(ESMF_HConfig) :: hconfig
       type(HConfigParams) :: params
@@ -511,17 +525,17 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+   end subroutine gridcomp_get_resource_i4
 
-   end subroutine gridcomp_resource_get_i4
-
-   subroutine gridcomp_resource_get_i8(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine gridcomp_get_resource_i8(gc, keystring, value, unusable, default, value_set, rc)
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
       integer(kind=ESMF_KIND_I8), intent(inout) :: value
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer(kind=ESMF_KIND_I8), optional, intent(in) :: default
-      type(ESMF_GridComp), intent(inout) :: gc
-      character(len=*), intent(in) :: keystring
-      class(KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(out) :: value_set
       integer, optional, intent(out) :: rc
+
       class(Logger_t), pointer :: logger
       type(ESMF_HConfig) :: hconfig
       type(HConfigParams) :: params
@@ -534,17 +548,17 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+   end subroutine gridcomp_get_resource_i8
 
-   end subroutine gridcomp_resource_get_i8
-
-   subroutine gridcomp_resource_get_r4(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine gridcomp_get_resource_r4(gc, keystring, value, unusable, default, value_set, rc)
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
       real(kind=ESMF_KIND_R4), intent(inout) :: value
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       real(kind=ESMF_KIND_R4), optional, intent(in) :: default
-      type(ESMF_GridComp), intent(inout) :: gc
-      character(len=*), intent(in) :: keystring
-      class(KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(out) :: value_set
       integer, optional, intent(out) :: rc
+
       class(Logger_t), pointer :: logger
       type(ESMF_HConfig) :: hconfig
       type(HConfigParams) :: params
@@ -557,17 +571,17 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+   end subroutine gridcomp_get_resource_r4
 
-   end subroutine gridcomp_resource_get_r4
-
-   subroutine gridcomp_resource_get_r8(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine gridcomp_get_resource_r8(gc, keystring, value, unusable, default, value_set, rc)
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
       real(kind=ESMF_KIND_R8), intent(inout) :: value
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       real(kind=ESMF_KIND_R8), optional, intent(in) :: default
-      type(ESMF_GridComp), intent(inout) :: gc
-      character(len=*), intent(in) :: keystring
-      class(KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(out) :: value_set
       integer, optional, intent(out) :: rc
+
       class(Logger_t), pointer :: logger
       type(ESMF_HConfig) :: hconfig
       type(HConfigParams) :: params
@@ -580,17 +594,17 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+   end subroutine gridcomp_get_resource_r8
 
-   end subroutine gridcomp_resource_get_r8
-
-   subroutine gridcomp_resource_get_logical(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine gridcomp_get_resource_logical(gc, keystring, value, unusable, default, value_set, rc)
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
       logical, intent(inout) :: value
-      logical, optional, intent(in) :: default
-      type(ESMF_GridComp), intent(inout) :: gc
-      character(len=*), intent(in) :: keystring
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, optional, intent(in) :: default
       logical, optional, intent(out) :: value_set
       integer, optional, intent(out) :: rc
+
       class(Logger_t), pointer :: logger
       type(ESMF_HConfig) :: hconfig
       type(HConfigParams) :: params
@@ -603,17 +617,17 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+   end subroutine gridcomp_get_resource_logical
 
-   end subroutine gridcomp_resource_get_logical
-
-   subroutine gridcomp_resource_get_string(gc, keystring, value, unusable, default, value_set, rc)
-      character(len=:), allocatable, intent(inout) :: value
-      character(len=*), optional, intent(in) :: default
+   subroutine gridcomp_get_resource_string(gc, keystring, value, unusable, default, value_set, rc)
       type(ESMF_GridComp), intent(inout) :: gc
       character(len=*), intent(in) :: keystring
+      character(len=:), allocatable, intent(inout) :: value
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(len=*), optional, intent(in) :: default
       logical, optional, intent(out) :: value_set
       integer, optional, intent(out) :: rc
+
       class(Logger_t), pointer :: logger
       type(ESMF_HConfig) :: hconfig
       type(HConfigParams) :: params
@@ -626,17 +640,17 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+   end subroutine gridcomp_get_resource_string
 
-   end subroutine gridcomp_resource_get_string
-
-   subroutine gridcomp_resource_get_i4seq(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine gridcomp_get_resource_i4seq(gc, keystring, value, unusable, default, value_set, rc)
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
       integer(kind=ESMF_KIND_I4), dimension(:), allocatable, intent(inout) :: value
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer(kind=ESMF_KIND_I4), dimension(:), optional, intent(in) :: default
-      type(ESMF_GridComp), intent(inout) :: gc
-      character(len=*), intent(in) :: keystring
-      class(KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(out) :: value_set
       integer, optional, intent(out) :: rc
+
       class(Logger_t), pointer :: logger
       type(ESMF_HConfig) :: hconfig
       type(HConfigParams) :: params
@@ -649,17 +663,17 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+   end subroutine gridcomp_get_resource_i4seq
 
-   end subroutine gridcomp_resource_get_i4seq
-
-   subroutine gridcomp_resource_get_i8seq(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine gridcomp_get_resource_i8seq(gc, keystring, value, unusable, default, value_set, rc)
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
       integer(kind=ESMF_KIND_I8), dimension(:), allocatable, intent(inout) :: value
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       integer(kind=ESMF_KIND_I8), dimension(:), optional, intent(in) :: default
-      type(ESMF_GridComp), intent(inout) :: gc
-      character(len=*), intent(in) :: keystring
-      class(KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(out) :: value_set
       integer, optional, intent(out) :: rc
+
       class(Logger_t), pointer :: logger
       type(ESMF_HConfig) :: hconfig
       type(HConfigParams) :: params
@@ -672,17 +686,17 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+   end subroutine gridcomp_get_resource_i8seq
 
-   end subroutine gridcomp_resource_get_i8seq
-
-   subroutine gridcomp_resource_get_r4seq(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine gridcomp_get_resource_r4seq(gc, keystring, value, unusable, default, value_set, rc)
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
       real(kind=ESMF_KIND_R4), dimension(:), allocatable, intent(inout) :: value
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       real(kind=ESMF_KIND_R4), dimension(:), optional, intent(in) :: default
-      type(ESMF_GridComp), intent(inout) :: gc
-      character(len=*), intent(in) :: keystring
-      class(KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(out) :: value_set
       integer, optional, intent(out) :: rc
+
       class(Logger_t), pointer :: logger
       type(ESMF_HConfig) :: hconfig
       type(HConfigParams) :: params
@@ -695,17 +709,17 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+   end subroutine gridcomp_get_resource_r4seq
 
-   end subroutine gridcomp_resource_get_r4seq
-
-   subroutine gridcomp_resource_get_r8seq(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine gridcomp_get_resource_r8seq(gc, keystring, value, unusable, default, value_set, rc)
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
       real(kind=ESMF_KIND_R8), dimension(:), allocatable, intent(inout) :: value
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       real(kind=ESMF_KIND_R8), dimension(:), optional, intent(in) :: default
-      type(ESMF_GridComp), intent(inout) :: gc
-      character(len=*), intent(in) :: keystring
-      class(KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(out) :: value_set
       integer, optional, intent(out) :: rc
+
       class(Logger_t), pointer :: logger
       type(ESMF_HConfig) :: hconfig
       type(HConfigParams) :: params
@@ -718,17 +732,17 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+   end subroutine gridcomp_get_resource_r8seq
 
-   end subroutine gridcomp_resource_get_r8seq
-
-   subroutine gridcomp_resource_get_logical_seq(gc, keystring, value, unusable, default, value_set, rc)
+   subroutine gridcomp_get_resource_logical_seq(gc, keystring, value, unusable, default, value_set, rc)
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(len=*), intent(in) :: keystring
       logical, dimension(:), allocatable, intent(inout) :: value
-      logical, dimension(:), optional, intent(in) :: default
-      type(ESMF_GridComp), intent(inout) :: gc
-      character(len=*), intent(in) :: keystring
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      logical, dimension(:), optional, intent(in) :: default
       logical, optional, intent(out) :: value_set
       integer, optional, intent(out) :: rc
+
       class(Logger_t), pointer :: logger
       type(ESMF_HConfig) :: hconfig
       type(HConfigParams) :: params
@@ -741,8 +755,7 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-
-   end subroutine gridcomp_resource_get_logical_seq
+   end subroutine gridcomp_get_resource_logical_seq
 
    logical function gridcomp_is_generic(gridcomp, rc)
       type(ESMF_GridComp), intent(in) :: gridcomp
