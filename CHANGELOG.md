@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.53.2] - 2025-03-20
+
+### Changed
+
+- Relaxed the MPI thread levels to MPI_THREAD_SERIALIZED required by ESMF
+
 ## [2.53.1] - 2025-01-29
 
 ### Fixed
