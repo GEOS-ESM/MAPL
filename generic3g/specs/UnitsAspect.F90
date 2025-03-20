@@ -4,9 +4,9 @@ module mapl3g_UnitsAspect
    use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
-   use mapl3g_ExtensionAction
-   use mapl3g_ConvertUnitsAction
-   use mapl3g_NullAction
+   use mapl3g_ExtensionTransform
+   use mapl3g_ConvertUnitsTransform
+   use mapl3g_NullTransform
    use mapl_ErrorHandling
    use udunits2f, only: are_convertible
    implicit none
@@ -25,7 +25,7 @@ module mapl3g_UnitsAspect
       character(:), allocatable :: units
    contains
       procedure :: matches
-      procedure :: make_action
+      procedure :: make_transform
       procedure :: connect_to_export
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
@@ -89,8 +89,8 @@ contains
 
    end function matches
 
-   function make_action(src, dst, other_aspects, rc) result(action)
-      class(ExtensionAction), allocatable :: action
+   function make_transform(src, dst, other_aspects, rc) result(transform)
+      class(ExtensionTransform), allocatable :: transform
       class(UnitsAspect), intent(in) :: src
       class(StateItemAspect), intent(in)  :: dst
       type(AspectMap), target, intent(in)  :: other_aspects
@@ -100,14 +100,14 @@ contains
 
       select type (dst)
       class is (UnitsAspect)
-         allocate(action, source=ConvertUnitsAction(src%units, dst%units))
+         allocate(transform, source=ConvertUnitsTransform(src%units, dst%units))
       class default
-         allocate(action, source=NullAction())
+         allocate(transform, source=NullTransform())
          _FAIL('UnitsApsect cannot convert from other supclass.')
       end select
 
       _RETURN(_SUCCESS)
-   end function make_action
+   end function make_transform
 
    subroutine connect_to_export(this, export, actual_pt, rc)
       class(UnitsAspect), intent(inout) :: this

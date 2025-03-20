@@ -4,8 +4,8 @@ module mapl3g_GenericCoupler
 
    use mapl3g_CouplerPhases
    use mapl3g_CouplerMetaComponent
-   use mapl3g_ExtensionAction
-   use mapl3g_VerticalRegridAction
+   use mapl3g_ExtensionTransform
+   use mapl3g_VerticalRegridTransform
    use mapl3g_ComponentDriver
    use mapl_ErrorHandlingMod
    use esmf
@@ -20,9 +20,9 @@ module mapl3g_GenericCoupler
 
 contains
 
-   function make_coupler(action, source, rc) result(coupler_gridcomp)
+   function make_coupler(transform, source, rc) result(coupler_gridcomp)
       type(ESMF_GridComp) :: coupler_gridcomp
-      class(ExtensionAction), intent(in) :: action
+      class(ExtensionTransform), intent(in) :: transform
       class(ComponentDriver), target, optional, intent(in) :: source
       integer, optional, intent(out) :: rc
 
@@ -33,9 +33,9 @@ contains
       call attach_coupler_meta(coupler_gridcomp, _RC)
       coupler_meta => get_coupler_meta(coupler_gridcomp, _RC)
 #ifndef __GFORTRAN__
-      coupler_meta = CouplerMetaComponent(action, source)
+      coupler_meta = CouplerMetaComponent(transform, source)
 #else
-      call ridiculous(coupler_meta, CouplerMetaComponent(action,source))
+      call ridiculous(coupler_meta, CouplerMetaComponent(transform,source))
 #endif
       call ESMF_GridCompSetServices(coupler_gridComp, setServices, _RC)
 

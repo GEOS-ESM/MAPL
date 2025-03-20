@@ -4,10 +4,10 @@ module mapl3g_VerticalGridAspect
    use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
-   use mapl3g_ExtensionAction
+   use mapl3g_ExtensionTransform
    use mapl3g_VerticalGrid
-   use mapl3g_NullAction
-   use mapl3g_VerticalRegridAction
+   use mapl3g_NullTransform
+   use mapl3g_VerticalRegridTransform
    use mapl3g_GeomAspect
    use mapl3g_TypekindAspect
    use mapl3g_VerticalRegridMethod
@@ -34,7 +34,7 @@ module mapl3g_VerticalGridAspect
       type(VerticalDimSpec), allocatable :: vertical_dim_spec
    contains
       procedure :: matches
-      procedure :: make_action
+      procedure :: make_transform
       procedure :: connect_to_export
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
@@ -119,8 +119,8 @@ contains
 
    end function matches
 
-  function make_action(src, dst, other_aspects, rc) result(action)
-      class(ExtensionAction), allocatable :: action
+  function make_transform(src, dst, other_aspects, rc) result(transform)
+      class(ExtensionTransform), allocatable :: transform
       class(VerticalGridAspect), intent(in) :: src
       class(StateItemAspect), intent(in)  :: dst
       type(AspectMap), target, intent(in)  :: other_aspects
@@ -135,9 +135,9 @@ contains
       character(:), allocatable :: units
       integer :: status
 
-      allocate(action,source=NullAction()) ! just in case
+      allocate(transform,source=NullTransform()) ! just in case
       dst_ = to_VerticalGridAspect(dst, _RC)
-      deallocate(action)
+      deallocate(transform)
 
       geom_aspect = to_GeomAspect(other_aspects, _RC)
       typekind_aspect = to_TypekindAspect(other_aspects, _RC)
@@ -147,10 +147,10 @@ contains
            geom_aspect%get_geom(), typekind_aspect%get_typekind(), units, src%vertical_dim_spec, _RC)
       call dst_%vertical_grid%get_coordinate_field(v_out_field, v_out_coupler, 'ignore', &
            geom_aspect%get_geom(), typekind_aspect%get_typekind(), units, dst_%vertical_dim_spec, _RC)
-      action = VerticalRegridAction(v_in_field, v_in_coupler, v_out_field, v_out_coupler, dst_%regrid_method)
+      transform = VerticalRegridTransform(v_in_field, v_in_coupler, v_out_field, v_out_coupler, dst_%regrid_method)
 
       _RETURN(_SUCCESS)
-   end function make_action
+   end function make_transform
 
    subroutine set_vertical_grid(self, vertical_grid)
       class(VerticalGridAspect), intent(inout) :: self

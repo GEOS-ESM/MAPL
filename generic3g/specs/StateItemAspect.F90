@@ -67,7 +67,7 @@ module mapl3g_StateItemAspect
       ! Subclass must define these
       procedure(I_matches), deferred :: matches
 
-      procedure(I_make_action), deferred :: make_action
+      procedure(I_make_transform), deferred :: make_transform
       procedure :: connect_to_import
       procedure(I_connect_to_export), deferred :: connect_to_export
       procedure(I_get_aspect_id), deferred, nopass :: get_aspect_id
@@ -111,16 +111,16 @@ module mapl3g_StateItemAspect
          type(AspectId) :: aspect_id
       end function I_get_aspect_id
 
-      function I_make_action(src, dst, other_aspects, rc) result(action)
-         use mapl3g_ExtensionAction
+      function I_make_transform(src, dst, other_aspects, rc) result(transform)
+         use mapl3g_ExtensionTransform
          import :: StateItemAspect
          import :: AspectMap
-         class(ExtensionAction), allocatable :: action
+         class(ExtensionTransform), allocatable :: transform
          class(StateItemAspect), intent(in) :: src
          class(StateItemAspect), intent(in) :: dst
          type(AspectMap), target, intent(in) :: other_aspects
          integer, optional, intent(out) :: rc
-      end function I_make_action
+      end function I_make_transform
 
       subroutine I_connect_to_export(this, export, actual_pt, rc)
          use mapl3g_ActualConnectionPt

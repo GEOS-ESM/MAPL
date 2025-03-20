@@ -1,33 +1,33 @@
 #include "MAPL_Generic.h"
-module mapl3g_MaxAction
-   use mapl3g_AccumulatorAction
+module mapl3g_MaxTransform
+   use mapl3g_AccumulatorTransform
    use MAPL_ExceptionHandling
    use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
    use MAPL_FieldPointerUtilities, only: assign_fptr
    use ESMF
    implicit none
    private
-   public :: MaxAction
-   public :: construct_MaxAction
+   public :: MaxTransform
+   public :: construct_MaxTransform
 
-   type, extends(AccumulatorAction) :: MaxAction
+   type, extends(AccumulatorTransform) :: MaxTransform
    contains
       procedure :: accumulate_R4 => max_accumulate_R4
-   end type MaxAction
+   end type MaxTransform
 
 contains
 
-   function construct_MaxAction(typekind) result(acc)
-      type(MaxAction) :: acc
+   function construct_MaxTransform(typekind) result(acc)
+      type(MaxTransform) :: acc
       type(ESMF_TypeKind_Flag), intent(in) :: typekind
 
       acc%typekind = typekind
       acc%CLEAR_VALUE_R4 = MAPL_UNDEFINED_REAL
 
-   end function construct_MaxAction
+   end function construct_MaxTransform
 
    subroutine max_accumulate_R4(this, update_field, rc)
-      class(MaxAction), intent(inout) :: this
+      class(MaxTransform), intent(inout) :: this
       type(ESMF_Field), intent(inout) :: update_field
       integer, optional, intent(out) :: rc
 
@@ -47,4 +47,4 @@ contains
 
    end subroutine max_accumulate_R4
 
-end module mapl3g_MaxAction
+end module mapl3g_MaxTransform

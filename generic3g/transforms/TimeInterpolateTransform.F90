@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 
-module mapl3g_TimeInterpolateAction
-   use mapl3g_ExtensionAction
+module mapl3g_TimeInterpolateTransform
+   use mapl3g_ExtensionTransform
    use mapl3g_regridder_mgr
    use mapl3g_FieldBundleGet
    use mapl3g_InfoUtilities
@@ -13,26 +13,26 @@ module mapl3g_TimeInterpolateAction
    implicit none(type,external)
    private
 
-   public :: TimeInterpolateAction
+   public :: TimeInterpolateTransform
 
-   type, extends(ExtensionAction) :: TimeInterpolateAction
+   type, extends(ExtensionTransform) :: TimeInterpolateTransform
    contains
       procedure :: initialize
       procedure :: update
-   end type TimeInterpolateAction
+   end type TimeInterpolateTransform
 
-   interface TimeInterpolateAction
-      module procedure :: new_TimeInterpolateAction
-   end interface TimeInterpolateAction
+   interface TimeInterpolateTransform
+      module procedure :: new_TimeInterpolateTransform
+   end interface TimeInterpolateTransform
 
 contains
 
-   function new_TimeInterpolateAction() result(action)
-      type(TimeInterpolateAction) :: action
-   end function new_TimeInterpolateAction
+   function new_TimeInterpolateTransform() result(transform)
+      type(TimeInterpolateTransform) :: transform
+   end function new_TimeInterpolateTransform
 
    subroutine initialize(this, importState, exportState, clock, rc)
-      class(TimeInterpolateAction), intent(inout) :: this
+      class(TimeInterpolateTransform), intent(inout) :: this
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
       type(ESMF_Clock)      :: clock      
@@ -44,7 +44,7 @@ contains
    end subroutine initialize
 
    subroutine update(this, importState, exportState, clock, rc)
-      class(TimeInterpolateAction), intent(inout) :: this
+      class(TimeInterpolateTransform), intent(inout) :: this
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
       type(ESMF_Clock)      :: clock      
@@ -114,4 +114,4 @@ contains
 
    end subroutine run_r4
 
-end module mapl3g_TimeInterpolateAction
+end module mapl3g_TimeInterpolateTransform

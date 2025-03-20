@@ -1,11 +1,11 @@
 #include "MAPL_Generic.h"
 
-module mapl3g_TimeAverageAction
-   use mapl3g_ExtensionAction, only : ExtensionAction
+module mapl3g_TimeAverageTransform
+   use mapl3g_ExtensionTransform, only : ExtensionTransform
    implicit none
 
    private
-   public :: TimeAverageAction
+   public :: TimeAverageTransform
 
    type :: TimeAverageSpec
       private
@@ -14,45 +14,45 @@ module mapl3g_TimeAverageAction
    end type TimeAverageSpec
 
 
-   type :: TimeAverageAction
+   type :: TimeAverageTransform
       private
       integer :: counter
       type(TimeAverageSpec) :: spec
       type(ESMF_Field) :: f_in, f_out
       type(ESMF_Field) :: f_sum
       type(ESMF_Field) :: denominator
-   end type TimeAverageAction
+   end type TimeAverageTransform
 
-   interface TimeAverageAction
-      module procedure :: new_TimeAverageAction_scalar
-   end interface TimeAverageAction
+   interface TimeAverageTransform
+      module procedure :: new_TimeAverageTransform_scalar
+   end interface TimeAverageTransform
 
 contains
 
 
-   function new_TimeAverageAction_scalar(f_in, f_out, spec) result(action)
+   function new_TimeAverageTransform_scalar(f_in, f_out, spec) result(transform)
       type(ESMF_Field), intent(in) :: f_in
       type(ESMF_Field), intent(in) :: f_out
       type(TimeAverageSpec), intent(in) :: spec
 
-      action%spec = spec
-      action%f_in = f_in
-      action%f_out = f_out
+      transform%spec = spec
+      transform%f_in = f_in
+      transform%f_out = f_out
 
-      action%f_sum = FieldClone(f_in, _RC)
-      action%f_sum = 0
+      transform%f_sum = FieldClone(f_in, _RC)
+      transform%f_sum = 0
       
-      action%denominator = FieldClone(f_in, tyekind=ESMF_TYPEKIND_I4, _RC)
-      action%denominator = 0
+      transform%denominator = FieldClone(f_in, tyekind=ESMF_TYPEKIND_I4, _RC)
+      transform%denominator = 0
 
       this%counter = mod(spec%period - spec%refresh, spec%period)
       
-   end function new_TimeAverageAction_scalar
+   end function new_TimeAverageTransform_scalar
 
 
 
    subroutine run(this, rc)
-      class(TimeAverageAction), intent(inout) :: this
+      class(TimeAverageTransform), intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       if (this%counter == period) then
@@ -82,4 +82,4 @@ contains
       _RETURN(_SUCCESS)
    end subroutine run
 
-end module mapl3g_TimeAverageAction
+end module mapl3g_TimeAverageTransform

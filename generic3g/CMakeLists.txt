@@ -63,7 +63,7 @@ esma_add_library(${this}
 add_subdirectory(specs)
 add_subdirectory(registry)
 add_subdirectory(connection)
-add_subdirectory(actions)
+add_subdirectory(transforms)
 add_subdirectory(couplers)
 add_subdirectory(vertical)
 

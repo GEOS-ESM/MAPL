@@ -62,7 +62,6 @@ contains
          call get_child_timespec(child_hconfig, timeStep, offset, _RC)
          child_spec = ChildSpec(user_setservices(collection_setServices), hconfig=child_hconfig, timeStep=timeStep, offset=offset)
          call MAPL_GridCompAddChild(gridcomp, child_name, child_spec,_RC)
-         _HERE
       end do
       
       _RETURN(_SUCCESS)

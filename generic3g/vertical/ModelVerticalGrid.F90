@@ -14,7 +14,6 @@ module mapl3g_ModelVerticalGrid
    use mapl3g_UngriddedDims
    use mapl3g_StateItemExtension
    use mapl3g_ExtensionFamily
-   use mapl3g_ExtensionAction
    use mapl3g_ComponentDriver
    use mapl3g_VerticalDimSpec
    use mapl3g_AspectId

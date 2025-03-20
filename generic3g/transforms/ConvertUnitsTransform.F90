@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 
-module mapl3g_ConvertUnitsAction
-   use mapl3g_ExtensionAction
+module mapl3g_ConvertUnitsTransform
+   use mapl3g_ExtensionTransform
    use udunits2f, only: UDUNITS_Converter => Converter
    use udunits2f, only: UDUNITS_GetConverter => get_converter
    use udunits2f, only: UDUNITS_Initialize => Initialize
@@ -11,9 +11,9 @@ module mapl3g_ConvertUnitsAction
    implicit none
    private
 
-   public :: ConvertUnitsAction
+   public :: ConvertUnitsTransform
 
-   type, extends(ExtensionAction) :: ConvertUnitsAction
+   type, extends(ExtensionTransform) :: ConvertUnitsTransform
       private
       type(UDUNITS_converter) :: converter
       type(ESMF_Field) :: f_in, f_out
@@ -21,29 +21,29 @@ module mapl3g_ConvertUnitsAction
    contains
       procedure :: initialize
       procedure :: update
-   end type ConvertUnitsAction
+   end type ConvertUnitsTransform
 
 
-   interface ConvertUnitsAction
+   interface ConvertUnitsTransform
       procedure new_converter
-   end interface ConvertUnitsAction
+   end interface ConvertUnitsTransform
 
 
 contains
 
 
-   function new_converter(src_units, dst_units) result(action)
-      type(ConvertUnitsAction) :: action
+   function new_converter(src_units, dst_units) result(transform)
+      type(ConvertUnitsTransform) :: transform
       character(*), intent(in) :: src_units, dst_units
 
-      action%src_units = src_units
-      action%dst_units = dst_units
+      transform%src_units = src_units
+      transform%dst_units = dst_units
 
    end function new_converter
 
    subroutine initialize(this, importState, exportState, clock, rc)
       use esmf
-      class(ConvertUnitsAction), intent(inout) :: this
+      class(ConvertUnitsTransform), intent(inout) :: this
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
       type(ESMF_Clock)      :: clock      
@@ -62,7 +62,7 @@ contains
       
    subroutine update(this, importState, exportState, clock, rc)
       use esmf
-      class(ConvertUnitsAction), intent(inout) :: this
+      class(ConvertUnitsTransform), intent(inout) :: this
       type(ESMF_State)      :: importState
       type(ESMF_State)      :: exportState
       type(ESMF_Clock)      :: clock      
@@ -98,4 +98,4 @@ contains
       _UNUSED_DUMMY(clock)
    end subroutine update
    
-end module mapl3g_ConvertUnitsAction
+end module mapl3g_ConvertUnitsTransform

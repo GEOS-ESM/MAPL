@@ -1,7 +1,7 @@
 #include "MAPL_TestErr.h"
-module Test_AccumulatorAction
-   use mapl3g_AccumulatorAction
-   use accumulator_action_test_common
+module Test_AccumulatorTransform
+   use mapl3g_AccumulatorTransform
+   use accumulator_transform_test_common
    use esmf
    use MAPL_FieldUtils
    use pfunit
@@ -11,19 +11,19 @@ module Test_AccumulatorAction
 contains
 
    @Test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_construct_AccumulatorAction(this)
+   subroutine test_construct_AccumulatorTransform(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(AccumulatorAction) :: acc
+      type(AccumulatorTransform) :: acc
 
       @assertFalse(acc%update_calculated, 'updated_calculated .TRUE.')
       @assertFalse(acc%initialized, 'initialized .TRUE.')
 
-   end subroutine test_construct_AccumulatorAction
+   end subroutine test_construct_AccumulatorTransform
 
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_initialize(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(AccumulatorAction) :: acc
+      type(AccumulatorTransform) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
       integer :: status
@@ -41,7 +41,7 @@ contains
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_invalidate(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(AccumulatorAction) :: acc
+      type(AccumulatorTransform) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
       integer :: status
@@ -68,7 +68,7 @@ contains
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_update(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(AccumulatorAction) :: acc
+      type(AccumulatorTransform) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
       integer :: status
@@ -112,7 +112,7 @@ contains
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_accumulate(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(AccumulatorAction) :: acc
+      type(AccumulatorTransform) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
       integer :: status
@@ -137,7 +137,7 @@ contains
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_clear(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(AccumulatorAction) :: acc
+      type(AccumulatorTransform) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
       integer :: status
@@ -157,7 +157,7 @@ contains
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_accumulate_R4(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(AccumulatorAction) :: acc
+      type(AccumulatorTransform) :: acc
       type(ESMF_State) :: importState, exportState
       type(ESMF_Clock) :: clock
       integer :: status
@@ -217,10 +217,10 @@ contains
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_runs_invalidate(this)
       class(ESMF_TestMethod), intent(inout) :: this
-      type(AccumulatorAction) :: action
+      type(AccumulatorTransform) :: transform
 
-      @assert_that(action%runs_invalidate(), is(true()))
+      @assert_that(transform%runs_invalidate(), is(true()))
 
    end subroutine test_runs_invalidate
 
-end module Test_AccumulatorAction
+end module Test_AccumulatorTransform

@@ -53,6 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed `refTime` (`reference_time`) to `offset` and runTime = refTime + offset
 - Added handling of array brackets in array-valued columns for ACG3
 - Add ALIAS column for ACG for MAPL3
+- Add time accumulation to History3G
 
 ### Changed
 
@@ -108,6 +109,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Deprecated
+
+## [2.54.2] - 2025-03-18
+
+### Fixed
+
+- Fixed bug when proccessing history collection list identified by NAG
 
 ## [2.54.1] - 2025-02-07
 
