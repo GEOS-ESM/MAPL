@@ -1094,25 +1094,12 @@ contains
       type(ESMF_TypeKind_Flag), intent(in) :: typekind
       integer, optional, intent(out) :: rc
       integer :: status
-      logical :: matches
-
-      matches = typekind_matches(field, typekind, _RC)
-      _ASSERT(matches, 'Field typekind does not match pointer type and kind.')
-      _RETURN(_SUCCESS)
-
-   end subroutine check_typekind
-
-   logical function typekind_matches(field, typekind, rc)
-      type(ESMF_Field), intent(in) :: field
-      type(ESMF_TypeKind_Flag), intent(in) :: typekind
-      integer, optional, intent(out) :: rc
-      integer :: status
       type(ESMF_TypeKind_Flag) :: actual_typekind
 
       call ESMF_FieldGet(field, typekind=actual_typekind, rc=status)
-      typekind_matches = actual_typekind == typekind
-      _RETURN(status)
+      _ASSERT(actual_typekind == typekind, 'Field typekind does not match pointer type and kind.')
+      _RETURN(_SUCCESS)
 
-   end function typekind_matches
+   end subroutine check_typekind
 
 end module MAPL_FieldPointerUtilities
