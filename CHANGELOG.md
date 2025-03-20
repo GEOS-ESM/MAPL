@@ -80,6 +80,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added constructor for DSO_SetServicesWrapper
 - Change macro in field/undo_function_overload.macro
 - Fixed bug with AccumulatorAction and subtypes
+- Added a check to assign_fptr that verifies that the pointer type/kind matches the Field typekind
 
 ## [Unreleased]
 
