@@ -462,7 +462,7 @@ def digest(specs, args):
                     option_values[Option.MANGLED_NAME] = Option.MANGLED_NAME(column_value)
                     option_values[Option.INTERNAL_NAME] = Option.INTERNAL_NAME(column_value)
                 elif option == Option.DIMS:
-                    dims = option_value
+                    dims = column_value
                 elif option == Option.UNGRIDDED:
                     ungridded = option_value
                 elif option == Option.ALIAS:
