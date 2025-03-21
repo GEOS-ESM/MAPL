@@ -100,8 +100,9 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      write(offset_string, fmt='("PT", I03, "S")', iostat=status) offset
+      write(offset_string, fmt='("PT", I3.3, "S")', iostat=status) offset
       _VERIFY(status)
+      _RETURN(_SUCCESS)
 
    end subroutine make_offset_string
 
@@ -270,6 +271,7 @@ contains
       call ESMF_TimeIntervalGet(offset, s=expected, _RC)
       call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, OFFSET_STRING, default_time, clock, rc=status)
       @assertExceptionRaised('"+" and "-" cannot both be present in update_offset string.')
+      @assertFalse(status == 0, 'An exception should have been thrown.')
 
    end subroutine test_create_from_parameters_heartbeat_positive_negative
 
@@ -285,6 +287,7 @@ contains
       call ESMF_TimeIntervalGet(offset, s=expected, _RC)
       call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, OFFSET_STRING, default_time, clock, rc=status)
       @assertExceptionRaised('"+" and "-" cannot both be present in update_offset string.')
+      @assertFalse(status == 0, 'An exception should have been thrown.')
 
    end subroutine test_create_from_parameters_heartbeat_negative_positive
 
