@@ -1,4 +1,4 @@
-module MaskSamplerGeosatMod
+module MaskSamplerMod
   use ESMF
   use MAPL_ErrorHandlingMod
   use MAPL_KeywordEnforcerMod
@@ -15,6 +15,8 @@ module MaskSamplerGeosatMod
   use MAPL_SortMod
   use MAPL_NetCDF
   use MAPL_StringTemplate
+  use gFTL_StringVector
+  use gFTL_StringStringMap
   use Plain_netCDF_Time
   use MAPL_ObsUtilMod
   use MPI
@@ -26,31 +28,46 @@ module MaskSamplerGeosatMod
   use, intrinsic :: iso_fortran_env, only: REAL64
   use pflogger, only: Logger, logging
   implicit none
+  intrinsic :: size
 
   private
 
-  public :: MaskSamplerGeosat
-  type :: MaskSamplerGeosat
-     private
-     !     character(len=:), allocatable :: grid_file_name
+  public :: var2d_unit
+  public :: var3d_unit
+  type :: var2d_unit
+     real(kind=REAL32), allocatable :: array_x(:)
+  end type var2d_unit
+
+  type :: var3d_unit
+     real(kind=REAL32), allocatable :: array_xz(:,:)
+  end type var3d_unit
+
+
+  public :: MaskSampler
+  type :: MaskSampler
      character(len=ESMF_MAXSTR) :: grid_file_name
-     !   we need on each PET
+     !     we need on each PET
      !     npt_mask, index_mask(1:2,npt_mask)=[i,j]
      !
      integer :: npt_mask
      integer :: npt_mask_tot
+     integer :: i1, in
      integer, allocatable :: index_mask(:,:)
      type(ESMF_FieldBundle) :: bundle
      type(GriddedIOitemVector) :: items
      type(VerticalData) :: vdata
+     type(var2d_unit), allocatable :: var2d(:)
+     type(var3d_unit), allocatable :: var3d(:)
      logical :: do_vertical_regrid
-     type(TimeData)           :: time_info
+     type(TimeData)           :: timeinfo
      type(ESMF_Clock)         :: clock
      type(ESMF_Time)          :: RingTime
      type(ESMF_TimeInterval)  :: epoch_frequency
-     type(FileMetadata)       :: metadata
+     type(FileMetadata), allocatable, public:: metadata
      type(NetCDF4_FileFormatter) :: formatter
-     character(len=ESMF_MAXSTR)     :: ofile
+     character(len=ESMF_MAXSTR)  :: ofile
+     integer :: write_collection_id
+     logical :: use_pfio
      !
      integer                        :: nobs
      integer                        :: obs_written
@@ -76,9 +93,24 @@ module MaskSamplerGeosatMod
      integer(kind=ESMF_KIND_I8)     :: epoch_index(2)
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
+     real(kind=REAL32), allocatable :: lons_deg(:)
+     real(kind=REAL32), allocatable :: lats_deg(:)
+
+     real(kind=REAL32) :: rtime
      integer, allocatable :: recvcounts(:)
      integer, allocatable :: displs(:)
      type(MAPL_MetaComp), pointer :: GENSTATE
+
+     integer, allocatable :: local_start(:)
+     integer, allocatable :: global_start(:)
+     integer, allocatable :: global_count(:)
+
+     real, allocatable :: array_scalar_1d(:)
+     real, allocatable :: array_scalar_2d(:,:)
+     real, allocatable :: array_scalar_3d(:,:,:)
+     logical :: itemOrderAlphabetical = .true.
+
+     integer :: tmax     ! duration / freq
 
      real(kind=ESMF_KIND_R8), pointer:: obsTime(:)
      real(kind=ESMF_KIND_R8), allocatable:: t_alongtrack(:)
@@ -91,88 +123,116 @@ module MaskSamplerGeosatMod
      integer                        :: obsfile_Te_index
      logical                        :: is_valid
    contains
-     procedure :: initialize => initialize_
-     procedure :: add_metadata
-     procedure :: create_file_handle
-     procedure :: close_file_handle
-     procedure :: append_file =>  regrid_append_file
-!     procedure :: create_new_bundle
-     procedure :: create_grid => create_Geosat_grid_find_mask
+
+     procedure :: initialize
+     procedure :: finalize
+     procedure :: create_metadata
+     procedure :: regrid_append_file
+     procedure :: create_Geosat_grid_find_mask
      procedure :: compute_time_for_current
-  end type MaskSamplerGeosat
+     procedure :: set_param
+     procedure :: stage2dlatlon
+     procedure :: modifytime
+     procedure :: alphabatize_variables
+  end type MaskSampler
 
-  interface MaskSamplerGeosat
-     module procedure MaskSamplerGeosat_from_config
-  end interface MaskSamplerGeosat
-
+  interface MaskSampler
+     module procedure MaskSampler_from_config
+  end interface MaskSampler
 
   interface
-     module function MaskSamplerGeosat_from_config(config,string,clock,GENSTATE,rc) result(mask)
+     module function MaskSampler_from_config(config,string,clock,GENSTATE,rc) result(mask)
        use BinIOMod
        use pflogger, only         :  Logger, logging
-       type(MaskSamplerGeosat) :: mask
+       type(MaskSampler) :: mask
        type(ESMF_Config), intent(inout)        :: config
        character(len=*),  intent(in)           :: string
        type(ESMF_Clock),  intent(in)           :: clock
        type(MAPL_MetaComp), pointer, intent(in), optional  :: GENSTATE
        integer, optional, intent(out)          :: rc
-     end function MaskSamplerGeosat_from_config
+     end function MaskSampler_from_config
 
-     module subroutine initialize_(this,items,bundle,timeInfo,vdata,reinitialize,rc)
-       class(MaskSamplerGeosat), intent(inout) :: this
+     module subroutine initialize(this,duration,frequency,items,bundle,timeInfo,vdata,global_attributes,reinitialize,rc)
+       class(MaskSampler), intent(inout) :: this
+       integer, intent(in) :: duration
+       integer, intent(in) :: frequency
        type(GriddedIOitemVector), optional, intent(inout) :: items
        type(ESMF_FieldBundle), optional, intent(inout)   :: bundle
        type(TimeData), optional, intent(inout)           :: timeInfo
        type(VerticalData), optional, intent(inout)       :: vdata
+       type(StringStringMap), target, intent(in), optional :: global_attributes
        logical, optional, intent(in)           :: reinitialize
        integer, optional, intent(out)          :: rc
-     end subroutine initialize_
+     end subroutine initialize
+
+     module subroutine finalize(this,rc)
+       class(MaskSampler), intent(inout) :: this
+       integer, optional, intent(out)          :: rc
+     end subroutine finalize
 
      module subroutine create_Geosat_grid_find_mask(this, rc)
        use pflogger, only: Logger, logging
        implicit none
-
-       class(MaskSamplerGeosat), intent(inout) :: this
+       class(MaskSampler), intent(inout) :: this
        integer, optional, intent(out)          :: rc
      end subroutine create_Geosat_grid_find_mask
 
-!!     module function create_new_bundle(this,rc) result(new_bundle)
-!!       class(MaskSamplerGeosat), intent(inout) :: this
-!!       type(ESMF_FieldBundle)                  :: new_bundle
-!!       integer, optional, intent(out)          :: rc
-!!     end function create_new_bundle
-
-     !!     module subroutine  add_metadata(this,currTime,rc)
-     module subroutine  add_metadata(this,rc)
-       class(MaskSamplerGeosat), intent(inout) :: this
+     module subroutine  create_metadata(this,global_attributes,rc)
+       class(MaskSampler), intent(inout) :: this
+       type(StringStringMap), target, intent(in) :: global_attributes
        integer, optional, intent(out)          :: rc
-     end subroutine add_metadata
+     end subroutine create_metadata
 
-     module subroutine create_file_handle(this,filename,rc)
-       class(MaskSamplerGeosat), intent(inout) :: this
-       character(len=*), intent(in)            :: filename
-       integer, optional, intent(out)          :: rc
-     end subroutine create_file_handle
-
-     module subroutine close_file_handle(this,rc)
-       class(MaskSamplerGeosat), intent(inout) :: this
-       integer, optional, intent(out)          :: rc
-     end subroutine close_file_handle
-
-     module subroutine regrid_append_file(this,current_time,rc)
-       class(MaskSamplerGeosat), intent(inout) :: this
+     module subroutine regrid_append_file (this,current_time,filename,oClients,rc)
+       class(MaskSampler), intent(inout)       :: this
        type(ESMF_Time), intent(inout)          :: current_time
+       character(len=*), intent(in)            :: filename
+       type (ClientManager), target, optional, intent(inout) :: oClients
        integer, optional, intent(out)          :: rc
      end subroutine regrid_append_file
 
+     module subroutine set_param(this,deflation,quantize_algorithm,quantize_level,chunking,&
+          nbits_to_keep,regrid_method,itemOrder,write_collection_id,regrid_hints,oClients,rc)
+       class (MaskSampler), intent(inout) :: this
+       integer, optional, intent(in) :: deflation
+       integer, optional, intent(in) :: quantize_algorithm
+       integer, optional, intent(in) :: quantize_level
+       integer, optional, intent(in) :: chunking(:)
+       integer, optional, intent(in) :: nbits_to_keep
+       integer, optional, intent(in) :: regrid_method
+       logical, optional, intent(in) :: itemOrder
+       integer, optional, intent(in) :: write_collection_id
+       integer, optional, intent(in) :: regrid_hints
+       type (ClientManager), optional, intent(in) :: oClients
+       integer, optional, intent(out) :: rc
+     end subroutine set_param
+
+     module subroutine stage2dlatlon(this,filename,oClients,rc)
+       class(MaskSampler), intent(inout) :: this
+       character(len=*), intent(in) :: fileName
+       type (ClientManager), optional, target, intent(inout) :: oClients
+       integer, optional, intent(out) :: rc
+     end subroutine stage2dlatlon
+
      module function compute_time_for_current(this,current_time,rc) result(rtime)
        use  MAPL_NetCDF, only : convert_NetCDF_DateTime_to_ESMF
-
-       class(MaskSamplerGeosat), intent(inout) :: this
+       class(MaskSampler), intent(inout) :: this
        type(ESMF_Time), intent(in) :: current_time
        integer, optional, intent(out) :: rc
        real(kind=ESMF_KIND_R8) :: rtime
      end function compute_time_for_current
 
+    module subroutine modifyTime(this, oClients, rc)
+      class(MaskSampler), intent(inout) :: this
+      type (ClientManager), optional, intent(inout) :: oClients
+      integer, optional, intent(out) :: rc
+    end subroutine modifyTime
+
+    module subroutine alphabatize_variables(this,nfixedVars,rc)
+      class (MaskSampler), intent(inout) :: this
+      integer, intent(in) :: nFixedVars
+      integer, optional, intent(out) :: rc
+    end subroutine alphabatize_variables
+
   end interface
-end module MaskSamplerGeosatMod
+end module MaskSamplerMod

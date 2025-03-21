@@ -265,7 +265,7 @@ contains
 
    subroutine run_model(this, comm, unusable, rc)
       use pFlogger, only: logging, Logger
-      class (MAPL_Cap), intent(inout) :: this
+      class (MAPL_Cap), target, intent(inout) :: this
       integer, intent(in) :: comm
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) ::rc
@@ -394,7 +394,7 @@ contains
    end subroutine run_model
 
    subroutine initialize_cap_gc(this, unusable, n_run_phases, rc)
-     class(MAPL_Cap), intent(inout) :: this
+     class(MAPL_Cap), target, intent(inout) :: this
      class (KeywordEnforcer), optional, intent(in) :: unusable
      integer, optional, intent(in) :: n_run_phases
      integer, optional, intent(out) :: rc
@@ -482,7 +482,6 @@ contains
          call ESMF_InitializePreMPI(_RC)
          call MPI_Init_thread(MPI_THREAD_MULTIPLE, provided, ierror)
          _VERIFY(ierror)
-         _ASSERT(provided == MPI_THREAD_MULTIPLE, 'MPI_THREAD_MULTIPLE not supported by this MPI.')
       else
          ! If we are here, then MPI has already been initialized by the user
          ! and we are just using it. But we need to make sure that the user
@@ -490,7 +489,7 @@ contains
          call MPI_Query_thread(provided, ierror)
          _VERIFY(ierror)
       end if
-      _ASSERT(provided == MPI_THREAD_MULTIPLE, 'MPI_THREAD_MULTIPLE not supported by this MPI.')
+      _ASSERT(provided >= MPI_THREAD_SERIALIZED, 'ESMF requires minimum thread level is MPI_THREAD_SERIALIZED. Please replace MPI lib or use MPI (initialize MPI or launch MPI) in an appropriate way.')
 
       call MPI_Comm_rank(this%comm_world, this%rank, status)
       _VERIFY(status)
