@@ -23,29 +23,19 @@ TRUE_VALUES = {'t', 'true', 'yes', 'y', 'si', 'oui', 'sim'}
 FALSE_VALUES = {'f', 'false', 'no', 'n', 'no', 'non', 'nao'}
 
 # constants used for DIMS and computing rank
-DIMS_OPTIONS = [('MAPL_DimsVertOnly', 1, 'z'), ('MAPL_DimsHorzOnly', 2, 'xy'), ('MAPL_DimsHorzVert', 3, 'xyz')]
-RANKS = dict([(entry, rank) for entry, rank, _ in DIMS_OPTIONS])
-
+DIMS_RANK = {'z': 1, 'xy': 2, 'xyz': 3} 
 
 ############################### HELPER FUNCTIONS ###############################
 rm_quotes = lambda s: str(s).strip().strip('"\'').strip()
 add_quotes = lambda s: "'" + str(s) + "'"
 mk_array = lambda s: '[ ' + str(s).strip().strip('[]') + ']'
 
-def make_string_array(s):
-    """ Returns a string representing a Fortran character array """
-    if ',' in ss:
-        ls = [s.strip() for s in s.strip().split(',')]
-    else:
-        ls = s.strip().split()
-    ls = [rm_quotes(s) for s in ls if s]
-    n = max(list(map(len, ls)))
-    ss = ','.join([add_quotes(s) for s in ls])
-    return f"[character(len={n}) :: {ss}]"
-
 def make_entry_writer(dictionary):
     """ Returns a writer function that looks up the value in dictionary """
     return lambda key: dictionary[key] if key in dictionary else None
+
+def make_validated_writer(validator):
+    return lambda v: v if validator(v) else None
 
 def mangle_name_prefix(name, parameters = None):
     pre = 'comp_name'
@@ -73,8 +63,10 @@ def get_fortran_logical(value_in):
     return val_out
 
 def compute_rank(dims, ungridded):
+    if dims not in DIMS_RANK:
+        return None
     extra_rank = len(ungridded.strip('][').split(',')) if ungridded else 0
-    return RANKS[dims] + extra_rank
+    return DIMS_RANK[dims] + extra_rank
 
 def header():
     """
@@ -110,7 +102,6 @@ class ParameterizedWriter:
         parameter_values = tuple(parameters.get(key) for key in self.parameter_keys)
         return self.writer(name, parameter_values)
 
-
 ######################### WRITERS for writing AddSpecs #########################
 # Return the value
 identity_writer = lambda value: value
@@ -120,8 +111,6 @@ string_writer = lambda value: add_quotes(value) if value else None
 array_writer = lambda value: mk_array(value) if value else None
 # Strip '.' and ' ' [SPACE]
 lstripped = lambda s: s.lower().strip(' .')
-# writer for character arrays
-string_array_writer = lambda value: make_string_array(value) if value else None
 # mangle name for SHORT_NAME
 mangle_name = lambda name: string_writer(name.replace("*","'//trim(comp_name)//'")) if name else None 
 # mangle name for internal use
@@ -129,15 +118,12 @@ make_internal_name = lambda name: name.replace('*','') if name else None
 # writer for LONG_NAME
 mangle_longname = ParameterizedWriter(mangle_name_prefix, LONGNAME_GLOB_PREFIX)
 # writer for DIMS
-DIMS_EMIT = make_entry_writer(dict([(alias, entry) for entry, _, alias in DIMS_OPTIONS]))
+L = make_validated_writer(lambda v: v in DIMS_RANK.keys())
+DIMS_WRITER = lambda value: string_writer(L(value)) if value else None 
 # writer for VLOCATION
-VLOCATION_EMIT = make_entry_writer({'C': 'MAPL_VlocationCenter', 'E': 'MAPL_VlocationEdge', 'N': 'MAPL_VlocationNone'})
-# writer for ADD2EXPORT
-ADD2EXPORT_EMIT = make_entry_writer({'T': '.true.', 'F': '.false.'})
-# writer for logical-valued arguments
-logical_writer = lambda s: TRUE_VALUE if lstripped(s) in TRUE_VALUES else FALSE_VALUE if lstripped(s) in FALSE_VALUES else None
+VLOCATION_WRITER = make_entry_writer({'C': 'MAPL_VlocationCenter', 'E': 'MAPL_VlocationEdge', 'N': 'MAPL_VlocationNone'})
 # writer for RESTART
-RESTART_EMIT = make_entry_writer({'OPT'  : 'MAPL_RestartOptional', 'SKIP' : 'MAPL_RestartSkip',
+RESTART_WRITER = make_entry_writer({'OPT'  : 'MAPL_RestartOptional', 'SKIP' : 'MAPL_RestartSkip',
         'REQ'  : 'MAPL_RestartRequired', 'BOOT' : 'MAPL_RestartBoot',
         'SKIPI': 'MAPL_RestartSkipInitial'})
 
@@ -165,7 +151,7 @@ Option = Enum(value = 'Option', names = {
 # MANDATORY
         'SHORT_NAME': ('short_name', mangle_name, True), #COMMON
         'NAME': ('short_name', mangle_name, True),
-        'DIMS': ('dims', DIMS_EMIT, True), #COMMON
+        'DIMS': ('dims', DIMS_WRITER, True), #COMMON
         'UNITS': ('units', string_writer, True), #COMMON
 # OPTIONAL
         'AVERAGING_INTERVAL': ('averaging_interval',),
@@ -181,15 +167,15 @@ Option = Enum(value = 'Option', names = {
         'PRECISION': ('precision',),
         'PREC': ('precision',),
         'REFRESH_INTERVAL': ('refresh_interval',),
-        'RESTART': ('restart', RESTART_EMIT),
+        'RESTART': ('restart', RESTART_WRITER),
         'ROTATION': ('rotation',),
         'STAGGERING': ('staggering',),
         'STANDARD_NAME': ('standard_name', mangle_longname), #EXPORT #INTERNAL
         'UNGRIDDED_DIMS': ('ungridded_dims', array_writer),
         'UNGRID': ('ungridded_dims', array_writer),
         'UNGRIDDED': ('ungridded_dims', array_writer),
-        'VLOCATION': ('vlocation', VLOCATION_EMIT),
-        'VLOC': ('vlocation', VLOCATION_EMIT),
+        'VLOCATION': ('vlocation', VLOCATION_WRITER),
+        'VLOC': ('vlocation', VLOCATION_WRITER),
 # these are Options that are not output but used to write 
         'ALIAS': ('alias', identity_writer, False, False),
         'CONDITION': ('condition', identity_writer, False, False),
@@ -476,7 +462,7 @@ def digest(specs, args):
                     option_values[Option.MANGLED_NAME] = Option.MANGLED_NAME(column_value)
                     option_values[Option.INTERNAL_NAME] = Option.INTERNAL_NAME(column_value)
                 elif option == Option.DIMS:
-                    dims = option_value
+                    dims = column_value
                 elif option == Option.UNGRIDDED:
                     ungridded = option_value
                 elif option == Option.ALIAS:
