@@ -24,7 +24,6 @@ target_sources(MAPL.generic3g PRIVATE
   GeometrySpec.F90
 
   HorizontalDimsSpec.F90
-  VerticalDimSpec.F90
   GridSpec.F90
   
   StateItemSpec.F90

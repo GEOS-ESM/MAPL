@@ -31,7 +31,6 @@ module mapl3g_FieldSpec
    use mapl_KeywordEnforcer
    use mapl3g_InfoUtilities
    use mapl3g_VerticalGrid
-   use mapl3g_VerticalDimSpec
    use mapl3g_EsmfRegridder, only: EsmfRegridderParam
    use MAPL_FieldUtils
    use mapl3g_LU_Bound
@@ -112,7 +111,7 @@ module mapl3g_FieldSpec
 
 contains
 
-   function new_FieldSpec_geom(unusable, geom, vertical_grid, vertical_dim_spec, typekind, ungridded_dims, &
+   function new_FieldSpec_geom(unusable, geom, vertical_grid, vertical_stagger, typekind, ungridded_dims, &
         standard_name, long_name, units, &
         attributes, regrid_param, horizontal_dims_spec, default_value, accumulation_type, timestep) result(field_spec)
       type(FieldSpec), target :: field_spec
@@ -120,7 +119,7 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
-      type(VerticalDimSpec), intent(in) :: vertical_dim_spec
+      type(VerticalStaggerLoc), intent(in) :: vertical_stagger
       type(ESMF_Typekind_Flag), intent(in) :: typekind
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       character(*), optional, intent(in) :: standard_name
@@ -141,7 +140,7 @@ contains
 
       call aspects%set_vertical_grid_aspect(VerticalGridAspect( &
            vertical_grid=vertical_grid, &
-           vertical_dim_spec=vertical_dim_spec, &
+           vertical_stagger=vertical_stagger, &
            geom=geom))
       call aspects%set_geom_aspect(GeomAspect(geom, regrid_param, horizontal_dims_spec))
       call aspects%set_units_aspect(UnitsAspect(units))
@@ -267,9 +266,8 @@ contains
 
       integer, allocatable :: num_levels_grid
       integer, allocatable :: num_levels
-      type(VerticalStaggerLoc) :: vertical_staggerloc
+      type(VerticalStaggerLoc) :: vertical_stagger
       class(VerticalGrid), allocatable :: vertical_grid
-      type(VerticalDimSpec) :: vertical_dim_spec
       class(StateItemAspect), pointer :: aspect
       type(UngriddedDims) :: ungridded_dims
       type(ESMF_TypeKind_Flag) :: typekind
@@ -295,17 +293,11 @@ contains
 
          vertical_grid = aspect%get_vertical_grid(_RC)
          num_levels_grid = vertical_grid%get_num_levels()
-         vertical_dim_spec = aspect%get_vertical_dim_spec(_RC)
-         if (vertical_dim_spec == VERTICAL_DIM_NONE) then
-            vertical_staggerloc = VERTICAL_STAGGER_NONE
-         else if (vertical_dim_spec == VERTICAL_DIM_EDGE) then
-            vertical_staggerloc = VERTICAL_STAGGER_EDGE
+         vertical_stagger = aspect%get_vertical_stagger(_RC)
+         if (vertical_stagger == VERTICAL_STAGGER_EDGE) then
             num_levels = num_levels_grid + 1
-         else if (vertical_dim_spec == VERTICAL_DIM_CENTER) then
-            vertical_staggerloc = VERTICAL_STAGGER_CENTER
+         else if (vertical_stagger == VERTICAL_STAGGER_CENTER) then
             num_levels = num_levels_grid
-         else
-            _FAIL('unknown stagger')
          end if
       class default
          _FAIL('no vertical grid aspect')
