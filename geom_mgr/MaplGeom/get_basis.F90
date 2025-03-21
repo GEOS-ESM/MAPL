@@ -9,9 +9,12 @@ submodule (mapl3g_MaplGeom) get_basis_smod
    use ESMF, only: ESMF_Info
    use ESMF, only: ESMF_InfoGetFromHost
    use ESMF, only: ESMF_InfoSet
+   implicit none(type,external)
 
 contains
-   
+
+   ! Supports lazy initialization as vector regridding is relatively
+   ! rare.
    recursive module function get_basis(this, mode, rc) result(basis)
       type(VectorBasis), pointer :: basis
       class(MaplGeom), target, intent(inout) :: this
@@ -19,33 +22,23 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(VectorBasis), pointer :: tmp
 
       select case (mode)
 
       case ('NS') ! Inverse is transpose, so no neeed for separate case
          if (.not. allocated(this%bases%ns_basis)) then
+            allocate(this%bases%ns_basis)
             this%bases%ns_basis = NS_VectorBasis(this%geom, _RC)
          end if
          basis => this%bases%ns_basis
 
-      case ('NS_inverse') ! Inverse is transpose, so no neeed for separate case
-         if (.not. allocated(this%bases%ns_basis_inverse)) then
-            ! shallow copy of ESMF_Field components
-            this%bases%ns_basis_inverse = this%get_basis('NS', _RC) 
-         end if
-         basis => this%bases%ns_basis_inverse
-
       case ('grid')
           if (.not. allocated(this%bases%grid_basis)) then
-              this%bases%grid_basis = GridVectorBasis(this%geom, _RC)
+             allocate(this%bases%grid_basis)
+             this%bases%grid_basis = GridVectorBasis(this%geom, _RC)
           end if
           basis => this%bases%grid_basis
-
-      case ('grid_inverse')
-          if (.not. allocated(this%bases%grid_basis_inverse)) then
-              this%bases%grid_basis_inverse = GridVectorBasis(this%geom, inverse=.true., _RC)
-          end if
-          basis => this%bases%grid_basis_inverse
 
       case default
          basis => null()

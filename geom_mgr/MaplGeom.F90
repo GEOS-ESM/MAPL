@@ -16,9 +16,7 @@ module mapl3g_MaplGeom
    ! initialization to fill upon request.
    type VectorBases
       type(VectorBasis), allocatable :: NS_basis ! inverse is transpose
-      type(VectorBasis), allocatable :: NS_basis_inverse
       type(VectorBasis), allocatable :: grid_basis
-      type(VectorBasis), allocatable :: grid_basis_inverse
    end type VectorBases
 
    ! MaplGeom encapsulates an ESMF Geom object and various items associated
