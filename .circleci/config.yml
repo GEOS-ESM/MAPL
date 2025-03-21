@@ -33,9 +33,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              # MAPL3 Unit tests still have issues with ifx. Until we fix them, we will only run with gfortran and ifort
-              #compiler: [gfortran, ifort, ifx]
-              compiler: [gfortran, ifort]
+              compiler: [gfortran, ifort, ifx]
               cmake_generator: ['Unix Makefiles','Ninja']
               build_type: ['Debug', 'Release']
           baselibs_version: *baselibs_version
@@ -52,9 +50,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              # MAPL3 Unit tests still have issues with ifx. Until we fix them, we will only run with gfortran and ifort
-              #compiler: [gfortran, ifort, ifx]
-              compiler: [gfortran, ifort]
+              compiler: [gfortran, ifort, ifx]
               build_type: ['Debug', 'Release']
           baselibs_version: *baselibs_version
           repo: MAPL
@@ -73,9 +69,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              # MAPL3 Unit tests still have issues with ifx. Until we fix them, we will only run with gfortran and ifort
-              #compiler: [ifort, ifx]
-              compiler: [ifort]
+              compiler: [ifort, ifx]
               build_type: ['Debug', 'Release']
           baselibs_version: *baselibs_version
           repo: MAPL
@@ -91,8 +85,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              # MAPL3 Unit tests still have issues with ifx. Until we fix them, we will only run with gfortran and ifort
-              compiler: [gfortran, ifort]
+              compiler: [gfortran, ifort, ifx]
               build_type: ['Debug', 'Release']
               tutorial_name:
                 - hello_world
