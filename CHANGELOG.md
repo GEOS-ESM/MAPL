@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Relaxed the MPI thread levels to MPI_THREAD_SERIALIZED required by ESMF
 - Update to `ESMA_env` v4.35.0 --> Baselibs 7.32.0
   - This brings in GFE v1.19.0 (which has gFTL v1.15.2 needed for MAPL3 work)
 - Update `.editorconfig` for Fortran files enforcing 3-space indents and line length of 132
@@ -35,6 +36,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.54.2] - 2025-03-18
+
+### Fixed
+
+- Fixed bug when proccessing history collection list identified by NAG
+
 ## [2.54.1] - 2025-02-07
 
 - Fix typo in ACG: 'num_subtitles' => 'num_subtiles'
@@ -46,6 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add column for ACG (ALIAS) that set the pointer variable to a different name than the `short_name`
 - Updated CI to use Baselibs 7.31.0
   - Updates to GFE v1.18.0
+- Use oserver for Mask sampler
 
 ## [2.53.1] - 2025-01-29
 
