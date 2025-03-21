@@ -81,6 +81,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added constructor for DSO_SetServicesWrapper
 - Change macro in field/undo_function_overload.macro
 - Fixed bug with AccumulatorAction and subtypes
+- Added a check to assign_fptr that verifies that the pointer type/kind matches the Field typekind
 
 ## [Unreleased]
 
@@ -97,6 +98,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Relaxed the MPI thread levels to MPI_THREAD_SERIALIZED required by ESMF
 - Update to `ESMA_env` v4.35.0 --> Baselibs 7.32.0
   - This brings in GFE v1.19.0 (which has gFTL v1.15.2 needed for MAPL3 work)
 - Update `.editorconfig` for Fortran files enforcing 3-space indents and line length of 132

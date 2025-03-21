@@ -3,6 +3,7 @@
 module mapl3g_NullRegridder
    use esmf
    use mapl3g_Regridder
+   use mapl3g_RegridderSpec
    use mapl_ErrorHandlingMod
    implicit none
    private
@@ -15,7 +16,7 @@ module mapl3g_NullRegridder
       procedure :: regrid_scalar
    end type NullRegridder
 
-   type(NullRegridder), parameter :: NULL_REGRIDDER = NullRegridder()
+   type(NullRegridder), protected :: NULL_REGRIDDER
 
 contains
 

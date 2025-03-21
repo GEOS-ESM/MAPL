@@ -40,9 +40,9 @@ contains
 
       ! counter 0 at one point
       call FieldSet(acc%accumulation_field, COUNTER*MEAN, _RC)
-      call assign_fptr(acc%counter_field, fptr, _RC)
-      fptr(n) = 0
-      mask = fptr /= 0
+      call assign_fptr(acc%counter_field, ifptr, _RC)
+      ifptr(n) = 0
+      mask = ifptr /= 0
       call assign_fptr(acc%accumulation_field, fptr, _RC)
       call acc%calculate_mean_R4(_RC)
       @assertTrue(all(pack(fptr, mask) == MEAN), 'Some valid points not equal to MEAN')

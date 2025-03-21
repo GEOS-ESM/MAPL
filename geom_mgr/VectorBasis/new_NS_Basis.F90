@@ -14,6 +14,7 @@ contains
       real(kind=ESMF_KIND_R8), pointer :: longitudes(:)
       real(kind=ESMF_KIND_R8), pointer :: latitudes(:)
 
+      allocate(basis%elements(NI,NJ))
       call create_fields(basis%elements, geom, _RC)
       call MAPL_GeomGetCoords(geom, longitudes, latitudes, _RC)
       call fill_fields(basis, longitudes, latitudes, _RC)
@@ -33,6 +34,12 @@ contains
          integer :: i, j, n
          real(kind=ESMF_KIND_R8) :: local_basis(NI,NJ)
 
+         real(kind=ESMF_KIND_R8) :: global_min(NI,NJ)
+         real(kind=ESMF_KIND_R8) :: global_max(NI,NJ)
+
+         global_min = huge(1.)
+         global_max = -huge(1.)
+         
          do j = 1, NJ
             do i = 1, NI
                call assign_fptr(basis%elements(i,j), x(i,j)%ptr, _RC)
@@ -40,13 +47,16 @@ contains
          end do
 
          do n = 1, size(x(1,1)%ptr)
-            local_basis = fill_element(longitudes(i), latitudes(i))
+            local_basis = fill_element(longitudes(n), latitudes(n))
 
             do j = 1, NJ
                do i = 1, NI
                   x(i,j)%ptr(n) = local_basis(i,j)
                end do
             end do
+
+            global_min = min(global_min, local_basis)
+            global_max = max(global_max, local_basis)
 
          end do
 

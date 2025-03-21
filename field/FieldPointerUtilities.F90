@@ -51,7 +51,8 @@ module MAPL_FieldPointerUtilities
 
    interface FieldsAreConformable
       procedure are_conformable_scalar
-      procedure are_conformable_array
+      procedure are_conformable_1d
+      procedure are_conformable_2d
    end interface
 
    interface FieldsAreBroadCastConformable
@@ -96,6 +97,7 @@ contains
       integer(ESMF_KIND_I8) :: local_size
       integer :: status
 
+      call check_typekind(x, ESMF_TYPEKIND_R4, _RC)
       local_size = FieldGetLocalSize(x, _RC)
       fp_shape = [ local_size ]
       call FieldGetCptr(x, cptr, _RC)
@@ -115,6 +117,7 @@ contains
       integer(ESMF_KIND_I8) :: local_size
       integer :: status
 
+      call check_typekind(x, ESMF_TYPEKIND_R8, _RC)
       local_size = FieldGetLocalSize(x, _RC)
       fp_shape = [ local_size ]
       call FieldGetCptr(x, cptr, _RC)
@@ -133,6 +136,7 @@ contains
       type(c_ptr) :: cptr
       integer :: status
 
+      call check_typekind(x, ESMF_TYPEKIND_R4, _RC)
       _ASSERT(size(fp_shape) == rank(fptr), 'Shape size must match pointer rank.')
       call FieldGetCptr(x, cptr, _RC)
       call c_f_pointer(cptr, fptr, fp_shape)
@@ -150,6 +154,7 @@ contains
       type(c_ptr) :: cptr
       integer :: status
 
+      call check_typekind(x, ESMF_TYPEKIND_R8, _RC)
       _ASSERT(size(fp_shape) == rank(fptr), 'Shape size must match pointer rank.')
       call FieldGetCptr(x, cptr, _RC)
       call c_f_pointer(cptr, fptr, fp_shape)
@@ -167,6 +172,7 @@ contains
       type(c_ptr) :: cptr
       integer :: status
 
+      call check_typekind(x, ESMF_TYPEKIND_R4, _RC)
       _ASSERT(size(fp_shape) == rank(fptr), 'Shape size must match pointer rank.')
       call FieldGetCptr(x, cptr, _RC)
       call c_f_pointer(cptr, fptr, fp_shape)
@@ -184,6 +190,7 @@ contains
       type(c_ptr) :: cptr
       integer :: status
 
+      call check_typekind(x, ESMF_TYPEKIND_R8, _RC)
       _ASSERT(size(fp_shape) == rank(fptr), 'Shape size must match pointer rank.')
       call FieldGetCptr(x, cptr, _RC)
       call c_f_pointer(cptr, fptr, fp_shape)
@@ -401,6 +408,8 @@ contains
       _RETURN(_SUCCESS)
    end function get_local_size
 
+   ! Use Field x as an archetype and create a field y with same
+   ! geom, shape, etc. But separate allocation.
    subroutine clone(x, y, rc)
       type(ESMF_Field), intent(inout) :: x
       type(ESMF_Field), intent(inout) :: y
@@ -493,7 +502,7 @@ contains
       _RETURN(_SUCCESS)
    end function are_conformable_scalar
 
-   logical function are_conformable_array(x, y, rc) result(conformable)
+   logical function are_conformable_1d(x, y, rc) result(conformable)
       type(ESMF_Field), intent(inout) :: x
       type(ESMF_Field), intent(inout) :: y(:)
       integer, optional, intent(out) :: rc
@@ -507,13 +516,37 @@ contains
 
       do j = 1, size(y)
          element_not_conformable = .not. FieldsAreConformable(x, y(j), _RC)
-         if(element_not_conformable) return
+         _RETURN_IF(element_not_conformable)
       end do
 
       conformable = .true.
 
       _RETURN(_SUCCESS)
-   end function are_conformable_array
+   end function are_conformable_1d
+
+   logical function are_conformable_2d(x, y, rc) result(conformable)
+      type(ESMF_Field), intent(inout) :: x
+      type(ESMF_Field), intent(inout) :: y(:,:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: i, j
+      logical :: element_not_conformable
+
+      conformable = .false.
+      element_not_conformable = .false.
+
+      do i = 1, size(y,1)
+         do j = 1, size(y,2)
+            element_not_conformable = .not. FieldsAreConformable(x, y(i,j), _RC)
+            _RETURN_IF(element_not_conformable)
+         end do
+      end do
+
+      conformable = .true.
+
+      _RETURN(_SUCCESS)
+   end function are_conformable_2d
 
    logical function are_broadcast_conformable(x, y, rc) result(conformable)
       type(ESMF_Field), intent(inout) :: x
@@ -1054,6 +1087,7 @@ contains
       integer(ESMF_KIND_I8) :: local_size
       integer :: status
 
+      call check_typekind(x, ESMF_TYPEKIND_I4, _RC)
       local_size = FieldGetLocalSize(x, _RC)
       fp_shape = [ local_size ]
       call FieldGetCptr(x, cptr, _RC)
@@ -1073,6 +1107,7 @@ contains
       integer(ESMF_KIND_I8) :: local_size
       integer :: status
 
+      call check_typekind(x, ESMF_TYPEKIND_I8, _RC)
       local_size = FieldGetLocalSize(x, _RC)
       fp_shape = [ local_size ]
       call FieldGetCptr(x, cptr, _RC)
@@ -1080,5 +1115,18 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine assign_fptr_i8_rank1
+
+   subroutine check_typekind(field, typekind, rc)
+      type(ESMF_Field), intent(in) :: field
+      type(ESMF_TypeKind_Flag), intent(in) :: typekind
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_TypeKind_Flag) :: actual_typekind
+
+      call ESMF_FieldGet(field, typekind=actual_typekind, rc=status)
+      _ASSERT(actual_typekind == typekind, 'Field typekind does not match pointer type and kind.')
+      _RETURN(_SUCCESS)
+
+   end subroutine check_typekind
 
 end module MAPL_FieldPointerUtilities
