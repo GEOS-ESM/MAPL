@@ -35,7 +35,7 @@ module MAPL_ExtDataPointerUpdate
    end type
 
    character(len=*), parameter :: HEARTBEAT_STRING = 'HEARTBEAT'
-   
+
 contains
 
    function get_adjusted_time(this,time,rc) result(adjusted_time)
@@ -56,7 +56,7 @@ contains
       offset = this%offset
 
    end function get_offset
-      
+
    subroutine create_from_parameters(this,update_time,update_freq,update_offset,time,clock,rc)
       class(ExtDataPointerUpdate), intent(inout) :: this
       character(len=*), intent(in) :: update_time
@@ -142,7 +142,7 @@ contains
       end if
 
    end subroutine split_on
-      
+
    function to_upper(s) result(u)
       character(len=:), allocatable :: u
       character(len=*), intent(in) :: s

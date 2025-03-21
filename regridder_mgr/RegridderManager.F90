@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 module mapl3g_RegridderManager
-
+   use mapl3g_geom_mgr, only: GeomManager, get_geom_manager
    use mapl3g_RegridderSpec
    use mapl3g_Regridder
    use mapl3g_NullRegridder
@@ -25,6 +25,7 @@ module mapl3g_RegridderManager
       ! Next two vectors grow together
       type(RegridderSpecVector) :: specs
       type(RegridderVector) :: regridders
+      type(GeomManager), pointer :: geom_manager => null()
    contains
       procedure :: get_regridder
       procedure :: add_factory
@@ -41,11 +42,17 @@ module mapl3g_RegridderManager
 
 contains
 
-   function new_RegridderManager() result(mgr)
+   function new_RegridderManager(geom_manager) result(mgr)
       type(RegridderManager) :: mgr
+      type(GeomManager), target, optional, intent(in) :: geom_manager
 
       ! Load default factories
 
+      mgr%geom_manager => get_geom_manager()
+      if (present(geom_manager)) then
+         mgr%geom_manager => geom_manager
+      end if
+      
       call mgr%add_factory(EsmfRegridderFactory())
 !!$      call mgr%add_factory(horzHorzFluxRegridderFactory())
 
@@ -138,6 +145,7 @@ contains
          if (factory%supports(spec%get_param())) then
             deallocate(regriddr) ! workaround for gfortran 12.3
             regriddr = factory%make_regridder(spec, _RC)
+            call regriddr%set_geom_manager(this%geom_manager)
             _RETURN(_SUCCESS)
          end if
       end do
@@ -156,7 +164,6 @@ contains
 
       regridder_mgr => regridder_manager
          
-
    end function get_regridder_manager
 
 end module mapl3g_RegridderManager

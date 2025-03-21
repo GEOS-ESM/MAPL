@@ -28,7 +28,7 @@ workflows:
     jobs:
       # Builds MAPL in a "default" way
       - ci/build:
-          name: build-and-test-MAPL-on-<< matrix.compiler >>-using-<< matrix.cmake_generator >>
+          name: build-and-test-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>-using-<< matrix.cmake_generator >>
           context:
             - docker-hub-creds
           matrix:
@@ -37,6 +37,7 @@ workflows:
               #compiler: [gfortran, ifort, ifx]
               compiler: [gfortran, ifort]
               cmake_generator: ['Unix Makefiles','Ninja']
+              build_type: ['Debug', 'Release']
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
@@ -46,7 +47,7 @@ workflows:
 
       # Builds MAPL without PFLOGGER and FARGPARSE
       - ci/build:
-          name: build-MAPL-without-pFlogger-and-fArgParse-on-<< matrix.compiler >>
+          name: build-MAPL-without-pFlogger-and-fArgParse-as-<< matrix.build_type >>-on-<< matrix.compiler >>
           context:
             - docker-hub-creds
           matrix:
@@ -54,6 +55,7 @@ workflows:
               # MAPL3 Unit tests still have issues with ifx. Until we fix them, we will only run with gfortran and ifort
               #compiler: [gfortran, ifort, ifx]
               compiler: [gfortran, ifort]
+              build_type: ['Debug', 'Release']
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
@@ -66,7 +68,7 @@ workflows:
 
       # Builds MAPL without pFUnit support
       - ci/build:
-          name: build-MAPL-without-pFUnit-on-<< matrix.compiler >>
+          name: build-MAPL-without-pFUnit-as-<< matrix.build_type>>-on-<< matrix.compiler >>
           context:
             - docker-hub-creds
           matrix:
@@ -74,6 +76,7 @@ workflows:
               # MAPL3 Unit tests still have issues with ifx. Until we fix them, we will only run with gfortran and ifort
               #compiler: [ifort, ifx]
               compiler: [ifort]
+              build_type: ['Debug', 'Release']
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
@@ -83,13 +86,14 @@ workflows:
 
       # Run MAPL Tutorials
       - ci/run_mapl_tutorial:
-          name: run-<< matrix.tutorial_name >>-Tutorial-with-<< matrix.compiler >>
+          name: run-<< matrix.tutorial_name >>-Tutorial-with-<< matrix.compiler >>-built-with-<< matrix.build_type >>
           context:
             - docker-hub-creds
           matrix:
             parameters:
               # MAPL3 Unit tests still have issues with ifx. Until we fix them, we will only run with gfortran and ifort
               compiler: [gfortran, ifort]
+              build_type: ['Debug', 'Release']
               tutorial_name:
                 - hello_world
                 - parent_no_children
@@ -99,7 +103,7 @@ workflows:
           # We will only run the tutorials with GNU make. No need to double up
           # as Ninja is a build test only
           requires:
-            - build-and-test-MAPL-on-<< matrix.compiler >>-using-Unix Makefiles
+            - build-and-test-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>-using-Unix Makefiles
           baselibs_version: *baselibs_version
 
   # MAPL3 will soon break GEOSgcm builds. So for now we turn off all the builds of GEOS fixtures

@@ -30,8 +30,8 @@ module mapl3g_EsmfRegridder
 
    type, extends(Regridder) :: EsmfRegridder
       private
+      type(EsmfRegridderParam) :: regridder_param
       type(ESMF_Routehandle) :: routehandle
-      type(RegridderSpec) :: regridder_spec
    contains
       procedure :: regrid_scalar
    end type EsmfRegridder
@@ -90,45 +90,20 @@ contains
       
    end function new_EsmfRegridderParam
 
-
-   function new_EsmfRegridder(routehandle, regridder_spec) result(regriddr)
+   function new_EsmfRegridder(regridder_param, routehandle) result(regriddr)
       type(EsmfRegridder) :: regriddr
+      type(EsmfRegridderParam), intent(in) :: regridder_param
       type(ESMF_Routehandle), intent(in) :: routehandle
-      type(RegridderSpec), intent(in) :: regridder_spec
 
       integer :: status
 
+      regriddr%regridder_param = regridder_param
       regriddr%routehandle = routehandle
-      regriddr%regridder_spec = regridder_spec
 
    end function new_EsmfRegridder
 
- 
    subroutine regrid_scalar(this, f_in, f_out, rc)
       class(EsmfRegridder), intent(inout) :: this
-      type(ESMF_Field), intent(inout) :: f_in, f_out
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      select type (q => this%regridder_spec%get_param())
-      type is (EsmfRegridderParam)
-         call regrid_scalar_safe(this%routehandle, q, f_in, f_out, rc)
-      class default
-         _FAIL('Invalid subclass of RegridderParam.')
-      end select
-
-      _RETURN(_SUCCESS)
-   end subroutine regrid_scalar
-
-   subroutine regrid_scalar_safe(routehandle, param, f_in, f_out, rc)
-      type(ESMF_Routehandle), intent(inout) :: routehandle
-      ! TODO: The TARGET attribute on the next line really should not
-      ! be necessary, but apparently is at least with NAG 7.138.  The
-      ! corresponding dummy arg in the ESMF call below has the TARGET
-      ! attribute, and passing in an unallocated non TARGET actual, is
-      ! apparently not being treated as a non present argument.
-      type(EsmfRegridderParam), target, intent(in) :: param
       type(ESMF_Field), intent(inout) :: f_in, f_out
       integer, optional, intent(out) :: rc
       
@@ -142,34 +117,35 @@ contains
       call ESMF_FieldGet(f_in, ungriddedUBound=ub, typekind=typekind, _RC)
       has_ungridded_dims = any(ub > 1)
 
-      if (typekind == ESMF_TYPEKIND_R4) then
-         has_dynamic_mask = allocated(param%dyn_mask%esmf_mask_r4)
-         if (has_dynamic_mask) mask = param%dyn_mask%esmf_mask_r4
-      elseif (typekind == ESMF_TYPEKIND_R8) then
-         has_dynamic_mask = allocated(param%dyn_mask%esmf_mask_r8)
-         if (has_dynamic_mask) mask = param%dyn_mask%esmf_mask_r8
-      end if
+        associate(param => this%regridder_param)
+        if (typekind == ESMF_TYPEKIND_R4) then
+           has_dynamic_mask = allocated(param%dyn_mask%esmf_mask_r4)
+           if (has_dynamic_mask) mask = param%dyn_mask%esmf_mask_r4
+        elseif (typekind == ESMF_TYPEKIND_R8) then
+           has_dynamic_mask = allocated(param%dyn_mask%esmf_mask_r8)
+           if (has_dynamic_mask) mask = param%dyn_mask%esmf_mask_r8
+        end if
+        
+        if (has_dynamic_mask .and. has_ungridded_dims) then
+           call regrid_ungridded(this, mask, f_in, f_out, n=product(max(ub,1)), _RC)
+           _RETURN(_SUCCESS)
+        end if
 
-      if (has_dynamic_mask .and. has_ungridded_dims) then
-         call regrid_ungridded(routehandle, mask, param, f_in, f_out, n=product(max(ub,1)), _RC)
-         _RETURN(_SUCCESS)
-      end if
-
-      call ESMF_FieldRegrid(f_in, f_out, &
-           routehandle=routehandle, &
-           termorderflag=param%termorder, &
-           zeroregion=param%zeroregion, &
-           checkflag=param%checkflag, &
-           dynamicMask=mask, &
-           _RC)
-
+        ! Otherwise
+        call ESMF_FieldRegrid(f_in, f_out, &
+             routehandle=this%routehandle, &
+             termorderflag=param%termorder, &
+             zeroregion=param%zeroregion, &
+             checkflag=param%checkflag, &
+             dynamicMask=mask, &
+             _RC)
+      end associate
       _RETURN(_SUCCESS)
-   end subroutine regrid_scalar_safe
+   end subroutine regrid_scalar
 
-   subroutine regrid_ungridded(routehandle, mask, param, f_in, f_out, n, rc)
-      type(ESMF_Routehandle), intent(inout) :: routehandle
+   subroutine regrid_ungridded(this, mask, f_in, f_out, n, rc)
+      class(EsmfRegridder), intent(inout) :: this
       type(ESMF_DynamicMask), intent(in) :: mask
-      type(EsmfRegridderParam), target, intent(in) :: param
       type(ESMF_Field), intent(inout) :: f_in, f_out
       integer, intent(in) :: n
       integer, optional, intent(out) :: rc 
@@ -184,13 +160,15 @@ contains
          f_tmp_out = get_slice(f_out, k, _RC)
 
          ! Can only call this if esmf_mask is allocated.
-         call ESMF_FieldRegrid(f_tmp_in, f_tmp_out, &
-              routehandle=routehandle, &
-              termorderflag=param%termorder, &
-              zeroregion=param%zeroregion, &
-              checkflag=param%checkflag, &
-              dynamicMask=mask, &
-              _RC)
+         associate (param => this%regridder_param)
+           call ESMF_FieldRegrid(f_tmp_in, f_tmp_out, &
+                routehandle=this%routehandle, &
+                termorderflag=param%termorder, &
+                zeroregion=param%zeroregion, &
+                checkflag=param%checkflag, &
+                dynamicMask=mask, &
+                _RC)
+         end associate
 
          call ESMF_FieldDestroy(f_tmp_in, nogarbage=.true., _RC)
          call ESMF_FieldDestroy(f_tmp_out, nogarbage=.true.,  _RC)
