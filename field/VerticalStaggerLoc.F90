@@ -6,6 +6,7 @@ module mapl3g_VerticalStaggerLoc
    public :: VERTICAL_STAGGER_NONE
    public :: VERTICAL_STAGGER_EDGE
    public :: VERTICAL_STAGGER_CENTER
+   public :: VERTICAL_STAGGER_MIRROR
    public :: VERTICAL_STAGGER_INVALID
 
    public :: operator(==)
@@ -15,6 +16,7 @@ module mapl3g_VerticalStaggerLoc
       enumerator :: NONE=0
       enumerator :: EDGE=1
       enumerator :: CENTER=2
+      enumerator :: MIRROR=3
       enumerator :: INVALID=-1
    end enum
 
@@ -48,11 +50,13 @@ module mapl3g_VerticalStaggerLoc
    character(*), parameter :: DIM_NAME_NONE = ""
    character(*), parameter :: DIM_NAME_EDGE = "edge"
    character(*), parameter :: DIM_NAME_CENTER = "lev"
+   character(*), parameter :: DIM_NAME_MIRROR = "mirror"
    character(*), parameter :: DIM_NAME_INVALID = "invalid"
 
    type(VerticalStaggerLoc), parameter :: VERTICAL_STAGGER_NONE = VerticalStaggerLoc(NONE, "VERTICAL_STAGGER_NONE")
    type(VerticalStaggerLoc), parameter :: VERTICAL_STAGGER_EDGE = VerticalStaggerLoc(EDGE, "VERTICAL_STAGGER_EDGE")
    type(VerticalStaggerLoc), parameter :: VERTICAL_STAGGER_CENTER = VerticalStaggerLoc(CENTER, "VERTICAL_STAGGER_CENTER")
+   type(VerticalStaggerLoc), parameter :: VERTICAL_STAGGER_MIRROR = VerticalStaggerLoc(MIRROR, "VERTICAL_STAGGER_MIRROR")
    type(VerticalStaggerLoc), parameter :: VERTICAL_STAGGER_INVALID = VerticalStaggerLoc(INVALID, "VERTICAL_STAGGER_INVALID")
 
 contains
@@ -69,6 +73,8 @@ contains
          staggerloc = VERTICAL_STAGGER_EDGE
       case (VERTICAL_STAGGER_CENTER%name)
          staggerloc = VERTICAL_STAGGER_CENTER
+      case (VERTICAL_STAGGER_MIRROR%name)
+         staggerloc = VERTICAL_STAGGER_MIRROR
       case default
          staggerloc = VERTICAL_STAGGER_INVALID
       end select
@@ -105,6 +111,8 @@ contains
          dim_name = DIM_NAME_EDGE
       case (CENTER)
          dim_name = DIM_NAME_CENTER
+      case (MIRROR)
+         dim_name = DIM_NAME_MIRROR
       case default
          dim_name = DIM_NAME_INVALID
       end select
@@ -121,6 +129,8 @@ contains
          num_levels = num_vgrid_levels
       case (CENTER)
          num_levels = num_vgrid_levels - 1
+      case (MIRROR)
+         num_levels = num_vgrid_levels
       case default
          num_levels = -1
       end select
