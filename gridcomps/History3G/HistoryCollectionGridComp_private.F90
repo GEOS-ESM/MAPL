@@ -15,6 +15,7 @@ module mapl3g_HistoryCollectionGridComp_private
    use mapl3g_TypekindAspect, only: TypekindAspect
    use mapl3g_UnitsAspect, only: UnitsAspect
    use mapl3g_VerticalGridAspect, only: VerticalGridAspect
+   use mapl3g_VerticalStaggerLoc, only: VERTICAL_STAGGER_MIRROR
    use gFTL2_StringSet
 
    implicit none(type,external)
@@ -297,12 +298,12 @@ contains
          call ftn_iter%next()
          short_name = ftn_iter%of()
          varspec = make_VariableSpecFromAspects(ESMF_STATEINTENT_IMPORT, short_name, &
-            & vertical_aspect=VerticalGridAspect(vertical_dim_spec=VERTICAL_DIM_MIRROR), &
+            & vertical_aspect=VerticalGridAspect(vertical_stagger=VERTICAL_STAGGER_MIRROR), &
             & units_aspect=UnitsAspect(opts%units), &
             & typekind_aspect=TypekindAspect(opts%typekind), &
             & frequency_aspect=FrequencyAspect(accumulation_type=opts%accumulation_type, &
-               & timeStep=opts%timeStep, offset=opts%runTime_offset), &
-         & _RC)
+            & timeStep=opts%timeStep, offset=opts%runTime_offset), &
+            & _RC)
          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
       end do
       _RETURN(_SUCCESS)

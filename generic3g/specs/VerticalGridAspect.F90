@@ -11,7 +11,7 @@ module mapl3g_VerticalGridAspect
    use mapl3g_GeomAspect
    use mapl3g_TypekindAspect
    use mapl3g_VerticalRegridMethod
-   use mapl3g_VerticalDimSpec
+   use mapl3g_VerticalStaggerLoc
    use mapl3g_VerticalRegridMethod
    use mapl3g_ComponentDriver
    use mapl_ErrorHandling
@@ -31,7 +31,7 @@ module mapl3g_VerticalGridAspect
       private
       class(VerticalGrid), allocatable :: vertical_grid
       type(VerticalRegridMethod) :: regrid_method = VERTICAL_REGRID_LINEAR
-      type(VerticalDimSpec), allocatable :: vertical_dim_spec
+      type(VerticalStaggerLoc), allocatable :: vertical_stagger
    contains
       procedure :: matches
       procedure :: make_transform
@@ -42,7 +42,7 @@ module mapl3g_VerticalGridAspect
 
       procedure :: set_vertical_grid
       procedure :: get_vertical_grid
-      procedure :: get_vertical_dim_spec
+      procedure :: get_vertical_stagger
    end type VerticalGridAspect
 
    interface VerticalGridAspect
@@ -51,11 +51,11 @@ module mapl3g_VerticalGridAspect
 
 contains
 
-   function new_VerticalGridAspect_specific(vertical_grid, regrid_method, vertical_dim_spec, geom, typekind, time_dependent) result(aspect)
+   function new_VerticalGridAspect_specific(vertical_grid, regrid_method, vertical_stagger, geom, typekind, time_dependent) result(aspect)
       type(VerticalGridAspect) :: aspect
       class(VerticalGrid), optional, intent(in) :: vertical_grid
       type(VerticalRegridMethod), optional, intent(in) :: regrid_method
-      type(VerticalDimSpec), optional, intent(in) :: vertical_dim_spec
+      type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
       type(ESMF_Geom), optional, intent(in) :: geom
       type(ESMF_Typekind_Flag), optional, intent(in) :: typekind
       logical, optional, intent(in) :: time_dependent
@@ -70,9 +70,9 @@ contains
          aspect%regrid_method = regrid_method
       end if
 
-     aspect%vertical_dim_spec = VERTICAL_DIM_CENTER
-     if (present(vertical_dim_spec)) then
-         aspect%vertical_dim_spec = vertical_dim_spec
+     aspect%vertical_stagger = VERTICAL_STAGGER_CENTER
+     if (present(vertical_stagger)) then
+         aspect%vertical_stagger = vertical_stagger
       end if
     
       call aspect%set_time_dependent(time_dependent)
@@ -94,8 +94,6 @@ contains
       class(VerticalGridAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
 
-      integer :: status
-      
       supports_conversion_specific = .false.
 
       select type (dst)
@@ -144,9 +142,9 @@ contains
       units = src%vertical_grid%get_units()
       
       call src%vertical_grid%get_coordinate_field(v_in_field, v_in_coupler, 'ignore', &
-           geom_aspect%get_geom(), typekind_aspect%get_typekind(), units, src%vertical_dim_spec, _RC)
+           geom_aspect%get_geom(), typekind_aspect%get_typekind(), units, src%vertical_stagger, _RC)
       call dst_%vertical_grid%get_coordinate_field(v_out_field, v_out_coupler, 'ignore', &
-           geom_aspect%get_geom(), typekind_aspect%get_typekind(), units, dst_%vertical_dim_spec, _RC)
+           geom_aspect%get_geom(), typekind_aspect%get_typekind(), units, dst_%vertical_stagger, _RC)
       transform = VerticalRegridTransform(v_in_field, v_in_coupler, v_out_field, v_out_coupler, dst_%regrid_method)
 
       _RETURN(_SUCCESS)
@@ -180,8 +178,6 @@ contains
       type(VerticalGridAspect) :: vertical_grid_aspect
       class(StateItemAspect), intent(in) :: aspect
       integer, optional, intent(out) :: rc
-
-      integer :: status
 
       select type(aspect)
       class is (VerticalGridAspect)
@@ -217,25 +213,21 @@ contains
       class(VerticalGrid), allocatable :: vertical_grid
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
       _ASSERT(allocated(this%vertical_grid), "vertical_grid not allocated.")
       vertical_grid = this%vertical_grid
 
       _RETURN(_SUCCESS)
    end function get_vertical_grid
 
-   function get_vertical_dim_spec(this, rc) result(vertical_dim_spec)
+   function get_vertical_stagger(this, rc) result(vertical_stagger)
       class(VerticalGridAspect), intent(in) :: this
-      type(VerticalDimSpec) :: vertical_dim_spec
+      type(VerticalStaggerLoc) :: vertical_stagger
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
-      _ASSERT(allocated(this%vertical_dim_spec), "vertical_dim_spec not allocated.")
-      vertical_dim_spec = this%vertical_dim_spec
+      _ASSERT(allocated(this%vertical_stagger), "vertical_stagger not allocated.")
+      vertical_stagger = this%vertical_stagger
 
       _RETURN(_SUCCESS)
-   end function get_vertical_dim_spec
+   end function get_vertical_stagger
 
 end module mapl3g_VerticalGridAspect

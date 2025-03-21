@@ -9,7 +9,7 @@
 module Test_ModelVerticalGrid
 
    use mapl_ErrorHandling
-   use mapl3g_VerticalDimSpec
+   use mapl3g_VerticalStaggerLoc
    use mapl3g_ModelVerticalGrid
    use mapl3g_StateRegistry
    use mapl3g_VariableSpec
@@ -46,7 +46,7 @@ contains
       type(StateRegistry), intent(inout) :: registry
       integer, optional, intent(out) :: rc
 
-      type(VerticalDimSpec) :: vertical_dim_spec
+      type(VerticalStaggerLoc) :: vertical_stagger
       type(VariableSpec) :: var_spec
       type(StateItemSpec) :: fld_spec
       type(VirtualConnectionPt) :: v_pt
@@ -56,9 +56,9 @@ contains
 
       select case(var_name)
       case("PLE")
-         vertical_dim_spec = VERTICAL_DIM_EDGE
+         vertical_stagger = VERTICAL_STAGGER_EDGE
       case("PL")
-         vertical_dim_spec = VERTICAL_DIM_CENTER
+         vertical_stagger = VERTICAL_STAGGER_CENTER
       case default
          _FAIL("unsupported var name " // var_name)
       end select
@@ -68,7 +68,7 @@ contains
            state_intent=ESMF_STATEINTENT_EXPORT, &
            standard_name="air_pressure", &
            units="hPa", &
-           vertical_dim_spec=vertical_dim_spec, &
+           vertical_stagger=vertical_stagger, &
            default_value=3., _RC)
       fld_spec = make_itemSpec(var_spec, r, rc=status); _VERIFY(status)
       call fld_spec%set_geometry(geom=geom, vertical_grid=vgrid, _RC)
@@ -182,7 +182,7 @@ contains
            geom=geom, &
            typekind=ESMF_TYPEKIND_R4, &
            units="hPa", &
-           vertical_dim_spec=VERTICAL_DIM_EDGE, &
+           vertical_stagger=VERTICAL_STAGGER_EDGE, &
            _RC)
       @assert_that(associated(coupler), is(false()))
       call r%allocate()
@@ -217,7 +217,7 @@ contains
            geom=geom, &
            typekind=ESMF_TYPEKIND_R4, &
            units="Pa", &
-           vertical_dim_spec=VERTICAL_DIM_EDGE, &
+           vertical_stagger=VERTICAL_STAGGER_EDGE, &
            _RC)
       @assert_that(associated(coupler), is(true()))
       call r%allocate(_RC)
@@ -260,7 +260,7 @@ contains
            standard_name="air_pressure", &
            geom=geom, &
            typekind=ESMF_TYPEKIND_R4, units="Pa", &
-           vertical_dim_spec=VERTICAL_DIM_CENTER, &
+           vertical_stagger=VERTICAL_STAGGER_CENTER, &
            _RC)
       @assert_that(associated(coupler), is(true()))
 
