@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Incorrect specification of EOL for Darwin+NAG in MAPL_Config.
 - Untrapped exceptions in MAPL_LatLonGridFactory.F90
 
 ### Removed
