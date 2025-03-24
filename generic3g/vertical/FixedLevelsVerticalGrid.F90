@@ -8,7 +8,7 @@ module mapl3g_FixedLevelsVerticalGrid
    use mapl3g_VerticalStaggerLoc
    use mapl3g_FieldCreate
    use mapl3g_ComponentDriver
-   use mapl3g_VerticalDimSpec
+   use mapl3g_VerticalStaggerLoc
    use mapl3g_FieldCondensedArray, only: assign_fptr_condensed_array
    use esmf
 
@@ -62,7 +62,7 @@ contains
       num_levels = size(this%levels)
    end function get_num_levels
 
-   subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, vertical_dim_spec, rc)
+   subroutine get_coordinate_field(this, field, coupler, standard_name, geom, typekind, units, vertical_stagger, rc)
       class(FixedLevelsVerticalGrid), intent(in) :: this
       type(ESMF_Field), intent(out) :: field
       class(ComponentDriver), pointer, intent(out) :: coupler
@@ -70,7 +70,7 @@ contains
       type(ESMF_Geom), intent(in) :: geom
       type(ESMF_TypeKind_Flag), intent(in) :: typekind
       character(*), intent(in) :: units
-      type(VerticalDimSpec), intent(in) :: vertical_dim_spec
+      type(VerticalStaggerLoc), intent(in) :: vertical_stagger
       integer, optional, intent(out) :: rc
 
       real(kind=ESMF_KIND_R4), pointer :: farray3d(:, :, :)
@@ -94,7 +94,7 @@ contains
       _UNUSED_DUMMY(standard_name)
       _UNUSED_DUMMY(typekind)
       _UNUSED_DUMMY(units)
-      _UNUSED_DUMMY(vertical_dim_spec)
+      _UNUSED_DUMMY(vertical_stagger)
    end subroutine get_coordinate_field
 
    logical function can_connect_to(this, dst, rc)

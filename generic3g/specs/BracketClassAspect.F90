@@ -15,7 +15,6 @@ module mapl3g_BracketClassAspect
    use mapl3g_UngriddedDimsAspect
 
    use mapl3g_VerticalGrid
-   use mapl3g_VerticalDimSpec
    use mapl3g_VerticalStaggerLoc
    use mapl3g_UngriddedDims
 

@@ -12,7 +12,7 @@ module mapl3g_FieldClassAspect
    use mapl3g_UngriddedDimsAspect
 
    use mapl3g_VerticalGrid
-   use mapl3g_VerticalDimSpec
+   use mapl3g_VerticalStaggerLoc
    use mapl3g_VerticalStaggerLoc
    use mapl3g_UngriddedDims
 
@@ -146,8 +146,7 @@ contains
 
       type(VerticalGridAspect) :: vert_aspect
       class(VerticalGrid), allocatable :: vert_grid
-      type(VerticalDimSpec) :: vertical_dim_spec
-      type(VerticalStaggerLoc) :: vert_staggerloc
+      type(VerticalStaggerLoc) :: vertical_stagger
       integer, allocatable :: num_levels_grid
       integer, allocatable :: num_levels
 
@@ -170,19 +169,11 @@ contains
       vert_aspect = to_VerticalGridAspect(other_aspects, _RC)
       vert_grid = vert_aspect%get_vertical_grid(_RC)
       num_levels_grid = vert_grid%get_num_levels()
-      vertical_dim_spec = vert_aspect%get_vertical_dim_spec()
-      if (vertical_dim_spec == VERTICAL_DIM_NONE) then
-         vert_staggerloc = VERTICAL_STAGGER_NONE
-      else if (vertical_dim_spec == VERTICAL_DIM_EDGE) then
-         vert_staggerloc = VERTICAL_STAGGER_EDGE
+      vertical_stagger = vert_aspect%get_vertical_stagger()
+      if (vertical_stagger == VERTICAL_STAGGER_EDGE) then
          num_levels = num_levels_grid + 1
-      else if (vertical_dim_spec == VERTICAL_DIM_CENTER) then
-         vert_staggerloc = VERTICAL_STAGGER_CENTER
+      else if (vertical_stagger == VERTICAL_STAGGER_CENTER) then
          num_levels = num_levels_grid
-      else if (vertical_dim_spec == VERTICAL_DIM_MIRROR) then
-         _FAIL('Mirror vertical spec should have been resolved by here.')
-      else
-         _FAIL('unknown stagger')
       end if
 
       ungridded_dims_aspect = to_UngriddedDimsAspect(other_aspects, _RC)
@@ -198,7 +189,7 @@ contains
            typekind=typekind, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, &
-           vert_staggerLoc=vert_staggerLoc, &
+           vert_staggerLoc=vertical_stagger, &
            units=units, &
            standard_name=this%standard_name, &
            long_name=this%long_name, &
@@ -289,8 +280,6 @@ contains
       type(FieldClassAspect) :: field_aspect
       class(StateItemAspect), intent(in) :: aspect
       integer, optional, intent(out) :: rc
-
-      integer :: status
 
       select type(aspect)
       class is (FieldClassAspect)

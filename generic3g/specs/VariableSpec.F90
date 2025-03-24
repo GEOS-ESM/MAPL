@@ -9,7 +9,7 @@ module mapl3g_VariableSpec
    use mapl3g_FrequencyAspect
    use mapl3g_TypekindAspect
    use mapl3g_UngriddedDims
-   use mapl3g_VerticalDimSpec
+   use mapl3g_VerticalStaggerLoc
    use mapl3g_HorizontalDimsSpec
    use mapl3g_VirtualConnectionPt
    use mapl3g_ActualConnectionPt
@@ -66,7 +66,7 @@ contains
         units, &
         itemtype, &
         typekind, &
-        vertical_dim_spec, &
+        vertical_stagger, &
         ungridded_dims, &
         default_value, &
         service_items, &
@@ -91,7 +91,7 @@ contains
       type(StringVector), optional :: service_items
       character(*), optional, intent(in) :: units
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
-      type(VerticalDimSpec), optional, intent(in) :: vertical_dim_spec
+      type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       real, optional, intent(in) :: default_value
       type(StringVector), optional, intent(in) :: attributes
@@ -116,7 +116,7 @@ contains
          & units_aspect=UnitsAspect(units), &
          & attributes_aspect=AttributesAspect(attributes), &
          & ungridded_aspect=UngriddedDimsAspect(ungridded_dims), &
-         & vertical_aspect=VerticalGridAspect(vertical_dim_spec=vertical_dim_spec, geom=geom), &
+         & vertical_aspect=VerticalGridAspect(vertical_stagger=vertical_stagger, geom=geom), &
          & frequency_aspect=FrequencyAspect(timeStep=timeStep, offset=offset, &
          &   accumulation_type=accumulation_type), &
          & typekind_aspect=TypekindAspect(typekind), _RC)
@@ -136,7 +136,6 @@ contains
       class(VariableSpec), intent(in) :: this
       integer, optional, intent(out) :: rc
 
-      integer :: status
       integer :: i
       type(ActualConnectionPt) :: a_pt
 
@@ -228,7 +227,6 @@ contains
       class(FrequencyAspect), optional, intent(in) :: frequency_aspect
       class(TypekindAspect), optional, intent(in) :: typekind_aspect
       integer, optional, intent(out) :: rc
-      integer :: status
       
       var_spec%state_intent = state_intent
       var_spec%short_name = short_name
@@ -267,14 +265,12 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-
    end function make_VariableSpecFromAspects
 
    subroutine add_item(aspects, aspect, rc)
       class(AspectMap), intent(inout) :: aspects
       class(StateItemAspect), intent(in) :: aspect
       integer, optional, intent(out) :: rc
-      integer :: status
 
       select type(aspect)
       type is (GeomAspect)
