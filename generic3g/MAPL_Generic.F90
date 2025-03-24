@@ -22,13 +22,15 @@ module mapl3g_Generic
    use mapl3g_OuterMetaComponent, only: get_outer_meta
    use mapl3g_ChildSpec, only: ChildSpec
    use mapl3g_ComponentSpec, only: ComponentSpec
-   use mapl3g_VariableSpec, only: VariableSpec
+   use mapl3g_VariableSpec, only: VariableSpec, make_VariableSpec
    use mapl3g_Validation, only: is_valid_name
    use mapl3g_ESMF_Interfaces, only: I_Run
    use mapl3g_StateItemSpec
    use mapl3g_VerticalGrid
+   use mapl3g_VerticalStaggerLoc, only: VerticalStaggerLoc
    use mapl3g_StateRegistry, only: StateRegistry
    use mapl_InternalConstantsMod
+   use mapl3g_HorizontalDimsSpec, only: HorizontalDimsSpec, HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_GEOM
    use esmf, only: ESMF_Info
    use esmf, only: ESMF_InfoGetFromHost
    use esmf, only: ESMF_InfoGet
@@ -39,12 +41,11 @@ module mapl3g_Generic
    use esmf, only: ESMF_STAGGERLOC_INVALID
    use esmf, only: ESMF_HConfig
    use esmf, only: ESMF_Method_Flag
-   use esmf, only: ESMF_STAGGERLOC_INVALID
    use esmf, only: ESMF_StateIntent_Flag
    use esmf, only: ESMF_KIND_I4, ESMF_KIND_I8, ESMF_KIND_R4, ESMF_KIND_R8
    use esmf, only: ESMF_KIND_R8, ESMF_KIND_R4
    use esmf, only: ESMF_Time, ESMF_TimeInterval
-   use esmf, only: ESMF_State
+   use esmf, only: ESMF_State, ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD
    use mapl3g_hconfig_get
    use pflogger, only: logger_t => logger
    use mapl_ErrorHandling
@@ -59,6 +60,7 @@ module mapl3g_Generic
 
    ! These should be available to users
    public :: MAPL_GridCompAddVarSpec
+   public :: MAPL_GridCompAddFieldSpec
    public :: MAPL_GridCompIsGeneric
    public :: MAPL_GridCompIsUser
 
@@ -136,6 +138,9 @@ module mapl3g_Generic
       procedure :: gridcomp_add_varspec_basic
    end interface MAPL_GridCompAddVarSpec
 
+   interface MAPL_GridCompAddFieldSpec
+      procedure :: gridcomp_add_fieldspec
+   end interface MAPL_GridCompAddFieldSpec
 
    interface MAPL_GridCompSetGeometry
       procedure :: gridcomp_set_geometry
@@ -402,6 +407,41 @@ contains
       _RETURN(_SUCCESS)
    end subroutine gridcomp_add_varspec_basic
 
+   subroutine gridcomp_add_fieldspec(gridcomp, state_intent, short_name, standard_name, dims, vstagger, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(Esmf_StateIntent_Flag), intent(in) :: state_intent
+      character(*), intent(in) :: short_name
+      character(*), intent(in) :: standard_name
+      character(*), intent(in) :: dims
+      type(VerticalStaggerLoc), intent(in) :: vstagger
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_StateItem_Flag), parameter :: itemtype = ESMF_STATEITEM_FIELD
+      type(VariableSpec) :: var_spec
+      type(HorizontalDimsSpec) :: horizontal_dims_spec
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: component_spec
+      integer :: status
+
+      _ASSERT((dims=="xyz") .or. (dims=="xy") .or. (dims=="z"), "dims can be one of xyz/xy/z")
+      horizontal_dims_spec = HORIZONTAL_DIMS_GEOM
+      if (dims == "z") then
+         horizontal_dims_spec = HORIZONTAL_DIMS_NONE
+      end if
+      var_spec = make_VariableSpec( &
+           state_intent, &
+           short_name, &
+           standard_name=standard_name, &
+           itemtype=itemtype, &
+           vertical_stagger=vstagger, &
+           horizontal_dims_spec=horizontal_dims_spec, &
+           _RC)
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      component_spec => outer_meta%get_component_spec()
+      call component_spec%var_specs%push_back(var_spec)
+
+      _RETURN(_SUCCESS)
+   end subroutine gridcomp_add_fieldspec
 
    subroutine MAPL_GridCompSetVerticalGrid(gridcomp, vertical_grid, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
