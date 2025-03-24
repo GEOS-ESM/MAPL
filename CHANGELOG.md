@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix ExtData2G unit test for GNU on Discover
 - Fixed nesting of internal timers (issue #3412)
 - Fixed issue of `make tests` not building all needed executables
+- Incorrect specification of EOL for Darwin+NAG in MAPL_Config.
 - Untrapped exceptions in MAPL_LatLonGridFactory.F90
 
 ### Removed
