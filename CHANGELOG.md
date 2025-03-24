@@ -23,8 +23,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Relaxed the MPI thread levels to MPI_THREAD_SERIALIZED required by ESMF
-- Update to `ESMA_env` v4.35.0 --> Baselibs 7.32.0
-  - This brings in GFE v1.19.0 (which has gFTL v1.15.2 needed for MAPL3 work)
+- Update `components.yaml`
+  - `ESMA_env` v4.36.0
+    - Update to Baselibs 7.32.0 (gFTL v1.15.2 needed for MAPL3 work)
+    - Remove SLES12 at NCCS, update to GEOSpyD 24.11.3
+  - `ESMA_cmake` v3.58.0
+    - Remove SLES12 at NCCS, update f2py detection, update ifx flags
+    - Clean up GCC 10+ warnings
 - Update `.editorconfig` for Fortran files enforcing 3-space indents and line length of 132
 
 ### Fixed
