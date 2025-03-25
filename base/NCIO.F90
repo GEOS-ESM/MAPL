@@ -85,7 +85,7 @@ module NCIOMod
 
   integer, parameter, public :: NumGlobalVars=4
   integer, parameter, public :: NumLocalVars =4
-
+  real(REAL64), parameter :: UNDEF_REAL64 = 1.0D15
 contains
 
 
@@ -5094,7 +5094,7 @@ contains
       character(len=:), allocatable :: attr
       type (NetCDF4_FileFormatter)  :: formatter
       type (FileMetadata)           :: meta
-      character(len=1)              :: str_num
+      character(len=4)              :: ocn_str
       integer                       :: ng, ntile, status, ll
       class(*), pointer             :: attr_val(:)
       class(*), pointer             :: char_val
@@ -5108,16 +5108,20 @@ contains
       call formatter%open(File, pFIO_READ, rc=status)
       meta = formatter%read(rc=status)
 
-      ng = 1
-      if (meta%has_attribute("Grid1_Name")) ng = 2   ! for ng=1 (i.e., EASE), attribute is just "Grid_Name"
+      ref => meta%get_attribute('N_Grids')
+      attr_val => ref%get_values()
+      select type(attr_val)
+      type is (integer(INT32))
+        ng = attr_val(1)
+      endselect
+
+      if (present(n_Grids)) then
+        n_Grids = ng
+      endif
 
       ntile = meta%get_dimension('tile')
       if (present(n_tiles)) then
          n_tiles = ntile
-      endif
-
-      if (present(n_Grids)) then
-        n_Grids = ng
       endif
 
       if (present(nx)) then
@@ -5146,14 +5150,14 @@ contains
          endselect
       endif
       do ll = 1, ng
-        if (ng == 1) then
-          str_num = ''
+        if (ll == 1) then
+          ocn_str = ''
         else
-          write(str_num, '(i0)') ll
+          ocn_str = '_ocn'
         endif
 
         if (present(GridName)) then
-           attr = 'Grid'//trim(str_num)//'_Name'
+           attr = 'Grid'//trim(ocn_str)//'_Name'
            ref =>meta%get_attribute(attr)
            char_val => ref%get_value()
            select type(char_val)
@@ -5164,7 +5168,7 @@ contains
            end select
         endif
         if (present(IM)) then
-           attr = 'IM'//trim(str_num)
+           attr = 'IM'//trim(ocn_str)
            ref =>meta%get_attribute(attr)
            attr_val => ref%get_values()
            select type(attr_val)
@@ -5173,7 +5177,7 @@ contains
            end select
         endif
         if (present(JM)) then
-           attr = 'JM'//trim(str_num)
+           attr = 'JM'//trim(ocn_str)
            ref =>meta%get_attribute(attr)
            attr_val => ref%get_values()
            select type(attr_val)
@@ -5188,21 +5192,27 @@ contains
         allocate(tmp_int(ntile))
         call formatter%get_var('typ', iTable_(:,0))
         do ll = 1, ng
-          if (ng == 1) then
-            str_num=''
+          if (ll == 1) then
+            ocn_str = ''
           else
-            write(str_num, '(i0)') ll
+            ocn_str = '_ocn'
           endif
 
-          call formatter%get_var('i_indg'    //trim(str_num), tmp_int, rc=status)
+          call formatter%get_var('i_indg'    //trim(ocn_str), tmp_int, rc=status)
           iTable_(:,ll*2) = tmp_int
-          call formatter%get_var('j_indg'    //trim(str_num), tmp_int, rc=status)
+          call formatter%get_var('j_indg'    //trim(ocn_str), tmp_int, rc=status)
           iTable_(:,ll*2+1) = tmp_int
-          call formatter%get_var('pfaf_index'//trim(str_num), tmp_int, rc=status)
+          call formatter%get_var('dummy_index'//trim(ocn_str), tmp_int, rc=status)
           if ( ng == 1) then
-            iTable_(:,4) = tmp_int
+            iTable_(:,4) = tmp_int ! for ease, it is pfaf
           else
             iTable_(:,5+ll) = tmp_int
+          endif
+          if (ll == 2) then
+             call formatter%get_var('pfaf_index', tmp_int, rc=status)
+             where (iTable_(:,0) == 100)
+                iTable_(:,4) = tmp_int
+             endwhere
           endif
         enddo
       endif
@@ -5212,12 +5222,12 @@ contains
         call formatter%get_var('com_lat', rTable_(:,2),   rc=status)
         call formatter%get_var('area',    rTable_(:,3),   rc=status)
         do ll = 1, ng
-          if (ng == 1) then
-            str_num=''
+          if (ll == 1) then
+            ocn_str = ''
           else
-            write(str_num, '(i0)') ll
+            ocn_str = '_ocn'
           endif
-          call formatter%get_var('frac_cell' //trim(str_num), rTable_(:,3+ll), rc=status)
+          call formatter%get_var('frac_cell' //trim(ocn_str), rTable_(:,3+ll), rc=status)
         enddo
         call formatter%get_var('min_lon', rTable_(:, 6), rc=status)
         call formatter%get_var('max_lon', rTable_(:, 7), rc=status)
@@ -5337,24 +5347,24 @@ contains
      v = Variable(type=PFIO_REAL64, dimensions='tile')
      call v%add_attribute('units', 'radian2')
      call v%add_attribute('long_name', 'tile_area')
-     call v%add_attribute("missing_value", MAPL_UNDEFINED_REAL64)
-     call v%add_attribute("_FillValue", MAPL_UNDEFINED_REAL64)
+     call v%add_attribute("missing_value", UNDEF_REAL64)
+     call v%add_attribute("_FillValue", UNDEF_REAL64)
      call v%set_deflation(DEFLATE_LEVEL)
      call metadata%add_variable('area', v)
    
      v = Variable(type=PFIO_REAL64, dimensions='tile')
      call v%add_attribute('units', 'degree')
      call v%add_attribute('long_name', 'tile_center_of_mass_longitude')
-     call v%add_attribute("missing_value", MAPL_UNDEFINED_REAL64)
-     call v%add_attribute("_FillValue", MAPL_UNDEFINED_REAL64)
+     call v%add_attribute("missing_value", UNDEF_REAL64)
+     call v%add_attribute("_FillValue", UNDEF_REAL64)
      call v%set_deflation(DEFLATE_LEVEL)
      call metadata%add_variable('com_lon', v)
    
      v = Variable(type=PFIO_REAL64, dimensions='tile')
      call v%add_attribute('units', 'degree')
      call v%add_attribute('long_name', 'tile_center_of_mass_latitude')
-     call v%add_attribute("missing_value", MAPL_UNDEFINED_REAL64)
-     call v%add_attribute("_FillValue", MAPL_UNDEFINED_REAL64)
+     call v%add_attribute("missing_value", UNDEF_REAL64)
+     call v%add_attribute("_FillValue", UNDEF_REAL64)
      call v%set_deflation(DEFLATE_LEVEL)
      call metadata%add_variable('com_lat', v)
    
@@ -5382,8 +5392,8 @@ contains
         v = Variable(type=PFIO_REAL64, dimensions='tile')
         call v%add_attribute('units', '1')
         call v%add_attribute('long_name', 'GRID'//trim(ocn_str)//'_area_fraction_of_tile_in_grid_cell')
-        call v%add_attribute("missing_value", MAPL_UNDEFINED_REAL64)
-        call v%add_attribute("_FillValue",    MAPL_UNDEFINED_REAL64)
+        call v%add_attribute("missing_value", UNDEF_REAL64)
+        call v%add_attribute("_FillValue",    UNDEF_REAL64)
         call v%set_deflation(DEFLATE_LEVEL)
         call metadata%add_variable('frac_cell'//trim(ocn_str), v)
    
@@ -5405,35 +5415,35 @@ contains
      v = Variable(type=PFIO_REAL64, dimensions='tile')
      call v%add_attribute('units', 'degree')
      call v%add_attribute('long_name', 'tile_minimum_longitude')
-     call v%add_attribute("missing_value", MAPL_UNDEFINED_REAL64)
+     call v%add_attribute("missing_value", UNDEF_REAL64)
      call v%set_deflation(DEFLATE_LEVEL)
      call metadata%add_variable('min_lon', v)
    
      v = Variable(type=PFIO_REAL64, dimensions='tile')
      call v%add_attribute('units', 'degree')
      call v%add_attribute('long_name', 'tile_maximum_longitude')
-     call v%add_attribute("missing_value", MAPL_UNDEFINED_REAL64)
+     call v%add_attribute("missing_value", UNDEF_REAL64)
      call v%set_deflation(DEFLATE_LEVEL)
      call metadata%add_variable('max_lon', v)
    
      v = Variable(type=PFIO_REAL64, dimensions='tile')
      call v%add_attribute('units', 'degree')
      call v%add_attribute('long_name', 'tile_minimum_latitude')
-     call v%add_attribute("missing_value", MAPL_UNDEFINED_REAL64)
+     call v%add_attribute("missing_value", UNDEF_REAL64)
      call v%set_deflation(DEFLATE_LEVEL)
      call metadata%add_variable('min_lat', v)
    
      v = Variable(type=PFIO_REAL64, dimensions='tile')
      call v%add_attribute('units', 'degree')
      call v%add_attribute('long_name', 'tile_maximum_latitude')
-     call v%add_attribute("missing_value", MAPL_UNDEFINED_REAL64)
+     call v%add_attribute("missing_value", UNDEF_REAL64)
      call v%set_deflation(DEFLATE_LEVEL)
      call metadata%add_variable('max_lat', v)
    
      v = Variable(type=PFIO_REAL64, dimensions='tile')
      call v%add_attribute('units', 'm')
      call v%add_attribute('long_name', 'tile_mean_elevation')
-     call v%add_attribute("missing_value", MAPL_UNDEFINED_REAL64)
+     call v%add_attribute("missing_value", UNDEF_REAL64)
      call v%set_deflation(DEFLATE_LEVEL)
      call metadata%add_variable('elev', v)
    
@@ -5449,7 +5459,7 @@ contains
      call formatter%put_var('com_lat', rTable(:,2),   rc=status)
    
      allocate(fr(ip), pfaf(ip))
-     fr = MAPL_UNDEFINED_REAL64
+     fr = UNDEF_REAL64
    
      do ll = 1, ng
         if (ng == 1) then
@@ -5491,7 +5501,7 @@ contains
           where (iTable(:,0) /=0 )
             II = MAPL_UNDEFINED_INTEGER
             JJ = MAPL_UNDEFINED_INTEGER
-            fr = MAPL_UNDEFINED_REAL64
+            fr = UNDEF_REAL64
           endwhere
         endif
    
@@ -5501,7 +5511,6 @@ contains
         call formatter%put_var('dummy_index'//trim(ocn_str), KK, rc=status)
    
         if (EASE .or. ll == 2) call formatter%put_var('pfaf_index', pfaf, rc=status)
-   
      enddo
    
      call formatter%put_var('min_lon', rTable(:, 6), rc=status)
