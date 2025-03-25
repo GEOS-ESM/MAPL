@@ -2,7 +2,7 @@
 
 !---------------------------------------------------------------------
 !
-! This module contains procedures that are intended to be called from
+! module contains procedures that are intended to be called from
 ! within user-level gridded components.  These are primarily thin
 ! wrappers that access the internal private state of the gridcomp and
 ! then invoke methods on that type.
@@ -415,7 +415,7 @@ contains
         dims, &
         vstagger, &
         ! OPTIONAL
-        units, & ! TODO: This becomes optional
+        units, &
         ungridded_dims, &
         restart, &
         rc)
