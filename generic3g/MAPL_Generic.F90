@@ -409,27 +409,25 @@ contains
 
    subroutine gridcomp_add_fieldspec( &
         gridcomp, &
-        ! MANDATORY
         state_intent, &
         short_name, &
-        units, & ! TODO: This becomes optional
+        standard_name, &
         dims, &
         vstagger, &
         ! OPTIONAL
+        units, & ! TODO: This becomes optional
         ungridded_dims, &
-        standard_name, & ! TODO: This becomes mandatory
         restart, &
         rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
-      ! MANDATORY
       type(Esmf_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
-      character(*), intent(in) :: units
+      character(*), intent(in) :: standard_name
       character(*), intent(in) :: dims
       type(VerticalStaggerLoc), intent(in) :: vstagger
       ! OPTIONAL
+      character(*), optional, intent(in) :: units
       integer, optional, intent(in) :: ungridded_dims(:)
-      character(*), optional, intent(in) :: standard_name
       logical, optional, intent(in) :: restart
       integer, optional, intent(out) :: rc
 
