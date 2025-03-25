@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed problem related to stale pointers to temp copies of dummy arguments in MAPL_Cap.F90.  Fix is to add TARGET attributein select locations.
 - Fix for case where 2nd argument to `transfer()` was not allocated in the OpenMP support layer.  Was not detected by other compilers.  The fix is to use a literal integer array instead.
-
+- Fixed problem in History when no fields appear on the 'fields:' line in a collection (issue #3525)
+	
 ### Added
 
 - Added CI build using spack
