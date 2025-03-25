@@ -2,7 +2,7 @@
 
 !---------------------------------------------------------------------
 !
-! module contains procedures that are intended to be called from
+! This module contains procedures that are intended to be called from
 ! within user-level gridded components.  These are primarily thin
 ! wrappers that access the internal private state of the gridcomp and
 ! then invoke methods on that type.
