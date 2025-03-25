@@ -415,6 +415,7 @@ contains
         dims, &
         vstagger, &
         ! OPTIONAL
+        unusable, &
         units, &
         ungridded_dims, &
         restart, &
@@ -426,6 +427,7 @@ contains
       character(*), intent(in) :: dims
       type(VerticalStaggerLoc), intent(in) :: vstagger
       ! OPTIONAL
+      class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: units
       integer, optional, intent(in) :: ungridded_dims(:)
       logical, optional, intent(in) :: restart
@@ -447,6 +449,7 @@ contains
            state_intent, &
            short_name, &
            standard_name=standard_name, &
+           units=units, &
            itemtype=itemtype, &
            vertical_stagger=vstagger, &
            horizontal_dims_spec=horizontal_dims_spec, &
