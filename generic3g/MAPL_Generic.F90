@@ -407,13 +407,30 @@ contains
       _RETURN(_SUCCESS)
    end subroutine gridcomp_add_varspec_basic
 
-   subroutine gridcomp_add_fieldspec(gridcomp, state_intent, short_name, standard_name, dims, vstagger, rc)
+   subroutine gridcomp_add_fieldspec( &
+        gridcomp, &
+        ! MANDATORY
+        state_intent, &
+        short_name, &
+        units, & ! TODO: This becomes optional
+        dims, &
+        vstagger, &
+        ! OPTIONAL
+        ungridded_dims, &
+        standard_name, & ! TODO: This becomes mandatory
+        restart, &
+        rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
+      ! MANDATORY
       type(Esmf_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
-      character(*), intent(in) :: standard_name
+      character(*), intent(in) :: units
       character(*), intent(in) :: dims
       type(VerticalStaggerLoc), intent(in) :: vstagger
+      ! OPTIONAL
+      integer, optional, intent(in) :: ungridded_dims(:)
+      character(*), optional, intent(in) :: standard_name
+      logical, optional, intent(in) :: restart
       integer, optional, intent(out) :: rc
 
       type(ESMF_StateItem_Flag), parameter :: itemtype = ESMF_STATEITEM_FIELD
@@ -441,6 +458,9 @@ contains
       call component_spec%var_specs%push_back(var_spec)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(units)
+      _UNUSED_DUMMY(ungridded_dims)
+      _UNUSED_DUMMY(restart)
    end subroutine gridcomp_add_fieldspec
 
    subroutine MAPL_GridCompSetVerticalGrid(gridcomp, vertical_grid, rc)
