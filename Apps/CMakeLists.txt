@@ -5,11 +5,13 @@
 # used.
 
 file (COPY MAPL_GridCompSpecs_ACG.py DESTINATION ${esma_etc}/MAPL)
+file (COPY MAPL_GridCompSpecs_ACGv3.py DESTINATION ${esma_etc}/MAPL)
 file (COPY mapl_acg.pl DESTINATION ${esma_etc}/MAPL)
 file (COPY mapl_stub.pl DESTINATION ${esma_etc}/MAPL)
 
 install (PROGRAMS
   MAPL_GridCompSpecs_ACG.py
+  MAPL_GridCompSpecs_ACGv3.py
   combine_restarts.py
   split_restart.py
   mapl_acg.pl
