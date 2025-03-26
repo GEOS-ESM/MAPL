@@ -1,7 +1,8 @@
 #include "MAPL_Generic.h"
 
 module Test_FieldBLAS
-
+   use mapl3g_FieldCreate
+   use mapl3g_VerticalStaggerLoc
    use mapl_FieldBLAS
    use field_utils_setup
    use MAPL_FieldPointerUtilities
@@ -387,6 +388,33 @@ contains
       @assertEqual(ungriddedUBound_x,ungriddedUBound_y)
 
    end subroutine test_FieldClone3D
+
+   @Test(npes=[1])
+   ! check that metadata is copied
+   subroutine test_FieldClone3D_metadata(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(ESMF_Field) :: x, y
+      type(ESMF_Info) :: x_info, y_info
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+
+      integer :: status, rc
+
+      grid= mk_grid('a', _RC)
+      geom = ESMF_GeomCreate(grid, _RC)
+
+      x = MAPL_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, num_levels=3, vert_staggerloc=VERTICAL_STAGGER_EDGE, units='m', standard_name='foo', _RC)
+      call FieldClone(x, y, _RC)
+
+      call ESMF_InfoGetFromHost(x, x_info, _RC)
+      call ESMF_InfoGetFromHost(y, y_info, _RC)
+
+      @assertTrue(x_info == y_info, 'incorrect copy of info')
+
+      call ESMF_FieldDestroy(y, _RC)
+      call ESMF_FieldDestroy(x, _RC)
+
+   end subroutine test_FieldClone3D_metadata
 
    @Test(npes=[4])
    subroutine test_almost_equal_scalar(this)
