@@ -874,6 +874,7 @@ CONTAINS
         type(FileMetadataUtils), pointer :: metadata
         type(MAPLDataCollection), pointer :: collection
         character(len=:), allocatable :: filename, q_name
+        real :: molecular_weight
 
         if (trim(item%file_template) == "/dev/null") then
            _RETURN(_SUCCESS)
@@ -902,7 +903,8 @@ CONTAINS
         if (item%allow_vertical_regrid) then
            item%aux_ps = item%vcoord%surf_name
            if (item%units == mol_per_mol) then
-              item%molecular_weight = metadata%get_var_attr_real32(item%var, 'molecular_weight', _RC) 
+              molecular_weight = metadata%get_var_attr_real32(item%var, 'molecular_weight', _RC) 
+              allocate(item%molecular_weight,source=molecular_weight)
               q_name = find_q(metadata, _RC)
               item%aux_q = q_name
            end if
@@ -953,7 +955,7 @@ CONTAINS
 
      ! if we didn't actually create bracketing fields we had a gap in the data
      ! in this case, get the ultimate pointer to fill
-     call ESMF_FieldBundleValidate(item%t_interp_bundle, rc=status) !bmaa
+     call ESMF_FieldBundleValidate(item%t_interp_bundle, rc=status)
      if (status /= _SUCCESS) then
         call ESMF_StateGet(state,item%vcomp1,field,_RC)
      else
@@ -961,7 +963,7 @@ CONTAINS
      end if
      call item%modelGridFields%comp1%interpolate_to_time(field,time,_RC)
      if (item%vartype == MAPL_VectorField) then
-        call ESMF_FieldBundleValidate(item%t_interp_bundle, rc=status) !bmaa
+        call ESMF_FieldBundleValidate(item%t_interp_bundle, rc=status)
         if (status /= _SUCCESS) then
            call ESMF_StateGet(state,item%vcomp2,field,_RC)
         else
@@ -996,13 +998,14 @@ CONTAINS
      integer, optional,   intent(out  )     :: rc
 
      integer :: status
-     type(ESMF_Field) :: src_field, dst_field, src_ps, dst_ple
-     character(len=:), allocatable :: src_ps_name
+     type(ESMF_Field) :: src_field, dst_field, src_ps, dst_ple, q_field
+     character(len=:), allocatable :: src_ps_name, src_q_name
 
      integer :: fieldRank
      real, pointer :: dst_ptr3d(:,:,:), src_ptr3d(:,:,:), src_ps_ptr(:,:), dst_ple_ptr(:,:,:)
-     real, allocatable :: src_ple(:,:,:)
-     real :: src_mw, dst_mw
+     real, pointer :: src_q(:,:,:), dst_q(:,:,:)
+     real, allocatable :: src_ple_ptr(:,:,:)
+     real :: molecular_weight 
      character(len=:), allocatable :: units_in, units_out
      integer :: constituent_type
 
@@ -1019,7 +1022,7 @@ CONTAINS
         src_ps_name = item%vcoord%surf_name//"_"//trim(item%vcomp1)
         call ESMF_StateGet(MAPLExtState%ExtDataState, src_ps_name, src_ps, _RC)
         call ESMF_FieldGet(src_ps, farrayPtr=src_ps_ptr, _RC) 
-        src_ple = item%vcoord%compute_ple(src_ps_ptr, _RC)
+        src_ple_ptr = item%vcoord%compute_ple(src_ps_ptr, _RC)
         call ESMF_StateGet(MAPLExtState%ExtDataState,trim(item%vcomp1),dst_field,_RC)
         call ESMF_FieldGet(dst_field,rank=fieldRank,_RC)
         _ASSERT(fieldRank==3, "Trying to regrid non 3D field")
@@ -1037,11 +1040,20 @@ CONTAINS
        
         select case (constituent_type)
         case(mass_mixing)
-           call vremap_conserve_mass_mixing(src_ple,src_ptr3d,dst_ple_ptr,dst_ptr3d)
+           call vremap_conserve_mass_mixing(src_ple_ptr,src_ptr3d,dst_ple_ptr,dst_ptr3d)
         case(emission) 
-           call vremap_conserve_emission(src_ple,src_ptr3d,dst_ple_ptr,dst_ptr3d)
+           call vremap_conserve_emission(src_ple_ptr,src_ptr3d,dst_ple_ptr,dst_ptr3d)
+        case (volume_mixing)
+           call ESMF_AttributeGet(src_field,name='molecular_weight',value=molecular_weight, _RC)
+           call ESMF_StateGet(import, 'Q', q_field, _RC)
+           call ESMF_FieldGet(q_field,0, farrayPtr=dst_q, _RC)
+           src_q_name = item%aux_q//"_"//trim(item%vcomp1)
+           call ESMF_StateGet(MAPLExtState%ExtDataState, src_q_name, q_field, _RC) !bmaa fix
+           call ESMF_FieldGet(q_field,0, farrayPtr=src_q, _RC)
+           print*,'bmaa srcq: ',shape(src_q)
+           print*,'bmaa dstq: ',shape(dst_q)
+           call vremap_conserve_vol_mixing(src_ple_ptr, src_q, molecular_weight, src_ptr3d, dst_ple_ptr, dst_q, dst_ptr3d, _RC)
         case default
-           call ESMF_AttributeGet(dst_field,name='molecular_weight',value=dst_mw, _RC)
            _FAIL(trim(units_in)//" not supported for vertical regridding")
         end select
      else if (item%vcoord%vertical_type == simple_coord .and. item%do_fill) then
@@ -1540,13 +1552,16 @@ CONTAINS
            bracket_grid = MAPL_ExtDataGridChangeLev(grid,cf,item%vcoord%num_levels,_RC)
            left_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
            call set_field_units(left_field, item%units, _RC)
+           call set_mw(left_field, item, _RC)
            right_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
            call set_field_units(right_field, item%units, _RC)
+           call set_mw(right_field, item, _RC)
 
            
            if ((item%vcoord%num_levels /= lm) .and. (lm > 0)) then
               temp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%vcomp1),_RC)
               call set_field_units(temp_field, item%units, _RC)
+              call set_mw(temp_field, item, _RC)
               call MAPL_FieldBundleAdd(item%t_interp_bundle, temp_field, _RC)
            else
               call MAPL_FieldBundleAdd(item%t_interp_bundle, field, _RC)
@@ -1573,12 +1588,18 @@ CONTAINS
            bracket_grid = MAPL_ExtDataGridChangeLev(grid,cf,item%vcoord%num_levels,_RC)
            left_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
            call set_field_units(left_field, item%units, _RC)
+           _HERE
+           call set_mw(left_field, item, _RC)
            right_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
            call set_field_units(right_field, item%units, _RC)
+           _HERE
+           call set_mw(right_field, item, _RC)
            call item%modelGridFields%comp1%set_parameters(left_field=left_field,right_field=right_field, _RC)
            if (item%vcoord%num_levels /= lm) then
               temp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%vcomp1),_RC)
               call set_field_units(temp_field, item%units, _RC)
+           _HERE
+              call set_mw(temp_field, item, _RC)
               call MAPL_FieldBundleAdd(item%t_interp_bundle, temp_field, _RC)
            else
               call MAPL_FieldBundleAdd(item%t_interp_bundle, field, _RC)
@@ -1588,12 +1609,15 @@ CONTAINS
            call ESMF_StateGet(ExtDataState, trim(item%vcomp2), field,_RC)
            left_field = MAPL_FieldCreate(field,item%fcomp2,doCopy=.true.,_RC)
            call set_field_units(left_field, item%units, _RC)
+           call set_mw(left_field, item, _RC)
            right_field = MAPL_FieldCreate(field,item%fcomp2,doCopy=.true.,_RC)
            call set_field_units(right_field, item%units, _RC)
+           call set_mw(right_field, item, _RC)
            call item%modelGridFields%comp2%set_parameters(left_field=left_field,right_field=right_field, _RC)
            if (item%vcoord%num_levels /= lm) then
               temp_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%vcomp2),_RC)
               call set_field_units(temp_field, item%units, _RC)
+              call set_mw(temp_field, item, _RC)
               call MAPL_FieldBundleAdd(item%t_interp_bundle, temp_field, _RC)
            else
               call MAPL_FieldBundleAdd(item%t_interp_bundle, field, _RC)
@@ -1616,6 +1640,18 @@ CONTAINS
         call ESMF_AttributeSet(field,name='UNITS',value=units, _RC)
         _RETURN(_SUCCESS)
      end subroutine set_field_units
+
+     subroutine set_mw(field, item, rc)
+        type(ESMF_Field), intent(inout) :: field
+        type(PrimaryExport), intent(inout) :: item
+        integer, optional, intent(out) :: rc
+        integer :: status
+
+        if (allocated(item%molecular_weight)) then
+           call ESMF_AttributeSet(field,name='molecular_weight',value=item%molecular_weight, _RC)
+        end if
+        _RETURN(_SUCCESS)
+     end subroutine set_mw
 
   end subroutine create_bracketing_fields
 
