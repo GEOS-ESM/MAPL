@@ -3179,7 +3179,14 @@ ENDDO PARSER
           usable_collection_name = "unknown"
        end if
        call ESMF_ConfigFindLabel ( cfg, label=label//':', _RC)
-
+       m = ESMF_ConfigGetLen(cfg, _RC)
+       call ESMF_ConfigFindLabel ( cfg, label=label//':', _RC)
+       if (m == 0) then
+          ! allow for no entries on the fields: line
+          call ESMF_ConfigNextLine  ( cfg,tableEnd=table_end,_RC )
+          _ASSERT(.not.table_end, 'Premature end of fields list')
+       end if
+ 
        table_end = .false.
        m = 0
        do while (.not.table_end)
