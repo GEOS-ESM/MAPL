@@ -5149,6 +5149,7 @@ contains
             N_PfafCat = attr_val(1)
          endselect
       endif
+
       do ll = 1, ng
         if (ll == 1) then
           ocn_str = ''
@@ -5205,17 +5206,21 @@ contains
           call formatter%get_var('dummy_index'//trim(ocn_str), tmp_int, rc=status)
           if ( ng == 1) then
             iTable_(:,4) = tmp_int ! for ease, it is pfaf
+            ! set this 7th column to 1. This is to reproduce a potential bug
+            ! when it is ease grid and mask file is not GEOS5_10arcsec_mask
+            iTable_(:,7) = 1
           else
             iTable_(:,5+ll) = tmp_int
           endif
-          if (ll == 2) then
-             call formatter%get_var('pfaf_index', tmp_int, rc=status)
-             where (iTable_(:,0) == 100)
-                iTable_(:,4) = tmp_int
-             endwhere
-          endif
         enddo
+        call formatter%get_var('pfaf_index', tmp_int, rc=status)
+        if (ng == 2) then
+           where (iTable_(:,0) == 100)
+             iTable_(:,4) = tmp_int
+           endwhere
+        endif
       endif
+
       if (present(rTable) .or. present(AVR) ) then
         allocate(rTable_(ntile,10))
         call formatter%get_var('com_lon', rTable_(:,1),   rc=status)
