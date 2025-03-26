@@ -2,9 +2,12 @@ target_sources(MAPL.generic3g PRIVATE
   AspectId.F90
   StateItemAspect.F90
   ClassAspect.F90
+
   FieldClassAspect.F90
-  ActualPtFieldAspectMap.F90
   FieldClassAspect_smod.F90
+
+  VectorClassAspect.F90
+  ActualPtFieldAspectMap.F90
   WildcardClassAspect.F90
   ServiceClassAspect.F90
   BracketClassAspect.F90

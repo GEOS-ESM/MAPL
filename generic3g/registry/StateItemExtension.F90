@@ -148,6 +148,18 @@ contains
 
          if (src_aspect%needs_extension_for(dst_aspect)) then
             other_aspects => new_spec%get_aspects()
+            block
+              use mapl3g_AspectId
+              use mapl3g_VerticalGridAspect
+              use mapl3g_VerticalGrid
+              class(StateItemAspect), pointer :: a
+              class(VerticalGrid), allocatable :: vgrid
+              a => other_aspects%of(VERTICAL_GRID_ASPECT_ID)
+              select type (a)
+              type is (VerticalGridAspect)
+                 vgrid = a%get_vertical_grid()
+              end select
+            end block
             allocate(transform, source=src_aspect%make_transform(dst_aspect, other_aspects, rc=status))
             _VERIFY(status)
             call new_spec%set_aspect(dst_aspect, _RC)

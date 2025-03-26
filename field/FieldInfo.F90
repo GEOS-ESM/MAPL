@@ -74,6 +74,7 @@ contains
       type(ESMF_Info) :: ungridded_info
       character(:), allocatable :: namespace_
 
+      _HERE
       namespace_ = INFO_INTERNAL_NAMESPACE
       if (present(namespace)) then
          namespace_ = namespace
@@ -101,6 +102,7 @@ contains
       end if
 
 
+      _HERE, present(vert_staggerloc)
       if (present(vert_staggerloc)) then
          call MAPL_InfoSet(info, namespace_ // KEY_VERT_STAGGERLOC, vert_staggerloc%to_string(), _RC)
 
@@ -122,6 +124,9 @@ contains
          end if
 
       end if
+
+      _HERE
+      call ESMF_InfoPrint(info)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

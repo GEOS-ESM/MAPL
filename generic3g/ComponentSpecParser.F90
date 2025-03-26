@@ -65,6 +65,7 @@ module mapl3g_ComponentSpecParser
    character(*), parameter :: KEY_ACCUMULATION_TYPE = 'accumulation_type'
    character(*), parameter :: KEY_TIMESTEP = 'timestep'
    character(*), parameter :: KEY_RUN_TIME_OFFSET = 'run_time_offset'
+   character(*), parameter :: KEY_VECTOR_COMPONENT_NAMES = 'vector_component_names'
 
    !>
    ! Submodule declarations

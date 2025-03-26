@@ -108,6 +108,7 @@ contains
       class(VerticalGridAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
 
+      
       select type(dst)
       class is (VerticalGridAspect)
          matches = dst%vertical_grid%is_identical_to(src%vertical_grid)

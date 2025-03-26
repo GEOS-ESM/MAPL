@@ -66,6 +66,7 @@ contains
       type(ESMF_Clock) :: clock
       integer, optional, intent(out) :: rc
 
+      _HERE,' vertical regridder'
       _ASSERT(this%method == VERTICAL_REGRID_LINEAR, "regrid method can only be linear")
 
       _RETURN(_SUCCESS)

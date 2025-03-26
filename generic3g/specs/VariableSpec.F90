@@ -45,6 +45,7 @@ module mapl3g_VariableSpec
 
       ! Metadata
       character(:), allocatable :: standard_name
+      type(StringVector) :: vector_component_names
       type(ESMF_StateItem_Flag) :: itemtype = MAPL_STATEITEM_FIELD
       type(StringVector), allocatable :: service_items
       real, allocatable :: default_value
@@ -78,6 +79,7 @@ contains
         accumulation_type, &
         timeStep, &
         offset, &
+        vector_component_names, &
         rc) result(var_spec)
 
       type(VariableSpec) :: var_spec
@@ -102,6 +104,7 @@ contains
       character(len=*), optional, intent(in) :: accumulation_type
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
       type(ESMF_TimeInterval), optional, intent(in) :: offset
+      type(StringVector), optional, intent(in) :: vector_component_names
       integer, optional, intent(out) :: rc
 
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
@@ -110,16 +113,18 @@ contains
 
       regrid_param_ = get_regrid_param(regrid_param, standard_name)
       var_spec = make_VariableSpecFromAspects(state_intent, short_name, &
-         & standard_name=standard_name, itemType=itemType, service_items=service_items, &
-         & default_value=default_value, bracket_size=bracket_size, dependencies=dependencies, &
-         & geom_aspect=GeomAspect(geom, regrid_param_, horizontal_dims_spec), &
-         & units_aspect=UnitsAspect(units), &
-         & attributes_aspect=AttributesAspect(attributes), &
-         & ungridded_aspect=UngriddedDimsAspect(ungridded_dims), &
-         & vertical_aspect=VerticalGridAspect(vertical_stagger=vertical_stagger, geom=geom), &
-         & frequency_aspect=FrequencyAspect(timeStep=timeStep, offset=offset, &
-         &   accumulation_type=accumulation_type), &
-         & typekind_aspect=TypekindAspect(typekind), _RC)
+         standard_name=standard_name, itemType=itemType, service_items=service_items, &
+         default_value=default_value, bracket_size=bracket_size, dependencies=dependencies, &
+         geom_aspect=GeomAspect(geom, regrid_param_, horizontal_dims_spec), &
+         units_aspect=UnitsAspect(units), &
+         attributes_aspect=AttributesAspect(attributes), &
+         ungridded_aspect=UngriddedDimsAspect(ungridded_dims), &
+         vertical_aspect=VerticalGridAspect(vertical_stagger=vertical_stagger, geom=geom), &
+         frequency_aspect=FrequencyAspect(timeStep=timeStep, offset=offset, &
+           accumulation_type=accumulation_type), &
+         typekind_aspect=TypekindAspect(typekind), &
+         vector_component_names=vector_component_names, &
+         _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -205,10 +210,12 @@ contains
    end function get_regrid_method_from_field_dict_
 
    function make_VariableSpecFromAspects(state_intent, short_name, unusable, &
-         & standard_name, itemtype, service_items, default_value, bracket_size, &
-         & dependencies, geom_aspect, units_aspect, attributes_aspect, &
-         & ungridded_aspect, vertical_aspect, frequency_aspect, typekind_aspect, rc) &
-         & result(var_spec)
+        standard_name, itemtype, service_items, default_value, bracket_size, &
+        dependencies, geom_aspect, units_aspect, attributes_aspect, &
+        ungridded_aspect, vertical_aspect, frequency_aspect, typekind_aspect, &
+        vector_component_names, rc) &
+        result(var_spec)
+
       type(VariableSpec) :: var_spec
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
@@ -226,6 +233,7 @@ contains
       class(VerticalGridAspect), optional, intent(in) :: vertical_aspect
       class(FrequencyAspect), optional, intent(in) :: frequency_aspect
       class(TypekindAspect), optional, intent(in) :: typekind_aspect
+      type(StringVector), optional, intent(in) :: vector_component_names
       integer, optional, intent(out) :: rc
       
       var_spec%state_intent = state_intent
@@ -240,6 +248,7 @@ contains
       _SET_OPTIONAL(default_value)
       _SET_OPTIONAL(bracket_size)
       _SET_OPTIONAL(dependencies)
+      _SET_OPTIONAL(vector_component_names)
 #undef _SET_OPTIONAL
 
 #if defined(_SET_ASPECT)

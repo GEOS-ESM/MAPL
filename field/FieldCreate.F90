@@ -88,6 +88,7 @@ contains
       type(LU_Bound), allocatable :: bounds(:)
       type(ESMF_Info) :: field_info
 
+      _HERE, present(vert_staggerloc)
       bounds = make_bounds(num_levels=num_levels, ungridded_dims=ungridded_dims)
       call ESMF_FieldEmptyComplete(field, typekind=typekind, &
            gridToFieldMap=gridToFieldMap, &
