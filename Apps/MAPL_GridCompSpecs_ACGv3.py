@@ -62,6 +62,8 @@ def get_fortran_logical(value_in):
     return val_out
 
 def compute_rank(dims, ungridded):
+    if dims not in DIMS_RANK:
+        return None
     extra_rank = len(ungridded.strip('][').split(',')) if ungridded else 0
     return RANK_LOOKUP.get(dims, 0) + extra_rank
 
@@ -98,7 +100,6 @@ class ParameterizedWriter:
     def __call__(self, name, parameters):
         parameter_values = tuple(parameters.get(key) for key in self.parameter_keys)
         return self.writer(name, parameter_values)
-
 
 ######################### WRITERS for writing AddSpecs #########################
 writers = {

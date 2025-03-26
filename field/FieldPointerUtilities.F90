@@ -430,6 +430,7 @@ contains
       real(kind=ESMF_KIND_R4), pointer      :: VR4_1D(:), VR4_2D(:,:), VR4_3D(:,:,:), VR4_4D(:,:,:,:)
       real(kind=ESMF_KIND_R8), pointer      :: VR8_1D(:), VR8_2D(:,:), VR8_3D(:,:,:), VR8_4D(:,:,:,:)
       integer, allocatable :: lc(:)
+      type(ESMF_Info) :: x_info, y_info
 
       call ESMF_FieldGet(x,grid=grid,rank=field_rank,_RC)
       lc = get_local_element_count(x,_RC)
@@ -476,6 +477,12 @@ contains
             gridToFieldMap=gridToFieldMap, ungriddedLBound=ungriddedLBound, &
             ungriddedUBound=ungriddedUBound, name=name, _RC)
       end if
+
+      ! clone metadata
+      call ESMF_InfoGetFromHost(x, x_info, _RC)
+      call ESMF_InfoGetFromHost(y, y_info, _RC)
+      call ESMF_InfoUpdate(y_info, x_info, recursive=.true., _RC)
+      y_info = x_info
 
       _RETURN(_SUCCESS)
    end subroutine clone

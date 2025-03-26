@@ -16,7 +16,7 @@ module mapl3g_ComponentSpecParser
    use mapl3g_MatchConnection
    use mapl3g_ReexportConnection
    use mapl3g_ConnectionVector
-   use mapl3g_VerticalDimSpec
+   use mapl3g_VerticalStaggerLoc
    use mapl3g_UngriddedDims
    use mapl3g_UngriddedDim
    use mapl3g_GeometrySpec
@@ -61,7 +61,7 @@ module mapl3g_ComponentSpecParser
    character(*), parameter :: KEY_UNGRIDDED_DIM_UNITS = 'dim_units'
    character(*), parameter :: KEY_UNGRIDDED_DIM_EXTENT = 'extent'
    character(*), parameter :: KEY_UNGRIDDED_DIM_COORDINATES = 'coordinates'
-   character(*), parameter :: KEY_VERTICAL_DIM_SPEC = 'vertical_dim_spec'
+   character(*), parameter :: KEY_VERTICAL_STAGGER = 'vertical_dim_spec'
    character(*), parameter :: KEY_ACCUMULATION_TYPE = 'accumulation_type'
    character(*), parameter :: KEY_TIMESTEP = 'timestep'
    character(*), parameter :: KEY_RUN_TIME_OFFSET = 'run_time_offset'

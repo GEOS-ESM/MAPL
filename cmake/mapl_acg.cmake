@@ -21,7 +21,7 @@
 
 
 function (mapl_acg target specs_file)
-  set (options)
+  set (options 3g)
   set (oneValueArgs  IMPORT_SPECS EXPORT_SPECS INTERNAL_SPECS GET_POINTERS DECLARE_POINTERS)
   # This list must align with oneValueArgs above (for later ZIP_LISTS)
   set (flags         -i           -x           -p             -g           -d)
@@ -84,7 +84,12 @@ function (mapl_acg target specs_file)
   else ()
     set (_generator_dir ${esma_etc}/MAPL)
   endif ()
-  set(generator ${_generator_dir}/MAPL_GridCompSpecs_ACG.py)
+
+  if (ARGS_3g)
+    set(generator ${_generator_dir}/MAPL_GridCompSpecs_ACGv3.py)
+  else ()
+    set(generator ${_generator_dir}/MAPL_GridCompSpecs_ACG.py)
+  endif ()
 
   add_custom_command (
     OUTPUT ${generated}

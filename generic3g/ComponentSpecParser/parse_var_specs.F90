@@ -48,7 +48,7 @@ contains
          type(ESMF_HConfig) :: attributes
          type(ESMF_TypeKind_Flag) :: typekind
          real, allocatable :: default_value
-         type(VerticalDimSpec) :: vertical_dim_spec
+         type(VerticalStaggerLoc) :: vertical_stagger
          type(UngriddedDims) :: ungridded_dims
          character(:), allocatable :: standard_name
          character(:), allocatable :: units
@@ -80,7 +80,7 @@ contains
             short_name = name
             typekind = to_typekind(attributes, _RC)
             call val_to_float(default_value, attributes, KEY_DEFAULT_VALUE, _RC)
-            vertical_dim_spec = to_VerticalDimSpec(attributes,_RC)
+            vertical_stagger = to_VerticalStaggerLoc(attributes,_RC)
             ungridded_dims = to_UngriddedDims(attributes, _RC)
 
             has_standard_name = ESMF_HConfigIsDefined(attributes,keyString='standard_name', _RC)
@@ -108,7 +108,7 @@ contains
                  units=units, &
                  itemtype=itemtype, &
                  typekind=typekind, &
-                 vertical_dim_spec=vertical_dim_spec, &
+                 vertical_stagger=vertical_stagger, &
                  ungridded_dims=ungridded_dims, &
                  default_value=default_value, &
                  service_items=service_items, &
@@ -184,36 +184,36 @@ contains
          _RETURN(_SUCCESS)
       end function to_typekind
 
-      function to_VerticalDimSpec(attributes, rc) result(vertical_dim_spec)
-         type(VerticalDimSpec) :: vertical_dim_spec
+      function to_VerticalStaggerLoc(attributes, rc) result(vertical_stagger)
+         type(VerticalStaggerLoc) :: vertical_stagger
          type(ESMF_HConfig), intent(in) :: attributes
          integer, optional, intent(out) :: rc
 
          integer :: status
          character(:), allocatable :: vertical_str
-         logical :: has_dim_spec
+         logical :: has_vertical_stagger
 
-         vertical_dim_spec = VERTICAL_DIM_UNKNOWN
-         has_dim_spec = ESMF_HConfigIsDefined(attributes,keyString=KEY_VERTICAL_DIM_SPEC, _RC)
-         _RETURN_UNLESS(has_dim_spec)
+         vertical_stagger = VERTICAL_STAGGER_INVALID
+         has_vertical_stagger = ESMF_HConfigIsDefined(attributes,keyString=KEY_VERTICAL_STAGGER, _RC)
+         _RETURN_UNLESS(has_vertical_stagger)
 
-         vertical_str = ESMF_HConfigAsString(attributes,keyString=KEY_VERTICAL_DIM_SPEC,_RC)
+         vertical_str = ESMF_HConfigAsString(attributes,keyString=KEY_VERTICAL_STAGGER,_RC)
 
          select case (ESMF_UtilStringLowerCase(vertical_str))
          case ('vertical_dim_none', 'n', 'none')
-            vertical_dim_spec = VERTICAL_DIM_NONE
+            vertical_stagger = VERTICAL_STAGGER_NONE
          case ('vertical_dim_center', 'c', 'center')
-            vertical_dim_spec = VERTICAL_DIM_CENTER
+            vertical_stagger = VERTICAL_STAGGER_CENTER
          case ('vertical_dim_edge', 'e', 'edge')
-            vertical_dim_spec = VERTICAL_DIM_EDGE
+            vertical_stagger = VERTICAL_STAGGER_EDGE
          case ('vertical_dim_mirror', 'm', 'mirror')
-            vertical_dim_spec = VERTICAL_DIM_MIRROR
+            vertical_stagger = VERTICAL_STAGGER_MIRROR
          case default
-            _FAIL('Unsupported vertical_dim_spec')
+            _FAIL('Unsupported vertical_stagger')
          end select
 
          _RETURN(_SUCCESS)
-      end function to_VerticalDimSpec
+      end function to_VerticalStaggerLoc
 
       function to_UngriddedDims(attributes,rc) result(ungridded_dims)
          type(UngriddedDims) :: ungridded_dims
