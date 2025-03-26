@@ -426,6 +426,7 @@ contains
     integer :: create_mode
     character(len=:), allocatable :: uppercase_algorithm
     character(len=2) :: tmpchar
+    integer :: schema_version
 
 ! Begin
 !------
@@ -604,44 +605,50 @@ contains
                 call IntState%output_grids%insert(trim(tmpString), output_grid)
              end if
              call ESMF_ConfigNextLine     ( config,tableEnd=tend,_RC )
-          enddo
-
+         enddo
+         
           swath_count = 0
           iter = IntState%output_grids%begin()
           do while (iter /= IntState%output_grids%end())
              key => iter%key()
+             write(6,*) 'ck label=trim(key)=', trim(key)
              call ESMF_ConfigGetAttribute(config, value=grid_type, label=trim(key)//".GRID_TYPE:",_RC)
-             call  ESMF_ConfigFindLabel(config,trim(key)//".NX:",isPresent=hasNX,_RC)
-             call  ESMF_ConfigFindLabel(config,trim(key)//".NY:",isPresent=hasNY,_RC)
-             if ((.not.hasNX) .and. (.not.hasNY)) then
-                if (trim(grid_type)=='Cubed-Sphere') then
-                   call MAPL_MakeDecomposition(nx,ny,reduceFactor=6,_RC)
-                else
-                   call MAPL_MakeDecomposition(nx,ny,_RC)
+             if (trim(grid_type)/='trajectory') then
+                ! skip trajectory grid generator, because this will be passed by config
+                call ESMF_ConfigFindLabel(config,trim(key)//".NX:",isPresent=hasNX,_RC)
+                call ESMF_ConfigFindLabel(config,trim(key)//".NY:",isPresent=hasNY,_RC)
+                if ((.not.hasNX) .and. (.not.hasNY)) then
+                   if (trim(grid_type)=='Cubed-Sphere') then
+                      call MAPL_MakeDecomposition(nx,ny,reduceFactor=6,_RC)
+                   else
+                      call MAPL_MakeDecomposition(nx,ny,_RC)
+                   end if
+                   call MAPL_ConfigSetAttribute(config, value=nx,label=trim(key)//".NX:",_RC)
+                   call MAPL_ConfigSetAttribute(config, value=ny,label=trim(key)//".NY:",_RC)
                 end if
-                call MAPL_ConfigSetAttribute(config, value=nx,label=trim(key)//".NX:",_RC)
-                call MAPL_ConfigSetAttribute(config, value=ny,label=trim(key)//".NY:",_RC)
-             end if
 
-             if (trim(grid_type)/='Swath') then
-                output_grid = grid_manager%make_grid(config, prefix=key//'.', _RC)
-             else
-                swath_count = swath_count + 1
-                !
-                ! Hsampler use the first config to setup epoch
-                !
-                if (swath_count == 1) then
-                   Hsampler = samplerHQ(clock, key, config, _RC)
+                if (trim(grid_type)/='Swath') then
+                   output_grid = grid_manager%make_grid(config, prefix=key//'.', _RC)
+                elseif (trim(grid_type)=='Swath') then
+                   swath_count = swath_count + 1
+                   !
+                   ! Hsampler use the first config to setup epoch
+                   !
+                   if (swath_count == 1) then
+                      Hsampler = samplerHQ(clock, key, config, _RC)
+                   end if
+                   call Hsampler%config_accumulate(key, config, _RC)
+                   output_grid = Hsampler%create_grid(key, currTime, grid_type=grid_type, _RC)
                 end if
-                call Hsampler%config_accumulate(key, config, _RC)
-                output_grid = Hsampler%create_grid(key, currTime, grid_type=grid_type, _RC)
+                call IntState%output_grids%set(key, output_grid)
              end if
-             call IntState%output_grids%set(key, output_grid)
              call iter%next()
           end do
-       end block OUTPUT_GRIDS
-    end if
-
+        end block OUTPUT_GRIDS
+     end if
+     write(6,*) 'ck: this is the end of  IntState%output_grids%'
+     
+     
     if (intstate%version >= 2) then
        call ESMF_ConfigFindLabel(config, 'FIELD_SETS:', _RC)
        table_end = .false.
@@ -718,9 +725,9 @@ contains
 ! Overwrite the above process if HISTORY.rc encounters DEFINE_OBS_PLATFORM for OSSE
 ! ----------------------------------------------------------------------------
     if( MAPL_AM_I_ROOT(vm) ) then
-       call regen_rcx_for_obs_platform (config, nlist, list, _RC)
+       call regen_rcx_for_obs_platform (config, nlist, list, schema_version, _RC)
     end if
-
+    call MAPL_CommsBcast(vm, DATA=schema_version, N=1, ROOT=MAPL_Root, _RC)
     call ESMF_VMbarrier(vm, _RC)
 
 ! Initialize History Lists
@@ -2483,7 +2490,13 @@ ENDDO PARSER
              list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n),integer_time=intstate%integer_time)
           end if
           if (list(n)%timeseries_output) then
-             list(n)%trajectory = HistoryTrajectory(cfg,string,clock,genstate=GENSTATE,_RC)
+             if (schema_version == 1) then
+                list(n)%trajectory = HistoryTrajectory(cfg,config,string,clock,schema_version,genstate=GENSTATE,_RC)
+             else
+                list(n)%trajectory = HistoryTrajectory(cfg,string,clock,schema_version,genstate=GENSTATE,_RC)
+             end if
+ 
+             
              call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
              IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
           elseif (list(n)%sampler_spec == 'mask') then
@@ -5470,7 +5483,7 @@ ENDDO PARSER
   ! __ for each collection: find union fields, write to collection.rcx
   ! __ note: this subroutine is called by MPI root only
   !
-  subroutine regen_rcx_for_obs_platform (config, nlist, list, rc)
+  subroutine regen_rcx_for_obs_platform (config, nlist, list, schema_version, rc)
     use  MAPL_scan_pattern_in_file
     use MAPL_ObsUtilMod, only : obs_platform, union_platform
     !
@@ -5481,7 +5494,8 @@ ENDDO PARSER
     type(ESMF_Config), intent(inout)       :: config
     integer, intent(in)                    :: nlist
     type(HistoryCollection), pointer       :: list(:)
-    integer, intent(inout), optional :: rc
+    integer, intent(out)             :: schema_version
+    integer, intent(inout), optional :: rc    
 
     character(len=ESMF_MAXSTR) :: HIST_CF
     integer :: n, unitr, unitw
@@ -5491,6 +5505,7 @@ ENDDO PARSER
     character (len=ESMF_MAXSTR) :: marker
     character (len=ESMF_MAXSTR) :: string
     character (len=ESMF_MAXSTR2) :: line, line2
+    character (len=100) :: line3
     character (len=ESMF_MAXSTR2), allocatable :: str_piece(:)
     type(obs_platform), allocatable :: PLFS(:)
     type(obs_platform) :: p1
@@ -5509,12 +5524,45 @@ ENDDO PARSER
     lgr => logging%get_logger('HISTORY.sampler')
 
     !
-    !
     call ESMF_ConfigGetAttribute(config, value=HIST_CF, &
          label="HIST_CF:", default="HIST.rc", _RC )
     unitr = GETFILE(HIST_CF, FORM='formatted', _RC)
 
-    call scan_count_match_bgn (unitr, 'PLATFORM.', nplf, .false.)
+    call scan_count_match_bgn (unitr, 'schema.version:', count, .true.)
+    schema_version = 2  ! default
+    if (count==0) then
+       ! keyword non-exist
+       ! continue to search for 'DEFINE_OBS_PLATFORM::'
+       write(6,*) 'schema.version: keyword does not exist'
+       continue
+    elseif (count>1) then
+       _FAIL('schema.version: keyword appears more than once in HISTORY.rc')
+    elseif (count==1) then
+       call scan_begin(unitr, 'schema.version:', .true.)
+       backspace(unitr)
+       read(unitr, '(a100)') line
+       j = index( line, ':') + 1
+       k = index( line, '#')
+       if (k>1) then
+          read( line(j:k-1), * )  schema_version
+       elseif (k==1) then
+          _FAIL('version not found')
+       end if
+       write(6,*) 'schema.version=', schema_version
+       if (schema_version == 1) then
+          ! use individual Traj. Sampler collection
+          !
+          rc = 0
+          return
+       elseif (schema_version > 2) then
+          _FAIL('schema_version > 2 not supported')
+       end if
+    end if
+
+
+
+!   continue with the platform grammar
+    call scan_count_match_bgn (unitr, 'PLATFORM.', nplf, .true.)
     rewind(unitr)
 
     if (nplf==0) then

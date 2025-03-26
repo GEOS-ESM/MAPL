@@ -27,6 +27,9 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
   implicit none
    contains
 
+     ! case default: schema_version = 2 
+     !               read collection and grid files from .rcx  config
+     !
      module procedure HistoryTrajectory_from_config
          use BinIOMod
          use  MAPL_scan_pattern_in_file
@@ -51,7 +54,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(GriddedIOitem)        :: item
          type(Logger), pointer      :: lgr
 
-
+         traj%schema_version=schema_version
          traj%clock=clock
          if (present(GENSTATE)) traj%GENSTATE => GENSTATE
 
@@ -313,6 +316,160 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
        end procedure HistoryTrajectory_from_config
 
 
+     ! case new: schema_version = 1 
+     !           read collection from .rcx config
+     !           read grid file from full config
+     module procedure HistoryTrajectory_from_config_full
+         use BinIOMod
+         use  MAPL_scan_pattern_in_file
+         use pflogger, only         :  Logger, logging
+         type(ESMF_Time)            :: currTime
+         type(ESMF_TimeInterval)    :: epoch_frequency
+         type(ESMF_TimeInterval)    :: obs_time_span
+         integer                    :: time_integer, second
+         integer                    :: status
+         character(len=ESMF_MAXSTR) :: STR1, line, splitter
+         character(len=ESMF_MAXSTR) :: symd, shms
+         character(len=ESMF_MAXSTR) :: key_grid         
+         integer                    :: nline, col
+         integer, allocatable       :: ncol(:)
+         character(len=ESMF_MAXSTR), allocatable :: word(:)
+         character(len=ESMF_MAXSTR), allocatable :: str_piece(:)
+         integer                    :: nobs, head, jvar
+         logical                    :: tend
+         integer                    :: i, j, k, k2, M
+         integer                    :: count, idx
+         integer                    :: unitr, unitw
+         integer                    :: length_mx, mxseg, nseg
+         type(GriddedIOitem)        :: item
+         type(Logger), pointer      :: lgr
+
+         traj%schema_version=schema_version
+         traj%clock=clock
+         if (present(GENSTATE)) traj%GENSTATE => GENSTATE
+
+         if (mapl_am_I_root()) write(6,*) 'nail 1'
+            
+         call ESMF_ClockGet ( clock, CurrTime=currTime, _RC )
+         call ESMF_ConfigGetAttribute(config, value=time_integer, label=trim(string)//'Epoch:', default=0, _RC)
+         _ASSERT(time_integer /= 0, 'Epoch value in config wrong')
+         second = hms_2_s(time_integer)
+         call ESMF_TimeIntervalSet(epoch_frequency, s=second, _RC)
+         traj%Epoch = time_integer
+         traj%RingTime = currTime
+         traj%epoch_frequency = epoch_frequency
+         traj%alarm = ESMF_AlarmCreate( clock=clock, RingInterval=epoch_frequency, &
+              RingTime=traj%RingTime, sticky=.false., _RC )
+
+!         call ESMF_ConfigFindLabel ( config,'GRID_LABELS:',_RC )
+!         call ESMF_ConfigGetAttribute ( config,value=key_grid,default='',rc=STATUS)
+         call ESMF_ConfigGetAttribute ( config, key_grid, default='' , &
+              label=trim(string) // 'grid_label:' ,_RC )
+         key_grid = trim(adjustl(key_grid))//'.'
+         write(6,*) 'ck key_grid=', trim(key_grid)
+         _ASSERT (key_grid /= '', 'GRID_LABELS is empty')
+
+         call ESMF_ConfigGetAttribute(config_full, value=traj%index_name_x, default="", &
+              label=trim(key_grid) // 'index_name_x:', _RC)
+         call ESMF_ConfigGetAttribute(config_full, value=traj%var_name_lon_full, default="", &
+              label=trim(key_grid) // 'var_name_lon:', _RC)
+         call ESMF_ConfigGetAttribute(config_full, value=traj%var_name_lat_full, default="", &
+              label=trim(key_grid) // 'var_name_lat:', _RC)
+         call ESMF_ConfigGetAttribute(config_full, value=traj%var_name_time_full, default="", &
+              label=trim(key_grid) // 'var_name_time:', _RC)
+
+         call ESMF_ConfigGetAttribute(config, value=traj%use_NWP_1_file, default=.false., &
+              label=trim(string)//'use_NWP_1_file:', _RC)
+         call ESMF_ConfigGetAttribute(config, value=traj%restore_2_obs_vector, default=.false., &
+              label=trim(string)//'restore_2_obs_vector:', _RC)
+         if (mapl_am_I_root()) then
+            if (traj%use_NWP_1_file) then
+               write(6,105) 'WARNING: Traj sampler: use_NWP_1_file is true'
+               write(6,105) 'WARNING: USER needs to check if observation file is fetched correctly'
+            end if
+            if (traj%restore_2_obs_vector) then
+               write(6,105) 'WARNING: Traj sampler: restore_2_obs_vector is true'
+            end if
+         end if
+         if (.NOT. traj%use_NWP_1_file .AND. traj%restore_2_obs_vector) then
+            _FAIL('use_NWP_1_file=.false. and restore_2_obs_vector=.true. is not allowed')
+         end if
+
+         call ESMF_ConfigGetAttribute(config_full, value=STR1, default="", &
+              label=trim(key_grid) // 'obs_file_begin:', _RC)
+         if (trim(STR1)=='') then
+            traj%obsfile_start_time = currTime
+            call ESMF_TimeGet(currTime, timestring=STR1, _RC)
+            if (mapl_am_I_root()) then
+               write(6,105) 'obs_file_begin missing, default = currTime :', trim(STR1)
+            endif
+         else
+            call ESMF_TimeSet(traj%obsfile_start_time, STR1, _RC)
+            if (mapl_am_I_root()) then
+               write(6,105) 'obs_file_begin provided: ', trim(STR1)
+            end if
+         end if
+
+         call ESMF_ConfigGetAttribute(config_full, value=STR1, default="", &
+              label=trim(key_grid) // 'obs_file_end:', _RC)
+         write(6,*) 'ck obs_file_end:', trim(STR1)
+
+         if (trim(STR1)=='') then
+            call ESMF_TimeIntervalSet(obs_time_span, d=14, _RC)
+            traj%obsfile_end_time = traj%obsfile_start_time + obs_time_span
+            call ESMF_TimeGet(traj%obsfile_end_time, timestring=STR1, _RC)
+            if (mapl_am_I_root()) then
+               write(6,105) 'obs_file_end   missing, default = begin+14D:', trim(STR1)
+            endif
+         else
+            call ESMF_TimeSet(traj%obsfile_end_time, STR1, _RC)
+            if (mapl_am_I_root()) then
+               write(6,105) 'obs_file_end provided:', trim(STR1)
+            end if
+         end if
+
+         call ESMF_ConfigGetAttribute(config_full, value=STR1, default="", &
+              label=trim(key_grid) // 'obs_file_interval:', _RC)
+         _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
+         if (mapl_am_I_root()) write(6,105) 'obs_file_interval:', trim(STR1)
+         if (mapl_am_I_root()) write(6,106) 'Epoch (second)   :', second         
+         i= index( trim(STR1), ' ' )
+         if (i>0) then
+            symd=STR1(1:i-1)
+            shms=STR1(i+1:)
+         else
+            symd=''
+            shms=trim(STR1)
+         endif
+         call convert_twostring_2_esmfinterval (symd, shms,  traj%obsfile_interval, _RC)
+         traj%active = .true.
+
+         if (mapl_am_I_root()) write(6,*) 'nail 2'
+         
+         k=1
+         traj%nobs_type = k
+         allocate (traj%obs(k), _STAT)
+         allocate (traj%obs(k)%metadata, _STAT)
+         call ESMF_ConfigGetAttribute(config_full, value=STR1, default="", &
+              label=trim(key_grid) // 'file_name_template:', _RC)
+         traj%obs(k)%input_template = trim(STR1)
+         if (mapl_am_i_root()) then
+            allocate (traj%obs(k)%file_handle, _STAT)
+         end if
+         traj%obs(k)%name = string
+
+         
+         call lgr%debug('%a %i8', 'nobs_type=', traj%nobs_type)
+
+         if (mapl_am_I_root()) write(6,*) 'nail 3'
+         
+         _RETURN(_SUCCESS)
+
+105      format (1x,a,2x,a)
+106      format (1x,a,2x,i8)
+       end procedure HistoryTrajectory_from_config_full
+       
+
 
        !
        !-- integrate both initialize and reinitialize
@@ -412,7 +569,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          do while (iter /= this%items%end())
             item => iter%get()
 
-!!            print*, 'list item%xname', trim(item%xname)
+            print*, 'list item%xname', trim(item%xname)
 
             if (item%itemType == ItemTypeScalar) then
                call this%create_variable(item%xname,_RC)
@@ -422,7 +579,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
             end if
             call iter%next()
          enddo
-
 
          _RETURN(_SUCCESS)
 
@@ -465,16 +621,20 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
         call v%add_attribute('valid_range',(/-MAPL_UNDEF,MAPL_UNDEF/))
 
         do k = 1, this%nobs_type
-           do ig = 1, this%obs(k)%ngeoval
-              if (trim(var_name) == trim(this%obs(k)%geoval_xname(ig))) then
-                 call this%obs(k)%metadata%add_variable(trim(var_name),v,_RC)
-
+           if (this%schema_version == 1) then
+              call this%obs(k)%metadata%add_variable(trim(var_name),v,_RC)
+           else
+              do ig = 1, this%obs(k)%ngeoval
+                 if (trim(var_name) == trim(this%obs(k)%geoval_xname(ig))) then
+                    call this%obs(k)%metadata%add_variable(trim(var_name),v,_RC)
+                    
 !!              if (mapl_am_i_root()) write(6, '(2x,a,/,10(2x,a))') &
 !!                   'Traj: create_metadata_variable: vname, var_name, this%obs(k)%geoval_xname(ig)', &
 !!                   trim(vname), trim(var_name), trim(this%obs(k)%geoval_xname(ig))
 
-              endif
-           enddo
+                 endif
+              enddo
+           end if
         enddo
 
          _RETURN(_SUCCESS)
@@ -1242,16 +1402,21 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         is = 1
                         nx = this%obs(k)%nobs_epoch
                         if (nx>0) then
-                           do ig = 1, this%obs(k)%ngeoval
-                              !! print*, 'this%obs(k)%geoval_xname(ig)= ', this%obs(k)%geoval_xname(ig)
-
-                              if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
-                                 call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p2d(1:nx), &
-                                      start=[is],count=[nx])
-                              end if
-                           end do
+                           if (this%schema_version==1) then
+                              call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p2d(1:nx), &
+                                   start=[is],count=[nx])
+                           else
+                              do ig = 1, this%obs(k)%ngeoval
+                                 !! print*, 'this%obs(k)%geoval_xname(ig)= ', this%obs(k)%geoval_xname(ig)
+                                 if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
+                                    call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p2d(1:nx), &
+                                         start=[is],count=[nx])
+                                 end if
+                              end do
+                           end if
                         endif
                      enddo
+                     
                      do k=1, this%nobs_type
                         deallocate (this%obs(k)%p2d, _STAT)
                      enddo
@@ -1329,12 +1494,17 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                         is = 1
                         nx = this%obs(k)%nobs_epoch
                         if (nx>0) then
-                           do ig = 1, this%obs(k)%ngeoval
-                              if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
-                                 call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p3d(:,:), &
-                                      start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
-                              end if
-                           end do
+                           if (this%schema_version==1) then
+                              call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p3d(:,:), &
+                                   start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
+                           else 
+                              do ig = 1, this%obs(k)%ngeoval
+                                 if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
+                                    call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p3d(:,:), &
+                                         start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
+                                 end if
+                              end do
+                           end if
                         endif
                      enddo
                      do k=1, this%nobs_type
