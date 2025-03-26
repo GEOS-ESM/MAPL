@@ -198,8 +198,6 @@ contains
       _ASSERT(conformable, 'FieldGEMV() - fields not conformable.')
 
       ! Reference dimensions
-      _HERE
-      call ESMF_FieldPrint(x(1), _RC)
       call assign_fptr_condensed_array(x(1), tmp, _RC)
       condensed_shp = shape(tmp)
       n_horz = condensed_shp(1)
@@ -216,10 +214,8 @@ contains
             select case (trans)
             case ('n','N')
                call assign_fptr(A(jy,ix), A_ptr, _RC) ! 1D - no shape arg
-               _HERE, size(A_ptr)
             case ('t','T')
                call assign_fptr(A(ix,jy), A_ptr, _RC) ! 1D - no shape arg
-               _HERE, size(A_ptr)
             end select
             do kv = 1, n_vert*n_ungridded
                y_ptr(:,kv) = y_ptr(:,kv) + alpha * A_ptr(:)*x_ptr(:,kv)
