@@ -11,27 +11,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed problem related to stale pointers to temp copies of dummy arguments in MAPL_Cap.F90.  Fix is to add TARGET attributein select locations.
 - Fix for case where 2nd argument to `transfer()` was not allocated in the OpenMP support layer.  Was not detected by other compilers.  The fix is to use a literal integer array instead.
-
+- Fixed problem in History when no fields appear on the 'fields:' line in a collection (issue #3525)
+	
 ### Added
 
+- Added CI build using spack
+- Added `Release` build CI tests for MAPL
 - Added new option to rule for ExtData2G to disable vertical regridding, default is true, vertical regridding is disabled
 - Added experimental capabiltiy to regrid from constituents in mass mixing or emissions units from one set of hybrid sigma levels to model levels in ExtData2G
 - Added subdirectory GetHorzIJIndex in the Tests directory for testing subroutine MAPL_GetHorzIJIndex to ensure the subroutine fails is teh cubed-sphere assumption is violated and also if the returned I and J indices are not correct.
 
 ### Changed
 
+- Relaxed the MPI thread levels to MPI_THREAD_SERIALIZED required by ESMF
 - Update to `ESMA_env` v4.35.0 --> Baselibs 7.32.0
   - This brings in GFE v1.19.0 (which has gFTL v1.15.2 needed for MAPL3 work)
 - Update `.editorconfig` for Fortran files enforcing 3-space indents and line length of 132
 
 ### Fixed
 
+- Fix ExtData2G unit test for GNU on Discover
 - Fixed nesting of internal timers (issue #3412)
 - Fixed issue of `make tests` not building all needed executables
+- Incorrect specification of EOL for Darwin+NAG in MAPL_Config.
+- Untrapped exceptions in MAPL_LatLonGridFactory.F90
 
 ### Removed
 
 ### Deprecated
+
+## [2.54.2] - 2025-03-18
+
+### Fixed
+
+- Fixed bug when proccessing history collection list identified by NAG
 
 ## [2.54.1] - 2025-02-07
 

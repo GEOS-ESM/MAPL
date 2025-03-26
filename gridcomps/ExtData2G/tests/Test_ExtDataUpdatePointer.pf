@@ -6,7 +6,7 @@
 
 module Test_ExtDataUpdatePointer
    use MAPL_ExtDataPointerUpdate
-   use funit
+   use pfunit
    use esmf
    use MAPL_ExceptionHandling
    implicit none
@@ -15,7 +15,7 @@ module Test_ExtDataUpdatePointer
    integer, parameter :: TIME_STEP_IN_SECONDS = 1
    integer, parameter :: REFERENCE_TIME_FIELDS(*) = [2024, 12, 31, 20, 0, 0]
    integer, parameter :: NF = size(REFERENCE_TIME_FIELDS)
-   integer, parameter :: START_TIME_FIELDS(*) = [2024, 01, 01, 0, 0, 0] 
+   integer, parameter :: START_TIME_FIELDS(*) = [2024, 01, 01, 0, 0, 0]
    integer, parameter :: DEFAULT_TIME_FIELDS(*) = [REFERENCE_TIME_FIELDS(1:3), 0, 0, 0]
    integer, parameter :: UPDATE_TIME_FIELDS(*) = [0, 1, 1, REFERENCE_TIME_FIELDS(4:)]
    integer, parameter :: STRLEN = 32
@@ -76,7 +76,7 @@ contains
       status = 0
       call ESMF_TimeSet(datetime, yy=f(1), mm=f(2), dd=f(3), h=f(4), m=f(5), s=f(6), _RC)
       _RETURN(_SUCCESS)
-         
+
    end subroutine make_esmf_time
 
    ! Put ESMF_Time output args into an integer array.
@@ -100,11 +100,12 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      write(offset_string, fmt='("PT", I03, "S")', iostat=status) offset
+      write(offset_string, fmt='("PT", I0, "S")', iostat=status) offset
       _VERIFY(status)
+      _RETURN(_SUCCESS)
 
    end subroutine make_offset_string
-      
+
    @Test
    subroutine test_get_adjusted_time
       type(ExtDataPointerUpdate) :: ex
@@ -142,7 +143,7 @@ contains
       @assertEqual(expected, actual, ERR_MSG)
 
    end subroutine test_create_from_parameters_string_positive
-     
+
    @Test
    subroutine test_create_from_parameters_string_negative()
       type(ExtDataPointerUpdate) :: ex
@@ -269,6 +270,7 @@ contains
       offset = timestep
       call ESMF_TimeIntervalGet(offset, s=expected, _RC)
       call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, OFFSET_STRING, default_time, clock, rc=status)
+      @assertExceptionRaised('"+" and "-" cannot both be present in update_offset string.')
       @assertFalse(status == 0, 'An exception should have been thrown.')
 
    end subroutine test_create_from_parameters_heartbeat_positive_negative
@@ -284,6 +286,7 @@ contains
       offset = timestep
       call ESMF_TimeIntervalGet(offset, s=expected, _RC)
       call ex%create_from_parameters(UPDATE_TIMESTRING, UPDATE_FREQ_STRING, OFFSET_STRING, default_time, clock, rc=status)
+      @assertExceptionRaised('"+" and "-" cannot both be present in update_offset string.')
       @assertFalse(status == 0, 'An exception should have been thrown.')
 
    end subroutine test_create_from_parameters_heartbeat_negative_positive
