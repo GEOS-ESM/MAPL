@@ -88,10 +88,10 @@ contains
       idx_close = index(encoded_name, ')')
       idx_comma = index(encoded_name, ',')
 
-      _ASSERT(idx_open > 0, 'VectorAspect requires standard name to have tuple for the names of the vector  components')
-      _ASSERT(idx_close > 0, 'VectorAspect requires standard name to have tuple for east west components')
-      _ASSERT(idx_comma > idx_open+1, 'VectorAspect requires standard name to have tuple for east west components')
-      _ASSERT(idx_comma < idx_close-1, 'VectorAspect requires standard name to have tuple for east west components')
+      _ASSERT(idx_open > 0, 'VectorAspect requires standard name to have tuple for the names of the vector  components.')
+      _ASSERT(idx_close > 0, 'VectorAspect requires standard name to have tuple for the names of the vector components.')
+      _ASSERT(idx_comma > idx_open+1, 'VectorAspect requires standard name to have tuple for the names of the vector components.')
+      _ASSERT(idx_comma < idx_close-1, 'VectorAspect requires standard name to have tuple for the names of the vector components.')
 
       name_1 = encoded_name(idx_open+1:idx_comma-1) // encoded_name(idx_close+1:)
       name_2 = encoded_name(idx_comma+1:idx_close-1) // encoded_name(idx_close+1:)
