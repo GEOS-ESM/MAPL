@@ -597,6 +597,7 @@ contains
          integer :: nl
          character(len=60) :: grid_type
          integer :: n, count
+         integer, allocatable :: mark(:)
          character(len=ESMF_MAXSTR), allocatable :: grid_name(:)
          
          ! ygyu preprocess
@@ -641,16 +642,20 @@ contains
              call ESMF_ConfigGetAttribute ( config,value=tmpstring,default='',rc=STATUS) !ALT: we don't check return status!!!
              if (tmpstring /= '')  then
                 count = count + 1
-                if ( mark(count)==1 ) then
+! ygyu
+!                if ( mark(count)==1 ) then
                    call IntState%output_grids%insert(trim(tmpString), output_grid)
-                end if
+!                end if
              end if
              call ESMF_ConfigNextLine     ( config,tableEnd=tend,_RC )
          enddo
          
 !!  ygyyu rid of trajectory grid, because it if faske
 !!     if (trim(grid_type)/='trajectory') then
-!!     iter = IntState%output_grids%erase ('trajectory')
+
+         iter = IntState%output_grids%find('trajectory')
+         call IntState%output_grids%erase(iter)
+
 
           swath_count = 0
           iter = IntState%output_grids%begin()
