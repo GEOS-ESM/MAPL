@@ -596,13 +596,54 @@ contains
          type (StringGridMapIterator) :: iter
          integer :: nl
          character(len=60) :: grid_type
-
+         integer :: n, count
+         character(len=ESMF_MAXSTR), allocatable :: grid_name(:)
+         
+         ! ygyu preprocess
+         count = 0 
          call ESMF_ConfigFindLabel ( config,'GRID_LABELS:',_RC )
          tend  = .false.
          do while (.not.tend)
              call ESMF_ConfigGetAttribute ( config,value=tmpstring,default='',rc=STATUS) !ALT: we don't check return status!!!
              if (tmpstring /= '')  then
-                call IntState%output_grids%insert(trim(tmpString), output_grid)
+                count = count + 1
+             end if
+             call ESMF_ConfigNextLine     ( config,tableEnd=tend,_RC )
+         enddo
+         allocate (grid_name(count))
+         allocate (mark(count))
+         
+         mark(:) = 1
+         count = 0 
+         call ESMF_ConfigFindLabel ( config,'GRID_LABELS:',_RC )
+         tend  = .false.
+         do while (.not.tend)
+             call ESMF_ConfigGetAttribute ( config,value=tmpstring,default='',rc=STATUS) !ALT: we don't check return status!!!
+             if (tmpstring /= '')  then
+                count = count + 1
+                grid_name(count) = tmpstring
+             end if
+             call ESMF_ConfigNextLine     ( config,tableEnd=tend,_RC )
+         enddo
+
+         do n=1, count
+            key = grid_name(n)
+            call ESMF_ConfigGetAttribute(config, value=grid_type, label=trim(key)//".GRID_TYPE:",_RC)
+            if (trim(grid_type)=='trajectory') then         
+               mark(n)=0
+            end if
+         end do
+         
+         count = 0
+         call ESMF_ConfigFindLabel ( config,'GRID_LABELS:',_RC )
+         tend  = .false.
+         do while (.not.tend)
+             call ESMF_ConfigGetAttribute ( config,value=tmpstring,default='',rc=STATUS) !ALT: we don't check return status!!!
+             if (tmpstring /= '')  then
+                count = count + 1
+                if ( mark(count)==1 ) then
+                   call IntState%output_grids%insert(trim(tmpString), output_grid)
+                end if
              end if
              call ESMF_ConfigNextLine     ( config,tableEnd=tend,_RC )
          enddo
@@ -617,8 +658,6 @@ contains
              key => iter%key()
              write(6,*) 'ck label=trim(key)=', trim(key)
              call ESMF_ConfigGetAttribute(config, value=grid_type, label=trim(key)//".GRID_TYPE:",_RC)
-             if (trim(grid_type)/='trajectory') then
-                ! skip trajectory grid generator, because this will be passed by config
                 call ESMF_ConfigFindLabel(config,trim(key)//".NX:",isPresent=hasNX,_RC)
                 call ESMF_ConfigFindLabel(config,trim(key)//".NY:",isPresent=hasNY,_RC)
                 if ((.not.hasNX) .and. (.not.hasNY)) then
@@ -645,17 +684,12 @@ contains
                    output_grid = Hsampler%create_grid(key, currTime, grid_type=grid_type, _RC)
                 end if
                 call IntState%output_grids%set(key, output_grid)
-             else
-                iter = IntState%output_grids%erase(iter)
-             end if
+             
              call iter%next()
           end do
         end block OUTPUT_GRIDS
      end if
      write(6,*) 'ck: this is the end of  IntState%output_grids%'
-
-
-
      
      
     if (intstate%version >= 2) then
