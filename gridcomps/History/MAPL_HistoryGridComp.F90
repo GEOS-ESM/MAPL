@@ -607,6 +607,10 @@ contains
              call ESMF_ConfigNextLine     ( config,tableEnd=tend,_RC )
          enddo
          
+!!  ygyyu rid of trajectory grid, because it if faske
+!!     if (trim(grid_type)/='trajectory') then
+!!     iter = IntState%output_grids%erase ('trajectory')
+
           swath_count = 0
           iter = IntState%output_grids%begin()
           do while (iter /= IntState%output_grids%end())
@@ -641,12 +645,17 @@ contains
                    output_grid = Hsampler%create_grid(key, currTime, grid_type=grid_type, _RC)
                 end if
                 call IntState%output_grids%set(key, output_grid)
+             else
+                iter = IntState%output_grids%erase(iter)
              end if
              call iter%next()
           end do
         end block OUTPUT_GRIDS
      end if
      write(6,*) 'ck: this is the end of  IntState%output_grids%'
+
+
+
      
      
     if (intstate%version >= 2) then
