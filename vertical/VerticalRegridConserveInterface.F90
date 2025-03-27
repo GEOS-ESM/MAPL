@@ -158,7 +158,7 @@ contains
       temp_values_src(:,:,1:lm_src) = src_values
       temp_pressures_src(:,:,ub_src+1) = src_pressure(:,:,ub_src)+10.0
       temp_values_src(:,:,lm_src+1) = 0.0
-      temp_values_src(:,:,1:lm_src) = temp_values_src(:,:,1:lm_src)*((1.0-src_q)*mol_weight/MAPL_AIRMW+src_q*mol_weight/MAPL_H2OMW)
+      temp_values_src(:,:,1:lm_src) = temp_values_src(:,:,1:lm_src)*(((1.0-src_q)*(mol_weight/MAPL_AIRMW))+(src_q*mol_weight/MAPL_H2OMW))
 
       ! add an extra level on dst because if src is below destination we will need the extra stuff
       ! we need to make sure "extra" stuf from src gets included
@@ -177,8 +177,7 @@ contains
       ! convert to volume mixing
 
       dst_values = temp_values_dst(:,:,1:lm_dst)
-      dst_values = dst_values/((1.0-dst_q)*mol_weight/MAPL_AIRMW+dst_q*mol_weight/MAPL_H2OMW)
-
+      dst_values = dst_values/(((1.0-dst_q)*(mol_weight/MAPL_AIRMW))+(dst_q*mol_weight/MAPL_H2OMW))
 
       _RETURN(_SUCCESS)
    end subroutine vremap_conserve_vol_mixing
