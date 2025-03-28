@@ -589,6 +589,7 @@ contains
     if (nlist == 0) then
        _RETURN(ESMF_SUCCESS)
     end if
+    if( MAPL_AM_I_ROOT() ) print*, 'ck: s'
 
     if (intstate%version >= 1) then
        OUTPUT_GRIDS: block
@@ -599,9 +600,10 @@ contains
          integer :: n, count
          integer, allocatable :: mark(:)
          character(len=ESMF_MAXSTR), allocatable :: grid_name(:)
-         
+
+         if( MAPL_AM_I_ROOT() ) print*, 'ck: s1'
          ! ygyu preprocess
-         count = 0 
+         count = 0
          call ESMF_ConfigFindLabel ( config,'GRID_LABELS:',_RC )
          tend  = .false.
          do while (.not.tend)
@@ -613,9 +615,10 @@ contains
          enddo
          allocate (grid_name(count))
          allocate (mark(count))
-         
+
+         if( MAPL_AM_I_ROOT() ) print*, 'ck: s2.1'
          mark(:) = 1
-         count = 0 
+         count = 0
          call ESMF_ConfigFindLabel ( config,'GRID_LABELS:',_RC )
          tend  = .false.
          do while (.not.tend)
@@ -627,14 +630,15 @@ contains
              call ESMF_ConfigNextLine     ( config,tableEnd=tend,_RC )
          enddo
 
+         if( MAPL_AM_I_ROOT() ) print*, 'ck: s2.2'
          do n=1, count
-            key = grid_name(n)
-            call ESMF_ConfigGetAttribute(config, value=grid_type, label=trim(key)//".GRID_TYPE:",_RC)
-            if (trim(grid_type)=='trajectory') then         
+            call ESMF_ConfigGetAttribute(config, value=grid_type, label=trim(grid_name(n))//".GRID_TYPE:",_RC)
+            if (trim(grid_type)=='trajectory') then
                mark(n)=0
             end if
          end do
-         
+
+         if( MAPL_AM_I_ROOT() ) print*, 'ck: s2.3'
          count = 0
          call ESMF_ConfigFindLabel ( config,'GRID_LABELS:',_RC )
          tend  = .false.
@@ -642,20 +646,21 @@ contains
              call ESMF_ConfigGetAttribute ( config,value=tmpstring,default='',rc=STATUS) !ALT: we don't check return status!!!
              if (tmpstring /= '')  then
                 count = count + 1
-! ygyu
-!                if ( mark(count)==1 ) then
+! ygyu come back and check
+                if ( mark(count)==1 ) then
                    call IntState%output_grids%insert(trim(tmpString), output_grid)
-!                end if
+                end if
              end if
              call ESMF_ConfigNextLine     ( config,tableEnd=tend,_RC )
          enddo
-         
+
+         if( MAPL_AM_I_ROOT() ) print*, 'ck: s3'
+
 !!  ygyyu rid of trajectory grid, because it if faske
 !!     if (trim(grid_type)/='trajectory') then
 
-         iter = IntState%output_grids%find('trajectory')
-         call IntState%output_grids%erase(iter)
-
+!         iter = IntState%output_grids%find('trajectory')
+!         call IntState%output_grids%erase(iter)
 
           swath_count = 0
           iter = IntState%output_grids%begin()
@@ -689,14 +694,14 @@ contains
                    output_grid = Hsampler%create_grid(key, currTime, grid_type=grid_type, _RC)
                 end if
                 call IntState%output_grids%set(key, output_grid)
-             
+
              call iter%next()
           end do
         end block OUTPUT_GRIDS
      end if
      write(6,*) 'ck: this is the end of  IntState%output_grids%'
-     
-     
+
+
     if (intstate%version >= 2) then
        call ESMF_ConfigFindLabel(config, 'FIELD_SETS:', _RC)
        table_end = .false.
@@ -1204,7 +1209,9 @@ contains
              pgrid => IntState%output_grids%at(trim(tmpString))
              ! If user specifies a grid label, then it is required.
              ! Do not default to native in this case
-             _ASSERT(associated(pgrid),'needs informative message')
+             if (list(n)%sampler_spec /= 'trajectory') then
+                _ASSERT(associated(pgrid),'needs informative message')
+             end if
              list(n)%output_grid_label = trim(tmpString)
           end if
        case(0)
@@ -2543,8 +2550,8 @@ ENDDO PARSER
              else
                 list(n)%trajectory = HistoryTrajectory(cfg,string,clock,schema_version,genstate=GENSTATE,_RC)
              end if
- 
-             
+
+
              call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
              IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
           elseif (list(n)%sampler_spec == 'mask') then
@@ -3242,7 +3249,7 @@ ENDDO PARSER
           call ESMF_ConfigNextLine  ( cfg,tableEnd=table_end,_RC )
           _ASSERT(.not.table_end, 'Premature end of fields list')
        end if
- 
+
        table_end = .false.
        m = 0
        do while (.not.table_end)
@@ -5536,7 +5543,7 @@ ENDDO PARSER
     integer, intent(in)                    :: nlist
     type(HistoryCollection), pointer       :: list(:)
     integer, intent(out)             :: schema_version
-    integer, intent(inout), optional :: rc    
+    integer, intent(inout), optional :: rc
 
     character(len=ESMF_MAXSTR) :: HIST_CF
     integer :: n, unitr, unitw

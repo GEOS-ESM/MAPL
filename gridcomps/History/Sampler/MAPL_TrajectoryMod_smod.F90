@@ -27,7 +27,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
   implicit none
    contains
 
-     ! case default: schema_version = 2 
+     ! case default: schema_version = 2
      !               read collection and grid files from .rcx  config
      !
      module procedure HistoryTrajectory_from_config
@@ -316,7 +316,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
        end procedure HistoryTrajectory_from_config
 
 
-     ! case new: schema_version = 1 
+     ! case new: schema_version = 1
      !           read collection from .rcx config
      !           read grid file from full config
      module procedure HistoryTrajectory_from_config_full
@@ -330,7 +330,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          integer                    :: status
          character(len=ESMF_MAXSTR) :: STR1, line, splitter
          character(len=ESMF_MAXSTR) :: symd, shms
-         character(len=ESMF_MAXSTR) :: key_grid         
+         character(len=ESMF_MAXSTR) :: key_grid
          integer                    :: nline, col
          integer, allocatable       :: ncol(:)
          character(len=ESMF_MAXSTR), allocatable :: word(:)
@@ -344,12 +344,13 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(GriddedIOitem)        :: item
          type(Logger), pointer      :: lgr
 
-         traj%schema_version=schema_version
          traj%clock=clock
+         traj%schema_version=schema_version
+         lgr => logging%get_logger('HISTORY.sampler')
          if (present(GENSTATE)) traj%GENSTATE => GENSTATE
 
          if (mapl_am_I_root()) write(6,*) 'nail 1'
-            
+
          call ESMF_ClockGet ( clock, CurrTime=currTime, _RC )
          call ESMF_ConfigGetAttribute(config, value=time_integer, label=trim(string)//'Epoch:', default=0, _RC)
          _ASSERT(time_integer /= 0, 'Epoch value in config wrong')
@@ -432,7 +433,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               label=trim(key_grid) // 'obs_file_interval:', _RC)
          _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
          if (mapl_am_I_root()) write(6,105) 'obs_file_interval:', trim(STR1)
-         if (mapl_am_I_root()) write(6,106) 'Epoch (second)   :', second         
+         if (mapl_am_I_root()) write(6,106) 'Epoch (second)   :', second
          i= index( trim(STR1), ' ' )
          if (i>0) then
             symd=STR1(1:i-1)
@@ -445,7 +446,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          traj%active = .true.
 
          if (mapl_am_I_root()) write(6,*) 'nail 2'
-         
+
          k=1
          traj%nobs_type = k
          allocate (traj%obs(k), _STAT)
@@ -456,19 +457,17 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          if (mapl_am_i_root()) then
             allocate (traj%obs(k)%file_handle, _STAT)
          end if
-         traj%obs(k)%name = string
+         traj%obs(k)%name = ''
 
-         
          call lgr%debug('%a %i8', 'nobs_type=', traj%nobs_type)
 
-         if (mapl_am_I_root()) write(6,*) 'nail 3'
-         
+
          _RETURN(_SUCCESS)
 
 105      format (1x,a,2x,a)
 106      format (1x,a,2x,i8)
        end procedure HistoryTrajectory_from_config_full
-       
+
 
 
        !
@@ -627,7 +626,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
               do ig = 1, this%obs(k)%ngeoval
                  if (trim(var_name) == trim(this%obs(k)%geoval_xname(ig))) then
                     call this%obs(k)%metadata%add_variable(trim(var_name),v,_RC)
-                    
+
 !!              if (mapl_am_i_root()) write(6, '(2x,a,/,10(2x,a))') &
 !!                   'Traj: create_metadata_variable: vname, var_name, this%obs(k)%geoval_xname(ig)', &
 !!                   trim(vname), trim(var_name), trim(this%obs(k)%geoval_xname(ig))
@@ -1416,7 +1415,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                            end if
                         endif
                      enddo
-                     
+
                      do k=1, this%nobs_type
                         deallocate (this%obs(k)%p2d, _STAT)
                      enddo
@@ -1497,7 +1496,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                            if (this%schema_version==1) then
                               call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p3d(:,:), &
                                    start=[is,1],count=[nx,size(p_acc_rt_3d,2)])
-                           else 
+                           else
                               do ig = 1, this%obs(k)%ngeoval
                                  if (trim(item%xname) == trim(this%obs(k)%geoval_xname(ig))) then
                                     call this%obs(k)%file_handle%put_var(trim(item%xname), this%obs(k)%p3d(:,:), &
