@@ -275,7 +275,6 @@ contains
 
       _ASSERT(this%has_virtual_pt(virtual_pt), "Virtual connection point does not exist in registry")
       family => this%family_map%at(virtual_pt, _RC)
-
       n = family%num_variants()
       allocate(extensions(n))
       do i = 1, n

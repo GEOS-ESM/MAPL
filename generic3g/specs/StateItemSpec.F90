@@ -309,11 +309,12 @@ contains
 
       integer :: status
 
-      class(ClassAspect), pointer :: src_class_aspect, dst_class_aspect
+      class(StateItemAspect), pointer :: src_aspect
+      class(ClassAspect), pointer :: dst_class_aspect
 
-      src_class_aspect => to_ClassAspect(export%aspects, _RC)
+      src_aspect => export%aspects%at(CLASS_ASPECT_ID, _RC)
       dst_class_aspect => to_ClassAspect(this%aspects, _RC)
-      call dst_class_aspect%connect_to_export(src_class_aspect, actual_pt, _RC)
+      call dst_class_aspect%connect_to_export(src_aspect, actual_pt, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine connect_to_export

@@ -1,0 +1,24 @@
+mapl:
+  geometry:
+    esmf_geom:
+      class: latlon
+      im_world: 12
+      jm_world: 13
+      pole: PC
+      dateline: DC
+    vertical_grid:
+      class: fixed_levels
+      levels: [30., 20., 10.]
+      units: hPa
+      standard_name: air_pressure
+
+  states:
+    import: {}
+    export:
+      uv:
+        class: vector
+        standard_name: '(eastward,northward) horizontal velocity'
+        vector_component_names: [u, v]
+        units: 'm s-1'
+        default_value: 1
+        vertical_dim_spec: center

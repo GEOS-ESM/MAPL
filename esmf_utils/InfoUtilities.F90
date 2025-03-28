@@ -119,6 +119,7 @@ contains
       logical :: is_present
 
       is_present = ESMF_InfoIsPresent(info, key=key, _RC)
+      if (.not. is_present) call ESMF_InfoPrint(info)
       _ASSERT(is_present,  "Key not found in info object: " // key)
 
       call ESMF_InfoGetCharAlloc(info, key=key, value=value, _RC)

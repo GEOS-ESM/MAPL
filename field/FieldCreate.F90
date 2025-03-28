@@ -87,6 +87,7 @@ contains
       integer :: status
       type(LU_Bound), allocatable :: bounds(:)
       type(ESMF_Info) :: field_info
+      type(VerticalStaggerLoc) :: vert_staggerloc_
 
       bounds = make_bounds(num_levels=num_levels, ungridded_dims=ungridded_dims)
       call ESMF_FieldEmptyComplete(field, typekind=typekind, &
@@ -94,9 +95,12 @@ contains
            ungriddedLBound=bounds%lower, ungriddedUBound=bounds%upper, _RC)
 
       call ESMF_InfoGetFromHost(field, field_info, _RC)
+
+      vert_staggerloc_ = VERTICAL_STAGGER_NONE
+      if (present(vert_staggerloc)) vert_staggerloc_ = vert_staggerloc
       call MAPL_FieldInfoSetInternal(field_info, &
            ungridded_dims=ungridded_dims, &
-           num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
+           num_levels=num_levels, vert_staggerloc=vert_staggerloc_, &
            units=units, standard_name=standard_name, long_name=long_name, _RC)
 
       _RETURN(_SUCCESS)

@@ -2,12 +2,14 @@
 
 module Test_RegridderManager
    use pfunit
+   use mapl3g_FieldCreate
+   use mapl3g_VerticalStaggerLoc
    use mapl3g_regridder_mgr
    use mapl3g_geom_mgr
    use mapl_BaseMod, only: MAPL_UNDEF
    use esmf_TestMethod_mod ! mapl
    use esmf
-   implicit none
+   implicit none(type,external)
 
 contains
 
@@ -46,14 +48,13 @@ contains
       real(kind=ESMF_KIND_R4), pointer :: x_3d(:,:,:)
       integer :: status
 
-      field = ESMF_FieldEmptyCreate(name=name, _RC)
-      call ESMF_FieldEmptySet(field, geom, _RC)
+      
       if (present(lm)) then
-         call ESMF_FieldEmptyComplete(field, typekind=ESMF_TYPEKIND_R4, ungriddedLBound=[1], ungriddedUBound=[lm], _RC)
-         call ESMF_FieldGet(field, farrayptr=x_3d,_RC)
+         field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, num_levels=lm, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+         call ESMF_FieldGet(field, farrayptr=x_3d, _RC)
          x_3d = value
       else
-         call ESMF_FieldEmptyComplete(field, typekind=ESMF_TYPEKIND_R4, _RC)
+         field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, _RC)
          call ESMF_FieldGet(field, farrayptr=x, _RC)
          x = value
       end if
@@ -233,10 +234,9 @@ contains
       my_regridder => regridder_mgr%get_regridder(spec, _RC)
 
       f1 = make_field(geom_1, 'f1', value=2._ESMF_KIND_R4, lm=2, _RC)
-      call ESMF_FieldGet(f1, farrayptr=x1)
+      call ESMF_FieldGet(f1, farrayptr=x1, _RC)
       x1(::4,6,1) = MAPL_UNDEF ! missing bits in level 1
       x1(1::2,:,2) = 0 ! checkerboard on level 2
-      
       f2 = make_field(geom_2, 'f2', value=0._ESMF_KIND_R4, lm=2, _RC)
 
       call my_regridder%regrid(f1, f2, _RC)

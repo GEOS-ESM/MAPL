@@ -4,6 +4,7 @@ module mapl3g_RegridTransform
 
    use mapl3g_ExtensionTransform
    use mapl3g_regridder_mgr
+   use mapl3g_StateItem
    use mapl_ErrorHandling
    use esmf
 
@@ -76,10 +77,23 @@ contains
 
       integer :: status
       type(ESMF_Field) :: f_in, f_out
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      type(ESMF_StateItem_Flag) :: itemType_in, itemType_out
 
-      call ESMF_StateGet(importState, itemName='import[1]', field=f_in, _RC)
-      call ESMF_StateGet(exportState, itemName='export[1]', field=f_out, _RC)
-      call this%regrdr%regrid(f_in, f_out, _RC)
+      call ESMF_StateGet(importState, itemName='import[1]', itemType=itemType_in, _RC)
+      call ESMF_StateGet(importState, itemName='import[1]', itemType=itemType_out, _RC)
+
+      _ASSERT(itemType_in == itemType_out, 'Regridder requires same itemType for input and output.')
+
+      if (itemType_in == MAPL_STATEITEM_FIELD) then
+         call ESMF_StateGet(importState, itemName='import[1]', field=f_in, _RC)
+         call ESMF_StateGet(exportState, itemName='export[1]', field=f_out, _RC)
+         call this%regrdr%regrid(f_in, f_out, _RC)
+      else ! bundle case
+         call ESMF_StateGet(importState, itemName='import[1]', fieldBundle=fb_in, _RC)
+         call ESMF_StateGet(exportState, itemName='export[1]', fieldBundle=fb_out, _RC)
+         call this%regrdr%regrid(fb_in, fb_out, _RC)
+      end if
 
 
       _RETURN(_SUCCESS)
