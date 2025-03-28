@@ -28,7 +28,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
    contains
 
      ! case default: schema_version = 2
-     !               read collection and grid files from .rcx  config
+     !               read an ensemble of traj collections and grid files from .rcx config
      !
      module procedure HistoryTrajectory_from_config
          use BinIOMod
@@ -568,7 +568,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          do while (iter /= this%items%end())
             item => iter%get()
 
-            print*, 'list item%xname', trim(item%xname)
+!!            print*, 'list item%xname', trim(item%xname)
 
             if (item%itemType == ItemTypeScalar) then
                call this%create_variable(item%xname,_RC)
