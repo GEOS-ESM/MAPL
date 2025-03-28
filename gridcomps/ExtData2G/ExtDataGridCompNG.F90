@@ -79,9 +79,9 @@
   integer, parameter         :: MAPL_ExtDataLeft          = 1
   integer, parameter         :: MAPL_ExtDataRight         = 2
   integer, parameter         :: MAPL_ExtDataResult        = 3
-  character(len=9), parameter :: mol_per_mol = 'mol mol-1'
-  character(len=7), parameter :: kg_per_kg = 'kg kg-1'
-  character(len=10), parameter :: emission_units = 'kg m-2 s-1'
+  character(len=*), parameter :: mol_per_mol = 'mol mol-1'
+  character(len=*), parameter :: kg_per_kg = 'kg kg-1'
+  character(len=*), parameter :: emission_units = 'kg m-2 s-1'
   logical                    :: hasRun
   character(len=ESMF_MAXSTR) :: error_msg_str
 
