@@ -7,30 +7,31 @@ from collections import namedtuple
 from collections.abc import Callable
 import operator
 from functools import partial
+from enum import IntFlag
+
+OptionFlag = IntFlag('OptionFlag', 'ARGUMENT CONTROL GLOBAL CALCULATION MANDATORY PRINTABLE'.split())
 
 ################################# CONSTANTS ####################################
 SUCCESS = 0
+NL = "\n"
+DELIMITER = ', '
+TERMINATOR = '_RC)'
+# keys for options
+STATE_INTENT_KEY = 'state_intent'
+# command-line option constants
 LONGNAME_GLOB_PREFIX = "longname_glob_prefix"
+# procedure names
+ADDSPEC = "MAPL_GridCompAddFieldSpec"
+GETPOINTER = "MAPL_GetPointer"
+# Fortran keywords
+CALL = 'call'
 # constants for logicals
 TRUE_VALUE = '.true.'
 FALSE_VALUE = '.false.'
 TRUE_VALUES = {'t', 'true', 'yes', 'y', 'si', 'oui', 'sim'}
 FALSE_VALUES = {'f', 'false', 'no', 'n', 'no', 'non', 'nao'}
-NL = "\n"
-STATE_INTENT_KEY = 'state_intent'
-ADDSPEC = "MAPL_GridCompAddFieldSpec"
-GETPOINTER = "MAPL_GetPointer"
-CALL = 'call'
-DELIMITER = ', '
-TERMINATOR = '_RC)'
 
-# lookup for ESMF State Intent
-INTENT_LOOKUP = dict([(s, f"ESMF_STATEINTENT_{s.upper()}") for s in 'import export internal'.split()])
-
-# lookups used for DIMS and computing rank
-DIMS_LOOKUP = {'MAPL_DimsVertOnly': "'z'", 'MAPL_DimsHorzOnly': "'xy'", 'MAPL_DimsHorzVert': "'xyz'",
-    'z': "'z'", 'xy': "'xy'", 'xyz': "'xyz'"}
-RANK_LOOKUP = {"'z'": 1, "'xy'": 2, "'xyz'": 3}
+# lookup for computing rank
 
 ############################### HELPER FUNCTIONS ###############################
 add_quotes = lambda s: "'" + str(s) + "'"
@@ -62,10 +63,12 @@ def get_fortran_logical(value_in):
     return val_out
 
 def compute_rank(dims, ungridded):
-    if dims not in DIMS_RANK:
+    RANK_LOOKUP = {"'z'": 1, "'xy'": 2, "'xyz'": 3}
+    base_rank = RANK_LOOKUP.get(dims)
+    if base_rank is None:
         return None
     extra_rank = len(ungridded.strip('][').split(',')) if ungridded else 0
-    return RANK_LOOKUP.get(dims, 0) + extra_rank
+    return base_rank + extra_rank
 
 def header():
     """
@@ -110,45 +113,69 @@ writers = {
     'parameterized': ParameterizedWriter(mangle_name_prefix, LONGNAME_GLOB_PREFIX)
 }
 
+make_flag_check = lambda FN: lambda o: int(o['flag'] & OptionFlag[F]) if 'flag' in o else 0
+is_mandatory = make_flag_check('MANDATORY')
+is_argument = make_flag_check('ARGUMENT')
+is_printable = make_flag_check('PRINTABLE')
+is_global =  make_flag_check('GLOBAL')
+is_control = make_flag_check('CONTROL')
+is_calculation = make_flag_check('CALCULATION')
+
+PRINTABLE_ARGUMENT = OptionFlag.ARGUMENT | OptionFlag.PRINTABLE
+MANDATORY_ARGUMENT = PRINTABLE_ARGUMENT | OptionFlag.MANDATORY
+CONTROL = OptionFlag.CONTROL
+CALCULATION = OptionFlag.CALCULATION
+
 # dict for the possible options in a spec
 OPTIONS = {    
 # MANDATORY
-    'dims': {'writer': DIMS_LOOKUP, 'mandatory': True},
-    'short_name': {'writer': 'mangled', 'mandatory': True},
-    'standard_name': {'writer': 'parameterized', 'mandatory': True},
-    STATE_INTENT_KEY: {'writer': INTENT_LOOKUP, 'mandatory': True},
-    'units': {'writer': 'string', 'mandatory': True},
+    'dims': {'mandatory': True, 'flags': MANDATORY_ARGUMENT, 'writer': {
+        'z': "'z'",
+        'xy': "'xy'",
+        'xyz': "'xyz'",
+        'MAPL_DimsVertOnly': "'z'",
+        'MAPL_DimsHorzOnly': "'xy'",
+        'MAPL_DimsHorzVert': "'xyz'"
+    }},
+    'short_name': {'writer': 'mangled', 'mandatory': True, 'flags': MANDATORY_ARGUMENT},
+    'standard_name': {'writer': 'parameterized', 'mandatory': True, 'flags': MANDATORY_ARGUMENT},
+    STATE_INTENT_KEY: {'mandatory': True, 'flags': MANDATORY_ARGUMENT, 'writer': {
+        'import': 'ESMF_STATEINTENT_IMPORT',
+        'export': 'ESMF_STATEINTENT_EXPORT',
+        'internal': 'ESMF_STATEINTENT_INTERNAL'
+    }},
+    'units': {'writer': 'string', 'mandatory': True, 'flags': MANDATORY_ARGUMENT},
 # OPTIONAL
-    'averaging_interval': {},
-    'datatype': {},
-    'default': {},
-    'field_type': {},
-    'halowidth': {},
-    'num_subtiles': {},
-    'precision': {},
-    'refresh_interval': {},
-    'restart': {'writer': {
+    'averaging_interval': {'flags': PRINTABLE_ARGUMENT, },
+    'datatype': {'flags': PRINTABLE_ARGUMENT, },
+    'default': {'flags': PRINTABLE_ARGUMENT, },
+    'field_type': {'flags': PRINTABLE_ARGUMENT, },
+    'halowidth': {'flags': PRINTABLE_ARGUMENT, },
+    'num_subtiles': {'flags': PRINTABLE_ARGUMENT, },
+    'precision': {'flags': PRINTABLE_ARGUMENT, },
+    'refresh_interval': {'flags': PRINTABLE_ARGUMENT, },
+    'restart': {'flags': PRINTABLE_ARGUMENT, 'writer': {
         'OPT'  : 'MAPL_RestartOptional',
         'SKIP' : 'MAPL_RestartSkip',
         'REQ'  : 'MAPL_RestartRequired',
         'BOOT' : 'MAPL_RestartBoot',
         'SKIPI': 'MAPL_RestartSkipInitial'
     }},
-    'rotation': {},
-    'staggering': {},
-    'ungridded_dims': {'writer': 'array'},
-    'vstagger': {'writer': {
+    'rotation': {'flags': PRINTABLE_ARGUMENT, },
+    'staggering': {'flags': PRINTABLE_ARGUMENT, },
+    'ungridded_dims': {'flags': PRINTABLE_ARGUMENT, 'writer': 'array'},
+    'vstagger': {'flags': PRINTABLE_ARGUMENT, 'writer': {
          'C': 'VERTICAL_SCATTER_CENTER',
          'E': 'VERTICAL_SCATTER_EDGE',
          'N': 'VERTICAL_SCATTER_NONE',
     }},
 # these are options that are not output but used to write 
-    'alias': {'output': False},
-    'condition': {'output': False},
-    'alloc': {'output': False},
-    'mangled_name': {'writer': 'mangled', 'output': False},
-    'internal_name': {'writer': 'make_internal_name', 'output': False},
-    'rank': {'output': False},
+    'alias': {'flags': CALCULATION, 'output': False},
+    'condition': {'flags': CONTROL, 'output': False},
+    'alloc': {'flags': CALCULATION, 'output': False},
+    'mangled_name': {'flags': CALCULATION, 'writer': 'mangled', 'output': False},
+    'internal_name': {'flags': CALCULATION, 'writer': 'make_internal_name', 'output': False},
+    'rank': {'flags': CALCULATION, 'output': False},
 # aliases
     'avint': 'averaging_interval',
     'cond': 'condition',
@@ -163,6 +190,14 @@ OPTIONS = {
     'vlocation': 'vstagger',
 }
  
+make_flag_check = lambda FN: lambda o: int(o['flag'] & OptionFlag[F]) if 'flag' in o else 0
+mandatory_option = make_flag_check('MANDATORY')
+argument_option = make_flag_check('ARGUMENT')
+printable_option = make_flag_check('PRINTABLE')
+global_option =  make_flag_check('GLOBAL')
+control_option = make_flag_check('CONTROL')
+calculation_option = make_flag_check('CALCULATION')
+
 def is_mandatory(option):
     rv = isinstance(option, dict)
     if(rv):
@@ -385,7 +420,7 @@ def read_specs(specs_filename):
             elif not prev_row_blank:
                 return
 
-    def dataframe(reader, columns):
+    def dataframe(reader, columns, defaults):
         """ Read a reader iterator and return a list of dictionaries, each including column name and value. """
         df = []
         for row in reader:
@@ -397,6 +432,9 @@ def read_specs(specs_filename):
             d[STATE_INTENT_KEY] = intent
         return d
 
+#    set_op = lambda op, seq1, seq2: set(seq1).op(seq2)
+#    merge_dicts = lambda r, d: d | dict((k, r[k] if r[k] else d[k])
+#        for set_op(r.keys() & d.keys()))
     # Python is case sensitive, so dict lookups are case sensitive.
     # The column names are Fortran identifiers, which are case insensitive.
     # So all lookups in the dict below should be converted to lowercase.
@@ -409,10 +447,11 @@ def read_specs(specs_filename):
         while True:
             try:
                 gen = csv_record_reader(specs_reader)
-                _, state_intent = next(gen)[0].lower().split()
+                _, intent = next(gen)[0].lower().split()
                 columns = [c.strip().lower() for c in next(gen)]
-                df = dataframe(gen, columns)
-                specs[state_intent] = [add_state_intent(d, state_intent) for d in df]
+                df = dataframe(gen, columns, (STATE_INTENT_KEY, intent))
+                #merged = [merge(row, defaults) for row in df]
+                specs[intent] = [add_state_intent(d, intent) for d in df]
             except StopIteration:
                 break
 
@@ -492,19 +531,21 @@ def emit_values(specs, args, options):
     if args.name:
         component = args.name
     else:
-        component = os.path.splitext(os.path.basename(args.input))[0]
+        component, _ = os.path.splitext(os.path.basename(args.input))
         component = component.replace('_Registry','')
         component = component.replace('_StateSpecs','')
 
+    STATEINTENT_WRITER = options[STATE_INTENT_KEY]['writer']
+
 # open all output files
     f_specs = {}
-    for state_intent in INTENT_LOOKUP.keys():
-        option = args.__dict__[state_intent + "_specs"]
+    for intent in STATEINTENT_WRITER.keys():
+        option = args.__dict__[intent + "_specs"]
         if option:
             fname = option.format(component=component)
-            f_specs[state_intent] = open_with_header(fname)
+            f_specs[intent] = open_with_header(fname)
         else:
-            f_specs[state_intent] = None
+            f_specs[intent] = None
 
     if args.declare_pointers:
         f_declare_pointers = open_with_header(args.declare_pointers.format(component=component))
@@ -516,12 +557,13 @@ def emit_values(specs, args, options):
         f_get_pointers = None
 
 # Generate code from specs (processed above)
-    for state_intent in INTENT_LOOKUP.keys():
-        if state_intent in specs:
-            for spec_values in specs[state_intent]:
+    for intent in STATEINTENT_WRITER.keys():
+
+        if intent in specs:
+            for spec_values in specs[intent]:
                 spec = MAPL_DataSpec(spec_values, options)
-                if f_specs[state_intent]:
-                    f_specs[state_intent].write(add_newline(spec.emit_specs()))
+                if f_specs[intent]:
+                    f_specs[intent].write(add_newline(spec.emit_specs()))
                 if f_declare_pointers:
                     f_declare_pointers.write(add_newline(spec.emit_declare_pointers()))
                 if f_get_pointers:
@@ -553,23 +595,6 @@ def main():
 
 # Emit values
     emit_values(specs, args, OPTIONS)
-
-#===================================== OLD =====================================
-#deleteme wdb
-def make_string_array(s):
-    """ Returns a string representing a Fortran character array """
-    if ',' in ss:
-        ls = [s.strip() for s in s.strip().split(',')]
-    else:
-        ls = s.strip().split()
-    ls = [str(s).strip().strip('"\'').strip() for s in ls if s]
-    n = max(list(map(len, ls)))
-    ss = ','.join([add_quotes(s) for s in ls])
-    return f"[character(len={n}) :: {ss}]"
-
-def make_entry_writer(dictionary):
-    """ Returns a writer function that looks up the value in dictionary """
-    return lambda key: dictionary[key] if key in dictionary else None
 
 #############################################
 # MAIN program begins here
