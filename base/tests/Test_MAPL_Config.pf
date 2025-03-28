@@ -17,4 +17,21 @@ contains
       call ESMF_ConfigGetAttribute(config, value=str, label='GRID_TYPE:', rc=status)
    end subroutine test_SetAttribute_string
 
+   @test
+   ! Reproducer for NAG + Darwin issue
+   subroutine test_set_attribute_integer
+      type (ESMF_Config) :: config
+      integer :: status
+      integer :: nx
+
+      config = MAPL_ConfigCreate()
+      call MAPL_ConfigSetAttribute(config, value=12, label='NX:', rc=status)
+      @assert_that(status, is(0))
+      
+      call ESMF_ConfigGetAttribute(config, value=nx, label='NX:', rc=status)
+      @assert_that(status, is(0))
+      @assert_that(nx, is(12))
+      
+   end subroutine test_set_attribute_integer
+
 end module Test_MAPL_Config
