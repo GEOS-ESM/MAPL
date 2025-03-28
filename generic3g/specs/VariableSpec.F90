@@ -44,16 +44,78 @@ module mapl3g_VariableSpec
    ! also allows us to defer interpretation until after user
    ! setservices() have run.
    type VariableSpec
-      type(AspectMap) :: aspects
+      ! TODO: delete - move to StateItemSpec
+      type(AspectMap) :: aspects 
+
       ! Mandatory values:
       type(ESMF_StateIntent_Flag) :: state_intent
       character(:), allocatable :: short_name
+      type(ESMF_StateItem_Flag) :: itemType = MAPL_STATEITEM_FIELD
 
-      ! Metadata
-      type(ESMF_StateItem_Flag) :: itemtype = MAPL_STATEITEM_FIELD
-      type(StringVector), allocatable :: service_items
+      !=====================
+      ! class aspect
+      !=====================
+      !---------------------
+      ! Field & Vector
+      !---------------------
+      character(:), allocatable :: standard_name
+      character(:), allocatable :: long_name ! from FieldDictionary or override
+      !---------------------
+      ! Vector
+      !---------------------
+      type(StringVector) :: vector_component_names ! default empty
+      ! Todo: implement these
+      ! type(VectorOrientation_Flag), allocatable :: vectororientation
+      ! type(ArakawaStagger_Flag), allocatable :: arakawa_stagger
+      !---------------------
+      ! Bracket
+      !---------------------
+      integer, allocatable :: bracket_size
+      !---------------------
+      ! Service
+      !---------------------
+      type(StringVector) :: service_items ! default emtpy
 
-      type(StringVector) :: dependencies
+      
+      !=====================
+      ! typekind aspect
+      !=====================
+      type(ESMF_TypeKind_Flag) :: typekind = ESMF_TYPEKIND_R4 ! default
+
+      !=====================
+      ! geomaspect
+      !=====================
+      type(ESMF_Geom), allocatable :: geom
+      ! next two items are mutually exclusive
+      type(EsmfRegridderParam), allocatable :: regrid_param
+      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
+
+      !=====================
+      ! vertical aspect
+      !=====================
+      type(VerticalStaggerLoc), allocatable :: vertical_stagger
+
+      !=====================
+      ! units aspect
+      !=====================
+      character(:), allocatable :: units ! from FieldDictionary or override
+
+      !=====================
+      ! frequency aspect
+      !=====================
+      ! TODO: Should be an enum
+      character(:), allocatable :: accumulation_type
+
+      !=====================
+      ! attributes  aspect
+      !=====================
+      type(StringVector) :: attributes ! default empty
+
+      !=====================
+      ! miscellaneous
+      !=====================
+      type(StringVector) :: dependencies ! default emuty
+
    contains
       procedure :: make_virtualPt
       procedure :: make_dependencies
