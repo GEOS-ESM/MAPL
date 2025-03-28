@@ -11,6 +11,7 @@ module mapl3g_HistoryCollectionGridComp_private
    use MAPL_TimeStringConversion
    use MAPL_BaseMod, only: MAPL_UnpackTime
    use mapl3g_UngriddedDims
+   use mapl3g_FieldClassAspect
    use mapl3g_FrequencyAspect, only: FrequencyAspect
    use mapl3g_TypekindAspect, only: TypekindAspect
    use mapl3g_UnitsAspect, only: UnitsAspect
@@ -298,6 +299,7 @@ contains
          call ftn_iter%next()
          short_name = ftn_iter%of()
          varspec = make_VariableSpecFromAspects(ESMF_STATEINTENT_IMPORT, short_name, &
+            & class_aspect=FieldClassAspect(), &
             & vertical_aspect=VerticalGridAspect(vertical_stagger=VERTICAL_STAGGER_MIRROR), &
             & units_aspect=UnitsAspect(opts%units), &
             & typekind_aspect=TypekindAspect(opts%typekind), &

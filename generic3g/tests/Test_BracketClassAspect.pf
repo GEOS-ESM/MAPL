@@ -46,15 +46,13 @@ contains
       type(VerticalGridAspect) :: vert_aspect
 
       var_spec = make_VariableSpec(itemtype=MAPL_STATEITEM_BRACKET, state_intent=ESMF_STATEINTENT_EXPORT, &
-           short_name='a', standard_name='A', geom=geom, units='m', _RC)
+           short_name='a', standard_name='A', geom=geom, units='m', bracket_size=BRACKET_SIZE, _RC)
 
       aspects => var_spec%aspects
       vert_aspect = VerticalGridAspect(BasicVerticalGrid(5))
-
       call aspects%insert(VERTICAL_GRID_ASPECT_ID, vert_aspect)
-      
-      bracket_aspect = BracketClassAspect(bracket_size=BRACKET_SIZE, standard_name='A')
 
+      bracket_aspect = to_BracketClassAspect(aspects, _RC)
       call bracket_aspect%create(_RC)
       call bracket_aspect%allocate(aspects, _RC)
 
