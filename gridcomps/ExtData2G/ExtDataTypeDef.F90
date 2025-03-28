@@ -9,6 +9,7 @@ module MAPL_ExtDataTypeDef
    use MAPL_NewArthParserMod
    use MAPL_ExtDataMask
    use VerticalCoordinateMod
+   use gftl_StringVector
    implicit none
 
    public PrimaryExport
@@ -27,7 +28,7 @@ module MAPL_ExtDataTypeDef
 
   type PrimaryExport
      character(len=ESMF_MAXSTR)   :: name
-     character(len=ESMF_MAXSTR)   :: units=''
+     character(len=:), allocatable :: units
      integer                      :: Trans
      character(len=ESMF_MAXSTR)   :: var
      character(len=ESMF_MAXPATHLEN)   :: file_template
@@ -71,14 +72,13 @@ module MAPL_ExtDataTypeDef
      logical :: initialized = .false.
      logical :: fail_on_missing_file = .true.
 
-     ! needed for final after time interp if no vertical interp, same field as import
-     !type(ESMF_Field) :: t_interp_field 
      type(ESMF_FieldBundle) :: t_interp_bundle
 
      character(len=4) :: importVDir = "down"
      logical :: disable_vertical_regrid = .true.
      logical :: allow_vertical_regrid = .false.
-     
+     character(len=:), allocatable :: aux_ps, aux_q
+     real, allocatable :: molecular_weight
 
   end type PrimaryExport
   
@@ -94,19 +94,28 @@ module MAPL_ExtDataTypeDef
 
   contains
 
-      subroutine copy_primary(p1, p2)
+      subroutine copy_primary(p1, p2, aux_type )
          type(PrimaryExport), intent(in) :: p1
          type(PrimaryExport), intent(out) :: p2
+         character(len=*), intent(in) :: aux_type
 
-         character(len=:), allocatable :: new_name
-
+         character(len=:), allocatable :: new_name, aux_name
+         logical :: has_aux_item
+         if (aux_type == 'Q') then
+            has_aux_item = allocated(p1%aux_q)
+            aux_name=p1%aux_q
+         end if
+         if (aux_type == 'PS') then
+            has_aux_item = allocated(p1%aux_ps)
+            aux_name=p1%aux_ps
+         end if
          p2 = p1
-         if (allocated(p1%vcoord%surf_name)) then
-            p2%var=p1%vcoord%surf_name
-            new_name = p1%vcoord%surf_name//"_"//trim(p1%name)
+         if (has_aux_item) then
+            p2%var=aux_name
+            new_name = aux_name//"_"//trim(p1%name)
             p2%name=new_name
-            p2%fileVars%xname = p1%vcoord%surf_name
-            p2%fcomp1 = p1%vcoord%surf_name
+            p2%fileVars%xname = aux_name
+            p2%fcomp1 = aux_name
             p2%vcomp1=new_name
          else
             p2%file_template = "/dev/null"
