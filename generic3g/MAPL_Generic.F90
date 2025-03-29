@@ -31,6 +31,7 @@ module mapl3g_Generic
    use mapl3g_StateRegistry, only: StateRegistry
    use mapl_InternalConstantsMod
    use mapl3g_HorizontalDimsSpec, only: HorizontalDimsSpec, HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_GEOM
+   use mapl3g_UngriddedDims, only: UngriddedDims
    use esmf, only: ESMF_Info
    use esmf, only: ESMF_InfoGetFromHost
    use esmf, only: ESMF_InfoGet
@@ -415,9 +416,9 @@ contains
         dims, &
         vstagger, &
         ! OPTIONAL
+        ungridded_dims, &
         unusable, &
         units, &
-        ungridded_dims, &
         restart, &
         rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
@@ -428,8 +429,8 @@ contains
       type(VerticalStaggerLoc), intent(in) :: vstagger
       ! OPTIONAL
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      character(*), optional, intent(in) :: units
       integer, optional, intent(in) :: ungridded_dims(:)
+      character(*), optional, intent(in) :: units
       logical, optional, intent(in) :: restart
       integer, optional, intent(out) :: rc
 
@@ -438,6 +439,8 @@ contains
       type(HorizontalDimsSpec) :: horizontal_dims_spec
       type(OuterMetaComponent), pointer :: outer_meta
       type(ComponentSpec), pointer :: component_spec
+      character(len=:), allocatable :: units_
+      type(UngriddedDims), allocatable :: dim_specs_vec
       integer :: status
 
       _ASSERT((dims=="xyz") .or. (dims=="xy") .or. (dims=="z"), "dims can be one of xyz/xy/z")
@@ -445,13 +448,18 @@ contains
       if (dims == "z") then
          horizontal_dims_spec = HORIZONTAL_DIMS_NONE
       end if
+      ! TODO: Using standard_name, look up field dictionary for units_
+      ! If input units is present, override using input values
+      if (present(units)) units_ = units
+      if (present(ungridded_dims)) dim_specs_vec = UngriddedDims(ungridded_dims)
       var_spec = make_VariableSpec( &
            state_intent, &
            short_name, &
            standard_name=standard_name, &
-           units=units, &
+           units=units_, &
            itemtype=itemtype, &
            vertical_stagger=vstagger, &
+           ungridded_dims=dim_specs_vec, &
            horizontal_dims_spec=horizontal_dims_spec, &
            _RC)
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
@@ -459,8 +467,7 @@ contains
       call component_spec%var_specs%push_back(var_spec)
 
       _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(units)
-      _UNUSED_DUMMY(ungridded_dims)
+      _UNUSED_DUMMY(unusable)
       _UNUSED_DUMMY(restart)
    end subroutine gridcomp_add_fieldspec
 

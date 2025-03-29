@@ -38,6 +38,7 @@ module mapl3g_UngriddedDims
       module procedure new_UngriddedDims_empty
       module procedure new_UngriddedDims_vec
       module procedure new_UngriddedDims_arr
+      module procedure new_UngriddedDims_extent_arr
    end interface UngriddedDims
 
    interface operator(==)
@@ -79,6 +80,18 @@ contains
 
    end function new_UngriddedDims_arr
 
+   function new_UngriddedDims_extent_arr(extent_arr) result(spec)
+      type(UngriddedDims) :: spec
+      integer, intent(in) :: extent_arr(:)
+
+      integer :: i
+      type(UngriddedDim) :: dim_spec
+
+      do i = 1, size(extent_arr)
+         dim_spec = UngriddedDim(extent_arr(i))
+         call spec%dim_specs%push_back(dim_spec)
+      end do
+   end function new_UngriddedDims_extent_arr
 
    ! Note: Ensure that vertical is the first ungridded dimension.
    subroutine add_dim(this, dim_spec, rc)
