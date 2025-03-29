@@ -10,6 +10,7 @@ module mapl3g_VectorBasis
    private
 
    public :: VectorBasis
+   public :: GridGetCoords
    ! Factory functions
    public :: NS_VectorBasis
    public :: GridVectorBasis
@@ -101,7 +102,6 @@ module mapl3g_VectorBasis
       module subroutine destroy_fields(this)
          type(VectorBasis), intent(inout) :: this
       end subroutine destroy_fields
-
 
       module subroutine MAPL_GeomGetCoords(geom, longitudes, latitudes, rc)
          type(ESMF_Geom), intent(in) :: geom
