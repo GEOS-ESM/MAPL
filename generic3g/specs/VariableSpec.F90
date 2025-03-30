@@ -64,6 +64,7 @@ module mapl3g_VariableSpec
       ! Vector
       !---------------------
       type(StringVector) :: vector_component_names ! default empty
+      real(kind=ESMF_KIND_R4), allocatable :: default_value
       ! Todo: implement these
       ! type(VectorOrientation_Flag), allocatable :: vectororientation
       ! type(ArakawaStagger_Flag), allocatable :: arakawa_stagger
@@ -86,6 +87,7 @@ module mapl3g_VariableSpec
       ! geomaspect
       !=====================
       type(ESMF_Geom), allocatable :: geom
+      type(HorizontalDimsSpec) :: horizontal_dims_spec = HORIZONTAL_DIMS_GEOM
       ! next two items are mutually exclusive
       type(EsmfRegridderParam), allocatable :: regrid_param
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
@@ -105,9 +107,15 @@ module mapl3g_VariableSpec
       !=====================
       ! TODO: Should be an enum
       character(:), allocatable :: accumulation_type
+      type(ESMF_TimeInterval), allocatable :: timeStep
+      type(ESMF_TimeInterval), allocatable :: offset
 
       !=====================
-      ! attributes  aspect
+      ! ungridded_dims aspect
+      !=====================
+      type(UngriddedDims) :: ungridded_dims ! default no ungridded
+      !=====================
+      ! attributes aspect
       !=====================
       type(StringVector) :: attributes ! default empty
 
@@ -152,13 +160,13 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: standard_name
       type(ESMF_Geom), optional, intent(in) :: geom
-      type(ESMF_StateItem_Flag), optional, intent(in) :: itemtype
-      type(StringVector), optional :: service_items
       character(*), optional, intent(in) :: units
+      type(ESMF_StateItem_Flag), optional, intent(in) :: itemtype
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       real, optional, intent(in) :: default_value
+      type(StringVector), optional :: service_items
       type(StringVector), optional, intent(in) :: attributes
       integer, optional, intent(in) :: bracket_size
       type(StringVector), optional, intent(in) :: dependencies
@@ -196,6 +204,30 @@ contains
            accumulation_type=accumulation_type), &
            typekind_aspect=TypekindAspect(typekind), &
            _RC)
+
+
+#if defined(_SET_OPTIONAL)
+#  undef _SET_OPTIONAL
+#endif
+#define _SET_OPTIONAL(opt) if (present(opt)) var_spec%opt = opt
+      _SET_OPTIONAL(standard_name)
+      _SET_OPTIONAL(geom)
+      _SET_OPTIONAL(units)
+      _SET_OPTIONAL(itemtype)
+      _SET_OPTIONAL(typekind)
+      _SET_OPTIONAL(vertical_stagger)
+      _SET_OPTIONAL(ungridded_dims)
+      _SET_OPTIONAL(default_value)
+      _SET_OPTIONAL(service_items)
+      _SET_OPTIONAL(attributes)
+      _SET_OPTIONAL(bracket_size)
+      _SET_OPTIONAL(dependencies)
+      _SET_OPTIONAL(regrid_param)
+      _SET_OPTIONAL(horizontal_dims_spec)
+      _SET_OPTIONAL(accumulation_type)
+      _SET_OPTIONAL(timeStep)
+      _SET_OPTIONAL(offset)
+      _SET_OPTIONAL(vector_component_names)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
