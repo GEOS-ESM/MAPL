@@ -589,7 +589,6 @@ contains
     if (nlist == 0) then
        _RETURN(ESMF_SUCCESS)
     end if
-    if( MAPL_AM_I_ROOT() ) print*, 'ck: s'
 
     if (intstate%version >= 1) then
        OUTPUT_GRIDS: block
@@ -601,8 +600,6 @@ contains
          integer, allocatable :: mark(:)
          character(len=ESMF_MAXSTR), allocatable :: grid_name(:)
 
-         if( MAPL_AM_I_ROOT() ) print*, 'ck: s1'
-         ! ygyu preprocess
          count = 0
          call ESMF_ConfigFindLabel ( config,'GRID_LABELS:',_RC )
          tend  = .false.
@@ -616,7 +613,6 @@ contains
          allocate (grid_name(count))
          allocate (mark(count))
 
-         if( MAPL_AM_I_ROOT() ) print*, 'ck: s2.1'
          mark(:) = 1
          count = 0
          call ESMF_ConfigFindLabel ( config,'GRID_LABELS:',_RC )
@@ -630,7 +626,6 @@ contains
              call ESMF_ConfigNextLine     ( config,tableEnd=tend,_RC )
          enddo
 
-         if( MAPL_AM_I_ROOT() ) print*, 'ck: s2.2'
          do n=1, count
             call ESMF_ConfigGetAttribute(config, value=grid_type, label=trim(grid_name(n))//".GRID_TYPE:",_RC)
             if (trim(grid_type)=='trajectory') then
@@ -638,7 +633,6 @@ contains
             end if
          end do
 
-         if( MAPL_AM_I_ROOT() ) print*, 'ck: s2.3'
          count = 0
          call ESMF_ConfigFindLabel ( config,'GRID_LABELS:',_RC )
          tend  = .false.
@@ -646,7 +640,6 @@ contains
              call ESMF_ConfigGetAttribute ( config,value=tmpstring,default='',rc=STATUS) !ALT: we don't check return status!!!
              if (tmpstring /= '')  then
                 count = count + 1
-! ygyu come back and check
                 if ( mark(count)==1 ) then
                    call IntState%output_grids%insert(trim(tmpString), output_grid)
                 end if
@@ -654,52 +647,42 @@ contains
              call ESMF_ConfigNextLine     ( config,tableEnd=tend,_RC )
          enddo
 
-         if( MAPL_AM_I_ROOT() ) print*, 'ck: s3'
-
-!!  ygyyu rid of trajectory grid, because it if faske
-!!     if (trim(grid_type)/='trajectory') then
-
-!         iter = IntState%output_grids%find('trajectory')
-!         call IntState%output_grids%erase(iter)
-
           swath_count = 0
           iter = IntState%output_grids%begin()
           do while (iter /= IntState%output_grids%end())
              key => iter%key()
-             write(6,*) 'ck label=trim(key)=', trim(key)
              call ESMF_ConfigGetAttribute(config, value=grid_type, label=trim(key)//".GRID_TYPE:",_RC)
-                call ESMF_ConfigFindLabel(config,trim(key)//".NX:",isPresent=hasNX,_RC)
-                call ESMF_ConfigFindLabel(config,trim(key)//".NY:",isPresent=hasNY,_RC)
-                if ((.not.hasNX) .and. (.not.hasNY)) then
-                   if (trim(grid_type)=='Cubed-Sphere') then
-                      call MAPL_MakeDecomposition(nx,ny,reduceFactor=6,_RC)
-                   else
-                      call MAPL_MakeDecomposition(nx,ny,_RC)
-                   end if
-                   call MAPL_ConfigSetAttribute(config, value=nx,label=trim(key)//".NX:",_RC)
-                   call MAPL_ConfigSetAttribute(config, value=ny,label=trim(key)//".NY:",_RC)
+             call ESMF_ConfigFindLabel(config,trim(key)//".NX:",isPresent=hasNX,_RC)
+             call ESMF_ConfigFindLabel(config,trim(key)//".NY:",isPresent=hasNY,_RC)
+             if ((.not.hasNX) .and. (.not.hasNY)) then
+                if (trim(grid_type)=='Cubed-Sphere') then
+                   call MAPL_MakeDecomposition(nx,ny,reduceFactor=6,_RC)
+                else
+                   call MAPL_MakeDecomposition(nx,ny,_RC)
                 end if
+                call MAPL_ConfigSetAttribute(config, value=nx,label=trim(key)//".NX:",_RC)
+                call MAPL_ConfigSetAttribute(config, value=ny,label=trim(key)//".NY:",_RC)
+             end if
 
-                if (trim(grid_type)/='Swath') then
-                   output_grid = grid_manager%make_grid(config, prefix=key//'.', _RC)
-                elseif (trim(grid_type)=='Swath') then
-                   swath_count = swath_count + 1
-                   !
-                   ! Hsampler use the first config to setup epoch
-                   !
-                   if (swath_count == 1) then
-                      Hsampler = samplerHQ(clock, key, config, _RC)
-                   end if
-                   call Hsampler%config_accumulate(key, config, _RC)
-                   output_grid = Hsampler%create_grid(key, currTime, grid_type=grid_type, _RC)
+             if (trim(grid_type)/='Swath') then
+                output_grid = grid_manager%make_grid(config, prefix=key//'.', _RC)
+             elseif (trim(grid_type)=='Swath') then
+                swath_count = swath_count + 1
+                !
+                ! Hsampler use the first config to setup epoch
+                !
+                if (swath_count == 1) then
+                   Hsampler = samplerHQ(clock, key, config, _RC)
                 end if
-                call IntState%output_grids%set(key, output_grid)
+                call Hsampler%config_accumulate(key, config, _RC)
+                output_grid = Hsampler%create_grid(key, currTime, grid_type=grid_type, _RC)
+             end if
+             call IntState%output_grids%set(key, output_grid)
 
              call iter%next()
           end do
         end block OUTPUT_GRIDS
      end if
-     write(6,*) 'ck: this is the end of  IntState%output_grids%'
 
 
     if (intstate%version >= 2) then
@@ -5581,7 +5564,7 @@ ENDDO PARSER
     if (count==0) then
        ! keyword non-exist
        ! continue to search for 'DEFINE_OBS_PLATFORM::'
-       write(6,*) 'schema.version: keyword does not exist'
+       call lgr%info('%a', 'schema.version: keyword does not exist, treat as supercollection')
        continue
     elseif (count>1) then
        _FAIL('schema.version: keyword appears more than once in HISTORY.rc')
@@ -5596,7 +5579,7 @@ ENDDO PARSER
        elseif (k==1) then
           _FAIL('version not found')
        end if
-       write(6,*) 'schema.version=', schema_version
+       call lgr%info('%a %i2', 'schema.version=', schema_version)
        if (schema_version == 1) then
           ! use individual Traj. Sampler collection
           !
@@ -5606,7 +5589,6 @@ ENDDO PARSER
           _FAIL('schema_version > 2 not supported')
        end if
     end if
-
 
 
 !   continue with the platform grammar
