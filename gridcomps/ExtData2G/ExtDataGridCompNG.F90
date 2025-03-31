@@ -931,7 +931,7 @@ CONTAINS
         vars => metadata%get_variables()
         var_iter = vars%begin()
         do while (var_iter /= vars%end())
-           var_name => var_iter%key()
+           var_name => var_iter%first()
            has_longname = metadata%var_has_attr(var_name,'long_name',_RC)
            has_units = metadata%var_has_attr(var_name,'units',_RC)
            if (has_longname .and. has_units) then
