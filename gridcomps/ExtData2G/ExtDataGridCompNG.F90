@@ -898,7 +898,7 @@ CONTAINS
 
         item%vcoord = verticalCoordinate(metadata, item%var, _RC)
         if (item%vcoord%vertical_type /= NO_COORD .and. item%vcoord%vertical_type /= SIMPLE_COORD .and. &
-            (item%disable_vertical_regrid .eqv. .false.)) item%allow_vertical_regrid = .true.
+            (item%enable_vertical_regrid .eqv. .true.)) item%allow_vertical_regrid = .true.
         
         if (item%allow_vertical_regrid) then
            item%aux_ps = item%vcoord%surf_name
@@ -1048,10 +1048,8 @@ CONTAINS
            call ESMF_StateGet(import, 'Q', q_field, _RC)
            call ESMF_FieldGet(q_field,0, farrayPtr=dst_q, _RC)
            src_q_name = item%aux_q//"_"//trim(item%vcomp1)
-           call ESMF_StateGet(MAPLExtState%ExtDataState, src_q_name, q_field, _RC) !bmaa fix
+           call ESMF_StateGet(MAPLExtState%ExtDataState, src_q_name, q_field, _RC) 
            call ESMF_FieldGet(q_field,0, farrayPtr=src_q, _RC)
-           print*,'bmaa srcq: ',shape(src_q)
-           print*,'bmaa dstq: ',shape(dst_q)
            call vremap_conserve_vol_mixing(src_ple_ptr, src_q, molecular_weight, src_ptr3d, dst_ple_ptr, dst_q, dst_ptr3d, _RC)
         case default
            _FAIL(trim(units_in)//" not supported for vertical regridding")
