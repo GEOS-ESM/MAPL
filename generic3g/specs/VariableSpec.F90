@@ -127,6 +127,13 @@ module mapl3g_VariableSpec
    contains
       procedure :: make_virtualPt
       procedure :: make_dependencies
+
+      procedure :: make_aspects
+      procedure :: make_UnitsAspect
+      procedure :: make_TypekindAspect
+      procedure :: make_GeomAspect
+      procedure :: make_UngriddedDimsAspect
+      procedure :: make_AttributesAspect
    end type VariableSpec
 
 contains
@@ -463,4 +470,115 @@ contains
 
    end subroutine add_item
 
+
+!#   function make_StateitemSpec(this, ..., rc) result(spec)
+!#
+!#      aspects = this%make_aspects(..., rc)
+!#      spec = StateItemSpec(aspects, dependencies=this%dependencies)
+!#      
+!#      _RETURN(_SUCCESS)
+!#   end function make_StateitemSpec
+!#
+   function make_aspects(this, registry, geom, vertical_grid, unusable, timestep, offset, rc) result(aspects)
+      type(AspectMap) :: aspects
+      class(VariableSpec), intent(in) :: this
+      type(StateRegistry), pointer :: registry
+      type(ESMF_Geom), intent(in) :: geom
+      class(VerticalGrid), intent(in) :: vertical_grid
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      type(ESMF_TimeInterval), intent(in) :: timestep
+      type(ESMF_TimeInterval), intent(in) :: offset
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(StateItemAspect), allocatable :: aspect
+
+      aspect = this%make_UnitsAspect(RC)
+      call aspects%insert(UNITS_ASPECT_ID, aspect)
+      
+      aspect = this%make_TypekindAspect(_RC)
+      call aspects%insert(TYPEKIND_ASPECT_ID, aspect)
+
+      aspect = this%make_GeomAspect(geom, _RC)
+      call aspects%insert(TYPEKIND_ASPECT_ID, aspect)
+
+      aspect = this%make_UngriddedDimsAspect(_RC)
+      call aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, aspect)
+      
+      aspect = this%make_AttributesAspect(_RC)
+      call aspects%insert(ATTRIBUTES_ASPECT_ID, aspect)
+      
+      _RETURN(_SUCCESS)
+   end function make_aspects
+
+   function make_UnitsAspect(this, rc) result(aspect)
+      type(UnitsAspect) :: aspect
+      class(VariableSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+      aspect = UnitsAspect(this%units)
+      _RETURN(_SUCCESS)
+   end function make_UnitsAspect
+
+   function make_TypekindAspect(this, rc) result(aspect)
+      type(TypekindAspect) :: aspect
+      class(VariableSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+      aspect = TypekindAspect(this%typekind)
+      _RETURN(_SUCCESS)
+   end function make_TypekindAspect
+
+   function make_GeomAspect(this, component_geom, rc) result(aspect)
+      type(GeomAspect) :: aspect
+      class(VariableSpec), intent(in) :: this
+      type(ESMF_Geom), optional, intent(in) :: component_geom
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Geom) :: geom_
+
+      ! If geom is allocated in var spec then it is prioritized over the
+      ! component-wide geom.
+      ! If not specified either way, then it indicates that the geom is
+      ! mirrored ind will be determined by a connection.
+      if (allocated(this%geom)) then
+         geom_ = this%geom
+      elseif (present(component_geom)) then
+         geom_ = component_geom
+      end if
+      aspect = GeomAspect(geom_, this%regrid_param, this%horizontal_dims_spec)
+
+      _RETURN(_SUCCESS)
+   end function make_GeomAspect
+
+   function make_UngriddedDimsAspect(this, rc) result(aspect)
+      type(UngriddedDimsAspect) :: aspect
+      class(VariableSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+      aspect = UngriddedDimsAspect(this%ungridded_dims)
+      _RETURN(_SUCCESS)
+   end function make_UngriddedDimsAspect
+  
+   function make_AttributesAspect(this, rc) result(aspect)
+      type(AttributesAspect) :: aspect
+      class(VariableSpec), intent(in) :: this
+      integer, optional, intent(out) :: rc
+      aspect = AttributesAspect(this%attributes)
+      _RETURN(_SUCCESS)
+   end function make_AttributesAspect
+  
+
+!#   function make_ClassAspect(this, registry, rc)
+!#   end function make_ClassAspect
+!#
+!#
+!#   function make_AttributesAspect(this, rc)
+!#   end function make_AttributesAspect
+!#
+!#   function make_VerticalGridAspect(this, vertical_grid, geom, rc)
+!#   end function make_VerticalGridAspect
+!#
+!#   function make_frequencyAspect(this, timestep, offset, rc)
+!#   end function make_frequencyAspect
+!#
+
+   
 end module mapl3g_VariableSpec
