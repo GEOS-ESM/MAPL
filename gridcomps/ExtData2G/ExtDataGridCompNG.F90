@@ -1010,6 +1010,8 @@ CONTAINS
      real :: molecular_weight
      character(len=:), allocatable :: units_in, units_out
      integer :: constituent_type
+     type(ESMF_Info) :: infoh
+
 
      if (item%vcoord%vertical_type == NO_COORD &
         .or. (.not.item%delivered_item)) then
@@ -1046,7 +1048,8 @@ CONTAINS
         case(emission)
            call vremap_conserve_emission(src_ple_ptr,src_ptr3d,dst_ple_ptr,dst_ptr3d)
         case (volume_mixing)
-           call ESMF_AttributeGet(src_field,name='molecular_weight',value=molecular_weight, _RC)
+           call ESMF_InfoGetFromHost(src_field,infoh,_RC)
+           call ESMF_InfoGet(infoh,key='molecular_weight',value=molecular_weight, _RC)
            call ESMF_StateGet(import, 'Q', q_field, _RC)
            call ESMF_FieldGet(q_field,0, farrayPtr=dst_q, _RC)
            src_q_name = item%aux_q//"_"//trim(item%vcomp1)
@@ -1638,8 +1641,10 @@ CONTAINS
         character(len=*), intent(in) :: units
         integer, optional, intent(out) :: rc
         integer :: status
+        type(ESMF_Info) :: infoh
 
-        call ESMF_AttributeSet(field,name='UNITS',value=units, _RC)
+        call ESMF_InfoGetFromHost(field,infoh,_RC)
+        call ESMF_InfoSet(infoh,key='UNITS',value=units, _RC)
         _RETURN(_SUCCESS)
      end subroutine set_field_units
 
@@ -1648,9 +1653,11 @@ CONTAINS
         type(PrimaryExport), intent(inout) :: item
         integer, optional, intent(out) :: rc
         integer :: status
+        type(ESMF_Info) :: infoh
 
         if (allocated(item%molecular_weight)) then
-           call ESMF_AttributeSet(field,name='molecular_weight',value=item%molecular_weight, _RC)
+           call ESMF_InfoGetFromHost(field,infoh,_RC)
+           call ESMF_InfoSet(field,key='molecular_weight',value=item%molecular_weight, _RC)
         end if
         _RETURN(_SUCCESS)
      end subroutine set_mw
