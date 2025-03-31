@@ -29,6 +29,7 @@
    USE ESMF
    use gFTL2_StringVector
    use pfio_StringVectorUtilMod
+   use pFIO_StringVariableMapMod
    use gFTL_IntegerVector
    use MAPL_BaseMod
    use MAPL_CommsMod
