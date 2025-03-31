@@ -1658,7 +1658,7 @@ CONTAINS
 
         if (allocated(item%molecular_weight)) then
            call ESMF_InfoGetFromHost(field,infoh,_RC)
-           call ESMF_InfoSet(field,key='molecular_weight',value=item%molecular_weight, _RC)
+           call ESMF_InfoSet(infoh,key='molecular_weight',value=item%molecular_weight, _RC)
         end if
         _RETURN(_SUCCESS)
      end subroutine set_mw
