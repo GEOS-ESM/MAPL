@@ -75,7 +75,7 @@ module MAPL_ExtDataTypeDef
      type(ESMF_FieldBundle) :: t_interp_bundle
 
      character(len=4) :: importVDir = "down"
-     logical :: disable_vertical_regrid = .true.
+     logical :: enable_vertical_regrid = .false.
      logical :: allow_vertical_regrid = .false.
      character(len=:), allocatable :: aux_ps, aux_q
      real, allocatable :: molecular_weight
