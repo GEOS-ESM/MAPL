@@ -2,7 +2,7 @@
 #include "unused_dummy.H"
 
 module pFIO_NetCDF4_FileFormatterMod
-   use, intrinsic :: iso_fortran_env, only: INT32, INT64
+   use, intrinsic :: iso_fortran_env, only: INT8, INT16, INT32, INT64
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    use, intrinsic :: iso_fortran_env, only: error_unit
    use MAPL_ExceptionHandling
@@ -46,6 +46,16 @@ module pFIO_NetCDF4_FileFormatterMod
 
       procedure :: ___SUB(get_var,string,1)
 
+      procedure :: ___SUB(get_var,int8,0)
+      procedure :: ___SUB(get_var,int8,1)
+      procedure :: ___SUB(get_var,int8,2)
+      procedure :: ___SUB(get_var,int8,3)
+      procedure :: ___SUB(get_var,int8,4)
+      procedure :: ___SUB(get_var,int16,0)
+      procedure :: ___SUB(get_var,int16,1)
+      procedure :: ___SUB(get_var,int16,2)
+      procedure :: ___SUB(get_var,int16,3)
+      procedure :: ___SUB(get_var,int16,4)
       procedure :: ___SUB(get_var,int32,0)
       procedure :: ___SUB(get_var,int32,1)
       procedure :: ___SUB(get_var,int32,2)
@@ -91,6 +101,16 @@ module pFIO_NetCDF4_FileFormatterMod
 
 
       generic :: get_var => ___SUB(get_var,string,1)
+      generic :: get_var => ___SUB(get_var,int8,0)
+      generic :: get_var => ___SUB(get_var,int8,1)
+      generic :: get_var => ___SUB(get_var,int8,2)
+      generic :: get_var => ___SUB(get_var,int8,3)
+      generic :: get_var => ___SUB(get_var,int8,4)
+      generic :: get_var => ___SUB(get_var,int16,0)
+      generic :: get_var => ___SUB(get_var,int16,1)
+      generic :: get_var => ___SUB(get_var,int16,2)
+      generic :: get_var => ___SUB(get_var,int16,3)
+      generic :: get_var => ___SUB(get_var,int16,4)
       generic :: get_var => ___SUB(get_var,int32,0)
       generic :: get_var => ___SUB(get_var,int32,1)
       generic :: get_var => ___SUB(get_var,int32,2)
@@ -1148,6 +1168,8 @@ contains
       character(len=NF90_MAX_NAME) :: dim_name
       class (Variable), allocatable :: var
       class (*), allocatable :: coordinate_data(:)
+      integer(kind=INT8), allocatable :: data_int8(:)
+      integer(kind=INT16), allocatable :: data_int16(:)
       integer(kind=INT32), allocatable :: data_int32(:)
       integer(kind=INT64), allocatable :: data_int64(:)
       real(kind=REAL32), allocatable :: data_real32(:)
@@ -1190,6 +1212,7 @@ contains
          deallocate(dimids)
 
          if ( this%is_coordinate_dimension(trim(var_name))) then
+            _HERE,'bmaa query ',trim(var_name)
             !$omp critical
             status = nf90_inq_dimid(this%ncid, dim_string, dimid=dimid)
             !$omp end critical
@@ -1200,6 +1223,18 @@ contains
             _VERIFY(status)
 
             select case (xtype)
+            case (NF90_BYTE)
+               allocate(data_int8(len))
+               call this%get_var(trim(var_name), data_int8, count=[len], rc=status)
+               _VERIFY(status)
+               allocate(coordinate_data, source=data_int8)
+               deallocate(data_int8)
+            case (NF90_SHORT)
+               allocate(data_int16(len))
+               call this%get_var(trim(var_name), data_int16, count=[len], rc=status)
+               _VERIFY(status)
+               allocate(coordinate_data, source=data_int16)
+               deallocate(data_int16)
             case (NF90_INT)
                allocate(data_int32(len))
                call this%get_var(trim(var_name), data_int32, count=[len], rc=status)
@@ -1328,6 +1363,54 @@ contains
 
    ! REAL64
 #define _VARTYPE 5
+#  define _RANK 0
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#  define _RANK 1
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#  define _RANK 2
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#  define _RANK 3
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#  define _RANK 4
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#undef _VARTYPE
+
+   ! INT8
+#define _VARTYPE 6
+#  define _RANK 0
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#  define _RANK 1
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#  define _RANK 2
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#  define _RANK 3
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#  define _RANK 4
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#undef _VARTYPE
+
+   ! INT16
+#define _VARTYPE 7
 #  define _RANK 0
 #    include "NetCDF4_get_var.H"
 #    include "NetCDF4_put_var.H"
