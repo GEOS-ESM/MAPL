@@ -70,6 +70,7 @@
    use MAPL_ExtDataDerivedExportVectorMod
    use VerticalCoordinateMod
    use VerticalRegridConserveInterfaceMod
+   use MAPL_AbstractGridFactoryMod
 
    IMPLICIT NONE
    PRIVATE
