@@ -101,6 +101,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Changed ExtData keyworld disable\_veritcal\_regridding (default true) to enable\_vertical\_regridding (default false)
 - Relaxed the MPI thread levels to MPI_THREAD_SERIALIZED required by ESMF
 - Update to `ESMA_env` v4.35.0 --> Baselibs 7.32.0
   - This brings in GFE v1.19.0 (which has gFTL v1.15.2 needed for MAPL3 work)
@@ -108,6 +109,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed bug that broke SCM model in GEOS
 - Fix ExtData2G unit test for GNU on Discover
 - Fixed nesting of internal timers (issue #3412)
 - Fixed issue of `make tests` not building all needed executables

@@ -70,6 +70,7 @@
    use MAPL_ExtDataDerivedExportVectorMod
    use VerticalCoordinateMod
    use VerticalRegridConserveInterfaceMod
+   use MAPL_AbstractGridFactoryMod
 
    IMPLICIT NONE
    PRIVATE
@@ -640,7 +641,7 @@ CONTAINS
       if (item%vartype == MAPL_VectorField) then
          call item%filestream%get_file_bracket(use_time,item%source_time, item%modelGridFields%comp2, item%fail_on_missing_file,_RC)
       end if
-      call create_bracketing_fields(item,self%ExtDataState,cf_master, _RC)
+      call create_bracketing_fields(item,self%ExtDataState, _RC)
       call IOBundle_Add_Entry(IOBundles,item,idx)
       useTime(i)=use_time
 
@@ -901,7 +902,7 @@ CONTAINS
 
         item%vcoord = verticalCoordinate(metadata, item%var, _RC)
         if (item%vcoord%vertical_type /= NO_COORD .and. item%vcoord%vertical_type /= SIMPLE_COORD .and. &
-            (item%disable_vertical_regrid .eqv. .false.)) item%allow_vertical_regrid = .true.
+            (item%enable_vertical_regrid .eqv. .true.)) item%allow_vertical_regrid = .true.
 
         if (item%allow_vertical_regrid) then
            item%aux_ps = item%vcoord%surf_name
@@ -1054,7 +1055,7 @@ CONTAINS
            call ESMF_StateGet(import, 'Q', q_field, _RC)
            call ESMF_FieldGet(q_field,0, farrayPtr=dst_q, _RC)
            src_q_name = item%aux_q//"_"//trim(item%vcomp1)
-           call ESMF_StateGet(MAPLExtState%ExtDataState, src_q_name, q_field, _RC) !bmaa fix
+           call ESMF_StateGet(MAPLExtState%ExtDataState, src_q_name, q_field, _RC)
            call ESMF_FieldGet(q_field,0, farrayPtr=src_q, _RC)
            call vremap_conserve_vol_mixing(src_ple_ptr, src_q, molecular_weight, src_ptr3d, dst_ple_ptr, dst_q, dst_ptr3d, _RC)
         case default
@@ -1085,70 +1086,28 @@ CONTAINS
 
   end subroutine MAPL_ExtDataVerticalInterpolate
 
-  function MAPL_ExtDataGridChangeLev(Grid,CF,lm,rc) result(NewGrid)
+  function MAPL_ExtDataGridChangeLev(Grid,lm,rc) result(NewGrid)
 
      type(ESMF_Grid), intent(inout) :: Grid
-     type(ESMF_Config), intent(inout) :: CF
      integer,         intent(in)    :: lm
      integer, optional, intent(out) :: rc
 
      integer :: status
 
-     character(len=ESMF_MAXSTR) :: gname, comp_name
-     integer :: counts(3)
-     integer :: NX,NY
      type(ESMF_Grid)           :: newGrid
-     type(ESMF_Config)         :: cflocal
-     character(len=*), parameter :: CF_COMPONENT_SEPARATOR = '.'
-     real :: temp_real
-     logical :: isPresent
-     type(ESMF_Info) :: infoh
+     type(ESMF_Info) :: infoh_grid, infoh_NewGrid
+     class (AbstractGridFactory), pointer :: factory
+     integer :: factory_id
 
-     call MAPL_GridGet(grid,globalCellCountPerDim=counts,_RC)
-     call ESMF_GridGet(grid,name=gName,_RC)
-     call ESMF_ConfigGetAttribute(CF, value = NX, Label="NX:", _RC)
-     call ESMF_ConfigGetAttribute(CF, value = NY, Label="NY:", _RC)
+     factory => get_factory(grid, _RC)
+     NewGrid = factory%make_grid(force_new_grid=.true., _RC)
 
-     comp_name = "ExtData"
-     cflocal = MAPL_ConfigCreate(_RC)
-     call MAPL_ConfigSetAttribute(cflocal,value=NX, label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"NX:",_RC)
-     call MAPL_ConfigSetAttribute(cflocal,value=lm, label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"LM:",_RC)
+     call ESMF_InfoGetFromHost(grid,infoh_Grid,_RC)
+     call ESMF_InfoGetFromHost(NewGrid,infoh_NewGrid,_RC)
 
-     if (counts(2) == 6*counts(1)) then
-        call MAPL_ConfigSetAttribute(cflocal,value="Cubed-Sphere", label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"GRID_TYPE:",_RC)
-        call MAPL_ConfigSetAttribute(cflocal,value=6, label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"NF:",_RC)
-        call MAPL_ConfigSetAttribute(cflocal,value=counts(1), label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"IM_WORLD:",_RC)
-        call MAPL_ConfigSetAttribute(cflocal,value=ny/6, label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"NY:",_RC)
-        call MAPL_ConfigSetAttribute(cflocal,value=trim(gname), label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"GRIDNAME:",_RC)
-
-        call ESMF_InfoGetFromHost(grid,infoh,_RC)
-        isPresent = ESMF_InfoIsPresent(infoh,'STRETCH_FACTOR',_RC)
-        if (isPresent) then
-           call ESMF_InfoGet(infoh,'STRETCH_FACTOR',temp_real,_RC)
-           call MAPL_ConfigSetAttribute(cflocal,value=temp_real, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"STRETCH_FACTOR:",_RC)
-        endif
-
-        isPresent = ESMF_InfoIsPresent(infoh,'TARGET_LON',_RC)
-        if (isPresent) then
-           call ESMF_InfoGet(infoh,'TARGET_LON',temp_real,_RC)
-           call MAPL_ConfigSetAttribute(cflocal,value=temp_real*MAPL_RADIANS_TO_DEGREES, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"TARGET_LON:",_RC)
-        endif
-
-        isPresent = ESMF_InfoIsPresent(infoh,'TARGET_LAT',_RC)
-        if (isPresent) then
-           call ESMF_InfoGet(infoh,'TARGET_LAT',temp_real,_RC)
-           call MAPL_ConfigSetAttribute(cflocal,value=temp_real*MAPL_RADIANS_TO_DEGREES, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"TARGET_LAT:",_RC)
-        endif
-     else
-        call MAPL_ConfigSetAttribute(cflocal,value=counts(1), label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"IM_WORLD:",_RC)
-        call MAPL_ConfigSetAttribute(cflocal,value=counts(2), label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"JM_WORLD:",_RC)
-        call MAPL_ConfigSetAttribute(cflocal,value=ny, label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"NY:",_RC)
-        call MAPL_ConfigSetAttribute(cflocal,value=trim(gname), label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"GRIDNAME:",_RC)
-        call MAPL_ConfigSetAttribute(cflocal,value='LatLon', label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"GRID_TYPE:",_RC)
-        call MAPL_ConfigSetAttribute(cflocal,value='PC', label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"POLE:",_RC)
-        call MAPL_ConfigSetAttribute(cflocal,value='DC', label=trim(COMP_Name)//CF_COMPONENT_SEPARATOR//"DATELINE:",_RC)
-     end if
-     newgrid = grid_manager%make_grid(cflocal, prefix=trim(COMP_Name)//".", _RC)
+     call ESMF_InfoSet(infoh_NewGrid, key='GRID_LM', value=lm, _RC)
+     call ESMF_InfoGet(infoh_Grid, key=factory_id_attribute_public,value=factory_id,_RC)
+     call ESMF_InfoSet(infoh_NewGrid, key=factory_id_attribute_public,value=factory_id,_RC)
 
      _RETURN(ESMF_SUCCESS)
 
@@ -1497,10 +1456,9 @@ CONTAINS
      _RETURN(_SUCCESS)
   end subroutine set_constant_field
 
-  subroutine create_bracketing_fields(item,ExtDataState,cf,rc)
+  subroutine create_bracketing_fields(item,ExtDataState,rc)
      type(PrimaryExport), intent(inout) :: item
      type(ESMF_State), intent(inout) :: extDataState
-     type(ESMF_Config), intent(inout) :: cf
      integer, intent(out), optional :: rc
 
      integer :: status,lm,fieldRank
@@ -1555,7 +1513,7 @@ CONTAINS
               item%do_Fill = .true.
            end if
 
-           bracket_grid = MAPL_ExtDataGridChangeLev(grid,cf,item%vcoord%num_levels,_RC)
+           bracket_grid = MAPL_ExtDataGridChangeLev(grid,item%vcoord%num_levels,_RC)
            left_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
            call set_field_units(left_field, item%units, _RC)
            call set_mw(left_field, item, _RC)
@@ -1591,7 +1549,7 @@ CONTAINS
               item%do_Fill = .true.
            end if
 
-           bracket_grid = MAPL_ExtDataGridChangeLev(grid,cf,item%vcoord%num_levels,_RC)
+           bracket_grid = MAPL_ExtDataGridChangeLev(grid,item%vcoord%num_levels,_RC)
            left_field = MAPL_FieldCreate(field,bracket_grid,lm=item%vcoord%num_levels,newName=trim(item%fcomp1),_RC)
            call set_field_units(left_field, item%units, _RC)
            _HERE
