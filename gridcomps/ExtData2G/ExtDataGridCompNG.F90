@@ -1094,15 +1094,19 @@ CONTAINS
      integer :: status
 
      type(ESMF_Grid)           :: newGrid
-     type(ESMF_Info) :: infoh
+     type(ESMF_Info) :: infoh_grid, infoh_NewGrid
      class (AbstractGridFactory), pointer :: factory
      integer :: factory_id
 
      factory => get_factory(grid, _RC)
      NewGrid = factory%make_grid(force_new_grid=.true., _RC)
-     call ESMF_AttributeSet(NewGrid, name='GRID_LM', value=lm, _RC)
-     call ESMF_AttributeGet(Grid, name=factory_id_attribute_public,value=factory_id,_RC)
-     call ESMF_AttributeSet(NewGrid, name=factory_id_attribute_public,value=factory_id,_RC)
+
+     call ESMF_InfoGetFromHost(grid,infoh_Grid,_RC)
+     call ESMF_InfoGetFromHost(NewGrid,infoh_NewGrid,_RC)
+
+     call ESMF_InfoSet(infoh_NewGrid, key='GRID_LM', value=lm, _RC)
+     call ESMF_InfoGet(infoh_Grid, key=factory_id_attribute_public,value=factory_id,_RC)
+     call ESMF_InfoSet(infoh_NewGrid, key=factory_id_attribute_public,value=factory_id,_RC)
 
      _RETURN(ESMF_SUCCESS)
 
