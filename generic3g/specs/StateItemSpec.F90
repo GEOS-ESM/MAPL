@@ -19,6 +19,7 @@ module mapl3g_StateItemSpec
 
    public :: check
    public :: StateItemSpec
+   public :: new_StateItemSpec
    public :: StateItemSpecPtr
 #ifndef __GFORTRAN__
    public :: assignment(=)
@@ -86,11 +87,13 @@ module mapl3g_StateItemSpec
 
 contains
 
-   function new_StateItemSpec(aspects) result(spec)
+   function new_StateItemSpec(aspects, dependencies) result(spec)
       type(StateItemSpec) :: spec
       type(AspectMap), intent(in) :: aspects
+      type(ActualPtVector), intent(in) :: dependencies
 
       spec%aspects = aspects
+      spec%dependencies = dependencies
    end function new_StateItemSpec
 
 

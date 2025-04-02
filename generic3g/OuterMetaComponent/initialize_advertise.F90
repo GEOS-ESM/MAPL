@@ -83,12 +83,13 @@ contains
            iter = this%component_spec%var_specs%begin()
            do while (iter /= e)
               var_spec => iter%of()
-              call advertise_variable( &
-                   var_spec, &
-                   this%registry, &
-                   this%component_spec%activate_all_exports, &
-                   this%component_spec%activate_all_imports, &
-                   _RC)
+              call advertise_variable( this, var_spec, _RC)
+!#              &
+!#                   var_spec, &
+!#                   this%registry, &
+!#                   this%component_spec%activate_all_exports, &
+!#                   this%component_spec%activate_all_imports, &
+!#                   _RC)
               call iter%next()
            end do
          end associate
@@ -97,29 +98,38 @@ contains
          _UNUSED_DUMMY(unusable)
       end subroutine self_advertise
 
-      subroutine advertise_variable(var_spec, registry, activate_all_exports, activate_all_imports, unusable, rc)
+!#      subroutine advertise_variable(var_spec, registry, activate_all_exports, activate_all_imports, unusable, rc)
+!#         type(VariableSpec), intent(in) :: var_spec
+!#         type(StateRegistry), target, intent(inout) :: registry
+!#         logical, intent(in) :: activate_all_exports
+!#         logical, intent(in) :: activate_all_imports
+!#         class(KE), optional, intent(in) :: unusable
+!#         integer, optional, intent(out) :: rc
+      subroutine advertise_variable(this, var_spec, rc)
+         class(OuterMetaComponent), target, intent(inout) :: this
          type(VariableSpec), intent(in) :: var_spec
-         type(StateRegistry), target, intent(inout) :: registry
-         logical, intent(in) :: activate_all_exports
-         logical, intent(in) :: activate_all_imports
-         class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
 
          integer :: status
          type(StateItemSpec) :: item_spec
          type(VirtualConnectionPt) :: virtual_pt
 
+         _HERE, this%get_name()
+         _HERE, var_spec%short_name
+         _HERE, allocated(this%geom)
          _ASSERT(var_spec%itemtype /= MAPL_STATEITEM_UNKNOWN, 'Invalid type id in variable spec <'//var_spec%short_name//'>.')
 
-         item_spec = make_ItemSpec(var_spec, registry, _RC)
+!#         item_spec = make_ItemSpec(var_spec, registry, _RC)
+         item_spec = var_spec%make_StateItemSpec(this%registry, &
+              this%geom, this%vertical_grid, timestep=this%user_timestep, offset=this%user_offset, _RC)
          call item_spec%create(_RC)
 
-         if (activate_all_exports) then
+         if (this%component_spec%activate_all_exports) then
             if (var_spec%state_intent == ESMF_STATEINTENT_EXPORT) then
                call item_spec%set_active()
             end if
          end if
-         if (activate_all_imports) then
+         if (this%component_spec%activate_all_imports) then
             if (var_spec%state_intent == ESMF_STATEINTENT_IMPORT) then
                call item_spec%set_active()
             end if
@@ -130,11 +140,11 @@ contains
          end if
 
          virtual_pt = var_spec%make_virtualPt()
-         call registry%add_primary_spec(virtual_pt, item_spec)
+         call this%registry%add_primary_spec(virtual_pt, item_spec)
 
 
          _RETURN(_SUCCESS)
-         _UNUSED_DUMMY(unusable)
+!#         _UNUSED_DUMMY(unusable)
       end subroutine advertise_variable
 
       subroutine process_connections(this, rc)

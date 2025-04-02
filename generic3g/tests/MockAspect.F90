@@ -11,6 +11,7 @@ module MockAspect_mod
    use mapl3g_ClassAspect
    use mapl3g_NullTransform
    use mapl3g_MultiState
+   use mapl3g_ActualPtVector
    use mapl_ErrorHandling
    use esmf
    implicit none
@@ -65,6 +66,7 @@ contains
       type(ESMF_StateIntent_Flag) :: state_intent_
       type(VariableSpec), target :: var_spec
       character(:), allocatable :: short_name_, units_
+      type(ActualPtVector) :: dependencies
 
       mirror_ = .false.
       if (present(mirror)) mirror_ = mirror
@@ -90,7 +92,7 @@ contains
       mock_aspect = MockAspect(value, mirror_, time_dependent_, supports_conversion_)
       call aspects%insert(CLASS_ASPECT_ID, mock_aspect)
 
-      mock_spec = StateItemSpec(aspects)
+      mock_spec = StateItemSpec(aspects, dependencies)
 
    end function MockItemSpec
 

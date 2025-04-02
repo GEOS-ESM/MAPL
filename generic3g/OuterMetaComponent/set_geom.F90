@@ -9,7 +9,9 @@ contains
       class(OuterMetaComponent), intent(inout) :: this
       type(ESMF_Geom), intent(in) :: geom
 
+      _HERE, this%get_name()
       this%geom = geom
+      _HERE, allocated(this%geom)
 
    end subroutine set_geom
 

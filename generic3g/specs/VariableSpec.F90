@@ -1,5 +1,6 @@
 #include "MAPL_Generic.h"
 module mapl3g_VariableSpec
+   use mapl3g_StateItemSpec
    use mapl3g_StateItemAspect
    use mapl3g_GeomAspect
    use mapl3g_ClassAspect
@@ -37,7 +38,7 @@ module mapl3g_VariableSpec
 
    public :: VariableSpec
    public :: make_VariableSpec
-   public :: make_VariableSpecFromAspects
+!#   public :: make_VariableSpecFromAspects
 
    ! This type provides components that might be needed for _any_
    ! state item.  This is largely to support legacy interfaces, but it
@@ -128,6 +129,7 @@ module mapl3g_VariableSpec
       procedure :: make_virtualPt
       procedure :: make_dependencies
 
+      procedure :: make_StateItemSpec
       procedure :: make_aspects
       procedure :: make_UnitsAspect
       procedure :: make_TypekindAspect
@@ -136,6 +138,7 @@ module mapl3g_VariableSpec
       procedure :: make_AttributesAspect
       procedure :: make_VerticalGridAspect
       procedure :: make_FrequencyAspect
+      procedure :: make_ClassAspect
    end type VariableSpec
 
 contains
@@ -163,8 +166,8 @@ contains
         rc) result(var_spec)
 
       type(VariableSpec) :: var_spec
-      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
+      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       ! Optional args:
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: standard_name
@@ -187,33 +190,14 @@ contains
       type(StringVector), optional, intent(in) :: vector_component_names
       integer, optional, intent(out) :: rc
 
-      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
-      type(EsmfRegridderParam) :: regrid_param_
+!#      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
+!#      type(EsmfRegridderParam) :: regrid_param_
       integer :: status
-      class(ClassAspect), allocatable :: class_aspect
-      type(ESMF_StateItem_Flag) :: itemType_
+!#      class(ClassAspect), allocatable :: class_aspect
+!#      type(ESMF_StateItem_Flag) :: itemType_
 
-      itemType_ = ESMF_STATEITEM_FIELD
-      if (present(itemtype)) itemType_ = itemType
-
-      regrid_param_ = get_regrid_param(regrid_param, standard_name)
-
-      class_aspect = make_ClassAspect(itemType_, _RC)
-         
-      var_spec = make_VariableSpecFromAspects(state_intent, short_name, &
-           class_aspect=class_aspect,  itemType=itemType_, &
-           service_items=service_items, &
-           dependencies=dependencies, &
-           geom_aspect=GeomAspect(geom, regrid_param_, horizontal_dims_spec), &
-           units_aspect=UnitsAspect(units), &
-           attributes_aspect=AttributesAspect(attributes), &
-           ungridded_aspect=UngriddedDimsAspect(ungridded_dims), &
-           vertical_aspect=VerticalGridAspect(vertical_stagger=vertical_stagger, geom=geom), &
-           frequency_aspect=FrequencyAspect(timeStep=timeStep, offset=offset, &
-           accumulation_type=accumulation_type), &
-           typekind_aspect=TypekindAspect(typekind), &
-           _RC)
-
+      var_spec%short_name = short_name
+      var_spec%state_intent = state_intent
 
 #if defined(_SET_OPTIONAL)
 #  undef _SET_OPTIONAL
@@ -238,42 +222,35 @@ contains
       _SET_OPTIONAL(offset)
       _SET_OPTIONAL(vector_component_names)
 
+!#      _HERE
+!#      itemType_ = ESMF_STATEITEM_FIELD
+!#      if (present(itemtype)) itemType_ = itemType
+!#
+!#      regrid_param_ = get_regrid_param(regrid_param, standard_name)
+!#
+!#      _HERE
+!#      class_aspect = var_spec%make_ClassAspect(_RC)
+!#      _HERE, 
+!#      var_spec = make_VariableSpecFromAspects(state_intent, short_name, &
+!#           class_aspect=class_aspect,  itemType=itemType_, &
+!#           service_items=service_items, &
+!#           dependencies=dependencies, &
+!#           geom_aspect=GeomAspect(geom, regrid_param_, horizontal_dims_spec), &
+!#           units_aspect=UnitsAspect(units), &
+!#           attributes_aspect=AttributesAspect(attributes), &
+!#           ungridded_aspect=UngriddedDimsAspect(ungridded_dims), &
+!#           vertical_aspect=VerticalGridAspect(vertical_stagger=vertical_stagger, geom=geom), &
+!#           frequency_aspect=FrequencyAspect(timeStep=timeStep, offset=offset, &
+!#           accumulation_type=accumulation_type), &
+!#           typekind_aspect=TypekindAspect(typekind), &
+!#           _RC)
+
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
 
       contains
 
-         function make_ClassAspect(itemType, rc) result(class_aspect)
-            type(ESMF_StateItem_Flag), optional, intent(in) :: itemType
-            class(ClassAspect), allocatable :: class_aspect
-            integer, optional, intent(out) :: rc
-
-            integer :: status
-            character(:), allocatable :: std_name_1, std_name_2
-            
-            select case (itemType%ot)
-            case (MAPL_STATEITEM_FIELD%ot)
-               class_aspect = FieldClassAspect(standard_name=standard_name, default_value=default_value)
-            case (MAPL_STATEITEM_VECTOR%ot)
-               call split_name(standard_name, std_name_1, std_name_2, _RC)
-               class_aspect = VectorClassAspect(vector_component_names, &
-                    [ &
-                    FieldClassAspect(standard_name=std_name_1, default_value=default_value), &
-                    FieldClassAspect(standard_name=std_name_2, default_value=default_value) &
-                    ])
-            case (MAPL_STATEITEM_BRACKET%ot)
-               class_aspect = BracketClassAspect(bracket_size, standard_name)
-            case (MAPL_STATEITEM_WILDCARD%ot)
-               allocate(class_aspect, source=WildcardClassAspect())
-            case (MAPL_STATEITEM_SERVICE%ot)
-               class_aspect = ServiceClassAspect() ! placeholder
-            case default
-               _FAIL('Unsupported itemType.')
-            end select
-
-            _RETURN(_SUCCESS)
-
-         end function make_ClassAspect
 
    end function make_VariableSpec
 
@@ -381,67 +358,67 @@ contains
       _RETURN(_SUCCESS)
    end function get_regrid_method_from_field_dict_
 
-   function make_VariableSpecFromAspects(state_intent, short_name, class_aspect, unusable, &
-        itemtype, service_items, &
-        dependencies, geom_aspect, units_aspect, attributes_aspect, &
-        ungridded_aspect, vertical_aspect, frequency_aspect, typekind_aspect, &
-        rc) &
-        result(var_spec)
-
-      type(VariableSpec) :: var_spec
-      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
-      character(*), intent(in) :: short_name
-      class(ClassAspect), intent(in) :: class_aspect
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_StateItem_Flag), optional, intent(in) :: itemType
-      type(StringVector), optional :: service_items
-      type(StringVector), optional, intent(in) :: dependencies
-      class(GeomAspect), optional, intent(in) :: geom_aspect
-      class(UnitsAspect), optional, intent(in) :: units_aspect
-      class(AttributesAspect), optional, intent(in) :: attributes_aspect
-      class(UngriddedDimsAspect), optional, intent(in) :: ungridded_aspect
-      class(VerticalGridAspect), optional, intent(in) :: vertical_aspect
-      class(FrequencyAspect), optional, intent(in) :: frequency_aspect
-      class(TypekindAspect), optional, intent(in) :: typekind_aspect
-      integer, optional, intent(out) :: rc
-      
-      var_spec%state_intent = state_intent
-      var_spec%short_name = short_name
-#if defined(_SET_OPTIONAL)
-#  undef _SET_OPTIONAL
-#endif
-#define _SET_OPTIONAL(attr) if (present(attr)) var_spec%attr = attr
-      _SET_OPTIONAL(itemType)
-      _SET_OPTIONAL(service_items)
-      _SET_OPTIONAL(dependencies)
-#undef _SET_OPTIONAL
-
-#if defined(_SET_ASPECT)
-#  undef _SET_ASPECT
-#endif
-#define _SET_ASPECT(A) call add_item(var_spec%aspects, A)
-
-#if defined(_SET_ASPECT_IF)
-#  undef _SET_ASPECT_IF
-#endif
-#define _SET_ASPECT_IF(A, D) if(present(A)) then; _SET_ASPECT(A); else; _SET_ASPECT(D); end if
-
-      _SET_ASPECT(class_aspect)
-      
-      _SET_ASPECT_IF(geom_aspect, GeomAspect())
-      _SET_ASPECT_IF(units_aspect, UnitsAspect())
-      _SET_ASPECT_IF(attributes_aspect, AttributesAspect())
-      _SET_ASPECT_IF(ungridded_aspect, UngriddedDimsAspect())
-      _SET_ASPECT_IF(vertical_aspect, VerticalGridAspect())
-      _SET_ASPECT_IF(frequency_aspect, FrequencyAspect())
-      _SET_ASPECT_IF(typekind_aspect, TypekindAspect())
-
-#undef _SET_ASPECT_IF         
-#undef _SET_ASPECT
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end function make_VariableSpecFromAspects
+!#   function make_VariableSpecFromAspects(state_intent, short_name, class_aspect, unusable, &
+!#        itemtype, service_items, &
+!#        dependencies, geom_aspect, units_aspect, attributes_aspect, &
+!#        ungridded_aspect, vertical_aspect, frequency_aspect, typekind_aspect, &
+!#        rc) &
+!#        result(var_spec)
+!#
+!#      type(VariableSpec) :: var_spec
+!#      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
+!#      character(*), intent(in) :: short_name
+!#      class(ClassAspect), intent(in) :: class_aspect
+!#      class(KeywordEnforcer), optional, intent(in) :: unusable
+!#      type(ESMF_StateItem_Flag), optional, intent(in) :: itemType
+!#      type(StringVector), optional :: service_items
+!#      type(StringVector), optional, intent(in) :: dependencies
+!#      class(GeomAspect), optional, intent(in) :: geom_aspect
+!#      class(UnitsAspect), optional, intent(in) :: units_aspect
+!#      class(AttributesAspect), optional, intent(in) :: attributes_aspect
+!#      class(UngriddedDimsAspect), optional, intent(in) :: ungridded_aspect
+!#      class(VerticalGridAspect), optional, intent(in) :: vertical_aspect
+!#      class(FrequencyAspect), optional, intent(in) :: frequency_aspect
+!#      class(TypekindAspect), optional, intent(in) :: typekind_aspect
+!#      integer, optional, intent(out) :: rc
+!#      
+!#      var_spec%state_intent = state_intent
+!#      var_spec%short_name = short_name
+!##if defined(_SET_OPTIONAL)
+!##  undef _SET_OPTIONAL
+!##endif
+!##define _SET_OPTIONAL(attr) if (present(attr)) var_spec%attr = attr
+!#      _SET_OPTIONAL(itemType)
+!#      _SET_OPTIONAL(service_items)
+!#      _SET_OPTIONAL(dependencies)
+!##undef _SET_OPTIONAL
+!#
+!##if defined(_SET_ASPECT)
+!##  undef _SET_ASPECT
+!##endif
+!##define _SET_ASPECT(A) call add_item(var_spec%aspects, A)
+!#
+!##if defined(_SET_ASPECT_IF)
+!##  undef _SET_ASPECT_IF
+!##endif
+!##define _SET_ASPECT_IF(A, D) if(present(A)) then; _SET_ASPECT(A); else; _SET_ASPECT(D); end if
+!#
+!#      _SET_ASPECT(class_aspect)
+!#      
+!#      _SET_ASPECT_IF(geom_aspect, GeomAspect())
+!#      _SET_ASPECT_IF(units_aspect, UnitsAspect())
+!#      _SET_ASPECT_IF(attributes_aspect, AttributesAspect())
+!#      _SET_ASPECT_IF(ungridded_aspect, UngriddedDimsAspect())
+!#      _SET_ASPECT_IF(vertical_aspect, VerticalGridAspect())
+!#      _SET_ASPECT_IF(frequency_aspect, FrequencyAspect())
+!#      _SET_ASPECT_IF(typekind_aspect, TypekindAspect())
+!#
+!##undef _SET_ASPECT_IF         
+!##undef _SET_ASPECT
+!#
+!#      _RETURN(_SUCCESS)
+!#      _UNUSED_DUMMY(unusable)
+!#   end function make_VariableSpecFromAspects
 
    subroutine add_item(aspects, aspect, rc)
       class(AspectMap), intent(inout) :: aspects
@@ -473,18 +450,33 @@ contains
    end subroutine add_item
 
 
-!#   function make_StateitemSpec(this, ..., rc) result(spec)
-!#
-!#      aspects = this%make_aspects(..., rc)
-!#      spec = StateItemSpec(aspects, dependencies=this%dependencies)
-!#      
-!#      _RETURN(_SUCCESS)
-!#   end function make_StateitemSpec
-!#
+   function make_StateitemSpec(this, registry, component_geom, vertical_grid, unusable, timestep, offset, rc) result(spec)
+      type(StateItemSpec) :: spec
+      class(VariableSpec), intent(in) :: this
+      type(StateRegistry), pointer, intent(in) :: registry
+      type(ESMF_Geom), intent(in) :: component_geom
+      class(VerticalGrid), intent(in) :: vertical_grid
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      type(ESMF_TimeInterval), intent(in) :: timestep
+      type(ESMF_TimeInterval), intent(in) :: offset
+      integer, optional, intent(out) :: rc
+
+      type(AspectMap) :: aspects
+      type(ActualPtVector) :: dependencies
+      integer :: status
+      
+      aspects = this%make_aspects(registry, component_geom, vertical_grid, timestep=timestep, offset=offset, _RC)
+      dependencies = this%make_dependencies(_RC)
+      spec = new_StateItemSpec(aspects, dependencies=dependencies)
+      
+      _RETURN(_SUCCESS)
+   end function make_StateitemSpec
+
+
    function make_aspects(this, registry, component_geom, vertical_grid, unusable, timestep, offset, rc) result(aspects)
       type(AspectMap) :: aspects
       class(VariableSpec), intent(in) :: this
-      type(StateRegistry), pointer :: registry
+      type(StateRegistry), pointer, intent(in) :: registry
       type(ESMF_Geom), intent(in) :: component_geom
       class(VerticalGrid), intent(in) :: vertical_grid
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -514,7 +506,10 @@ contains
       call aspects%insert(VERTICAL_GRID_ASPECT_ID, aspect)
 
       aspect = this%make_FrequencyAspect(timestep, offset, _RC)
-      call aspects%insert(VERTICAL_GRID_ASPECT_ID, aspect)
+      call aspects%insert(FREQUENCY_ASPECT_ID, aspect)
+
+      aspect = this%make_ClassAspect(registry, _RC)
+      call aspects%insert(CLASS_ASPECT_ID, aspect)
       
       _RETURN(_SUCCESS)
    end function make_aspects
@@ -606,6 +601,46 @@ contains
       aspect = FrequencyAspect(timestep, offset, this%accumulation_type)
       _RETURN(_SUCCESS)
    end function make_FrequencyAspect
+   
+   function make_ClassAspect(this, registry, rc) result(aspect)
+      class(ClassAspect), allocatable :: aspect
+      class(VariableSpec), intent(in) :: this
+      type(StateRegistry), pointer, optional, intent(in) :: registry
+      integer, optional, intent(out) :: rc
+      
+      integer :: status
+      character(:), allocatable :: std_name_1, std_name_2
+
+      _HERE
+      select case (this%itemType%ot)
+      case (MAPL_STATEITEM_FIELD%ot)
+         _HERE
+         aspect = FieldClassAspect(standard_name=this%standard_name, default_value=this%default_value)
+      case (MAPL_STATEITEM_VECTOR%ot)
+         call split_name(this%standard_name, std_name_1, std_name_2, _RC)
+         aspect = VectorClassAspect(this%vector_component_names, &
+              [ &
+              FieldClassAspect(standard_name=std_name_1, default_value=this%default_value), &
+              FieldClassAspect(standard_name=std_name_2, default_value=this%default_value) &
+              ])
+      case (MAPL_STATEITEM_BRACKET%ot)
+         aspect = BracketClassAspect(this%bracket_size, this%standard_name)
+      case (MAPL_STATEITEM_WILDCARD%ot)
+         _HERE
+         allocate(aspect,source=WildcardClassAspect())
+         _HERE
+      case (MAPL_STATEITEM_SERVICE%ot)
+         _ASSERT(present(registry), 'must have registry for creating a Service')
+         aspect = ServiceClassAspect(registry, this%service_items)
+      case default
+         aspect=FieldClassAspect('') ! must allocate something
+         _FAIL('Unsupported itemType.')
+      end select
+         _HERE
+      
+      _RETURN(_SUCCESS)
+      
+   end function make_ClassAspect
       
    
 end module mapl3g_VariableSpec

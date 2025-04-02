@@ -67,7 +67,7 @@ contains
       call aspects%insert(CLASS_ASPECT_ID, class_aspect)
 
  
-      item_spec = StateItemSpec(aspects)
+!#      item_spec = StateItemSpec(aspects)
 
       dependencies = variable_spec%make_dependencies(_RC)
       call item_spec%set_dependencies(dependencies)
@@ -185,8 +185,8 @@ contains
         case (MAPL_STATEITEM_FIELD%ot)
            class_aspect = FieldClassAspect(standard_name=v%standard_name, default_value=v%default_value)
         case (MAPL_STATEITEM_VECTOR%ot)
-           call split_name(v%standard_name, std_name_1, std_name_2, _RC)
-           class_aspect = VectorClassAspect(v%vector_component_names, &
+            call split_name(v%standard_name, std_name_1, std_name_2, _RC)
+            class_aspect = VectorClassAspect(v%vector_component_names, &
                 [ &
                 FieldClassAspect(standard_name=std_name_1, default_value=v%default_value), &
                 FieldClassAspect(standard_name=std_name_2, default_value=v%default_value) &

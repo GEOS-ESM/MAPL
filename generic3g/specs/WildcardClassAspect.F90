@@ -45,7 +45,7 @@ contains
 
    function new_WildcardClassAspect() result(wildcard_aspect)
       type(WildcardClassAspect) :: wildcard_aspect
-
+      _HERE
    end function new_WildcardClassAspect
 
 
