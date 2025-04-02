@@ -134,6 +134,8 @@ module mapl3g_VariableSpec
       procedure :: make_GeomAspect
       procedure :: make_UngriddedDimsAspect
       procedure :: make_AttributesAspect
+      procedure :: make_VerticalGridAspect
+      procedure :: make_FrequencyAspect
    end type VariableSpec
 
 contains
@@ -479,11 +481,11 @@ contains
 !#      _RETURN(_SUCCESS)
 !#   end function make_StateitemSpec
 !#
-   function make_aspects(this, registry, geom, vertical_grid, unusable, timestep, offset, rc) result(aspects)
+   function make_aspects(this, registry, component_geom, vertical_grid, unusable, timestep, offset, rc) result(aspects)
       type(AspectMap) :: aspects
       class(VariableSpec), intent(in) :: this
       type(StateRegistry), pointer :: registry
-      type(ESMF_Geom), intent(in) :: geom
+      type(ESMF_Geom), intent(in) :: component_geom
       class(VerticalGrid), intent(in) :: vertical_grid
       class(KeywordEnforcer), optional, intent(in) :: unusable
       type(ESMF_TimeInterval), intent(in) :: timestep
@@ -499,7 +501,7 @@ contains
       aspect = this%make_TypekindAspect(_RC)
       call aspects%insert(TYPEKIND_ASPECT_ID, aspect)
 
-      aspect = this%make_GeomAspect(geom, _RC)
+      aspect = this%make_GeomAspect(component_geom, _RC)
       call aspects%insert(TYPEKIND_ASPECT_ID, aspect)
 
       aspect = this%make_UngriddedDimsAspect(_RC)
@@ -507,6 +509,12 @@ contains
       
       aspect = this%make_AttributesAspect(_RC)
       call aspects%insert(ATTRIBUTES_ASPECT_ID, aspect)
+      
+      aspect = this%make_VerticalGridAspect(component_geom, _RC)
+      call aspects%insert(VERTICAL_GRID_ASPECT_ID, aspect)
+
+      aspect = this%make_FrequencyAspect(timestep, offset, _RC)
+      call aspects%insert(VERTICAL_GRID_ASPECT_ID, aspect)
       
       _RETURN(_SUCCESS)
    end function make_aspects
@@ -565,20 +573,39 @@ contains
       _RETURN(_SUCCESS)
    end function make_AttributesAspect
   
+   function make_VerticalGridAspect(this, component_geom, rc) result(aspect)
+      type(VerticalGridAspect) :: aspect
+      class(VariableSpec), intent(in) :: this
+      type(ESMF_Geom), optional, intenT(in) :: component_geom
+      integer, optional, intent(out) :: rc
 
-!#   function make_ClassAspect(this, registry, rc)
-!#   end function make_ClassAspect
-!#
-!#
-!#   function make_AttributesAspect(this, rc)
-!#   end function make_AttributesAspect
-!#
-!#   function make_VerticalGridAspect(this, vertical_grid, geom, rc)
-!#   end function make_VerticalGridAspect
-!#
-!#   function make_frequencyAspect(this, timestep, offset, rc)
-!#   end function make_frequencyAspect
-!#
+      type(ESMF_Geom) :: geom_
 
+      ! If geom is allocated in var spec then it is prioritized over the
+      ! component-wide geom.
+      ! If not specified either way, then it indicates that the geom is
+      ! mirrored ind will be determined by a connection.
+      if (allocated(this%geom)) then
+         geom_ = this%geom
+      elseif (present(component_geom)) then
+         geom_ = component_geom
+      end if
+
+      aspect = VerticalGridAspect(vertical_stagger=this%vertical_stagger, geom=geom_)
+
+      _RETURN(_SUCCESS)
+   end function make_VerticalGridAspect
+
+   function make_FrequencyAspect(this, timestep, offset, rc) result(aspect)
+      type(FrequencyAspect) :: aspect
+      class(VariableSpec), intent(in) :: this
+      type(ESMF_TimeInterval), intent(in) :: timestep
+      type(ESMF_TimeInterval), intent(in) :: offset
+      integer, optional, intent(out) :: rc
+
+      aspect = FrequencyAspect(timestep, offset, this%accumulation_type)
+      _RETURN(_SUCCESS)
+   end function make_FrequencyAspect
+      
    
 end module mapl3g_VariableSpec
