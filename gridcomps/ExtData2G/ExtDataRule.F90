@@ -19,7 +19,7 @@ module MAPL_ExtDataRule
       character(:), allocatable :: vector_partner
       character(:), allocatable :: vector_component
       character(:), allocatable :: vector_file_partner
-      logical :: disable_vertical_regrid
+      logical :: enable_vertical_regrid
       logical :: multi_rule
       logical :: fail_on_missing_file = .true.
       contains
@@ -112,10 +112,10 @@ contains
          rule%fail_on_missing_file = ESMF_HConfigAsLogical(config,keyString="fail_on_missing_file",_RC)
       end if
 
-      if (ESMF_HConfigIsDefined(config,keyString="disable_vertical_regrid")) then
-         rule%disable_vertical_regrid = ESMF_HConfigAsLogical(config,keyString="disable_vertical_regrid",_RC)
+      if (ESMF_HConfigIsDefined(config,keyString="enable_vertical_regrid")) then
+         rule%enable_vertical_regrid = ESMF_HConfigAsLogical(config,keyString="enable_vertical_regrid",_RC)
       else
-         rule%disable_vertical_regrid = .true.
+         rule%enable_vertical_regrid = .false.
       end if
 
       rule%multi_rule=usable_multi_rule
