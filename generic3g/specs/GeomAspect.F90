@@ -36,6 +36,7 @@ module mapl3g_GeomAspect
       procedure :: supports_conversion_specific
       procedure :: set_geom
       procedure :: get_geom
+      procedure :: get_horizontal_dims_spec
       procedure, nopass :: get_aspect_id
    end type GeomAspect
 
@@ -144,6 +145,16 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_geom
+
+   function get_horizontal_dims_spec(this, rc) result(horizontal_dims_spec)
+      class(GeomAspect), intent(in) :: this
+      integer, optional, intent(out) :: rc
+      type(HorizontalDimsSpec) :: horizontal_dims_spec
+
+      horizontal_dims_spec = this%horizontal_dims_spec
+
+      _RETURN(_SUCCESS)
+   end function get_horizontal_dims_spec
 
    subroutine connect_to_export(this, export, actual_pt, rc)
       class(GeomAspect), intent(inout) :: this

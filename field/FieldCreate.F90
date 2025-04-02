@@ -1,20 +1,21 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_FieldCreate
+
    use mapl3g_VerticalStaggerLoc
    use mapl3g_FieldInfo
    use mapl3g_UngriddedDims
+   use mapl3g_LU_Bound
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
-   use mapl3g_LU_Bound
+   use mapl_InternalConstantsMod, only: MAPL_UNDEFINED_REAL
    use esmf, MAPL_FieldEmptyCreate => ESMF_FieldEmptyCreate
+
    implicit none(type,external)
    private
 
-
    public :: MAPL_FieldCreate
    public :: MAPL_FieldEmptyComplete
-
 
    interface MAPL_FieldCreate
       procedure :: field_create
@@ -30,9 +31,9 @@ contains
         geom, typekind, &
         unusable, & ! keyword enforcement
         ! Optional ESMF args
-        gridToFieldMap, ungridded_dims, & 
+        gridToFieldMap, ungridded_dims, &
         ! Optional MAPL args
-        num_levels, vert_staggerloc, & 
+        num_levels, vert_staggerloc, &
         units, standard_name, long_name, &
         rc) result(field)
 
@@ -65,7 +66,7 @@ contains
    end function field_create
 
    subroutine field_empty_complete( field, &
-        typekind, unusable, & 
+        typekind, unusable, &
         gridToFieldMap, ungridded_dims, &
         num_levels, vert_staggerloc, &
         units, standard_name, &
@@ -84,18 +85,45 @@ contains
       character(len=*), optional, intent(in) :: long_name
       integer, optional, intent(out) :: rc
 
-      integer :: status
       type(LU_Bound), allocatable :: bounds(:)
       type(ESMF_Info) :: field_info
       type(VerticalStaggerLoc) :: vert_staggerloc_
+      integer, allocatable :: grid_to_field_map(:)
+      type(ESMF_Geom) :: geom
+      real(kind=ESMF_KIND_R4), allocatable :: farray(:)
+      integer :: dim_count, idim, status
+
+      if (present(gridToFieldMap)) then
+         grid_to_field_map = gridToFieldMap
+      else
+         call ESMF_FieldGet(field, geom=geom, _RC)
+         call ESMF_GeomGet(geom, dimCount=dim_count, _RC)
+         allocate(grid_to_field_map(dim_count), source=[(idim, idim=1,dim_count)])
+      end if
 
       bounds = make_bounds(num_levels=num_levels, ungridded_dims=ungridded_dims)
-      call ESMF_FieldEmptyComplete(field, typekind=typekind, &
-           gridToFieldMap=gridToFieldMap, &
-           ungriddedLBound=bounds%lower, ungriddedUBound=bounds%upper, _RC)
+      if (all(grid_to_field_map == 0)) then
+         _ASSERT(typekind==ESMF_TYPEKIND_R4, "only r4 arrays supported for vert only fields")
+         if (present(ungridded_dims)) then
+            _ASSERT(ungridded_dims%get_num_ungridded() == 0, "ungridded dims not supported for vert only fields")
+         end if
+         allocate(farray(num_levels), source=MAPL_UNDEFINED_REAL)
+         call ESMF_FieldEmptyComplete( &
+              field, &
+              farray=farray, &
+              indexFlag=ESMF_INDEX_DELOCAL, &
+              datacopyFlag=ESMF_DATACOPY_VALUE, &
+              gridToFieldMap=grid_to_field_map, &
+              ungriddedLBound=bounds%lower, &
+              ungriddedUBound=bounds%upper, &
+              _RC)
+      else
+         call ESMF_FieldEmptyComplete(field, typekind=typekind, &
+              gridToFieldMap=gridToFieldMap, &
+              ungriddedLBound=bounds%lower, ungriddedUBound=bounds%upper, _RC)
+      end if
 
       call ESMF_InfoGetFromHost(field, field_info, _RC)
-
       vert_staggerloc_ = VERTICAL_STAGGER_NONE
       if (present(vert_staggerloc)) vert_staggerloc_ = vert_staggerloc
       call MAPL_FieldInfoSetInternal(field_info, &
@@ -106,7 +134,6 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine field_empty_complete
-   
 
    function make_bounds(num_levels, ungridded_dims) result(bounds)
       type(LU_Bound), allocatable :: bounds(:)
@@ -124,6 +151,5 @@ contains
       end if
 
    end function make_bounds
-
 
 end module mapl3g_FieldCreate
