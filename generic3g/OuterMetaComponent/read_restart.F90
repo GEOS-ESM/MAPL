@@ -29,7 +29,7 @@ contains
       driver => this%get_user_gc_driver()
       name = driver%get_name()
       ! TODO: Need a better way of identifying a gridcomp that reads a restart
-      if ((name /= "cap") .and. (name /= "HIST") .and. (name /= "EXTDATA")) then
+      if (this%has_geom()) then
          geom = this%get_geom()
          states = driver%get_states()
          call states%get_state(import_state, "import", _RC)
@@ -38,9 +38,7 @@ contains
          call restart_handler%read("import", import_state, _RC)
          call restart_handler%read("internal", internal_state, _RC)
       end if
-      if (name /= "HIST") then
-         call recurse_read_restart(this, _RC)
-      end if
+      call recurse_read_restart(this, _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)

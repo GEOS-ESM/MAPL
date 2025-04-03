@@ -58,6 +58,7 @@ module mapl3g_OuterMetaComponent
       procedure :: get_user_gc_driver
       procedure :: set_hconfig
       procedure :: get_hconfig
+      procedure :: has_geom
       procedure :: get_geom
       procedure :: get_registry
       procedure :: get_lgr
@@ -215,6 +216,11 @@ module mapl3g_OuterMetaComponent
          type(ESMF_Hconfig) :: hconfig
          class(OuterMetaComponent), intent(inout) :: this
       end function get_hconfig
+
+      module function has_geom(this)
+         logical :: has_geom
+         class(OuterMetaComponent), intent(in) :: this
+      end function has_geom
 
       module function get_geom(this) result(geom)
          type(ESMF_Geom) :: geom
