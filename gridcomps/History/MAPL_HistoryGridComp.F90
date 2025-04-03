@@ -2528,13 +2528,7 @@ ENDDO PARSER
              list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n),integer_time=intstate%integer_time)
           end if
           if (list(n)%timeseries_output) then
-             if (schema_version == 1) then
-                list(n)%trajectory = HistoryTrajectory(cfg,config,string,clock,schema_version,genstate=GENSTATE,_RC)
-             else
                 list(n)%trajectory = HistoryTrajectory(cfg,string,clock,schema_version,genstate=GENSTATE,_RC)
-             end if
-
-
              call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
              IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
           elseif (list(n)%sampler_spec == 'mask') then
@@ -5564,6 +5558,8 @@ ENDDO PARSER
     if (count==0) then
        ! keyword non-exist
        ! continue to search for 'DEFINE_OBS_PLATFORM::'
+       ! if found: run the default approach for a supercollection
+       !    else: return as normal history
        call lgr%debug('%a', 'schema.version: keyword does not exist, treat as supercollection')
        continue
     elseif (count>1) then
@@ -5578,12 +5574,14 @@ ENDDO PARSER
           read( line(j:k-1), * )  schema_version
        elseif (k==1) then
           _FAIL('version not found')
+       elseif (k==0) then
+          read( line(j:), * )  schema_version
        end if
        call lgr%debug('%a %i2', 'schema.version=', schema_version)
        if (schema_version == 1) then
           ! use individual Traj. Sampler collection
           !
-          rc = 0
+          call regen_rcx_for_schema_version_1(config, nlist, list, _RC)
           return
        elseif (schema_version > 2) then
           _FAIL('schema_version > 2 not supported')
@@ -5876,4 +5874,79 @@ ENDDO PARSER
   end subroutine regen_rcx_for_obs_platform
 
 
-end module MAPL_HistoryGridCompMod
+  subroutine regen_rcx_for_schema_version_1 (config, nlist, list, rc)    
+    use  MAPL_scan_pattern_in_file
+    type(ESMF_Config), intent(inout)       :: config
+    integer, intent(in)                    :: nlist
+    type(HistoryCollection), pointer       :: list(:)
+    integer, intent(inout), optional :: rc
+
+    integer :: status
+    integer :: ios
+    integer :: n, unitr, unitw
+    integer :: i, j
+    character (len=300) :: line
+    character (len=50), allocatable :: grid_names(:)
+    character(len=ESMF_MAXSTR) :: HIST_CF, string
+    
+    call ESMF_ConfigGetAttribute(config, value=HIST_CF, &
+         label="HIST_CF:", default="HIST.rc", _RC )
+    unitr = GETFILE(HIST_CF, FORM='formatted', _RC)
+
+    ! add GRID_LABELS, INDEX_VAR_NAMES to trajectory collection rcx only
+    do n = 1, nlist
+       if (list(n)%sampler_spec == 'trajectory') then
+          rewind(unitr)
+          string = trim( list(n)%collection ) // '.'
+          unitw = GETFILE(trim(string)//'rcx', FORM='formatted', _RC)
+
+          call scan_write_between_line1_line2_flush_Left (unitr, unitw,  string, '::')
+          call scan_write_between_line1_line2_flush_Left (unitr, unitw,  'GRID_LABELS:', '::')          
+          call scan_begin (unitr, 'GRID_LABELS:', .true.)
+          ios=0; i=0; j=0   ! i: count
+          do while (ios==0)
+             read (unitr, '(a300)', iostat = ios, err = 300) line
+             j=index( adjustl(line), '::' )
+             if (j==0) then
+                i=i+1
+             else
+                ios=1
+             end if
+          end do
+300       continue
+          
+          print*, 'i=', i
+          allocate (grid_names(i))
+          call scan_begin (unitr, 'GRID_LABELS:', .true.)
+          ios=0; i=0; j=0   ! i: count
+          do while (ios==0)
+             read (unitr, '(a300)', iostat = ios, err = 301) line
+             j=index( adjustl(line), '::' )
+             if ( j==0 ) then
+                i=i+1
+                grid_names(i)=trim(adjustl(line))
+             else
+                ios=1
+             end if
+          end do
+301       continue
+
+          do j=1, i
+             line=trim(grid_names(j))//'.'
+             print*, 'line= ', trim(line)
+             call scan_write_begin_with_line1_flush_Left (unitr, unitw, line)
+          end do
+
+          call scan_write_between_line1_line2_flush_Left (unitr, unitw, 'INDEX_VAR_NAMES:', '::')
+          call scan_write_begin_with_line1_flush_Left (unitr, unitw, 'schema_version')          
+
+       end if
+       call free_file(unitw, _RC)
+    end do
+    call free_file(unitr, _RC)
+
+    _RETURN(ESMF_SUCCESS)    
+  end subroutine regen_rcx_for_schema_version_1
+
+
+  end module MAPL_HistoryGridCompMod
