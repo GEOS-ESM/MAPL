@@ -5564,7 +5564,7 @@ ENDDO PARSER
     if (count==0) then
        ! keyword non-exist
        ! continue to search for 'DEFINE_OBS_PLATFORM::'
-       call lgr%info('%a', 'schema.version: keyword does not exist, treat as supercollection')
+       call lgr%debug('%a', 'schema.version: keyword does not exist, treat as supercollection')
        continue
     elseif (count>1) then
        _FAIL('schema.version: keyword appears more than once in HISTORY.rc')
@@ -5579,7 +5579,7 @@ ENDDO PARSER
        elseif (k==1) then
           _FAIL('version not found')
        end if
-       call lgr%info('%a %i2', 'schema.version=', schema_version)
+       call lgr%debug('%a %i2', 'schema.version=', schema_version)
        if (schema_version == 1) then
           ! use individual Traj. Sampler collection
           !

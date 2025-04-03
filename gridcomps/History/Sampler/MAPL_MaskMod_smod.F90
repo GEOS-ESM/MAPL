@@ -64,22 +64,6 @@ module function MaskSampler_from_config(config,string,clock,GENSTATE,rc) result(
   end if
 
   call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
-       label=trim(string) // 'obs_file_end:', _RC)
-  if (trim(STR1)=='') then
-     call ESMF_TimeIntervalSet(obs_time_span, d=14, _RC)
-     mask%obsfile_end_time = mask%obsfile_start_time + obs_time_span
-     call ESMF_TimeGet(mask%obsfile_end_time, timestring=STR1, _RC)
-     if (mapl_am_I_root()) then
-        write(6,105) 'obs_file_end   missing, default = begin+14D:', trim(STR1)
-     endif
-  else
-     call ESMF_TimeSet(mask%obsfile_end_time, STR1, _RC)
-     if (mapl_am_I_root()) then
-        write(6,105) 'obs_file_end provided:', trim(STR1)
-     end if
-  end if
-
-  call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
        label=trim(string) // 'obs_file_interval:', _RC)
   _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
   if (mapl_am_I_root()) write(6,105) 'obs_file_interval:', trim(STR1)
@@ -275,7 +259,6 @@ module subroutine  create_metadata(this,global_attributes,rc)
     !- add time dimension to metadata
     call this%timeinfo%add_time_to_metadata(this%metadata,_RC)
 
-
     v = Variable(type=pFIO_REAL32, dimensions='mask_index')
     call v%add_attribute('long_name','longitude')
     call v%add_attribute('unit','degree_east')
@@ -285,7 +268,6 @@ module subroutine  create_metadata(this,global_attributes,rc)
     call v%add_attribute('long_name','latitude')
     call v%add_attribute('unit','degree_north')
     call this%metadata%add_variable('latitude',v)
-
 
     call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC) ! specify lev in fmd
 

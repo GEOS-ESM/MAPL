@@ -330,7 +330,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          type(ESMF_TimeInterval)    :: obs_time_span
          integer                    :: time_integer, second
          integer                    :: status
-         character(len=ESMF_MAXSTR) :: STR1, line, splitter
+         character(len=ESMF_MAXSTR) :: STR1, line, splitter, STR_KW
          character(len=ESMF_MAXSTR) :: symd, shms
          character(len=ESMF_MAXSTR) :: key_grid
          integer                    :: nline, col
@@ -362,32 +362,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          traj%alarm = ESMF_AlarmCreate( clock=clock, RingInterval=epoch_frequency, &
               RingTime=traj%RingTime, sticky=.false., _RC )
 
-         call ESMF_ConfigGetAttribute ( config, key_grid, default='' , &
-              label=trim(string) // 'grid_label:' ,_RC )
-         key_grid = trim(adjustl(key_grid))//'.'
-         _ASSERT (key_grid /= '', 'GRID_LABELS is empty')
-
-         call ESMF_ConfigFindLabel(config_full, trim(key_grid)//'index_var_names:',  isPresent=ispresent, rc=status)
-         if (isPresent) then
-            call ESMF_ConfigGetAttribute(config_full, value=STR1, default="", &
-                 label=trim(key_grid) // 'index_var_names:', _RC)
-            call lgr%info('%a %a', 'index_var_names: ', trim(STR1))
-            STR1=trim(STR1)//'.'
-         else
-            STR1 = key_grid
-         end if
-         call ESMF_ConfigFindLabel(config_full, trim(key_grid)//'index_name_x:',  isPresent=ispresent, rc=status)
-         _ASSERT(.not.ispresent, 'conflict: '//trim(key_grid)//'index_var_names:'//' with '//trim(key_grid)//'index_name_x:')
-
-         call ESMF_ConfigGetAttribute(config_full, value=traj%index_name_x, default="", &
-              label=trim(STR1) // 'index_name_x:', _RC)
-         call ESMF_ConfigGetAttribute(config_full, value=traj%var_name_lon_full, default="", &
-              label=trim(STR1) // 'var_name_lon:', _RC)
-         call ESMF_ConfigGetAttribute(config_full, value=traj%var_name_lat_full, default="", &
-              label=trim(STR1) // 'var_name_lat:', _RC)
-         call ESMF_ConfigGetAttribute(config_full, value=traj%var_name_time_full, default="", &
-              label=trim(STR1) // 'var_name_time:', _RC)
-         
          call ESMF_ConfigGetAttribute(config, value=traj%use_NWP_1_file, default=.false., &
               label=trim(string)//'use_NWP_1_file:', _RC)
          call ESMF_ConfigGetAttribute(config, value=traj%restore_2_obs_vector, default=.false., &
@@ -404,9 +378,34 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          if (.NOT. traj%use_NWP_1_file .AND. traj%restore_2_obs_vector) then
             _FAIL('use_NWP_1_file=.false. and restore_2_obs_vector=.true. is not allowed')
          end if
+         
+         call ESMF_ConfigGetAttribute ( config, key_grid, default='' , &
+              label=trim(string) // 'grid_label:' ,_RC )
+         key_grid = trim(adjustl(key_grid))//'.'
+         _ASSERT (key_grid /= '', 'GRID_LABELS is empty')
 
+         call ESMF_ConfigFindLabel(config_full, trim(key_grid)//'index_var_names:',  isPresent=ispresent, rc=status)
+         if (isPresent) then
+            call ESMF_ConfigGetAttribute(config_full, value=STR1, default="", &
+                 label=trim(key_grid) // 'index_var_names:', _RC)
+            call lgr%debug('%a %a', 'index_var_names: ', trim(STR1))
+            STR_KW = trim(STR1)//'.'
+         else
+            STR_KW = key_grid
+         end if
+         call ESMF_ConfigFindLabel(config_full, trim(key_grid)//'index_name_x:',  isPresent=ispresent, rc=status)
+         _ASSERT(.not.ispresent, 'conflict: '//trim(key_grid)//'index_var_names:'//' with '//trim(key_grid)//'index_name_x:')
+
+         call ESMF_ConfigGetAttribute(config_full, value=traj%index_name_x, default="", &
+              label=trim(STR_KW) // 'index_name_x:', _RC)
+         call ESMF_ConfigGetAttribute(config_full, value=traj%var_name_lon_full, default="", &
+              label=trim(STR_KW) // 'var_name_lon:', _RC)
+         call ESMF_ConfigGetAttribute(config_full, value=traj%var_name_lat_full, default="", &
+              label=trim(STR_KW) // 'var_name_lat:', _RC)
+         call ESMF_ConfigGetAttribute(config_full, value=traj%var_name_time_full, default="", &
+              label=trim(STR_KW) // 'var_name_time:', _RC)         
          call ESMF_ConfigGetAttribute(config_full, value=STR1, default="", &
-              label=trim(key_grid) // 'obs_file_begin:', _RC)
+              label=trim(STR_KW) // 'obs_file_begin:', _RC)
          if (trim(STR1)=='') then
             traj%obsfile_start_time = currTime
             call ESMF_TimeGet(currTime, timestring=STR1, _RC)
@@ -419,26 +418,11 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                write(6,105) 'obs_file_begin provided: ', trim(STR1)
             end if
          end if
-
-         write(6,*) 'ck obs_file_end:', trim(STR1)
-
-         if (trim(STR1)=='') then
-            call ESMF_TimeIntervalSet(obs_time_span, d=14, _RC)
-            traj%obsfile_end_time = traj%obsfile_start_time + obs_time_span
-            call ESMF_TimeGet(traj%obsfile_end_time, timestring=STR1, _RC)
-            if (mapl_am_I_root()) then
-               write(6,105) 'obs_file_end   missing, default = begin+14D:', trim(STR1)
-            endif
-         else
-            call ESMF_TimeSet(traj%obsfile_end_time, STR1, _RC)
-            if (mapl_am_I_root()) then
-               write(6,105) 'obs_file_end provided:', trim(STR1)
-            end if
-         end if
-
          call ESMF_ConfigGetAttribute(config_full, value=STR1, default="", &
-              label=trim(key_grid) // 'obs_file_interval:', _RC)
+              label=trim(STR_KW)//'obs_file_interval:', _RC)
          _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
+         if (mapl_am_I_root()) write(6,*) 'STR1: obs_file_interval:', trim(STR1)
+
          if (mapl_am_I_root()) write(6,105) 'obs_file_interval:', trim(STR1)
          if (mapl_am_I_root()) write(6,106) 'Epoch (second)   :', second
          i= index( trim(STR1), ' ' )
@@ -521,8 +505,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          if (this%vdata%regrid_type == VERTICAL_METHOD_ETA2LEV) call this%vdata%get_interpolating_variable(this%bundle,_RC)
 
          call ESMF_ClockGet (this%clock, CurrTime=currTime, _RC)
-         call get_obsfile_Tbracket_from_epoch(currTime, &
-              this%obsfile_start_time, this%obsfile_end_time, &
+         call get_obsfile_Tbracket_from_epoch(currTime, this%obsfile_start_time, &
               this%obsfile_interval, this%epoch_frequency, &
               this%obsfile_Ts_index, this%obsfile_Te_index, _RC)
          if (this%obsfile_Te_index < 0) then
@@ -1723,12 +1706,12 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            enddo
            call ESMF_FieldBundleDestroy(this%output_bundle,noGarbage=.true.,_RC)
            deallocate(names, _STAT)
-
-           call ESMF_ClockGet ( this%clock, CurrTime=currTime, _RC )
-           if (currTime > this%obsfile_end_time) then
-              this%active = .false.
-              _RETURN(ESMF_SUCCESS)
-           end if
+           
+!           call ESMF_ClockGet ( this%clock, CurrTime=currTime, _RC )
+!           if (currTime > this%obsfile_end_time) then
+!              this%active = .false.
+!              _RETURN(ESMF_SUCCESS)
+!           end if
 
            this%epoch_index(1:2)=0
 
