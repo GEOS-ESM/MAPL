@@ -5275,7 +5275,7 @@ contains
            where ( rTable(:,3+ll) /=0.0 ) rTable(:,3+ll) = rTable(:,3)/rTable(:,3+ll)
         enddo
       endif
-      _RETURN(ESMF_SUCCESS)
+      _RETURN(_SUCCESS)
    end subroutine MAPL_ReadTilingNC4
 
    subroutine MAPL_WriteTilingNC4(File, GridName, im, jm, nx, ny, iTable, rTable, N_PfafCat, rc)
@@ -5525,9 +5525,7 @@ contains
      call formatter%put_var('elev',    rTable(:,10), rc=status)
    
      call formatter%close(rc=status)
-   
-     if (present(rc)) rc = status
-   
+     _RETURN(_SUCCESS)
    end subroutine MAPL_WriteTilingNC4
 
    subroutine MAPL_ReadTilingASCII(layout, FileName, GridName, NT, im, jm, n_Grids, N_PfafCat, AVR,rc)
