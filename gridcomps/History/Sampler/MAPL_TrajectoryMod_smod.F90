@@ -27,24 +27,24 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
   implicit none
    contains
 
-
      module procedure HistoryTrajectory_from_config
+       integer :: status
 
        if (.not. present(GENSTATE)) then
           _FAIL('GENSTATE is not provided')
        end if
        if (schema_version == 1) then
           traj = HistoryTrajectory_from_config_schema_version_1 &
-               (cfg,string,clock,schema_version,genstate=GENSTATE,_RC)
+               (config,string,clock,schema_version,genstate=GENSTATE,_RC)
        elseif (schema_version == 2) then
           traj = HistoryTrajectory_from_config_schema_version_2 &
-               (cfg,string,clock,schema_version,genstate=GENSTATE,_RC)        
+               (config,string,clock,schema_version,genstate=GENSTATE,_RC)
        end if
        _RETURN(_SUCCESS)
-     
+
      end procedure HistoryTrajectory_from_config
 
-     
+
      ! case : schema_version = 1
      !        read collection from .rcx config
      !        read grid_label
@@ -105,33 +105,35 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          if (.NOT. traj%use_NWP_1_file .AND. traj%restore_2_obs_vector) then
             _FAIL('use_NWP_1_file=.false. and restore_2_obs_vector=.true. is not allowed')
          end if
-         
+
          call ESMF_ConfigGetAttribute ( config, key_grid, default='' , &
               label=trim(string) // 'grid_label:' ,_RC )
          key_grid = trim(adjustl(key_grid))//'.'
          _ASSERT (key_grid /= '', 'GRID_LABELS is empty')
 
-         call ESMF_ConfigFindLabel(config_full, trim(key_grid)//'index_var_names:',  isPresent=ispresent, rc=status)
+         call ESMF_ConfigFindLabel(config, trim(key_grid)//'index_var_names:',  isPresent=ispresent, rc=status)
          if (isPresent) then
-            call ESMF_ConfigGetAttribute(config_full, value=STR1, default="", &
+            call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
                  label=trim(key_grid) // 'index_var_names:', _RC)
             call lgr%debug('%a %a', 'index_var_names: ', trim(STR1))
             STR_KW = trim(STR1)//'.'
          else
             STR_KW = key_grid
          end if
-         call ESMF_ConfigFindLabel(config_full, trim(key_grid)//'index_name_x:',  isPresent=ispresent, rc=status)
+         call ESMF_ConfigFindLabel(config, trim(key_grid)//'index_name_x:',  isPresent=ispresent, rc=status)
          _ASSERT(.not.ispresent, 'conflict: '//trim(key_grid)//'index_var_names:'//' with '//trim(key_grid)//'index_name_x:')
 
-         call ESMF_ConfigGetAttribute(config_full, value=traj%index_name_x, default="", &
+         print*, 'STR_KW=', trim(STR_KW)
+
+         call ESMF_ConfigGetAttribute(config, value=traj%index_name_x, default="", &
               label=trim(STR_KW) // 'index_name_x:', _RC)
-         call ESMF_ConfigGetAttribute(config_full, value=traj%var_name_lon_full, default="", &
+         call ESMF_ConfigGetAttribute(config, value=traj%var_name_lon_full, default="", &
               label=trim(STR_KW) // 'var_name_lon:', _RC)
-         call ESMF_ConfigGetAttribute(config_full, value=traj%var_name_lat_full, default="", &
+         call ESMF_ConfigGetAttribute(config, value=traj%var_name_lat_full, default="", &
               label=trim(STR_KW) // 'var_name_lat:', _RC)
-         call ESMF_ConfigGetAttribute(config_full, value=traj%var_name_time_full, default="", &
-              label=trim(STR_KW) // 'var_name_time:', _RC)         
-         call ESMF_ConfigGetAttribute(config_full, value=STR1, default="", &
+         call ESMF_ConfigGetAttribute(config, value=traj%var_name_time_full, default="", &
+              label=trim(STR_KW) // 'var_name_time:', _RC)
+         call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
               label=trim(STR_KW) // 'obs_file_begin:', _RC)
          if (trim(STR1)=='') then
             traj%obsfile_start_time = currTime
@@ -145,7 +147,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
                write(6,105) 'obs_file_begin provided: ', trim(STR1)
             end if
          end if
-         call ESMF_ConfigGetAttribute(config_full, value=STR1, default="", &
+         call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
               label=trim(STR_KW)//'obs_file_interval:', _RC)
          _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
          if (mapl_am_I_root()) write(6,*) 'STR1: obs_file_interval:', trim(STR1)
@@ -167,7 +169,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          traj%nobs_type = k
          allocate (traj%obs(k), _STAT)
          allocate (traj%obs(k)%metadata, _STAT)
-         call ESMF_ConfigGetAttribute(config_full, value=STR1, default="", &
+         call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
               label=trim(key_grid) // 'file_name_template:', _RC)
          traj%obs(k)%input_template = trim(STR1)
          if (mapl_am_i_root()) then
@@ -229,7 +231,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          traj%alarm = ESMF_AlarmCreate( clock=clock, RingInterval=epoch_frequency, &
               RingTime=traj%RingTime, sticky=.false., _RC )
 
-         
+
          call ESMF_ConfigGetAttribute(config, value=traj%index_name_x, default="", &
               label=trim(string) // 'index_name_x:', _RC)
          call ESMF_ConfigGetAttribute(config, value=traj%var_name_lon_full, default="", &
@@ -1725,7 +1727,7 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            enddo
            call ESMF_FieldBundleDestroy(this%output_bundle,noGarbage=.true.,_RC)
            deallocate(names, _STAT)
-           
+
 !           call ESMF_ClockGet ( this%clock, CurrTime=currTime, _RC )
 !           if (currTime > this%obsfile_end_time) then
 !              this%active = .false.

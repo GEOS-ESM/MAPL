@@ -5582,11 +5582,14 @@ ENDDO PARSER
           ! use individual Traj. Sampler collection
           !
           call regen_rcx_for_schema_version_1(config, nlist, list, _RC)
+          rc=0
           return
        elseif (schema_version > 2) then
           _FAIL('schema_version > 2 not supported')
        end if
+       call lgr%debug('%a %i2', 'end schema.version=', schema_version)
     end if
+
 
 
 !   continue with the platform grammar
@@ -5874,7 +5877,7 @@ ENDDO PARSER
   end subroutine regen_rcx_for_obs_platform
 
 
-  subroutine regen_rcx_for_schema_version_1 (config, nlist, list, rc)    
+  subroutine regen_rcx_for_schema_version_1 (config, nlist, list, rc)
     use  MAPL_scan_pattern_in_file
     type(ESMF_Config), intent(inout)       :: config
     integer, intent(in)                    :: nlist
@@ -5887,21 +5890,38 @@ ENDDO PARSER
     integer :: i, j
     character (len=300) :: line
     character (len=50), allocatable :: grid_names(:)
+    character (len=50), allocatable :: sampler_spec(:)
     character(len=ESMF_MAXSTR) :: HIST_CF, string
-    
+    type(ESMF_Config) :: cfg
+
     call ESMF_ConfigGetAttribute(config, value=HIST_CF, &
          label="HIST_CF:", default="HIST.rc", _RC )
     unitr = GETFILE(HIST_CF, FORM='formatted', _RC)
 
+    allocate(sampler_spec(nlist))
+    do n = 1, nlist
+!!       unitr2 = GETFILE(trim(string)//'rcx', FORM='formatted', _RC)
+       cfg = ESMF_ConfigCreate(_RC)
+       string = trim( list(n)%collection ) // '.'
+       call ESMF_ConfigLoadFile(cfg, filename = trim(string)//'rcx', _RC)
+       call ESMF_ConfigGetAttribute ( cfg, value=sampler_spec(n), default="", &
+            label=trim(string) // 'sampler_spec:' ,_RC )
+       call ESMF_ConfigDestroy(cfg, _RC)
+       !!       call free_file(unitr2, _RC)
+       write(6,*) 'sampler_spec(n)=', trim(sampler_spec(n))
+    end do
+
+    print*, 'ck 1'
     ! add GRID_LABELS, INDEX_VAR_NAMES to trajectory collection rcx only
     do n = 1, nlist
-       if (list(n)%sampler_spec == 'trajectory') then
+       if (sampler_spec(n) == 'trajectory') then
           rewind(unitr)
           string = trim( list(n)%collection ) // '.'
           unitw = GETFILE(trim(string)//'rcx', FORM='formatted', _RC)
 
+          print*, 'ck 2'
           call scan_write_between_line1_line2_flush_Left (unitr, unitw,  string, '::')
-          call scan_write_between_line1_line2_flush_Left (unitr, unitw,  'GRID_LABELS:', '::')          
+          call scan_write_between_line1_line2_flush_Left (unitr, unitw,  'GRID_LABELS:', '::')
           call scan_begin (unitr, 'GRID_LABELS:', .true.)
           ios=0; i=0; j=0   ! i: count
           do while (ios==0)
@@ -5914,7 +5934,7 @@ ENDDO PARSER
              end if
           end do
 300       continue
-          
+
           print*, 'i=', i
           allocate (grid_names(i))
           call scan_begin (unitr, 'GRID_LABELS:', .true.)
@@ -5938,14 +5958,14 @@ ENDDO PARSER
           end do
 
           call scan_write_between_line1_line2_flush_Left (unitr, unitw, 'INDEX_VAR_NAMES:', '::')
-          call scan_write_begin_with_line1_flush_Left (unitr, unitw, 'schema_version')          
-
+          call scan_write_begin_with_line1_flush_Left (unitr, unitw, 'schema_version')
+          call free_file(unitw, _RC)
+          deallocate(grid_names)
        end if
-       call free_file(unitw, _RC)
     end do
     call free_file(unitr, _RC)
 
-    _RETURN(ESMF_SUCCESS)    
+    _RETURN(ESMF_SUCCESS)
   end subroutine regen_rcx_for_schema_version_1
 
 
