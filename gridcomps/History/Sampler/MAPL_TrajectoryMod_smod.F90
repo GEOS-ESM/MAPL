@@ -123,8 +123,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_ConfigFindLabel(config, trim(key_grid)//'index_name_x:',  isPresent=ispresent, rc=status)
          _ASSERT(.not.ispresent, 'conflict: '//trim(key_grid)//'index_var_names:'//' with '//trim(key_grid)//'index_name_x:')
 
-         print*, 'STR_KW=', trim(STR_KW)
-
          call ESMF_ConfigGetAttribute(config, value=traj%index_name_x, default="", &
               label=trim(STR_KW) // 'index_name_x:', _RC)
          call ESMF_ConfigGetAttribute(config, value=traj%var_name_lon_full, default="", &
@@ -150,7 +148,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
               label=trim(STR_KW)//'obs_file_interval:', _RC)
          _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
-         if (mapl_am_I_root()) write(6,*) 'STR1: obs_file_interval:', trim(STR1)
 
          if (mapl_am_I_root()) write(6,105) 'obs_file_interval:', trim(STR1)
          if (mapl_am_I_root()) write(6,106) 'Epoch (second)   :', second

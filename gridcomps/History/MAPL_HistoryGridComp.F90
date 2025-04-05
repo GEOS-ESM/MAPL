@@ -5900,26 +5900,20 @@ ENDDO PARSER
 
     allocate(sampler_spec(nlist))
     do n = 1, nlist
-!!       unitr2 = GETFILE(trim(string)//'rcx', FORM='formatted', _RC)
        cfg = ESMF_ConfigCreate(_RC)
        string = trim( list(n)%collection ) // '.'
        call ESMF_ConfigLoadFile(cfg, filename = trim(string)//'rcx', _RC)
        call ESMF_ConfigGetAttribute ( cfg, value=sampler_spec(n), default="", &
             label=trim(string) // 'sampler_spec:' ,_RC )
        call ESMF_ConfigDestroy(cfg, _RC)
-       !!       call free_file(unitr2, _RC)
-       write(6,*) 'sampler_spec(n)=', trim(sampler_spec(n))
     end do
 
-    print*, 'ck 1'
     ! add GRID_LABELS, INDEX_VAR_NAMES to trajectory collection rcx only
     do n = 1, nlist
        if (sampler_spec(n) == 'trajectory') then
           rewind(unitr)
           string = trim( list(n)%collection ) // '.'
           unitw = GETFILE(trim(string)//'rcx', FORM='formatted', _RC)
-
-          print*, 'ck 2'
           call scan_write_between_line1_line2_flush_Left (unitr, unitw,  string, '::')
           call scan_write_between_line1_line2_flush_Left (unitr, unitw,  'GRID_LABELS:', '::')
           call scan_begin (unitr, 'GRID_LABELS:', .true.)
@@ -5935,7 +5929,6 @@ ENDDO PARSER
           end do
 300       continue
 
-          print*, 'i=', i
           allocate (grid_names(i))
           call scan_begin (unitr, 'GRID_LABELS:', .true.)
           ios=0; i=0; j=0   ! i: count
@@ -5953,7 +5946,6 @@ ENDDO PARSER
 
           do j=1, i
              line=trim(grid_names(j))//'.'
-             print*, 'line= ', trim(line)
              call scan_write_begin_with_line1_flush_Left (unitr, unitw, line)
           end do
 
@@ -5967,6 +5959,5 @@ ENDDO PARSER
 
     _RETURN(ESMF_SUCCESS)
   end subroutine regen_rcx_for_schema_version_1
-
 
   end module MAPL_HistoryGridCompMod
