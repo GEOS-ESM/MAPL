@@ -12,7 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed problem related to stale pointers to temp copies of dummy arguments in MAPL_Cap.F90.  Fix is to add TARGET attributein select locations.
 - Fix for case where 2nd argument to `transfer()` was not allocated in the OpenMP support layer.  Was not detected by other compilers.  The fix is to use a literal integer array instead.
 - Fixed problem in History when no fields appear on the 'fields:' line in a collection (issue #3525)
-	
+- Add `schema.version: 1` to enable individual trajectory sampler using GRID_LABELS keyword, meanwhile `index_var_names` keyword is added to simpify the specifications for IODA files
+
 ### Added
 
 - Added CI build using spack
