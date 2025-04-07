@@ -10,6 +10,7 @@ module mapl3g_GenericPhases
    public :: GENERIC_INIT_MODIFY_ADVERTISED
    public :: GENERIC_INIT_MODIFY_ADVERTISED2
    public :: GENERIC_INIT_REALIZE
+   public :: GENERIC_INIT_READ_RESTART
    public :: GENERIC_INIT_USER
 
    ! Run phases
@@ -29,6 +30,7 @@ module mapl3g_GenericPhases
       enumerator :: GENERIC_INIT_MODIFY_ADVERTISED
       enumerator :: GENERIC_INIT_MODIFY_ADVERTISED2
       enumerator :: GENERIC_INIT_REALIZE
+      enumerator :: GENERIC_INIT_READ_RESTART
    end enum
 
    ! We start the generic run phases at a high index to allow for
@@ -52,6 +54,7 @@ module mapl3g_GenericPhases
         GENERIC_INIT_MODIFY_ADVERTISED, &
         GENERIC_INIT_MODIFY_ADVERTISED2, &
         GENERIC_INIT_REALIZE, &
+        GENERIC_INIT_READ_RESTART, & ! IMPORTANT: Goes before INIT_USER
         GENERIC_INIT_USER &
         ]
 

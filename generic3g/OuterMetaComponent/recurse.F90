@@ -30,27 +30,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine recurse_
 
-   ! This procedure is used to recursively invoke read_restart
-   module recursive subroutine recurse_read_restart_(this, rc)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(GriddedComponentDriverMapIterator) :: iter
-      type(GriddedComponentDriver), pointer :: child
-
-      associate(e => this%children%ftn_end())
-        iter = this%children%ftn_begin()
-        do while (iter /= e)
-           call iter%next()
-           child => iter%second()
-           call child%read_restart(_RC)
-        end do
-      end associate
-
-      _RETURN(_SUCCESS)
-   end subroutine recurse_read_restart_
-
    ! This procedure is used to recursively invoke write_restart
    module recursive subroutine recurse_write_restart_(this, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
