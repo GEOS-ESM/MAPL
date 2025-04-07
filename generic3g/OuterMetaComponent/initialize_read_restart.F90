@@ -37,9 +37,7 @@ contains
       end if
 
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
-      if (name /= "HIST") then
-         call recurse(this, phase_idx=GENERIC_INIT_READ_RESTART, _RC)
-      end if
+      call recurse(this, phase_idx=GENERIC_INIT_READ_RESTART, _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
