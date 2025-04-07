@@ -54,7 +54,7 @@ module mapl3g_GenericPhases
         GENERIC_INIT_MODIFY_ADVERTISED, &
         GENERIC_INIT_MODIFY_ADVERTISED2, &
         GENERIC_INIT_REALIZE, &
-        GENERIC_INIT_READ_RESTART, &
+        GENERIC_INIT_READ_RESTART, & ! IMPORTANT: Goes before INIT_USER
         GENERIC_INIT_USER &
         ]
 
