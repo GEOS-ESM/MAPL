@@ -85,7 +85,8 @@
   integer, parameter         :: MAPL_ExtDataResult        = 3
   character(len=*), parameter :: mol_per_mol = 'mol mol-1'
   character(len=*), parameter :: kg_per_kg = 'kg kg-1'
-  character(len=*), parameter :: emission_units = 'kg m-2 s-1'
+  character(len=*), parameter :: emission_units = 'kg m-2'
+  character(len=*), parameter :: per_second = 's-1'
   logical                    :: hasRun
   character(len=ESMF_MAXSTR) :: error_msg_str
 
@@ -906,7 +907,7 @@ CONTAINS
 
         if (item%allow_vertical_regrid) then
            item%aux_ps = item%vcoord%surf_name
-           if (item%units == mol_per_mol) then
+           if (index(item%units,mol_per_mol) > 0) then
               molecular_weight = metadata%get_var_attr_real32(item%var, 'molecular_weight', _RC)
               allocate(item%molecular_weight,source=molecular_weight)
               q_name = find_q(metadata, _RC)
@@ -1040,6 +1041,7 @@ CONTAINS
         units_out = get_field_units(dst_field, _RC)
         _ASSERT(units_in == units_out, "Going to vertical regrid and units of source and destination do not match")
 
+        units_in = strip_per_second(units_in)
         if (units_in == mol_per_mol) constituent_type = volume_mixing
         if (units_in == kg_per_kg) constituent_type = mass_mixing
         if (units_in == emission_units) constituent_type = emission
@@ -1083,6 +1085,18 @@ CONTAINS
        call ESMF_InfoGet(infoh,key='UNITS',value=temp_char,_RC)
        field_units = temp_char
     end function get_field_units
+
+    function strip_per_second(input_units) result(output_units)
+       character(len=:), allocatable :: output_units
+       character(len=*), intent(in) :: input_units
+
+       integer :: idx
+
+       idx = index(input_units, per_second)
+       output_units = input_units
+       if (idx > 0) output_units = input_units(1:idx-1)
+
+    end function
 
   end subroutine MAPL_ExtDataVerticalInterpolate
 
