@@ -60,7 +60,6 @@ contains
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_MODIFY_ADVERTISED, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_MODIFY_ADVERTISED2, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_REALIZE, _RC)
-!#         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_RESTORE, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_READ_RESTART, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_USER, _RC)
 
@@ -168,8 +167,6 @@ contains
          call outer_meta%initialize_modify_advertised2(importState, exportState, clock, _RC)
       case (GENERIC_INIT_REALIZE)
          call outer_meta%initialize_realize(_RC)
-!#      case (GENERIC_INIT_RESTORE)
-!#         call outer_meta%initialize_realize(_RC)
       case (GENERIC_INIT_READ_RESTART)
          call outer_meta%initialize_read_restart(_RC)
       case (GENERIC_INIT_USER)
