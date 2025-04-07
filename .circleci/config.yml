@@ -16,7 +16,7 @@ parameters:
 
 # Anchors to prevent forgetting to update a version
 os_version: &os_version ubuntu24
-baselibs_version: &baselibs_version v7.31.0
+baselibs_version: &baselibs_version v7.32.0
 bcs_version: &bcs_version v11.6.0
 tag_build_arg_name: &tag_build_arg_name maplversion
 
@@ -59,28 +59,9 @@ workflows:
           ctest_options: "-L 'ESSENTIAL' --output-on-failure"
           persist_workspace: true # Needed for MAPL tutorials
 
-      # Builds MAPL like UFS does (no FLAP and pFlogger, static)
+      # Builds MAPL like UFS does (no pFlogger, fargparse, pfunit, static)
       - ci/build:
           name: build-UFS-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [ifort]
-              build_type: ['Release']
-          baselibs_version: *baselibs_version
-          repo: MAPL
-          mepodevelop: false
-          remove_flap: true
-          remove_pflogger: true
-          extra_cmake_options: "-DBUILD_WITH_FLAP=OFF -DBUILD_WITH_PFLOGGER=OFF -DBUILD_WITH_FARGPARSE=OFF -DUSE_EXTDATA2G=OFF -DBUILD_SHARED_MAPL=OFF"
-          run_unit_tests: true
-          # ExtData1G tests were removed from ESSENTIAL, so we run them separately here as UFS might still use 1G?
-          ctest_options: "-L 'ESSENTIAL|EXTDATA1G_SMALL_TESTS' --output-on-failure"
-
-      # Builds MAPL without pFUnit support
-      - ci/build:
-          name: build-MAPL-without-pFUnit-as-<< matrix.build_type>>-on-<< matrix.compiler >>
           context:
             - docker-hub-creds
           matrix:
@@ -90,7 +71,10 @@ workflows:
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
+          remove_flap: true
+          remove_pflogger: true
           remove_pfunit: true
+          extra_cmake_options: "-DBUILD_WITH_FLAP=OFF -DBUILD_WITH_PFLOGGER=OFF -DBUILD_WITH_FARGPARSE=OFF -DUSE_EXTDATA2G=OFF -DBUILD_SHARED_MAPL=OFF"
           run_unit_tests: true
           ctest_options: "-L 'ESSENTIAL' --output-on-failure"
 
