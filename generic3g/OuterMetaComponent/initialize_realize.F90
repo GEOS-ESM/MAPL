@@ -18,7 +18,6 @@ contains
 
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
       call recurse(this, phase_idx=GENERIC_INIT_REALIZE, _RC)
-      call recurse_read_restart(this, _RC)
       call this%registry%allocate(_RC)
 
       _RETURN(ESMF_SUCCESS)

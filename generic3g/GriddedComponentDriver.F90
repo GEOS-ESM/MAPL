@@ -23,7 +23,6 @@ module mapl3g_GriddedComponentDriver
       procedure :: initialize
       procedure :: run
       procedure :: finalize
-      procedure :: read_restart
       procedure :: write_restart
       procedure :: clock_advance
 
@@ -71,13 +70,6 @@ module mapl3g_GriddedComponentDriver
          integer, optional, intent(in) :: phase_idx
          integer, optional, intent(out) :: rc
       end subroutine finalize
-
-      module recursive subroutine read_restart(this, unusable, phase_idx, rc)
-         class(GriddedComponentDriver), intent(inout) :: this
-         class(KE), optional, intent(in) :: unusable
-         integer, optional, intent(in) :: phase_idx
-         integer, optional, intent(out) :: rc
-      end subroutine read_restart
 
       module recursive subroutine write_restart(this, unusable, phase_idx, rc)
          class(GriddedComponentDriver), intent(inout) :: this
