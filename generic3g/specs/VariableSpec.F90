@@ -13,6 +13,7 @@ module mapl3g_VariableSpec
    use mapl3g_AttributesAspect
    use mapl3g_UngriddedDimsAspect
    use mapl3g_VerticalGridAspect
+   use mapl3g_VerticalRegridMethod
    use mapl3g_FrequencyAspect
    use mapl3g_TypekindAspect
    use mapl3g_UngriddedDims
@@ -21,14 +22,14 @@ module mapl3g_VariableSpec
    use mapl3g_VirtualConnectionPt
    use mapl3g_ActualConnectionPt
    use mapl3g_VerticalGrid
-   use mapl_KeywordEnforcerMod
-   use mapl3g_ActualPtVector
+   use mapl3g_VirtualConnectionPtVector
    use mapl_ErrorHandling
    use mapl3g_StateRegistry
    use mapl3g_StateItem
    use mapl3g_AspectId
    use mapl3g_EsmfRegridder, only: EsmfRegridderParam
    use mapl3g_FieldDictionary
+   use mapl_KeywordEnforcerMod
    use esmf
    use gFTL2_StringVector
    use nuopc
@@ -38,7 +39,6 @@ module mapl3g_VariableSpec
 
    public :: VariableSpec
    public :: make_VariableSpec
-!#   public :: make_VariableSpecFromAspects
 
    ! This type provides components that might be needed for _any_
    ! state item.  This is largely to support legacy interfaces, but it
@@ -46,7 +46,6 @@ module mapl3g_VariableSpec
    ! setservices() have run.
    type VariableSpec
       ! TODO: delete - move to StateItemSpec
-      type(AspectMap) :: aspects 
 
       ! Mandatory values:
       type(ESMF_StateIntent_Flag) :: state_intent
@@ -96,6 +95,7 @@ module mapl3g_VariableSpec
       !=====================
       ! vertical aspect
       !=====================
+      class(VerticalGrid), allocatable :: vertical_grid
       type(VerticalStaggerLoc), allocatable :: vertical_stagger
 
       !=====================
@@ -150,6 +150,7 @@ contains
         units, &
         itemtype, &
         typekind, &
+        vertical_grid, &
         vertical_stagger, &
         ungridded_dims, &
         default_value, &
@@ -175,6 +176,7 @@ contains
       character(*), optional, intent(in) :: units
       type(ESMF_StateItem_Flag), optional, intent(in) :: itemtype
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
       type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       real, optional, intent(in) :: default_value
@@ -193,8 +195,6 @@ contains
 !#      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
 !#      type(EsmfRegridderParam) :: regrid_param_
       integer :: status
-!#      class(ClassAspect), allocatable :: class_aspect
-!#      type(ESMF_StateItem_Flag) :: itemType_
 
       var_spec%short_name = short_name
       var_spec%state_intent = state_intent
@@ -208,6 +208,7 @@ contains
       _SET_OPTIONAL(units)
       _SET_OPTIONAL(itemtype)
       _SET_OPTIONAL(typekind)
+      _SET_OPTIONAL(vertical_grid)
       _SET_OPTIONAL(vertical_stagger)
       _SET_OPTIONAL(ungridded_dims)
       _SET_OPTIONAL(default_value)
@@ -221,29 +222,6 @@ contains
       _SET_OPTIONAL(timeStep)
       _SET_OPTIONAL(offset)
       _SET_OPTIONAL(vector_component_names)
-
-!#      _HERE
-!#      itemType_ = ESMF_STATEITEM_FIELD
-!#      if (present(itemtype)) itemType_ = itemType
-!#
-!#      regrid_param_ = get_regrid_param(regrid_param, standard_name)
-!#
-!#      _HERE
-!#      class_aspect = var_spec%make_ClassAspect(_RC)
-!#      _HERE, 
-!#      var_spec = make_VariableSpecFromAspects(state_intent, short_name, &
-!#           class_aspect=class_aspect,  itemType=itemType_, &
-!#           service_items=service_items, &
-!#           dependencies=dependencies, &
-!#           geom_aspect=GeomAspect(geom, regrid_param_, horizontal_dims_spec), &
-!#           units_aspect=UnitsAspect(units), &
-!#           attributes_aspect=AttributesAspect(attributes), &
-!#           ungridded_aspect=UngriddedDimsAspect(ungridded_dims), &
-!#           vertical_aspect=VerticalGridAspect(vertical_stagger=vertical_stagger, geom=geom), &
-!#           frequency_aspect=FrequencyAspect(timeStep=timeStep, offset=offset, &
-!#           accumulation_type=accumulation_type), &
-!#           typekind_aspect=TypekindAspect(typekind), &
-!#           _RC)
 
 
       _RETURN(_SUCCESS)
@@ -286,17 +264,17 @@ contains
    end function make_virtualPt
 
    function make_dependencies(this, rc) result(dependencies)
-      type(ActualPtVector) :: dependencies
+      type(VirtualConnectionPtVector) :: dependencies
       class(VariableSpec), intent(in) :: this
       integer, optional, intent(out) :: rc
 
       integer :: i
-      type(ActualConnectionPt) :: a_pt
+      type(VirtualConnectionPt) :: v_pt
 
-      dependencies = ActualPtVector()
+      dependencies = VirtualConnectionPtVector()
       do i = 1, this%dependencies%size()
-         a_pt = ActualConnectionPt(VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, this%dependencies%of(i)))
-         call dependencies%push_back(a_pt)
+         v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, this%dependencies%of(i))
+         call dependencies%push_back(v_pt)
       end do
 
       _RETURN(_SUCCESS)
@@ -358,67 +336,6 @@ contains
       _RETURN(_SUCCESS)
    end function get_regrid_method_from_field_dict_
 
-!#   function make_VariableSpecFromAspects(state_intent, short_name, class_aspect, unusable, &
-!#        itemtype, service_items, &
-!#        dependencies, geom_aspect, units_aspect, attributes_aspect, &
-!#        ungridded_aspect, vertical_aspect, frequency_aspect, typekind_aspect, &
-!#        rc) &
-!#        result(var_spec)
-!#
-!#      type(VariableSpec) :: var_spec
-!#      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
-!#      character(*), intent(in) :: short_name
-!#      class(ClassAspect), intent(in) :: class_aspect
-!#      class(KeywordEnforcer), optional, intent(in) :: unusable
-!#      type(ESMF_StateItem_Flag), optional, intent(in) :: itemType
-!#      type(StringVector), optional :: service_items
-!#      type(StringVector), optional, intent(in) :: dependencies
-!#      class(GeomAspect), optional, intent(in) :: geom_aspect
-!#      class(UnitsAspect), optional, intent(in) :: units_aspect
-!#      class(AttributesAspect), optional, intent(in) :: attributes_aspect
-!#      class(UngriddedDimsAspect), optional, intent(in) :: ungridded_aspect
-!#      class(VerticalGridAspect), optional, intent(in) :: vertical_aspect
-!#      class(FrequencyAspect), optional, intent(in) :: frequency_aspect
-!#      class(TypekindAspect), optional, intent(in) :: typekind_aspect
-!#      integer, optional, intent(out) :: rc
-!#      
-!#      var_spec%state_intent = state_intent
-!#      var_spec%short_name = short_name
-!##if defined(_SET_OPTIONAL)
-!##  undef _SET_OPTIONAL
-!##endif
-!##define _SET_OPTIONAL(attr) if (present(attr)) var_spec%attr = attr
-!#      _SET_OPTIONAL(itemType)
-!#      _SET_OPTIONAL(service_items)
-!#      _SET_OPTIONAL(dependencies)
-!##undef _SET_OPTIONAL
-!#
-!##if defined(_SET_ASPECT)
-!##  undef _SET_ASPECT
-!##endif
-!##define _SET_ASPECT(A) call add_item(var_spec%aspects, A)
-!#
-!##if defined(_SET_ASPECT_IF)
-!##  undef _SET_ASPECT_IF
-!##endif
-!##define _SET_ASPECT_IF(A, D) if(present(A)) then; _SET_ASPECT(A); else; _SET_ASPECT(D); end if
-!#
-!#      _SET_ASPECT(class_aspect)
-!#      
-!#      _SET_ASPECT_IF(geom_aspect, GeomAspect())
-!#      _SET_ASPECT_IF(units_aspect, UnitsAspect())
-!#      _SET_ASPECT_IF(attributes_aspect, AttributesAspect())
-!#      _SET_ASPECT_IF(ungridded_aspect, UngriddedDimsAspect())
-!#      _SET_ASPECT_IF(vertical_aspect, VerticalGridAspect())
-!#      _SET_ASPECT_IF(frequency_aspect, FrequencyAspect())
-!#      _SET_ASPECT_IF(typekind_aspect, TypekindAspect())
-!#
-!##undef _SET_ASPECT_IF         
-!##undef _SET_ASPECT
-!#
-!#      _RETURN(_SUCCESS)
-!#      _UNUSED_DUMMY(unusable)
-!#   end function make_VariableSpecFromAspects
 
    subroutine add_item(aspects, aspect, rc)
       class(AspectMap), intent(inout) :: aspects
@@ -454,15 +371,15 @@ contains
       type(StateItemSpec) :: spec
       class(VariableSpec), intent(in) :: this
       type(StateRegistry), pointer, intent(in) :: registry
-      type(ESMF_Geom), intent(in) :: component_geom
-      class(VerticalGrid), intent(in) :: vertical_grid
+      type(ESMF_Geom), optional, intent(in) :: component_geom
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_TimeInterval), intent(in) :: timestep
-      type(ESMF_TimeInterval), intent(in) :: offset
+      type(ESMF_TimeInterval), optional, intent(in) :: timestep
+      type(ESMF_TimeInterval), optional, intent(in) :: offset
       integer, optional, intent(out) :: rc
 
       type(AspectMap) :: aspects
-      type(ActualPtVector) :: dependencies
+      type(VirtualConnectionPtVector) :: dependencies
       integer :: status
       
       aspects = this%make_aspects(registry, component_geom, vertical_grid, timestep=timestep, offset=offset, _RC)
@@ -477,11 +394,11 @@ contains
       type(AspectMap) :: aspects
       class(VariableSpec), intent(in) :: this
       type(StateRegistry), pointer, intent(in) :: registry
-      type(ESMF_Geom), intent(in) :: component_geom
-      class(VerticalGrid), intent(in) :: vertical_grid
+      type(ESMF_Geom), optional, intent(in) :: component_geom
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      type(ESMF_TimeInterval), intent(in) :: timestep
-      type(ESMF_TimeInterval), intent(in) :: offset
+      type(ESMF_TimeInterval), optional, intent(in) :: timestep
+      type(ESMF_TimeInterval), optional, intent(in) :: offset
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -494,7 +411,7 @@ contains
       call aspects%insert(TYPEKIND_ASPECT_ID, aspect)
 
       aspect = this%make_GeomAspect(component_geom, _RC)
-      call aspects%insert(TYPEKIND_ASPECT_ID, aspect)
+      call aspects%insert(GEOM_ASPECT_ID, aspect)
 
       aspect = this%make_UngriddedDimsAspect(_RC)
       call aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, aspect)
@@ -502,7 +419,8 @@ contains
       aspect = this%make_AttributesAspect(_RC)
       call aspects%insert(ATTRIBUTES_ASPECT_ID, aspect)
       
-      aspect = this%make_VerticalGridAspect(component_geom, _RC)
+      aspect = this%make_VerticalGridAspect(vertical_grid, &
+           component_geom=component_geom, _RC)
       call aspects%insert(VERTICAL_GRID_ASPECT_ID, aspect)
 
       aspect = this%make_FrequencyAspect(timestep, offset, _RC)
@@ -536,7 +454,7 @@ contains
       type(ESMF_Geom), optional, intent(in) :: component_geom
       integer, optional, intent(out) :: rc
 
-      type(ESMF_Geom) :: geom_
+      type(ESMF_Geom), allocatable :: geom_
 
       ! If geom is allocated in var spec then it is prioritized over the
       ! component-wide geom.
@@ -568,13 +486,16 @@ contains
       _RETURN(_SUCCESS)
    end function make_AttributesAspect
   
-   function make_VerticalGridAspect(this, component_geom, rc) result(aspect)
+   function make_VerticalGridAspect(this, vertical_grid, component_geom, time_dependent, rc) result(aspect)
       type(VerticalGridAspect) :: aspect
       class(VariableSpec), intent(in) :: this
-      type(ESMF_Geom), optional, intenT(in) :: component_geom
+      class(VerticalGrid), optional, intent(in) :: vertical_grid
+      type(ESMF_Geom), optional, intent(in) :: component_geom
+      logical, optional, intent(in) :: time_dependent
       integer, optional, intent(out) :: rc
 
       type(ESMF_Geom) :: geom_
+      class(VerticalGrid), allocatable :: vgrid
 
       ! If geom is allocated in var spec then it is prioritized over the
       ! component-wide geom.
@@ -586,7 +507,14 @@ contains
          geom_ = component_geom
       end if
 
-      aspect = VerticalGridAspect(vertical_stagger=this%vertical_stagger, geom=geom_)
+      if (allocated(this%vertical_grid)) then
+         vgrid = this%vertical_grid
+      elseif (present(vertical_grid)) then
+         vgrid = vertical_grid
+      end if
+
+      aspect = VerticalGridAspect(vertical_grid=vgrid, vertical_stagger=this%vertical_stagger, geom=geom_, &
+           typekind=this%typekind)
 
       _RETURN(_SUCCESS)
    end function make_VerticalGridAspect
@@ -594,8 +522,8 @@ contains
    function make_FrequencyAspect(this, timestep, offset, rc) result(aspect)
       type(FrequencyAspect) :: aspect
       class(VariableSpec), intent(in) :: this
-      type(ESMF_TimeInterval), intent(in) :: timestep
-      type(ESMF_TimeInterval), intent(in) :: offset
+      type(ESMF_TimeInterval), optional, intent(in) :: timestep
+      type(ESMF_TimeInterval), optional, intent(in) :: offset
       integer, optional, intent(out) :: rc
 
       aspect = FrequencyAspect(timestep, offset, this%accumulation_type)
@@ -611,10 +539,8 @@ contains
       integer :: status
       character(:), allocatable :: std_name_1, std_name_2
 
-      _HERE
       select case (this%itemType%ot)
       case (MAPL_STATEITEM_FIELD%ot)
-         _HERE
          aspect = FieldClassAspect(standard_name=this%standard_name, default_value=this%default_value)
       case (MAPL_STATEITEM_VECTOR%ot)
          call split_name(this%standard_name, std_name_1, std_name_2, _RC)
@@ -626,9 +552,7 @@ contains
       case (MAPL_STATEITEM_BRACKET%ot)
          aspect = BracketClassAspect(this%bracket_size, this%standard_name)
       case (MAPL_STATEITEM_WILDCARD%ot)
-         _HERE
          allocate(aspect,source=WildcardClassAspect())
-         _HERE
       case (MAPL_STATEITEM_SERVICE%ot)
          _ASSERT(present(registry), 'must have registry for creating a Service')
          aspect = ServiceClassAspect(registry, this%service_items)
@@ -636,7 +560,6 @@ contains
          aspect=FieldClassAspect('') ! must allocate something
          _FAIL('Unsupported itemType.')
       end select
-         _HERE
       
       _RETURN(_SUCCESS)
       

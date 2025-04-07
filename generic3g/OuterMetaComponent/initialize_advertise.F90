@@ -6,7 +6,6 @@ submodule (mapl3g_OuterMetaComponent) initialize_advertise_smod
    use mapl3g_StateItem
    use mapl3g_VariableSpec
    use mapl3g_VariableSpecVector, only: VariableSpecVectorIterator
-   use mapl3g_make_ItemSpec, only: make_ItemSpec
    use esmf, only: operator(==)
    use mapl3g_Connection
    use mapl3g_ConnectionVector, only: ConnectionVectorIterator
@@ -63,41 +62,39 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine self_advertise
 
-      subroutine advertise_variable(this, var_spec, rc)
-         class(OuterMetaComponent), target, intent(inout) :: this
-         type(VariableSpec), intent(in) :: var_spec
-         integer, optional, intent(out) :: rc
-
-         integer :: status
-         type(StateItemSpec) :: item_spec
-         type(VirtualConnectionPt) :: virtual_pt
-
-         item_spec = var_spec%make_StateItemSpec(this%registry, &
-              this%geom, this%vertical_grid, timestep=this%user_timestep, offset=this%user_offset, _RC)
-         call item_spec%create(_RC)
-
-         if (this%component_spec%activate_all_exports) then
-            if (var_spec%state_intent == ESMF_STATEINTENT_EXPORT) then
-               call item_spec%set_active()
-            end if
-         end if
-         if (this%component_spec%activate_all_imports) then
-            if (var_spec%state_intent == ESMF_STATEINTENT_IMPORT) then
-               call item_spec%set_active()
-            end if
-         end if
-               
-         if (var_spec%state_intent == ESMF_STATEINTENT_INTERNAL) then
+   subroutine advertise_variable(this, var_spec, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(VariableSpec), intent(in) :: var_spec
+      integer, optional, intent(out) :: rc
+      
+      integer :: status
+      type(StateItemSpec) :: item_spec
+      type(VirtualConnectionPt) :: virtual_pt
+      
+      item_spec = var_spec%make_StateItemSpec(this%registry, &
+           this%geom, this%vertical_grid, timestep=this%user_timestep, offset=this%user_offset, _RC)
+      call item_spec%create(_RC)
+      
+      if (this%component_spec%activate_all_exports) then
+         if (var_spec%state_intent == ESMF_STATEINTENT_EXPORT) then
             call item_spec%set_active()
          end if
       end if
-
-         virtual_pt = var_spec%make_virtualPt()
-         call this%registry%add_primary_spec(virtual_pt, item_spec)
-
-
-         _RETURN(_SUCCESS)
-      end subroutine advertise_variable
+      if (this%component_spec%activate_all_imports) then
+         if (var_spec%state_intent == ESMF_STATEINTENT_IMPORT) then
+            call item_spec%set_active()
+         end if
+      end if
+      
+      if (var_spec%state_intent == ESMF_STATEINTENT_INTERNAL) then
+         call item_spec%set_active()
+      end if
+   
+      virtual_pt = var_spec%make_virtualPt()
+      call this%registry%add_primary_spec(virtual_pt, item_spec)
+      
+      _RETURN(_SUCCESS)
+   end subroutine advertise_variable
 
    subroutine process_connections(this, rc)
       class(OuterMetaComponent), target, intent(inout) :: this

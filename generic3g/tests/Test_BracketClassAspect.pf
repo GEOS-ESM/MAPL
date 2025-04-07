@@ -2,11 +2,13 @@
 module Test_BracketClassAspect
    use mapl3g_StateItem
    use mapl3g_AspectId
+   use mapl3g_StateItemSpec
    use mapl3g_BracketClassAspect
    use mapl3g_VerticalGridAspect
    use mapl3g_BasicVerticalGrid
    use mapl3g_VariableSpec
    use mapl3g_StateItemAspect
+   use mapl3g_StateRegistry
    use mapl3g_geom_mgr
    use funit
    use esmf
@@ -35,27 +37,27 @@ contains
 
    @test
    subroutine test_allocate()
-      type(BracketClassAspect) :: bracket_aspect
-      type(VariableSpec), target :: var_spec
-      type(AspectMap), pointer :: aspects
+      type(VariableSpec) :: var_spec
+      type(StateItemSpec), target :: state_item_spec
       type(ESMF_FieldBundle) :: field_bundle
 
       integer :: status
       integer :: fieldCount
+      type(AspectMap), pointer :: aspects
+      type(BracketClassAspect) :: bracket_aspect
       integer, parameter :: BRACKET_SIZE = 2
-      type(VerticalGridAspect) :: vert_aspect
+      type(StateRegistry), target :: registry
 
       var_spec = make_VariableSpec(itemtype=MAPL_STATEITEM_BRACKET, state_intent=ESMF_STATEINTENT_EXPORT, &
            short_name='a', standard_name='A', geom=geom, units='m', bracket_size=BRACKET_SIZE, _RC)
 
-      aspects => var_spec%aspects
-      vert_aspect = VerticalGridAspect(BasicVerticalGrid(5))
-      call aspects%insert(VERTICAL_GRID_ASPECT_ID, vert_aspect)
+      state_item_spec = var_spec%make_StateItemSpec(registry, vertical_grid=BasicVerticalGrid(5), _RC)
 
+      call state_item_spec%create(_RC)
+      call state_item_spec%allocate(_RC)
+
+      aspects => state_item_spec%get_aspects()
       bracket_aspect = to_BracketClassAspect(aspects, _RC)
-      call bracket_aspect%create(_RC)
-      call bracket_aspect%allocate(aspects, _RC)
-
       field_bundle = bracket_aspect%get_payload()
 
       call ESMF_FieldBundleValidate(field_bundle, _RC)

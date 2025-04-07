@@ -153,27 +153,21 @@ contains
       can_connect_to = .false.
 
       associate (num_mirror => count([src%is_mirror(), dst%is_mirror()]))
-        _HERE, 'num_mirror: ', num_mirror
         select case (num_mirror)
         case (0)
-           _HERE
            if (either_is_time_dependent(src, dst)) then
               ! Must expect to convert to unknown aspect value in the future.
               can_connect_to = src%supports_conversion()
               return
            end if
            can_connect_to = src%matches(dst)
-           _HERE, can_connect_to
            if (.not. can_connect_to) then
               can_connect_to = src%supports_conversion(dst)
-              _HERE, can_connect_to
            end if
         case (1)
            can_connect_to = .true.
-            _HERE, can_connect_to
        case (2)
            can_connect_to = .false. ! double mirror
-           _HERE, can_connect_to
         end select ! no need for default clause
       end associate
 

@@ -108,7 +108,6 @@ contains
             dependencies = to_dependencies(attributes, _RC)
 
             esmf_state_intent = to_esmf_state_intent(state_intent)
-            _HERE, short_name, ': has standard name?', allocated(standard_name)
             var_spec = make_VariableSpec(esmf_state_intent, short_name=short_name, &
                  units=units, &
                  itemtype=itemtype, &
