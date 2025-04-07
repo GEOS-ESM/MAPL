@@ -37,6 +37,7 @@ workflows:
               cmake_generator: ['Unix Makefiles']
               build_type: ['Debug', 'Release']
           baselibs_version: *baselibs_version
+          resource_class: large
           repo: MAPL
           mepodevelop: false
           run_unit_tests: true
@@ -53,6 +54,7 @@ workflows:
               cmake_generator: ['Ninja']
               build_type: ['Debug']
           baselibs_version: *baselibs_version
+          resource_class: large
           repo: MAPL
           mepodevelop: false
           run_unit_tests: true
@@ -69,6 +71,7 @@ workflows:
               compiler: [ifort]
               build_type: ['Debug']
           baselibs_version: *baselibs_version
+          resource_class: large
           repo: MAPL
           mepodevelop: false
           remove_flap: true
@@ -98,6 +101,7 @@ workflows:
           requires:
             - build-and-test-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>-using-Unix Makefiles
           baselibs_version: *baselibs_version
+          resource_class: large
 
   build-and-run-GEOSgcm:
     jobs:
@@ -110,6 +114,7 @@ workflows:
             parameters:
               compiler: [gfortran, ifort]
           baselibs_version: *baselibs_version
+          resource_class: large
           repo: GEOSgcm
           checkout_fixture: true
           mepodevelop: true
@@ -157,6 +162,7 @@ workflows:
             parameters:
               compiler: [gfortran, ifort]
           baselibs_version: *baselibs_version
+          resource_class: large
           repo: GEOSldas
           mepodevelop: false
           checkout_fixture: true
