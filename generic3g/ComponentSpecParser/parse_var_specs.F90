@@ -79,6 +79,7 @@ contains
             attributes = ESMF_HConfigCreateAtMapVal(iter,_RC)
 
             short_name = name
+
             typekind = to_typekind(attributes, _RC)
             call val_to_float(default_value, attributes, KEY_DEFAULT_VALUE, _RC)
             vertical_stagger = to_VerticalStaggerLoc(attributes,_RC)

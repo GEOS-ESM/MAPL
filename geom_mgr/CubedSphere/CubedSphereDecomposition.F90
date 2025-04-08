@@ -49,7 +49,6 @@ module mapl3g_CubedSphereDecomposition
 
       ! Keyword enforced to avoid ambiguity with '_topo' interface
       pure module function new_CubedSphereDecomposition_petcount(dims, unusable, petCount) result(decomp)
-         use mapl_KeywordEnforcerMod
          type(CubedSphereDecomposition) :: decomp
          integer, intent(in) :: dims(2)
          class(KeywordEnforcer), optional, intent(in) :: unusable
