@@ -35,7 +35,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
   build_test_mapl_gnu:
-    name: gfortran / ${ { matrix.cmake-build-type }} / ${{ matrix.cmake-generator }}
+    name: gfortran / ${{ matrix.cmake-build-type }} / ${{ matrix.cmake-generator }}
     runs-on: ubuntu-latest
     container:
       image: gmao/ubuntu24-geos-env-mkl:v7.32.0-openmpi_5.0.5-gcc_14.2.0
@@ -58,7 +58,7 @@ jobs:
           fortran-compiler: gfortran
 
   build_test_mapl_ifort:
-    name: ifort / ${ { matrix.cmake-build-type }} / ${{ matrix.cmake-generator }}
+    name: ifort / ${{ matrix.cmake-build-type }} / ${{ matrix.cmake-generator }}
     runs-on: ubuntu-latest
     container:
       image: gmao/ubuntu24-geos-env:v7.32.0-intelmpi_2021.13-ifort_2021.13
@@ -77,7 +77,7 @@ jobs:
           fortran-compiler: ifort
 
   build_test_mapl_ifx:
-    name: ifx / ${ { matrix.cmake-build-type }} / ${{ matrix.cmake-generator }}
+    name: ifx / ${{ matrix.cmake-build-type }} / ${{ matrix.cmake-generator }}
     runs-on: ubuntu-latest
     container:
       image: gmao/ubuntu24-geos-env:v7.32.0-intelmpi_2021.14-ifx_2025.0
