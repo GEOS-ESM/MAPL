@@ -32,6 +32,7 @@ contains
 
       user_timeStep = timeStep
       if (allocated(this%user_timeStep)) user_timeStep = this%user_timeStep
+      this%user_timeStep = user_timeStep
 
       user_offset = this%user_offset
 

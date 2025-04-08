@@ -75,7 +75,6 @@ module mapl3g_StateRegistry
 
       ! Actions on specs
       procedure :: allocate
-      procedure :: set_blanket_geometry
       procedure :: add_to_states
 
       procedure :: filter ! for MatchConnection
@@ -616,33 +615,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine allocate
 
-   subroutine set_blanket_geometry(this, geom, vertical_grid, rc)
-      class(StateRegistry), target, intent(inout) :: this
-      type(ESMF_Geom), optional, intent(in) :: geom
-      class(VerticalGrid), optional, intent(in) :: vertical_grid
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(StateItemExtensionVectorIterator) :: iter
-      class(StateItemExtension), pointer :: extension
-      type(StateItemSpec), pointer :: spec
-
-      associate (e => this%owned_items%ftn_end())
-        iter = this%owned_items%ftn_begin()
-        do while (iter /= e)
-           call iter%next()
-           extension => iter%of()
-           spec => extension%get_spec()
-           if (spec%is_active()) then
-              call spec%set_geometry(geom, vertical_grid, _RC)
-           end if
-        end do
-      end associate
-      
-      _RETURN(_SUCCESS)
-   end subroutine set_blanket_geometry
-
-  subroutine add_to_states(this, multi_state, mode, rc)
+   subroutine add_to_states(this, multi_state, mode, rc)
       use mapl3g_MultiState
       use mapl3g_ActualConnectionPt
       use esmf

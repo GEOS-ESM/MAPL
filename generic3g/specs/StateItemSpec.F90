@@ -3,7 +3,7 @@
 module mapl3g_StateItemSpec
    use mapl3g_AspectId
    use mapl3g_ActualConnectionPt
-   use mapl3g_ActualPtVector
+   use mapl3g_VirtualConnectionPtVector
    use mapl3g_ExtensionTransform
    use mapl3g_MultiState
    use mapl3g_StateItemAspect
@@ -19,6 +19,7 @@ module mapl3g_StateItemSpec
 
    public :: check
    public :: StateItemSpec
+   public :: new_StateItemSpec
    public :: StateItemSpecPtr
 #ifndef __GFORTRAN__
    public :: assignment(=)
@@ -28,8 +29,7 @@ module mapl3g_StateItemSpec
 
       logical :: active = .false.
       logical :: allocated = .false.
-      type(StringVector) :: raw_dependencies
-      type(ActualPtVector) :: dependencies
+      type(VirtualConnectionPtVector) :: dependencies
 
       type(AspectMap) :: aspects
    contains
@@ -53,9 +53,7 @@ module mapl3g_StateItemSpec
       procedure :: set_aspect
 
       procedure :: get_dependencies
-      procedure :: get_raw_dependencies
       procedure :: set_dependencies
-      procedure :: set_raw_dependencies
 
       procedure :: create
       procedure :: destroy
@@ -86,11 +84,13 @@ module mapl3g_StateItemSpec
 
 contains
 
-   function new_StateItemSpec(aspects) result(spec)
+   function new_StateItemSpec(aspects, dependencies) result(spec)
       type(StateItemSpec) :: spec
       type(AspectMap), intent(in) :: aspects
+      type(VirtualConnectionPtVector), intent(in) :: dependencies
 
       spec%aspects = aspects
+      spec%dependencies = dependencies
    end function new_StateItemSpec
 
 
@@ -135,28 +135,16 @@ contains
    end function is_active
 
    function get_dependencies(this) result(dependencies)
-      type(ActualPtVector) :: dependencies
+      type(VirtualConnectionPtVector) :: dependencies
       class(StateItemSpec), intent(in) :: this
       dependencies = this%dependencies
    end function get_dependencies
 
-   function get_raw_dependencies(this) result(raw_dependencies)
-      type(StringVector) :: raw_dependencies
-      class(StateItemSpec), intent(in) :: this
-      raw_dependencies = this%raw_dependencies
-   end function get_raw_dependencies
-
    subroutine set_dependencies(this, dependencies)
       class(StateItemSpec), intent(inout) :: this
-      type(ActualPtVector), intent(in):: dependencies
+      type(VirtualConnectionPtVector), intent(in):: dependencies
       this%dependencies = dependencies
    end subroutine set_dependencies
-
-   subroutine set_raw_dependencies(this, raw_dependencies)
-      class(StateItemSpec), intent(inout) :: this
-      type(StringVector), intent(in):: raw_dependencies
-      this%raw_dependencies = raw_dependencies
-   end subroutine set_raw_dependencies
 
    function get_aspect_by_id(this, aspect_id, rc) result(aspect)
       class(StateItemAspect), pointer :: aspect
@@ -444,7 +432,6 @@ contains
 
       a%active = b%active
       a%allocated = b%allocated
-      a%raw_dependencies = b%raw_dependencies
       a%dependencies = b%dependencies
 
    end subroutine copy_item_spec

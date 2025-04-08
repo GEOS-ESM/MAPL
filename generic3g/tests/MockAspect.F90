@@ -7,10 +7,13 @@ module MockAspect_mod
    use mapl3g_AspectId
    use mapl3g_StateItemSpec
    use mapl3g_StateItemAspect
+   use mapl3g_StateRegistry
+   use mapl3g_StateItemSpec
    use mapl3g_ExtensionTransform
    use mapl3g_ClassAspect
    use mapl3g_NullTransform
    use mapl3g_MultiState
+   use mapl3g_VirtualConnectionPtVector
    use mapl_ErrorHandling
    use esmf
    implicit none
@@ -46,7 +49,7 @@ module MockAspect_mod
 contains
 
    function MockItemSpec(value, state_intent, short_name, typekind, units, mirror, time_dependent, supports_conversion) result(mock_spec)
-      type(StateItemSpec) :: mock_spec
+      type(StateItemSpec), target :: mock_spec
       integer, intent(in) :: value
       type(ESMF_StateIntent_Flag), optional, intent(in) :: state_intent
       character(*), optional, intent(in) :: short_name
@@ -56,7 +59,6 @@ contains
       logical, optional, intent(in) :: time_dependent
       logical, optional, intent(in) :: supports_conversion
 
-      type(AspectMap), pointer :: aspects
       type(MockAspect) :: mock_aspect
 
       logical :: mirror_
@@ -65,6 +67,9 @@ contains
       type(ESMF_StateIntent_Flag) :: state_intent_
       type(VariableSpec), target :: var_spec
       character(:), allocatable :: short_name_, units_
+      type(VirtualConnectionPtVector) :: dependencies
+      type(AspectMap), pointer :: aspects
+      type(StateRegistry), target :: registry
 
       mirror_ = .false.
       if (present(mirror)) mirror_ = mirror
@@ -85,12 +90,12 @@ contains
       if (present(units)) units_ = units
 
       var_spec = make_VariableSpec(state_intent=state_intent_, short_name=short_name_, typekind=typekind, units=units_)
-      aspects => var_spec%aspects
+      mock_spec = var_spec%make_StateItemSpec(registry)
+      aspects => mock_spec%get_aspects()
 
       mock_aspect = MockAspect(value, mirror_, time_dependent_, supports_conversion_)
       call aspects%insert(CLASS_ASPECT_ID, mock_aspect)
 
-      mock_spec = StateItemSpec(aspects)
 
    end function MockItemSpec
 

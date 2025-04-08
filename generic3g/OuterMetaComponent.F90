@@ -74,6 +74,8 @@ module mapl3g_OuterMetaComponent
       procedure :: run_custom
       procedure :: initialize_user
       procedure :: initialize_set_clock
+      procedure :: initialize_geom_a
+      procedure :: initialize_geom_b
       procedure :: initialize_advertise
       procedure :: initialize_modify_advertised
       procedure :: initialize_modify_advertised2
@@ -234,6 +236,20 @@ module mapl3g_OuterMetaComponent
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_set_clock
+
+      module recursive subroutine initialize_geom_a(this, unusable, rc)
+         class(OuterMetaComponent), target, intent(inout) :: this
+         ! optional arguments
+         class(KE), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
+      end subroutine initialize_geom_a
+
+      module recursive subroutine initialize_geom_b(this, unusable, rc)
+         class(OuterMetaComponent), target, intent(inout) :: this
+         ! optional arguments
+         class(KE), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
+      end subroutine initialize_geom_b
 
       module recursive subroutine initialize_advertise(this, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
