@@ -62,7 +62,7 @@ contains
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_MODIFY_ADVERTISED, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_MODIFY_ADVERTISED2, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_REALIZE, _RC)
-!#         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_RESTORE, _RC)
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_READ_RESTART, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_USER, _RC)
 
          ! Run phases, including mandatory
@@ -75,7 +75,6 @@ contains
          end associate
 
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_FINALIZE,     finalize,      _RC)
-         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_READRESTART,  read_restart,  _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_WRITERESTART, write_restart, _RC)
 
          _RETURN(ESMF_SUCCESS)
@@ -174,8 +173,8 @@ contains
          call outer_meta%initialize_modify_advertised2(importState, exportState, clock, _RC)
       case (GENERIC_INIT_REALIZE)
          call outer_meta%initialize_realize(_RC)
-!#      case (GENERIC_INIT_RESTORE)
-!#         call outer_meta%initialize_realize(_RC)
+      case (GENERIC_INIT_READ_RESTART)
+         call outer_meta%initialize_read_restart(_RC)
       case (GENERIC_INIT_USER)
          call outer_meta%initialize_user(_RC)
       case default
@@ -231,22 +230,6 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine finalize
 
-
-   recursive subroutine read_restart(gridcomp, importState, exportState, clock, rc)
-      type(ESMF_GridComp) :: gridcomp
-      type(ESMF_State) :: importState
-      type(ESMF_State) :: exportState
-      type(ESMF_Clock) :: clock
-      integer, intent(out) :: rc
-
-      integer :: status
-      type(OuterMetaComponent), pointer :: outer_meta
-
-      outer_meta => get_outer_meta(gridcomp, _RC)
-      call outer_meta%read_restart(importState, exportState, clock, _RC)
-
-      _RETURN(ESMF_SUCCESS)
-   end subroutine read_restart
 
    recursive subroutine write_restart(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp) :: gridcomp

@@ -76,7 +76,8 @@ esma_add_fortran_submodules(
           get_phases.F90 set_hconfig.F90 get_hconfig.F90 has_geom.F90 get_geom.F90
           initialize_advertise.F90
 	  initialize_modify_advertised.F90 initialize_modify_advertised2.F90
-          initialize_realize.F90 recurse.F90 apply_to_children_custom.F90
+          initialize_realize.F90 initialize_read_restart.F90 recurse.F90
+	  apply_to_children_custom.F90
           initialize_user.F90 run_custom.F90 run_user.F90
 	  initialize_set_clock.F90 run_clock_advance.F90
 	  initialize_geom_a.F90 initialize_geom_b.F90
@@ -106,7 +107,7 @@ esma_add_fortran_submodules(
           get_clock.F90 set_clock.F90 run_export_couplers.F90
           run_import_couplers.F90 clock_advance.F90
           get_gridcomp.F90 get_name.F90 add_export_coupler.F90
-          add_import_coupler.F90 read_restart.F90 write_restart.F90)
+          add_import_coupler.F90 write_restart.F90)
 
 target_include_directories (${this} PUBLIC
   $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)

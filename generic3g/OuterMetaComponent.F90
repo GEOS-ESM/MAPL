@@ -80,11 +80,11 @@ module mapl3g_OuterMetaComponent
       procedure :: initialize_modify_advertised
       procedure :: initialize_modify_advertised2
       procedure :: initialize_realize
+      procedure :: initialize_read_restart
 
       procedure :: run_user
       procedure :: run_clock_advance
       procedure :: finalize
-      procedure :: read_restart
       procedure :: write_restart
 
       ! Hierarchy
@@ -285,16 +285,18 @@ module mapl3g_OuterMetaComponent
          integer, optional, intent(out) :: rc
       end subroutine initialize_realize
 
+      module recursive subroutine initialize_read_restart(this, unusable, rc)
+         class(OuterMetaComponent), intent(inout) :: this
+         ! optional arguments
+         class(KE), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
+      end subroutine initialize_read_restart
+
       module recursive subroutine recurse_(this, phase_idx, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          integer :: phase_idx
          integer, optional, intent(out) :: rc
       end subroutine recurse_
-
-      module recursive subroutine recurse_read_restart_(this, rc)
-         class(OuterMetaComponent), target, intent(inout) :: this
-         integer, optional, intent(out) :: rc
-      end subroutine recurse_read_restart_
 
       module recursive subroutine recurse_write_restart_(this, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
@@ -347,16 +349,6 @@ module mapl3g_OuterMetaComponent
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine finalize
-
-      module recursive subroutine read_restart(this, importState, exportState, clock, unusable, rc)
-         class(OuterMetaComponent), target, intent(inout) :: this
-         type(ESMF_State) :: importState
-         type(ESMF_State) :: exportState
-         type(ESMF_Clock) :: clock
-         ! optional arguments
-         class(KE), optional, intent(in) :: unusable
-         integer, optional, intent(out) :: rc
-      end subroutine read_restart
 
       module recursive subroutine write_restart(this, importState, exportState, clock, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
@@ -445,10 +437,6 @@ module mapl3g_OuterMetaComponent
    interface recurse
       module procedure recurse_
    end interface recurse
-
-   interface recurse_read_restart
-      module procedure recurse_read_restart_
-   end interface recurse_read_restart
 
    interface recurse_write_restart
       module procedure recurse_write_restart_
