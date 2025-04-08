@@ -224,9 +224,10 @@ module mapl3g_OuterMetaComponent
          class(OuterMetaComponent), intent(in) :: this
       end function has_geom
 
-      module function get_geom(this) result(geom)
+      module function get_geom(this, rc) result(geom)
          type(ESMF_Geom) :: geom
          class(OuterMetaComponent), intent(inout) :: this
+         integer, intent(out), optional :: rc
       end function get_geom
 
       module recursive subroutine initialize_set_clock(this, outer_clock, unusable, rc)
