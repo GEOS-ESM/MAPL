@@ -33,50 +33,15 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort, ifx]
-              cmake_generator: ['Unix Makefiles']
-              build_type: ['Debug', 'Release']
-          baselibs_version: *baselibs_version
-          repo: MAPL
-          mepodevelop: false
-          run_unit_tests: true
-          ctest_options: "-L 'ESSENTIAL' --output-on-failure"
-          persist_workspace: true # Needed for MAPL tutorials
-
-      - ci/build:
-          name: build-and-test-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>-using-<< matrix.cmake_generator >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [gfortran]
-              cmake_generator: ['Ninja']
-              build_type: ['Debug']
-          baselibs_version: *baselibs_version
-          repo: MAPL
-          mepodevelop: false
-          run_unit_tests: true
-          ctest_options: "-L 'ESSENTIAL' --output-on-failure"
-          persist_workspace: true # Needed for MAPL tutorials
-
-      # Builds MAPL like UFS does (no pFlogger, fargparse, pfunit, static)
-      - ci/build:
-          name: build-UFS-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
               compiler: [ifort]
+              cmake_generator: ['Unix Makefiles']
               build_type: ['Debug']
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
-          remove_flap: true
-          remove_pflogger: true
-          remove_pfunit: true
-          extra_cmake_options: "-DBUILD_WITH_FLAP=OFF -DBUILD_WITH_PFLOGGER=OFF -DBUILD_WITH_FARGPARSE=OFF -DUSE_EXTDATA2G=OFF -DBUILD_SHARED_MAPL=OFF"
           run_unit_tests: true
           ctest_options: "-L 'ESSENTIAL' --output-on-failure"
+          persist_workspace: true # Needed for MAPL tutorials
 
       # Run MAPL Tutorials
       - ci/run_mapl_tutorial:
@@ -98,6 +63,25 @@ workflows:
           requires:
             - build-and-test-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>-using-Unix Makefiles
           baselibs_version: *baselibs_version
+
+      # Builds MAPL like UFS does (no pFlogger, fargparse, pfunit, static)
+      - ci/build:
+          name: build-UFS-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              compiler: [ifort]
+              build_type: ['Debug']
+          baselibs_version: *baselibs_version
+          repo: MAPL
+          mepodevelop: false
+          remove_flap: true
+          remove_pflogger: true
+          remove_pfunit: true
+          extra_cmake_options: "-DBUILD_WITH_FLAP=OFF -DBUILD_WITH_PFLOGGER=OFF -DBUILD_WITH_FARGPARSE=OFF -DUSE_EXTDATA2G=OFF -DBUILD_SHARED_MAPL=OFF"
+          run_unit_tests: true
+          ctest_options: "-L 'ESSENTIAL' --output-on-failure"
 
   build-and-run-GEOSgcm:
     jobs:
@@ -137,7 +121,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort]
+              compiler: [ifort]
           requires:
             - build-GEOSgcm-on-<< matrix.compiler >>
           repo: GEOSgcm
