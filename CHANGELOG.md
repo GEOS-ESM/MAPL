@@ -11,17 +11,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed problem related to stale pointers to temp copies of dummy arguments in MAPL_Cap.F90.  Fix is to add TARGET attributein select locations.
 - Fix for case where 2nd argument to `transfer()` was not allocated in the OpenMP support layer.  Was not detected by other compilers.  The fix is to use a literal integer array instead.
+- Fixed problem in History when no fields appear on the 'fields:' line in a collection (issue #3525)
 
 ### Added
 
+- Added new supported units for vertical regridding in ExtData, now supports `kg kg-1`, `mol mol-1`, `kg m-2` as well as per second variations of these, i.e. `kg kg-1 s-1`
 - Added CI build using spack
 - Added `Release` build CI tests for MAPL
 - Added new option to rule for ExtData2G to disable vertical regridding, default is true, vertical regridding is disabled
-- Added experimental capabiltiy to regrid from constituents in mass mixing or emissions units from one set of hybrid sigma levels to model levels in ExtData2G
+- Added experimental capabiltiy to regrid from constituents in volume mixing, mass mixing, emissions units from one set of hybrid sigma levels to model levels in ExtData2G
 - Added subdirectory GetHorzIJIndex in the Tests directory for testing subroutine MAPL_GetHorzIJIndex to ensure the subroutine fails is teh cubed-sphere assumption is violated and also if the returned I and J indices are not correct.
 
 ### Changed
 
+- Changed ExtData keyworld disable\_veritcal\_regridding (default true) to enable\_vertical\_regridding (default false)
 - Relaxed the MPI thread levels to MPI_THREAD_SERIALIZED required by ESMF
 - Update `components.yaml`
   - `ESMA_env` v4.36.0
@@ -31,9 +34,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Remove SLES12 at NCCS, update f2py detection, update ifx flags
     - Clean up GCC 10+ warnings
 - Update `.editorconfig` for Fortran files enforcing 3-space indents and line length of 132
+- Migrated much of the CI to GitHub Actions
 
 ### Fixed
 
+- Fixed bug that broke SCM model in GEOS
 - Fix ExtData2G unit test for GNU on Discover
 - Fixed nesting of internal timers (issue #3412)
 - Fixed issue of `make tests` not building all needed executables
