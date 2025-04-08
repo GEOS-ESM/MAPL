@@ -37,7 +37,7 @@ module mapl3g_Generic
    use esmf, only: ESMF_InfoGet
    use esmf, only: ESMF_InfoIsSet
    use esmf, only: ESMF_GridComp
-   use esmf, only: ESMF_Geom, ESMF_GeomCreate
+   use esmf, only: ESMF_Geom, ESMF_GeomCreate, ESMF_GeomGet
    use esmf, only: ESMF_Grid, ESMF_Mesh, ESMF_Xgrid, ESMF_LocStream
    use esmf, only: ESMF_STAGGERLOC_INVALID
    use esmf, only: ESMF_HConfig
@@ -236,7 +236,8 @@ contains
         hconfig, &
         logger, &
         geom, &
-        vertical_grid, &
+        grid, &
+        num_levels, &
         rc)
 
       type(ESMF_GridComp), intent(inout) :: gridcomp
@@ -244,18 +245,28 @@ contains
       type(ESMF_Hconfig), optional, intent(out) :: hconfig
       class(Logger_t), optional, pointer, intent(out) :: logger
       type(ESMF_Geom), optional, intent(out) :: geom
-      class(VerticalGrid), allocatable, optional, intent(out) :: vertical_grid
+      type(ESMF_Grid), optional, intent(out) :: grid
+      integer, optional, intent(out) :: num_levels
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(OuterMetaComponent), pointer :: outer_meta_, outer_meta_from_inner_gc
+      type(OuterMetaComponent), pointer :: outer_meta_
+      type(ESMF_Geom) :: geom_
+      class(VerticalGrid), allocatable :: vertical_grid_
 
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta_, _RC)
 
       if (present(hconfig)) hconfig = outer_meta_%get_hconfig()
       if (present(logger)) logger => outer_meta_%get_lgr()
-      if (present(geom)) geom = outer_meta_%get_geom()
-      if (present(vertical_grid)) vertical_grid = outer_meta_from_inner_gc%get_vertical_grid()
+      if (present(geom)) geom = outer_meta_%get_geom(_RC)
+      if (present(grid)) then
+         geom_ = outer_meta_%get_geom(_RC)
+         call ESMF_GeomGet(geom_, grid=grid, _RC)
+      end if
+      if (present(num_levels)) then
+         vertical_grid_ = outer_meta_%get_vertical_grid()
+         num_levels = vertical_grid_%get_num_levels()
+      end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
