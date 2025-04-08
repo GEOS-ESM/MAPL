@@ -34,7 +34,7 @@ workflows:
           matrix:
             parameters:
               compiler: [ifort]
-              cmake_generator: ['Unix Makefiles']
+              cmake_generator: ['Ninja']
               build_type: ['Debug']
           baselibs_version: *baselibs_version
           repo: MAPL
@@ -61,7 +61,7 @@ workflows:
           # We will only run the tutorials with GNU make. No need to double up
           # as Ninja is a build test only
           requires:
-            - build-and-test-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>-using-Unix Makefiles
+            - build-and-test-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>-using-Ninja
           baselibs_version: *baselibs_version
 
       # Builds MAPL like UFS does (no pFlogger, fargparse, pfunit, static)

@@ -19,33 +19,40 @@ runs:
   steps:
     # https://github.com/orgs/community/discussions/25678#discussioncomment-5242449
     - name: Delete huge unnecessary tools folder
+      shell: bash
       run: rm -rf /opt/hostedtoolcache
 
     - name: Set all directories as git safe
+      shell: bash
       run: |
         git config --global --add safe.directory '*'
 
     - name: Versions etc.
+      shell: bash
       run: |
         ${{ inputs.fortran-compiler }} --version
         mpirun --version
         echo $BASEDIR
 
     - name: Mepo clone external repos
+      shell: bash
       run: |
         mepo clone --partial blobless
         mepo status
 
     - name: CMake
+      shell: bash
       run: |
         cmake -B build -DCMAKE_Fortran_COMPILER=${{ inputs.fortran-compiler }} -DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=${{ inputs.cmake-build-type }} -DMPIEXEC_PREFLAGS='--oversubscribe' -DUSE_F2PY=OFF -G "${{ inputs.cmake-generator }}"
 
     - name: Build
+      shell: bash
       run: |
         cmake --build build --parallel 4
         cmake --install build
 
     - name: Run MAPL Tests
+      shell: bash
       run: |
         cmake --build build --target build-tests --parallel 4
         cmake --build build --parallel 4 --target tests
