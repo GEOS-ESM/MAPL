@@ -146,25 +146,27 @@ workflows:
           fixture_branch: develop
           checkout_mapl_branch: true
 
-  build-GEOSadas:
-    jobs:
-      # Build GEOSadas (ifort only, needs a couple develop branches)
-      - ci/build:
-          name: build-GEOSadas-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [ifort]
-          resource_class: xlarge
-          baselibs_version: *baselibs_version
-          repo: GEOSadas
-          checkout_fixture: true
-          fixture_branch: feature/mathomp4/mapldevelop
-          checkout_mapl_branch: true
-          mepodevelop: false
-          rebuild_procs: 4
-          build_type: Release
+  ######################################################################
+  # build-GEOSadas:                                                    #
+  #   jobs:                                                            #
+  #     # Build GEOSadas (ifort only, needs a couple develop branches) #
+  #     - ci/build:                                                    #
+  #         name: build-GEOSadas-on-<< matrix.compiler >>              #
+  #         context:                                                   #
+  #           - docker-hub-creds                                       #
+  #         matrix:                                                    #
+  #           parameters:                                              #
+  #             compiler: [ifort]                                      #
+  #         resource_class: xlarge                                     #
+  #         baselibs_version: *baselibs_version                        #
+  #         repo: GEOSadas                                             #
+  #         checkout_fixture: true                                     #
+  #         fixture_branch: feature/mathomp4/mapldevelop               #
+  #         checkout_mapl_branch: true                                 #
+  #         mepodevelop: false                                         #
+  #         rebuild_procs: 4                                           #
+  #         build_type: Release                                        #
+  ######################################################################
 
   build-and-publish-docker:
     when:
