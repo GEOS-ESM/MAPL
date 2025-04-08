@@ -2528,7 +2528,7 @@ ENDDO PARSER
              list(n)%timeInfo = TimeData(clock,tm,MAPL_nsecf(list(n)%frequency),IntState%stampoffset(n),integer_time=intstate%integer_time)
           end if
           if (list(n)%timeseries_output) then
-                list(n)%trajectory = HistoryTrajectory(cfg,string,clock,schema_version,genstate=GENSTATE,_RC)
+             list(n)%trajectory = HistoryTrajectory(cfg,string,clock,schema_version,genstate=GENSTATE,_RC)
              call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
              IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
           elseif (list(n)%sampler_spec == 'mask') then
@@ -5591,7 +5591,6 @@ ENDDO PARSER
     end if
 
 
-
 !   continue with the platform grammar
     call scan_count_match_bgn (unitr, 'PLATFORM.', nplf, .true.)
     rewind(unitr)
@@ -5619,51 +5618,17 @@ ENDDO PARSER
        PLFS(k)%name = line(i+1:j-1)
        marker=line(1:j)
 
-       call scan_contain(unitr, marker, .true.)
-       call scan_contain(unitr, 'index_name_x:', .false.)
-       backspace(unitr)
-       read(unitr, '(a)', iostat=ios) line
-       _ASSERT (ios==0, 'read line failed')
-       i=index(line, ':')
-       PLFS(k)%index_name_x = trim(line(i+1:))
 
        call scan_contain(unitr, marker, .true.)
-       call scan_contain(unitr, 'var_name_lon:', .false.)
-       backspace(unitr)
-       read(unitr, '(a)', iostat=ios) line
-       _ASSERT (ios==0, 'read line failed')
-       i=index(line, ':')
-       PLFS(k)%var_name_lon = trim(line(i+1:))
-
-       call scan_contain(unitr, marker, .true.)
-       call scan_contain(unitr, 'var_name_lat:', .false.)
-       backspace(unitr)
-       read(unitr, '(a)', iostat=ios) line
-       _ASSERT (ios==0, 'read line failed')
-       i=index(line, ':')
-       PLFS(k)%var_name_lat = trim(line(i+1:))
-
-       call scan_contain(unitr, marker, .true.)
-       call scan_contain(unitr, 'var_name_time:', .false.)
-       backspace(unitr)
-       read(unitr, '(a)', iostat=ios) line
-       _ASSERT (ios==0, 'read line failed')
-       i=index(line, ':')
-       PLFS(k)%var_name_time = trim(line(i+1:))
-
-       call scan_contain(unitr, marker, .true.)
-       call scan_contain(unitr, 'file_name_template:', .false.)
+       call scan_begin(unitr, 'file_name_template:', .false.)
        backspace(unitr)
        read(unitr, '(a)', iostat=ios) line
        _ASSERT (ios==0, 'read line failed')
        i=index(line, ':')
        PLFS(k)%file_name_template = trim(line(i+1:))
 
-       call lgr%debug('%a %a %a %a %a', &
+       call lgr%debug('%a  %a', &
             trim( PLFS(k)%name ), &
-            trim( PLFS(k)%var_name_lon ), &
-            trim( PLFS(k)%var_name_lat ), &
-            trim( PLFS(k)%var_name_time ), &
             trim( PLFS(k)%file_name_template ) )
 
     end do
@@ -5823,10 +5788,6 @@ ENDDO PARSER
 
           ! __ write common nc_index,time,lon,lat
           k=map(1)   ! plat form # 1
-          write(unitw, '(2(2x,a))') trim(string)//'index_name_x:    ', trim(adjustl(PLFS(k)%index_name_x))
-          write(unitw, '(2(2x,a))') trim(string)//'var_name_time:   ', trim(adjustl(PLFS(k)%var_name_time))
-          write(unitw, '(2(2x,a))') trim(string)//'var_name_lon:    ', trim(adjustl(PLFS(k)%var_name_lon))
-          write(unitw, '(2(2x,a))') trim(string)//'var_name_lat:    ', trim(adjustl(PLFS(k)%var_name_lat))
 
           do i=1, nplatform
              k=map(i)
@@ -5867,7 +5828,8 @@ ENDDO PARSER
              enddo
              write(unitw, '(20a)') (('-'), j=1,20)
           enddo
-          write(unitw,'(a)') '::'
+          write(unitw,'(a,/)') '::'
+          call scan_write_between_line1_line2_flush_Left (unitr, unitw, 'INDEX_VAR_NAMES:', '::')
        end if
        call free_file(unitw, _RC)
     end do
