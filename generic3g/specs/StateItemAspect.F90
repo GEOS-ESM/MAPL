@@ -166,7 +166,7 @@ contains
            end if
         case (1)
            can_connect_to = .true.
-       case (2)
+        case (2)
            can_connect_to = .false. ! double mirror
         end select ! no need for default clause
       end associate
