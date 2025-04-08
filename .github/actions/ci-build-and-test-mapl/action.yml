@@ -12,6 +12,9 @@ inputs:
   cmake-generator:
     description: "The CMake generator to use"
     required: true
+  extra-cmake-args:
+    description: "Extra CMake arguments"
+    required: false
 
 runs:
   using: "composite"
@@ -43,7 +46,7 @@ runs:
     - name: CMake
       shell: bash
       run: |
-        cmake -B build -DCMAKE_Fortran_COMPILER=${{ inputs.fortran-compiler }} -DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=${{ inputs.cmake-build-type }} -DMPIEXEC_PREFLAGS='--oversubscribe' -DUSE_F2PY=OFF -G "${{ inputs.cmake-generator }}"
+        cmake -B build -DCMAKE_Fortran_COMPILER=${{ inputs.fortran-compiler }} -DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=${{ inputs.cmake-build-type }} -DUSE_F2PY=OFF -G "${{ inputs.cmake-generator }}" "${{ inputs.extra-cmake-args }}"
 
     - name: Build
       shell: bash

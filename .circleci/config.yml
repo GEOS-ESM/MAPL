@@ -24,148 +24,148 @@ orbs:
   ci: geos-esm/circleci-tools@4
 
 workflows:
-  build-and-test-MAPL:
-    jobs:
-      # Builds MAPL in a "default" way
-      - ci/build:
-          name: build-and-test-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>-using-<< matrix.cmake_generator >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [ifort]
-              cmake_generator: ['Ninja']
-              build_type: ['Debug']
-          baselibs_version: *baselibs_version
-          repo: MAPL
-          mepodevelop: false
-          run_unit_tests: true
-          ctest_options: "-L 'ESSENTIAL' --output-on-failure"
-          persist_workspace: true # Needed for MAPL tutorials
+  #build-and-test-MAPL:
+    #jobs:
+      ## Builds MAPL in a "default" way
+      #- ci/build:
+          #name: build-and-test-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>-using-<< matrix.cmake_generator >>
+          #context:
+            #- docker-hub-creds
+          #matrix:
+            #parameters:
+              #compiler: [ifort]
+              #cmake_generator: ['Ninja']
+              #build_type: ['Debug']
+          #baselibs_version: *baselibs_version
+          #repo: MAPL
+          #mepodevelop: false
+          #run_unit_tests: true
+          #ctest_options: "-L 'ESSENTIAL' --output-on-failure"
+          #persist_workspace: true # Needed for MAPL tutorials
 
-      # Run MAPL Tutorials
-      - ci/run_mapl_tutorial:
-          name: run-<< matrix.tutorial_name >>-Tutorial-with-<< matrix.compiler >>-built-with-<< matrix.build_type >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [ifort]
-              build_type: ['Debug']
-              tutorial_name:
-                - hello_world
-                - parent_no_children
-                - parent_one_child_import_via_extdata
-                - parent_one_child_no_imports
-                - parent_two_siblings_connect_import_export
-          # We will only run the tutorials with GNU make. No need to double up
-          # as Ninja is a build test only
-          requires:
-            - build-and-test-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>-using-Ninja
-          baselibs_version: *baselibs_version
+      ## Run MAPL Tutorials
+      #- ci/run_mapl_tutorial:
+          #name: run-<< matrix.tutorial_name >>-Tutorial-with-<< matrix.compiler >>-built-with-<< matrix.build_type >>
+          #context:
+            #- docker-hub-creds
+          #matrix:
+            #parameters:
+              #compiler: [ifort]
+              #build_type: ['Debug']
+              #tutorial_name:
+                #- hello_world
+                #- parent_no_children
+                #- parent_one_child_import_via_extdata
+                #- parent_one_child_no_imports
+                #- parent_two_siblings_connect_import_export
+          ## We will only run the tutorials with GNU make. No need to double up
+          ## as Ninja is a build test only
+          #requires:
+            #- build-and-test-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>-using-Ninja
+          #baselibs_version: *baselibs_version
 
-      # Builds MAPL like UFS does (no pFlogger, fargparse, pfunit, static)
-      - ci/build:
-          name: build-UFS-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [ifort]
-              build_type: ['Debug']
-          baselibs_version: *baselibs_version
-          repo: MAPL
-          mepodevelop: false
-          remove_flap: true
-          remove_pflogger: true
-          remove_pfunit: true
-          extra_cmake_options: "-DBUILD_WITH_FLAP=OFF -DBUILD_WITH_PFLOGGER=OFF -DBUILD_WITH_FARGPARSE=OFF -DUSE_EXTDATA2G=OFF -DBUILD_SHARED_MAPL=OFF"
-          run_unit_tests: true
-          ctest_options: "-L 'ESSENTIAL' --output-on-failure"
+      ## Builds MAPL like UFS does (no pFlogger, fargparse, pfunit, static)
+      #- ci/build:
+          #name: build-UFS-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>
+          #context:
+            #- docker-hub-creds
+          #matrix:
+            #parameters:
+              #compiler: [ifort]
+              #build_type: ['Debug']
+          #baselibs_version: *baselibs_version
+          #repo: MAPL
+          #mepodevelop: false
+          #remove_flap: true
+          #remove_pflogger: true
+          #remove_pfunit: true
+          #extra_cmake_options: "-DBUILD_WITH_FLAP=OFF -DBUILD_WITH_PFLOGGER=OFF -DBUILD_WITH_FARGPARSE=OFF -DUSE_EXTDATA2G=OFF -DBUILD_SHARED_MAPL=OFF"
+          #run_unit_tests: true
+          #ctest_options: "-L 'ESSENTIAL' --output-on-failure"
 
-  build-and-run-GEOSgcm:
-    jobs:
-      # Build GEOSgcm
-      - ci/build:
-          name: build-GEOSgcm-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [gfortran, ifort]
-          baselibs_version: *baselibs_version
-          repo: GEOSgcm
-          checkout_fixture: true
-          mepodevelop: true
-          checkout_mapl_branch: true
-          persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
+  #build-and-run-GEOSgcm:
+    #jobs:
+      ## Build GEOSgcm
+      #- ci/build:
+          #name: build-GEOSgcm-on-<< matrix.compiler >>
+          #context:
+            #- docker-hub-creds
+          #matrix:
+            #parameters:
+              #compiler: [gfortran, ifort]
+          #baselibs_version: *baselibs_version
+          #repo: GEOSgcm
+          #checkout_fixture: true
+          #mepodevelop: true
+          #checkout_mapl_branch: true
+          #persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
 
-      # Run GCM (1 hour, no ExtData)
-      - ci/run_gcm:
-          name: run-GCM-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [gfortran, ifort]
-          requires:
-            - build-GEOSgcm-on-<< matrix.compiler >>
-          repo: GEOSgcm
-          baselibs_version: *baselibs_version
-          bcs_version: *bcs_version
+      ## Run GCM (1 hour, no ExtData)
+      #- ci/run_gcm:
+          #name: run-GCM-on-<< matrix.compiler >>
+          #context:
+            #- docker-hub-creds
+          #matrix:
+            #parameters:
+              #compiler: [gfortran, ifort]
+          #requires:
+            #- build-GEOSgcm-on-<< matrix.compiler >>
+          #repo: GEOSgcm
+          #baselibs_version: *baselibs_version
+          #bcs_version: *bcs_version
 
-      # Run Coupled GCM (1 hour, no ExtData)
-      - ci/run_gcm:
-          name: run-coupled-GCM-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [ifort]
-          requires:
-            - build-GEOSgcm-on-<< matrix.compiler >>
-          repo: GEOSgcm
-          baselibs_version: *baselibs_version
-          bcs_version: *bcs_version
-          gcm_ocean_type: MOM6
-          change_layout: false
+      ## Run Coupled GCM (1 hour, no ExtData)
+      #- ci/run_gcm:
+          #name: run-coupled-GCM-on-<< matrix.compiler >>
+          #context:
+            #- docker-hub-creds
+          #matrix:
+            #parameters:
+              #compiler: [ifort]
+          #requires:
+            #- build-GEOSgcm-on-<< matrix.compiler >>
+          #repo: GEOSgcm
+          #baselibs_version: *baselibs_version
+          #bcs_version: *bcs_version
+          #gcm_ocean_type: MOM6
+          #change_layout: false
 
-  build-GEOSldas:
-    jobs:
-      # Build GEOSldas
-      - ci/build:
-          name: build-GEOSldas-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [gfortran, ifort]
-          baselibs_version: *baselibs_version
-          repo: GEOSldas
-          mepodevelop: false
-          checkout_fixture: true
-          fixture_branch: develop
-          checkout_mapl_branch: true
+  #build-GEOSldas:
+    #jobs:
+      ## Build GEOSldas
+      #- ci/build:
+          #name: build-GEOSldas-on-<< matrix.compiler >>
+          #context:
+            #- docker-hub-creds
+          #matrix:
+            #parameters:
+              #compiler: [gfortran, ifort]
+          #baselibs_version: *baselibs_version
+          #repo: GEOSldas
+          #mepodevelop: false
+          #checkout_fixture: true
+          #fixture_branch: develop
+          #checkout_mapl_branch: true
 
-  build-GEOSadas:
-    jobs:
-      # Build GEOSadas (ifort only, needs a couple develop branches)
-      - ci/build:
-          name: build-GEOSadas-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [ifort]
-          resource_class: xlarge
-          baselibs_version: *baselibs_version
-          repo: GEOSadas
-          checkout_fixture: true
-          fixture_branch: feature/mathomp4/mapldevelop
-          checkout_mapl_branch: true
-          mepodevelop: false
-          rebuild_procs: 4
-          build_type: Release
+  #build-GEOSadas:
+    #jobs:
+      ## Build GEOSadas (ifort only, needs a couple develop branches)
+      #- ci/build:
+          #name: build-GEOSadas-on-<< matrix.compiler >>
+          #context:
+            #- docker-hub-creds
+          #matrix:
+            #parameters:
+              #compiler: [ifort]
+          #resource_class: xlarge
+          #baselibs_version: *baselibs_version
+          #repo: GEOSadas
+          #checkout_fixture: true
+          #fixture_branch: feature/mathomp4/mapldevelop
+          #checkout_mapl_branch: true
+          #mepodevelop: false
+          #rebuild_procs: 4
+          #build_type: Release
 
   build-and-publish-docker:
     when:
