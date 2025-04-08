@@ -81,7 +81,7 @@ esma_add_fortran_submodules(
           initialize_user.F90 run_custom.F90 run_user.F90
 	  initialize_set_clock.F90 run_clock_advance.F90
 	  initialize_geom_a.F90 initialize_geom_b.F90
-          read_restart.F90 write_restart.F90 get_name.F90 get_gridcomp.F90
+          write_restart.F90 get_name.F90 get_gridcomp.F90
           set_geom.F90 set_vertical_grid.F90 get_vertical_grid.F90 get_registry.F90
           get_component_spec.F90 get_internal_state.F90 get_lgr.F90
           get_user_gc_driver.F90 connect_all.F90 set_entry_point.F90
