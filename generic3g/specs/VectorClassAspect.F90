@@ -27,6 +27,7 @@ module mapl3g_VectorClassAspect
    use mapl_FieldUtilities
 
    use mapl_ErrorHandling
+   use gftl2_StringVector
    use esmf
    implicit none(type,external)
    private
@@ -43,6 +44,7 @@ module mapl3g_VectorClassAspect
    type, extends(ClassAspect) :: VectorClassAspect
       private
       type(ESMF_FieldBundle) :: payload
+      type(StringVector) :: short_names
       type(FieldClassAspect) :: component_specs(2)
    contains
       procedure :: get_aspect_order
@@ -69,10 +71,14 @@ module mapl3g_VectorClassAspect
 
 contains
 
-   function new_VectorClassAspect_basic(component_specs) result(aspect)
+   function new_VectorClassAspect_basic(short_names, component_specs) result(aspect)
       type(VectorClassAspect) :: aspect
+      type(StringVector), intent(in) :: short_names
       type(FieldClassAspect), intent(in) :: component_specs(2)
+
+      aspect%short_names = short_names
       aspect%component_specs = component_specs
+      
    end function new_VectorClassAspect_basic
 
 

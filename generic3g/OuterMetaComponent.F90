@@ -58,6 +58,7 @@ module mapl3g_OuterMetaComponent
       procedure :: get_user_gc_driver
       procedure :: set_hconfig
       procedure :: get_hconfig
+      procedure :: has_geom
       procedure :: get_geom
       procedure :: get_registry
       procedure :: get_lgr
@@ -73,15 +74,17 @@ module mapl3g_OuterMetaComponent
       procedure :: run_custom
       procedure :: initialize_user
       procedure :: initialize_set_clock
+      procedure :: initialize_geom_a
+      procedure :: initialize_geom_b
       procedure :: initialize_advertise
       procedure :: initialize_modify_advertised
       procedure :: initialize_modify_advertised2
       procedure :: initialize_realize
+      procedure :: initialize_read_restart
 
       procedure :: run_user
       procedure :: run_clock_advance
       procedure :: finalize
-      procedure :: read_restart
       procedure :: write_restart
 
       ! Hierarchy
@@ -216,9 +219,15 @@ module mapl3g_OuterMetaComponent
          class(OuterMetaComponent), intent(inout) :: this
       end function get_hconfig
 
-      module function get_geom(this) result(geom)
+      module function has_geom(this)
+         logical :: has_geom
+         class(OuterMetaComponent), intent(in) :: this
+      end function has_geom
+
+      module function get_geom(this, rc) result(geom)
          type(ESMF_Geom) :: geom
          class(OuterMetaComponent), intent(inout) :: this
+         integer, intent(out), optional :: rc
       end function get_geom
 
       module recursive subroutine initialize_set_clock(this, outer_clock, unusable, rc)
@@ -228,6 +237,20 @@ module mapl3g_OuterMetaComponent
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine initialize_set_clock
+
+      module recursive subroutine initialize_geom_a(this, unusable, rc)
+         class(OuterMetaComponent), target, intent(inout) :: this
+         ! optional arguments
+         class(KE), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
+      end subroutine initialize_geom_a
+
+      module recursive subroutine initialize_geom_b(this, unusable, rc)
+         class(OuterMetaComponent), target, intent(inout) :: this
+         ! optional arguments
+         class(KE), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
+      end subroutine initialize_geom_b
 
       module recursive subroutine initialize_advertise(this, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
@@ -263,16 +286,18 @@ module mapl3g_OuterMetaComponent
          integer, optional, intent(out) :: rc
       end subroutine initialize_realize
 
+      module recursive subroutine initialize_read_restart(this, unusable, rc)
+         class(OuterMetaComponent), intent(inout) :: this
+         ! optional arguments
+         class(KE), optional, intent(in) :: unusable
+         integer, optional, intent(out) :: rc
+      end subroutine initialize_read_restart
+
       module recursive subroutine recurse_(this, phase_idx, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          integer :: phase_idx
          integer, optional, intent(out) :: rc
       end subroutine recurse_
-
-      module recursive subroutine recurse_read_restart_(this, rc)
-         class(OuterMetaComponent), target, intent(inout) :: this
-         integer, optional, intent(out) :: rc
-      end subroutine recurse_read_restart_
 
       module recursive subroutine recurse_write_restart_(this, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
@@ -325,16 +350,6 @@ module mapl3g_OuterMetaComponent
          class(KE), optional, intent(in) :: unusable
          integer, optional, intent(out) :: rc
       end subroutine finalize
-
-      module recursive subroutine read_restart(this, importState, exportState, clock, unusable, rc)
-         class(OuterMetaComponent), target, intent(inout) :: this
-         type(ESMF_State) :: importState
-         type(ESMF_State) :: exportState
-         type(ESMF_Clock) :: clock
-         ! optional arguments
-         class(KE), optional, intent(in) :: unusable
-         integer, optional, intent(out) :: rc
-      end subroutine read_restart
 
       module recursive subroutine write_restart(this, importState, exportState, clock, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
@@ -423,10 +438,6 @@ module mapl3g_OuterMetaComponent
    interface recurse
       module procedure recurse_
    end interface recurse
-
-   interface recurse_read_restart
-      module procedure recurse_read_restart_
-   end interface recurse_read_restart
 
    interface recurse_write_restart
       module procedure recurse_write_restart_
