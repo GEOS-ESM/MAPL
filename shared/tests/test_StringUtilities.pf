@@ -51,31 +51,31 @@ contains
       s_in = ''
       s_out = split(s_in)
       @assert_that(int(s_out%size()), is(1))
-      @assert_that(s_out%of(1), is(''))
+      @assertEqual('', s_out%of(1))
 
       s_in = 'a'
       s_out = split(s_in)
       @assert_that(int(s_out%size()), is(1))
-      @assert_that(s_out%of(1), is('a'))
+      @assertEqual('a', s_out%of(1))
 
       s_in = 'b'
       s_out = split(s_in)
       @assert_that(int(s_out%size()), is(1))
-      @assert_that(s_out%of(1), is('b'))
+      @assertEqual('b', s_out%of(1))
 
       s_in = ','
       s_out = split(s_in)
       @assert_that(int(s_out%size()), is(2))
-      @assert_that(s_out%of(1), is(''))
-      @assert_that(s_out%of(2), is(''))
+      @assertEqual('', s_out%of(1))
+      @assertEqual('', s_out%of(2))
 
       s_in = 'a,b,c,'
       s_out = split(s_in)
       @assert_that(int(s_out%size()), is(4))
-      @assert_that(s_out%of(1), is('a'))
-      @assert_that(s_out%of(2), is('b'))
-      @assert_that(s_out%of(3), is('c'))
-      @assert_that(s_out%of(4), is(''))
+      @assertEqual('a', s_out%of(1))
+      @assertEqual('b', s_out%of(2))
+      @assertEqual('c', s_out%of(3))
+      @assertEqual('', s_out%of(4))
 
    end subroutine test_split
 
@@ -91,32 +91,34 @@ contains
       s_in = ''
       s_out = split(s_in, delim=':')
       @assert_that(int(s_out%size()), is(1))
-      @assert_that(s_out%of(1), is(''))
+      @assertEqual('', s_out%of(1))
+
 
       s_in = 'a'
       s_out = split(s_in, delim=':')
       @assert_that(int(s_out%size()), is(1))
-      @assert_that(s_out%of(1), is('a'))
+      @assertEqual('a', s_out%of(1))
 
       ! Not the right delimiter ...
       s_in = ','
       s_out = split(s_in, delim=':')
       @assert_that(int(s_out%size()), is(1))
-      @assert_that(s_out%of(1), is(','))
+      @assertEqual(',', s_out%of(1))
+
 
       ! The right delimiter ...
       s_in = ':'
       s_out = split(s_in, delim=':')
       @assert_that(int(s_out%size()), is(2))
-      @assert_that(s_out%of(1), is(''))
-      @assert_that(s_out%of(2), is(''))
+      @assertEqual('', s_out%of(1))
+      @assertEqual('', s_out%of(2))
 
       ! Mixed?
       s_in = 'a,b:c,'
       s_out = split(s_in, delim=':')
       @assert_that(int(s_out%size()), is(2))
-      @assert_that(s_out%of(1), is('a,b'))
-      @assert_that(s_out%of(2), is('c,'))
+      @assertEqual('a,b', s_out%of(1))
+      @assertEqual('c,', s_out%of(2))
 
    end subroutine test_split_alt_delim
 
