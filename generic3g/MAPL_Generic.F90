@@ -88,7 +88,7 @@ module mapl3g_Generic
    public :: MAPL_GridCompSetVerticalGrid
 
    ! Connections
-   public :: MAPL_GridCompAddConnection
+   public :: MAPL_GridCompAddConnectivity
    public :: MAPL_GridCompReexport
    public :: MAPL_GridCompConnectAll
 
@@ -174,10 +174,9 @@ module mapl3g_Generic
       procedure :: gridcomp_is_user
    end interface MAPL_GridCompIsUser
 
-   interface MAPL_GridCompAddConnection
-      procedure :: gridcomp_add_simple_connection
-!#      procedure :: gridcomp_add_connection_multiple
-   end interface MAPL_GridCompAddConnection
+   interface MAPL_GridCompAddConnectivity
+      procedure :: gridcomp_add_simple_connectivity
+   end interface MAPL_GridCompAddConnectivity
 
    interface MAPL_GridCompReexport
       procedure :: gridcomp_reexport
@@ -913,13 +912,14 @@ contains
 
 
    ! Use "<SELF>" to indicate connection to gridcomp.
-   subroutine gridcomp_add_simple_connection(gridcomp, unusable, src_comp, src_name, dst_comp, dst_name, rc)
+   ! src_name and dst_name can be comma-delimited strings for multiple connection
+   subroutine gridcomp_add_simple_connectivity(gridcomp, unusable, src_comp, src_names, dst_comp, dst_names, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), intent(in) :: src_comp
-      character(*), intent(in) :: src_name
+      character(*), intent(in) :: src_names
       character(*), intent(in) :: dst_comp
-      character(*), optional, intent(in) :: dst_name ! default is src_name
+      character(*), optional, intent(in) :: dst_names ! default is src_names
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -928,10 +928,11 @@ contains
 
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
-      call component_spec%add_connection(src_comp=src_comp, src_name=src_name, dst_comp=dst_comp, dst_name=dst_name)
+      call component_spec%add_connectivity(src_comp=src_comp, src_names=src_names, dst_comp=dst_comp, dst_names=dst_names, _RC)
       
       _RETURN(_SUCCESS)
-   end subroutine gridcomp_add_simple_connection
+   end subroutine gridcomp_add_simple_connectivity
+
 
    subroutine gridcomp_reexport(gridcomp, unusable, src_comp, src_name, src_intent, new_name, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp

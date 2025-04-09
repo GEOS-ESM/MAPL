@@ -14,6 +14,7 @@ module mapl3g_ComponentSpec
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
    use mapl_stringutilities
+   use gftl2_StringVector
    use ESMF
    implicit none
    private
@@ -34,9 +35,8 @@ module mapl3g_ComponentSpec
       procedure :: has_geom_hconfig
       procedure :: add_var_spec
       procedure :: add_connection_conn
-      procedure :: add_connection_simple
       generic :: add_connection => add_connection_conn
-      generic :: add_connection => add_connection_simple
+      procedure :: add_connectivity
       procedure :: reexport
    end type ComponentSpec
 
@@ -73,27 +73,38 @@ contains
       call this%connections%push_back(conn)
    end subroutine add_connection_conn
 
-   subroutine add_connection_simple(this, unusable, src_comp, src_name, dst_comp, dst_name)
+   subroutine add_connectivity(this, unusable, src_comp, src_names, dst_comp, dst_names, rc)
       class(ComponentSpec), intent(inout) :: this
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), intent(in) :: src_comp
-      character(*), intent(in) :: src_name
+      character(*), intent(in) :: src_names
       character(*), intent(in) :: dst_comp
-      character(*), optional, intent(in) :: dst_name
+      character(*), optional, intent(in) :: dst_names
+      integer, optional, intent(out) :: rc
 
-      character(:), allocatable :: dst_name_
+      integer :: status
+      character(:), allocatable :: dst_names_
       type(ConnectionPt) :: src_pt, dst_pt
       type(SimpleConnection) :: conn
+      type(StringVector) :: srcs, dsts
+      integer :: i
 
-      dst_name_ = src_name
-      if (present(dst_name)) dst_name_ = dst_name
+      dst_names_ = src_names ! default
+      if (present(dst_names)) dst_names_ = dst_names
 
-      src_pt = ConnectionPt(src_comp, VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, src_name))
-      dst_pt = ConnectionPt(dst_comp, VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, dst_name_))
-      conn = SimpleConnection(src_pt, dst_pt)
-      call this%add_connection(conn)
+      srcs = split(src_names)
+      dsts = split(dst_names_)
+      _ASSERT(srcs%size() == dsts%size(), 'Number of src_names does not match number of dst_names.')
 
-   end subroutine add_connection_simple
+      do i = 1, srcs%size()
+         src_pt = ConnectionPt(src_comp, VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, srcs%of(i)))
+         dst_pt = ConnectionPt(dst_comp, VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, dsts%of(i)))
+         conn = SimpleConnection(src_pt, dst_pt)
+         call this%add_connection(conn)
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine add_connectivity
 
    subroutine reexport(this, unusable, src_comp, src_name, src_intent, new_name, rc)
       class(ComponentSpec), intent(inout) :: this
