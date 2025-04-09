@@ -122,4 +122,56 @@ contains
 
    end subroutine test_split_alt_delim
 
+   @test
+   subroutine test_split_ignore_white_space()
+      character(:), allocatable :: s_in
+      type(StringVector) :: s_out
+      character(:), allocatable :: s
+
+      s_in = 'a '
+      s_out = split(s_in)
+      @assert_that(int(s_out%size()), is(1))
+      @assertEqual('a', s_out%of(1), whitespace=KEEP_ALL)
+
+      s_in = ' a'
+      s_out = split(s_in)
+      @assert_that(int(s_out%size()), is(1))
+      @assertEqual('a', s_out%of(1), whitespace=KEEP_ALL)
+
+
+      s_in = 'a, b , c '
+      s_out = split(s_in)
+      @assert_that(int(s_out%size()), is(3))
+      @assertEqual('a', s_out%of(1), whitespace=KEEP_ALL)
+      @assertEqual('b', s_out%of(2), whitespace=KEEP_ALL)
+      @assertEqual('c', s_out%of(3), whitespace=KEEP_ALL)
+
+   end subroutine test_split_ignore_white_space
+
+   @test
+   subroutine test_split_preserve_white_space()
+      character(:), allocatable :: s_in
+      type(StringVector) :: s_out
+      character(:), allocatable :: s
+
+      s_in = 'a '
+      s_out = split(s_in, preserve_whitespace=.true.)
+      @assert_that(int(s_out%size()), is(1))
+      @assertEqual('a ', s_out%of(1), whitespace=KEEP_ALL)
+
+      s_in = ' a'
+      s_out = split(s_in, preserve_whitespace=.true.)
+      @assert_that(int(s_out%size()), is(1))
+      @assertEqual(' a', s_out%of(1), whitespace=KEEP_ALL)
+
+
+      s_in = 'a, b , c '
+      s_out = split(s_in, preserve_whitespace=.true.)
+      @assert_that(int(s_out%size()), is(3))
+      @assertEqual('a', s_out%of(1), whitespace=KEEP_ALL)
+      @assertEqual(' b ', s_out%of(2), whitespace=KEEP_ALL)
+      @assertEqual(' c ', s_out%of(3), whitespace=KEEP_ALL)
+
+   end subroutine test_split_preserve_white_space
+
 end module Test_StringUtilities

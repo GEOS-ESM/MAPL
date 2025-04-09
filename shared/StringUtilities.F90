@@ -68,23 +68,30 @@ contains
    ! an empty vector, they can pass instead an unallocated string.
 
 
-   function split_string(s, unusable, delim) result(list)
+   function split_string(s, unusable, delim, preserve_whitespace) result(list)
       type(StringVector) :: list
       character(*), optional, intent(in) :: s
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(1), optional, intent(in) :: delim
+      logical, optional, intent(in) :: preserve_whitespace
 
 
       character(1) :: delim_
       character(:), allocatable :: tmp
+      character(:), allocatable :: item
       integer :: idx
+      logical :: preserve_whitespace_
 
       if (.not. present(s)) return
+
+      preserve_whitespace_ = .false.
+      if (present(preserve_whitespace)) preserve_whitespace_ = preserve_whitespace
       
       delim_ = ','
       if (present(delim)) delim_ = delim
-      
+
       tmp = s
+      if (.not. preserve_whitespace_) tmp = adjustl(tmp)
 
       ! Proof that the following loop terminates:
       ! 1. If delimiter is found (idx > 0), then next iteration is on
@@ -93,11 +100,18 @@ contains
       do
          idx = index(tmp, delim_)
          if (idx == 0) then
-            call list%push_back(tmp)
+            item = tmp
+            if (.not. preserve_whitespace_) item = trim(item)
+            call list%push_back(item)
             exit
          end if
-         call list%push_back(tmp(:idx-1))
+
+         item = tmp(:idx-1)
+         if (.not. preserve_whitespace_) item = trim(item)
+         call list%push_back(item)
+
          tmp = tmp(idx+1:)
+         if (.not. preserve_whitespace_) tmp = adjustl(tmp)
       end do
 
    end function split_string
