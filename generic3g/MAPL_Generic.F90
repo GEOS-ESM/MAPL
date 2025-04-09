@@ -88,7 +88,8 @@ module mapl3g_Generic
    public :: MAPL_GridCompSetVerticalGrid
 
    ! Connections
-!#   public :: MAPL_AddConnection
+   public :: MAPL_GridCompAddConnection
+   public :: MAPL_GridCompReexport
    public :: MAPL_GridCompConnectAll
 
 
@@ -151,10 +152,6 @@ module mapl3g_Generic
       procedure gridcomp_set_entry_point
    end interface MAPL_GridCompSetEntryPoint
 
-   interface MAPL_GridCompConnectAll
-      procedure :: gridcomp_connect_all
-   end interface MAPL_GridCompConnectAll
-
    interface MAPL_GridCompGetResource
       procedure :: gridcomp_get_resource_i4
       procedure :: gridcomp_get_resource_i8
@@ -176,6 +173,20 @@ module mapl3g_Generic
    interface MAPL_GridCompIsUser
       procedure :: gridcomp_is_user
    end interface MAPL_GridCompIsUser
+
+   interface MAPL_GridCompAddConnection
+      procedure :: gridcomp_add_simple_connection
+!#      procedure :: gridcomp_add_connection_multiple
+   end interface MAPL_GridCompAddConnection
+
+   interface MAPL_GridCompReexport
+      procedure :: gridcomp_reexport
+   end interface MAPL_GridCompReexport
+
+   interface MAPL_GridCompConnectAll
+      procedure :: gridcomp_connect_all
+   end interface MAPL_GridCompConnectAll
+
 
 contains
 
@@ -900,5 +911,47 @@ contains
       _RETURN(_SUCCESS)
    end subroutine gridcomp_set_geometry
 
+
+   ! Use "<SELF>" to indicate connection to gridcomp.
+   subroutine gridcomp_add_simple_connection(gridcomp, unusable, src_comp, src_name, dst_comp, dst_name, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(*), intent(in) :: src_comp
+      character(*), intent(in) :: src_name
+      character(*), intent(in) :: dst_comp
+      character(*), optional, intent(in) :: dst_name ! default is src_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: component_spec
+
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      component_spec => outer_meta%get_component_spec()
+      call component_spec%add_connection(src_comp=src_comp, src_name=src_name, dst_comp=dst_comp, dst_name=dst_name)
+      
+      _RETURN(_SUCCESS)
+   end subroutine gridcomp_add_simple_connection
+
+   subroutine gridcomp_reexport(gridcomp, unusable, src_comp, src_name, src_intent, new_name, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(*), intent(in) :: src_comp
+      character(*), intent(in) :: src_name
+      character(*), optional, intent(in) :: src_intent
+      character(*), optional, intent(in) :: new_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: component_spec
+
+      call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      component_spec => outer_meta%get_component_spec()
+      call component_spec%reexport(src_comp=src_comp, src_name=src_name, src_intent=src_intent, &
+           new_name=new_name, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine gridcomp_reexport
 
 end module mapl3g_Generic

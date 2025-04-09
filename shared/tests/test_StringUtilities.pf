@@ -1,0 +1,123 @@
+module Test_StringUtilities
+   use mapl_StringUtilities
+   use gftl2_StringVector
+   use funit
+   implicit none
+
+contains
+
+
+   @test
+   subroutine test_to_lower()
+      character(:), allocatable :: s_in, s_out, s_expected
+
+      s_in = 'abcd12)8'
+      s_expected = 'abcd12)8'
+      s_out = to_lower(s_in)
+      @assert_that(s_out, is(equal_to(s_expected)))
+
+      s_in = 'aBcD12)8'
+      s_expected = 'abcd12)8'
+      s_out = to_lower(s_in)
+      @assert_that(s_out, is(equal_to(s_expected)))
+
+   end subroutine test_to_lower
+
+   @test
+   subroutine test_to_upper()
+      character(:), allocatable :: s_in, s_out, s_expected
+
+      s_in = 'ABCD12)8'
+      s_expected = 'ABCD12)8'
+      s_out = to_upper(s_in)
+      @assert_that(s_out, is(equal_to(s_expected)))
+
+      s_in = 'aBcD12)8'
+      s_expected = 'ABCD12)8'
+      s_out = to_upper(s_in)
+      @assert_that(s_out, is(equal_to(s_expected)))
+
+   end subroutine test_to_upper
+
+   @test
+   subroutine test_split()
+      character(:), allocatable :: s_in
+      type(StringVector) :: s_out
+
+      ! Non-present string returns empty vector.
+      s_out = split()
+      @assert_that(int(s_out%size()), is(0))
+
+      s_in = ''
+      s_out = split(s_in)
+      @assert_that(int(s_out%size()), is(1))
+      @assert_that(s_out%of(1), is(''))
+
+      s_in = 'a'
+      s_out = split(s_in)
+      @assert_that(int(s_out%size()), is(1))
+      @assert_that(s_out%of(1), is('a'))
+
+      s_in = 'b'
+      s_out = split(s_in)
+      @assert_that(int(s_out%size()), is(1))
+      @assert_that(s_out%of(1), is('b'))
+
+      s_in = ','
+      s_out = split(s_in)
+      @assert_that(int(s_out%size()), is(2))
+      @assert_that(s_out%of(1), is(''))
+      @assert_that(s_out%of(2), is(''))
+
+      s_in = 'a,b,c,'
+      s_out = split(s_in)
+      @assert_that(int(s_out%size()), is(4))
+      @assert_that(s_out%of(1), is('a'))
+      @assert_that(s_out%of(2), is('b'))
+      @assert_that(s_out%of(3), is('c'))
+      @assert_that(s_out%of(4), is(''))
+
+   end subroutine test_split
+
+   @test
+   subroutine test_split_alt_delim()
+      character(:), allocatable :: s_in
+      type(StringVector) :: s_out
+
+      ! Non-present string returns empty vector.
+      s_out = split(delim=':')
+      @assert_that(int(s_out%size()), is(0))
+
+      s_in = ''
+      s_out = split(s_in, delim=':')
+      @assert_that(int(s_out%size()), is(1))
+      @assert_that(s_out%of(1), is(''))
+
+      s_in = 'a'
+      s_out = split(s_in, delim=':')
+      @assert_that(int(s_out%size()), is(1))
+      @assert_that(s_out%of(1), is('a'))
+
+      ! Not the right delimiter ...
+      s_in = ','
+      s_out = split(s_in, delim=':')
+      @assert_that(int(s_out%size()), is(1))
+      @assert_that(s_out%of(1), is(','))
+
+      ! The right delimiter ...
+      s_in = ':'
+      s_out = split(s_in, delim=':')
+      @assert_that(int(s_out%size()), is(2))
+      @assert_that(s_out%of(1), is(''))
+      @assert_that(s_out%of(2), is(''))
+
+      ! Mixed?
+      s_in = 'a,b:c,'
+      s_out = split(s_in, delim=':')
+      @assert_that(int(s_out%size()), is(2))
+      @assert_that(s_out%of(1), is('a,b'))
+      @assert_that(s_out%of(2), is('c,'))
+
+   end subroutine test_split_alt_delim
+
+end module Test_StringUtilities
