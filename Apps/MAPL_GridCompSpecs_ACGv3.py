@@ -8,8 +8,8 @@ from collections.abc import Callable
 import operator
 from functools import partial, reduce
 from graphlib import TopologicalSorter
-from itertools import chain
 from enum import IntFlag
+from dataclasses import dataclass
 
 ################################# CONSTANTS ####################################
 SUCCESS = 0
@@ -117,6 +117,18 @@ is_printable = lambda o: not check_flags(o, NONPRINTABLE) if FLAGS in o else Tru
 
 #################################### OPTIONS ###################################
 # dict for the possible options in a spec
+@dataclass(frozen=True)
+class FrozenKey:
+   get_string: str
+
+    @staticmethod
+    def make_frozen_keys(*keys):
+        return tuple(FrozenKey(key) in keys)
+
+    @staticmethod
+    def get_strings(*fks):
+        return tuple(fk.get_string for fk in fks)
+
 OPTIONS = {    
 # MANDATORY
     DIMS: {FLAGS: {MANDATORY}, MAPPING: {
@@ -179,29 +191,42 @@ OPTIONS = {
     STATE: {MAPPING: STATE, FROM: INTENT}
 }
 
-is_alias = lambda o: isinstance(o, str)
+def get_option_key_order(options):
+    nonalias_options = [(k, v) for (k, v) in options if isinstance(v, dict)]
+    keys = [k for (k, _) in nonalias_options]
+    ordered_keys = []
+    dependent = lambda o: 
+    dependent = lambda o: (if FROM in o else False) if isinstance(o, dict) else False 
+    dependent_options = set([(k, v) for (k, v) in nonalias_options if FROM in v])
+    ordered_keys = [k for (k, v) in (nonalias_options - dependent_options)]
+    ordered_keys = ordered_keys + [k for (k, v) in dependent_options if (all(v[FROM] in ordered_keys) if isinst     ]
 
 def get_ordered_option_keys(options):
-
-    def make_dependencies(o):
-        match(o):
-            case {'from': vals}:
-                return vals
-            case dict():
-                return tuple()
-            case _:
-                return None
-    dependencies = [(key, make_dependencies(option)) for (key, option) in options.items() if isinstance(option, dict)]
-    graph = dict(((k,v) for (k, v) in dependencies if v is not None))
+    dependencies = []
+    for key, option in options.items():
+        fkeys = ()
+        match option:
+            case str():
+                continue
+            case {'from': keys}:
+                match keys:
+                    case str() as k:
+                        fkeys = FrozenKey.make_frozen_keys((k,))
+                    case tuple():
+                        fkeys = FrozenKey.make_frozen_keys(*keys)
+        dependencies.append(FrozenKey(key), fkeys)
+    graph = dict(dependencies)
     ts = TopologicalSorter(graph)
 
     try:
-        ORDERED_KEYS = ts.static_order()
+        fkeys = ts.static_order()
     except CycleError() as ex:
-        ORDERED_KEYS = None
+        fkeys = None
         print('Options have a circular dependency: ', ex)
         raise ex
-    return ORDERED_KEYS   
+    return list(FrozenKey.get_strings(fkeys))
+
+is_alias = lambda o: isinstance(o, str)
 
 def newline(indent=0):
     return f'{NL}{" "*indent}'
@@ -393,121 +418,6 @@ def read_specs(specs_filename):
     return specs
 
 # NEW DIGEST
-# DIGEST SPECS            
-"""
-def digest(specs_in, options, keys, mappings, global_values):
-
-    def process_option(name, spec, values):
-
-        def get_from_values(option, name, spec, values, global_values):
-
-            def get_value(key):
-                if key in spec:
-                    rval = spec[key]
-                if key != name and key in values:
-                    rval = values[key]
-                rval = global_values.get(key)
-                return rval
-
-            match option:
-                case str() as s:
-                    raise RuntimeError(f'Option is an alias: {s}')
-                case dict() as d:
-                    match d.get(FROM, name):
-                        case str() as key:
-                            val = get_value(key)
-                        case tuple():
-                            val = tuple(get_value(key) for key in keys)
-                    if val is None:
-                        raise RuntimeError('Unable to find value to map')
-                    return val
-                case _:
-                    raise RuntimeError('Option is not a supported type')
-        #END get_from_values
-
-        def get_mapping_function(option):
-
-            def inner(mapping, n):
-                match mapping:
-                    case str() as fname if n > 0 and fname in mappings:
-                        return inner(mappings[fname], n-1)
-                    case dict() as d:
-                        return lambda v: d[v] if (v in d) else (v if (v in d.values()) else None)
-                    case Callable() as f:
-                        return f
-                    case _:
-                        raise RuntimeError('Unable to get mapping.')
-
-            if option is None:
-                raise RuntimeError('Option is None. Cannot find mapping.')
-            m = option.get(MAPPING)
-            if m:
-                return inner(m, n=3)
-            return lambda v: v
-        #END get_mapping_function
-
-        option = options.get(name)
-        if option is None:
-            raise RuntimeError('Option not found')
-        match option:
-            case dict():
-                from_values = get_from_values(option, name, spec, values, global_values)
-                mapping_function = get_mapping_function(option)
-            case _:
-                raise RuntimeError('Option is not a supported type.')
-        if from_values is None:
-            raise RuntimeError('Unable to find values to map from.')
-        if mapping_function is None:
-            raise RuntimeError('Unable to find mapping function.')
-        name_out = option.get(AS, name)
-        match from_values:
-            case str():
-                return {name_out: mapping_function(from_values)}
-            case tuple(): 
-                return {name_out: mapping_function(*from_values)}
-            case _:
-                raise RuntimeError('Type of values to map from is not supported.')
-#                return {name_out: mapping_function(from_values)}
-
-    # END process_option
-
-    def get_option_name(name, options, level=1):
-        match options.get(name):
-            case str() as s:
-                return s
-            case dict():
-                return name
-
-    match specs_in:
-        case dict() as d:
-            spec_list = [x for xs in d.values() for x in xs]
-        case list() as el:
-            spec_list = specs_in
-        case _:
-            raise RuntimeError('Unsupported specs format')
-    specs = (((get_option_name(k, options), v) for (k, v) in spec) for spec in spec_list)
-#    for spec in spec_list:
-#        s = {}
-#        for key in spec:
-#            v = spec[key]
-#            k = get_option_name(key, options)
-#            s[k] = v
-#        specs += s
-
-    all_values = []
-    for n, spec in enumerate(specs):
-        values = {}
-        for k in keys:
-            kk, v = process_option(k, spec, values)
-            values[kk] = v
-        missing = list(filter(lambda o: o not in values, get_mandatory_options(options)))
-        if missing:
-            raise RuntimeError(f"These options are missing for spec {n}: {', '.join(missing)}")
-        
-        all_values.append(values)
-
-    return all_values
-"""
 def get_option(name, options, level=1):
     match options.get(name):
         case str() as real_name if level > 0:
@@ -542,7 +452,7 @@ def get_mapping(option, mappings):
 def dealias(options, name, level=1):
     match options.get(name):
         case str() as real_name if level > 0:
-            return dealias(real_name, options, level-1)
+            return dealias(options, real_name, level-1)
         case dict():
             return name
         case _:
@@ -555,69 +465,146 @@ def option_as(option, name):
         case dict():
             return name
 
+def get_from_values(option, values):
+    match option:
+        case str() as s:
+            raise RuntimeError(f'Option is an alias: {s}')
+        case dict() as d:
+            from_keys = d.get(FROM)
+            val = None
+            match from_keys:
+                case str() as from_key:
+                    val = (values.get(from_key),)
+                case tuple():
+                    val = tuple(values.get(from_key) for from_key in from_keys)
+            if val:
+                return val
+            raise RuntimeError('Unable to find value to map')
+        case _:
+            raise RuntimeError('Option is not a supported type')
+
 def digest_spec(spec, options, keys, mappings, argdict):
-    get_as_name = partial(option, options)
-    get_name = partial(dealias, options)
-    spec_keys_found = [name for name in (get_name(key) for key in spec) if name]
-    spec_process_list = [(name, get_mapping(options[name]), spec[name]) for name in spec_keys_found]
-    spec_keys_not_found = set(spec.keys()).difference(spec_keys_found)
-    options_to_process = [(name, options[name]) for name in filter(lambda key: key not in spec_keys_found, keys)]
-    options_process_list = [(get_name, get_mapping(option), get_from_keys(option)) for (name, option) in
-         filter(lambda key: key not in spec_keys_found, keys) if name]
-    processed_spec = dict([(name, mapping(value)) for (name, mapping, value) in spec_process_list])
+    #get_as_name = partial(option, options)
+    #get_name = partial(dealias, options)
+#    spec_keys_found = [name for name in (get_name(key) for key in spec) if name]
+#    spec_process_list = [(name, get_mapping(options[name]), spec[name]) for name in spec_keys_found]
+#    spec_keys_not_found = set(spec.keys()).difference(spec_keys_found)
+#    options_to_process = [(name, options[name]) for name in filter(lambda key: key not in spec_keys_found, keys)]
+#    options_process_list = [(get_name, get_mapping(option), get_from_keys(option)) for (name, option) in
+#         filter(lambda key: key not in spec_keys_found, keys) if name]
+#    processed_spec = dict([(name, mapping(value)) for (name, mapping, value) in spec_process_list])
+#    values = argdict | processed_spec
+
+
+    values_found = list(argdict.keys())
+    spec_keys_not_found = []
+    spec_process_list = []
+    options_process_list = []
+    processed_spec = {}
+    processed_options = {}
+
+    for key in spec:
+        name = dealias(options, key)
+        if name is None:
+            spec_keys_not_found.append(key)
+            continue
+        spec_process_list.append((name, get_mapping(options[name], mappings), spec[key]))
+        values_found.append(name)
+#    for key, name in values_found:
+#        spec_process_list.append((name, spec[key], options[name]))
+    #spec_keys_not_found = set(spec.keys()).difference(values_found)
+#    processed_spec = dict([(name, mapping(value)) for (name, mapping, value) in spec_process_list])
+
+    for (name, mapping, value) in spec_process_list:
+        processed_spec[name] = mapping(value)
     values = argdict | processed_spec
+
+    for key in keys:
+        if key not in values_found:
+            option = options[key]
+            mapping = get_mapping(option, mappings)
+            from_values = get_from_values(option, values)
+            options_process_list.append((key, mapping, from_values))
+
+    for key, mapping, from_values in options_process_list:
+        processed_options[key] = mapping(*from_values)
+    values = values | processed_options
+
+    return values
+    
 #    processed_options = dict([(name, mapping(*from_values)) for (name, mapping, from_values) in
 #         [  for (name, mapping, from_keys) in options_process_list]
 #            ])
 #    values = values | dict([(name, mapping(*)) for (name, from_values) in [(name,  ) for (name,  )
 
 def digest(specs, options, keys, mappings, argdict):
-    specs = list[reduce(lambda a, c: a+c, list(specs.values()), [])]
-    for spec in specs:
-        spec_keys_found = [name for name in (get_name(key) for key in spec) if name]
-        spec_process_list = [(name, spec[name], options[name]) for name in spec_keys_found]
-        spec_keys_not_found = set(spec.keys()).difference(spec_keys_found)
-        options_process_list = ([(name, options[name]) for name in
-             filter(lambda key: key not in spec_keys_found, keys)])
-        values = argdict
-
-
-
-    is_alias = lambda k: isinstance(options[k], str) if k in options else False
+#    is_alias = lambda k: isinstance(options[k], str) if k in options else False
+    #get_name = partial(dealias, options)
+    specvals = list(specs.values())
+    specs = []
+    for spec_list in specvals:
+        for spec in spec_list:
+            specs.append(spec)
+#    specs = list[reduce(lambda a, c: a+c, list(specs.values()), [])]
     all_values = []
-    if(isinstance(specs, dict)):
-        specs = [reduce(lambda a, c: a+c if c else a, list(specs.values()), [])]
-    dealiased = [] # for comprehension
     for spec in specs:
-        for k in filter(is_alias, list(spec)): # for comprehension
-            real_name = spec.pop(k)
-            spec[real_name] = spec[k] 
-        dealiased.append(spec)
-    for spec in dealiased:
-        values = argdict
-        for name, value in spec.items():
-            if is_alias(spec):
-                continue
-            option = options[name]
-            mapping = get_mapping(option, mappings)
-            values[name] = mapping(value)
-        for name in keys:
-            if name in values:
-                continue
-            name, option = get_option(name, options)
-            mapping = get_mapping(option, mapping)
-            match option.get(FROM):
-                case str() as fk:
-                    fromkeys = [fk]
-                case tuple() as fks:
-                    fromkeys = fks
-                case list() as fks:
-                    fromkeys = tuple(fks)
-                case _:
-                    raise RuntimeException(f"Unable to find values to map for '{name}'")
-            values[name] = mapping(*fromkeys)
+        values = digest_spec(spec, options, keys, mappings, argdict)
         all_values.append(values)
-    return all_values
+    return all_values       
+ #       spec_keys_found = []
+ #       for key in spec:
+ #           name = dealias(options, key)
+ #           if name:
+ #               spec_keys_found.append(name)
+        #spec_keys_found = [name for name in (get_name(key) for key in spec) if name]
+ #       spec_process_list = []
+ #       for name in spec_keys_found:
+ #           spec_process_list.append((name, spec[name], options[name]))
+#        spec_process_list = [(name, spec[name], options[name]) for name in spec_keys_found]
+#        spec_keys_not_found = set(spec.keys()).difference(spec_keys_found)
+#        options_process_list = []
+#        for key in keys:
+#            if key in spec_keys_found:
+#                continue
+#            options_process_list.append((name, options[name]))
+#        options_process_list = ([(name, options[name]) for name in
+#             filter(lambda key: key not in spec_keys_found, keys)])
+#        values = argdict
+
+
+#    if(isinstance(specs, dict)):
+#        specs = [reduce(lambda a, c: a+c if c else a, list(specs.values()), [])]
+#    dealiased = [] # for comprehension
+#    for spec in specs:
+#        for k in filter(is_alias, list(spec)): # for comprehension
+#            real_name = spec.pop(k)
+#            spec[real_name] = spec[k] 
+#        dealiased.append(spec)
+#    for spec in dealiased:
+#        values = argdict
+#        for name, value in spec.items():
+#            if is_alias(spec):
+#                continue
+#            option = options[name]
+#            mapping = get_mapping(option, mappings)
+#            values[name] = mapping(value)
+#        for name in keys:
+#            if name in values:
+#                continue
+#            name, option = get_option(name, options)
+#            mapping = get_mapping(option, mapping)
+#            match option.get(FROM):
+#                case str() as fk:
+#                    fromkeys = [fk]
+#                case tuple() as fks:
+#                    fromkeys = fks
+#                case list() as fks:
+#                    fromkeys = tuple(fks)
+#                case _:
+#                    raise RuntimeException(f"Unable to find values to map for '{name}'")
+#            values[name] = mapping(*fromkeys)
+#        all_values.append(values)
+#    return all_values
 # END DIGEST SPECS
 
 ################################# EMIT_VALUES ##################################
@@ -760,9 +747,11 @@ def get_state(intent):
     if intent.startswith(INTENT_PREFIX):
         return intent.remove_prefix(INTENT_PREFIX)
 
-def mangle_standard_name(name, prefix='comp_name'):
-    if name is None or prefix is None:
+def mangle_standard_name(name, prefix):
+    if name is None:
         return None
+    if prefix is None:
+        prefix='comp_name'
     return name.replace('*', f"//trim({prefix})//")
 
 def get_internal_name(name, alias):
@@ -807,16 +796,16 @@ def main():
         keys = list(get_ordered_option_keys(OPTIONS))
     except Exception as ex:
         print(ex)
-        sys.exit(ERROR)
+        #sys.exit(ERROR)
 # Digest specs from file to output structure
     try:
-        specs = digest(parsed_specs, OPTIONS, keys, MAPPINGS, argdict)
+        values = digest(parsed_specs, OPTIONS, keys, MAPPINGS, argdict)
     except Exception as ex:
         print(ex)
-        sys.exit(ERROR)
+        #sys.exit(ERROR)
 
 # Emit values
-    emit_values(specs, args, OPTIONS)
+    emit_values(values, args, OPTIONS)
 
 # Successful exit
     sys.exit(SUCCESS)
@@ -896,8 +885,9 @@ def check_option_values(values):
 
 #################################### UNUSED ####################################
 # DIGEST
+"""
 def digest_(parsed_specs, args, options):
-    """ Set Option values from parsed specs """
+    # Set Option values from parsed specs #
     arg_dict = vars(args)
     mandatory_options = get_mandatory_options(options)
     digested_specs = dict()
@@ -970,8 +960,123 @@ def digest_(parsed_specs, args, options):
         digested_specs[state_intent] = category_specs 
 
     return digested_specs
-    
+"""    
 
+# DIGEST SPECS            
+"""
+def xigest(specs_in, options, keys, mappings, global_values):
+
+    def process_option(name, spec, values):
+
+        def get_from_values(option, name, spec, values, global_values):
+
+            def get_value(key):
+                if key in spec:
+                    rval = spec[key]
+                if key != name and key in values:
+                    rval = values[key]
+                rval = global_values.get(key)
+                return rval
+
+            match option:
+                case str() as s:
+                    raise RuntimeError(f'Option is an alias: {s}')
+                case dict() as d:
+                    match d.get(FROM, name):
+                        case str() as key:
+                            val = get_value(key)
+                        case tuple():
+                            val = tuple(get_value(key) for key in keys)
+                    if val is None:
+                        raise RuntimeError('Unable to find value to map')
+                    return val
+                case _:
+                    raise RuntimeError('Option is not a supported type')
+        #END get_from_values
+
+        def get_mapping_function(option):
+
+            def inner(mapping, n):
+                match mapping:
+                    case str() as fname if n > 0 and fname in mappings:
+                        return inner(mappings[fname], n-1)
+                    case dict() as d:
+                        return lambda v: d[v] if (v in d) else (v if (v in d.values()) else None)
+                    case Callable() as f:
+                        return f
+                    case _:
+                        raise RuntimeError('Unable to get mapping.')
+
+            if option is None:
+                raise RuntimeError('Option is None. Cannot find mapping.')
+            m = option.get(MAPPING)
+            if m:
+                return inner(m, n=3)
+            return lambda v: v
+        #END get_mapping_function
+
+        option = options.get(name)
+        if option is None:
+            raise RuntimeError('Option not found')
+        match option:
+            case dict():
+                from_values = get_from_values(option, name, spec, values, global_values)
+                mapping_function = get_mapping_function(option)
+            case _:
+                raise RuntimeError('Option is not a supported type.')
+        if from_values is None:
+            raise RuntimeError('Unable to find values to map from.')
+        if mapping_function is None:
+            raise RuntimeError('Unable to find mapping function.')
+        name_out = option.get(AS, name)
+        match from_values:
+            case str():
+                return {name_out: mapping_function(from_values)}
+            case tuple(): 
+                return {name_out: mapping_function(*from_values)}
+            case _:
+                raise RuntimeError('Type of values to map from is not supported.')
+#                return {name_out: mapping_function(from_values)}
+
+    # END process_option
+
+    def get_option_name(name, options, level=1):
+        match options.get(name):
+            case str() as s:
+                return s
+            case dict():
+                return name
+
+    match specs_in:
+        case dict() as d:
+            spec_list = [x for xs in d.values() for x in xs]
+        case list() as el:
+            spec_list = specs_in
+        case _:
+            raise RuntimeError('Unsupported specs format')
+    specs = (((get_option_name(k, options), v) for (k, v) in spec) for spec in spec_list)
+#    for spec in spec_list:
+#        s = {}
+#        for key in spec:
+#            v = spec[key]
+#            k = get_option_name(key, options)
+#            s[k] = v
+#        specs += s
+
+    all_values = []
+    for n, spec in enumerate(specs):
+        values = {}
+        for k in keys:
+            kk, v = process_option(k, spec, values)
+            values[kk] = v
+        missing = list(filter(lambda o: o not in values, get_mandatory_options(options)))
+        if missing:
+            raise RuntimeError(f"These options are missing for spec {n}: {', '.join(missing)}")
+        
+        all_values.append(values)
+
+    return all_values
+"""
 
 #############################################
 # MAIN program begins here
