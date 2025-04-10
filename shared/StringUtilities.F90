@@ -52,7 +52,7 @@ contains
       do i = 1, n
          upper(i:i) = s(i:i)
          if (s(i:i) >= 'a' .and. s(i:i) <= 'z') then
-            upper(i:i) = achar(iachar(s(i:i)) + ASCI_UPPER_SHIFT)
+            upper(i:i) = achar(iachar(s(i:i)) + ASCII_UPPER_SHIFT)
          end if
       end do
 
