@@ -1,4 +1,4 @@
-target_sources(MAPL.geom_mgr PRIVATE
+target_sources(MAPL.geom PRIVATE
 
   get_geom_manager.F90
   new_GeomManager.F90

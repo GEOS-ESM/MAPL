@@ -1,4 +1,4 @@
-target_sources(MAPL.geom_mgr PRIVATE
+target_sources(MAPL.geom PRIVATE
 
   new_MaplGeom.F90
   set_id.F90

@@ -261,7 +261,7 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta_
-      type(ESMF_Geom) :: geom_
+      type(ESMF_Geom), allocatable :: geom_
       class(VerticalGrid), allocatable :: vertical_grid_
 
       call MAPL_GridCompGetOuterMeta(gridcomp, outer_meta_, _RC)

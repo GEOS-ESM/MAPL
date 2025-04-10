@@ -4,7 +4,7 @@ module mapl3g_RoutehandleSpec
    use esmf
    use mapl3g_RoutehandleParam
    use mapl_ErrorHandlingMod
-   use mapl3g_geom_mgr, only: MAPL_SameGeom
+   use mapl3g_Geom_API, only: MAPL_SameGeom
    implicit none
    private
 

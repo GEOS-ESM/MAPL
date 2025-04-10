@@ -7,7 +7,7 @@ module mapl3g_SharedIO
    use pfio
    use gFTL2_StringVector
    use gFTL2_StringSet
-   use mapl3g_geom_mgr
+   use mapl3g_Geom_API
    use MAPL_BaseMod
    use mapl3g_UngriddedDims
    use mapl3g_UngriddedDim

@@ -5,7 +5,7 @@ module mapl3g_Regridder
    use mapl_FieldUtils
    use mapl3g_FieldBundleGet
    use mapl_ErrorHandlingMod
-   use mapl3g_geom_mgr
+   use mapl3g_Geom_API
    use mapl3g_RegridderSpec
    use mapl3g_VectorBasis
    implicit none(type,external)

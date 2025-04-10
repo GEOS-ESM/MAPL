@@ -1,4 +1,4 @@
-target_sources(MAPL.geom_mgr PRIVATE
+target_sources(MAPL.geom PRIVATE
 
   create_fields.F90
   destroy_fields.F90
