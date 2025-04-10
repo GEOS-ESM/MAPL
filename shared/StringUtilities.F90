@@ -16,7 +16,7 @@ module mapl_StringUtilities
       procedure :: split_string
    end interface split
 
-   integer, parameter :: ASCI_UPPER_SHIFT = iachar('A') - iachar('a')
+   integer, parameter :: ASCII_UPPER_SHIFT = iachar('A') - iachar('a')
 
 contains
 
