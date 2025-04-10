@@ -5,7 +5,7 @@ module mapl3g_GeomAspect
    use mapl3g_AspectId
    use mapl3g_HorizontalDimsSpec
    use mapl3g_StateItemAspect
-   use mapl3g_geom_mgr, only: MAPL_SameGeom
+   use mapl3g_Geom_API, only: MAPL_SameGeom
    use mapl3g_regridder_mgr, only: EsmfRegridderParam
    use mapl3g_ExtensionTransform
    use mapl3g_RegridTransform

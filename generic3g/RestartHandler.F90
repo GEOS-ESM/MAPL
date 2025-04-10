@@ -4,7 +4,7 @@ module mapl3g_RestartHandler
 
    use, intrinsic :: iso_c_binding, only: c_ptr
    use esmf
-   use mapl3g_geom_mgr, only: MaplGeom
+   use mapl3g_Geom_API, only: MaplGeom
    use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Return, MAPL_Assert
    use mapl3g_geomio, only: bundle_to_metadata, GeomPFIO, make_geom_pfio, get_mapl_geom
    use mapl3g_SharedIO, only: esmf_to_pfio_type

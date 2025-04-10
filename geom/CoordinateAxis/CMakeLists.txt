@@ -1,4 +1,4 @@
-target_sources(MAPL.geom_mgr PRIVATE
+target_sources(MAPL.geom PRIVATE
 
   new_CoordinateAxis.F90
   equal_to.F90

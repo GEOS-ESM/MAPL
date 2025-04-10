@@ -20,7 +20,7 @@ module mapl3g_ComponentSpecParser
    use mapl3g_UngriddedDims
    use mapl3g_UngriddedDim
    use mapl3g_GeometrySpec
-   use mapl3g_geom_mgr
+   use mapl3g_Geom_API
    use mapl3g_Stateitem
    use mapl3g_ESMF_Utilities
    use mapl3g_UserSetServices

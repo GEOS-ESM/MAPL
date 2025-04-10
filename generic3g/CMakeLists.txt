@@ -55,7 +55,7 @@ endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.regridder_mgr MAPL.geom_mgr MAPL.GeomIO MAPL.esmf_utils MAPL.field MAPL.state MAPL.shared MAPL.profiler MAPL.base MAPL.hconfig_utils
+  DEPENDENCIES MAPL.regridder_mgr MAPL.geom MAPL.GeomIO MAPL.esmf_utils MAPL.field MAPL.state MAPL.shared MAPL.profiler MAPL.base MAPL.hconfig_utils
   ESMF::ESMF NetCDF::NetCDF_Fortran udunits2f PFLOGGER::pflogger GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2 MAPL.esmf_utils
   TYPE SHARED
   )

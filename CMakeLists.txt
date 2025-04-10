@@ -241,7 +241,7 @@ if (BUILD_WITH_FARGPARSE)
    add_subdirectory (benchmarks)
 endif()
 
-add_subdirectory (geom_mgr)
+add_subdirectory (geom)
 add_subdirectory (regridder_mgr)
 add_subdirectory (hconfig_utils)
 
