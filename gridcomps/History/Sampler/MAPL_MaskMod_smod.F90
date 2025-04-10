@@ -936,9 +936,12 @@ module subroutine  create_metadata(this,global_attributes,rc)
                 if (mapl_am_i_root()) then
                    this%var2d(ic_2d)%array_x(1:this%npt_mask_tot) = p_dst_2d_full(1:this%npt_mask_tot)
                 endif
-                ref = ArrayReference(this%var2d(ic_2d)%array_x)
-                call oClients%collective_stage_data(this%write_collection_id,trim(filename), item%xname, &
-                     ref,start=[1], global_start=[1], global_count=[this%npt_mask_tot])
+                if (mapl_am_i_root()) then
+                   write(6,*) 'ck:  2D code:  before call oClients%collective_stage_data'
+                end if
+!                ref = ArrayReference(this%var2d(ic_2d)%array_x)
+!                call oClients%collective_stage_data(this%write_collection_id,trim(filename), item%xname, &
+!                     ref,start=[1], global_start=[1], global_count=[this%npt_mask_tot])
              else
                 if (mapl_am_i_root()) then
                    call this%formatter%put_var(item%xname,p_dst_2d_full,&
