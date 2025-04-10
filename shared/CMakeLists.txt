@@ -19,6 +19,7 @@ set (srcs
     sort.c
     MAPL_ExceptionHandling.F90
     String.F90
+    StringUtilities.F90
     MaplShared.F90
     TimeUtils.F90
     FileSystemUtilities.F90

@@ -171,7 +171,7 @@ contains
 
       extension = StateItemExtension(spec)
       call this%owned_items%push_back(extension)
-     family = ExtensionFamily(this%owned_items%back())
+      family = ExtensionFamily(this%owned_items%back())
       call this%add_family(virtual_pt, family, _RC)
       
       _RETURN(_SUCCESS)
