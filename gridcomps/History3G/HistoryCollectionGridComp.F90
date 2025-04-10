@@ -7,7 +7,7 @@ module mapl3g_HistoryCollectionGridComp
    use mapl3g_HistoryCollectionGridComp_private
    use mapl3g_BasicVerticalGrid
    use mapl3g_geomio
-   use mapl3g_geom_mgr
+   use mapl3g_Geom_API
    use mapl_StringTemplate
    use pfio
    use esmf

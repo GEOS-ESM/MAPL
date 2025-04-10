@@ -1,7 +1,7 @@
-esma_set_this (OVERRIDE MAPL.geom_mgr)
+esma_set_this (OVERRIDE MAPL.geom)
 
 set(srcs
-  geom_mgr.F90 # package
+  API.F90 # package
   GeomUtilities.F90
 
   GeomSpec.F90
@@ -28,6 +28,7 @@ esma_add_library(${this}
   TYPE SHARED
   )
 
+add_subdirectory(API)
 add_subdirectory(MaplGeom)
 add_subdirectory(CoordinateAxis)
 add_subdirectory(LatLon)

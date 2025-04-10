@@ -1,4 +1,4 @@
-target_sources(MAPL.geom_mgr PRIVATE
+target_sources(MAPL.geom PRIVATE
 
   CubedSphereGeomSpec.F90
   CubedSphereGeomSpec_smod.F90
