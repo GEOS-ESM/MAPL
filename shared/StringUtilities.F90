@@ -33,7 +33,7 @@ contains
       do i = 1, n
          lower(i:i) = s(i:i)
          if (s(i:i) >= 'A' .and. s(i:i) <= 'Z') then
-            lower(i:i) = achar(iachar(s(i:i)) - ASCI_UPPER_SHIFT)
+            lower(i:i) = achar(iachar(s(i:i)) - ASCII_UPPER_SHIFT)
          end if
       end do
 
