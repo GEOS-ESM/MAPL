@@ -727,7 +727,6 @@ contains
     integer, intent(out) :: count
     logical, intent(in) :: rew            ! if rewind
     character (len=100) :: line
-    character (len=100) :: line2
 !!    logical :: matches          ! function name
     integer :: ios
     !
@@ -736,8 +735,7 @@ contains
     if (rew) rewind (iunps)
     do while (ios==0)
        read (iunps, '(a100)', iostat = ios) line
-       line2 = trim( adjustl(line) )
-       if (matchbgn (line2, string) ) then
+       if (matchbgn (adjustl(line), string) ) then
           count = count + 1
        endif
     enddo

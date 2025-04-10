@@ -1723,12 +1723,6 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
            call ESMF_FieldBundleDestroy(this%output_bundle,noGarbage=.true.,_RC)
            deallocate(names, _STAT)
 
-!           call ESMF_ClockGet ( this%clock, CurrTime=currTime, _RC )
-!           if (currTime > this%obsfile_end_time) then
-!              this%active = .false.
-!              _RETURN(ESMF_SUCCESS)
-!           end if
-
            this%epoch_index(1:2)=0
 
            call this%initialize(reinitialize=.true., _RC)

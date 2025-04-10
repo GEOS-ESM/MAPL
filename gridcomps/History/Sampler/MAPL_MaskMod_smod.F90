@@ -47,37 +47,7 @@ module function MaskSampler_from_config(config,string,clock,GENSTATE,rc) result(
   call ESMF_ConfigGetAttribute(config, value=mask%var_name_proj, label=trim(string)//'var_name_proj:',default="",  _RC)
   call ESMF_ConfigGetAttribute(config, value=mask%att_name_proj, label=trim(string)//'att_name_proj:',default="",  _RC)
   call ESMF_ConfigGetAttribute(config, value=mask%thin_factor,   label=trim(string)//'thin_factor:',  default=-1,  _RC)
-
   if (mapl_am_I_root()) write(6,*) 'thin_factor:', mask%thin_factor
-  call ESMF_ConfigGetAttribute(config, value=STR1, label=trim(string)//'obs_file_begin:', default="", _RC)
-  if (trim(STR1)=='') then
-     mask%obsfile_start_time = currTime
-     call ESMF_TimeGet(currTime, timestring=STR1, _RC)
-     if (mapl_am_I_root()) then
-        write(6,105) 'obs_file_begin missing, default = currTime :', trim(STR1)
-     endif
-  else
-     call ESMF_TimeSet(mask%obsfile_start_time, STR1, _RC)
-     if (mapl_am_I_root()) then
-        write(6,105) 'obs_file_begin provided: ', trim(STR1)
-     end if
-  end if
-
-  call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
-       label=trim(string) // 'obs_file_interval:', _RC)
-  _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
-  if (mapl_am_I_root()) write(6,105) 'obs_file_interval:', trim(STR1)
-
-  i= index( trim(STR1), ' ' )
-  if (i>0) then
-     symd=STR1(1:i-1)
-     shms=STR1(i+1:)
-  else
-     symd=''
-     shms=trim(STR1)
-  endif
-  call convert_twostring_2_esmfinterval (symd, shms,  mask%obsfile_interval, _RC)
-
   mask%is_valid = .true.
   mask%use_pfio = .false.   ! activate in set_param
 

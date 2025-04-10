@@ -666,7 +666,7 @@ contains
 
              if (trim(grid_type)/='Swath') then
                 output_grid = grid_manager%make_grid(config, prefix=key//'.', _RC)
-             elseif (trim(grid_type)=='Swath') then
+             else
                 swath_count = swath_count + 1
                 !
                 ! Hsampler use the first config to setup epoch
