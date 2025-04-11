@@ -1,6 +1,6 @@
-#include "MAPL_Generic.h"
+#include "MAPL_ErrLog.h"
 
-module mapl3g_StateGet
+module mapl3g_StateGetBundle
 
    use mapl_ErrorHandling
    use esmf
@@ -8,15 +8,15 @@ module mapl3g_StateGet
    implicit none
    private
 
-   public :: MAPL_StateGet
+   public :: StateGetBundle
 
-   interface MAPL_StateGet
-      procedure get_bundle_from_state_
-   end interface MAPL_StateGet
+   interface StateGetBundle
+      procedure :: get_bundle_from_state
+   end interface StateGetBundle
 
 contains
 
-   type(ESMF_FieldBundle) function get_bundle_from_state_(state, rc) result(bundle)
+   type(ESMF_FieldBundle) function get_bundle_from_state(state, rc) result(bundle)
       type(ESMF_State), intent(in) :: state
       integer, optional, intent(out) :: rc
 
@@ -45,6 +45,6 @@ contains
       deallocate(item_name, item_type, _STAT)
 
       _RETURN(_SUCCESS)
-   end function get_bundle_from_state_
+   end function get_bundle_from_state
 
-end module mapl3g_StateGet
+end module mapl3g_StateGetBundle
