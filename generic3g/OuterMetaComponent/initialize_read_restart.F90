@@ -12,7 +12,7 @@ submodule (mapl3g_OuterMetaComponent) initialize_read_restart_smod
 contains
 
    module recursive subroutine initialize_read_restart(this, unusable, rc)
-      class(OuterMetaComponent), intent(inout) :: this
+      class(OuterMetaComponent), target, intent(inout) :: this
       ! optional arguments
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
