@@ -56,15 +56,21 @@ contains
       file_shape =this%file_shape
    end function get_file_shape
 
-   function new_pFIOServerBounds(grid, field_shape, time_index, rc) result(server_bounds)
+   function new_pFIOServerBounds(grid, in_field_shape, time_index, rc) result(server_bounds)
       type(ESMF_Grid), intent(in) :: grid
-      integer, intent(in) :: field_shape(:)
+      integer, intent(in) :: in_field_shape(:)
       integer, intent(in), optional :: time_index
       integer, intent(out), optional :: rc
       type(pFIOServerBounds) :: server_bounds
 
+      integer, allocatable :: field_shape(:)
       integer :: status, tile_count, n_dims, tm, global_dim(3)
       integer :: i1, in, j1, jn, tile, extra_file_dim, file_dims, new_grid_dims
+
+      field_shape = in_field_shape
+      if (size(in_field_shape)==1) then ! vertical-only field
+         field_shape = [0, 0, in_field_shape(1)]
+      end if
 
       call ESMF_GridGet(grid, tileCount=tile_count, _RC)
       call MAPL_GridGetInterior(grid, i1,in, j1, jn)
