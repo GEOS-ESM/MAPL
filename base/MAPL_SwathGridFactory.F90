@@ -500,22 +500,6 @@ contains
       end if
 
       call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
-           label=prefix // 'obs_file_end:', _RC)
-      if (trim(STR1)=='') then
-         call ESMF_TimeIntervalSet(obs_time_span, d=100, _RC)
-         this%obsfile_end_time = this%obsfile_start_time + obs_time_span
-         call ESMF_TimeGet(this%obsfile_end_time, timestring=STR1, _RC)
-         if (mapl_am_I_root()) then
-            write(6,105) 'obs_file_end   missing, default = begin+100D:', trim(STR1)
-         endif
-      else
-         call ESMF_TimeSet(this%obsfile_end_time, timestring=STR1, _RC)
-         if (mapl_am_I_root()) then
-            write(6,105) 'obs_file_end provided:', trim(STR1)
-         end if
-      end if
-
-      call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
            label= prefix// 'obs_file_interval:', _RC)
       _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
       if (mapl_am_I_root()) write(6,105) 'obs_file_interval:', trim(STR1)
@@ -565,7 +549,7 @@ contains
       if (irank==0) then
          call ESMF_TimeIntervalSet(Toff, h=0, m=0, s=0, _RC)
          call Find_M_files_for_currTime (currTime, &
-              this%obsfile_start_time, this%obsfile_end_time, this%obsfile_interval, &
+              this%obsfile_start_time, this%obsfile_interval, &
               this%epoch_frequency,  this%input_template, M_file, this%filenames, &
               T_offset_in_file_content = Toff,  _RC)
          this%M_file = M_file
