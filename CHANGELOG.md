@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `index_var_names` keyword is introduced to simpify the specifications for IODA files
 - delete `obsfile_end_time` in trajectory sampler
 - change `geoval_fields` to `fields` in obs_platform
+- change `sampler_spec` to `sampler_type`
 - Fixed problem in History when no fields appear on the `fields:` line in a collection (issue #3525)
 
 ### Added

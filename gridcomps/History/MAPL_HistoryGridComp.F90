@@ -965,8 +965,8 @@ contains
            list(n)%regrid_method = regrid_method_string_to_int(trim(regrid_method))
        end if
 
-       call ESMF_ConfigGetAttribute(cfg, value=list(n)%sampler_spec, default="", &
-            label=trim(string) // 'sampler_spec:', _RC)
+       call ESMF_ConfigGetAttribute(cfg, value=list(n)%sampler_type, default="", &
+            label=trim(string) // 'sampler_type:', _RC)
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationIdFile, default="", &
             label=trim(string) // 'station_id_file:', _RC)
        call ESMF_ConfigGetAttribute(cfg, value=list(n)%stationSkipLine, default=0, &
@@ -974,7 +974,7 @@ contains
 
 ! Get an optional file containing a 1-D track for the output
        call ESMF_ConfigGetDim(cfg, nline, ncol,  label=trim(string)//'obs_files:', rc=rc)  ! here donot check rc on purpose
-       if (list(n)%sampler_spec == 'trajectory') then
+       if (list(n)%sampler_type == 'trajectory') then
           list(n)%timeseries_output = .true.
        end if
 
@@ -1192,7 +1192,7 @@ contains
              pgrid => IntState%output_grids%at(trim(tmpString))
              ! If user specifies a grid label, then it is required.
              ! Do not default to native in this case
-             if (list(n)%sampler_spec /= 'trajectory') then
+             if (list(n)%sampler_type /= 'trajectory') then
                 _ASSERT(associated(pgrid),'needs informative message')
              end if
              list(n)%output_grid_label = trim(tmpString)
@@ -1754,7 +1754,7 @@ ENDDO PARSER
        if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
           call ESMF_TimeIntervalGet(Hsampler%Frequency_epoch, s=sec, _RC)
        end if
-       if (list(n)%sampler_spec == 'station' .OR. list(n)%sampler_spec == 'mask') then
+       if (list(n)%sampler_type == 'station' .OR. list(n)%sampler_type == 'mask') then
           sec = MAPL_nsecf(list(n)%frequency)
        end if
        call ESMF_TimeIntervalSet( INTSTATE%STAMPOFFSET(n), S=sec, _RC )
@@ -2531,7 +2531,7 @@ ENDDO PARSER
              list(n)%trajectory = HistoryTrajectory(cfg,string,clock,schema_version,genstate=GENSTATE,_RC)
              call list(n)%trajectory%initialize(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
              IntState%stampoffset(n) = list(n)%trajectory%epoch_frequency
-          elseif (list(n)%sampler_spec == 'mask') then
+          elseif (list(n)%sampler_type == 'mask') then
              call MAPL_TimerOn(GENSTATE,"mask_init")
              global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
              list(n)%mask_sampler = MaskSampler(cfg,string,clock,genstate=GENSTATE,_RC)
@@ -2544,7 +2544,7 @@ ENDDO PARSER
              collection_id = o_Clients%add_hist_collection(list(n)%mask_sampler%metadata, mode = create_mode)
              call list(n)%mask_sampler%set_param(write_collection_id=collection_id)
              call MAPL_TimerOff(GENSTATE,"mask_init")
-          elseif (list(n)%sampler_spec == 'station') then
+          elseif (list(n)%sampler_type == 'station') then
              list(n)%station_sampler = StationSampler (list(n)%bundle, trim(list(n)%stationIdFile), nskip_line=list(n)%stationSkipLine, genstate=GENSTATE, _RC)
              call list(n)%station_sampler%add_metadata_route_handle(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
           else
@@ -3686,7 +3686,7 @@ ENDDO PARSER
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if
-         elseif (list(n)%sampler_spec == 'station') then
+         elseif (list(n)%sampler_type == 'station') then
             if (list(n)%unit.eq.0) then
                call lgr%debug('%a %a',&
                     "Station_data output to new file:",trim(filename(n)))
@@ -3695,7 +3695,7 @@ ENDDO PARSER
                list(n)%currentFile = filename(n)
                list(n)%unit = -1
             end if
-         elseif (list(n)%sampler_spec == 'mask') then
+         elseif (list(n)%sampler_type == 'mask') then
             if( list(n)%unit.eq.0 ) then
                if (list(n)%format == 'CFIO') then
                   if (.not.intState%allow_overwrite) then
@@ -3792,8 +3792,8 @@ ENDDO PARSER
          end if
 
          if (.not.list(n)%timeseries_output .AND. &
-              list(n)%sampler_spec /= 'station' .AND. &
-              list(n)%sampler_spec /= 'mask') then
+              list(n)%sampler_type /= 'station' .AND. &
+              list(n)%sampler_type /= 'mask') then
 
             IOTYPE: if (list(n)%unit < 0) then    ! CFIO
                call list(n)%mGriddedIO%bundlepost(list(n)%currentFile,oClients=o_Clients,_RC)
@@ -3842,14 +3842,14 @@ ENDDO PARSER
          end if
 
 
-         if (list(n)%sampler_spec == 'station') then
+         if (list(n)%sampler_type == 'station') then
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
             call MAPL_TimerOn(GENSTATE,"Station")
             call MAPL_TimerOn(GENSTATE,"AppendFile")
             call list(n)%station_sampler%append_file(current_time,_RC)
             call MAPL_TimerOff(GENSTATE,"AppendFile")
             call MAPL_TimerOff(GENSTATE,"Station")
-         elseif (list(n)%sampler_spec == 'mask') then
+         elseif (list(n)%sampler_type == 'mask') then
             call ESMF_ClockGet(clock,currTime=current_time,_RC)
             call MAPL_TimerOn(GENSTATE,"Mask_append")
             if (list(n)%unit < 0) then    ! CFIO
@@ -3990,7 +3990,7 @@ ENDDO PARSER
     nlist = size(list)
 
     do n=1,nlist
-       if (list(n)%sampler_spec == 'mask') then
+       if (list(n)%sampler_type == 'mask') then
           call list(n)%mask_sampler%finalize(_RC)
        end if
     end do
@@ -5852,7 +5852,7 @@ ENDDO PARSER
     integer :: i, j
     character (len=300) :: line
     character (len=50), allocatable :: grid_names(:)
-    character (len=50), allocatable :: sampler_spec(:)
+    character (len=50), allocatable :: sampler_type(:)
     character(len=ESMF_MAXSTR) :: HIST_CF, string
     type(ESMF_Config) :: cfg
 
@@ -5860,19 +5860,19 @@ ENDDO PARSER
          label="HIST_CF:", default="HIST.rc", _RC )
     unitr = GETFILE(HIST_CF, FORM='formatted', _RC)
 
-    allocate(sampler_spec(nlist))
+    allocate(sampler_type(nlist))
     do n = 1, nlist
        cfg = ESMF_ConfigCreate(_RC)
        string = trim( list(n)%collection ) // '.'
        call ESMF_ConfigLoadFile(cfg, filename = trim(string)//'rcx', _RC)
-       call ESMF_ConfigGetAttribute ( cfg, value=sampler_spec(n), default="", &
-            label=trim(string) // 'sampler_spec:' ,_RC )
+       call ESMF_ConfigGetAttribute ( cfg, value=sampler_type(n), default="", &
+            label=trim(string) // 'sampler_type:' ,_RC )
        call ESMF_ConfigDestroy(cfg, _RC)
     end do
 
     ! add GRID_LABELS, INDEX_VAR_NAMES to trajectory collection rcx only
     do n = 1, nlist
-       if (sampler_spec(n) == 'trajectory') then
+       if (sampler_type(n) == 'trajectory') then
           rewind(unitr)
           string = trim( list(n)%collection ) // '.'
           unitw = GETFILE(trim(string)//'rcx', FORM='formatted', _RC)
