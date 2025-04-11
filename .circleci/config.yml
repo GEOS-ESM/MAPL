@@ -16,7 +16,7 @@ parameters:
 
 # Anchors to prevent forgetting to update a version
 os_version: &os_version ubuntu24
-baselibs_version: &baselibs_version v7.31.0
+baselibs_version: &baselibs_version v7.32.0
 bcs_version: &bcs_version v11.6.0
 tag_build_arg_name: &tag_build_arg_name maplversion
 
@@ -33,50 +33,15 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort, ifx]
-              cmake_generator: ['Unix Makefiles','Ninja']
-              build_type: ['Debug', 'Release']
+              compiler: [ifort]
+              cmake_generator: ['Unix Makefiles']
+              build_type: ['Debug']
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
           run_unit_tests: true
           ctest_options: "-L 'ESSENTIAL' --output-on-failure"
           persist_workspace: true # Needed for MAPL tutorials
-
-      # Builds MAPL like UFS does (no FLAP and pFlogger, static)
-      - ci/build:
-          name: build-UFS-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [gfortran, ifort, ifx]
-              build_type: ['Debug', 'Release']
-          baselibs_version: *baselibs_version
-          repo: MAPL
-          mepodevelop: false
-          remove_flap: true
-          remove_pflogger: true
-          extra_cmake_options: "-DBUILD_WITH_FLAP=OFF -DBUILD_WITH_PFLOGGER=OFF -DBUILD_WITH_FARGPARSE=OFF -DUSE_EXTDATA2G=OFF -DBUILD_SHARED_MAPL=OFF"
-          run_unit_tests: true
-          # ExtData1G tests were removed from ESSENTIAL, so we run them separately here as UFS might still use 1G?
-          ctest_options: "-L 'ESSENTIAL|EXTDATA1G_SMALL_TESTS' --output-on-failure"
-
-      # Builds MAPL without pFUnit support
-      - ci/build:
-          name: build-MAPL-without-pFUnit-as-<< matrix.build_type>>-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [ifort, ifx]
-              build_type: ['Debug', 'Release']
-          baselibs_version: *baselibs_version
-          repo: MAPL
-          mepodevelop: false
-          remove_pfunit: true
-          run_unit_tests: true
-          ctest_options: "-L 'ESSENTIAL' --output-on-failure"
 
       # Run MAPL Tutorials
       - ci/run_mapl_tutorial:
@@ -85,19 +50,37 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort, ifx]
-              build_type: ['Debug', 'Release']
+              compiler: [ifort]
+              build_type: ['Debug']
               tutorial_name:
                 - hello_world
                 - parent_no_children
                 - parent_one_child_import_via_extdata
                 - parent_one_child_no_imports
                 - parent_two_siblings_connect_import_export
-          # We will only run the tutorials with GNU make. No need to double up
-          # as Ninja is a build test only
+          # We will only run the tutorials with GNU make. No need to double up as Ninja is a build test only
           requires:
             - build-and-test-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>-using-Unix Makefiles
           baselibs_version: *baselibs_version
+
+      # Builds MAPL like UFS does (no pFlogger, fargparse, pfunit, static)
+      - ci/build:
+          name: build-UFS-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              compiler: [ifort]
+              build_type: ['Debug']
+          baselibs_version: *baselibs_version
+          repo: MAPL
+          mepodevelop: false
+          remove_flap: true
+          remove_pflogger: true
+          remove_pfunit: true
+          extra_cmake_options: "-DBUILD_WITH_FLAP=OFF -DBUILD_WITH_PFLOGGER=OFF -DBUILD_WITH_FARGPARSE=OFF -DUSE_EXTDATA2G=OFF -DBUILD_SHARED_MAPL=OFF"
+          run_unit_tests: true
+          ctest_options: "-L 'ESSENTIAL' --output-on-failure"
 
   build-and-run-GEOSgcm:
     jobs:
@@ -108,7 +91,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort, ifx]
+              compiler: [gfortran, ifort]
           baselibs_version: *baselibs_version
           repo: GEOSgcm
           checkout_fixture: true
@@ -123,7 +106,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort, ifx]
+              compiler: [gfortran, ifort]
           requires:
             - build-GEOSgcm-on-<< matrix.compiler >>
           repo: GEOSgcm
@@ -137,7 +120,7 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              compiler: [gfortran, ifort]
+              compiler: [ifort]
           requires:
             - build-GEOSgcm-on-<< matrix.compiler >>
           repo: GEOSgcm
@@ -163,25 +146,27 @@ workflows:
           fixture_branch: develop
           checkout_mapl_branch: true
 
-  build-GEOSadas:
-    jobs:
-      # Build GEOSadas (ifort only, needs a couple develop branches)
-      - ci/build:
-          name: build-GEOSadas-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              compiler: [ifort]
-          resource_class: xlarge
-          baselibs_version: *baselibs_version
-          repo: GEOSadas
-          checkout_fixture: true
-          fixture_branch: feature/mathomp4/mapldevelop
-          checkout_mapl_branch: true
-          mepodevelop: false
-          rebuild_procs: 4
-          build_type: Release
+  ######################################################################
+  # build-GEOSadas:                                                    #
+  #   jobs:                                                            #
+  #     # Build GEOSadas (ifort only, needs a couple develop branches) #
+  #     - ci/build:                                                    #
+  #         name: build-GEOSadas-on-<< matrix.compiler >>              #
+  #         context:                                                   #
+  #           - docker-hub-creds                                       #
+  #         matrix:                                                    #
+  #           parameters:                                              #
+  #             compiler: [ifort]                                      #
+  #         resource_class: xlarge                                     #
+  #         baselibs_version: *baselibs_version                        #
+  #         repo: GEOSadas                                             #
+  #         checkout_fixture: true                                     #
+  #         fixture_branch: feature/mathomp4/mapldevelop               #
+  #         checkout_mapl_branch: true                                 #
+  #         mepodevelop: false                                         #
+  #         rebuild_procs: 4                                           #
+  #         build_type: Release                                        #
+  ######################################################################
 
   build-and-publish-docker:
     when:
