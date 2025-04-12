@@ -28,19 +28,23 @@ contains
 
 #define TYPEKIND_ R4
 
-#define RANK_ 1 ! <NAME_>R4_1
+! StateGetPointerToDataR4_1
+#define RANK_ 1
 #include "StateGetPointerToDataTemplate.H"
 #undef RANK_
 
-#define RANK_ 2 ! <NAME_>R4_2
+! StateGetPointerToDataR4_2
+#define RANK_ 2
 #include "StateGetPointerToDataTemplate.H"
 #undef RANK_
 
-#define RANK_ 3 ! <NAME_>R4_3
+! StateGetPointerToDataR4_3
+#define RANK_ 3
 #include "StateGetPointerToDataTemplate.H"
 #undef RANK_
 
-#define RANK_ 4 ! <NAME_>R4_4
+! StateGetPointerToDataR4_4
+#define RANK_ 4
 #include "StateGetPointerToDataTemplate.H"
 #undef RANK_
 
@@ -48,19 +52,23 @@ contains
 
 #define TYPEKIND_ R8
 
-#define RANK_ 1 ! <NAME_>R8_1
+! StateGetPointerToDataR8_1
+#define RANK_ 1
 #include "StateGetPointerToDataTemplate.H"
 #undef RANK_
 
-#define RANK_ 2 ! <NAME_>R8_2
+! StateGetPointerToDataR8_2
+#define RANK_ 2
 #include "StateGetPointerToDataTemplate.H"
 #undef RANK_
 
-#define RANK_ 3 ! <NAME_>R8_3
+! StateGetPointerToDataR8_3
+#define RANK_ 3
 #include "StateGetPointerToDataTemplate.H"
 #undef RANK_
 
-#define RANK_ 4 ! <NAME_>R8_4
+! StateGetPointerToDataR8_4
+#define RANK_ 4
 #include "StateGetPointerToDataTemplate.H"
 #undef RANK_
 
