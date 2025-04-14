@@ -9,9 +9,6 @@ inputs:
   doc-folder:
     description: "The folder containing the documentation to deploy"
     required: true
-  token:
-    description: "The GitHub token to use for authentication"
-    required: true
   target-folder:
     description: "The folder to deploy to"
     required: false
@@ -49,7 +46,7 @@ runs:
         repository: Goddard-Fortran-Ecosystem/gFTL
         path: gFTL
         fetch-depth: 1
-        ref: v1.14.0
+        ref: v1.15.2
 
     - name: Build gFTL
       run: |
@@ -71,6 +68,5 @@ runs:
       if: github.event_name == 'push' && github.repository == 'GEOS-ESM/MAPL' && ( startsWith( github.ref, 'refs/tags/v' ) || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/release/MAPL-v3' )
       with:
         folder: ${{ inputs.doc-folder }}
-        token: ${{ inputs.token }}
         target-folder: ${{ inputs.target-folder }}
 

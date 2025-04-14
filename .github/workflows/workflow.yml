@@ -34,102 +34,79 @@ jobs:
           doc-folder: docs/Ford/ci-doc
           token: ${{ secrets.GITHUB_TOKEN }}
 
-  build_test_mapl:
-    name: Build and Test MAPL GNU
+  build_test_mapl_gnu:
+    name: gfortran / ${{ matrix.cmake-build-type }} / ${{ matrix.cmake-generator }}
     runs-on: ubuntu-latest
     container:
-      image: gmao/ubuntu24-geos-env-mkl:v7.31.0-openmpi_5.0.5-gcc_14.2.0
-      # Per https://github.com/actions/virtual-environments/issues/1445#issuecomment-713861495
-      # It seems like we might not need secrets on GitHub Actions which is good for forked
-      # pull requests
-      #credentials:
-        #username: ${{ secrets.DOCKERHUB_USERNAME }}
-        #password: ${{ secrets.DOCKERHUB_TOKEN }}
+      image: gmao/ubuntu24-geos-env-mkl:v7.32.0-openmpi_5.0.5-gcc_14.2.0
+    strategy:
+      fail-fast: false
+      matrix:
+        cmake-build-type: [Debug, Release]
+        cmake-generator: [Unix Makefiles]
     env:
       OMPI_ALLOW_RUN_AS_ROOT: 1
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
     steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.12.1
-        with:
-          access_token: ${{ github.token }}
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - name: Set all directories as git safe
-        run: |
-          git config --global --add safe.directory '*'
-      - name: Versions etc.
-        run: |
-          gfortran --version
-          mpirun --version
-          echo $BASEDIR
-      - name: Mepo clone external repos
-        run: |
-          mepo init
-          mepo clone
-          mepo status
-      - name: CMake
-        run: |
-          mkdir build
-          cd build
-          cmake .. -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=gfortran -DCMAKE_BUILD_TYPE=Debug -DMPIEXEC_PREFLAGS='--oversubscribe'
-      - name: Build
-        run: |
-          cd build
-          make -j4 install
-      - name: Run MAPL unit tests
-        run: |
-          cd build
-          make -j4 build-tests
-          ctest -L 'ESSENTIAL' --output-on-failure
-  build_test_mapl_intel:
-    name: Build and Test MAPL Intel
-    runs-on: ubuntu-latest
-    container:
-      image: gmao/ubuntu24-geos-env:v7.31.0-intelmpi_2021.13-ifort_2021.13
-      # Per https://github.com/actions/virtual-environments/issues/1445#issuecomment-713861495
-      # It seems like we might not need secrets on GitHub Actions which is good for forked
-      # pull requests
-      #credentials:
-        #username: ${{ secrets.DOCKERHUB_USERNAME }}
-        #password: ${{ secrets.DOCKERHUB_TOKEN }}
-    steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.12.1
-        with:
-          access_token: ${{ github.token }}
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
           filter: blob:none
-      - name: Set all directories as git safe
-        run: |
-          git config --global --add safe.directory '*'
-      - name: Versions etc.
-        run: |
-          ifort --version
-          mpirun --version
-          echo $BASEDIR
-      - name: Mepo clone external repos
-        run: |
-          mepo init
-          mepo clone
-          mepo status
-      - name: CMake
-        run: |
-          mkdir build
-          cd build
-          cmake .. -DBASEDIR=$BASEDIR/Linux -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_BUILD_TYPE=Debug
-      - name: Build
-        run: |
-          cd build
-          make -j4 install
-      - name: Run MAPL unit tests
-        run: |
-          cd build
-          make -j4 build-tests
-          ctest -L 'ESSENTIAL' --output-on-failure
+
+      - name: Build and Test MAPL
+        uses: ./.github/actions/ci-build-and-test-mapl
+        with:
+          cmake-build-type: ${{ matrix.cmake-build-type }}
+          cmake-generator: ${{ matrix.cmake-generator }}
+          fortran-compiler: gfortran
+          extra-cmake-args: -DMPIEXEC_PREFLAGS='--oversubscribe'
+
+  build_test_mapl_ifort:
+    name: ifort / ${{ matrix.cmake-build-type }} / ${{ matrix.cmake-generator }}
+    runs-on: ubuntu-latest
+    container:
+      image: gmao/ubuntu24-geos-env:v7.32.0-intelmpi_2021.13-ifort_2021.13
+    strategy:
+      fail-fast: false
+      matrix:
+        cmake-build-type: [Debug, Release]
+        cmake-generator: [Unix Makefiles]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+
+      - name: Build and Test MAPL
+        uses: ./.github/actions/ci-build-and-test-mapl
+        with:
+          cmake-build-type: ${{ matrix.cmake-build-type }}
+          cmake-generator: ${{ matrix.cmake-generator }}
+          fortran-compiler: ifort
+
+  build_test_mapl_ifx:
+    name: ifx / ${{ matrix.cmake-build-type }} / ${{ matrix.cmake-generator }}
+    runs-on: ubuntu-latest
+    container:
+      image: gmao/ubuntu24-geos-env:v7.32.0-intelmpi_2021.14-ifx_2025.0
+    strategy:
+      fail-fast: false
+      matrix:
+        cmake-build-type: [Debug, Release]
+        cmake-generator: [Unix Makefiles]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+
+      - name: Build and Test MAPL
+        uses: ./.github/actions/ci-build-and-test-mapl
+        with:
+          cmake-build-type: ${{ matrix.cmake-build-type }}
+          cmake-generator: ${{ matrix.cmake-generator }}
+          fortran-compiler: ifx

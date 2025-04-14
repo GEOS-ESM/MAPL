@@ -8,11 +8,13 @@ module MAPL_ExtDataTypeDef
    use MAPL_FileMetadataUtilsMod
    use MAPL_NewArthParserMod
    use MAPL_ExtDataMask
+   use VerticalCoordinateMod
    implicit none
 
    public PrimaryExport
    public DerivedExport
    public BracketingFields
+   public copy_primary
 
   integer, parameter         :: MAPL_ExtDataNullFrac      = -9999
 
@@ -20,18 +22,15 @@ module MAPL_ExtDataTypeDef
      ! fields to store endpoints for interpolation of a vector pair
      type(ExtDataBracket) :: comp1
      type(ExtDataBracket) :: comp2
-     ! if vertically interpolating vector fields
-     type(ExtDataBracket) :: auxiliary1
-     type(ExtDataBracket) :: auxiliary2
      logical :: initialized = .false.
   end type BracketingFields
 
   type PrimaryExport
      character(len=ESMF_MAXSTR)   :: name
-     character(len=ESMF_MAXSTR)   :: units=''
+     character(len=:), allocatable :: units
      integer                      :: Trans
      character(len=ESMF_MAXSTR)   :: var
-     character(len=ESMF_MAXPATHLEN)   :: file_template ! remove
+     character(len=ESMF_MAXPATHLEN)   :: file_template
 
      logical                      :: isConst
      real                         :: Const !remove
@@ -58,13 +57,9 @@ module MAPL_ExtDataTypeDef
      logical                      :: do_VertInterp = .false.
      logical                      :: do_Fill = .false.
      type(FileMetadataUtils)      :: file_metadata
-     integer                      :: LM
-     real, allocatable            :: levs(:)
-     character(len=4)             :: importVDir = "down"
-     character(len=4)             :: fileVDir = "down"
-     character(len=ESMF_MAXSTR)   :: levUnit
-     logical                      :: havePressure = .false.
-     type(ExtDataPointerUpdate) :: update_freq
+     type(ExtDataPointerUpdate)   :: update_freq
+     type(VerticalCoordinate)     :: vcoord
+     logical                      :: delivered_item = .true. 
 
      ! new stuff
      logical                      :: cycling
@@ -75,6 +70,15 @@ module MAPL_ExtDataTypeDef
      type(ESMF_Time), allocatable :: start_end_time(:)
      logical :: initialized = .false.
      logical :: fail_on_missing_file = .true.
+
+     type(ESMF_FieldBundle) :: t_interp_bundle
+
+     character(len=4) :: importVDir = "down"
+     logical :: enable_vertical_regrid = .false.
+     logical :: allow_vertical_regrid = .false.
+     character(len=:), allocatable :: aux_ps, aux_q
+     real, allocatable :: molecular_weight
+
   end type PrimaryExport
   
   type DerivedExport
@@ -89,6 +93,37 @@ module MAPL_ExtDataTypeDef
 
   contains
 
+      subroutine copy_primary(p1, p2, aux_type )
+         type(PrimaryExport), intent(in) :: p1
+         type(PrimaryExport), intent(out) :: p2
+         character(len=*), intent(in) :: aux_type
+
+         character(len=:), allocatable :: new_name, aux_name
+         logical :: has_aux_item
+         if (aux_type == 'Q') then
+            has_aux_item = allocated(p1%aux_q)
+            aux_name=p1%aux_q
+         end if
+         if (aux_type == 'PS') then
+            has_aux_item = allocated(p1%aux_ps)
+            aux_name=p1%aux_ps
+         end if
+         p2 = p1
+         if (has_aux_item) then
+            p2%var=aux_name
+            new_name = aux_name//"_"//trim(p1%name)
+            p2%name=new_name
+            p2%fileVars%xname = aux_name
+            p2%fcomp1 = aux_name
+            p2%vcomp1=new_name
+         else
+            p2%file_template = "/dev/null"
+            p2%isConst = .true.
+         end if
+         p2%delivered_item = .false.
+
+      end subroutine
+         
       subroutine evaluate_derived_field(this,state,rc)
          class(DerivedExport), intent(inout) :: this
          type(ESMF_State), intent(inout) :: state

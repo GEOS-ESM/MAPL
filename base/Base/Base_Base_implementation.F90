@@ -1270,6 +1270,7 @@ contains
     integer                 :: lbnds(ESMF_MAXDIM), ubnds(ESMF_MAXDIM)
     character(len=ESMF_MAXSTR) :: newName_
     character(len=ESMF_MAXSTR), parameter :: Iam='MAPL_FieldCreateNewgrid'
+    real, pointer :: ptr1d(:)
 
     call ESMF_FieldGet(FIELD, grid=fgrid, _RC)
 
@@ -1354,6 +1355,9 @@ contains
     ! we are saving DIMS attribute in case the FIELD did not contain one
     ! otherwise we will overwrite it
     call ESMF_AttributeSet(F, NAME='DIMS', VALUE=DIMS, _RC)
+
+    call assign_fptr(f, ptr1d, _RC)
+    ptr1d = 0.0    
 
     _RETURN(ESMF_SUCCESS)
   end function MAPL_FieldCreateNewgrid
@@ -1558,7 +1562,8 @@ contains
     integer,               allocatable    :: localDeToDeMap(:)
     integer :: rc
     logical :: isPresent
-    integer :: global_grid_info(10)
+    integer, allocatable  :: global_grid_info(:)
+    integer :: itemCount
 
     i1=-1
     j1=-1
@@ -1567,11 +1572,14 @@ contains
 
     call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", isPresent=isPresent, _RC)
     if (isPresent) then
+      call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", itemCount=itemCount, _RC)
+      allocate(global_grid_info(itemCount), _STAT)
       call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", valueList=global_grid_info, _RC)
       I1 = global_grid_info(7)
       IN = global_grid_info(8)
       j1 = global_grid_info(9)
       JN = global_grid_info(10)
+      deallocate(global_grid_info, _STAT)
       _RETURN(_SUCCESS)
     end if
 
@@ -2152,7 +2160,8 @@ contains
     integer                               :: gridRank
     integer                               :: rc
     logical                               :: isPresent
-    integer                               :: global_grid_info(10)
+    integer, allocatable                  :: global_grid_info(:)
+    integer                               :: itemCount
 
     i1=-1
     j1=-1
@@ -2161,11 +2170,14 @@ contains
 
     call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", isPresent=isPresent, _RC)
     if (isPresent) then
+      call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", itemCount=itemCount, _RC)
+      allocate(global_grid_info(itemCount), _STAT)
       call ESMF_AttributeGet(grid, name="GLOBAL_GRID_INFO", valueList=global_grid_info, _RC)
       I1 = global_grid_info(7)
       IN = global_grid_info(8)
       j1 = global_grid_info(9)
       JN = global_grid_info(10)
+      deallocate(global_grid_info, _STAT)
       _RETURN(_SUCCESS)
     end if
 

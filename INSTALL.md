@@ -2,17 +2,23 @@
 
 ## Dependent Libraries
 
+### CMake
+
+MAPL requires CMake 3.24+ to build. It is tested with both the GNU Make
+and Ninja generators.
+
 ### Compilers
 
 MAPL requires a Fortran 2003 compliant compiler. It is currently tested and
 supported with:
 
-- Intel Fortran Classic `ifort` 2021.6.0
-- GCC 12.3.0
-- NAG Fortran 7.1.43
+- Intel Fortran Classic `ifort` 2021.6.0 and 2021.13.0
+- Intel Fortran LLVM `ifx` 2025.0
+- GCC 13.2.0 and 14.2.0
+- NAG Fortran 7.2.20
 
-Note that at present MAPL does not fully support GCC 13, Intel Fortran Classic
-2021.10.0+, Intel LLVM `ifx`, or NVHPC. Efforts are underway to support these.
+Note that at the moment MAPL does not support LLVM Flang or NVHPC.
+Efforts are underway to support these.
 
 ### MPI
 
@@ -46,8 +52,8 @@ MAPL is currently tested with the following library versions:
 | HDF5           | v1.10.11       |
 | netCDF-C       | v4.9.2         |
 | netCDF-Fortran | v4.6.1         |
-| ESMF           | v8.6.0         |
-| GFE            | v1.12.0        |
+| ESMF           | v8.8.0         |
+| GFE            | v1.19.0        |
 
 Note that in most cases, MAPL will support *higher* versions of these libraries
 (e.g., HDF5 1.14), it's just operationally we have not moved to them and fully
@@ -56,7 +62,7 @@ tested it.
 
 #### ESMA Baselibs
 
-The above libraries are equivalent to ESMA-Baselibs v7.17.2. This is used
+The above libraries are equivalent to ESMA-Baselibs v7.32.0. This is used
 internally by GEOS-ESM users at the GMAO.
 
 ## Getting MAPL
@@ -70,9 +76,10 @@ ExternalProject/FetchContent, we use a homegrown tool called
 `components.yaml` file to know what tag of each sub-repository to clone, where
 to put it, and what to name it.
 
-`mepo` is a fairly simple Python3 tool. All a user needs to do is clone the
-`mepo` repo which provides executable `mepo` script that just needs Python3
-and PyYAML. Then you can run `mepo clone` in your MAPL clone and you'll get
+`mepo` is a fairly simple Python3 tool that can be installed by `pip`,
+`spack`, or `brew`.
+
+Then you can run `mepo clone` in your MAPL clone and you'll get
 three subrepos:
 
 - [ESMA_env](https://github.com/GEOS-ESM/ESMA_env)
@@ -106,7 +113,7 @@ spack install mapl
 Once you have all the dependent libraries, the build process should be pretty standard:
 
 ```
-cmake -B build-dir -S . --install-prefix install-dir < -DCMAKE_Fortran_COMPILER=XXX >
+cmake -B build-dir -S . --install-prefix=/path/to/install-dir < -DCMAKE_Fortran_COMPILER=XXX >
 cmake --build build-dir --target install -j N
 ```
 where `N` is the number of parallel build jobs you want to run.
@@ -154,5 +161,5 @@ where `N` is the number of tests you want to run in parallel.
 Note that some MAPL tests are quite expensive to run. To avoid running them,
 you can instead run:
 ```
-ctest --test-dir build-dir -j N -LE 'PERFORMANCE|EXTDATA1G_BIG_TESTS|EXTDATA2G_BIG_TESTS'
+ctest --test-dir build-dir -j N -L 'ESSENTIAL'
 ```
