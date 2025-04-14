@@ -1,6 +1,6 @@
 module mapl3g_State_API
 
-   use mapl3g_StateGetBundle, only: MAPL_StateGet => StateGetBundle
+   use mapl3g_StateGet, only: MAPL_StateGet => StateGet
    use mapl3g_StateGetPointerToData, only: MAPL_StateGetPointer => StateGetPointerToData
 
    implicit none

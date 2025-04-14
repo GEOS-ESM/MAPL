@@ -71,7 +71,7 @@ contains
          ! TODO: the file_name should come from OuterMetaComponents's hconfig
          file_name = trim(this%gc_name) // "_" // trim(state_type) // "_checkpoint.nc4"
          call this%lgr%info("Writing checkpoint: %a", trim(file_name))
-         out_bundle = MAPL_StateGet(state, _RC)
+         call MAPL_StateGet(state, out_bundle, _RC)
          call this%write_bundle_(out_bundle, file_name, rc)
       end if
 

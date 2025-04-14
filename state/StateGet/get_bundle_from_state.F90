@@ -1,24 +1,15 @@
-#include "MAPL_ErrLog.h"
+#include "MAPL_Generic.h"
 
-module mapl3g_StateGetBundle
-
-   use mapl_ErrorHandling
-   use esmf
+submodule (mapl3g_StateGet) get_bundle_from_state_smod
 
    implicit none
-   private
-
-   public :: StateGetBundle
-
-   interface StateGetBundle
-      procedure :: get_bundle_from_state
-   end interface StateGetBundle
 
 contains
 
-   type(ESMF_FieldBundle) function get_bundle_from_state(state, rc) result(bundle)
+   module function get_bundle_from_state(state, rc) result(bundle)
       type(ESMF_State), intent(in) :: state
       integer, optional, intent(out) :: rc
+      type(ESMF_FieldBundle) :: bundle ! result
 
       character(len=ESMF_MAXSTR), allocatable :: item_name(:)
       type (ESMF_StateItem_Flag), allocatable  :: item_type(:)
@@ -47,4 +38,4 @@ contains
       _RETURN(_SUCCESS)
    end function get_bundle_from_state
 
-end module mapl3g_StateGetBundle
+end submodule get_bundle_from_state_smod
