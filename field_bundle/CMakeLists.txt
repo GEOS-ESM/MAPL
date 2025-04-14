@@ -5,6 +5,7 @@ set(srcs
   FieldBundleGet.F90
   FieldBundleInfo.F90
   FieldBundleDelta.F90
+  FieldBundleCreate.F90
 )
 
 list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")

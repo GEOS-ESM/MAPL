@@ -2,7 +2,6 @@ esma_set_this (OVERRIDE MAPL.state)
 
 set(srcs
   API.F90
-  StateGet.F90
   StateGetPointerToData.F90
 )
 
@@ -16,12 +15,6 @@ esma_add_library(${this}
   SRCS ${srcs}
   DEPENDENCIES MAPL.shared ESMF::ESMF
   TYPE SHARED
-)
-
-esma_add_fortran_submodules(
-  TARGET ${this}
-  SUBDIRECTORY StateGet
-  SOURCES get_bundle_from_state.F90
 )
 
 # if (PFUNIT_FOUND)

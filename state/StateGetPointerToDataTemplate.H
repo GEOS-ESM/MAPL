@@ -22,11 +22,8 @@ subroutine SUB_(state, ptr, name, not_found_ok, rc)
 
    nullify(ptr)
 
-   if (present(not_found_ok)) then
-      is_ok = not_found_ok
-   else
-      is_ok = .false.
-   end if
+   is_ok = .false.
+   if (present(not_found_ok)) is_ok = not_found_ok
 
    ! Get field from state
    loc = index(name,';;')

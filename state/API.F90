@@ -1,6 +1,5 @@
 module mapl3g_State_API
 
-   use mapl3g_StateGet, only: MAPL_StateGet => StateGet
    use mapl3g_StateGetPointerToData, only: MAPL_StateGetPointer => StateGetPointerToData
 
    implicit none
@@ -8,7 +7,6 @@ module mapl3g_State_API
    private
 
    ! Available to users
-   public :: MAPL_StateGet
    public :: MAPL_StateGetPointer
 
    ! Used internally by MAPL
