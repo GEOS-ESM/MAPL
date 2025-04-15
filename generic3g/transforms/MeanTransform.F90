@@ -5,7 +5,7 @@ module mapl3g_MeanTransform
    use MAPL_ExceptionHandling
    use MAPL_FieldPointerUtilities, only: assign_fptr
    use mapl3g_FieldCreate, only: MAPL_FieldCreate
-   use mapl3g_FieldGet, only: MAPL_FieldGet
+   use mapl3g_Field_API, only: MAPL_FieldGet
    use MAPL_FieldUtilities, only: FieldSet
    use ESMF
    implicit none

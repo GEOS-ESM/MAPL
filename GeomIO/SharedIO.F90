@@ -2,7 +2,7 @@
 module mapl3g_SharedIO
    use mapl_ErrorHandlingMod
    use mapl3g_FieldBundleGet
-   use mapl3g_FieldGet
+   use mapl3g_Field_API
    use mapl3g_VerticalStaggerLoc
    use pfio
    use gFTL2_StringVector
