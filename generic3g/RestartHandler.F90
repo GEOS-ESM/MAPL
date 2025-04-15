@@ -8,7 +8,7 @@ module mapl3g_RestartHandler
    use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Return, MAPL_Assert
    use mapl3g_geomio, only: bundle_to_metadata, GeomPFIO, make_geom_pfio, get_mapl_geom
    use mapl3g_SharedIO, only: esmf_to_pfio_type
-   use mapl3g_FieldBundleCreate, only: MAPL_FieldBundleCreate
+   use mapl3g_Field_Bundle_API, only: MAPL_FieldBundleCreate
    use pFIO, only: PFIO_READ, FileMetaData, NetCDF4_FileFormatter
    use pFIO, only: i_Clients, o_Clients
    use pFlogger, only: logging, logger
