@@ -1,6 +1,7 @@
 esma_set_this (OVERRIDE MAPL.field_bundle)
 
 set(srcs
+  API.F90
   FieldBundleType_Flag.F90
   FieldBundleGet.F90
   FieldBundleInfo.F90
