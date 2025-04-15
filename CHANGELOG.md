@@ -9,15 +9,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.55.0] - 2025-04-15
+
+### Fixed
+
 - Fixed problem related to stale pointers to temp copies of dummy arguments in `MAPL_Cap.F90`.  Fix is to add `TARGET` attribute in select locations.
 - Fix for case where 2nd argument to `transfer()` was not allocated in the OpenMP support layer.  Was not detected by other compilers.  The fix is to use a literal integer array instead.
 - Fixed problem in History when no fields appear on the `fields:` line in a collection (issue #3525)
+- Fixed bug that broke SCM model in GEOS
+- Fix ExtData2G unit test for GNU on Discover
+- Fixed nesting of internal timers (issue #3412)
+- Fixed issue of `make tests` not building all needed executables
+- Incorrect specification of EOL for Darwin+NAG in `MAPL_Config`.
+- Untrapped exceptions in `MAPL_LatLonGridFactory.F90`
 
 ### Added
 
 - Added subroutine to write nc4 tile file
 - Added new supported units for vertical regridding in ExtData, now supports `kg kg-1`, `mol mol-1`, `kg m-2` as well as per second variations of these, i.e. `kg kg-1 s-1`
-
 - Added CI build using spack
 - Added `Release` build CI tests for MAPL
 - Added new option to rule for ExtData2G to disable vertical regridding, default is true, vertical regridding is disabled
@@ -37,19 +54,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Clean up GCC 10+ warnings
 - Update `.editorconfig` for Fortran files enforcing 3-space indents and line length of 132
 - Migrated much of the CI to GitHub Actions
-
-### Fixed
-
-- Fixed bug that broke SCM model in GEOS
-- Fix ExtData2G unit test for GNU on Discover
-- Fixed nesting of internal timers (issue #3412)
-- Fixed issue of `make tests` not building all needed executables
-- Incorrect specification of EOL for Darwin+NAG in `MAPL_Config`.
-- Untrapped exceptions in `MAPL_LatLonGridFactory.F90`
-
-### Removed
-
-### Deprecated
 
 ## [2.54.2] - 2025-03-18
 
