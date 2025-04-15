@@ -1,24 +1,27 @@
 #include "MAPL_Generic.h"
 
-module mapl3g_StateGet
+module mapl3g_FieldBundleCreate
 
    use mapl_ErrorHandling
    use esmf
 
    implicit none
+
    private
 
-   public :: MAPL_StateGet
+   public :: MAPL_FieldBundleCreate
 
-   interface MAPL_StateGet
-      procedure get_bundle_from_state_
-   end interface MAPL_StateGet
+   interface MAPL_FieldBundleCreate
+      procedure create_bundle_from_state
+      procedure create_bundle_from_field_list
+   end interface MAPL_FieldBundleCreate
 
 contains
 
-   type(ESMF_FieldBundle) function get_bundle_from_state_(state, rc) result(bundle)
+   function create_bundle_from_state(state, rc) result(bundle)
       type(ESMF_State), intent(in) :: state
       integer, optional, intent(out) :: rc
+      type(ESMF_FieldBundle) :: bundle ! result
 
       character(len=ESMF_MAXSTR), allocatable :: item_name(:)
       type (ESMF_StateItem_Flag), allocatable  :: item_type(:)
@@ -45,6 +48,14 @@ contains
       deallocate(item_name, item_type, _STAT)
 
       _RETURN(_SUCCESS)
-   end function get_bundle_from_state_
+   end function create_bundle_from_state
 
-end module mapl3g_StateGet
+   function create_bundle_from_field_list(field_list, rc) result(bundle)
+      type(ESMF_Field), intent(in) :: field_list(:)
+      integer, optional, intent(out) :: rc
+      type(ESMF_FieldBundle) :: bundle ! result
+
+      _FAIL("not implemented yet")
+   end function create_bundle_from_field_list
+
+end module mapl3g_FieldBundleCreate

@@ -1,0 +1,29 @@
+#define IDENTITY(x)x
+
+#define SUB_ SUB__(NAME_,TYPEKIND_,RANK_)
+#define SUB__(N,A,B) SUB___(N,A,B)
+#define SUB___(N,A,B) IDENTITY(N)IDENTITY(A)IDENTITY(_)IDENTITY(B)
+
+#define EKIND_ EKIND__(TYPEKIND_)
+#define EKIND__(A) EKIND___(A)
+#define EKIND___(A) IDENTITY(ESMF_KIND_)IDENTITY(A)
+
+#if (RANK_ == 0)
+#define DIMENSIONS_
+#endif
+
+#if (RANK_ == 1)
+#define DIMENSIONS_ (:)
+#endif
+
+#if (RANK_ == 2)
+#define DIMENSIONS_ (:,:)
+#endif
+
+#if (RANK_ == 3)
+#define DIMENSIONS_ (:,:,:)
+#endif
+
+#if (RANK_ == 4)
+#define DIMENSIONS_ (:,:,:,:)
+#endif
