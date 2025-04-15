@@ -1,4 +1,4 @@
-module mapl3g_Field_Bundle_API
+module mapl3g_FieldBundle_API
 
    use mapl3g_FieldBundleGet, only: MAPL_FieldBundleGet
    use mapl3g_FieldBundleGet, only: MAPL_FieldBundleSet
@@ -20,4 +20,4 @@ module mapl3g_Field_Bundle_API
    ! Used internally by MAPL
    ! Users shouldn't need these
 
-end module mapl3g_Field_Bundle_API
+end module mapl3g_FieldBundle_API
