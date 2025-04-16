@@ -1,7 +1,7 @@
 module mapl3g_FieldBundle_API
 
-   use mapl3g_FieldBundleGet, only: MAPL_FieldBundleGet
-   use mapl3g_FieldBundleGet, only: MAPL_FieldBundleSet
+   use mapl3g_FieldBundleGet, only: MAPL_FieldBundleGet => FieldBundleGet
+   use mapl3g_FieldBundleSet, only: MAPL_FieldBundleSet => FieldBundleSet
    use mapl3g_FieldBundleCreate, only: MAPL_FieldBundleCreate
    use mapl3g_FieldBundleInfo, only: MAPL_FieldBundleInfoGetInternal
    use mapl3g_FieldBundleInfo, only: MAPL_FieldBundleInfoSetInternal

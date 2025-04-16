@@ -31,6 +31,7 @@ module mapl3g_WildcardClassAspect
 
       procedure :: get_aspect_order
       procedure :: create
+      procedure :: activate
       procedure :: allocate
       procedure :: destroy
       procedure :: add_to_state
@@ -110,6 +111,15 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
    end subroutine create
+
+   ! No-op
+   subroutine activate(this, rc)
+      class(WildcardClassAspect), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+   end subroutine activate
 
    ! No-op
    subroutine destroy(this, rc)

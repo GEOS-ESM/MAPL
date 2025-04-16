@@ -3,7 +3,7 @@
 module mapl3g_VerticalRegridTransform
 
    use mapl_ErrorHandling
-   use mapl3g_FieldBundleGet
+   use mapl3g_FieldBundle_API
    use mapl3g_StateItem
    use mapl3g_ExtensionTransform
    use mapl3g_ComponentDriver
@@ -14,7 +14,7 @@ module mapl3g_VerticalRegridTransform
    use mapl3g_FieldCondensedArray, only: assign_fptr_condensed_array
    use esmf
 
-   implicit none
+   implicit none(type,external)
    private
 
    public :: VerticalRegridTransform

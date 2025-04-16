@@ -42,6 +42,7 @@ module mapl3g_ServiceClassAspect
 
       procedure :: get_aspect_order
       procedure :: create
+      procedure :: activate
       procedure :: allocate
       procedure :: destroy
       procedure :: add_to_state
@@ -98,6 +99,15 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine create
+
+   subroutine activate(this, rc)
+      class(ServiceClassAspect), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      ! noop
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+   end subroutine activate
 
    subroutine destroy(this, rc)
       class(ServiceClassAspect), intent(inout) :: this

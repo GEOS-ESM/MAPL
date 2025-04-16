@@ -24,7 +24,7 @@ contains
         num_levels, vert_staggerloc, num_vgrid_levels, &
         ungridded_dims, &
         units, standard_name, long_name, &
-        is_connected, &
+        is_active, &
         rc)
 
       type(ESMF_Field), intent(in) :: field
@@ -38,7 +38,7 @@ contains
       character(len=:), optional, allocatable, intent(out) :: units
       character(len=:), optional, allocatable, intent(out) :: standard_name
       character(len=:), optional, allocatable, intent(out) :: long_name
-      logical, optional, intent(out) :: is_connected
+      logical, optional, intent(out) :: is_active
 
       integer, optional, intent(out) :: rc
 
@@ -62,7 +62,7 @@ contains
            num_vgrid_levels=num_vgrid_levels, &
            ungridded_dims=ungridded_dims, &
            units=units, standard_name=standard_name, long_name=long_name, &
-           is_connected=is_connected, &
+           is_active=is_active, &
            _RC)
 
       _RETURN(_SUCCESS)

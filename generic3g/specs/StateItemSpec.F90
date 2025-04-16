@@ -46,7 +46,7 @@ module mapl3g_StateItemSpec
       procedure, non_overridable :: set_allocated
       procedure, non_overridable :: is_allocated
       procedure, non_overridable :: is_active
-      procedure, non_overridable :: set_active
+      procedure, non_overridable :: activate
       procedure :: get_aspect_by_id
       generic :: get_aspect => get_aspect_by_id
       procedure :: get_aspects
@@ -118,16 +118,19 @@ contains
       is_allocated = this%allocated
    end function is_allocated
 
-   pure subroutine set_active(this, active)
-      class(StateItemSpec), intent(inout) :: this
-      logical, optional, intent(in) :: active
+   subroutine activate(this, rc)
+      class(StateItemSpec), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(ClassAspect), pointer :: class_aspect
 
       this%active =  .true.
-      if (present(active)) then
-         this%active = active
-      end if
+      class_aspect => to_ClassAspect(this%aspects, _RC)
+      call class_aspect%activate(_RC)
 
-   end subroutine set_active
+      _RETURN(_SUCCESS)
+   end subroutine activate
 
    pure logical function is_active(this)
       class(StateItemSpec), intent(in) :: this
@@ -284,7 +287,7 @@ contains
       aspect_id = dst_class_aspect%get_aspect_id()
       call src_class_aspect%connect_to_import(dst_class_aspect, _RC)
 
-      call this%set_active()
+      call this%activate(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine connect_to_import

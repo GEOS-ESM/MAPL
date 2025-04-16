@@ -33,6 +33,7 @@ module MockAspect_mod
       procedure :: supports_conversion_specific
 
       procedure :: create
+      procedure :: activate
       procedure :: allocate
       procedure :: destroy
       procedure :: add_to_state
@@ -179,6 +180,15 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine create
+
+   subroutine activate(this, rc)
+      class(MockAspect), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _RETURN(_SUCCESS)
+   end subroutine activate
 
    ! Tile / Grid   X  or X, Y
    subroutine allocate(this, other_aspects, rc)

@@ -22,7 +22,7 @@ module mapl3g_FieldClassAspect
    use mapl3g_MultiState
    use mapl3g_ESMF_Utilities, only: get_substate
 
-   use mapl3g_FieldCreate
+   use mapl3g_Field_API
    use mapl_FieldUtilities
 
    use mapl_ErrorHandling
@@ -55,6 +55,7 @@ module mapl3g_FieldClassAspect
       procedure :: connect_to_export
 
       procedure :: create
+      procedure :: activate
       procedure :: allocate
       procedure :: destroy
       procedure :: add_to_state
@@ -132,6 +133,17 @@ contains
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create
+
+   subroutine activate(this, rc)
+      class(FieldClassAspect), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call MAPL_FieldSet(this%payload, is_active=.true., _RC)
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine activate
 
    ! Tile / Grid   X  or X, Y
    subroutine allocate(this, other_aspects, rc)
