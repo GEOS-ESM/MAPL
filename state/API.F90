@@ -1,15 +1,13 @@
 module mapl3g_State_API
-
-   use mapl3g_StateGetPointerToData, only: MAPL_StateGetPointer => StateGetPointerToData
-
+   use mapl3g_StateGet, only: MAPL_StateGet => StateGet
+   use mapl3g_StateSet, only: MAPL_StateSet => StateSet
+   use mapl3g_StateGetPointer, only: MAPL_StateGetPointer => StateGetPointer
    implicit none
-
    private
 
    ! Available to users
+   public :: MAPL_StateGet
+   public :: MAPL_StateSet
    public :: MAPL_StateGetPointer
-
-   ! Used internally by MAPL
-   ! Users shouldn't need these
 
 end module mapl3g_State_API
