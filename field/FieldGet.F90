@@ -11,15 +11,11 @@ module mapl3g_FieldGet
    private
 
    public :: FieldGet
-   public :: FieldSet
 
    interface FieldGet
       procedure field_get
    end interface FieldGet
 
-   interface FieldSet
-      procedure field_set
-   end interface FieldSet
 
 contains
 
@@ -28,7 +24,7 @@ contains
         num_levels, vert_staggerloc, num_vgrid_levels, &
         ungridded_dims, &
         units, standard_name, long_name, &
-        is_connected, &
+        is_active, &
         rc)
 
       type(ESMF_Field), intent(in) :: field
@@ -42,7 +38,7 @@ contains
       character(len=:), optional, allocatable, intent(out) :: units
       character(len=:), optional, allocatable, intent(out) :: standard_name
       character(len=:), optional, allocatable, intent(out) :: long_name
-      logical, optional, intent(out) :: is_connected
+      logical, optional, intent(out) :: is_active
 
       integer, optional, intent(out) :: rc
 
@@ -66,45 +62,12 @@ contains
            num_vgrid_levels=num_vgrid_levels, &
            ungridded_dims=ungridded_dims, &
            units=units, standard_name=standard_name, long_name=long_name, &
-           is_connected=is_connected, &
+           is_active=is_active, &
            _RC)
 
       _RETURN(_SUCCESS)
    end subroutine field_get
       
-
-   subroutine field_set(field, num_levels, vert_staggerloc, &
-        ungridded_dims, &
-        units, &
-        is_connected, &
-        rc)
-
-      type(ESMF_Field), intent(inout) :: field
-      integer, optional, intent(in) :: num_levels
-      type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
-      type(UngriddedDims), optional, intent(in) :: ungridded_dims
-      character(len=*), optional, intent(in) :: units
-      logical, optional, intent(in) :: is_connected
-
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ESMF_Info) :: field_info
-
-      call ESMF_InfoGetFromHost(field, field_info, _RC)
-
-      call MAPL_FieldInfoSetInternal(field_info, &
-           num_levels=num_levels, &
-           vert_staggerloc=vert_staggerloc, &
-           ungridded_dims=ungridded_dims, &
-           units=units, &
-           is_connected=is_connected, &
-           _RC)
-      
-
-      _RETURN(_SUCCESS)
-   end subroutine field_set
-
 
 end module mapl3g_FieldGet
         

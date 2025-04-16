@@ -23,7 +23,7 @@ contains
         num_levels, vert_staggerloc, num_vgrid_levels, &
         ungridded_dims, &
         units, standard_name, long_name, &
-        is_connected, &
+        is_active, &
         rc)
 
       type(ESMF_State), intent(inout) :: state
@@ -37,7 +37,7 @@ contains
       character(len=:), optional, allocatable, intent(out) :: units
       character(len=:), optional, allocatable, intent(out) :: standard_name
       character(len=:), optional, allocatable, intent(out) :: long_name
-      logical, optional, intent(out) :: is_connected
+      logical, optional, intent(out) :: is_active
       integer, optional, intenT(out) :: rc
 
       type(ESMF_Field) :: field
@@ -49,7 +49,7 @@ contains
            vert_staggerloc=vert_staggerloc, &
            ungridded_dims=ungridded_dims, &
            units=units, &
-           is_connected=is_connected, &
+           is_active=is_active, &
            _RC)
 
       _RETURN(_SUCCESS)

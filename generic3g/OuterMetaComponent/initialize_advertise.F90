@@ -77,17 +77,17 @@ contains
       
       if (this%component_spec%activate_all_exports) then
          if (var_spec%state_intent == ESMF_STATEINTENT_EXPORT) then
-            call item_spec%set_active()
+            call item_spec%activate(_RC)
          end if
       end if
       if (this%component_spec%activate_all_imports) then
          if (var_spec%state_intent == ESMF_STATEINTENT_IMPORT) then
-            call item_spec%set_active()
+            call item_spec%activate(_RC)
          end if
       end if
       
       if (var_spec%state_intent == ESMF_STATEINTENT_INTERNAL) then
-         call item_spec%set_active()
+         call item_spec%activate(_RC)
       end if
    
       virtual_pt = var_spec%make_virtualPt()

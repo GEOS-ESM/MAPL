@@ -3,7 +3,7 @@
 module mapl3g_TimeInterpolateTransform
    use mapl3g_ExtensionTransform
    use mapl3g_regridder_mgr
-   use mapl3g_FieldBundleGet
+   use mapl3g_FieldBundle_API
    use mapl3g_InfoUtilities
    use MAPL_FieldUtils
    use MAPL_Constants, only: MAPL_UNDEFINED_REAL

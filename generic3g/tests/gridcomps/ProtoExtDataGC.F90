@@ -90,7 +90,7 @@ contains
                collection_registry => registry%get_subregistry(s_pt, _RC)
                extensions = collection_registry%get_extensions(export_v_pt, _RC)
                export_spec => extensions(1)%ptr%get_spec()
-               call export_spec%set_active()
+               call export_spec%activate(_RC)
                  
             end do
 
