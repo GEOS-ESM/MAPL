@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 module mapl3g_SharedIO
    use mapl_ErrorHandlingMod
-   use mapl3g_FieldBundleGet
+   use mapl3g_FieldBundle_API
    use mapl3g_Field_API
    use mapl3g_VerticalStaggerLoc
    use pfio

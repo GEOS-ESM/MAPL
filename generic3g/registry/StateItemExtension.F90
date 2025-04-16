@@ -132,7 +132,7 @@ contains
       class(StateItemAspect), pointer :: src_aspect, dst_aspect
       type(AspectMap), pointer :: other_aspects
 
-      call this%spec%set_active()
+      call this%spec%activate(_RC)
 
       new_spec = this%spec
 
@@ -158,7 +158,7 @@ contains
 
       if (allocated(transform)) then
          call new_spec%create(_RC)
-         call new_spec%set_active()
+         call new_spec%activate(_RC)
          source => this%get_producer()
          coupler_gridcomp = make_coupler(transform, source, _RC)
          producer => this%add_consumer(GriddedComponentDriver(coupler_gridcomp))

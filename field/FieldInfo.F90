@@ -44,7 +44,7 @@ module mapl3g_FieldInfo
    character(*), parameter :: KEY_NUM_LEVELS = "/num_levels"
    character(*), parameter :: KEY_VERT_STAGGERLOC = "/vert_staggerloc"
    character(*), parameter :: KEY_UNGRIDDED_DIMS = "/ungridded_dims"
-   character(*), parameter :: KEY_IS_CONNECTED = "/is_connected"
+   character(*), parameter :: KEY_IS_ACTIVE = "/is_active"
 
    character(*), parameter :: KEY_UNDEF_VALUE = "/undef_value"
    character(*), parameter :: KEY_MISSING_VALUE = "/missing_value"
@@ -57,7 +57,7 @@ contains
         num_levels, vert_staggerloc, &
         ungridded_dims, &
         units, long_name, standard_name, &
-        is_connected, &
+        is_active, &
         rc)
 
       type(ESMF_Info), intent(inout) :: info
@@ -69,7 +69,7 @@ contains
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: long_name
       character(*), optional, intent(in) :: standard_name
-      logical, optional, intent(in) :: is_connected
+      logical, optional, intent(in) :: is_active
       integer, optional, intent(out) :: rc
       
       integer :: status
@@ -124,8 +124,8 @@ contains
 
       end if
 
-      if (present(is_connected)) then
-         call MAPL_InfoSet(info, namespace_ // KEY_IS_CONNECTED, is_connected, _RC)
+      if (present(is_active)) then
+         call MAPL_InfoSet(info, namespace_ // KEY_IS_ACTIVE, is_active, _RC)
       end if
 
       _RETURN(_SUCCESS)
@@ -137,7 +137,7 @@ contains
         num_levels, vert_staggerloc, num_vgrid_levels, &
         units, long_name, standard_name, &
         ungridded_dims, &
-        is_connected, &
+        is_active, &
         rc)
 
       type(ESMF_Info), intent(in) :: info
@@ -150,7 +150,7 @@ contains
       character(:), optional, allocatable, intent(out) :: long_name
       character(:), optional, allocatable, intent(out) :: standard_name
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
-      logical, optional, intent(out) :: is_connected
+      logical, optional, intent(out) :: is_active
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -209,8 +209,8 @@ contains
          call MAPL_InfoGet(info, namespace_ // KEY_STANDARD_NAME, standard_name, _RC)
       end if
 
-      if (present(is_connected)) then
-         call MAPL_InfoGet(info, namespace_ // KEY_IS_CONNECTED, is_connected, _RC)
+      if (present(is_active)) then
+         call MAPL_InfoGet(info, namespace_ // KEY_IS_ACTIVE, is_active, _RC)
       end if
 
       _RETURN(_SUCCESS)

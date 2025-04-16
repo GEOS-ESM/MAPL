@@ -5,6 +5,7 @@
 #include "MAPL_Exceptions.h"
 module mapl3g_FieldBundleDelta
    use mapl3g_FieldBundleGet
+   use mapl3g_FieldBundleSet
    use mapl3g_FieldBundleType_Flag
    use mapl3g_LU_Bound
    use mapl3g_FieldDelta
@@ -100,8 +101,8 @@ contains
          integer :: status
          real(ESMF_KIND_R4), allocatable :: weights_a(:), weights_b(:)
 
-         call MAPL_FieldBundleGet(bundle_a, interpolation_weights=weights_a, _RC)
-         call MAPL_FieldBundleGet(bundle_b, interpolation_weights=weights_b, _RC)
+         call FieldBundleGet(bundle_a, interpolation_weights=weights_a, _RC)
+         call FieldBundleGet(bundle_b, interpolation_weights=weights_b, _RC)
 
          if (any(weights_a /= weights_b)) then
             interpolation_weights = weights_b
@@ -122,9 +123,9 @@ contains
          type(ESMF_Field), allocatable :: fieldList_a(:), fieldList_b(:)
          type(FieldBundleType_Flag) :: fieldBundleType_a, fieldBundleType_b
 
-         call MAPL_FieldBundleGet(bundle_a, &
+         call FieldBundleGet(bundle_a, &
               fieldCount=fieldCount_a, fieldBundleType=fieldBundleType_a, fieldList=fieldList_a, _RC)
-         call MAPL_FieldBundleGet(bundle_b, &
+         call FieldBundleGet(bundle_b, &
               fieldCount=fieldCount_b, fieldBundleType=fieldBundleType_b, fieldList=fieldList_b, _RC)
          
          _ASSERT(fieldBundleType_a == FIELDBUNDLETYPE_BRACKET, 'incorrect type of FieldBundle')
@@ -166,7 +167,7 @@ contains
       if (present(ignore)) ignore_ = ignore
 
       call this%reallocate_bundle(bundle, ignore=ignore_, _RC)
-      call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
+      call FieldBundleGet(bundle, fieldList=fieldList, _RC)
       call this%field_delta%update_fields(fieldList, ignore=ignore_, _RC)
 
       ! unique attribute in bundle
@@ -187,7 +188,7 @@ contains
          _RETURN_UNLESS(present(interpolation_weights))
          _RETURN_IF(ignore == 'interpolation_weights')
 
-         call MAPL_FieldBundleSet(bundle, interpolation_weights=interpolation_weights, _RC)
+         call FieldBundleSet(bundle, interpolation_weights=interpolation_weights, _RC)
 
          _RETURN(_SUCCESS)
       end subroutine update_interpolation_weights
@@ -222,7 +223,7 @@ contains
       type(UngriddedDims) :: ungridded_dims
 
       ! Easy case 1: field count unchanged
-      call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
+      call FieldBundleGet(bundle, fieldList=fieldList, _RC)
       _RETURN_UNLESS(allocated(this%interpolation_weights))
       ! The number of weights is always one larger than the number of fields to support a constant
       ! offset.  ("Weights" is a funny term in that case.)
@@ -242,7 +243,7 @@ contains
       allocate(fieldList(new_field_count))
 
       ! Need geom, typekind, and bounds to allocate fields before 
-      call MAPL_FieldBundleGet(bundle, geom=bundle_geom, &
+      call FieldBundleGet(bundle, geom=bundle_geom, &
            typekind=typekind, &
            ungridded_dims=ungridded_dims, &
            units=units, &
@@ -253,7 +254,7 @@ contains
       if (vert_staggerloc /= VERTICAL_STAGGER_NONE) then
          ! Allocate num_levels so that it is PRESENT() int FieldEmptyComplete() below.
          allocate(num_levels)
-         call MAPL_FieldBundleGet(bundle, num_levels=num_levels, _RC)
+         call FieldBundleGet(bundle, num_levels=num_levels, _RC)
       end if
 
       do i = 1, new_field_count

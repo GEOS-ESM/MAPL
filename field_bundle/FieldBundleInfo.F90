@@ -34,6 +34,7 @@ contains
         typekind, interpolation_weights, &
         ungridded_dims, num_levels, vert_staggerloc, num_vgrid_levels, &
         units, long_name, standard_name, &
+        is_active, &
         rc)
 
       type(ESMF_Info), intent(in) :: info
@@ -49,6 +50,7 @@ contains
       character(:), optional, allocatable, intent(out) :: units
       character(:), optional, allocatable, intent(out) :: long_name
       character(:), optional, allocatable, intent(out) :: standard_name
+      logical, optional, intent(out) :: is_active
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -80,7 +82,7 @@ contains
       call MAPL_FieldInfoGetInternal(info, namespace = namespace_//KEY_FIELD_PROTOTYPE, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, num_vgrid_levels=num_vgrid_levels, &
-           units=units, long_name=long_name, standard_name=standard_name, _RC)
+           units=units, long_name=long_name, standard_name=standard_name, is_active=is_active, _RC)
 
 
       _RETURN(_SUCCESS)
@@ -111,6 +113,7 @@ contains
         ungridded_dims, &
         num_levels, vert_staggerloc, &
         units, standard_name, long_name, &
+        is_active, &
         rc)
 
       type(ESMF_Info), intent(inout) :: info
@@ -126,6 +129,7 @@ contains
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
+      logical, optional, intent(in) :: is_active
       integer, optional, intent(out) :: rc
       
       integer :: status
@@ -155,7 +159,8 @@ contains
        call MAPL_FieldInfoSetInternal(info, namespace=namespace_ // KEY_FIELD_PROTOTYPE, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
-           units=units, long_name=long_name, standard_name=standard_name, _RC)
+           units=units, long_name=long_name, standard_name=standard_name, &
+           is_active=is_active, _RC)
 
       _RETURN(_SUCCESS)
 

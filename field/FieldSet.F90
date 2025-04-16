@@ -24,7 +24,7 @@ contains
         vert_staggerloc, &
         ungridded_dims, &
         units, &
-        is_connected, &
+        is_active, &
         rc)
 
 
@@ -33,7 +33,7 @@ contains
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       character(len=*), optional, intent(in) :: units
-      logical, optional, intent(in) :: is_connected
+      logical, optional, intent(in) :: is_active
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -46,7 +46,7 @@ contains
            vert_staggerloc=vert_staggerloc, &
            ungridded_dims=ungridded_dims, &
            units=units, &
-           is_connected=is_connected, &
+           is_active=is_active, &
            _RC)
 
       _RETURN(_SUCCESS)

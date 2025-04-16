@@ -822,7 +822,7 @@ contains
          coupler_states = producer%get_states()
          a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='import', short_name='import[1]'))
          last_spec => closest_extension%get_spec()
-         call last_spec%set_active()
+         call last_spec%activate(_RC)
          call last_spec%add_to_state(coupler_states, a_pt, _RC)
          a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='export', short_name='export[1]'))
          new_spec => new_extension%get_spec()
