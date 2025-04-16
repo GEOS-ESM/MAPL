@@ -4,12 +4,19 @@ import sys
 import os
 import csv
 from collections import namedtuple
-from collections.abc import Callable
+from collections.abc import Callable, Collection
 import operator
 from functools import partial, reduce
-from graphlib import TopologicalSorter
-from enum import IntFlag
-from dataclasses import dataclass
+from typing import TypeAlias, Any
+
+SimpleType: TypeAlias = int | float | str | bool
+# wdb Use frozenset instead of set?
+StrDict: TypeAlias = dict[str, Any]
+StrStrDict: TypeAlias = dict[str, str]
+OptionValue: TypeAlias = SimpleType | Collection
+OptionKey: TypeAlias = str
+Option: TypeAlias = dict[OptionKey, OptionValue]
+OptionType: TypeAlias = str
 
 ################################# CONSTANTS ####################################
 SUCCESS = 0
@@ -21,10 +28,12 @@ TERMINATOR = '_RC)'
 ALIAS = 'alias'
 ALLOC = 'alloc'
 ARRAY = 'array'
+ARGDICT = 'argdict' 
 AS = 'as'
 CALCULATION = 'calculation'
 CONDITION = 'condition'
 CONTROL = 'control'
+CONTROLS = 'controls'
 DIMS = 'dims'
 FLAGS = 'flags'
 FROM = 'from'
@@ -38,24 +47,37 @@ MANDATORY = 'mandatory'
 MANGLED = 'mangled'
 MANGLED_NAME = 'mangled_name'
 MANGLED_STANDARD_NAME = 'mangled_standard_name'
+MAPPED = 'mapped' 
 MAPPING = 'mapping'
+OPTION = 'option'
+OPTION_TYPE = 'option_type'
 OUTPUT = 'output'
 PARAMETERIZED = 'parameterized'
 PRECISION = 'precision'
 RANK = 'rank'
+REAL_NAME = 'real_name'
 SHORT_NAME = 'short_name'
+SPEC_ALIASES = 'spec_aliases'
+SPECIFICATIONS = 'specifications'
 STANDARD_NAME = 'standard_name'
 STATE = 'state'
 STRING = 'string'
 STORE = 'store'
 STRINGVECTOR = 'string_vector'
 UNGRIDDED_DIMS = 'ungridded_dims'
+UNIT = ()
 VSTAGGER = 'vstagger'
 FLAG_NAMES = [MANDATORY, STORE, CONTROL]
-NONPRINTABLE = {STORE, CONTROL}
 STANDARD_NAME_MANGLE = 'mangle_standard'
 RANK_MAPPING = 'rank_mapping'
 MAKE_IF_BLOCK = 'make_if_block'
+OPTIONS_NOT_FOUND = 'options_not_found'
+VALUES_NOT_FOUND = 'values_not_found'
+DEALIASED = 'dealiased'
+SPEC = 'spec'
+STATES = 'import export internal'.split()
+STATEINTENT_LOOKUP = dict((state, f"{INTENT_PREFIX}{state.upper()}") for state in STATES)
+STATEINTENTS = STATEINTENT_LOOKUP.values()
 
 # command-line option constants
 LONGNAME_GLOB_PREFIX = "longname_glob_prefix" # Should add alias for cmd option wdb
@@ -75,158 +97,107 @@ FALSE_VALUES = {'f', 'false', 'no', 'n', 'no', 'non', 'nao'}
 
 
 ##################################### FLAGS ####################################
-def tuple_wrapper(v):
-    match v:
-        case str():
-            return (v,)
-        case set() | list():
-            return tuple(v)
-        case tuple():
-            return v
-        case None:
-            return tuple()
-
-OptionAttribute = IntFlag('OptionAttribute', FLAG_NAMES + 'VALUE SPEC COLUMN_ALIAS'.split())
-def get_option_type(o):
+def get_set(o):
     match o:
+        case set() as s:
+            return s
         case str():
-            return OptionAttribute.COLUMN_ALIAS
-        case dict():
-            if FROM in o:
-                return OptionAttribute.VALUE
-            return OptionAttribute.SPEC
+            return {o}
+        case None:
+            return set()
         case _:
-            return None
+            return set(o)
 
-def get_flags(o):
-    flags = set()
-    if FROM in o:
-        for f in o[FROM]:
-            try:
-                a = OptionAttribute[f]
-            except KeyError as ke:
-                print(ke)
-            else:
-                flags.add(a)
-    return flags
-            
-set_wrap = lambda v: {v} if isinstance(v, str) else set(v)
-check_flags = lambda o, flags: not set_wrap(flags).isdisjoint(FLAGS) if o else None
-is_mandatory = lambda o: check_flags(o, MANDATORY) if FLAGS in o else False
-is_printable = lambda o: not check_flags(o, NONPRINTABLE) if FLAGS in o else True
+def has_flags(has_all, flags, option):
+    oflags = get_set(option[FROM])
+    cflags = get_set(flags)
+    return cflags.issubset(oflags) if has_all else not cflags.isdisjoint(oflags)
+
+is_mandatory = lambda o: has_flags(has_all=True, flags=MANDATORY, option=o)
+is_printable = lambda o: not has_flags(has_all=False, flags={STORE, CONTROL}, option=o)
 
 #################################### OPTIONS ###################################
 # dict for the possible options in a spec
-@dataclass(frozen=True)
-class FrozenKey:
-   get_string: str
+# options: dict[str, dict[str, str | dict[str, str | set[str] | tuple[str]]]]
+def get_options(args):
+    return { #yaml map
+        SPECIFICATIONS: { #yaml map
+            DIMS: {FLAGS: {MANDATORY}, MAPPING: { #yaml map[string|sequence|map]
+                'z': "'z'",
+                'xy': "'xy'",
+                'xyz': "'xyz'",
+                'MAPL_DimsVertOnly': "'z'",
+                'MAPL_DimsHorzOnly': "'xy'",
+                'MAPL_DimsHorzVert': "'xyz'"}},
+            INTENT: {FLAGS: {MANDATORY}, MAPPING: STATEINTENT_LOOKUP},
+            SHORT_NAME: {MAPPING: MANGLED, FLAGS: {MANDATORY}}, #yaml map[string|sequence]
+            STANDARD_NAME: {FLAGS: (MANDATORY, STORE)}, #yaml map[sequence]
+            PRECISION: {}, #map (empty)
+            UNGRIDDED_DIMS: {MAPPING: ARRAY}, #yaml map[string]
+            VSTAGGER: {MAPPING: { #yaml map[map]
+                 'C': 'VERTICAL_STAGGER_CENTER',
+                 'E': 'VERTICAL_STAGGER_EDGE',
+                 'N': 'VERTICAL_STAGGER_NONE'}},
+            ALIAS: {FLAGS: {STORE}}, #yaml map (empty)
+            ALLOC: {FLAGS: {STORE}}, #yaml map (empty)
+            'attributes' : {MAPPING: STRINGVECTOR}, #yaml map
+            CONDITION: {FLAGS: {STORE}}, #yaml map (empty)
+            'dependencies': {MAPPING: STRINGVECTOR}, #yaml map
+            'itemtype': {}, #yaml map (empty)
+            'orientation': {}, #yaml map (empty)
+            'regrid_method': {}, #yaml map (empty)
+            'typekind': {MAPPING: { #yaml map[map] 
+                'R4': 'ESMF_Typekind_R4',
+                'R8': 'ESMF_Typekind_R8',
+                'I4': 'ESMF_Typekind_I4',
+                'I8': 'ESMF_Typekind_I8'}},
+            'units': {MAPPING: STRING}, #yaml map
+            'vector_pair': {MAPPING: STRING} #yaml map
+            },
+        SPEC_ALIASES: { #yaml map
+            'ungrid': UNGRIDDED_DIMS,
+            'ungridded': UNGRIDDED_DIMS,
+            'cond': CONDITION,
+            'long name': STANDARD_NAME,
+            'long_name': STANDARD_NAME,
+            'name': SHORT_NAME,
+            'prec': PRECISION,
+            'vloc': VSTAGGER,
+            'vlocation': VSTAGGER
+            }, 
+        CONTROLS: {IF_BLOCK: {MAPPING: MAKE_IF_BLOCK, FLAGS: {CONTROL}, FROM: CONDITION}}, #yaml map[string|sequence]
+        ARGDICT: vars(args), #not yaml
+        MAPPED: { #yaml map
+            MANGLED_STANDARD_NAME: {MAPPING: STANDARD_NAME_MANGLE, FROM: (STANDARD_NAME, LONGNAME_GLOB_PREFIX), AS: STANDARD_NAME}, #yaml map[string|sequence]
+            MANGLED_NAME: {MAPPING: MANGLED, FROM: SHORT_NAME, FLAGS: {STORE}}, #yaml map[string,sequence]
+            INTERNAL_NAME: {MAPPING: INTERNAL_NAME, FROM: (SHORT_NAME, ALIAS), FLAGS: {STORE}}, #yaml map[string|sequence]
+            RANK: {MAPPING: RANK_MAPPING, FLAGS: {STORE}, FROM: (DIMS, UNGRIDDED_DIMS)}, #yaml map[string|sequence]
+            STATE: {MAPPING: STATE, FROM: INTENT} #yaml map
+            }
+        }
 
-    @staticmethod
-    def make_frozen_keys(*keys):
-        return tuple(FrozenKey(key) in keys)
+def get_option_index_function(options):
+    if options is None:
+        return NOTHING
 
-    @staticmethod
-    def get_strings(*fks):
-        return tuple(fk.get_string for fk in fks)
+    k = SPEC_ALIASES
+    aliases = lambda t: t != k
+    extend_list = lambda a, c: a.extend(c)
+    make_entries = lambda ot, tos: [(name, ot, opt) for (name, ot) in tos.items()]
+    index = dict(reduce(extend_list, [make_entries(ot, options[ot]) for ot in options if not aliases(ot)], []))
+    alias_index = dict(reduce(extend_list, make_entries(k, options[k]), []))
+    index = index | alias_index    
 
-OPTIONS = {    
-# MANDATORY
-    DIMS: {FLAGS: {MANDATORY}, MAPPING: {
-        'z': "'z'",
-        'xy': "'xy'",
-        'xyz': "'xyz'",
-        'MAPL_DimsVertOnly': "'z'",
-        'MAPL_DimsHorzOnly': "'xy'",
-        'MAPL_DimsHorzVert': "'xyz'"
-    }},
-    INTENT: {FLAGS: {MANDATORY}, MAPPING: {
-        'import': f'{INTENT_PREFIX}IMPORT',
-        'export': f'{INTENT_PREFIX}EXPORT',
-        'internal': f'{INTENT_PREFIX}INTERNAL'
-    }},
-    SHORT_NAME: {MAPPING: MANGLED, FLAGS: {MANDATORY}},
-           #    STANDARD_NAME: {MAPPING: STANDARD_NAME_MANGLE, FROM: (STANDARD_NAME, LONGNAME_GLOB_PREFIX), FLAGS: MANDATORY},
-    STANDARD_NAME: {FLAGS: (MANDATORY, STORE)},
-# OPTIONAL
-    PRECISION: {MAPPING: IDENTITY},
-    UNGRIDDED_DIMS: {MAPPING: ARRAY},
-    VSTAGGER: {MAPPING: {
-         'C': 'VERTICAL_STAGGER_CENTER',
-         'E': 'VERTICAL_STAGGER_EDGE',
-         'N': 'VERTICAL_STAGGER_NONE',
-    }},
-    'attributes' : {MAPPING: STRINGVECTOR},
-    'dependencies': {MAPPING: STRINGVECTOR},
-    'itemtype': {MAPPING: IDENTITY},
-    'orientation': {MAPPING: IDENTITY},
-    'regrid_method': {MAPPING: IDENTITY},
-    'typekind': {MAPPING: {
-        'R4': 'ESMF_Typekind_R4',
-        'R8': 'ESMF_Typekind_R8',
-        'I4': 'ESMF_Typekind_I4',
-        'I8': 'ESMF_Typekind_I8'
-    }},
-    'units': {MAPPING: STRING},
-    'vector_pair': {MAPPING: STRING},
-# aliases
-    'ungrid': UNGRIDDED_DIMS,
-    'ungridded': UNGRIDDED_DIMS,
-    'cond': CONDITION,
-    'long name': STANDARD_NAME,
-    'long_name': STANDARD_NAME,
-    'name': SHORT_NAME,
-    'prec': PRECISION,
-    'vloc': VSTAGGER,
-    'vlocation': VSTAGGER,
-# these are options that are not output but used to write 
-# from specs
-    ALIAS: {MAPPING: IDENTITY, FLAGS: {STORE}},
-    CONDITION: {MAPPING: MAKE_IF_BLOCK, FLAGS: {CONTROL}},
-    ALLOC: {FLAGS: {STORE}},
-# from options
-    MANGLED_STANDARD_NAME: {MAPPING: STANDARD_NAME_MANGLE, FROM: (STANDARD_NAME, LONGNAME_GLOB_PREFIX), AS: STANDARD_NAME},
-    MANGLED_NAME: {MAPPING: MANGLED, FROM: SHORT_NAME, FLAGS: {STORE}},
-    INTERNAL_NAME: {MAPPING: INTERNAL_NAME, FROM: (SHORT_NAME, ALIAS), FLAGS: {STORE}},
-    RANK: {MAPPING: RANK_MAPPING, FLAGS: {STORE}, FROM: (DIMS, UNGRIDDED_DIMS)},
-    STATE: {MAPPING: STATE, FROM: INTENT}
-}
+    return lambda name: index[name] if name in index else NOTHING
 
-def get_option_key_order(options):
-    nonalias_options = [(k, v) for (k, v) in options if isinstance(v, dict)]
-    keys = [k for (k, _) in nonalias_options]
-    ordered_keys = []
-    dependent = lambda o: 
-    dependent = lambda o: (if FROM in o else False) if isinstance(o, dict) else False 
-    dependent_options = set([(k, v) for (k, v) in nonalias_options if FROM in v])
-    ordered_keys = [k for (k, v) in (nonalias_options - dependent_options)]
-    ordered_keys = ordered_keys + [k for (k, v) in dependent_options if (all(v[FROM] in ordered_keys) if isinst     ]
-
-def get_ordered_option_keys(options):
-    dependencies = []
-    for key, option in options.items():
-        fkeys = ()
-        match option:
-            case str():
-                continue
-            case {'from': keys}:
-                match keys:
-                    case str() as k:
-                        fkeys = FrozenKey.make_frozen_keys((k,))
-                    case tuple():
-                        fkeys = FrozenKey.make_frozen_keys(*keys)
-        dependencies.append(FrozenKey(key), fkeys)
-    graph = dict(dependencies)
-    ts = TopologicalSorter(graph)
-
-    try:
-        fkeys = ts.static_order()
-    except CycleError() as ex:
-        fkeys = None
-        print('Options have a circular dependency: ', ex)
-        raise ex
-    return list(FrozenKey.get_strings(fkeys))
-
-is_alias = lambda o: isinstance(o, str)
+def get_option_keys(options, *option_types):
+    if option_types:
+        keys = {}
+        for type_ in option_types:
+            keys.update((k, type_) for k in type_)
+        return keys
+    else:
+        return get_option_keys(options, *options)
 
 def newline(indent=0):
     return f'{NL}{" "*indent}'
@@ -417,198 +388,87 @@ def read_specs(specs_filename):
 
     return specs
 
+def flatten(dlist):
+    flat = []
+    for sublist in dlist.values():
+        flat.extend(sublist)
+    return flat
+
 # NEW DIGEST
-def get_option(name, options, level=1):
-    match options.get(name):
-        case str() as real_name if level > 0:
-            r = get_option(real_name, options, level-1)
-        case dict() as d:
-            r = (name, d)
-        case _:
-            raise RuntimeException(f"Unable to find '{name}' in options")
-    return r
-        
-def dict_mapping(d):
-    def mapping(v):
-        if v in d:
-            return d[v]
-        if v in d.values():
-            return v
-        return None
-    return mapping
-
-def get_mapping(option, mappings):
-    match option.get(MAPPING, IDENTITY):
-        case str() as name:
-            mapping = mappings.get(name)
-        case Callable() as f:
-            mapping = f
-        case dict() as d:
-            mapping = dict_mapping(d)
-    if mapping is None:
-        raise RuntimeError('Unable to get mapping')
-    return mapping
-
-def dealias(options, name, level=1):
-    match options.get(name):
-        case str() as real_name if level > 0:
-            return dealias(options, real_name, level-1)
-        case dict():
-            return name
-        case _:
-            return None
-
-def option_as(option, name):
+def get_from_values(option, values, argdict):
+    get_from_value = lambda k: values.get(k, argdict.get(k))
     match option:
-        case {'as': as_name}:
-            return as_name
-        case dict():
-            return name
-
-def get_from_values(option, values):
-    match option:
-        case str() as s:
-            raise RuntimeError(f'Option is an alias: {s}')
         case dict() as d:
             from_keys = d.get(FROM)
-            val = None
             match from_keys:
                 case str() as from_key:
-                    val = (values.get(from_key),)
+                    value = get_from_value(from_key)
+                    return (value,)
                 case tuple():
-                    val = tuple(values.get(from_key) for from_key in from_keys)
-            if val:
-                return val
-            raise RuntimeError('Unable to find value to map')
+                    return tuple(get_from_value(from_key) for from_key in from_keys)
         case _:
             raise RuntimeError('Option is not a supported type')
 
-def digest_spec(spec, options, keys, mappings, argdict):
-    #get_as_name = partial(option, options)
-    #get_name = partial(dealias, options)
-#    spec_keys_found = [name for name in (get_name(key) for key in spec) if name]
-#    spec_process_list = [(name, get_mapping(options[name]), spec[name]) for name in spec_keys_found]
-#    spec_keys_not_found = set(spec.keys()).difference(spec_keys_found)
-#    options_to_process = [(name, options[name]) for name in filter(lambda key: key not in spec_keys_found, keys)]
-#    options_process_list = [(get_name, get_mapping(option), get_from_keys(option)) for (name, option) in
-#         filter(lambda key: key not in spec_keys_found, keys) if name]
-#    processed_spec = dict([(name, mapping(value)) for (name, mapping, value) in spec_process_list])
-#    values = argdict | processed_spec
-
-
-    values_found = list(argdict.keys())
-    spec_keys_not_found = []
-    spec_process_list = []
-    options_process_list = []
-    processed_spec = {}
-    processed_options = {}
-
-    for key in spec:
-        name = dealias(options, key)
-        if name is None:
-            spec_keys_not_found.append(key)
+def digest_spec(spec, options):
+    values = {}
+    options_not_found = []
+    spec_options = options[SPECIFICATIONS]
+    for spec_name, spec_value in spec.items():
+        opt = spec_options.get(spec_name)
+        if opt is None:
+            options_not_found.append(spec_name)
             continue
-        spec_process_list.append((name, get_mapping(options[name], mappings), spec[key]))
-        values_found.append(name)
-#    for key, name in values_found:
-#        spec_process_list.append((name, spec[key], options[name]))
-    #spec_keys_not_found = set(spec.keys()).difference(values_found)
-#    processed_spec = dict([(name, mapping(value)) for (name, mapping, value) in spec_process_list])
+        m = get_mapping_function(opt.get(MAPPING))
+        value = m(spec_value)
+        values[spec_name] = value
+    return values, options_not_found
 
-    for (name, mapping, value) in spec_process_list:
-        processed_spec[name] = mapping(value)
-    values = argdict | processed_spec
-
-    for key in keys:
-        if key not in values_found:
-            option = options[key]
-            mapping = get_mapping(option, mappings)
-            from_values = get_from_values(option, values)
-            options_process_list.append((key, mapping, from_values))
-
-    for key, mapping, from_values in options_process_list:
-        processed_options[key] = mapping(*from_values)
-    values = values | processed_options
-
-    return values
+def map_spec_values(values, options):
+    mapped_values = values
+    argdict = options[ARGDICT]
+    values_not_found = []
+    for option_name, option in options[MAPPED].items():
+        from_values = get_from_values(option, mapped_values, argdict)
+        m = get_mapping_function(option.get(MAPPING))
+        mapped_values_value = m(*from_values)
+        mapped_values[option_name] = mapped_values_value
+    return mapped_values, values_not_found
     
-#    processed_options = dict([(name, mapping(*from_values)) for (name, mapping, from_values) in
-#         [  for (name, mapping, from_keys) in options_process_list]
-#            ])
-#    values = values | dict([(name, mapping(*)) for (name, from_values) in [(name,  ) for (name,  )
+def digest_specs(raw_specs: dict[str, StrStrDict], options: dict[OptionType, Option]):
+    specs = flatten(raw_specs)
+    aliases = options[SPEC_ALIASES]
+    values = []
+    specs_not_found = []
+    for spec in dealiased:
+        spec_values, options_not_found = digest_spec(spec, options[SPECIFICATIONS])
+        specs_not_found.append(options_not_found)
+        values.append(spec_values)
+    return values, specs_not_found
 
-def digest(specs, options, keys, mappings, argdict):
-#    is_alias = lambda k: isinstance(options[k], str) if k in options else False
-    #get_name = partial(dealias, options)
-    specvals = list(specs.values())
-    specs = []
-    for spec_list in specvals:
-        for spec in spec_list:
-            specs.append(spec)
-#    specs = list[reduce(lambda a, c: a+c, list(specs.values()), [])]
+def get_values(specs, options):
     all_values = []
-    for spec in specs:
-        values = digest_spec(spec, options, keys, mappings, argdict)
+    results = []
+    aliases = options[SPEC_ALIASES]
+    flat_specs = flatten(specs)
+    for spec in flat_specs:
+        result = {}
+        result[SPEC] = spec
+        dealiased = dict((aliases.get(k, k), v) for k, v in spec.items())
+        result[DEALIASED] = dealiased
+        spec_values, result[OPTIONS_NOT_FOUND] = digest_spec(dealiased, options)
+        values, result[VALUES_NOT_FOUND] = map_spec_values(spec_values, options)
         all_values.append(values)
-    return all_values       
- #       spec_keys_found = []
- #       for key in spec:
- #           name = dealias(options, key)
- #           if name:
- #               spec_keys_found.append(name)
-        #spec_keys_found = [name for name in (get_name(key) for key in spec) if name]
- #       spec_process_list = []
- #       for name in spec_keys_found:
- #           spec_process_list.append((name, spec[name], options[name]))
-#        spec_process_list = [(name, spec[name], options[name]) for name in spec_keys_found]
-#        spec_keys_not_found = set(spec.keys()).difference(spec_keys_found)
-#        options_process_list = []
-#        for key in keys:
-#            if key in spec_keys_found:
-#                continue
-#            options_process_list.append((name, options[name]))
-#        options_process_list = ([(name, options[name]) for name in
-#             filter(lambda key: key not in spec_keys_found, keys)])
-#        values = argdict
+        results.append(result)
+    return all_values, results
 
-
-#    if(isinstance(specs, dict)):
-#        specs = [reduce(lambda a, c: a+c if c else a, list(specs.values()), [])]
-#    dealiased = [] # for comprehension
-#    for spec in specs:
-#        for k in filter(is_alias, list(spec)): # for comprehension
-#            real_name = spec.pop(k)
-#            spec[real_name] = spec[k] 
-#        dealiased.append(spec)
-#    for spec in dealiased:
-#        values = argdict
-#        for name, value in spec.items():
-#            if is_alias(spec):
-#                continue
-#            option = options[name]
-#            mapping = get_mapping(option, mappings)
-#            values[name] = mapping(value)
-#        for name in keys:
-#            if name in values:
-#                continue
-#            name, option = get_option(name, options)
-#            mapping = get_mapping(option, mapping)
-#            match option.get(FROM):
-#                case str() as fk:
-#                    fromkeys = [fk]
-#                case tuple() as fks:
-#                    fromkeys = fks
-#                case list() as fks:
-#                    fromkeys = tuple(fks)
-#                case _:
-#                    raise RuntimeException(f"Unable to find values to map for '{name}'")
-#            values[name] = mapping(*fromkeys)
-#        all_values.append(values)
-#    return all_values
 # END DIGEST SPECS
 
 ################################# EMIT_VALUES ##################################
-def emit_values(specs, args, options):
+def emit_values(specs, all_options, args):
+
+    options = all_options
+    argdict = options[ARGDICT]
+    exit_code_ = ERROR
 
     add_newline = lambda s: f"{s.rstrip()}{NL}"
 
@@ -619,17 +479,15 @@ def emit_values(specs, args, options):
         component = component.replace('_Registry','')
         component = component.replace('_StateSpecs','')
 
-    STATEINTENT_WRITER = options[INTENT][MAPPING]
-
 # open all output files
     f_specs = {}
-    for intent in STATEINTENT_WRITER.keys():
-        option = args.__dict__[intent + "_specs"]
+    for state in STATES:
+        option = args.__dict__[state + "_specs"]
         if option:
             fname = option.format(component=component)
-            f_specs[intent] = open_with_header(fname)
+            f_specs[state] = open_with_header(fname)
         else:
-            f_specs[intent] = None
+            f_specs[state] = None
 
     if args.declare_pointers:
         f_declare_pointers = open_with_header(args.declare_pointers.format(component=component))
@@ -641,14 +499,13 @@ def emit_values(specs, args, options):
         f_get_pointers = None
 
 # Generate code from specs (processed above)
-    for intent in STATEINTENT_WRITER.keys():
-        f = lambda s: s[INTENT] == intent if INTENT in s else False
-        intent_specs = filter(f, specs)
-        if intent_specs:
-            for spec_values in intent_specs:
+    for state in STATES:
+        state_specs = [s for s in specs if s[STATE] == state]
+        if state_specs:
+            for spec_values in state_specs:
                 spec = MAPL_DataSpec(spec_values, options)
-                if f_specs[intent]:
-                    f_specs[intent].write(add_newline(spec.emit_specs()))
+                if f_specs[state]:
+                    f_specs[state].write(add_newline(spec.emit_specs()))
                 if f_declare_pointers:
                     f_declare_pointers.write(add_newline(spec.emit_declare_pointers()))
                 if f_get_pointers:
@@ -662,6 +519,8 @@ def emit_values(specs, args, options):
         f_declare_pointers.close()
     if f_get_pointers:
         f_get_pointers.close()
+
+    return SUCCESS
 
 ############################### HELPER FUNCTIONS ###############################
 none_check = lambda f: lambda v: f(v) if v else None
@@ -730,22 +589,11 @@ def open_with_header(filename):
     f.write(header())
     return f
 
-# callable object (function)
-class ParameterizedWriter:
-
-    def __init__(self, writer, *parameter_keys):
-        self.writer = writer
-        self.parameter_keys = parameter_keys
-        
-    def __call__(self, name, parameters):
-        parameter_values = tuple(parameters.get(key) for key in self.parameter_keys)
-        return self.writer(name, parameter_values)
-
 def get_state(intent):
     if intent is None:
         return None
     if intent.startswith(INTENT_PREFIX):
-        return intent.remove_prefix(INTENT_PREFIX)
+        return intent.removeprefix(INTENT_PREFIX)
 
 def mangle_standard_name(name, prefix):
     if name is None:
@@ -768,48 +616,57 @@ def make_else_block(name=None, indent=0):
     return f'else{NL}{indents}nullify({name}){NL}'
 
 ######################### WRITERS for writing AddSpecs #########################
-MAPPINGS = {
-    STRING: lambda value: add_quotes(value),
-    STRINGVECTOR: lambda value: construct_string_vector(value),
-    ARRAY: lambda value: mk_array(value),
-    MANGLED: lambda name: add_quotes(name.replace("*","'//trim(comp_name)//'")) if name else None,
-    INTERNAL_NAME: lambda name, alias: get_internal_name(name, alias) if name else None,
-#    PARAMETERIZED: ParameterizedWriter(mangle_name_prefix, LONGNAME_GLOB_PREFIX),
-    STATE: get_state,
-    IDENTITY: lambda value: value,
-    STANDARD_NAME_MANGLE: mangle_standard_name,
-    RANK_MAPPING: compute_rank, 
-    MAKE_IF_BLOCK: lambda value: partial(make_if_block, value) if value else None 
-}
+def get_mapping_function(mapping):
+    MAPPINGS = {
+        STRING: lambda value: add_quotes(value),
+        STRINGVECTOR: lambda value: construct_string_vector(value),
+        ARRAY: lambda value: mk_array(value),
+        MANGLED: lambda name: add_quotes(name.replace("*","'//trim(comp_name)//'")) if name else None,
+        INTERNAL_NAME: lambda name, alias: get_internal_name(name, alias) if name else None,
+        STATE: get_state,
+        STANDARD_NAME_MANGLE: mangle_standard_name,
+        RANK_MAPPING: compute_rank, 
+        MAKE_IF_BLOCK: lambda value: partial(make_if_block, value) if value else None 
+    }
+
+    match mapping:
+        case None:
+            return lambda v: v
+        case Callable() as f:
+            return f
+        case dict() as d:
+            return lambda v: d[v] if v in d else (v if v in d.values() else None)
+        case str() as name if mapping in MAPPINGS:
+            return MAPPINGS[name]
+    return NOTHING
 
 # Main Procedure (Added to facilitate testing.)
 def main():
+    exit_code = ERROR
+
 # Process command line arguments
     args = get_args()
-    argdict = vars(args)
+
+# Get options
+    options = get_options(args)
+    if {SPECIFICATIONS, SPEC_ALIASES, CONTROLS, ARGDICT, MAPPED} != set(options.keys()):
+        raise RuntimeError('Some option types are missing.')
 
 # Process blocked CSV input file
     parsed_specs = read_specs(args.input)
 
-# Get ordered option keys.
     try:
-        keys = list(get_ordered_option_keys(OPTIONS))
-    except Exception as ex:
-        print(ex)
-        #sys.exit(ERROR)
-# Digest specs from file to output structure
-    try:
-        values = digest(parsed_specs, OPTIONS, keys, MAPPINGS, argdict)
+        values, results = get_values(parsed_specs, options)
     except Exception as ex:
         print(ex)
         #sys.exit(ERROR)
 
 # Emit values
-    emit_values(values, args, OPTIONS)
+    exit_code = emit_values(values, options, args)
 
-# Successful exit
-    sys.exit(SUCCESS)
+    sys.exit(exit_code)
 
+#################################### UNUSED ####################################
 ###################### RULES to test conditions on Options #####################
 #fixme wdb RULES do not work because of MAPL3 changes. The functionality may be restored in a refactor.
 # relations for rules on Options
@@ -882,8 +739,104 @@ def check_option_values(values):
         rule.check(values)
 ################################### END RULES ################################## 
 
+"""
+OPTIONS = {    
+# MANDATORY
+    DIMS: {FLAGS: {MANDATORY}, MAPPING: {
+        'z': "'z'",
+        'xy': "'xy'",
+        'xyz': "'xyz'",
+        'MAPL_DimsVertOnly': "'z'",
+        'MAPL_DimsHorzOnly': "'xy'",
+        'MAPL_DimsHorzVert': "'xyz'"
+    }},
+    INTENT: {FLAGS: {MANDATORY}, MAPPING: {
+        'import': f'{INTENT_PREFIX}IMPORT',
+        'export': f'{INTENT_PREFIX}EXPORT',
+        'internal': f'{INTENT_PREFIX}INTERNAL'
+    }},
+    SHORT_NAME: {MAPPING: MANGLED, FLAGS: {MANDATORY}},
+           #    STANDARD_NAME: {MAPPING: STANDARD_NAME_MANGLE, FROM: (STANDARD_NAME, LONGNAME_GLOB_PREFIX), FLAGS: MANDATORY},
+    STANDARD_NAME: {FLAGS: (MANDATORY, STORE)},
+# OPTIONAL
+    PRECISION: {MAPPING: IDENTITY},
+    UNGRIDDED_DIMS: {MAPPING: ARRAY},
+    VSTAGGER: {MAPPING: {
+         'C': 'VERTICAL_STAGGER_CENTER',
+         'E': 'VERTICAL_STAGGER_EDGE',
+         'N': 'VERTICAL_STAGGER_NONE',
+    }},
+    'attributes' : {MAPPING: STRINGVECTOR},
+    'dependencies': {MAPPING: STRINGVECTOR},
+    'itemtype': {MAPPING: IDENTITY},
+    'orientation': {MAPPING: IDENTITY},
+    'regrid_method': {MAPPING: IDENTITY},
+    'typekind': {MAPPING: {
+        'R4': 'ESMF_Typekind_R4',
+        'R8': 'ESMF_Typekind_R8',
+        'I4': 'ESMF_Typekind_I4',
+        'I8': 'ESMF_Typekind_I8'
+    }},
+    'units': {MAPPING: STRING},
+    'vector_pair': {MAPPING: STRING},
+# aliases
+    'ungrid': UNGRIDDED_DIMS,
+    'ungridded': UNGRIDDED_DIMS,
+    'cond': CONDITION,
+    'long name': STANDARD_NAME,
+    'long_name': STANDARD_NAME,
+    'name': SHORT_NAME,
+    'prec': PRECISION,
+    'vloc': VSTAGGER,
+    'vlocation': VSTAGGER,
+# these are options that are not output but used to write 
+# from specs
+    ALIAS: {MAPPING: IDENTITY, FLAGS: {STORE}},
+    CONDITION: {MAPPING: MAKE_IF_BLOCK, FLAGS: {CONTROL}},
+    ALLOC: {FLAGS: {STORE}},
+# from options
+    MANGLED_STANDARD_NAME: {MAPPING: STANDARD_NAME_MANGLE, FROM: (STANDARD_NAME, LONGNAME_GLOB_PREFIX), AS: STANDARD_NAME},
+    MANGLED_NAME: {MAPPING: MANGLED, FROM: SHORT_NAME, FLAGS: {STORE}},
+    INTERNAL_NAME: {MAPPING: INTERNAL_NAME, FROM: (SHORT_NAME, ALIAS), FLAGS: {STORE}},
+    RANK: {MAPPING: RANK_MAPPING, FLAGS: {STORE}, FROM: (DIMS, UNGRIDDED_DIMS)},
+    STATE: {MAPPING: STATE, FROM: INTENT}
+}
 
-#################################### UNUSED ####################################
+def get_option_key_order(options):
+    nonalias_options = [(k, v) for (k, v) in options if isinstance(v, dict)]
+    keys = [k for (k, _) in nonalias_options]
+    ordered_keys = []
+    dependent = lambda o: 
+    dependent = lambda o: (if FROM in o else False) if isinstance(o, dict) else False 
+    dependent_options = set([(k, v) for (k, v) in nonalias_options if FROM in v])
+    ordered_keys = [k for (k, v) in (nonalias_options - dependent_options)]
+    ordered_keys = ordered_keys + [k for (k, v) in dependent_options if (all(v[FROM] in ordered_keys) if isinst     ]
+
+def get_ordered_option_keys(options):
+    dependencies = []
+    for key, option in options.items():
+        fkeys = ()
+        match option:
+            case str():
+                continue
+            case {'from': keys}:
+                match keys:
+                    case str() as k:
+                        fkeys = FrozenKey.make_frozen_keys((k,))
+                    case tuple():
+                        fkeys = FrozenKey.make_frozen_keys(*keys)
+        dependencies.append(FrozenKey(key), fkeys)
+    graph = dict(dependencies)
+    ts = TopologicalSorter(graph)
+
+    try:
+        fkeys = ts.static_order()
+    except CycleError() as ex:
+        fkeys = None
+        print('Options have a circular dependency: ', ex)
+        raise ex
+    return list(FrozenKey.get_strings(fkeys))
+"""
 # DIGEST
 """
 def digest_(parsed_specs, args, options):
@@ -1077,6 +1030,71 @@ def xigest(specs_in, options, keys, mappings, global_values):
 
     return all_values
 """
+"""
+def get_option(name, options, level=1):
+    match options.get(name):
+        case str() as real_name if level > 0:
+            r = get_option(real_name, options, level-1)
+        case dict() as d:
+            r = (name, d)
+        case _:
+            raise RuntimeException(f"Unable to find '{name}' in options")
+    return r
+""" 
+ #       spec_keys_found = []
+ #       for key in spec:
+ #           name = dealias(options, key)
+ #           if name:
+ #               spec_keys_found.append(name)
+        #spec_keys_found = [name for name in (get_name(key) for key in spec) if name]
+ #       spec_process_list = []
+ #       for name in spec_keys_found:
+ #           spec_process_list.append((name, spec[name], options[name]))
+#        spec_process_list = [(name, spec[name], options[name]) for name in spec_keys_found]
+#        spec_keys_not_found = set(spec.keys()).difference(spec_keys_found)
+#        options_process_list = []
+#        for key in keys:
+#            if key in spec_keys_found:
+#                continue
+#            options_process_list.append((name, options[name]))
+#        options_process_list = ([(name, options[name]) for name in
+#             filter(lambda key: key not in spec_keys_found, keys)])
+#        values = argdict
+
+
+#    if(isinstance(specs, dict)):
+#        specs = [reduce(lambda a, c: a+c if c else a, list(specs.values()), [])]
+#    dealiased = [] # for comprehension
+#    for spec in specs:
+#        for k in filter(is_alias, list(spec)): # for comprehension
+#            real_name = spec.pop(k)
+#            spec[real_name] = spec[k] 
+#        dealiased.append(spec)
+#    for spec in dealiased:
+#        values = argdict
+#        for name, value in spec.items():
+#            if is_alias(spec):
+#                continue
+#            option = options[name]
+#            mapping = get_mapping(option, mappings)
+#            values[name] = mapping(value)
+#        for name in keys:
+#            if name in values:
+#                continue
+#            name, option = get_option(name, options)
+#            mapping = get_mapping(option, mapping)
+#            match option.get(FROM):
+#                case str() as fk:
+#                    fromkeys = [fk]
+#                case tuple() as fks:
+#                    fromkeys = fks
+#                case list() as fks:
+#                    fromkeys = tuple(fks)
+#                case _:
+#                    raise RuntimeException(f"Unable to find values to map for '{name}'")
+#            values[name] = mapping(*fromkeys)
+#        all_values.append(values)
+#    return all_values
 
 #############################################
 # MAIN program begins here
