@@ -17,7 +17,6 @@ cap:
     num_segments: 1 # segments per batch submission
 
   cap_gc:
-    run_extdata: false
     extdata_name: EXTDATA
     history_name: HIST
     root_name: GCM
@@ -29,9 +28,9 @@ cap:
           dso: libconfigurable_gridcomp.dylib
           setServices: setservices_
           config_file: GCM.yaml
-        #EXTDATA:
-          #dso: libextdata_gc
-          #config_file: extdata.yaml
+        EXTDATA:
+          dso: libMAPL.extdata3g.dylib
+          config_file: extdata.yaml
         HIST:
           dso: libMAPL.history3g.dylib
           config_file: history.yaml
