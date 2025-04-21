@@ -34,6 +34,7 @@ module mapl3g_VerticalRegridTransform
       procedure :: update
       procedure :: write_formatted
       generic :: write(formatted) => write_formatted
+
    end type VerticalRegridTransform
 
    interface VerticalRegridTransform
@@ -83,10 +84,10 @@ contains
       type(ESMF_Clock) :: clock
       integer, optional, intent(out) :: rc
 
-      type(ESMF_StateItem_Flag) :: itemType_in, itemType_out
+      type(ESMF_StateItem_Flag) :: itemtype_in, itemtype_out
       type(ESMF_Field) :: f_in, f_out
       type(ESMF_FieldBundle) :: fb_in, fb_out
-      type(ESMF_Field), allocatable :: fieldList_in(:), fieldList_out(:)
+      type(ESMF_Field), allocatable :: fieldlist_in(:), fieldlist_out(:)
       integer :: status
       integer :: i
 
@@ -100,65 +101,28 @@ contains
 
       call compute_interpolation_matrix_(this%v_in_coord, this%v_out_coord, this%matrix, _RC)
 
-      call ESMF_StateGet(importState, itemName='import[1]', itemType=itemType_in, _RC)
-      call ESMF_StateGet(importState, itemName='import[1]', itemType=itemType_out, _RC)
-      _ASSERT(itemType_out == itemType_in, 'Mismathed item types.')
+      call ESMF_StateGet(importState, itemName="import[1]", itemtype=itemtype_in, _RC)
+      call ESMF_StateGet(exportState, itemName="export[1]", itemtype=itemtype_out, _RC)
+      _ASSERT(itemtype_out == itemtype_in, "Mismathed item types.")
 
-      if (itemType_in == MAPL_STATEITEM_FIELD) then
-         call ESMF_StateGet(importState, itemName='import[1]', field=f_in, _RC)
-         call ESMF_StateGet(exportState, itemName='export[1]', field=f_out, _RC)
-
-         call regrid_field(f_in, f_out, _RC)
-
-      elseif (itemType_in == MAPL_STATEITEM_FIELDBUNDLE) then
-
-         call ESMF_StateGet(importState, itemName='import[1]', fieldBundle=fb_in, _RC)
-         call ESMF_StateGet(exportState, itemName='export[1]', fieldBundle=fb_out, _RC)
-
-         call MAPL_FieldBundleGet(fb_in, fieldList=fieldList_in, _RC)
-         call MAPL_FieldBundleGet(fb_out, fieldList=fieldList_out, _RC)
-
-         do i = 1, size(fieldList_in)
-            call regrid_field(fieldList_in(i), fieldList_out(i), _RC)
+      if (itemtype_in == MAPL_STATEITEM_FIELD) then
+         call ESMF_StateGet(importState, itemName="import[1]", field=f_in, _RC)
+         call ESMF_StateGet(exportState, itemName="export[1]", field=f_out, _RC)
+         call regrid_field_(this%matrix, f_in, f_out, _RC)
+      elseif (itemtype_in == MAPL_STATEITEM_FIELDBUNDLE) then
+         call ESMF_StateGet(importState, itemName="import[1]", fieldBundle=fb_in, _RC)
+         call ESMF_StateGet(exportState, itemName="export[1]", fieldBundle=fb_out, _RC)
+         call MAPL_FieldBundleGet(fb_in, fieldlist=fieldlist_in, _RC)
+         call MAPL_FieldBundleGet(fb_out, fieldlist=fieldlist_out, _RC)
+         do i = 1, size(fieldlist_in)
+            call regrid_field_(this%matrix, fieldlist_in(i), fieldlist_out(i), _RC)
          end do
-
       else
-         _FAIL('Unsupported state item type.')
+         _FAIL("Unsupported state item type.")
       end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(clock)
-
-   contains
-
-      subroutine regrid_field(f_in, f_out, rc)
-         type(ESMF_Field), intent(inout) :: f_in, f_out
-         integer, optional, intent(out) :: rc
-         
-         integer :: status
-         real(ESMF_KIND_R4), pointer :: x_in(:,:,:), x_out(:,:,:)
-         integer :: shape_in(3), shape_out(3), n_horz, n_ungridded
-         integer :: horz, ungrd
-         
-         call assign_fptr_condensed_array(f_in, x_in, _RC)
-         shape_in = shape(x_in)
-         n_horz = shape_in(1)
-         n_ungridded = shape_in(3)
-         
-         call assign_fptr_condensed_array(f_out, x_out, _RC)
-         shape_out = shape(x_out)
-         
-         _ASSERT((shape_in(1) == shape_out(1)), "horz dims are expected to be equal")
-         _ASSERT((shape_in(3) == shape_out(3)), "ungridded dims are expected to be equal")
-         
-         do concurrent (horz=1:n_horz, ungrd=1:n_ungridded)
-            x_out(horz, :, ungrd) = matmul(this%matrix(horz), x_in(horz, :, ungrd))
-         end do
-
-         _RETURN(_SUCCESS)
-      end subroutine regrid_field
-      
-
    end subroutine update
 
    subroutine write_formatted(this, unit, iotype, v_list, iostat, iomsg)
@@ -226,5 +190,30 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine compute_interpolation_matrix_
+
+   subroutine regrid_field_(matrix, f_in, f_out, rc)
+      type(SparseMatrix_sp), allocatable, intent(in) :: matrix(:)
+      type(ESMF_Field), intent(inout) :: f_in, f_out
+      integer, optional, intent(out) :: rc
+
+      real(ESMF_KIND_R4), pointer :: x_in(:,:,:), x_out(:,:,:)
+      integer :: shape_in(3), shape_out(3), n_horz, n_ungridded
+      integer :: horz, ungrd, status
+
+      call assign_fptr_condensed_array(f_in, x_in, _RC)
+      shape_in = shape(x_in)
+      call assign_fptr_condensed_array(f_out, x_out, _RC)
+      shape_out = shape(x_out)
+      _ASSERT((shape_in(1) == shape_out(1)), "horz dims are expected to be equal")
+      _ASSERT((shape_in(3) == shape_out(3)), "ungridded dims are expected to be equal")
+
+      n_horz = shape_in(1)
+      n_ungridded = shape_in(3)
+      do concurrent (horz=1:n_horz, ungrd=1:n_ungridded)
+         x_out(horz, :, ungrd) = matmul(matrix(horz), x_in(horz, :, ungrd))
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine regrid_field_
 
 end module mapl3g_VerticalRegridTransform
