@@ -34,7 +34,6 @@ module mapl3g_VerticalRegridTransform
       procedure :: update
       procedure :: write_formatted
       generic :: write(formatted) => write_formatted
-
    end type VerticalRegridTransform
 
    interface VerticalRegridTransform
