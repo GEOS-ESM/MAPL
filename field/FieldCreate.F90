@@ -36,7 +36,6 @@ contains
         num_levels, vert_staggerloc, &
         units, standard_name, long_name, &
         rc) result(field)
-
       type(ESMF_Field) :: field
       type(ESMF_Geom), intent(in) :: geom
       type(ESMF_TypeKind_Flag), intent(in) :: typekind
@@ -72,7 +71,6 @@ contains
         units, standard_name, &
         long_name, &
         rc)
-
       type(ESMF_Field), intent(inout) :: field
       type(ESMF_TypeKind_Flag), intent(in) :: typekind
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -90,7 +88,6 @@ contains
       type(VerticalStaggerLoc) :: vert_staggerloc_
       integer, allocatable :: grid_to_field_map(:)
       type(ESMF_Geom) :: geom
-      real(kind=ESMF_KIND_R4), allocatable :: farray(:)
       integer :: dim_count, idim, status
 
       if (present(gridToFieldMap)) then
@@ -100,36 +97,27 @@ contains
          call ESMF_GeomGet(geom, dimCount=dim_count, _RC)
          allocate(grid_to_field_map(dim_count), source=[(idim, idim=1,dim_count)])
       end if
-
       bounds = make_bounds(num_levels=num_levels, ungridded_dims=ungridded_dims)
-      if (all(grid_to_field_map == 0)) then
-         _ASSERT(typekind==ESMF_TYPEKIND_R4, "only r4 arrays supported for vert only fields")
-         if (present(ungridded_dims)) then
-            _ASSERT(ungridded_dims%get_num_ungridded() == 0, "ungridded dims not supported for vert only fields")
-         end if
-         allocate(farray(num_levels), source=MAPL_UNDEFINED_REAL)
-         call ESMF_FieldEmptyComplete( &
-              field, &
-              farray=farray, &
-              indexFlag=ESMF_INDEX_DELOCAL, &
-              datacopyFlag=ESMF_DATACOPY_VALUE, &
-              gridToFieldMap=grid_to_field_map, &
-              ungriddedLBound=bounds%lower, &
-              ungriddedUBound=bounds%upper, &
-              _RC)
-      else
-         call ESMF_FieldEmptyComplete(field, typekind=typekind, &
-              gridToFieldMap=gridToFieldMap, &
-              ungriddedLBound=bounds%lower, ungriddedUBound=bounds%upper, _RC)
-      end if
+      call ESMF_FieldEmptyComplete( &
+           field, &
+           typekind=typekind, &
+           gridToFieldMap=grid_to_field_map, &
+           ungriddedLBound=bounds%lower, &
+           ungriddedUBound=bounds%upper, &
+           _RC)
 
       call ESMF_InfoGetFromHost(field, field_info, _RC)
       vert_staggerloc_ = VERTICAL_STAGGER_NONE
       if (present(vert_staggerloc)) vert_staggerloc_ = vert_staggerloc
-      call MAPL_FieldInfoSetInternal(field_info, &
+      call MAPL_FieldInfoSetInternal( &
+           field_info, &
            ungridded_dims=ungridded_dims, &
-           num_levels=num_levels, vert_staggerloc=vert_staggerloc_, &
-           units=units, standard_name=standard_name, long_name=long_name, _RC)
+           num_levels=num_levels, &
+           vert_staggerloc=vert_staggerloc_, &
+           units=units, &
+           standard_name=standard_name, &
+           long_name=long_name, &
+           _RC)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
