@@ -6,6 +6,7 @@ module Test_RegridderManager
    use mapl3g_VerticalStaggerLoc
    use mapl3g_regridder_mgr
    use mapl3g_Geom_API
+   use mapl3g_FieldBundle_API
    use mapl_BaseMod, only: MAPL_UNDEF
    use esmf_TestMethod_mod ! mapl
    use esmf
@@ -291,7 +292,7 @@ contains
       ! North-east field
       f1 = make_field(geom_1, 'u', value=2._ESMF_KIND_R4, _RC)
       f2 = make_field(geom_1, 'v', value=2._ESMF_KIND_R4, _RC)
-      uv1 = ESMF_FieldBundleCreate(name='[u,v]', fieldList=[f1,f2], _RC)
+      uv1 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f1,f2], fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
 
       call ESMF_FieldGet(f1, farrayptr=u1, _RC)
       u1(::4,6) = MAPL_UNDEF ! checkerboard
@@ -301,7 +302,7 @@ contains
       
       f3 = make_field(geom_2, 'u', value=0._ESMF_KIND_R4, _RC)
       f4 = make_field(geom_2, 'v', value=0._ESMF_KIND_R4, _RC)
-      uv2 = ESMF_FieldBundleCreate(name='[u,v]', fieldList=[f3,f4], _RC)
+      uv2 = MAPL_FieldBundleCreate(name='[u,v]', fieldList=[f3,f4], fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
 
       call my_regridder%regrid(uv1, uv2, _RC)
 
@@ -317,5 +318,61 @@ contains
    end subroutine test_regrid_2d_vector
 
 
-end module Test_RegridderManager
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Test that regridder distinguishes flavors of FieldBundle
+   subroutine test_regrid_bracket(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomManager), target :: geom_mgr
+      type(RegridderManager), target :: regridder_mgr
+      type(RegridderSpec) :: spec
+      integer :: status
+      class(Regridder), pointer :: my_regridder
+      type(ESMF_Geom) :: geom_1, geom_2
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_Field) :: f1, f2, f3, f4
+      type(ESMF_Fieldbundle) :: xy1, xy2
+      real(kind=ESMF_KIND_R4), pointer :: x1(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: y1(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: x2(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: y2(:,:)
 
+      type(DynamicMask) :: dyn_mask
+      
+      geom_mgr = GeomManager()
+      regridder_mgr = RegridderManager(geom_mgr)
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
+      geom_1 = make_geom(geom_mgr, hconfig, _RC)
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 6, jm_world: 5, pole: PE, dateline: DE, nx: 1, ny: 1}", _RC)
+      geom_2 = make_geom(geom_mgr, hconfig, _RC) ! variant of geom_1
+
+      dyn_mask = DynamicMask(mask_type='missing_value', src_mask_value=real(MAPL_UNDEF,kind=ESMF_KIND_R8), handleAllElements=.true.,_RC)
+      
+      spec = RegridderSpec(EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_BILINEAR, dyn_mask=dyn_mask), geom_1, geom_2)
+      my_regridder => regridder_mgr%get_regridder(spec, _RC)
+
+      ! North-east field
+      f1 = make_field(geom_1, 'x', value=1._ESMF_KIND_R4, _RC)
+      f2 = make_field(geom_1, 'y', value=10._ESMF_KIND_R4, _RC)
+      xy1 = MAPL_FieldBundleCreate(name='[x,y]', fieldList=[f1,f2], fieldBundleType=FIELDBUNDLETYPE_BRACKET, _RC)
+
+      call ESMF_FieldGet(f1, farrayptr=x1, _RC)
+      call ESMF_FieldGet(f2, farrayptr=y1, _RC)
+      
+      f3 = make_field(geom_2, 'x', value=0._ESMF_KIND_R4, _RC)
+      f4 = make_field(geom_2, 'y', value=0._ESMF_KIND_R4, _RC)
+      xy2 = MAPL_FieldBundleCreate(name='[x,y]', fieldList=[f3,f4], fieldBundleType=FIELDBUNDLETYPE_BRACKET, _RC)
+
+      call my_regridder%regrid(xy1, xy2, _RC)
+
+      call ESMF_FieldGet(f3, farrayptr=x2, _RC)
+      call ESMF_FieldGet(f4, farrayptr=y2, _RC)
+
+      ! If treated as vector, the components would mix.  We check here that they do not.
+      @assert_that(x2, every_item(is(near(1._ESMF_KIND_R4, 1.e-5))))
+      @assert_that(y2, every_item(is(near(10._ESMF_KIND_R4, 1.e-5))))
+
+   end subroutine test_regrid_bracket
+
+end module Test_RegridderManager

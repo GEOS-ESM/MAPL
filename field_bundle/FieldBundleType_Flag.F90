@@ -4,7 +4,9 @@ module mapl3g_FieldBundleType_Flag
 
    public :: FieldBundleType_Flag
    public :: FIELDBUNDLETYPE_BASIC
+   public :: FIELDBUNDLETYPE_VECTOR
    public :: FIELDBUNDLETYPE_BRACKET
+   public :: FIELDBUNDLETYPE_VECTOR_BRACKET
    public :: FIELDBUNDLETYPE_INVALID
 
    public :: operator(==)
@@ -31,7 +33,9 @@ module mapl3g_FieldBundleType_Flag
    end interface operator(/=)
 
    type(FieldBundleType_Flag), parameter :: FIELDBUNDLETYPE_BASIC = FieldBundleType_Flag(1, "FIELDBUNDLETYPE_BASIC")
-   type(FieldBundleType_Flag), parameter :: FIELDBUNDLETYPE_BRACKET = FieldBundleType_Flag(2, "FIELDBUNDLETYPE_BRACKET")
+   type(FieldBundleType_Flag), parameter :: FIELDBUNDLETYPE_VECTOR = FieldBundleType_Flag(2, "FIELDBUNDLETYPE_VECTOR")
+   type(FieldBundleType_Flag), parameter :: FIELDBUNDLETYPE_BRACKET = FieldBundleType_Flag(3, "FIELDBUNDLETYPE_BRACKET")
+   type(FieldBundleType_Flag), parameter :: FIELDBUNDLETYPE_VECTOR_BRACKET = FieldBundleType_Flag(4, "FIELDBUNDLETYPE_VECTOR_BRACKET")
    type(FieldBundleType_Flag), parameter :: FIELDBUNDLETYPE_INVALID = FieldBundleType_Flag(-1, "FIELDBUNDLETYPE_INVALID")
 
 contains
@@ -43,6 +47,8 @@ contains
       select case (name)
       case ("FIELDBUNDLETYPE_BASIC")
          type_flag = FIELDBUNDLETYPE_BASIC
+      case ("FIELDBUNDLETYPE_VECTOR")
+         type_flag = FIELDBUNDLETYPE_VECTOR
       case ("FIELDBUNDLETYPE_BRACKET")
          type_flag = FIELDBUNDLETYPE_BRACKET
       case default

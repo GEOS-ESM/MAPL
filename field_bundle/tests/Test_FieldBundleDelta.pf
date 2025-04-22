@@ -102,7 +102,7 @@ contains
       type(UngriddedDims) :: ungridded_dims
       type(VerticalStaggerLoc) :: vert_staggerloc
 
-      bundle = ESMF_FieldBundleCreate()
+      bundle = MAPL_FieldBundleCreate()
       call MAPL_FieldBundleSet(bundle, geom=geom)
       fieldCount = size(weights) - 1
       do i = 1, fieldCount
@@ -421,6 +421,7 @@ contains
       character(:), allocatable :: new_units
       real(kind=ESMF_KIND_R4), allocatable :: weights(:)
       real(kind=ESMF_KIND_R4), parameter :: new_weights(*) = [0.,0.25,0.75]
+      type(ESMF_Grid) :: grid, tmp_grid
 
       call setup_geom(geom, 4)
       call setup_bundle(bundle, weights=[5.], geom=geom, typekind=ESMF_TYPEKIND_R4, units='km')
@@ -439,7 +440,9 @@ contains
          @assertEqual('km', new_units)
 
          call ESMF_FieldGet(fieldList(i), geom=tmp_geom, _RC)
-         @assert_that(tmp_geom == geom, is(true()))
+         call ESMF_GeomGet(geom, grid=grid, _RC)
+         call ESMF_GeomGet(tmp_geom, grid=tmp_grid, _RC)
+         @assert_that(tmp_grid == grid, is(true()))
       end do
 
       call MAPL_FieldBundleGet(bundle, interpolation_weights=weights, _RC)
@@ -472,6 +475,7 @@ contains
       real(kind=ESMF_KIND_R4), parameter :: new_weights(*) = [0.,0.25,0.75]
       integer :: nlevels
       type(UngriddedDims) :: ungridded_dims
+      type(ESMF_Grid) :: grid, tmp_grid
 
       call setup_geom(geom, 4)
       call setup_bundle(bundle, weights=[5.], geom=geom, typekind=ESMF_TYPEKIND_R4, units='km', &
@@ -491,7 +495,9 @@ contains
          @assertEqual('km', new_units)
 
          call ESMF_FieldGet(fieldList(i), geom=tmp_geom, _RC)
-         @assert_that(tmp_geom == geom, is(true()))
+         call ESMF_GeomGet(geom, grid=grid, _RC)
+         call ESMF_GeomGet(tmp_geom, grid=tmp_grid, _RC)
+         @assert_that(tmp_grid == grid, is(true()))
 
          call MAPL_FieldGet(fieldList(i), ungridded_dims=ungridded_dims, _RC)
          @assert_that(ungridded_dims%get_num_ungridded(), is(1))
