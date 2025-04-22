@@ -1,4 +1,4 @@
-set(MODULE_DIRECTORY "${esma_include}/MAPL.field/tests")
+set(MODULE_DIRECTORY "${esma_include}/MAPL.field.tests")
 
 add_pfunit_ctest(MAPL.field.test_fieldcreate
                 TEST_SOURCES Test_FieldCreate.pf
