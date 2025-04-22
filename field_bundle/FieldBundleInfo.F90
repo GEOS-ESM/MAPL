@@ -25,6 +25,8 @@ module mapl3g_FieldBundleInfo
       procedure fieldbundle_set_internal
    end interface
 
+   character(*), parameter :: KEY_FIELDBUNDLETYPE_FLAG = '/FieldBundleType_Flag'
+
 
 contains
 
@@ -64,7 +66,7 @@ contains
       end if
 
       if (present(fieldBundleType)) then
-         call ESMF_InfoGet(info, key=namespace_//KEY_FIELDBUNDLETYPE, value=fieldBundleType_str, _RC)
+         call ESMF_InfoGetCharAlloc(info, key=namespace_//KEY_FIELDBUNDLETYPE_FLAG, value=fieldBundleType_str, _RC)
          fieldBundleType = FieldBundleType_Flag(fieldBundleType_str)
       end if
 
@@ -149,7 +151,7 @@ contains
 
       if (present(fieldBundleType)) then
          fieldBundleType_str = fieldBundleType%to_string()
-         call ESMF_InfoSet(info, key=namespace_ // KEY_FIELDBUNDLETYPE, value=fieldBundleType_str, _RC)
+         call ESMF_InfoSet(info, key=namespace_ // KEY_FIELDBUNDLETYPE_FLAG, value=fieldBundleType_str, _RC)
       end if
 
       if (present(interpolation_weights)) then

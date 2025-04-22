@@ -20,8 +20,6 @@ module mapl3g_FieldBundleSet
       procedure bundle_set
    end interface FieldBundleSet
 
-   character(*), parameter :: KEY_FIELD_BUNDLE_TYPE = '/fieldBundleType'
-
 contains
 
   subroutine bundle_set(fieldBundle, unusable, &

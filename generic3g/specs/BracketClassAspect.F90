@@ -122,7 +122,7 @@ contains
 
       integer :: status
 
-      this%payload = ESMF_FieldBundleCreate(_RC)
+      this%payload = MAPL_FieldBundleCreate(fieldBundleType=FIELDBUNDLETYPE_BRACKET, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine create
