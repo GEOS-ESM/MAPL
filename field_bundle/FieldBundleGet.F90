@@ -20,8 +20,6 @@ module mapl3g_FieldBundleGet
       procedure bundle_get
    end interface FieldBundleGet
 
-   character(*), parameter :: KEY_FIELD_BUNDLE_TYPE = '/fieldBundleType'
-
 contains
 
    ! Supplement ESMF FieldBundleGet

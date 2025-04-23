@@ -17,28 +17,74 @@ module mapl3g_Regridder
       private
       type(GeomManager), pointer :: geom_manager => null()
    contains
-      procedure(I_regrid_scalar), deferred :: regrid_scalar
+      procedure(I_regrid_field), deferred :: regrid_field
+      procedure, non_overridable :: regrid_fieldbundle
+      generic :: regrid => regrid_field
+      generic :: regrid => regrid_fieldbundle
+
+      procedure, non_overridable :: regrid_basic_bundle
       procedure, non_overridable :: regrid_vector
-      generic :: regrid => regrid_scalar
-      generic :: regrid => regrid_vector
 
       procedure :: get_geom_manager => get_geom_mgr
       procedure :: set_geom_manager
    end type Regridder
 
    abstract interface
-      subroutine I_regrid_scalar(this, f_in, f_out, rc)
+      subroutine I_regrid_field(this, f_in, f_out, rc)
          use esmf, only: ESMF_Field
          import Regridder
          class(Regridder), intent(inout) :: this
          type(ESMF_Field), intent(inout) :: f_in
          type(ESMF_Field), intent(inout) :: f_out
          integer, optional, intent(out) :: rc
-      end subroutine I_regrid_scalar
+      end subroutine I_regrid_field
 
    end interface
 
 contains
+
+   subroutine regrid_fieldbundle(this, fb_in, fb_out, rc)
+      class(Regridder), intent(inout) :: this
+      type(ESMF_FieldBundle), intent(inout) :: fb_in, fb_out
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(FieldBundleType_Flag) :: bundleType_in, bundleType_out
+
+      call MAPL_FieldBundleGet(fb_in, fieldBundleType=bundleType_in, _RC)
+      call MAPL_FieldBundleGet(fb_out, fieldBundleType=bundleType_out, _RC)
+      _ASSERT(bundleType_out == bundleType_in, 'Bundle types must match.')
+
+      if (bundleType_in == FIELDBUNDLETYPE_VECTOR) then
+         call this%regrid_vector(fb_in, fb_out, _RC)
+         _RETURN(_SUCCESS)
+      end if
+
+      call this%regrid_basic_bundle(fb_in, fb_out, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine regrid_fieldbundle
+
+   subroutine regrid_basic_bundle(this, fb_in, fb_out, rc)
+      class(Regridder), intent(inout) :: this
+      type(ESMF_FieldBundle), intent(inout) :: fb_in, fb_out
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Field), allocatable :: fieldList_in(:), fieldList_out(:)
+      integer :: status
+      integer :: i
+
+      call MAPL_FieldBundleGet(fb_in, fieldList=fieldList_in, _RC)
+      call MAPL_FieldBundleGet(fb_out, fieldList=fieldList_out, _RC)
+
+      _ASSERT(size(fieldList_out) == size(fieldList_in), 'Brackets must have same size.')
+
+      do i = 1, size(fieldList_in)
+         call this%regrid(fieldList_in(i), fieldList_out(i), _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine regrid_basic_bundle
 
    subroutine regrid_vector(this, fb_in, fb_out, rc)
       class(Regridder), intent(inout) :: this
@@ -53,9 +99,9 @@ contains
       type(MaplGeom), pointer :: mapl_geom
       type(VectorBasis), pointer :: basis
       type(GeomManager), pointer :: geom_mgr
-      type(ESMF_Field), allocatable :: transpose_basis(:,:)
       type(ESMF_Geom) :: geom_in, geom_out
 
+      _HERE
       call MAPL_FieldBundleGet(fb_in, fieldList=uv_in, _RC)
       call MAPL_FieldBundleGet(fb_out, fieldList=uv_out, _RC)
 
