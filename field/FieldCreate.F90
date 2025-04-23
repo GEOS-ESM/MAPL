@@ -90,6 +90,7 @@ contains
       type(ESMF_Geom) :: geom
       integer :: dim_count, idim, status
 
+      _ASSERT(present(num_levels) .eqv. present(vert_staggerloc), "num_levels and vert_staggerloc must be both present or both absent")
       if (present(gridToFieldMap)) then
          grid_to_field_map = gridToFieldMap
       else
