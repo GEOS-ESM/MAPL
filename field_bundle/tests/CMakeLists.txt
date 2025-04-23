@@ -8,3 +8,7 @@ add_pfunit_ctest(MAPL.field_bundle.tests
                 MAX_PES 4
                 )
 add_dependencies(build-tests MAPL.field_bundle.tests)
+
+set_target_properties(MAPL.field_bundle.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
+set_tests_properties(MAPL.field_bundle.tests PROPERTIES LABELS "ESSENTIAL")
+
