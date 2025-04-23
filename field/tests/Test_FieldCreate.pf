@@ -51,7 +51,7 @@ contains
       type(ESMF_Geom) :: geom
       type(ESMF_Grid) :: grid
       real(kind=ESMF_KIND_R4), pointer :: farray(:, :, :)
-      integer, parameter :: num_levels_param = 5
+      integer, parameter :: num_vgrid_levels = 5
       integer :: num_levels, status
 
       field = ESMF_FieldEmptyCreate(_RC)
@@ -62,14 +62,14 @@ contains
            field, &
            typekind=ESMF_TYPEKIND_R4, &
            gridToFieldMap=[0, 0], &
-           num_levels=num_levels_param+1, & ! +1 since it's an edge variable
+           num_levels=num_vgrid_levels+1, & ! +1 since it's an edge variable
            vert_staggerloc=VERTICAL_STAGGER_EDGE, &
            _RC)
 
       call MAPL_FieldGet(field, num_levels=num_levels, _RC)
-      @assertEqual(num_levels, num_levels_param+1)
+      @assertEqual(num_levels, num_vgrid_levels+1)
       call assign_fptr_condensed_array(field, farray, _RC)
-      @assertEqual(shape(farray), [1, num_levels_param+1, 1])
+      @assertEqual(shape(farray), [1, num_vgrid_levels+1, 1])
 
       call ESMF_FieldDestroy(field, _RC)
       call ESMF_GeomDestroy(geom, _RC)
@@ -86,7 +86,7 @@ contains
       type(ESMF_Geom) :: geom
       type(ESMF_Grid) :: grid
       real(kind=ESMF_KIND_R4), pointer :: farray(:, :, :)
-      integer, parameter :: num_levels_param = 5
+      integer, parameter :: num_vgrid_levels = 5
       integer :: num_levels, status
 
       field = ESMF_FieldEmptyCreate(_RC)
@@ -96,14 +96,14 @@ contains
       call MAPL_FieldEmptyComplete( &
            field, &
            typekind=ESMF_TYPEKIND_R4, &
-           num_levels=num_levels_param, &
+           num_levels=num_vgrid_levels, &
            vert_staggerloc=VERTICAL_STAGGER_CENTER, &
            _RC)
 
       call MAPL_FieldGet(field, num_levels=num_levels, _RC)
-      @assertEqual(num_levels, num_levels_param)
+      @assertEqual(num_levels, num_vgrid_levels)
       call assign_fptr_condensed_array(field, farray, _RC)
-      @assertEqual(shape(farray), [6, num_levels_param, 1])
+      @assertEqual(shape(farray), [6, num_vgrid_levels, 1])
 
       call ESMF_FieldDestroy(field, _RC)
       call ESMF_GeomDestroy(geom, _RC)
