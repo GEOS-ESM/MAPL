@@ -182,69 +182,7 @@ def get_options(args):
 
     return options
 
-###############################################################
-# MAPL_DATASPEC class
-class MAPL_DataSpec:
-    """ Declare and manipulate an import/export/internal specs for a """
-    """ MAPL Gridded component """
-
-    def __init__(self, spec_values, options):
-        self.spec_values = spec_values
-        self.options = flatten_options(options)
-        self.mangled_name = spec_values[SHORT_NAME]
-        self.internal_name = spec_values[INTERNAL_NAME]
-        self.condition = spec_values.get(CONDITION)
-        self.state = spec_values[STATE]
-        self.argdict = options[ARGDICT]
-
-    def emit_specs(self):
-        a = self.emit_args()
-        return (self.condition(a) if self.condition else a)
-
-    """ Pointers must be declared regardless of COND status.  Deactivated
-    pointers should not be _referenced_ but such sections should still
-    compile, so we must declare the pointers """
-    def emit_declare_pointers(self):
-        spec_values = self.spec_values
-        rank, precision = (spec_values[RANK], spec_values.get(PRECISION, None))
-        dimension = 'dimension(:' + ',:'*(rank-1) + ')'
-        kind = f'(kind={precision})' if precision else EMPTY
-        return f'real{kind}, pointer, {dimension} :: {self.internal_name}'
-
-    def emit_get_pointers(self):
-        """ Generate MAPL_GetPointer calls for the MAPL_DataSpec (self) """
-        """ Creates string by joining list of generated and literal strings """
-        """ including if block (emit_header) and 'alloc = value' (emit_pointer_alloc) """
-        internal_name = self.internal_name
-        mangled_name = self.mangled_name
-        pointer_alloc = self.emit_pointer_alloc()
-        parts = [f'{CALL} {GETPOINTER}({self.state}', internal_name, mangled_name, pointer_alloc, TERMINATOR]
-        line = DELIMITER.join(list(filter(lambda p: p, parts)))
-        if self.condition:
-            else_block = make_else_block(internal_name)
-            return self.condition([line], else_block)
-        return [f"{line}{linesep}"]
-
-    def emit_pointer_alloc(self):
-        key = ALLOC
-        value = self.spec_values.get(key).strip().lower() if key in self.spec_values else EMPTY
-        return f'{key}={convert_to_fortran_logical(value)}' if value else EMPTY
-
-    def emit_args(self):
-        gc_variable = self.argdict[GC_VARIABLE]
-        first = [f"{CALL} {ADDSPEC}({GC_ARGNAME}={gc_variable}, {AMP}"]
-        last = [f"{INDENT}{AMP} {TERMINATOR}{linesep}"]
-        lines = [f"{INDENT}{AMP} {self.emit_arg(column)}" for column in self.spec_values if is_printable(self.options.get(column))]
-        return first + lines + last
-
-    def emit_arg(self, column):
-        value = self.spec_values.get(column)
-        if value:
-            text = f"{column}={value}{DELIMITER}{AMP}"
-        else:
-            text = ''
-        return text
-
+# Procedures for writing to files
 def emit_specs(values, options):
     emitted = emit_args(values, flatten_options(options))
     if condition := values.get(CONDITION):
@@ -496,23 +434,13 @@ def emit_values(specs, options, args):
         state_specs = list(filter(lambda s: s[STATE] == state, specs))
         if state_specs:
             for values in state_specs:
-                spec = MAPL_DataSpec(values, options)
                 if f_specs[state]:
-                    #f_specs[state].writelines(add_newline(line) for line in spec.emit_specs())
-                    #lines = [add_newline(line) for line in emit_specs(values, options)]
-                    emitted_specs = emit_specs(values, options)
-                    lines = []
-                    for line in emitted_specs:
-                        lines.append(add_newline(line))
+                    lines = [add_newline(line) for line in emit_specs(values, options)]
                     f_specs[state].writelines(lines)
                 if f_declare_pointers:
-                    emitted_declarations = [emit_declare_pointers(values)]
-                    lines = []
-                    for line in emitted_declarations:
-                        lines.append(add_newline(line))
-                    f_declare_pointers.writelines(lines)
+                    emitted_declarations = emit_declare_pointers(values)
+                    f_declare_pointers.write(add_newline(emitted_declarations))
                 if f_get_pointers:
-                    #f_get_pointers.writelines(add_newline(line) for line in spec.emit_get_pointers())
                     f_get_pointers.writelines(add_newline(line) for line in emit_get_pointers(values))
 
 # Close output files
@@ -534,24 +462,6 @@ def add_quotes(s):
 mk_array = lambda s: '[ ' + str(s).strip().strip('[]') + ']' if s else None
 rm_quotes = lambda s: s.replace('"', '').replace("'", '') if s else None
 construct_string_vector = lambda value: f"{TO_STRING_VECTOR}({add_quotes(value)})" if value else None
-
-def get_fortran_logical(value_in):
-    """ Return string representing Fortran logical from an input string """
-    """ representing a logical value input """
-
-    try:
-        if value_in is None:
-            raise ValueError("'None' is not valid for get_fortran_logical.")
-        if value_in.strip().lower() in TRUE_VALUES:
-            val_out = TRUE_VALUE
-        elif value_in.strip().lower() in FALSE_VALUES:
-            val_out = FALSE_VALUE
-        else:
-            raise ValueError("Unrecognized logical: " + value_in)
-    except Exception:
-        raise
-
-    return val_out
 
 def convert_to_fortran_logical(b):
      return TRUE_VALUE if b.strip().strip('.').lower() in TRUE_VALUES else FALSE_VALUE 
