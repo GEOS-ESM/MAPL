@@ -1,13 +1,13 @@
 #include "MAPL_Generic.h"
 module mapl3g_SharedIO
    use mapl_ErrorHandlingMod
-   use mapl3g_FieldBundleGet
-   use mapl3g_FieldGet
+   use mapl3g_FieldBundle_API
+   use mapl3g_Field_API
    use mapl3g_VerticalStaggerLoc
    use pfio
    use gFTL2_StringVector
    use gFTL2_StringSet
-   use mapl3g_geom_mgr
+   use mapl3g_Geom_API
    use MAPL_BaseMod
    use mapl3g_UngriddedDims
    use mapl3g_UngriddedDim

@@ -2,7 +2,7 @@
 
 module mapl3g_RoutehandleParam
    use esmf
-   use mapl3g_geom_mgr, only: MaplGeom, geom_manager, MAPL_SameGeom
+   use mapl3g_Geom_API, only: MaplGeom, geom_manager, MAPL_SameGeom
    use mapl_ErrorHandlingMod
    implicit none
    private

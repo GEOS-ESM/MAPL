@@ -1,4 +1,6 @@
 module mapl3g_Field_API
+   use mapl3g_FieldGet, only: MAPL_FieldGet => FieldGet
+   use mapl3g_FieldSet, only: MAPL_FieldSet => FieldSet
    use mapl3g_FieldCreate
    use mapl3g_FieldInfo
    use mapl3g_VerticalStaggerLoc

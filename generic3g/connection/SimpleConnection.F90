@@ -94,14 +94,14 @@ contains
       do i = 1, size(dst_extensions)
          dst_extension => dst_extensions(i)%ptr
          spec => dst_extension%get_spec()
-         call spec%set_active()
+         call spec%activate(_RC)
          call spec%set_allocated()
       end do
 
       do i = 1, size(src_extensions)
          src_extension => src_extensions(i)%ptr
          spec => src_extension%get_spec()
-         call spec%set_active()
+         call spec%activate(_RC)
          call activate_dependencies(src_extension, src_registry, _RC)
       end do
         
@@ -205,7 +205,7 @@ contains
            dep_extension => registry%get_primary_extension(v_pt, _RC)
          end associate
          dep_spec => dep_extension%get_spec()
-         call dep_spec%set_active()
+         call dep_spec%activate(_RC)
       end do
 
       _RETURN(_SUCCESS)

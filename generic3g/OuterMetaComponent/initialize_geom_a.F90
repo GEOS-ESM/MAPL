@@ -3,7 +3,7 @@
 submodule (mapl3g_OuterMetaComponent) initialize_geom_a_smod
    use mapl3g_GenericPhases
    use mapl3g_GeometrySpec
-   use mapl3g_geom_mgr
+   use mapl3g_Geom_API
    use mapl3g_GriddedComponentDriver
    use mapl_ErrorHandling
    implicit none(type,external)

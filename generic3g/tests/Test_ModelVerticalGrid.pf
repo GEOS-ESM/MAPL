@@ -22,7 +22,7 @@ module Test_ModelVerticalGrid
    use mapl3g_ComponentDriverVector
    use mapl3g_ComponentDriverPtrVector
    use mapl3g_MultiState
-   use mapl3g_geom_mgr
+   use mapl3g_Geom_API
    use mapl3g_CouplerPhases, only: GENERIC_COUPLER_UPDATE
    use esmf
    ! testing framework
@@ -76,7 +76,7 @@ contains
       call registry%add_primary_spec(v_pt, fld_spec)
       extension => registry%get_primary_extension(v_pt, _RC)
       spec => extension%get_spec()
-      call spec%set_active()
+      call spec%activate(_RC)
       call spec%create(_RC)
 
       _RETURN(_SUCCESS)

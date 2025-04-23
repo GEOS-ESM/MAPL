@@ -3,7 +3,6 @@
 module mapl3g_FieldInfo
    use mapl3g_esmf_info_keys, only: INFO_SHARED_NAMESPACE
    use mapl3g_esmf_info_keys, only: INFO_INTERNAL_NAMESPACE
-   use mapl3g_esmf_info_keys, only: INFO_PRIVATE_NAMESPACE
    use mapl3g_InfoUtilities
    use mapl3g_UngriddedDims
    use mapl3g_VerticalStaggerLoc
@@ -45,6 +44,7 @@ module mapl3g_FieldInfo
    character(*), parameter :: KEY_NUM_LEVELS = "/num_levels"
    character(*), parameter :: KEY_VERT_STAGGERLOC = "/vert_staggerloc"
    character(*), parameter :: KEY_UNGRIDDED_DIMS = "/ungridded_dims"
+   character(*), parameter :: KEY_IS_ACTIVE = "/is_active"
 
    character(*), parameter :: KEY_UNDEF_VALUE = "/undef_value"
    character(*), parameter :: KEY_MISSING_VALUE = "/missing_value"
@@ -57,6 +57,7 @@ contains
         num_levels, vert_staggerloc, &
         ungridded_dims, &
         units, long_name, standard_name, &
+        is_active, &
         rc)
 
       type(ESMF_Info), intent(inout) :: info
@@ -68,6 +69,7 @@ contains
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: long_name
       character(*), optional, intent(in) :: standard_name
+      logical, optional, intent(in) :: is_active
       integer, optional, intent(out) :: rc
       
       integer :: status
@@ -100,7 +102,6 @@ contains
          call MAPL_InfoSet(info, namespace_ // KEY_NUM_LEVELS, num_levels, _RC)
       end if
 
-
       if (present(vert_staggerloc)) then
          call MAPL_InfoSet(info, namespace_ // KEY_VERT_STAGGERLOC, vert_staggerloc%to_string(), _RC)
 
@@ -123,6 +124,10 @@ contains
 
       end if
 
+      if (present(is_active)) then
+         call MAPL_InfoSet(info, namespace_ // KEY_IS_ACTIVE, is_active, _RC)
+      end if
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine field_info_set_internal
@@ -131,7 +136,9 @@ contains
         namespace, &
         num_levels, vert_staggerloc, num_vgrid_levels, &
         units, long_name, standard_name, &
-        ungridded_dims, rc)
+        ungridded_dims, &
+        is_active, &
+        rc)
 
       type(ESMF_Info), intent(in) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -143,6 +150,7 @@ contains
       character(:), optional, allocatable, intent(out) :: long_name
       character(:), optional, allocatable, intent(out) :: standard_name
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
+      logical, optional, intent(out) :: is_active
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -201,6 +209,10 @@ contains
          call MAPL_InfoGet(info, namespace_ // KEY_STANDARD_NAME, standard_name, _RC)
       end if
 
+      if (present(is_active)) then
+         call MAPL_InfoGet(info, namespace_ // KEY_IS_ACTIVE, is_active, _RC)
+      end if
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine field_info_get_internal
@@ -220,6 +232,7 @@ contains
       call MAPL_InfoGet(field_info, key=concat(INFO_SHARED_NAMESPACE,key), value=value, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine info_field_get_shared_i4
 
 

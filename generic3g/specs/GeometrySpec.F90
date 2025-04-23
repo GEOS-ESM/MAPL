@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_GeometrySpec
-   use mapl3g_geom_mgr, only: GeomSpec
+   use mapl3g_Geom_API, only: GeomSpec
    use mapl3g_VerticalGrid
    implicit none
    private

@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_VectorClassAspect
-   use mapl3g_FieldBundleGet
+   use mapl3g_FieldBundle_API
    use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
@@ -56,6 +56,7 @@ module mapl3g_VectorClassAspect
       procedure :: connect_to_export
 
       procedure :: create
+      procedure :: activate
       procedure :: allocate
       procedure :: destroy
       procedure :: add_to_state
@@ -116,10 +117,21 @@ contains
 
       integer :: status
 
-      this%payload = ESMF_FieldBundleCreate(_RC)
+      this%payload = MAPL_FieldBundleCreate(fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create
+
+   subroutine activate(this, rc)
+      class(VectorClassAspect), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call MAPL_FieldBundleSet(this%payload, is_active=.true., _RC)
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine activate
 
    ! Tile / Grid   X  or X, Y
    subroutine allocate(this, other_aspects, rc)

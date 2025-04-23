@@ -1,6 +1,6 @@
 #include "MAPL_Generic.h"
 module mapl3g_RegridderManager
-   use mapl3g_geom_mgr, only: GeomManager, get_geom_manager
+   use mapl3g_Geom_API, only: GeomManager, get_geom_manager
    use mapl3g_RegridderSpec
    use mapl3g_Regridder
    use mapl3g_NullRegridder

@@ -6,7 +6,7 @@ module mapl3g_HistoryCollectionGridComp_private
    use esmf
    use Mapl_ErrorHandling
    use gFTL2_StringVector
-   use mapl3g_geom_mgr
+   use mapl3g_Geom_API
    use MAPL_NewArthParserMod, only: parser_variables_in_expression
    use MAPL_TimeStringConversion
    use MAPL_BaseMod, only: MAPL_UnpackTime
