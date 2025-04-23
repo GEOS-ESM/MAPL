@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Update `components.yaml`
+  - `ESMA_cmake` v3.58.2
+    - Fix for XCode 16.3
+
 ### Removed
 
 ### Deprecated
