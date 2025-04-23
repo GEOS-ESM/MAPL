@@ -1,33 +1,23 @@
 #!/usr/bin/env python3
 import argparse
 import sys
-import os
+from os.path import splitext, basename
+from os import linesep
 import csv
 from collections.abc import Sequence
-from collections.abc import Collection
 from functools import partial, reduce
-from typing import TypeAlias, Any
-
-SimpleType: TypeAlias = int | float | str | bool
-# wdb Use frozenset instead of set?
-StrDict: TypeAlias = dict[str, Any]
-StrStrDict: TypeAlias = dict[str, str]
-OptionValue: TypeAlias = SimpleType | Collection
-OptionKey: TypeAlias = str
-Option: TypeAlias = dict[OptionKey, OptionValue]
-OptionType: TypeAlias = str
 
 ################################# CONSTANTS ####################################
 SUCCESS = 0
+ERROR = SUCCESS - 1
 DELIMITER = ', '
 EMPTY = ''
-NL = "\n"
+AMP = '&'
 SPACE = " "
-TERMINATOR = '_RC)'
 SIZE_INDENT = 3
-INDENT = SPACE * SIZE_INDENT
+TERMINATOR = '_RC)'
 UNIT = ()
-ERROR = SUCCESS - 1
+INDENT = SPACE * SIZE_INDENT
 
 ARGDICT = 'argdict' 
 AS = 'as'
@@ -61,8 +51,7 @@ DIMS = 'dims'
 INTENT_ARG = 'intent_arg' 
 INTERNAL_NAME = 'internal_name'
 MANGLED = 'mangled'
-MANGLED_NAME = 'mangled_name'
-MANGLED_STANDARD_NAME = 'mangled_standard_name'
+STANDARD_NAME_ARG = 'standard_name_arg'
 PRECISION = 'precision'
 RANK = 'rank'
 SHORT_NAME = 'short_name'
@@ -76,10 +65,6 @@ STRINGVECTOR = 'string_vector'
 UNGRIDDED_DIMS = 'ungridded_dims'
 VSTAGGER = 'vstagger'
 
-MAKE_IF_BLOCK = 'make_if_block'
-RANK_MAPPING = 'rank_mapping'
-STANDARD_NAME_MANGLE = 'mangle_standard'
-
 # command-line option constants
 GC_VARIABLE = 'gridcomp_variable'
 GC_VARIABLE_DEFAULT = 'gc'
@@ -92,10 +77,9 @@ TO_STRING_VECTOR = "toStringVector"
 CALL = 'call'
 # constants for logicals
 FALSE_VALUE = '.false.'
-FALSE_VALUES = {'f', 'false', 'no', 'n', 'no', 'non', 'nao'}
 TRUE_VALUE = '.true.'
-TRUE_VALUES = {'t', 'true', 'yes', 'y', 'si', 'oui', 'sim'}
-
+TRUE_VALUES = {'t', 'true', 'yes', 'y'}
+# identity function (id is a builtin function, so this is capitalized.)
 ID = lambda x: x
 
 ##################################### FLAGS ####################################
@@ -122,48 +106,56 @@ is_printable = lambda o: not has_flags(has_all=False, flags={STORE, CONTROL}, op
 has_as_flag = lambda o: has_flags(has_all=True, flags=AS, option=o)
 
 #################################### OPTIONS ###################################
-""" dict for the possible options in a spec
-options: dict[str, dict[str, str | dict[str, str | set[str] | tuple[str]]]] """
+""" dict for the possible options in a spec, as well as command-line arguments,
+constants, and aliases
+options: dict[str, dict[str, *]]
+    * can be:
+    dict[str,  dict[str, **]]: spec values
+        ** can be a simple scalar type or a Sequence, set, or dict
+    dict[str, str]: command-line options
+    list[str]: constants
+    dict[str, str]: aliases
+"""
 def get_options(args):
     states = ['import', 'export', 'internal']
     intents = [f"{INTENT_PREFIX}{state.upper()}" for state in states]
     options = {}
-    options[SPECIFICATIONS] = { #yaml map
-        DIMS: {FLAGS: {MANDATORY}, MAPPING: { #yaml map[string|sequence|map]
+    options[SPECIFICATIONS] = { 
+        DIMS: {FLAGS: {MANDATORY}, MAPPING: { 
             'z': "'z'",
             'xy': "'xy'",
             'xyz': "'xyz'",
             'MAPL_DimsVertOnly': "'z'",
             'MAPL_DimsHorzOnly': "'xy'",
             'MAPL_DimsHorzVert': "'xyz'"}},
-        STATE_INTENT: {FLAGS: {MANDATORY}}, #yaml map
-        SHORT_NAME: {FLAGS: MANDATORY}, #yaml map[string|sequence]
-        STANDARD_NAME: {FLAGS: MANDATORY}, #yaml map[sequence]
-        PRECISION: {}, #map (empty)
-        UNGRIDDED_DIMS: {MAPPING: ARRAY}, #yaml map[string]
-        VSTAGGER: {MAPPING: { #yaml map[map]
+        SHORT_NAME: {MAPPING: MANGLED, FLAGS: MANDATORY},
+        STATE_INTENT: {FLAGS: {MANDATORY}}, 
+        STANDARD_NAME: {FLAGS: MANDATORY}, 
+        PRECISION: {}, 
+        UNGRIDDED_DIMS: {MAPPING: ARRAY}, 
+        VSTAGGER: {MAPPING: { 
              'C': 'VERTICAL_STAGGER_CENTER',
              'E': 'VERTICAL_STAGGER_EDGE',
              'N': 'VERTICAL_STAGGER_NONE'}},
-        ALIAS: {FLAGS: {STORE}}, #yaml map (empty)
-        ALLOC: {FLAGS: {STORE}}, #yaml map (empty)
-        'attributes' : {MAPPING: STRINGVECTOR}, #yaml map
-        CONDITION: {FLAGS: {STORE}}, #yaml map (empty)
-        'dependencies': {MAPPING: STRINGVECTOR}, #yaml map
-        'itemtype': {}, #yaml map (empty)
-        'orientation': {}, #yaml map (empty)
-        'regrid_method': {}, #yaml map (empty)
-        STATE: {FLAGS: {MANDATORY, STORE}}, #yaml map
-        'typekind': {MAPPING: { #yaml map[map] 
+        ALIAS: {FLAGS: {STORE}}, 
+        ALLOC: {FLAGS: {STORE}}, 
+        'attributes' : {MAPPING: STRINGVECTOR}, 
+        CONDITION: {FLAGS: {STORE}}, 
+        'dependencies': {MAPPING: STRINGVECTOR}, 
+        'itemtype': {}, 
+        'orientation': {}, 
+        'regrid_method': {}, 
+        STATE: {FLAGS: {MANDATORY, STORE}}, 
+        'typekind': {MAPPING: { 
             'R4': 'ESMF_Typekind_R4',
             'R8': 'ESMF_Typekind_R8',
             'I4': 'ESMF_Typekind_I4',
             'I8': 'ESMF_Typekind_I8'}},
-        'units': {MAPPING: STRING}, #yaml map
-        'vector_pair': {MAPPING: STRING} #yaml map
+        'units': {MAPPING: STRING}, 
+        'vector_pair': {MAPPING: STRING} 
         }
 
-    options[SPEC_ALIASES] = { #yaml map
+    options[SPEC_ALIASES] = { 
         'ungrid': UNGRIDDED_DIMS,
         'ungridded': UNGRIDDED_DIMS,
         'cond': CONDITION,
@@ -175,25 +167,20 @@ def get_options(args):
         'vlocation': VSTAGGER
     }
 
-    options[CONTROLS] = {IF_BLOCK: {MAPPING: MAKE_IF_BLOCK, FLAGS: {CONTROL, AS}, FROM: CONDITION}} #yaml map[string|sequence]
+    options[CONTROLS] = {IF_BLOCK: {MAPPING: IF_BLOCK, FLAGS: {CONTROL, AS}, FROM: CONDITION}} 
 
-    options[ARGDICT] = vars(args) #not yaml
+    options[ARGDICT] = vars(args) 
 
-    options[MAPPED] = { #yaml map
-        SHORT_NAME_ARG: {MAPPING: MANGLED, FROM: SHORT_NAME, FLAGS: AS},
-        MANGLED_STANDARD_NAME: {MAPPING: STANDARD_NAME_MANGLE, FROM: (STANDARD_NAME, LONGNAME_GLOB_PREFIX), AS: STANDARD_NAME}, #yaml map[string|sequence]
-        MANGLED_NAME: {MAPPING: MANGLED, FROM: SHORT_NAME, FLAGS: {STORE, MANDATORY}}, #yaml map[string,sequence]
+    options[MAPPED] = { 
+        STANDARD_NAME_ARG: {MAPPING: STANDARD_NAME, FROM: (STANDARD_NAME, LONGNAME_GLOB_PREFIX), AS: STANDARD_NAME}, 
         INTENT_ARG: {FROM: (STATE_INTENT, STATE), MAPPING: (ID, dict(zip(states, intents))), FLAGS: AS},
-        RANK: {MAPPING: RANK_MAPPING, FLAGS: {STORE, MANDATORY}, FROM: (DIMS, UNGRIDDED_DIMS)}, #yaml map[string|sequence]
-        STATE_ARG: {FROM: (STATE, STATE_INTENT), MAPPING: (ID, dict(zip(intents, states))), FLAGS: AS} #yaml map
+        RANK: {MAPPING: RANK, FLAGS: {STORE, MANDATORY}, FROM: (DIMS, UNGRIDDED_DIMS)}, 
+        STATE_ARG: {FROM: (STATE, STATE_INTENT), MAPPING: (ID, dict(zip(intents, states))), FLAGS: AS} 
     }
 
     options[CONSTANTS] = {STATES: states}
 
     return options
-
-def newline(indent=0):
-    return f'{NL}{" "*indent}'
 
 ###############################################################
 # MAPL_DATASPEC class
@@ -201,31 +188,18 @@ class MAPL_DataSpec:
     """ Declare and manipulate an import/export/internal specs for a """
     """ MAPL Gridded component """
 
-#TERMINATOR = '_RC)'
-
     def __init__(self, spec_values, options):
         self.spec_values = spec_values
         self.options = flatten_options(options)
-        self.mangled_name = spec_values[MANGLED_NAME]
+        self.mangled_name = spec_values[SHORT_NAME]
         self.internal_name = spec_values[INTERNAL_NAME]
         self.condition = spec_values.get(CONDITION)
         self.state = spec_values[STATE]
-        self.state_intent = spec_values[STATE_INTENT]
         self.argdict = options[ARGDICT]
-        self.indent = 0 #wdb fixme deleteme 
-
-    def newline(self, indent=True):
-        indent=False#deleteme wdb
-        return newline(INDENT if indent else 0)
-
-    def continue_line(self):
-        return "&" + self.newline() + "& "
 
     def emit_specs(self):
         a = self.emit_args()
-        indent = self.indent
-        indent = 0 #wdb fixme deleteme
-        return (self.condition(a, indent) if self.condition else a) + NL #wdb fixme deleteme
+        return (self.condition(a) if self.condition else a)
 
     """ Pointers must be declared regardless of COND status.  Deactivated
     pointers should not be _referenced_ but such sections should still
@@ -234,77 +208,70 @@ class MAPL_DataSpec:
         spec_values = self.spec_values
         rank, precision = (spec_values[RANK], spec_values.get(PRECISION, None))
         dimension = 'dimension(:' + ',:'*(rank-1) + ')'
-        text = self.newline() + 'real'
-        if precision:
-            text = text + '(kind=' + str(precision) + ')'
-        return text +', pointer, ' + dimension + ' :: ' + self.internal_name + self.newline()
-
+        kind = f'(kind={precision})' if precision else EMPTY
+        return f'real{kind}, pointer, {dimension} :: {self.internal_name}'
 
     def emit_get_pointers(self):
         """ Generate MAPL_GetPointer calls for the MAPL_DataSpec (self) """
         """ Creates string by joining list of generated and literal strings """
         """ including if block (emit_header) and 'alloc = value' (emit_pointer_alloc) """
-        indent = 0 #wdb fixme deleteme  self.indent
         internal_name = self.internal_name
-        text = DELIMITER.join([f'{CALL} {GETPOINTER}({self.state}',
-            internal_name, self.mangled_name] + self.emit_pointer_alloc() +
-            [ TERMINATOR ])
+        mangled_name = self.mangled_name
+        pointer_alloc = self.emit_pointer_alloc()
+        parts = [f'{CALL} {GETPOINTER}({self.state}', internal_name, mangled_name, pointer_alloc, TERMINATOR]
+        line = DELIMITER.join(list(filter(lambda p: p, parts)))
         if self.condition:
-            else_block = make_else_block(internal_name, indent)
-            return self.condition(text, indent, else_block)
-        return text
+            else_block = make_else_block(internal_name)
+            return self.condition([line], else_block)
+        return [f"{line}{linesep}"]
 
     def emit_pointer_alloc(self):
-        EMPTY_LIST = []
         key = ALLOC
-        value = self.spec_values.get(key)
-        if value:
-            value = value.strip().lower()
-            listout = [ key + '=' + get_fortran_logical(value) ] if len(value) > 0 else EMPTY_LIST
-        else:
-            listout = EMPTY_LIST
-        return listout
-
-    def emit_header(self):
-        text = self.newline()
-        condition = self.condition
-        if condition:
-#            self.indent = self.indent + 3 #wdb fixme deleteme
-            text = text + "if (" + condition + ") then" + self.newline()
-        return text
+        value = self.spec_values.get(key).strip().lower() if key in self.spec_values else EMPTY
+        return f'{key}={convert_to_fortran_logical(value)}' if value else EMPTY
 
     def emit_args(self):
-#        self.indent = self.indent + 5 #wdb fixme deleteme
         gc_variable = self.argdict[GC_VARIABLE]
-        text = f"{CALL} {ADDSPEC}({GC_ARGNAME}={gc_variable}, {self.continue_line()}"
-        for column in self.spec_values:
-            if is_printable(self.options.get(column)): #wdb idea deleteme reduce?
-                text = text + INDENT + self.emit_arg(column)
-        text = text + TERMINATOR + self.newline()
-#        self.indent = self.indent - 5 #wdb fixme deleteme
-        return text
+        first = [f"{CALL} {ADDSPEC}({GC_ARGNAME}={gc_variable}, {AMP}"]
+        last = [f"{INDENT}{AMP} {TERMINATOR}{linesep}"]
+        lines = [f"{INDENT}{AMP} {self.emit_arg(column)}" for column in self.spec_values if is_printable(self.options.get(column))]
+        return first + lines + last
 
     def emit_arg(self, column):
         value = self.spec_values.get(column)
         if value:
-            text = f"{column}={value}{DELIMITER}{self.continue_line()}"
+            text = f"{column}={value}{DELIMITER}{AMP}"
         else:
             text = ''
         return text
 
-    def emit_trailer(self, nullify=False):
-        if self.condition:
-#            self.indent = self.indent - 3 #wdb fixme deleteme 
-            name = self.internal_name
-            text = self.newline()
-            if nullify:
-                text = text + "else" + self.newline()
-                text = text + "   nullify(" + name + ")" + self.newline()
-            text = text + "endif" + self.newline()
-        else:
-            text = self.newline()
-        return text
+def emit_specs(values, options):
+    emitted = emit_args(values, flatten_options(options))
+    if condition := values.get(CONDITION):
+        return condition(emitted)
+    return emitted
 
+def emit_args(values, options):
+    gc_variable = options[GC_VARIABLE]
+    columns = [c for c in values if is_printable(options.get(c))]
+    lines = [f"{INDENT}{AMP} {column}={values[column]}{DELIMITER}{AMP}" for column in columns]
+    return [f"{CALL} {ADDSPEC}({GC_ARGNAME}={gc_variable}, {AMP}", *lines, f"{INDENT}{AMP} {TERMINATOR}"]
+
+def emit_declare_pointers(values):
+    name = values[INTERNAL_NAME]
+    rank = values[RANK]
+    kind = f'(kind={values[PRECISION]})' if PRECISION in values else EMPTY
+    middle = ',:'*(rank-1)
+    return f'real{kind}, pointer, dimension(:{middle}) :: {name}'
+
+def emit_get_pointers(values):
+    internal_name = values[INTERNAL_NAME]
+    condition = values.get(CONDITION)
+    parts = [f'{CALL} {GETPOINTER}({values[STATE]}', internal_name, values[SHORT_NAME]]
+    if alloc := values.get(ALLOC):
+        parts.append(f'{ALLOC}={convert_to_fortran_logical(alloc)}')
+    line = DELIMITER.join([*parts, TERMINATOR])
+    return condition([line], make_else_block(internal_name)) if condition else [line]
 
 ############################ PARSE COMMAND ARGUMENTS ###########################
 def get_args():
@@ -384,7 +351,6 @@ def read_specs(specs_filename):
 
     return specs
 
-# NEW DIGEST
 def get_from_keys(option):
     match option.get(FROM):
         case str() as k:
@@ -412,7 +378,7 @@ def digest_spec(spec, options):
         if opt is None:
             specs_not_found.append(spec_name)
             continue
-        m = get_mapping_function(opt.get(MAPPING))
+        m = fetch_mapping_function(opt.get(MAPPING))
         value = m(spec_value)
         name = opt.get(AS, spec_name)
         values[name] = value
@@ -437,16 +403,6 @@ def map_spec_values(values, options):
         mapped_values[name] = mapped_values_value
     return mapped_values, values_not_found
 
-def is_true_collection(o):
-    return not isinstance(o, str) and isinstance(o, Collection)
-
-def min_depth(o, depth=4):
-    if depth < 0:
-        return ()
-    if not isiterable(o):
-        return 0
-    return min(min_depth(so, depth-1) for so in (o.values() if isinstance(o, dict) else o))+1
-
 def get_mandatory_option_keys(options):
     keys = []
     for tname, toptions in options.items():
@@ -460,9 +416,8 @@ def get_mandatory_option_keys(options):
 def get_internal_name(spec):
     if spec is None:
         return None
-    if ALIAS in spec:
-        return spec[ALIAS]
-    return spec.get(SHORT_NAME, EMPTY).replace('*', EMPTY)
+    alias = spec.get(ALIAS, EMPTY).strip()
+    return alias if alias else spec.get(SHORT_NAME, EMPTY).replace('*', EMPTY)
 
 def get_values(specs, options):
     all_values = []
@@ -474,6 +429,7 @@ def get_values(specs, options):
         internal_name = get_internal_name(dealiased)
         spec_values, specs_not_found = digest_spec(dealiased, options)
         values, values_not_found = map_spec_values(spec_values, options)
+        # Because the internal name is used in declare and get_pointer, it is singled out here.
         values[INTERNAL_NAME] = internal_name
         all_values.append(values)
         mandatory_keys = get_mandatory_option_keys(options)
@@ -485,8 +441,6 @@ def get_values(specs, options):
                   MISSING_MANDATORY: missing_mandatory}
         results.append(result)
     return all_values, results
-
-# END DIGEST SPECS
 
 def flatten_specs(specs):
     match specs:
@@ -508,12 +462,12 @@ def emit_values(specs, options, args):
     argdict = options[ARGDICT]
     exit_code_ = ERROR
 
-    add_newline = lambda s: f"{s.rstrip()}{NL}"
+    add_newline = lambda s: f"{s.rstrip()}{linesep}"
 
     if args.name:
         component = args.name
     else:
-        component, _ = os.path.splitext(os.path.basename(args.input))
+        component, _ = splitext(basename(args.input))
         component = component.replace('_Registry','')
         component = component.replace('_StateSpecs','')
 
@@ -541,14 +495,25 @@ def emit_values(specs, options, args):
     for state in states:
         state_specs = list(filter(lambda s: s[STATE] == state, specs))
         if state_specs:
-            for spec_values in state_specs:
-                spec = MAPL_DataSpec(spec_values, options)
+            for values in state_specs:
+                spec = MAPL_DataSpec(values, options)
                 if f_specs[state]:
-                    f_specs[state].write(add_newline(spec.emit_specs()))
+                    #f_specs[state].writelines(add_newline(line) for line in spec.emit_specs())
+                    #lines = [add_newline(line) for line in emit_specs(values, options)]
+                    emitted_specs = emit_specs(values, options)
+                    lines = []
+                    for line in emitted_specs:
+                        lines.append(add_newline(line))
+                    f_specs[state].writelines(lines)
                 if f_declare_pointers:
-                    f_declare_pointers.write(add_newline(spec.emit_declare_pointers()))
+                    emitted_declarations = [emit_declare_pointers(values)]
+                    lines = []
+                    for line in emitted_declarations:
+                        lines.append(add_newline(line))
+                    f_declare_pointers.writelines(lines)
                 if f_get_pointers:
-                    f_get_pointers.write(add_newline(spec.emit_get_pointers()))
+                    #f_get_pointers.writelines(add_newline(line) for line in spec.emit_get_pointers())
+                    f_get_pointers.writelines(add_newline(line) for line in emit_get_pointers(values))
 
 # Close output files
     for f in list(f_specs.values()):
@@ -587,6 +552,9 @@ def get_fortran_logical(value_in):
         raise
 
     return val_out
+
+def convert_to_fortran_logical(b):
+     return TRUE_VALUE if b.strip().strip('.').lower() in TRUE_VALUES else FALSE_VALUE 
 
 def compute_rank(dims, ungridded):
     RANK_LOOKUP = {"'z'": 1, "'xy'": 2, "'xyz'": 3}
@@ -628,21 +596,16 @@ def mangle_standard_name(name, prefix):
         return f"trim({prefix_})//{name_}"
     return add_quotes(name)
 
-def make_if_block(condition, text, indent, else_block=''):
-    indents = '' #wdb fixme deleteme SPACE*indent if indent else EMPTY 
-    condition_line = f"if ({condition}) then"
-    block_lines = f"{INDENT}{text}"
-    conclusion = f"end if"
-    if else_block:
-        conclusion = f"{else_block}{conclusion}"
-    return f"{condition_line}{NL}{block_lines}{NL}{conclusion}{NL}"
-    #return f"if ({condition}) then{NL}{indents}{text}{NL}{{indents}else_block if else_block}end if{NL}"
+def make_if_block(condition, text, else_block=[]):
+    condition_line = f"if ({condition}) then{linesep}"
+    conclusion = f"end if{linesep}"
+    lines = [f"{INDENT}{line}{linesep}" for line in text] + else_block
+    return [condition_line] + lines + [conclusion]
     
-def make_else_block(name=None, indent=0):
+def make_else_block(name=None):
     if name:
-        indents = '' #wdb fixme deleteme  SPACE*indent
-        return f'else{NL}{INDENT}nullify({name}){NL}'
-    return EMPTY
+        return [f'else{linesep}', f'{INDENT}nullify({name}){linesep}']
+    return []
 
 ######################### WRITERS for writing AddSpecs #########################
 NAMED_MAPPINGS = {
@@ -650,9 +613,9 @@ NAMED_MAPPINGS = {
         STRINGVECTOR: lambda value: construct_string_vector(value),
         ARRAY: lambda value: mk_array(value),
         MANGLED: lambda name: add_quotes(name.replace("*","'//trim(comp_name)//'")) if name else None,
-        STANDARD_NAME_MANGLE: mangle_standard_name,
-        RANK_MAPPING: compute_rank, 
-        MAKE_IF_BLOCK: lambda value: partial(make_if_block, value) if value else None
+        STANDARD_NAME: mangle_standard_name,
+        RANK: compute_rank, 
+        IF_BLOCK: lambda value: partial(make_if_block, value) if value else None
         }
 
 def fetch_mapping_function(m, func_dict=NAMED_MAPPINGS):
@@ -687,32 +650,6 @@ def make_mapping(m, func_sequence=None, func_dict=None):
                     return f(arg)                                                                         
                 return None
             return inner
-    
-def get_mapping_function(mapping):
-    MAPPINGS = {
-        STRING: lambda value: add_quotes(value),
-        STRINGVECTOR: lambda value: construct_string_vector(value),
-        ARRAY: lambda value: mk_array(value),
-        MANGLED: lambda name: add_quotes(name.replace("*","'//trim(comp_name)//'")) if name else None,
-        INTERNAL_NAME: lambda name, alias: get_internal_name(name, alias) if name else None,
-        STANDARD_NAME_MANGLE: mangle_standard_name,
-        RANK_MAPPING: compute_rank, 
-        MAKE_IF_BLOCK: lambda value: partial(make_if_block, value) if value else None
-    }
-
-    if callable(mapping):
-        return mapping
-
-    match mapping:
-        case None:
-            return lambda v: v
-        case str() as name if mapping in MAPPINGS:
-            return MAPPINGS[name]
-        case dict() as d:
-            return lambda v: d[v] if v in d else (v if v in d.values() else None)
-        case _:
-            return None
-    return None
 
 # Main Procedure (Added to facilitate testing.)
 def main():
@@ -732,11 +669,7 @@ def main():
 # Process blocked CSV input file
     parsed_specs = read_specs(args.input)
 
-    #try:
     values, results = get_values(parsed_specs, options)
-    #except Exception as ex:
-    #    print(ex)
-    #else:
     missing = [(r[SPEC], r[MISSING_MANDATORY]) for r in results if r[MISSING_MANDATORY]]
     if missing:
         for s, n in missing:
@@ -755,62 +688,3 @@ if __name__ == "__main__":
     main()
 # FIN
     sys.exit(SUCCESS)
-
-# UNUSED
-
-def make_callable(f, **lookups):
-    if callable(f):
-        return f
-    func_dict = lookups.get('func_dict')
-    func_sequence = lookups.get('func_sequence')
-    ID = lambda x: x
-    constant = lambda c: lambda x: c
-    match f:
-        case str() as name if func_dict:
-            return func_dict.get(name)
-        case dict() as d:
-            return lambda k: d.get(k)
-        case int() as i if func_sequence:
-            return func_sequence[i]
-        case int() | float() | bool() as c:
-            return constant(c)
-        case tuple() as u if len(u) == 0:
-            return lambda v: v
-        case None:
-            return None
-
-def valid_index(n, seq):
-    if None in {n, seq}:
-        return False
-    return n >= 0 and n < len(seq) if isinstance(n, int) else False
-
-def make_successive_function(*funcs):
-    if (len(funcs) == 0 if funcs else False):
-        return None
-    fs = [make_callable(f) for f in funcs]
-    if None in fs:
-        return None
-    if not all([callable(f) for f in funcs]):
-        return None
-
-    def inner(*args):
-        for f, arg in zip(fs, args):
-            if arg:
-                return f(arg)
-        return None
-
-    return inner
-
-def get_option_key(name, options, levels=1):
-    if levels < 0 or None in {name, options}:
-        return None
-    if name in options:
-        match options[name]:
-            case str() as alias:
-                return get_option_key(alias, options, levels=levels-1)
-            case _ as option:
-                return (name,)
-    for key, value in options.items():
-        ok = get_option_key(key, value, levels=levels-1)
-        return (name,) + ok if ok else None
-
