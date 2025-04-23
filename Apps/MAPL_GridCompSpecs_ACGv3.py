@@ -308,38 +308,20 @@ def get_from_values(keys, values, argdict):
             raise RuntimeError('Option is not a supported type')
 
 def digest_spec(spec, options):
-    values = {}
-    specs_not_found = []
-    spec_options = options[SPECIFICATIONS]
-    for spec_name, spec_value in spec.items():
-        opt = spec_options.get(spec_name)
-        if opt is None:
-            specs_not_found.append(spec_name)
-            continue
-        m = fetch_mapping_function(opt.get(MAPPING))
-        value = m(spec_value)
-        name = opt.get(AS, spec_name)
-        values[name] = value
-    return values, specs_not_found
+    tuples = [(k, spec[k]) for k, v in spec.items() if k in options and spec[k]]
+    spec_options = [options[k] for k, _ in tuples]
+    mapping_functions = [fetch_mapping_function(so.get(MAPPING)) for so in spec_options]
+    values = dict((n, f(v)) for (n, v), f in zip(tuples, mapping_functions))
+    return values, set(spec).difference(values)
 
 def map_spec_values(values, options):
-    mapped_values = values
-    argdict = options[ARGDICT]
-    values_not_found = []
-    value_types = list(filter(lambda k: k in {MAPPED, CONTROLS}, options.keys()))
-    value_options = reduce(lambda a, t: a | options[t], value_types, {})
-    for option_name, option in value_options.items():
-        if not isinstance(option, dict):
-            continue
-        from_keys = get_from_keys(option)
-        from_values = get_from_values(from_keys, mapped_values, argdict)
-        first, *_ = from_keys
-        mname = option.get(MAPPING)
-        m = fetch_mapping_function(mname)
-        mapped_values_value = m(*from_values)
+    value_options = reduce(lambda a, t: a | options[t], {MAPPED, CONTROLS}, {})
+    for option_name, option in filter(lambda t: isinstance(t[1], dict), value_options.items()):
+        m = fetch_mapping_function(option.get(MAPPING))
+        (first, *tail) = get_from_keys(option)
         name = option.get(AS, first if has_as_flag(option) else option_name) 
-        mapped_values[name] = mapped_values_value
-    return mapped_values, values_not_found
+        values[name] = m(*get_from_values((first, *tail), values, options[ARGDICT]))
+    return values, []
 
 def get_mandatory_option_keys(options):
     keys = []
@@ -365,7 +347,7 @@ def get_values(specs, options):
     for spec in flat_specs:
         dealiased = dict((aliases.get(k, k), v) for k, v in spec.items())
         internal_name = get_internal_name(dealiased)
-        spec_values, specs_not_found = digest_spec(dealiased, options)
+        spec_values, specs_not_found = digest_spec(dealiased, options[SPECIFICATIONS])
         values, values_not_found = map_spec_values(spec_values, options)
         # Because the internal name is used in declare and get_pointer, it is singled out here.
         values[INTERNAL_NAME] = internal_name
@@ -395,54 +377,48 @@ def flatten_options(o):
     return flat 
 
 ################################# EMIT_VALUES ##################################
-def emit_values(specs, options, args):
+def emit_values(specs, options):
 
     argdict = options[ARGDICT]
     exit_code_ = ERROR
 
     add_newline = lambda s: f"{s.rstrip()}{linesep}"
 
-    if args.name:
-        component = args.name
-    else:
-        component, _ = splitext(basename(args.input))
-        component = component.replace('_Registry','')
-        component = component.replace('_StateSpecs','')
+    component, declare_pointers, get_pointers = (argdict.get(k) for k in ('name', 'declare_pointers', 'get-pointers'))
+    if component is None:
+        component, _ = splitext(basename(argdict['input']))
+        component = component.replace('_Registry','').replace('_StateSpecs','')
 
 # open all output files
     f_specs = {}
     states = options[CONSTANTS][STATES]
     for state in states:
-        option = args.__dict__[state + "_specs"]
-        if option:
-            fname = option.format(component=component)
+        if state_specs := argdict.get(state + "_specs"):
+            fname = state_specs.format(component=component)
             f_specs[state] = open_with_header(fname)
         else:
             f_specs[state] = None
 
-    if args.declare_pointers:
-        f_declare_pointers = open_with_header(args.declare_pointers.format(component=component))
-    else:
-        f_declare_pointers = None
-    if args.get_pointers:
-        f_get_pointers = open_with_header(args.get_pointers.format(component=component))
+    f_declare_pointers = None
+    if declare_pointers:
+        f_declare_pointers = open_with_header(declare_pointers.format(component=component))
+
+    f_get_pointers = None
+    if get_pointers:
+        f_get_pointers = open_with_header(get_pointers.format(component=component))
     else:
         f_get_pointers = None
 
 # Generate code from specs (processed above)
     for state in states:
-        state_specs = list(filter(lambda s: s[STATE] == state, specs))
-        if state_specs:
-            for values in state_specs:
-                if f_specs[state]:
-                    lines = [add_newline(line) for line in emit_specs(values, options)]
-                    f_specs[state].writelines(lines)
-                if f_declare_pointers:
-                    emitted_declarations = emit_declare_pointers(values)
-                    f_declare_pointers.write(add_newline(emitted_declarations))
-                if f_get_pointers:
-                    f_get_pointers.writelines(add_newline(line) for line in emit_get_pointers(values))
-
+        for values in filter(lambda s: s[STATE] == state, specs):
+            if f_specs[state]:
+                f_specs[state].writelines([add_newline(line) for line in emit_specs(values, options)])
+            if f_declare_pointers:
+                f_declare_pointers.write(add_newline(emit_declare_pointers(values)))
+            if f_get_pointers:
+                f_get_pointers.writelines(add_newline(line) for line in emit_get_pointers(values))
+        
 # Close output files
     for f in list(f_specs.values()):
         if f:
@@ -587,7 +563,7 @@ def main():
         exit_code = ERROR
 
 # Emit values
-    exit_code = emit_values(values, options, args)
+    exit_code = emit_values(values, options)
     sys.exit(exit_code)
 
 #############################################
