@@ -848,6 +848,12 @@ contains
               call formatter%put_var(message%var_name, values_int64_1d, start=start, count=count, _RC)
           case (pFIO_REAL32)
               call c_f_pointer(address, values_real32_1d,[product(int(count, INT64))])
+! ygyu
+              print*, 'message%collection_id', message%collection_id
+              print*, 'message%var_name ', message%var_name
+              print*, 'start, count ', start, count
+              print*, ' values_real32_1d ',  values_real32_1d
+              
               call formatter%put_var(message%var_name, values_real32_1d, start=start, count=count, _RC)
           case (pFIO_REAL64)
               call c_f_pointer(address, values_real64_1d,[product(int(count, INT64))])

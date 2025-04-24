@@ -93,9 +93,11 @@ module function MaskSampler_from_config(config,string,clock,GENSTATE,rc) result(
      shms=trim(STR1)
   endif
   call convert_twostring_2_esmfinterval (symd, shms,  mask%obsfile_interval, _RC)
+  allocate( mask%rtime(1), _STAT )
 
   mask%is_valid = .true.
   mask%use_pfio = .false.   ! activate in set_param
+
 
   _RETURN(_SUCCESS)
 
@@ -275,17 +277,15 @@ module subroutine  create_metadata(this,global_attributes,rc)
     !- add time dimension to metadata
     call this%timeinfo%add_time_to_metadata(this%metadata,_RC)
 
-
-    v = Variable(type=pFIO_REAL32, dimensions='mask_index')
+    v = Variable(type=pFIO_REAL64, dimensions='mask_index')
     call v%add_attribute('long_name','longitude')
     call v%add_attribute('unit','degree_east')
-    call this%metadata%add_variable('longitude',v)
+    call this%metadata%add_variable('lons',v)
 
-    v = Variable(type=pFIO_REAL32, dimensions='mask_index')
+    v = Variable(type=pFIO_REAL64, dimensions='mask_index')
     call v%add_attribute('long_name','latitude')
     call v%add_attribute('unit','degree_north')
-    call this%metadata%add_variable('latitude',v)
-
+    call this%metadata%add_variable('lats',v)
 
     call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC) ! specify lev in fmd
 
@@ -844,7 +844,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
     real(kind=REAL32), allocatable :: arr(:,:)
     character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
     character(len=ESMF_MAXSTR) :: xname
-    real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
+    real(kind=ESMF_KIND_R8), allocatable :: times_r8(:)
     integer :: i, j, k, rank
     integer :: nx, nz
     integer :: ix, iy, m
@@ -883,14 +883,19 @@ module subroutine  create_metadata(this,global_attributes,rc)
 
     !__ 1. put_var: time variable
     !
-    allocate( rtimes(1), _STAT )
-    rtimes(1) = this%compute_time_for_current(current_time,_RC) ! rtimes: seconds since opening file
+    this%rtime(1) = this%compute_time_for_current(current_time,_RC) ! rtimes: seconds since opening file
+    
     if (this%use_pfio) then
-       this%rtime = rtimes(1)*1.0
+       if (mapl_am_i_root()) write(6,*) 'ck: mask write id: ', this%write_collection_id       
        ref = ArrayReference(this%rtime)
-       call oClients%collective_stage_data(this%write_collection_id,trim(filename),'time', &
-            ref,start=[1], global_start=[1], global_count=[1])
-       call this%stage2DLatLon(trim(filename),oClients=oClients,_RC)
+       call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
+
+       ref = ArrayReference(this%lons_deg)
+       call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'lons',ref)
+
+       ref = ArrayReference(this%lats_deg)
+       call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'lats',ref)
+
     else
        if (mapl_am_i_root()) then
           call this%formatter%put_var('time',rtimes(1:1),&
@@ -1038,44 +1043,46 @@ module subroutine  create_metadata(this,global_attributes,rc)
     _RETURN(_SUCCESS)
   end function compute_time_for_current
 
-  module subroutine stage2dlatlon(this,filename,oClients,rc)
-    implicit none
-
-    class(MaskSampler), intent(inout) :: this
-    character(len=*), intent(in) :: fileName
-    type (ClientManager), optional, target, intent(inout) :: oClients
-    integer, optional, intent(out) :: rc
-
-    integer, allocatable :: local_start(:)
-    integer, allocatable :: global_start(:)
-    integer, allocatable :: global_count(:)
-    integer :: n
-    type(ArrayReference), target :: ref
-    integer :: status
-
-    ! Note: we have already gatherV to root the lon/lat
-    !       in sub. create_Geosat_grid_find_mask
-    !
-    if (mapl_am_i_root()) then
-       allocate(local_start,source=[1])
-       allocate(global_start,source=[1])
-       allocate(global_count,source=[this%npt_mask_tot])
-    else
-       allocate(local_start,source=[0])
-       allocate(global_start,source=[0])
-       allocate(global_count,source=[0])
-    end if
-
-    ref = ArrayReference(this%lons_deg)
-    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'longitude', &
-         ref,start=local_start, global_start=global_start, global_count=global_count)
-
-    ref = ArrayReference(this%lats_deg)
-    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'latitude', &
-         ref,start=local_start, global_start=global_start, global_count=global_count)
-
-    _RETURN(_SUCCESS)
- end subroutine stage2dlatlon
+!  module subroutine stage2dlatlon(this,filename,oClients,rc)
+!    implicit none
+!
+!    class(MaskSampler), intent(inout) :: this
+!    character(len=*), intent(in) :: fileName
+!    type (ClientManager), optional, target, intent(inout) :: oClients
+!    integer, optional, intent(out) :: rc
+!
+!    integer, allocatable :: local_start(:)
+!    integer, allocatable :: global_start(:)
+!    integer, allocatable :: global_count(:)
+!    integer :: n
+!    type(ArrayReference), target :: ref
+!    integer :: status
+!
+!    ! Note: we have already gatherV to root the lon/lat
+!    !       in sub. create_Geosat_grid_find_mask
+!    !
+!    if (mapl_am_i_root()) then
+!       allocate(local_start,source=[1])
+!       allocate(global_start,source=[1])
+!       allocate(global_count,source=[this%npt_mask_tot])
+!       print*, 'mask this%write_collection_id', this%write_collection_id
+!       print*, 'mask this%npt_mask_tot', this%npt_mask_tot       
+!    else
+!       allocate(local_start,source=[0])
+!       allocate(global_start,source=[0])
+!       allocate(global_count,source=[0])
+!    end if
+!    
+!    ref = ArrayReference(this%lons_deg)
+!    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
+!         ref,start=local_start, global_start=global_start, global_count=global_count)
+!
+!    ref = ArrayReference(this%lats_deg)
+!    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lats', &
+!         ref,start=local_start, global_start=global_start, global_count=global_count)
+!
+!    _RETURN(_SUCCESS)
+! end subroutine stage2dlatlon
 
 
      module subroutine modifyTime(this, oClients, rc)

@@ -93,10 +93,10 @@ module MaskSamplerMod
      integer(kind=ESMF_KIND_I8)     :: epoch_index(2)
      real(kind=REAL64), allocatable :: lons(:)
      real(kind=REAL64), allocatable :: lats(:)
-     real(kind=REAL32), allocatable :: lons_deg(:)
-     real(kind=REAL32), allocatable :: lats_deg(:)
+     real, allocatable :: lons_deg(:)      ! same as in GriddedIO
+     real, allocatable :: lats_deg(:)
+     real, allocatable :: rtime(:)
 
-     real(kind=REAL32) :: rtime
      integer, allocatable :: recvcounts(:)
      integer, allocatable :: displs(:)
      type(MAPL_MetaComp), pointer :: GENSTATE
