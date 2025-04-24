@@ -522,7 +522,7 @@ contains
     call ESMF_ConfigGetAttribute(config, value=intState%allow_overwrite,  &
                                          label='Allow_Overwrite:', default=.false., _RC)
     call ESMF_ConfigGetAttribute(config, value=intState%file_weights,  &
-                                         label='file_weights:', default=.false., _RC)
+                                         label='file_weights:', default=.true., _RC)
     create_mode = PFIO_NOCLOBBER ! defaut no overwrite
     if (intState%allow_overwrite) create_mode = PFIO_CLOBBER
 

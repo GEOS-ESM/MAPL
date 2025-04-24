@@ -32,6 +32,7 @@ use MAPL_HashMod
 use MAPL_ShmemMod
 use MAPL_ExceptionHandling
 use, intrinsic :: iso_fortran_env, only: REAL64, INT64
+use ieee_arithmetic, only: isnan => ieee_is_nan
 use mpi
 
 implicit none
@@ -1943,8 +1944,16 @@ subroutine MAPL_LocStreamTransformT2G (LocStream, OUTPUT, INPUT, MASK, SAMPLE, T
 !jk
                FF    (II,JJ) = FF    (II,JJ) + LOCSTREAM%Ptr%LOCAL_INDEXLOCATION(N)%W
           endif
-
         endif
+
+        if( isnan(FF(II,JJ)) ) then
+           _FAIL("NaN in LocStream!")
+        endif
+
+        if( FF(II,JJ) >= huge(1.0) ) then
+           _FAIL("HUGE in LocStream!")
+        endif
+
      end if
   end do
 
@@ -1955,7 +1964,7 @@ subroutine MAPL_LocStreamTransformT2G (LocStream, OUTPUT, INPUT, MASK, SAMPLE, T
   if(.not.uSample) then
      if (usableTRANSPOSE) then
      else
-         where(FF>0)
+         where(FF>tiny(1.0))
 !jk
             OUTPUT = OUTPUT / FF
          end where
