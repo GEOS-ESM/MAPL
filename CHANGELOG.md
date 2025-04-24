@@ -29,11 +29,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Renamed module for convervative vertical regridding code so as to not conflict so an external module
+- Renamed module for conservative vertical regridding code so as to not conflict so an external module
 
 ### Added
 
-- Added a few error traps in ExtData when processing veritcal coordinate for use in regridding
+- Added a few error traps in ExtData when processing vertical coordinate for use in regridding
 
 ## [2.55.0] - 2025-04-15
 
