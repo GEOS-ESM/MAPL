@@ -113,7 +113,7 @@ contains
                call MAPL_InfoSet(info, namespace_ // "/vertical_grid/num_levels", 0, _RC)
             else if (vert_staggerLoc == VERTICAL_STAGGER_EDGE) then
                call MAPL_InfoSet(info, namespace_ // "/vertical_dim/vloc", "VERTICAL_DIM_EDGE", _RC)
-               call MAPL_InfoSet(info, namespace_ // "/vertical_grid/num_levels", num_levels+1, _RC)
+               call MAPL_InfoSet(info, namespace_ // "/vertical_grid/num_levels", num_levels-1, _RC)
             else if (vert_staggerLoc == VERTICAL_STAGGER_CENTER) then
                call MAPL_InfoSet(info, namespace_ // "/vertical_dim/vloc", "VERTICAL_DIM_CENTER", _RC)
                call MAPL_InfoSet(info, namespace_ // "/vertical_grid/num_levels", num_levels, _RC)
@@ -189,7 +189,7 @@ contains
          if (vert_staggerloc_ == VERTICAL_STAGGER_NONE) then
             num_vgrid_levels = 0
          else if (vert_staggerloc_ == VERTICAL_STAGGER_EDGE) then
-            num_vgrid_levels = num_levels_ + 1
+            num_vgrid_levels = num_levels_ - 1
          else if (vert_staggerloc_ == VERTICAL_STAGGER_CENTER) then
             num_vgrid_levels = num_levels_
          else

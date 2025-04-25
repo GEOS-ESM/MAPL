@@ -15,7 +15,6 @@ set(srcs
   FieldDelta.F90
   VerticalStaggerLoc.F90
   FieldCreate.F90
-  FieldReset.F90
   FieldGet.F90
   FieldSet.F90
   FieldInfo.F90
