@@ -157,6 +157,7 @@ contains
             else
                _FAIL("unsupported hybrid vertical coordinate")
             end if
+            _ASSERT(allocated(vertical_coord%surf_name), "PS was not found in the file")
             vertical_coord%vertical_type = model_pressure
             _RETURN(_SUCCESS)
          end if
