@@ -97,7 +97,7 @@ contains
    end subroutine handle_AddExtCollection
 
    subroutine handle_PrefetchData(this, message, rc)
-      class (MockServerThread), intent(inout) :: this
+      class (MockServerThread), target, intent(inout) :: this
       type (PrefetchDataMessage), intent(in) :: message
       integer, optional, intent(out) :: rc
 

@@ -34,7 +34,9 @@
 
 !********************************************************
     logical function MAPL_ProfIsDisabled()
+      !$omp master
       MAPL_ProfIsDisabled = DISABLED
+      !$omp end master
 
     end function MAPL_ProfIsDisabled
 
@@ -47,7 +49,9 @@
 
       character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_ProfDisable"
 
+      !$omp master
       DISABLED = .true.
+      !$omp end master
 
       _RETURN(ESMF_SUCCESS)
       
@@ -60,7 +64,9 @@
 
       character(len=ESMF_MAXSTR), parameter :: IAm="MAPL_ProfEnable"
 
+      !$omp master
       DISABLED = .false.
+      !$omp end master
 
       _RETURN(ESMF_SUCCESS)
       

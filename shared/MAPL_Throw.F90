@@ -75,13 +75,17 @@ contains
       ! other PEs
       if (is_mpi_initialized) then
          call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierror)
+         !$omp critical (MAPL_Throw1)
          write(ERROR_UNIT,'(a,i5.5,1x,a,i5.5,1x,a3,a40,1x,a)') &
               & 'pe=', rank, 'FAIL at line=', line, prefix, use_name, &
               & '<'//adjustl(trim(message))//'>'
+         !$omp end critical (MAPL_Throw1)
       else
+         !$omp critical (MAPL_Throw1)
          write(ERROR_UNIT,'(a,i5.5,1x,a3,a40,1x,a)') &
               & 'FAIL at line=', line, prefix, use_name, &
               & '<'//adjustl(trim(message))//'>'
+         !$omp end critical (MAPL_Throw1)
       end if
 
 

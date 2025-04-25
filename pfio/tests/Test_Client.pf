@@ -96,7 +96,7 @@ contains
    
    @test
    subroutine test_wait()
-      type (MockClientThread) :: c
+      type (MockClientThread), target :: c
       class (AbstractSocket), pointer :: connection
       integer :: collection_id
 
@@ -110,8 +110,10 @@ contains
 
       character(len=:), allocatable :: expected_log
       type (MockSocketLog), target :: log
+      type(MockSocket), target :: ms
 
-      call c%set_connection(MockSocket(log))
+      ms = MockSocket(log)
+      call c%set_connection(ms)
       connection => c%get_connection()
       select type (connection)
       type is (MockSocket)

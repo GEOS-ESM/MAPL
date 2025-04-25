@@ -45,7 +45,7 @@ contains
 
   function find(this, file_name, rc) result(formatter)
     type (NetCDF4_FileFormatter), pointer :: formatter
-    class (ExtDataCollection), intent(inout) :: this
+    class (ExtDataCollection), target, intent(inout) :: this
     character(len=*), intent(in) :: file_name
     integer, optional, intent(out) :: rc
 

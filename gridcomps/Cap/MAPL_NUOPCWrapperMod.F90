@@ -20,6 +20,7 @@ module MAPL_NUOPCWrapperMod
     use MAPL_Profiler, only: BaseProfiler, get_global_time_profiler
     use pflogger, only: pfl_initialize => initialize
     use mapl_CapOptionsMod
+    use mpi
 
     implicit none
     private
@@ -57,8 +58,6 @@ module MAPL_NUOPCWrapperMod
     type :: cap_parameters_wrapper
         type(cap_parameters), pointer :: ptr
     end type cap_parameters_wrapper
-
-#include "mpif.h"
 
 contains
     subroutine SetServices(model, rc)
@@ -149,7 +148,6 @@ contains
         _VERIFY(status)
 
         !call MPI_Comm_dup(mpi_comm, dup_comm, status)
-        !_VERIFY(status)
         dup_comm = mpi_comm
 
         cap_params = get_cap_parameters_from_gc(model, status)

@@ -43,13 +43,13 @@ module MAPL_ExtDataMask
       i1 = index(mask_expression,"(")
       _ASSERT(i1 > 0,'Incorrect format for function expression: missing "("')
       function_name = adjustl(mask_expression(:i1-1))
-      function_name = ESMF_UtilStringLowerCase(function_name, __RC__)
-      
-      if (index(function_name,"regionmask") /= 0) then 
+      function_name = ESMF_UtilStringLowerCase(function_name, _RC)
+
+      if (index(function_name,"regionmask") /= 0) then
          new_mask%mask_type = "regionmask"
-      else if (index(function_name,"zonemask") /= 0) then 
+      else if (index(function_name,"zonemask") /= 0) then
          new_mask%mask_type = "zonemask"
-      else if (index(function_name,"boxmask") /= 0) then 
+      else if (index(function_name,"boxmask") /= 0) then
          new_mask%mask_type = "boxmask"
       else
          _FAIL("Invalid mask type")
@@ -64,11 +64,10 @@ module MAPL_ExtDataMask
    end function
 
    function get_mask_variables(this,rc) result(variables_in_mask)
-      class(ExtDataMask), intent(inout) :: this 
+      class(ExtDataMask), intent(inout) :: this
       type(StringVector) :: variables_in_mask
       integer, intent(out), optional :: rc
 
-      integer                         :: status
       integer                         :: i1,i2
       logical                         :: twovar
       character(len=:), allocatable   :: tmpstring1,tmpstring2
@@ -80,12 +79,12 @@ module MAPL_ExtDataMask
       i2 = index(this%mask_arguments,";")
       if (twovar) then
          tmpstring1 = this%mask_arguments(1:i1-1)
+         variables_in_mask = parser_variables_in_expression(tmpstring1)
          tmpstring2 = this%mask_arguments(i1+1:i2-1)
-         call variables_in_mask%push_back(trim(tmpstring1))
          call variables_in_mask%push_back(trim(tmpstring2))
       else
        tmpstring1 = this%mask_arguments(1:i1-1)
-         call variables_in_mask%push_back(trim(tmpstring1))
+         variables_in_mask = parser_variables_in_expression(tmpstring1)
       end if
       _RETURN(_SUCCESS)
 
@@ -107,7 +106,7 @@ module MAPL_ExtDataMask
          call this%evaluate_box_mask(state,var_name,_RC)
       end select
       _RETURN(_SUCCESS)
-   end subroutine evaluate_mask   
+   end subroutine evaluate_mask
 
    subroutine evaluate_region_mask(this,state,var_name,rc)
       class(ExtDataMask), intent(inout) :: this
@@ -120,16 +119,17 @@ module MAPL_ExtDataMask
       character(len=:), allocatable :: maskString,maskname,vartomask
       integer, allocatable :: regionNumbers(:), flag(:)
       integer, allocatable :: mask(:,:)
-      real, pointer        :: rmask(:,:)   
-      real, pointer        :: rvar2d(:,:)  
+      real, pointer        :: rmask(:,:)
+      real, pointer        :: rvar2d(:,:)
       real, pointer        :: rvar3d(:,:,:)
-      real, pointer        :: var2d(:,:)   
-      real, pointer        :: var3d(:,:,:) 
+      real, pointer        :: var2d(:,:)
+      real, pointer        :: var3d(:,:,:)
       integer              :: rank,ib,ie
-      type(ESMF_Field)     :: field
+      type(ESMF_Field)     :: field,temp_field
 
-      call ESMF_StateGet(state,var_name,field,__RC__)
-      call ESMF_FieldGet(field,rank=rank,__RC__)
+      call ESMF_StateGet(state,var_name,field,_RC)
+      call ESMF_FieldGet(field,rank=rank,_RC)
+      temp_field = create_field_from_Field(field,_RC)
 
        ! get mask string
        ib = index(this%mask_arguments,";")
@@ -140,13 +140,16 @@ module MAPL_ExtDataMask
        vartomask = this%mask_arguments(:ib-1)
        maskname = this%mask_arguments(ib+1:ie-1)
 
-       call MAPL_GetPointer(state,rmask,maskName,__RC__)
+       call MAPL_StateEval(state,vartomask,temp_field,_RC)
+       call MAPL_GetPointer(state,rmask,maskName,_RC)
        if (rank == 2) then
-          call MAPL_GetPointer(state,rvar2d,vartomask,__RC__)
-          call MAPL_GetPointer(state,var2d,var_name,__RC__)
+          !call MAPL_GetPointer(state,rvar2d,vartomask,_RC)
+          call ESMF_FieldGet(temp_field,0,farrayptr=rvar2d,_RC)
+          call MAPL_GetPointer(state,var2d,var_name,_RC)
        else if (rank == 3) then
-          call MAPL_GetPointer(state,rvar3d,vartomask,__RC__)
-          call MAPL_GetPointer(state,var3d,var_name,__RC__)
+          !call MAPL_GetPointer(state,rvar3d,vartomask,_RC)
+          call ESMF_FieldGet(temp_field,0,farrayptr=rvar3d,_RC)
+          call MAPL_GetPointer(state,var3d,var_name,_RC)
        else
           _FAIL('Rank must be 2 or 3')
        end if
@@ -183,6 +186,7 @@ module MAPL_ExtDataMask
           enddo
        end if
        deallocate( mask)
+       call ESMF_FieldDestroy(temp_field, noGarbage=.true., _RC)
 
       _RETURN(_SUCCESS)
    end subroutine evaluate_region_mask
@@ -197,19 +201,20 @@ module MAPL_ExtDataMask
 
        integer :: i
        character(len=:), allocatable :: vartomask,clatS,clatN
-       real, pointer        :: rvar2d(:,:)   
-       real, pointer        :: rvar3d(:,:,:) 
-       real, pointer        :: var2d(:,:)   
-       real, pointer        :: var3d(:,:,:) 
-       real(REAL64), pointer :: lats(:,:)    
+       real, pointer        :: rvar2d(:,:)
+       real, pointer        :: rvar3d(:,:,:)
+       real, pointer        :: var2d(:,:)
+       real, pointer        :: var3d(:,:,:)
+       real(REAL64), pointer :: lats(:,:)
        real(REAL64)         :: limitS, limitN
-       type(ESMF_Field)     :: field
+       type(ESMF_Field)     :: field,temp_field
        type(ESMF_Grid)      :: grid
        integer              :: rank,ib,is
        type(ESMF_CoordSys_Flag) :: coordSys
 
-       call ESMF_StateGet(state,var_name,field,__RC__)
-       call ESMF_FieldGet(field,rank=rank,grid=grid,__RC__)
+       call ESMF_StateGet(state,var_name,field,_RC)
+       call ESMF_FieldGet(field,rank=rank,grid=grid,_RC)
+      temp_field = create_field_from_Field(field,_RC)
 
        ib = index(this%mask_arguments,",")
        vartomask = this%mask_arguments(:ib-1)
@@ -230,12 +235,15 @@ module MAPL_ExtDataMask
           limitS=limitS*MAPL_PI_R8/180.0d0
        end if
 
+       call MAPL_StateEval(state,vartomask,temp_field,_RC)
        if (rank == 2) then
-          call MAPL_GetPointer(state,rvar2d,vartomask,__RC__)
-          call MAPL_GetPointer(state,var2d,var_name,__RC__)
+          !call MAPL_GetPointer(state,rvar2d,vartomask,_RC)
+          call ESMF_FieldGet(temp_field,0,farrayptr=rvar2d,_RC)
+          call MAPL_GetPointer(state,var2d,var_name,_RC)
        else if (rank == 3) then
-          call MAPL_GetPointer(state,rvar3d,vartomask,__RC__)
-          call MAPL_GetPointer(state,var3d,var_name,__RC__)
+          !call MAPL_GetPointer(state,rvar3d,vartomask,_RC)
+          call ESMF_FieldGet(temp_field,0,farrayptr=rvar3d,_RC)
+          call MAPL_GetPointer(state,var3d,var_name,_RC)
        else
           _FAIL('Rank must be 2 or 3')
        end if
@@ -249,7 +257,8 @@ module MAPL_ExtDataMask
              where(limitS <= lats .and. lats <=limitN) var3d(:,:,i) = rvar3d(:,:,i)
           enddo
        end if
- 
+       call ESMF_FieldDestroy(temp_field, noGarbage=.true., _RC)
+
       _RETURN(_SUCCESS)
    end subroutine evaluate_zone_mask
 
@@ -263,16 +272,16 @@ module MAPL_ExtDataMask
 
        integer :: i
        character(len=:), allocatable :: vartomask,strtmp
-       real, pointer        :: rvar2d(:,:)  
+       real, pointer        :: rvar2d(:,:)
        real, pointer        :: rvar3d(:,:,:)
-       real, pointer        :: var2d(:,:)   
+       real, pointer        :: var2d(:,:)
        real, pointer        :: var3d(:,:,:)
-       real(REAL64), pointer :: lats(:,:)  
-       real(REAL64), pointer :: lons(:,:) 
+       real(REAL64), pointer :: lats(:,:)
+       real(REAL64), pointer :: lons(:,:)
        real(REAL64)         :: limitS, limitN, limitE, limitW
        real(REAL64)         :: limitE1, limitW1
        real(REAL64)         :: limitE2, limitW2
-       type(ESMF_Field)     :: field
+       type(ESMF_Field)     :: field,temp_field
        type(ESMF_Grid)      :: grid
        integer              :: rank,is,nargs
        integer              :: counts(3)
@@ -281,9 +290,10 @@ module MAPL_ExtDataMask
        character(len=ESMF_MAXSTR) :: args(5)
        type(ESMF_CoordSys_Flag) :: coordSys
 
-       call ESMF_StateGet(state,var_name,field,__RC__)
-       call ESMF_FieldGet(field,rank=rank,grid=grid,__RC__)
+       call ESMF_StateGet(state,var_name,field,_RC)
+       call ESMF_FieldGet(field,rank=rank,grid=grid,_RC)
        call ESMF_GridGet(grid,coordsys=coordsys,_RC)
+      temp_field = create_field_from_Field(field,_RC)
 
        strtmp = this%mask_arguments
        do nargs=1,5
@@ -378,12 +388,14 @@ module MAPL_ExtDataMask
           limitN=limitN*MAPL_PI_R8/180.0d0
           limitS=limitS*MAPL_PI_R8/180.0d0
        end if
+
+       call MAPL_StateEval(state,varToMask,temp_field,_RC)
        if (rank == 2) then
-          call MAPL_GetPointer(state,rvar2d,vartomask,__RC__)
-          call MAPL_GetPointer(state,var2d,var_name,__RC__)
+          call ESMF_FieldGet(temp_field,0,farrayptr=rvar2d,_RC)
+          call MAPL_GetPointer(state,var2d,var_name,_RC)
        else if (rank == 3) then
-          call MAPL_GetPointer(state,rvar3d,vartomask,__RC__)
-          call MAPL_GetPointer(state,var3d,var_name,__RC__)
+          call ESMF_FieldGet(temp_field,0,farrayptr=rvar3d,_RC)
+          call MAPL_GetPointer(state,var3d,var_name,_RC)
        else
           _FAIL('Rank must be 2 or 3')
        end if
@@ -414,64 +426,52 @@ module MAPL_ExtDataMask
           end if
           deallocate(temp2d)
        end if
+       call ESMF_FieldDestroy(temp_field, noGarbage=.true., _RC)
 
        _RETURN(_SUCCESS)
   end subroutine evaluate_box_mask
 
-  SUBROUTINE ExtDataExtractIntegers(string,iSize,iValues,delimiter,verbose,rc)
-
-! !USES:
-
-  IMPLICIT NONE
-
-! !INPUT/OUTPUT PARAMETERS:
-
-  CHARACTER(LEN=*), INTENT(IN)   :: string     ! Character-delimited string of integers
-  INTEGER, INTENT(IN)            :: iSize
-  INTEGER, INTENT(INOUT)         :: iValues(iSize)! Space allocated for extracted integers
-  CHARACTER(LEN=*), OPTIONAL     :: delimiter     ! 1-character delimiter
-  LOGICAL, OPTIONAL, INTENT(IN)  :: verbose    ! Let me know iValues as they are found.
-                                      ! DEBUG directive turns on the message even
-                                      ! if verbose is not present or if
-                                      ! verbose = .FALSE.
-  INTEGER, OPTIONAL, INTENT(OUT) :: rc            ! Return code
-! !DESCRIPTION:
+!------------------------------------------------------------------------------
+!>
+! Extract integers from a character-delimited string, for example, "-1,45,256,7,10".  In the context
+! of Chem_Util, this is provided for determining the numerically indexed regions over which an
+! emission might be applied.
 !
-!  Extract integers from a character-delimited string, for example, "-1,45,256,7,10".  In the context
-!  of Chem_Util, this is provided for determining the numerically indexed regions over which an
-!  emission might be applied.
+! In multiple passes, the string is parsed for the delimiter, and the characters up to, but not
+! including the delimiter are taken as consecutive digits of an integer.  A negative sign ("-") is
+! allowed.  After the first pass, each integer and its trailing delimiter are lopped of the head of
+! the (local copy of the) string, and the process is started over.
 !
-!  In multiple passes, the string is parsed for the delimiter, and the characters up to, but not
-!  including the delimiter are taken as consecutive digits of an integer.  A negative sign ("-") is
-!  allowed.  After the first pass, each integer and its trailing delimiter are lopped of the head of
-!  the (local copy of the) string, and the process is started over.
+! The default delimiter is a comma (",").
 !
-!  The default delimiter is a comma (",").
+! "Unfilled" iValues are zero.
 !
-!  "Unfilled" iValues are zero.
+! Return codes:
+!1. Zero-length string.
+!2. iSize needs to be increased.
 !
-!  Return codes:
-!  1 Zero-length string.
-!  2 iSize needs to be increased.
+!#### Assumptions/bugs:
 !
-!  Assumptions/bugs:
+! A non-zero return code does not stop execution.
+! Allowed numerals are: 0,1,2,3,4,5,6,7,8,9.
+! A delimiter must be separated from another delimiter by at least one numeral.
+! The delimiter cannot be a numeral or a negative sign.
+! The character following a negative sign must be an allowed numeral.
+! The first character must be an allowed numeral or a negative sign.
+! The last character must be an allowed numeral.
+! The blank character (" ") cannot serve as a delimiter.
 !
-!  A non-zero return code does not stop execution.
-!  Allowed numerals are: 0,1,2,3,4,5,6,7,8,9.
-!  A delimiter must be separated from another delimiter by at least one numeral.
-!  The delimiter cannot be a numeral or a negative sign.
-!  The character following a negative sign must be an allowed numeral.
-!  The first character must be an allowed numeral or a negative sign.
-!  The last character must be an allowed numeral.
-!  The blank character (" ") cannot serve as a delimiter.
-!
-!  Examples of strings that will work:
+!#### Examples of strings that will work:
+!```
 !  "1"
 !  "-1"
 !  "-1,2004,-3"
 !  "1+-2+3"
 !  "-1A100A5"
-!  Examples of strings that will not work:
+!```
+!
+!#### Examples of strings that will not work:
+!```
 !  "1,--2,3"
 !  "1,,2,3"
 !  "1,A,3"
@@ -479,6 +479,21 @@ module MAPL_ExtDataMask
 !  "1,2,3,4,"
 !  "+1"
 !  "1 3 6"
+!```
+!
+  SUBROUTINE ExtDataExtractIntegers(string,iSize,iValues,delimiter,verbose,rc)
+
+  IMPLICIT NONE
+
+  CHARACTER(LEN=*), INTENT(IN)   :: string         !! Character-delimited string of integers
+  INTEGER, INTENT(IN)            :: iSize
+  INTEGER, INTENT(INOUT)         :: iValues(iSize) !! Space allocated for extracted integers
+  CHARACTER(LEN=*), OPTIONAL     :: delimiter      !! 1-character delimiter
+  LOGICAL, OPTIONAL, INTENT(IN)  :: verbose        !! Let me know iValues as they are found.
+                                                   !! DEBUG directive turns on the message even
+                                                   !! if verbose is not present or if
+                                                   !! verbose = .FALSE.
+  INTEGER, OPTIONAL, INTENT(OUT) :: rc             !! Return code
 
  INTEGER :: base,count,i,iDash,last,lenStr
  INTEGER :: multiplier,pos,posDelim,sign
@@ -593,5 +608,25 @@ module MAPL_ExtDataMask
  _RETURN(ESMF_SUCCESS)
 
  END SUBROUTINE ExtDataExtractIntegers
+
+ function create_field_from_field(input_field,rc) result(output_field)
+    type(ESMF_Field) :: output_field
+    type(ESMF_Field), intent(in) :: input_field
+    integer, optional, intent(out) :: rc
+
+    integer :: status
+    type(ESMF_Grid) :: grid
+    integer :: rank
+    type(ESMF_TypeKind_Flag) :: typekind
+    integer :: lb(1),ub(1)
+
+    call ESMF_FieldGet(input_field,grid=grid,rank=rank,typekind=typekind,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
+    if (rank==2) then
+       output_field = ESMF_FieldCreate(grid,typekind,_RC)
+    else if (rank==3) then
+       output_field = ESMF_FieldCreate(grid,typekind,ungriddedLBound=lb,ungriddedUBound=ub,name="temp_field",_RC)
+    end if
+    _RETURN(_SUCCESS)
+  end function
 
 end module MAPL_ExtDataMask

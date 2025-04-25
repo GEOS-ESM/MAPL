@@ -198,8 +198,6 @@ contains
       logical :: am_i_root
       type (ESMF_VM) :: vm
 
-      _UNUSED_DUMMY(unusable)
-
       call ESMF_VMGetCurrent(vm, rc=status)
       _VERIFY(status)
       call ESMF_VmGet(VM, localPet=deId, petCount=npes, rc=status)
@@ -242,6 +240,7 @@ contains
       end if
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
 
    contains
 
@@ -285,6 +284,7 @@ contains
          _VERIFY(status)
 
          _RETURN(_SUCCESS)
+         _UNUSED_DUMMY(unusable)
       end subroutine read_tiling_metadata
 
       
@@ -297,7 +297,6 @@ contains
          integer, optional, intent(out) :: rc
 
          real(kind=REAL32), pointer :: buffer(:)
-         integer :: length
          character(len=*), parameter :: Iam = 'read_tiling_data'
          integer :: status
 
@@ -340,7 +339,7 @@ contains
          end if
 
          _RETURN(_SUCCESS)
-
+         _UNUSED_DUMMY(unusable)
       end subroutine read_tiling_data
 
     end function read_geos_binary
@@ -354,9 +353,7 @@ contains
 
       character(len=*), parameter :: Iam = 'read_tempest'
 
-      _UNUSED_DUMMY(unusable)
-      _UNUSED_DUMMY(rc)
-
+ 
       call readTileFileNC_file(file_name)
 
       tile_file%grid_tiles(1)%i_indices = II_in
@@ -365,7 +362,9 @@ contains
       tile_file%grid_tiles(1)%j_indices = JJ_out
       tile_file%grid_tiles(1)%weights = W
 
-    end function read_tempest
+      _UNUSED_DUMMY(unusable)
+      _UNUSED_DUMMY(rc)
+   end function read_tempest
 
    !--------------------------------------------------------------------------------
    ! A single tile file supports regridding in both directions, and is
@@ -447,7 +446,7 @@ contains
       end if
 
       _RETURN(_FAILURE)
-
+      _UNUSED_DUMMY(unusable)
 
    contains
 

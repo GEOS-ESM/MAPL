@@ -1,32 +1,22 @@
-
+!------------------------------------------------------------------------------
+!               Global Modeling and Assimilation Office (GMAO)                !
+!                    Goddard Earth Observing System (GEOS)                    !
+!                                 MAPL Component                              !
+!------------------------------------------------------------------------------
+!
 #include "MAPL_ErrLog.h"
-
-
-!=============================================================================
-!BOP
-
-! !MODULE: MAPL_Sort   -- A utility to sort integers
-
-! !INTERFACE:
-
-module MAPL_SortMod
-   use, intrinsic :: ISO_FORTRAN_ENV, only: REAL32, REAL64
-   use, intrinsic :: ISO_FORTRAN_ENV, only: INT32, INT64
-
-   use MAPL_ExceptionHandling
-
-  implicit none
-  private
-
-! !PUBLIC ROUTINES:
-
-  public MAPL_Sort
-
-! !DESCRIPTION:
+!
+!>
+!### MODULE: `MAPL_SortMod`
+!
+! Author: GMAO SI-Team
+!
+! `MAPL_SortMod` -- A utility to sort integers
 ! 
-!   {\tt MAPL\_Sort} is a utility to do a quicksort on integers. The general
-!   interface is:
-!\bv       
+! `MAPL_Sort` is a utility to do a quicksort on integers. 
+! The general interface is:
+!
+!```fortran       
 !       subroutine MAPL_Sort(A[,B])
 !         integer(kind=[4,8]),           intent(INOUT) :: A(:)
 !         integer(kind=4),     optional, intent(INOUT) :: B(size(A))
@@ -40,18 +30,32 @@ module MAPL_SortMod
 !         integer(kind=[4,8]),       intent(INOUT) :: A(:)
 !         integer(kind=4),           intent(INOUT) :: B(:,:)
 !         integer(kind=4), optional, intent(IN   ) :: DIM
-!\ev
-!   {\tt MAPL\_Sort} sorts the key (contained in a row or column of A)
-!   in ascending order and reorders the data in B or in non-key rows or columns of A
-!   in the same order; i.e., it does the same exchanges as were done 
-!   to the key in sorting it.  If, for example, on input B(:) contains the ordered integers
-!   from 1 to size(A), on output it will contain the positions of the elements of
-!   the sorted A in the unsorted A. In the last two signatures, DIM is the dimension
-!   of A or B being reordered. In the last signature, for example, DIM=1 corresponds
-!   to a B ordered as B(size(A),:), whereas DIM=2 corresponds to B(:,size(A)).
-!   The default is DIM=2. The quicksort is coded in C and does not appear here.
+!```
+!
+! `MAPL_Sort` sorts the key (contained in a row or column of A)
+! in ascending order and reorders the data in B or in non-key rows or columns of A
+! in the same order; i.e., it does the same exchanges as were done 
+! to the key in sorting it.  If, for example, on input B(:) contains the ordered integers
+! from 1 to size(A), on output it will contain the positions of the elements of
+! the sorted A in the unsorted A. In the last two signatures, DIM is the dimension
+! of A or B being reordered. In the last signature, for example, DIM=1 corresponds
+! to a B ordered as B(size(A),:), whereas DIM=2 corresponds to B(:,size(A)).
+! The default is DIM=2. The quicksort is coded in C and does not appear here.
+!
+module MAPL_SortMod
+   use, intrinsic :: ISO_FORTRAN_ENV, only: REAL32, REAL64
+   use, intrinsic :: ISO_FORTRAN_ENV, only: INT32, INT64
 
-!EOP
+   use MAPL_ExceptionHandling
+
+  implicit none
+  private
+
+! !PUBLIC ROUTINES:
+
+  public MAPL_Sort
+
+
 !=============================================================================
 
 interface MAPL_Sort

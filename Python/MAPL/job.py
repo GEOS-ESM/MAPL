@@ -11,8 +11,8 @@ Design remarks:
 
 """
 
-import Abstract
-from exp import Exp
+from . import Abstract
+from .exp import Exp
 
 class Job(Exp):
     
@@ -72,13 +72,13 @@ class Job(Exp):
 #                         -----------------
 
     def getResources(self):
-        raise NotImplementedError, "Not implemented yet"
+        raise NotImplementedError("Not implemented yet")
 
     def getRecyclables(self):
-        raise NotImplementedError, "Not implemented yet"
+        raise NotImplementedError("Not implemented yet")
 
     def putRecyclables(self):
-        raise NotImplementedError, "Not implemented yet"
+        raise NotImplementedError("Not implemented yet")
 
 
 #                         ----------------

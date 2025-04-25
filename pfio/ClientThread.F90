@@ -30,9 +30,9 @@ module pFIO_ClientThreadMod
    use pFIO_CollectivePrefetchDataMessageMod
    use pFIO_CollectiveStageDataMessageMod
    use pFIO_ModifyMetadataMessageMod
+   use pFIO_ReplaceMetadataMessageMod
    use pFIO_StringVariableMapMod
 
-   use, intrinsic :: iso_fortran_env, only: REAL32
    implicit none
    private
 
@@ -57,6 +57,7 @@ module pFIO_ClientThreadMod
       procedure :: add_ext_collection
       procedure :: add_hist_collection
       procedure :: modify_metadata
+      procedure :: replace_metadata
       procedure :: prefetch_data
       procedure :: stage_data
       procedure :: collective_prefetch_data
@@ -129,15 +130,14 @@ contains
 
    function add_hist_collection(this, fmd, unusable,  mode, rc) result(hist_collection_id)
       integer :: hist_collection_id
-      class (ClientThread), intent(inout) :: this
+      class (ClientThread), target, intent(inout) :: this
       type(FileMetadata),intent(in) :: fmd
       class (KeywordEnforcer), optional, intent(out) :: unusable
       integer, optional, intent(in) :: mode
       integer, optional, intent(out) :: rc
 
       class (AbstractMessage), pointer :: message
-      class(AbstractSocket),pointer :: connection
-      integer :: status
+      class(AbstractSocket), pointer :: connection
 
       connection=>this%get_connection()
       call connection%send(AddHistCollectionMessage(fmd, mode=mode))
@@ -151,6 +151,7 @@ contains
       end select
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function add_hist_collection
 
    function prefetch_data(this, collection_id, file_name, var_name, data_reference, &
@@ -208,6 +209,24 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine modify_metadata
+
+   subroutine replace_metadata(this, collection_id, fmd, rc)
+      class (ClientThread), intent(inout) :: this
+      integer, intent(in) :: collection_id
+      type (FileMetadata),intent(in) :: fmd
+      integer, optional, intent(out) :: rc
+
+      class (AbstractMessage), pointer :: handshake_msg
+      class(AbstractSocket),pointer :: connection
+      integer :: status
+
+      connection=>this%get_connection()
+      call connection%send(ReplaceMetadataMessage(collection_id,fmd),_RC)
+
+      handshake_msg => connection%receive()
+      deallocate(handshake_msg)
+      _RETURN(_SUCCESS)
+   end subroutine replace_metadata
 
    function collective_prefetch_data(this, collection_id, file_name, var_name, data_reference, &
         & unusable, start,global_start,global_count, rc) result(request_id)
@@ -285,7 +304,7 @@ contains
 
    function collective_stage_data(this, collection_id, file_name, var_name, data_reference, &
         & unusable, start,global_start,global_count, rc) result(request_id)
-      class (ClientThread), intent(inout) :: this
+      class (ClientThread), target, intent(inout) :: this
       integer, intent(in) :: collection_id
       character(len=*), intent(in) :: file_name
       character(len=*), intent(in) :: var_name
@@ -336,7 +355,6 @@ contains
 
       class (AbstractMessage), pointer :: handshake_msg
       class(AbstractSocket),pointer :: connection
-      integer :: status
 
       request_id = this%get_unique_collective_request_id()
       connection => this%get_connection()
@@ -392,6 +410,10 @@ contains
       class(AbstractSocket),pointer :: connection
       integer :: status
 
+      if (this%isEmpty_RequestHandle()) then
+        _RETURN(_SUCCESS)
+      endif
+    
       connection=>this%get_connection()
       call connection%send(PrefetchDoneMessage(),_RC)
       _RETURN(_SUCCESS)
@@ -402,6 +424,10 @@ contains
       integer, optional, intent(out) :: rc
       class(AbstractSocket),pointer :: connection
       integer :: status
+  
+      if (this%isEmpty_RequestHandle()) then
+        _RETURN(_SUCCESS)
+      endif
 
       connection=>this%get_connection()
       call connection%send(CollectivePrefetchDoneMessage(),_RC)
@@ -414,6 +440,10 @@ contains
       class(AbstractSocket),pointer :: connection
       integer :: status
 
+      if (this%isEmpty_RequestHandle()) then
+        _RETURN(_SUCCESS)
+      endif
+
       connection=>this%get_connection()
       call connection%send(StageDoneMessage(),_RC)
       _RETURN(_SUCCESS)
@@ -425,37 +455,49 @@ contains
       class(AbstractSocket),pointer :: connection
       integer :: status
 
+      if (this%isEmpty_RequestHandle()) then
+        _RETURN(_SUCCESS)
+      endif
+     
       connection=>this%get_connection()
       call connection%send(CollectiveStageDoneMessage(),_RC)
       _RETURN(_SUCCESS)
    end subroutine done_collective_stage
 
-   subroutine wait(this, request_id)
+   subroutine wait(this, request_id, rc)
       use pFIO_AbstractRequestHandleMod
       class (ClientThread), target, intent(inout) :: this
       integer, intent(in) :: request_id
+      integer, optional, intent(out) :: rc
+      integer :: status
       class(AbstractRequestHandle), pointer :: handle
 
       handle => this%get_RequestHandle(request_id)
       call handle%wait()
       call handle%data_reference%deallocate()
       call this%erase_RequestHandle(request_id)
-
+      _RETURN(_SUCCESS)
+  
    end subroutine wait
 
-   subroutine wait_all(this)
+   subroutine wait_all(this, rc)
       use pFIO_AbstractRequestHandleMod
       class (ClientThread), target, intent(inout) :: this
-
-      call this%clear_RequestHandle()
+      integer, optional, intent(out) :: rc
+      integer:: status
+      call this%clear_RequestHandle(_RC)
       !call this%shake_hand()
+      _RETURN(_SUCCESS)
 
    end subroutine wait_all
 
-   subroutine post_wait_all(this)
+   subroutine post_wait_all(this, rc)
       use pFIO_AbstractRequestHandleMod
       class (ClientThread), target, intent(inout) :: this
-      call this%wait_all()
+      integer, optional, intent(out):: rc
+      integer :: status
+      call this%wait_all(_RC)
+      _RETURN(_SUCCESS)
    end subroutine post_wait_all
 
    integer function get_unique_request_id(this) result(request_id)

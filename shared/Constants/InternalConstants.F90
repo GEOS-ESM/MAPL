@@ -23,6 +23,7 @@ module MAPL_InternalConstantsMod
    character(len=*), parameter  :: MAPL_GRID_NAME_DEFAULT       = 'UNKNOWN'
    character(len=*), parameter  :: MAPL_GRID_FILE_NAME_DEFAULT  = 'UNKNOWN'
    character(len=*), parameter  :: MAPL_CF_COMPONENT_SEPARATOR  = '.'
+   character(len=*), parameter  :: MAPL_DESTINATIONMASK         = "MAPL_DestinationMask"
 
    enum, bind(c)
       enumerator MAPL_TimerModeOld
@@ -68,6 +69,7 @@ module MAPL_InternalConstantsMod
    integer, parameter :: MAPL_BundleItem        = 16
    integer, parameter :: MAPL_StateItem         = 32
    integer, parameter :: MAPL_NoRestart         = 64  !not used
+   integer, parameter :: MAPL_UnitsRadians      = 99
 
    enum, bind(c)
       enumerator MAPL_Write2Disk
@@ -130,18 +132,18 @@ module MAPL_InternalConstantsMod
       enumerator MAPL_FifthPhase
    endenum
 
-   integer, parameter :: MAPL_Ocean              = 0  
-   integer, parameter :: MAPL_Lake               = 19 
-   integer, parameter :: MAPL_LandIce            = 20 
+   integer, parameter :: MAPL_Ocean              = 0
+   integer, parameter :: MAPL_Lake               = 19
+   integer, parameter :: MAPL_LandIce            = 20
    integer, parameter :: MAPL_Land               = 100
    integer, parameter :: MAPL_Vegetated          = 101
-   integer, parameter :: MAPL_NumVegTypes        = 6 
+   integer, parameter :: MAPL_NumVegTypes        = 6
 
    enum, bind(c)
       enumerator MAPL_AGrid
       enumerator MAPL_CGrid
       enumerator MAPL_DGrid
-   endenum 
+   endenum
 
    enum, bind(c)
       enumerator MAPL_RotateLL
@@ -163,6 +165,29 @@ module MAPL_InternalConstantsMod
       enumerator MAPL_RestartSkipInitial
    endenum
 
+   integer, parameter :: MAPL_NBITS_NOT_SET = 1000
+   integer, parameter :: MAPL_NBITS_UPPER_LIMIT = 24
+   ! Constants for netCDF quantize (these echo the values in the netcdf-fortran library)
+   enum, bind(c)
+      enumerator MAPL_NOQUANTIZE
+      enumerator MAPL_QUANTIZE_BITGROOM
+      enumerator MAPL_QUANTIZE_GRANULAR_BITROUND
+      enumerator MAPL_QUANTIZE_BITROUND
+   endenum
+   ! Maximum number of significant digits for quantization (bitgroom, granular_bitround)
+   integer, parameter :: MAPL_QUANTIZE_MAX_NSD = 7
+   ! Maximum number of significant bits for quantization (bitround)
+   integer, parameter :: MAPL_QUANTIZE_MAX_NSB = 23
+   ! Constant masking
+   enum, bind(c)
+      enumerator MAPL_MASK_OUT
+      enumerator MAPL_MASK_IN
+   endenum
+
+   integer, parameter :: MAPL_FILETYPE_NC4 = 0
+   integer, parameter :: MAPL_FILETYPE_TXT = 1
+   integer, parameter :: MAPL_FILETYPE_BIN = 2
+   integer, parameter :: MAPL_FILETYPE_UNK = -1
 !EOP
 
 end module MAPL_InternalConstantsMod

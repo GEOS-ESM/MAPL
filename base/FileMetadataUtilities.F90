@@ -116,30 +116,15 @@ module MAPL_FileMetadataUtilsMod
       character(len=*), intent(in) :: attr_name
       integer, optional, intent(out) :: rc
 
-      real(REAL32) :: tmp(1)
-      real(REAL64) :: tmpd(1)
       integer :: status
       character(:), allocatable :: fname
-      type(Attribute), pointer :: attr
       type(Variable), pointer :: var
-      class(*), pointer :: attr_val(:)
 
       fname = this%get_file_name(_RC)
       var => this%get_variable(var_name,_RC)
       _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
-      attr => var%get_attribute(attr_name,_RC)
-      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in "//fname)
-      attr_val => attr%get_values()
-      select type(attr_val)
-      type is(real(kind=REAL32))
-         tmp = attr_val
-         attr_real32 = tmp(1)
-      type is(real(kind=REAL64))
-         tmpd = attr_val
-         attr_real32 = REAL(tmpd(1))
-      class default
-         _FAIL('unsupported subclass (not real32) for units of attribute named '//attr_name//' in '//var_name//' in '//fname)
-      end select
+      attr_real32 = var%get_attribute_real32(attr_name, rc=status)
+      _ASSERT(status == _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
 
       _RETURN(_SUCCESS)
    end function get_var_attr_real32
@@ -151,28 +136,17 @@ module MAPL_FileMetadataUtilsMod
       character(len=*), intent(in) :: attr_name
       integer, optional, intent(out) :: rc
 
-      real(REAL64) :: tmp(1)
       integer :: status
       character(:), allocatable :: fname
-      type(Attribute), pointer :: attr
       type(Variable), pointer :: var
-      class(*), pointer :: attr_val(:)
 
       fname = this%get_file_name(_RC)
       var => this%get_variable(var_name,_RC)
       _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
-      attr => var%get_attribute(attr_name,_RC)
-      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in "//fname)
-      attr_val => attr%get_values()
-      select type(attr_val)
-      type is(real(kind=REAL64))
-         tmp = attr_val
-         attr_real64 = tmp(1)
-      class default
-         _FAIL('unsupported subclass (not real64) for units of attribute named '//attr_name//' in '//var_name//' in '//fname)
-      end select
-
+      attr_real64 = var%get_attribute_real64(attr_name, rc=status)
+      _ASSERT(status == _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
       _RETURN(_SUCCESS)
+
    end function get_var_attr_real64
 
    function get_var_attr_int32(this,var_name,attr_name,rc) result(attr_int32)
@@ -182,26 +156,15 @@ module MAPL_FileMetadataUtilsMod
       character(len=*), intent(in) :: attr_name
       integer, optional, intent(out) :: rc
 
-      integer(INT32) :: tmp(1)
       integer :: status
       character(:), allocatable :: fname
-      type(Attribute), pointer :: attr
       type(Variable), pointer :: var
-      class(*), pointer :: attr_val(:)
 
       fname = this%get_file_name(_RC)
       var => this%get_variable(var_name,_RC)
       _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
-      attr => var%get_attribute(attr_name,_RC)
-      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in "//fname)
-      attr_val => attr%get_values()
-      select type(attr_val)
-      type is(integer(kind=INT32))
-         tmp = attr_val
-         attr_int32 = tmp(1)
-      class default
-         _FAIL('unsupported subclass (not int32) for units of attribute named '//attr_name//' in '//var_name//' in '//fname)
-      end select
+      attr_int32 = var%get_attribute_int32(attr_name, rc=status)
+      _ASSERT(status == _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
 
       _RETURN(_SUCCESS)
    end function get_var_attr_int32
@@ -213,26 +176,15 @@ module MAPL_FileMetadataUtilsMod
       character(len=*), intent(in) :: attr_name
       integer, optional, intent(out) :: rc
 
-      integer(INT64) :: tmp(1)
       integer :: status
       character(:), allocatable :: fname
-      type(Attribute), pointer :: attr
       type(Variable), pointer :: var
-      class(*), pointer :: attr_val(:)
 
       fname = this%get_file_name(_RC)
       var => this%get_variable(var_name,_RC)
       _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
-      attr => var%get_attribute(attr_name,_RC)
-      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in "//fname)
-      attr_val => attr%get_values()
-      select type(attr_val)
-      type is(integer(kind=INT64))
-         tmp = attr_val
-         attr_int64 = tmp(1)
-      class default
-         _FAIL('unsupported subclass (not int64) for units of attribute named '//attr_name//' in '//var_name//' in '//fname)
-      end select
+      attr_int64 = var%get_attribute_int64(attr_name, rc=status)
+      _ASSERT(status == _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
 
       _RETURN(_SUCCESS)
    end function get_var_attr_int64
@@ -246,22 +198,13 @@ module MAPL_FileMetadataUtilsMod
 
       integer :: status
       character(:), allocatable :: fname
-      type(Attribute), pointer :: attr
       type(Variable), pointer :: var
-      class(*), pointer :: attr_val
 
       fname = this%get_file_name(_RC)
       var => this%get_variable(var_name,_RC)
       _ASSERT(associated(var),"no variable named "//var_name//" in "//fname)
-      attr => var%get_attribute(attr_name,_RC)
-      _ASSERT(associated(attr),"no attribute named "//attr_name//" in "//var_name//" in "//fname)
-      attr_val => attr%get_value()
-      select type(attr_val)
-      type is(character(*))
-         attr_string = attr_val
-      class default
-         _FAIL('unsupported subclass (not string) for units of attribute named '//attr_name//' in '//var_name//' in '//fname)
-      end select
+      attr_string = var%get_attribute_string(attr_name, rc=status)
+      _ASSERT(status == _SUCCESS, 'failed to get attribute named '//attr_name//' in '//var_name//' in '//fname)
 
       _RETURN(_SUCCESS)
    end function get_var_attr_string
@@ -490,12 +433,14 @@ module MAPL_FileMetadataUtilsMod
 
    end function get_variable_attribute
 
-   subroutine get_coordinate_info(this,coordinate_name,coordSize,coordUnits,coordStandardName,coords,rc)
+   subroutine get_coordinate_info(this,coordinate_name,coordSize,coordUnits,long_name,standard_name,coords,coordinate_attr,rc)
       class (FileMetadataUtils), intent(inout) :: this
       character(len=*), intent(in) :: coordinate_name
       integer, optional, intent(out) :: coordSize
       character(len=*), optional, intent(out) :: coordUnits
-      character(len=*), optional, intent(out) :: coordStandardName
+      character(len=*), optional, intent(out) :: long_name
+      character(len=*), optional, intent(out) :: standard_name
+      character(len=*), optional, intent(out) :: coordinate_attr
       real, allocatable, optional,  intent(inout) :: coords(:)
       integer, optional, intent(out) :: rc
 
@@ -525,26 +470,54 @@ module MAPL_FileMetadataUtilsMod
          type is (character(*))
             coordUnits = trim(coordUnitPtr)
          class default
-            _FAIL('coordinate units must be string in '//fname)
+            _FAIL(trim(coordinate_name)//' units must be string in '//fname)
          end select
       end if 
 
-      if (present(coordStandardName)) then
-         ! Allow for missing standard_name
-         isPresent = var%is_attribute_present('standard_name')
-         if ( isPresent) then
-            attr => var%get_attribute('standard_name')
-            coordStandardNamePtr => attr%get_value()
-            select type(coordStandardNamePtr)
+      if (present(long_name)) then
+         if (this%var_has_attr(coordinate_name,"long_name")) then
+            attr => var%get_attribute('long_name')
+            coordUnitPtr => attr%get_value()
+            select type(coordUnitPtr)
             type is (character(*))
-               coordStandardName = trim(coordStandardNamePtr)
+               long_name = trim(coordUnitPtr)
             class default
-               _FAIL('coordinate standard name must be string in '//fname)
+               _FAIL(trim(coordinate_name)//' long_name must be string in '//fname)
             end select
          else
-            coordStandardName = 'missing'
+             long_name = 'not found'
          endif
-      end if
+      end if 
+
+      if (present(standard_name)) then
+         if (this%var_has_attr(coordinate_name,"standard_name")) then
+            attr => var%get_attribute('standard_name')
+            coordUnitPtr => attr%get_value()
+            select type(coordUnitPtr)
+            type is (character(*))
+               standard_name = trim(coordUnitPtr)
+            class default
+               _FAIL(trim(coordinate_name)//' standard_name must be string in '//fname)
+            end select
+         else
+             standard_name = 'not found'
+         endif
+      end if 
+
+      if (present(coordinate_attr)) then
+         if (this%var_has_attr(coordinate_name,"coordinate")) then
+            attr => var%get_attribute('coordinate')
+            coordUnitPtr => attr%get_value()
+            select type(coordUnitPtr)
+            type is (character(*))
+               coordinate_attr = trim(coordUnitPtr)
+            class default
+               _FAIL(trim(coordinate_name)//' name must be string in '//fname)
+            end select
+         else
+             coordinate_attr = 'not found'
+         endif
+      end if 
 
       if (present(coords)) then
          ptr => var%get_coordinate_data()
@@ -567,7 +540,7 @@ module MAPL_FileMetadataUtilsMod
    end subroutine get_coordinate_info
 
    function get_level_name(this,rc) result(lev_name)
-      class (FileMetadataUtils), intent(inout) :: this
+      class (FileMetadataUtils), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
 
       character(len=:), pointer :: units

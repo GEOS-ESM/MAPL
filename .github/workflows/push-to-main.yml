@@ -11,16 +11,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          filter: blob:none
       - name: Run the action
-        uses: devops-infra/action-pull-request@v0.4
+        uses: devops-infra/action-pull-request@v0.6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           source_branch: main
           target_branch: develop
-          label: automatic
+          label: ":wrench: Github Actions"
           template: .github/PULL_REQUEST_TEMPLATE/gitflow_main_develop.md
           get_diff: true
           assignee: ${{ github.actor }}

@@ -1,5 +1,4 @@
 module mapl_ComponentSpecification
-   use mapl_VariableSpecification
    use mapl_StateSpecification
    implicit none
    private

@@ -1,20 +1,19 @@
 esma_set_this (OVERRIDE MAPL.pfio)
 
-if(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
-  if(CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 20)
-    if(CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER 17)
-      add_definitions(-D__ifort_18)
-    endif()
-  endif()
-endif()
+# This is a workaround for a current ifx bug
+# Technically, this bug is only due to a bug between
+# ifx, OpenMP, and ArrayReference.F90, but in CMake land, it
+# is hard to remove OpenMP flags for a *single* file.
+if (CMAKE_Fortran_COMPILER_ID STREQUAL "IntelLLVM")
+  set_source_files_properties(ArrayReference.F90 PROPERTIES COMPILE_DEFINITIONS ODD_IFX_BUG)
+endif ()
 
 set (srcs
   # pFIO Files
-  pFIO_ShaveMantissa.c
-  DownBit.F90
   pFIO_Constants.F90
   UnlimitedEntity.F90
   Attribute.F90
+  IntArray.F90
   Variable.F90
   CoordinateVariable.F90
   StringVariableMap.F90
@@ -23,7 +22,7 @@ set (srcs
   FileMetadata.F90
   FileMetadataVector.F90
   NetCDF4_FileFormatter.F90
-  pfio_get_att_string.c
+  pfio_nf90_supplement.c
   NetCDF_Supplement.F90
   pFIO_Utilities.F90
   pFIO.F90
@@ -48,6 +47,7 @@ set (srcs
   CollectiveStageDataMessage.F90
   AddHistCollectionMessage.F90
   ModifyMetadataMessage.F90
+  ReplaceMetadataMessage.F90
   ForwardDataAndMessage.F90
   ForwardDataMessage.F90
   ProtocolParser.F90
@@ -91,15 +91,15 @@ set (srcs
   StringVectorUtil.F90
   )
 
-# Exclude NetCDF_C dependency since only needed for demos which are not used in GCHP
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran TYPE ${MAPL_LIBRARY_TYPE})
-#esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE ${MAPL_LIBRARY_TYPE})
-target_link_libraries (${this} PUBLIC GFTL_SHARED::gftl-shared PRIVATE MPI::MPI_Fortran)
-# CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
-if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-   target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
+if (BUILD_WITH_PFLOGGER)
+  find_package (PFLOGGER REQUIRED)
 endif ()
 
+# Exclude NetCDF_C dependency since only needed for demos which are not used in GCHP
+#esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran NetCDF::NetCDF_C TYPE ${MAPL_LIBRARY_TYPE})
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.profiler NetCDF::NetCDF_Fortran TYPE ${MAPL_LIBRARY_TYPE})
+
+target_link_libraries (${this} PUBLIC GFTL::gftl-v2 GFTL_SHARED::gftl-shared-v2 PFLOGGER::pflogger PRIVATE MPI::MPI_Fortran OpenMP::OpenMP_Fortran)
 target_include_directories (${this} PUBLIC
           $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 
@@ -109,34 +109,85 @@ foreach(dir ${OSX_EXTRA_LIBRARY_PATH})
   target_link_libraries(${this} PRIVATE "-Xlinker -rpath -Xlinker ${dir}")
 endforeach()
 
-# GCHP note: customize
+if (SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
+  target_compile_definitions(${this} PRIVATE SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
+endif ()
+
+###############################################################
+# Check to see if quantize capability is present in netcdf-c. #
+###############################################################
+
+include(CheckCSourceCompiles)
+set(CMAKE_REQUIRED_INCLUDES ${NETCDF_INCLUDE_DIRS})
+check_c_source_compiles("
+  #include <netcdf_meta.h>
+  #if !NC_HAS_QUANTIZE
+  choke me
+  #endif
+  int main(void) {
+    return 0;
+  }
+  "
+  NETCDF_HAS_QUANTIZE)
+if (NETCDF_HAS_QUANTIZE)
+  message(STATUS "netCDF has quantize capability")
+  target_compile_definitions(${this} PRIVATE NF_HAS_QUANTIZE)
+else ()
+  message(STATUS "netCDF does not have quantize capability")
+endif ()
+
+################################################################
+# Check to see if zstandard capability is present in netcdf-c. #
+################################################################
+
+check_c_source_compiles("
+  #include <netcdf_meta.h>
+  #if !NC_HAS_ZSTD
+  choke me
+  #endif
+  int main(void) {
+    return 0;
+  }
+  "
+  NETCDF_HAS_ZSTD)
+
+# NOTE: Even if the check above succeeds, zstandard is *not*
+# possible with Baselibs (builds HDF5, netCDF as static)
+# so we want to check for Baselibs first.
+
+if (Baselibs_FOUND)
+  message(STATUS "Baselibs found, zstandard capability not possible")
+  set(NETCDF_HAS_ZSTD FALSE CACHE BOOL "netCDF has zstandard capability" FORCE)
+endif ()
+
+if (NETCDF_HAS_ZSTD)
+  message(STATUS "netCDF has zstandard capability")
+  target_compile_definitions(${this} PRIVATE NF_HAS_ZSTD)
+else ()
+  message(STATUS "netCDF does not have zstandard capability")
+endif ()
+
 ecbuild_add_executable (
    TARGET pfio_open_close.x
    SOURCES pfio_open_close.F90
-   LIBS ${this} )
+   LIBS ${this})
+
 set_target_properties (pfio_open_close.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 
 # Do not add demo executables if using GCHP
 #ecbuild_add_executable (
 #   TARGET pfio_server_demo.x
 #   SOURCES pfio_server_demo.F90
-#   LIBS ${this} ${NETCDF_LIBRARIES} $<$<BOOL:${OMP}>:OpenMP::OpenMP_Fortran> MPI::MPI_Fortran)
-#   #LIBS ${this} MPI::MPI_Fortran)
+#   LIBS ${this} MPI::MPI_Fortran)
 #set_target_properties (pfio_server_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-## CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
-#if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-#   target_link_libraries(pfio_server_demo.x OpenMP::OpenMP_Fortran)
-#endif ()
+#target_link_libraries(pfio_server_demo.x OpenMP::OpenMP_Fortran)
 #
 #ecbuild_add_executable (
 #   TARGET pfio_collective_demo.x
 #   SOURCES pfio_collective_demo.F90
-#   LIBS ${this} ${NETCDF_LIBRARIES} $<$<BOOL:${OMP}>:OpenMP::OpenMP_Fortran> MPI::MPI_Fortran)
+#   LIBS ${this} MPI::MPI_Fortran)
 #set_target_properties (pfio_collective_demo.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-## CMake has an OpenMP issue with NAG Fortran: https://gitlab.kitware.com/cmake/cmake/-/issues/21280
-#if (NOT CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-#   target_link_libraries(pfio_collective_demo.x OpenMP::OpenMP_Fortran)
-#endif ()
+#target_link_libraries(pfio_collective_demo.x OpenMP::OpenMP_Fortran)
 
 # GCHP note: customize
 ecbuild_add_executable (

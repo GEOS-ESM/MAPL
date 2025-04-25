@@ -5,13 +5,14 @@ use ESMF
 use MAPL_ExceptionHandling
 use MAPL_KeywordEnforcerMod
 
+
 implicit none
 private
 
 public fill_grads_template
 public StrTemplate
 
-character(len=2), parameter :: valid_tokens(14) = ["y4","y2","m1","m2","mc","Mc","MC","d1","d2","h1","h2","h3","n2","S2"]
+character(len=2), parameter :: valid_tokens(15) = ["y4","y2","m1","m2","mc","Mc","MC","d1","d2","h1","h2","h3","n2","S2","D3"]
 character(len=3),parameter :: mon_lc(12) = [&
    'jan','feb','mar','apr','may','jun',   &
    'jul','aug','sep','oct','nov','dec']
@@ -165,6 +166,10 @@ contains
       logical, intent(in) :: preserve
       character(len=4) :: buffer
       character(len=1) :: c1,c2
+      type(ESMF_Time)  :: time
+      integer(ESMF_KIND_I4) :: doy
+      integer :: status, rc
+      type(ESMF_Calendar) :: gregorianCalendar
       c1=token(1:1)
       c2=token(2:2)
       select case(c1)
@@ -204,6 +209,22 @@ contains
                else
                   write(buffer,'(i2)')day
                end if
+            end if
+         else
+            buffer="%"//token
+         end if
+      case("D")   ! dayOfYear
+         if (.not.skip_token(day,preserve)) then
+            if (c2 == "3") then
+               gregorianCalendar = ESMF_CalendarCreate(ESMF_CALKIND_GREGORIAN, &
+                    name='Gregorian_obs' , rc=rc)
+               call ESMF_TimeSet(time, yy=year, mm=month, dd=day, &
+                    calendar=gregorianCalendar, _RC)
+               call ESMF_TimeGet(time, dayOfYear=doy, _RC)
+               call ESMF_CalendarDestroy(gregorianCalendar)
+               write(buffer,'(i3.3)')doy
+            else
+               _FAIL('Day of Year must be %D3')
             end if
          else
             buffer="%"//token

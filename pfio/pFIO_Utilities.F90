@@ -3,7 +3,6 @@
 
 module pFIO_UtilitiesMod
    use, intrinsic :: iso_c_binding, only: c_sizeof 
-   use, intrinsic :: iso_c_binding, only: c_bool
    use, intrinsic :: iso_fortran_env, only: INT32,REAL32,INT64,REAL64
    use pFIO_ConstantsMod
    use MAPL_ExceptionHandling
@@ -68,7 +67,7 @@ module pFIO_UtilitiesMod
 
 contains
 
-!!! length
+!-- length
 
    integer function serialize_buffer_length_string(str, rc) result(length)
       character(len=*),  intent(in) :: str
@@ -171,7 +170,7 @@ contains
       _RETURN(_SUCCESS)
    end function serialize_buffer_length_logical_1d
 
-!!! serializing
+!-> serializing
 
    function serialize_string(str, rc) result(buffer)
       integer(kind=INT32), allocatable :: buffer(:)
@@ -193,9 +192,6 @@ contains
       integer(kind=INT32), intent(in) :: scalar
       integer, optional, intent(out) :: rc
 
-      integer(kind=INT32) :: n
-
-      n = 1
       buffer = [scalar]
 
       _RETURN(_SUCCESS)
@@ -315,7 +311,7 @@ contains
       _RETURN(_SUCCESS)
    end function serialize_logical_1d
 
-!!! deserializing
+!-> deserializing
 
    subroutine deserialize_string(buffer, str, rc)
       integer(kind=INT32), intent(in) :: buffer(:)

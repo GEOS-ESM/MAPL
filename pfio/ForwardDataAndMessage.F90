@@ -12,6 +12,7 @@ module pFIO_ForwardDataAndMessageMod
    use pFIO_FileMetaDataMod
    use pFIO_MessageVectorMod
    use pFIO_MessageVectorUtilMod
+   use, intrinsic :: iso_fortran_env, only: INT64
 
    implicit none
    private
@@ -25,6 +26,7 @@ module pFIO_ForwardDataAndMessageMod
       procedure :: add_data_message
       procedure :: serialize
       procedure :: deserialize
+      procedure :: destroy
    end type ForwardDataAndMessage
 
    interface ForwardDataAndMessage
@@ -45,6 +47,7 @@ contains
       integer :: i,k
       integer, allocatable :: buff_tmp(:)
 
+
       if (allocated(buffer)) deallocate(buffer)
       k = 0
       if (allocated(this%idata)) k = size(this%idata)
@@ -56,7 +59,9 @@ contains
       else
          buffer = buff_tmp
       endif
-
+      if ( size(buffer, kind=INT64) > huge(0)) then
+        _FAIL("need to increase oserver's number of front cores (nfront)")
+      endif
       _RETURN(_SUCCESS)
 
    end subroutine serialize
@@ -97,6 +102,20 @@ contains
          this%idata = [this%idata, i_ptr]
       endif
 
+      _RETURN(_SUCCESS)
+   end subroutine
+
+   subroutine destroy(this, rc)
+      class (ForwardDataAndMessage), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      type (MessageVectorIterator) :: iter
+
+      if (allocated(this%idata)) deallocate(this%idata)
+      iter = this%msg_vec%begin()
+      do while (iter /= this%msg_vec%end())
+        call this%msg_vec%erase(iter)
+        iter = this%msg_vec%begin()
+     enddo
       _RETURN(_SUCCESS)
    end subroutine
 

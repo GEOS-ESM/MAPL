@@ -54,8 +54,8 @@ contains
       supports = (spec%regrid_method == REGRID_METHOD_CONSERVE_HFLUX)
       if (.not. supports) return
 
-      call MAPL_GridGet(spec%grid_in, localCellCountPerDim=counts_in, __RC__)
-      call MAPL_GridGet(spec%grid_out, localCellCountPerDim=counts_out, __RC__)
+      call MAPL_GridGet(spec%grid_in, localCellCountPerDim=counts_in, _RC)
+      call MAPL_GridGet(spec%grid_out, localCellCountPerDim=counts_out, _RC)
 
       supports = all(mod(counts_in(1:2), counts_out(1:2)) == 0) .or. all(mod(counts_out, counts_in) == 0)
       _ASSERT(supports, "HFlux regridder requires local domains to be properly nested.")
@@ -66,7 +66,6 @@ contains
    subroutine initialize_subclass(this, unusable, rc)
      use MAPL_KeywordEnforcerMod
      use MAPL_RegridderSpec
-     use MAPL_BaseMod, only: MAPL_grid_interior
      class (HorizontalFluxRegridder), intent(inout) :: this
      class (KeywordEnforcer), optional, intent(in) :: unusable
      integer, optional, intent(out) :: rc
@@ -85,11 +84,11 @@ contains
 
        associate (IM_in => this%IM_in, JM_in => this%JM_in, IM_out => this%IM_out, JM_out => this%JM_out)
          
-         call MAPL_GridGet(grid_in, localCellCountPerDim=counts, __RC__)
+         call MAPL_GridGet(grid_in, localCellCountPerDim=counts, _RC)
          IM_in = counts(1)
          JM_in = counts(2)
          
-         call MAPL_GridGet(grid_out, localCellCountPerDim=counts, __RC__)
+         call MAPL_GridGet(grid_out, localCellCountPerDim=counts, _RC)
          IM_out = counts(1)
          JM_out = counts(2)
 

@@ -1,5 +1,8 @@
+#define I_AM_MAIN
+#include "MAPL_ErrLog.h"
 program main
    use mapl_Profiler
+   use MAPL_ErrorHandlingMod
    use MPI
    implicit none
 
@@ -12,13 +15,15 @@ program main
 
    character(:), allocatable :: report_lines(:)
    integer :: i
-   integer :: rank, ierror
+   integer :: rank, ierror, rc, status
    character(1) :: empty(0)
 
-!!$   mem_prof = MemoryProfiler('TOTAL')
+!$   mem_prof = MemoryProfiler('TOTAL')
 
    call MPI_Init(ierror)
+   _VERIFY(ierror)
    call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierror)
+   _VERIFY(ierror)
 
    main_prof = DistributedProfiler('TOTAL', MpiTimerGauge(), MPI_COMM_WORLD)   ! timer 1
    call main_prof%start()
@@ -58,11 +63,11 @@ program main
    call main_prof%stop('init reporter')
 
 
-!!$   call mem_prof%start('lap')
+!$   call mem_prof%start('lap')
    call do_lap(lap_prof) ! lap 1
    call lap_prof%finalize()
    call main_prof%accumulate(lap_prof)
-!!$   call mem_prof%stop('lap')
+!$   call mem_prof%stop('lap')
 
 
    call main_prof%start('use reporter')
@@ -77,7 +82,7 @@ program main
    end if
    call main_prof%stop('use reporter')
 
-!!$   call mem_prof%start('lap')
+!$   call mem_prof%start('lap')
    call lap_prof%reset()
    call do_lap(lap_prof) ! lap 2
    call lap_prof%finalize()
@@ -95,7 +100,7 @@ program main
    end if
 
    call main_prof%stop('use reporter')
-!!$   call mem_prof%stop('lap')
+!$   call mem_prof%stop('lap')
 
    call main_prof%finalize()
    call main_prof%reduce()
@@ -109,6 +114,7 @@ program main
       write(*,'(a)') ''
    end if
    call MPI_Barrier(MPI_COMM_WORLD, ierror)
+   _VERIFY(ierror)
    if (rank == 1) then
       write(*,'(a)')'Final profile (1)'
       write(*,'(a)')'================'
@@ -118,6 +124,7 @@ program main
       write(*,'(a)') ''
    end if
    call MPI_Barrier(MPI_COMM_WORLD, ierror)
+   _VERIFY(ierror)
 
    report_lines = main_reporter%generate_report(main_prof)
    if (rank == 0) then
@@ -129,16 +136,16 @@ program main
       write(*,'(a)') ''
    end if
    
-!!$   call mem_prof%finalize()
-!!$   if (rank == 0) then
-!!$      report_lines = mem_reporter%generate_report(mem_prof)
-!!$      write(*,'(a)')'Memory profile'
-!!$      write(*,'(a)')'=============='
-!!$      do i = 1, size(report_lines)
-!!$         write(*,'(a)') report_lines(i)
-!!$      end do
-!!$      write(*,'(a)') ''
-!!$   end if
+!$   call mem_prof%finalize()
+!$   if (rank == 0) then
+!$      report_lines = mem_reporter%generate_report(mem_prof)
+!$      write(*,'(a)')'Memory profile'
+!$      write(*,'(a)')'=============='
+!$      do i = 1, size(report_lines)
+!$         write(*,'(a)') report_lines(i)
+!$      end do
+!$      write(*,'(a)') ''
+!$   end if
 
    call MPI_Finalize(ierror)
 

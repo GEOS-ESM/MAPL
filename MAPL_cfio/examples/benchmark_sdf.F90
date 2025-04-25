@@ -109,7 +109,7 @@
                    grid=grid, date=20011201, BegTime=0, timeInc=30000)
     call ESMF_CFIOSet(cfio, title="c403_cer_01: FVGCM Diagnostics",  &
                    source="Global Modeling and Assimilation Office", &
-                   contact="data@gmao.gsfc.nasa.gov")
+                   contact="Example Contact")
     call ESMF_CFIOSet(cfio, history='File written by CFIO v1.0.0', &
            convention='ESMF', institution="Global Modeling and Assimilation Office,&
        &     NASA Goddard Space Flight Center, Greenbelt, MD 20771") 

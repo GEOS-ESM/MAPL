@@ -13,10 +13,10 @@ contains
       type (MeterNode), target :: node
       class (AbstractMeterNode), pointer :: child
       class (AbstractMeter), pointer :: t
-      type(UnlimitedVector) :: v
+      type(UnlimitedVector), target :: v
       integer :: i
       integer :: expected(2)
-      class(*), allocatable :: q
+      class(*), pointer :: q
 
       node = MeterNode('foo', AdvancedMeter(MpiTimerGauge()))
       t => node%get_meter()
@@ -26,19 +26,19 @@ contains
       child => node%get_child('a')
       t => child%get_meter()
       call t%add_cycle(5.0_REAL64)
-      
+
       c = PercentageColumn(InclusiveColumn(),'MAX')
 
       v = c%get_rows(node)
       expected = [100.,50.]
       do i = 1, 2
-         q = v%at(i)
+         q => v%at(i)
          select type (q)
          type is (real(kind=REAL64))
             @assertEqual(expected(i), q)
          end select
       end do
-      
+
    end subroutine test_percent_inclusive
 
 end module test_PercentageColumn

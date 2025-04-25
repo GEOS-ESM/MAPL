@@ -2,10 +2,6 @@
 #include "unused_dummy.H"
 
 module pFIO_MultiLayerServerMod
-   use, intrinsic :: iso_c_binding, only: c_ptr
-   use, intrinsic :: iso_c_binding, only: C_NULL_PTR
-   use, intrinsic :: iso_c_binding, only: c_loc
-   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
    use mapl_KeywordEnforcerMod
    use MAPL_ErrorHandlingMod
@@ -123,14 +119,16 @@ contains
    subroutine terminate_writers(this)
       class (MultiLayerServer), intent(inout) :: this
       integer :: terminate = -1
-      integer :: ierr
+      integer :: ierr, status, rc
       integer :: MPI_STAT(MPI_STATUS_SIZE)
       ! The root rank sends termination signal to the root of the spawned children which would
       ! send terminate back for synchronization
       ! if no syncrohization, the writer may be still writing while the main testing node is comparing
       if( this%rank == 0 .and. this%nwriters > 1 ) then
         call MPI_send(terminate, 1, MPI_INTEGER, 0, pFIO_s_tag, this%Inter_Comm, ierr)
+        _VERIFY(ierr)
         call MPI_recv(terminate, 1, MPI_INTEGER, 0, pFIO_s_tag, this%Inter_Comm, MPI_STAT, ierr)
+        _VERIFY(ierr)
       endif
 
    end subroutine terminate_writers
@@ -145,7 +143,6 @@ contains
      type (MessageVectorIterator) :: iter
      type (StringInteger64MapIterator) :: request_iter
      integer,pointer :: i_ptr(:)
-     type(c_ptr) :: offset_address
      integer :: collection_counter
      class (AbstractDataReference), pointer :: dataRefPtr
      class (RDMAReference), pointer :: remotePtr
@@ -187,7 +184,6 @@ contains
                  if (request_iter == this%stage_offset%end() .and. this%rank == remotePtr%mem_rank ) then ! not read yet
                    ! (1) get address where data should put
                     offset     = this%stage_offset%at(i_to_string(q%request_id))
-                    offset_address   = c_loc(i_ptr(offset+1))
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                    !2) forward data to writer
                     forMSG = ForwardDataMessage(q%request_id, q%collection_id, q%file_name, q%var_name, &
@@ -224,6 +220,7 @@ contains
               call forData%clear()
            endif
            call MPI_Barrier(this%comm, status)
+           _VERIFY(status)
         endif ! first thread n==1
         call threadPtr%clear_backlog()
         call threadPtr%clear_hist_collections()
@@ -240,11 +237,9 @@ contains
          type (StringAttributeMap), intent(in) :: forwardData
          integer, optional, intent(out) :: rc
 
-         integer :: writer_rank, bsize, ksize, k, rank
+         integer :: writer_rank, bsize
          integer :: command, ierr, MPI_STAT(MPI_STATUS_SIZE)
          integer, allocatable :: buffer(:)
-         integer :: status
-         type (MessageVectorIterator) :: iter
 
 
          command = 1
@@ -252,17 +247,23 @@ contains
          bsize = size(buffer)
 
          call MPI_send(command, 1, MPI_INTEGER, 0, pFIO_s_tag, this%Inter_Comm, ierr)
+         _VERIFY(ierr)
          call MPI_recv(writer_rank, 1, MPI_INTEGER, &
                    0, pFIO_s_tag, this%Inter_Comm , &
                    MPI_STAT, ierr)
+         _VERIFY(ierr)
          !forward Message
          call MPI_send(bsize,  1,     MPI_INTEGER, writer_rank, pFIO_s_tag, this%Inter_Comm, ierr)
+         _VERIFY(ierr)
          call MPI_send(buffer, bsize, MPI_INTEGER, writer_rank, pFIO_s_tag, this%Inter_Comm, ierr)
+         _VERIFY(ierr)
          !send number of collections
          call StringAttributeMap_serialize(forwardData,buffer)
          bsize = size(buffer)
          call MPI_send(bsize,  1, MPI_INTEGER, writer_rank, pFIO_s_tag, this%Inter_Comm, ierr)
+         _VERIFY(ierr)
          call MPI_send(buffer, bsize, MPI_INTEGER, writer_rank, pFIO_s_tag, this%Inter_Comm, ierr)
+         _VERIFY(ierr)
          !2) send the data
 
          _RETURN(_SUCCESS)

@@ -2,11 +2,10 @@ esma_set_this (OVERRIDE MAPL.shared)
 
 set (srcs
     hash.c
-    hinterp.F
+    hinterp.F90
     MAPL_DirPath.F90
     MAPL_ErrorHandling.F90
     MAPL_Hash.F90
-    MAPL_HeapMod.F90
     MAPL_KeywordEnforcer.F90
     MAPL_LoadBalance.F90
     MAPL_MinMax.F90
@@ -24,14 +23,23 @@ set (srcs
     TimeUtils.F90
     FileSystemUtilities.F90
     DSO_Utilities.F90
+    MAPL_ISO8601_DateTime.F90
+    MAPL_DateTime_Parsing.F90
+    DownBit.F90
+    ShaveMantissa.c
+    MAPL_Sleep.F90
+    MAPL_CF_Time.F90
 # Fortran submodules
     Interp/Interp.F90 Interp/Interp_implementation.F90
     Shmem/Shmem.F90   Shmem/Shmem_implementation.F90
     )
 
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.constants GFTL_SHARED::gftl-shared MPI::MPI_Fortran PFLOGGER::pflogger TYPE ${MAPL_LIBRARY_TYPE})
+target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
 
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+
+set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 
 target_compile_definitions(${this} PRIVATE SYSTEM_DSO_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}")
 

@@ -6,5 +6,8 @@ set( MAPL_PUBLIC_HEADERS
    NUOPC_ErrLog.h
    unused_dummy.H
    )
-file(COPY ${MAPL_PUBLIC_HEADERS} DESTINATION ${esma_include}/MAPL)
+
+foreach( _header ${MAPL_PUBLIC_HEADERS} )
+  configure_file( ${_header} ${esma_include}/MAPL/${_header} COPYONLY )
+endforeach()
 

@@ -9,7 +9,10 @@ module MAPL_HistoryCollectionMod
   use MAPL_VerticalDataMod
   use MAPL_TimeDataMod
   use HistoryTrajectoryMod
+  use MaskSamplerMod
+  use StationSamplerMod
   use gFTL_StringStringMap
+  use MAPL_EpochSwathMod
   implicit none
 
   private
@@ -40,18 +43,24 @@ module MAPL_HistoryCollectionMod
      character(len=ESMF_MAXSTR)         :: mode
      integer                            :: frequency
      integer                            :: acc_interval
+     integer                            :: acc_ref_time
+     integer                            :: acc_offset
      integer                            :: ref_date
      integer                            :: ref_time
+     integer                            :: start_date
+     integer                            :: start_time
      integer                            :: end_date
      integer                            :: end_time
      integer                            :: duration
      type(ESMF_Alarm)                   :: his_alarm ! when to write file
      type(ESMF_Alarm)                   :: seg_alarm ! segment alarm controls when to write to new file
      type(ESMF_Alarm)                   :: mon_alarm
+     type(ESMF_Alarm)                   :: start_alarm
      type(ESMF_Alarm)                   :: end_alarm
      integer,pointer                    :: expSTATE (:)
      integer                            :: unit
      type(ESMF_FieldBundle)             :: bundle
+     type(sampler)                      :: xsampler
      type(MAPL_CFIO)                    :: MCFIO
      type(MAPL_GriddedIO)               :: mGriddedIO
      type(VerticalData) :: vdata
@@ -64,6 +73,7 @@ module MAPL_HistoryCollectionMod
      integer                            :: verbose
      integer                            :: xyoffset
      logical                            :: disabled
+     logical                            :: skipWriting
      logical                            :: subVm
      logical                            :: backwards ! Adds support for clock running in reverse direction
      logical                            :: useNewFormat
@@ -72,8 +82,12 @@ module MAPL_HistoryCollectionMod
      character(len=ESMF_MAXSTR)         :: vvars(2)
      integer                            :: regrid_method
      integer                            :: voting
-     integer                            :: nbits
+     integer                            :: nbits_to_keep
      integer                            :: deflate
+     character(len=ESMF_MAXSTR)         :: quantize_algorithm_string
+     integer                            :: quantize_algorithm
+     integer                            :: quantize_level
+     integer                            :: zstandard_level
      integer                            :: slices
      integer                            :: Root
      integer                            :: Psize
@@ -95,12 +109,16 @@ module MAPL_HistoryCollectionMod
      character(len=ESMF_MAXSTR)         :: output_grid_label
      type(GriddedIOItemVector)          :: items
      character(len=ESMF_MAXSTR)         :: currentFile
-     character(len=ESMF_MAXPATHLEN)     :: trackFile
+     character(len=ESMF_MAXPATHLEN)     :: stationIdFile
+     integer                            :: stationSkipLine
      logical                            :: splitField
      logical                            :: regex
      logical                            :: timeseries_output = .false.
      logical                            :: recycle_track = .false.
      type(HistoryTrajectory)            :: trajectory
+     type(MaskSampler)                  :: mask_sampler
+     type(StationSampler)               :: station_sampler
+     character(len=ESMF_MAXSTR)         :: sampler_spec = ""
      character(len=ESMF_MAXSTR)         :: positive
      type(HistoryCollectionGlobalAttributes) :: global_atts
      contains
@@ -153,44 +171,29 @@ module MAPL_HistoryCollectionMod
         im_world=resolution(1)
         jm_world=resolution(2)
 
-        cfg = MAPL_ConfigCreate(rc=status)
-        _VERIFY(status)
+        cfg = MAPL_ConfigCreate(_RC)
         if (resolution(2)==resolution(1)*6) then
-           call MAPL_MakeDecomposition(nx,ny,reduceFactor=6,rc=status)
-           _VERIFY(status)
+           call MAPL_MakeDecomposition(nx,ny,reduceFactor=6,_RC)
         else
-           call MAPL_MakeDecomposition(nx,ny,rc=status)
-           _VERIFY(status)
+           call MAPL_MakeDecomposition(nx,ny,_RC)
         end if
-        call MAPL_ConfigSetAttribute(cfg,value=nx, label=trim(tlabel)//".NX:",rc=status)
-        _VERIFY(status)
-        call MAPL_ConfigSetAttribute(cfg,value=ny, label=trim(tlabel)//".NY:",rc=status)
-        _VERIFY(status)
+        call MAPL_ConfigSetAttribute(cfg,value=nx, label=trim(tlabel)//".NX:",_RC)
+        call MAPL_ConfigSetAttribute(cfg,value=ny, label=trim(tlabel)//".NY:",_RC)
 
         if (resolution(2)==resolution(1)*6) then
-          call MAPL_ConfigSetAttribute(cfg,value="Cubed-Sphere", label=trim(tlabel)//".GRID_TYPE:",rc=status)
-          _VERIFY(status)
-          call MAPL_ConfigSetAttribute(cfg,value=6, label=trim(tlabel)//".NF:",rc=status)
-          _VERIFY(status)
-          call MAPL_ConfigSetAttribute(cfg,value=im_world,label=trim(tlabel)//".IM_WORLD:",rc=status)
-          _VERIFY(status)
+          call MAPL_ConfigSetAttribute(cfg,value="Cubed-Sphere", label=trim(tlabel)//".GRID_TYPE:",_RC)
+          call MAPL_ConfigSetAttribute(cfg,value=6, label=trim(tlabel)//".NF:",_RC)
+          call MAPL_ConfigSetAttribute(cfg,value=im_world,label=trim(tlabel)//".IM_WORLD:",_RC)
         else
-          call MAPL_ConfigSetAttribute(cfg,value="LatLon", label=trim(tlabel)//".GRID_TYPE:",rc=status)
-          _VERIFY(status)
-          call MAPL_ConfigSetAttribute(cfg,value=im_world,label=trim(tlabel)//".IM_WORLD:",rc=status)
-          _VERIFY(status)
-          call MAPL_ConfigSetAttribute(cfg,value=jm_world,label=trim(tlabel)//".JM_WORLD:",rc=status)
-          _VERIFY(status)
-          call MAPL_ConfigSetAttribute(cfg,value='PC', label=trim(tlabel)//".POLE:",rc=status)
-          _VERIFY(status)
-          call MAPL_ConfigSetAttribute(cfg,value='DC', label=trim(tlabel)//".DATELINE:",rc=status)
-          _VERIFY(status)
+          call MAPL_ConfigSetAttribute(cfg,value="LatLon", label=trim(tlabel)//".GRID_TYPE:",_RC)
+          call MAPL_ConfigSetAttribute(cfg,value=im_world,label=trim(tlabel)//".IM_WORLD:",_RC)
+          call MAPL_ConfigSetAttribute(cfg,value=jm_world,label=trim(tlabel)//".JM_WORLD:",_RC)
+          call MAPL_ConfigSetAttribute(cfg,value='PC', label=trim(tlabel)//".POLE:",_RC)
+          call MAPL_ConfigSetAttribute(cfg,value='DC', label=trim(tlabel)//".DATELINE:",_RC)
         end if
-        output_grid = grid_manager%make_grid(cfg,prefix=trim(tlabel)//'.',rc=status)
-        _VERIFY(status)
+        output_grid = grid_manager%make_grid(cfg,prefix=trim(tlabel)//'.',_RC)
 
-        factory => grid_manager%get_factory(output_grid,rc=status)
-        _VERIFY(status)
+        factory => grid_manager%get_factory(output_grid,_RC)
         this%output_grid_label = factory%generate_grid_name()
         lgrid => output_grids%at(trim(this%output_grid_label))
         if (.not.associated(lgrid)) call output_grids%insert(this%output_grid_label,output_grid)

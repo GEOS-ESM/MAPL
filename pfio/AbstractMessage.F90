@@ -23,6 +23,7 @@ module pFIO_AbstractMessageMod
    public :: COLLECTIVEPrefetchData_ID
    public :: COLLECTIVEStageData_ID
    public :: ModifyMetadata_ID
+   public :: ReplaceMetadata_ID
    public :: HandShake_ID
    public :: DUMMY_ID
    public :: ForwardData_ID
@@ -42,6 +43,7 @@ module pFIO_AbstractMessageMod
       enumerator :: StageData_ID
       enumerator :: COLLECTIVEStageData_ID
       enumerator :: ModifyMetadata_ID
+      enumerator :: ReplaceMetadata_ID
       enumerator :: HandShake_ID
       enumerator :: DUMMY_ID
       enumerator :: ForwardData_ID 
@@ -68,8 +70,8 @@ module pFIO_AbstractMessageMod
        import SurrogateMessageVisitor
        import AbstractMessage
        implicit none
-       class (SurrogateMessageVisitor), intent(inout) :: this
-       class (AbstractMessage), intent(in) :: message
+       class (SurrogateMessageVisitor), target, intent(inout) :: this
+       class (AbstractMessage), target, intent(in) :: message
        integer, optional, intent(out) :: rc
      end subroutine handle
 
@@ -105,7 +107,7 @@ module pFIO_AbstractMessageMod
 
     recursive subroutine dispatch(this, visitor, rc)
        class (AbstractMessage), intent(in) :: this
-       class (SurrogateMessageVisitor), intent(inout) :: visitor
+       class (SurrogateMessageVisitor), target, intent(inout) :: visitor
        integer, optional, intent(out) :: rc
        integer :: status
 

@@ -53,6 +53,7 @@ set (srcs
 #esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared GFTL::gftl-v2 MAPL.shared MPI::MPI_Fortran TYPE ${MAPL_LIBRARY_TYPE})
 esma_add_library (${this} SRCS ${srcs} DEPENDENCIES GFTL_SHARED::gftl-shared GFTL::gftl-v1 GFTL::gftl-v2 MAPL.shared MPI::MPI_Fortran TYPE ${MAPL_LIBRARY_TYPE})
 target_include_directories (${this} PRIVATE ${MAPL_SOURCE_DIR}/include)
+target_link_libraries(${this} PRIVATE OpenMP::OpenMP_Fortran)
 
 add_subdirectory (demo EXCLUDE_FROM_ALL)
 if (PFUNIT_FOUND)

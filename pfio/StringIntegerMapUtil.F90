@@ -13,7 +13,7 @@ module pFIO_StringIntegerMapUtilMod
 contains
 
     subroutine StringIntegerMap_serialize(map,buffer)
-       type (StringIntegerMap) ,intent(in):: map
+       type (StringIntegerMap), target, intent(in):: map
        integer, allocatable,intent(inout) :: buffer(:)
        type (StringIntegerMapIterator) :: iter
        character(len=:),pointer :: key
