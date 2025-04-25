@@ -149,7 +149,7 @@ contains
       integer, optional, intent(out) :: rc
 
       if (present(num_levels)) then
-         _ASSERT(present(vertical_stagger), "vertical stagger is not present")
+         _ASSERT(present(vertical_stagger), "vertical_stagger must be specified for 3D fields")
       end if
 
       _RETURN(_SUCCESS)
