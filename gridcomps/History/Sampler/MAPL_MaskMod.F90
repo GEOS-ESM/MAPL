@@ -131,7 +131,6 @@ module MaskSamplerMod
      procedure :: create_Geosat_grid_find_mask
      procedure :: compute_time_for_current
      procedure :: set_param
-     procedure :: stage2dlatlon
      procedure :: modifytime
      procedure :: alphabatize_variables
   end type MaskSampler
@@ -206,13 +205,6 @@ module MaskSamplerMod
        type (ClientManager), optional, intent(in) :: oClients
        integer, optional, intent(out) :: rc
      end subroutine set_param
-
-     module subroutine stage2dlatlon(this,filename,oClients,rc)
-       class(MaskSampler), intent(inout) :: this
-       character(len=*), intent(in) :: fileName
-       type (ClientManager), optional, target, intent(inout) :: oClients
-       integer, optional, intent(out) :: rc
-     end subroutine stage2dlatlon
 
      module function compute_time_for_current(this,current_time,rc) result(rtime)
        use  MAPL_NetCDF, only : convert_NetCDF_DateTime_to_ESMF

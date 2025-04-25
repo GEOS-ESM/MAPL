@@ -883,7 +883,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
 
     !__ 1. put_var: time variable
     !
-    this%rtime(1) = this%compute_time_for_current(current_time,_RC) ! rtimes: seconds since opening file
+    this%rtime(1) = this%compute_time_for_current(current_time,_RC) ! rtime: seconds since opening file
     
     if (this%use_pfio) then
        if (mapl_am_i_root()) write(6,*) 'ck: mask write id: ', this%write_collection_id       
@@ -898,7 +898,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
 
     else
        if (mapl_am_i_root()) then
-          call this%formatter%put_var('time',rtimes(1:1),&
+          call this%formatter%put_var('time', this%rtime(1:1),&
                start=[this%obs_written],count=[1],_RC)
           call this%formatter%put_var('longitude',this%lons_deg,_RC)
           call this%formatter%put_var('latitude',this%lats_deg,_RC)
