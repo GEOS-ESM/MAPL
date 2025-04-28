@@ -223,6 +223,7 @@ add_subdirectory (pfio)
 add_subdirectory (profiler)
 add_subdirectory (generic)
 add_subdirectory (field_utils)
+add_subdirectory (state)
 add_subdirectory (oomph) # temporary - will rename to generic when done
 add_subdirectory (shared)
 add_subdirectory (include)
