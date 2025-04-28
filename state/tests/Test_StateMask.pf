@@ -42,7 +42,7 @@ contains
       integer :: status, rc
       real(ESMF_KIND_R4), pointer :: ptr2d(:,:), mask_ptr(:,:)
       type(StateMask) :: mask
-      real(ESMF_KIND_R4), allocatable :: result_array(:,:)
+      real(ESMF_KIND_R4), allocatable :: expected_array(:,:)
       real(ESMF_KIND_R4) :: rval
       character(len=:), allocatable :: expr
 
@@ -51,12 +51,12 @@ contains
       expr = "regionmask(field_2d,region_mask;2,5)"
       rval = 17.0 
       ptr2d = rval
-      allocate(result_array(3,3),_STAT)
-      result_array= reshape([0.0, rval, 0.0, rval, rval, 0.0, rval, rval, 0.0],shape=[3,3])
+      allocate(expected_array(3,3),_STAT)
+      expected_array= reshape([0.0, rval, 0.0, rval, rval, 0.0, rval, rval, 0.0],shape=[3,3])
       mask_ptr =    reshape([1.0, 5.0,  1.0, 5.0,  2.0,  1.0, 2.0,  5.0,  1.0],shape=[3,3])
       mask = StateMask(expr, _RC)
       call mask%evaluate_mask(state,field_2d,_RC)
-      @assertEqual(result_array, ptr2d)
+      @assertEqual(expected_array, ptr2d)
       _RETURN(_SUCCESS)
 
    end subroutine test_region_mask_2d
@@ -68,7 +68,7 @@ contains
       integer :: status, rc, i
       real(ESMF_KIND_R4), pointer :: ptr3d(:,:,:), mask_ptr(:,:)
       type(StateMask) :: mask
-      real(ESMF_KIND_R4), allocatable :: result_array(:,:)
+      real(ESMF_KIND_R4), allocatable :: expected_array(:,:)
       real(ESMF_KIND_R4) :: rval
       character(len=:), allocatable :: expr
 
@@ -77,13 +77,13 @@ contains
       expr = "regionmask(field_3d,region_mask;2,5)"
       rval = 17.0 
       ptr3d = rval
-      allocate(result_array(3,3),_STAT)
-      result_array= reshape([0.0, rval, 0.0, rval, rval, 0.0, rval, rval, 0.0],shape=[3,3])
+      allocate(expected_array(3,3),_STAT)
+      expected_array= reshape([0.0, rval, 0.0, rval, rval, 0.0, rval, rval, 0.0],shape=[3,3])
       mask_ptr =    reshape([1.0, 5.0,  1.0, 5.0,  2.0,  1.0, 2.0,  5.0,  1.0],shape=[3,3])
       mask = StateMask(expr, _RC)
       call mask%evaluate_mask(state,field_3d,_RC)
       do i=1,size(ptr3d,3) 
-         @assertEqual(result_array, ptr3d(:,:,i))
+         @assertEqual(expected_array, ptr3d(:,:,i))
       enddo
       _RETURN(_SUCCESS)
 
