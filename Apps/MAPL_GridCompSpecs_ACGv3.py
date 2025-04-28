@@ -133,7 +133,7 @@ def get_options(args):
         STANDARD_NAME: {FLAGS: MANDATORY}, 
         PRECISION: {}, 
         UNGRIDDED_DIMS: {MAPPING: ARRAY}, 
-        VSTAGGER: {MAPPING: { 
+        VSTAGGER: {FLAGS: MANDATORY, MAPPING: { 
              'C': 'VERTICAL_STAGGER_CENTER',
              'E': 'VERTICAL_STAGGER_EDGE',
              'N': 'VERTICAL_STAGGER_NONE'}},
