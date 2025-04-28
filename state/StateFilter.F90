@@ -1,5 +1,5 @@
 #include "MAPL_ErrLog.h"
-module MAPL_StateFilterMod
+module MAPL_StateFilter
    use ESMF
    use MAPL_ExceptionHandling
    use MAPL_FieldUtils
@@ -9,17 +9,17 @@ module MAPL_StateFilterMod
    implicit none
    private
 
-   public MAPL_StateFilterItem
+   public StateFilterItem
    character(len=1), parameter :: var_placeholder = "@"
 
-   interface MAPL_StateFilterItem
-      module procedure MAPL_StateFilter_R4_2D
-      module procedure MAPL_StateFilter_R4_3D
+   interface StateFilterItem
+      procedure StateFilter_R4_2D
+      procedure StateFilter_R4_3D
    end interface
 
    contains
 
-   subroutine MAPL_StateFilter_R4_2D(state, config, itemName, array, rc)
+   subroutine StateFilter_R4_2D(state, config, itemName, array, rc)
       type(ESMF_State), intent(inout) :: state
       type(ESMF_Config), intent(inout) :: config
       character(len=*), intent(in) :: itemName
@@ -73,9 +73,9 @@ module MAPL_StateFilterMod
       call ESMF_FieldDestroy(new_field, noGarbage=.true., _RC)
       _RETURN(_SUCCESS)
 
-   end subroutine MAPL_StateFilter_R4_2D
+   end subroutine StateFilter_R4_2D
 
-   subroutine MAPL_StateFilter_R4_3D(state, config, itemName, array, rc)
+   subroutine StateFilter_R4_3D(state, config, itemName, array, rc)
       type(ESMF_State), intent(inout) :: state
       type(ESMF_Config), intent(inout) :: config
       character(len=*), intent(in) :: itemName
@@ -129,7 +129,7 @@ module MAPL_StateFilterMod
       call ESMF_FieldDestroy(new_field, noGarbage=.true., _RC)
       _RETURN(_SUCCESS)
 
-   end subroutine MAPL_StateFilter_R4_3d
+   end subroutine StateFilter_R4_3d
 
 
    function substitute_name(filter_expression, field_name, rc) result(processed_expression)
@@ -148,4 +148,4 @@ module MAPL_StateFilterMod
       _RETURN(_SUCCESS)
    end function 
       
-end module MAPL_StateFilterMod
+end module MAPL_StateFilter
