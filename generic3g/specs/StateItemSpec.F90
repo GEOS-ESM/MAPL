@@ -3,7 +3,7 @@
 module mapl3g_StateItemSpec
    use mapl3g_AspectId
    use mapl3g_ActualConnectionPt
-   use mapl3g_ActualPtVector
+   use mapl3g_VirtualConnectionPtVector
    use mapl3g_ExtensionTransform
    use mapl3g_MultiState
    use mapl3g_StateItemAspect
@@ -19,6 +19,7 @@ module mapl3g_StateItemSpec
 
    public :: check
    public :: StateItemSpec
+   public :: new_StateItemSpec
    public :: StateItemSpecPtr
 #ifndef __GFORTRAN__
    public :: assignment(=)
@@ -28,8 +29,7 @@ module mapl3g_StateItemSpec
 
       logical :: active = .false.
       logical :: allocated = .false.
-      type(StringVector) :: raw_dependencies
-      type(ActualPtVector) :: dependencies
+      type(VirtualConnectionPtVector) :: dependencies
 
       type(AspectMap) :: aspects
    contains
@@ -46,16 +46,14 @@ module mapl3g_StateItemSpec
       procedure, non_overridable :: set_allocated
       procedure, non_overridable :: is_allocated
       procedure, non_overridable :: is_active
-      procedure, non_overridable :: set_active
+      procedure, non_overridable :: activate
       procedure :: get_aspect_by_id
       generic :: get_aspect => get_aspect_by_id
       procedure :: get_aspects
       procedure :: set_aspect
 
       procedure :: get_dependencies
-      procedure :: get_raw_dependencies
       procedure :: set_dependencies
-      procedure :: set_raw_dependencies
 
       procedure :: create
       procedure :: destroy
@@ -86,11 +84,13 @@ module mapl3g_StateItemSpec
 
 contains
 
-   function new_StateItemSpec(aspects) result(spec)
+   function new_StateItemSpec(aspects, dependencies) result(spec)
       type(StateItemSpec) :: spec
       type(AspectMap), intent(in) :: aspects
+      type(VirtualConnectionPtVector), intent(in) :: dependencies
 
       spec%aspects = aspects
+      spec%dependencies = dependencies
    end function new_StateItemSpec
 
 
@@ -118,16 +118,19 @@ contains
       is_allocated = this%allocated
    end function is_allocated
 
-   pure subroutine set_active(this, active)
-      class(StateItemSpec), intent(inout) :: this
-      logical, optional, intent(in) :: active
+   subroutine activate(this, rc)
+      class(StateItemSpec), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(ClassAspect), pointer :: class_aspect
 
       this%active =  .true.
-      if (present(active)) then
-         this%active = active
-      end if
+      class_aspect => to_ClassAspect(this%aspects, _RC)
+      call class_aspect%activate(_RC)
 
-   end subroutine set_active
+      _RETURN(_SUCCESS)
+   end subroutine activate
 
    pure logical function is_active(this)
       class(StateItemSpec), intent(in) :: this
@@ -135,28 +138,16 @@ contains
    end function is_active
 
    function get_dependencies(this) result(dependencies)
-      type(ActualPtVector) :: dependencies
+      type(VirtualConnectionPtVector) :: dependencies
       class(StateItemSpec), intent(in) :: this
       dependencies = this%dependencies
    end function get_dependencies
 
-   function get_raw_dependencies(this) result(raw_dependencies)
-      type(StringVector) :: raw_dependencies
-      class(StateItemSpec), intent(in) :: this
-      raw_dependencies = this%raw_dependencies
-   end function get_raw_dependencies
-
    subroutine set_dependencies(this, dependencies)
       class(StateItemSpec), intent(inout) :: this
-      type(ActualPtVector), intent(in):: dependencies
+      type(VirtualConnectionPtVector), intent(in):: dependencies
       this%dependencies = dependencies
    end subroutine set_dependencies
-
-   subroutine set_raw_dependencies(this, raw_dependencies)
-      class(StateItemSpec), intent(inout) :: this
-      type(StringVector), intent(in):: raw_dependencies
-      this%raw_dependencies = raw_dependencies
-   end subroutine set_raw_dependencies
 
    function get_aspect_by_id(this, aspect_id, rc) result(aspect)
       class(StateItemAspect), pointer :: aspect
@@ -296,7 +287,7 @@ contains
       aspect_id = dst_class_aspect%get_aspect_id()
       call src_class_aspect%connect_to_import(dst_class_aspect, _RC)
 
-      call this%set_active()
+      call this%activate(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine connect_to_import
@@ -444,7 +435,6 @@ contains
 
       a%active = b%active
       a%allocated = b%allocated
-      a%raw_dependencies = b%raw_dependencies
       a%dependencies = b%dependencies
 
    end subroutine copy_item_spec

@@ -3,7 +3,6 @@
 module mapl3g_FieldInfo
    use mapl3g_esmf_info_keys, only: INFO_SHARED_NAMESPACE
    use mapl3g_esmf_info_keys, only: INFO_INTERNAL_NAMESPACE
-   use mapl3g_esmf_info_keys, only: INFO_PRIVATE_NAMESPACE
    use mapl3g_InfoUtilities
    use mapl3g_UngriddedDims
    use mapl3g_VerticalStaggerLoc
@@ -44,7 +43,9 @@ module mapl3g_FieldInfo
    character(*), parameter :: KEY_STANDARD_NAME = "/standard_name"
    character(*), parameter :: KEY_NUM_LEVELS = "/num_levels"
    character(*), parameter :: KEY_VERT_STAGGERLOC = "/vert_staggerloc"
+   character(*), parameter :: KEY_VERT_ONLY = "/vert_only"
    character(*), parameter :: KEY_UNGRIDDED_DIMS = "/ungridded_dims"
+   character(*), parameter :: KEY_IS_ACTIVE = "/is_active"
 
    character(*), parameter :: KEY_UNDEF_VALUE = "/undef_value"
    character(*), parameter :: KEY_MISSING_VALUE = "/missing_value"
@@ -56,7 +57,9 @@ contains
         namespace, &
         num_levels, vert_staggerloc, &
         ungridded_dims, &
+        grid_to_field_map, &
         units, long_name, standard_name, &
+        is_active, &
         rc)
 
       type(ESMF_Info), intent(inout) :: info
@@ -65,14 +68,17 @@ contains
       integer, optional, intent(in) :: num_levels
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
+      integer, optional, intent(in) :: grid_to_field_map(:)
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: long_name
       character(*), optional, intent(in) :: standard_name
+      logical, optional, intent(in) :: is_active
       integer, optional, intent(out) :: rc
       
       integer :: status
       type(ESMF_Info) :: ungridded_info
       character(:), allocatable :: namespace_
+      logical :: vert_only
 
       namespace_ = INFO_INTERNAL_NAMESPACE
       if (present(namespace)) then
@@ -82,6 +88,12 @@ contains
       if (present(ungridded_dims)) then
          ungridded_info = ungridded_dims%make_info(_RC)
          call MAPL_InfoSet(info, namespace_ // KEY_UNGRIDDED_DIMS, ungridded_info, _RC)
+      end if
+
+      if (present(grid_to_field_map)) then
+         vert_only = .false.
+         if (all(grid_to_field_map==0)) vert_only = .true.
+         call MAPL_InfoSet(info, namespace_ // KEY_VERT_ONLY, vert_only, _RC)
       end if
 
       if (present(units)) then
@@ -100,7 +112,6 @@ contains
          call MAPL_InfoSet(info, namespace_ // KEY_NUM_LEVELS, num_levels, _RC)
       end if
 
-
       if (present(vert_staggerloc)) then
          call MAPL_InfoSet(info, namespace_ // KEY_VERT_STAGGERLOC, vert_staggerloc%to_string(), _RC)
 
@@ -112,7 +123,7 @@ contains
                call MAPL_InfoSet(info, namespace_ // "/vertical_grid/num_levels", 0, _RC)
             else if (vert_staggerLoc == VERTICAL_STAGGER_EDGE) then
                call MAPL_InfoSet(info, namespace_ // "/vertical_dim/vloc", "VERTICAL_DIM_EDGE", _RC)
-               call MAPL_InfoSet(info, namespace_ // "/vertical_grid/num_levels", num_levels+1, _RC)
+               call MAPL_InfoSet(info, namespace_ // "/vertical_grid/num_levels", num_levels-1, _RC)
             else if (vert_staggerLoc == VERTICAL_STAGGER_CENTER) then
                call MAPL_InfoSet(info, namespace_ // "/vertical_dim/vloc", "VERTICAL_DIM_CENTER", _RC)
                call MAPL_InfoSet(info, namespace_ // "/vertical_grid/num_levels", num_levels, _RC)
@@ -123,6 +134,10 @@ contains
 
       end if
 
+      if (present(is_active)) then
+         call MAPL_InfoSet(info, namespace_ // KEY_IS_ACTIVE, is_active, _RC)
+      end if
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine field_info_set_internal
@@ -131,7 +146,10 @@ contains
         namespace, &
         num_levels, vert_staggerloc, num_vgrid_levels, &
         units, long_name, standard_name, &
-        ungridded_dims, rc)
+        ungridded_dims, &
+        vert_only, &
+        is_active, &
+        rc)
 
       type(ESMF_Info), intent(in) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -143,6 +161,8 @@ contains
       character(:), optional, allocatable, intent(out) :: long_name
       character(:), optional, allocatable, intent(out) :: standard_name
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
+      logical, optional, intent(out) :: vert_only
+      logical, optional, intent(out) :: is_active
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -181,7 +201,7 @@ contains
          if (vert_staggerloc_ == VERTICAL_STAGGER_NONE) then
             num_vgrid_levels = 0
          else if (vert_staggerloc_ == VERTICAL_STAGGER_EDGE) then
-            num_vgrid_levels = num_levels_ + 1
+            num_vgrid_levels = num_levels_ - 1
          else if (vert_staggerloc_ == VERTICAL_STAGGER_CENTER) then
             num_vgrid_levels = num_levels_
          else
@@ -199,6 +219,14 @@ contains
 
       if (present(standard_name)) then
          call MAPL_InfoGet(info, namespace_ // KEY_STANDARD_NAME, standard_name, _RC)
+      end if
+
+      if (present(vert_only)) then
+         call MAPL_InfoGet(info, namespace_ // KEY_VERT_ONLY, vert_only, _RC)
+      end if
+
+      if (present(is_active)) then
+         call MAPL_InfoGet(info, namespace_ // KEY_IS_ACTIVE, is_active, _RC)
       end if
 
       _RETURN(_SUCCESS)
@@ -220,6 +248,7 @@ contains
       call MAPL_InfoGet(field_info, key=concat(INFO_SHARED_NAMESPACE,key), value=value, _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end subroutine info_field_get_shared_i4
 
 

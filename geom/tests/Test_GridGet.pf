@@ -1,0 +1,46 @@
+#include "MAPL_TestErr.h"
+
+module Test_GridGet
+
+   use pfunit
+   use mapl3g_Geom_API
+   use esmf_TestMethod_mod ! mapl
+   use esmf
+
+   implicit none
+
+contains
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_grid_get(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(GeomManager), target :: geom_manager
+      type(ESMF_HConfig) :: hconfig
+      type(MaplGeom), pointer :: mapl_geom
+      type(ESMF_Geom) :: geom
+      type(ESMF_Grid) :: grid
+      integer :: im, jm, status
+
+      hconfig = ESMF_HConfigCreate( &
+           content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", &
+           rc=status)
+      @assert_that(status, is(0))
+
+      geom_manager = GeomManager()
+      mapl_geom => geom_manager%get_mapl_geom(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      geom = mapl_geom%get_geom()
+      call ESMF_GeomGet(geom, grid=grid, rc=status)
+
+      call MAPL_GridGet(grid, im=im, jm=jm, rc=status)
+      @assert_that(status, is(0))
+      @assert_that(im, is(12))
+      @assert_that(jm, is(13))
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+   end subroutine test_grid_get
+
+end module Test_GridGet

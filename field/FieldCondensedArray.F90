@@ -67,7 +67,7 @@ contains
       !  Due to an ESMF bug, getting the localElementCount must use the module function.
       !  See FieldGetLocalElementCount (specific function) comments.
       localElementCount = FieldGetLocalElementCount(f, _RC)
-      call MAPL_FieldGet(f, vert_staggerloc=vert_staggerloc, _RC)
+      call FieldGet(f, vert_staggerloc=vert_staggerloc, _RC)
       has_vertical = (vert_staggerloc /= VERTICAL_STAGGER_NONE)
       fptr_shape = get_fptr_shape_private(gridToFieldMap, localElementCount, has_vertical, _RC)
 

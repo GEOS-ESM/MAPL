@@ -1,0 +1,145 @@
+#include "MAPL_TestErr.h"
+module Test_GeomManager
+   use pfunit
+   use mapl3g_Geom_API
+   use esmf_TestMethod_mod ! mapl
+   use esmf
+   implicit none
+
+
+contains
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Basic test to excercise a plausible sequence of steps without
+   ! generating a non-zero return code.
+   subroutine test_make_from_hconfig(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(GeomManager), target :: geom_manager
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+      type(MaplGeom), pointer :: mapl_geom
+      type(ESMF_Geom) :: geom
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", &
+           rc=status)
+      @assert_that(status, is(0))
+
+      geom_manager = GeomManager()
+      mapl_geom => geom_manager%get_mapl_geom(hconfig, rc=status)
+      @assert_that(status, is(0))
+
+      geom = mapl_geom%get_geom()
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+      
+   end subroutine test_make_from_hconfig
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Test that an identical call to geom_manager results in the same
+   ! geom object being returned.  This is an essential property of the
+   ! manager to ensure that cached values of geoms are used when
+   ! appropriate.
+   subroutine test_reuse_geom(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(GeomManager), target :: geom_manager
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+      class(GeomSpec), allocatable :: spec
+      type(MaplGeom), pointer :: mapl_geom_a, mapl_geom_b
+      type(ESMF_Geom) :: geom_a, geom_b
+
+      type(ESMF_Info) :: infoh
+      logical :: flag
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", &
+           rc=status)
+      @assert_that(status, is(0))
+
+      geom_manager = GeomManager()
+      allocate(spec, source=geom_manager%make_geom_spec(hconfig, rc=status))
+      @assert_that(status, is(0))
+
+      mapl_geom_a => geom_manager%get_mapl_geom(spec, rc=status)
+      @assert_that(status, is(0))
+      mapl_geom_b => geom_manager%get_mapl_geom(spec, rc=status)
+      @assert_that(status, is(0))
+
+      geom_a = mapl_geom_a%get_geom()
+      call ESMF_InfoGetFromHost(geom_a, infoh, rc=status)
+      @assert_that(status, is(0))
+      call ESMF_InfoSet(infoh, 'GeomManager was here', .true., rc=status)
+      @assert_that(status, is(0))
+      
+      geom_b = mapl_geom_b%get_geom()
+      call ESMF_InfoGetFromHost(geom_b, infoh, rc=status)
+      @assert_that(status, is(0))
+      flag = .false.
+      call ESMF_InfoGet(infoh, 'GeomManager was here', flag, rc=status)
+      @assert_that(status, is(0))
+
+      @assertTrue(flag)
+      
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+   end subroutine test_reuse_geom
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Test that an different specs result in distinct geoms.
+   subroutine test_do_not_reuse_geom(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(GeomManager), target :: geom_manager
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+      class(GeomSpec), allocatable :: spec
+      type(MaplGeom), pointer :: mapl_geom_a, mapl_geom_b
+      type(ESMF_Geom) :: geom_a, geom_b
+
+      type(ESMF_Info) :: infoh
+      logical :: is_present
+
+      ! geom a
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", &
+           rc=status)
+      @assert_that(status, is(0))
+      geom_manager = GeomManager()
+      allocate(spec, source=geom_manager%make_geom_spec(hconfig, rc=status))
+      @assert_that(status, is(0))
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+      mapl_geom_a => geom_manager%get_mapl_geom(spec, rc=status)
+      @assert_that(status, is(0))
+      geom_a = mapl_geom_a%get_geom()
+      call ESMF_InfoGetFromHost(geom_a, infoh, rc=status)
+      @assert_that(status, is(0))
+      call ESMF_InfoSet(infoh, 'GeomManager was here', .true., rc=status)
+      @assert_that(status, is(0))
+      
+
+      ! geom b
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 10, jm_world: 13, pole: PC, dateline: DC, nx: 1, ny: 1}", &
+           rc=status)
+      @assert_that(status, is(0))
+      deallocate(spec)
+      allocate(spec, source=geom_manager%make_geom_spec(hconfig, rc=status))
+      @assert_that(status, is(0))
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assert_that(status, is(0))
+      mapl_geom_b => geom_manager%get_mapl_geom(spec, rc=status)
+      @assert_that(status, is(0))
+
+      geom_b = mapl_geom_b%get_geom()
+      call ESMF_InfoGetFromHost(geom_b, infoh, rc=status)
+      @assert_that(status, is(0))
+      ! New grid so should not have the key set on the other.
+      is_present = ESMF_InfoIsPresent(infoh, 'GeomManager was here', rc=status)
+      @assert_that(status, is(0))
+
+      @assertFalse(is_present)
+      
+   end subroutine test_do_not_reuse_geom
+
+end module Test_GeomManager

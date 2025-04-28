@@ -33,7 +33,7 @@ module mapl3g_EsmfRegridder
       type(EsmfRegridderParam) :: regridder_param
       type(ESMF_Routehandle) :: routehandle
    contains
-      procedure :: regrid_scalar
+      procedure :: regrid_field
    end type EsmfRegridder
 
 
@@ -102,7 +102,7 @@ contains
 
    end function new_EsmfRegridder
 
-   subroutine regrid_scalar(this, f_in, f_out, rc)
+   subroutine regrid_field(this, f_in, f_out, rc)
       class(EsmfRegridder), intent(inout) :: this
       type(ESMF_Field), intent(inout) :: f_in, f_out
       integer, optional, intent(out) :: rc
@@ -141,7 +141,7 @@ contains
              _RC)
       end associate
       _RETURN(_SUCCESS)
-   end subroutine regrid_scalar
+   end subroutine regrid_field
 
    subroutine regrid_ungridded(this, mask, f_in, f_out, n, rc)
       class(EsmfRegridder), intent(inout) :: this

@@ -1,50 +1,59 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_StateGet
-
+   use mapl3g_Field_API
+   use mapl3g_UngriddedDims
    use mapl_ErrorHandling
+   use mapl_KeywordEnforcer
    use esmf
-
-   implicit none
+   implicit none(type,external)
    private
 
-   public :: MAPL_StateGet
+   public :: StateGet
 
-   interface MAPL_StateGet
-      procedure get_bundle_from_state_
-   end interface MAPL_StateGet
+   interface StateGet
+      procedure state_get
+   end interface StateGet
 
 contains
 
-   type(ESMF_FieldBundle) function get_bundle_from_state_(state, rc) result(bundle)
-      type(ESMF_State), intent(in) :: state
-      integer, optional, intent(out) :: rc
+   subroutine state_get(state, itemName, unusable, &
+        typekind, &
+        num_levels, vert_staggerloc, num_vgrid_levels, &
+        ungridded_dims, &
+        units, standard_name, long_name, &
+        is_active, &
+        rc)
 
-      character(len=ESMF_MAXSTR), allocatable :: item_name(:)
-      type (ESMF_StateItem_Flag), allocatable  :: item_type(:)
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: itemName
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
+      integer, optional, intent(out) :: num_levels
+      type(VerticalStaggerLoc), optional, intent(out) :: vert_staggerloc
+      integer, optional, intent(out) :: num_vgrid_levels
+      type(UngriddedDims), optional, intent(out) :: ungridded_dims
+      character(len=:), optional, allocatable, intent(out) :: units
+      character(len=:), optional, allocatable, intent(out) :: standard_name
+      character(len=:), optional, allocatable, intent(out) :: long_name
+      logical, optional, intent(out) :: is_active
+      integer, optional, intenT(out) :: rc
+
       type(ESMF_Field) :: field
-      type(ESMF_FieldStatus_Flag) :: field_status
-      integer :: item_count, idx, status
+      integer :: status
 
-      ! bundle to pack fields in
-      bundle = ESMF_FieldBundleCreate(_RC)
-      call ESMF_StateGet(state, itemCount=item_count, _RC)
-      allocate(item_name(item_count), _STAT)
-      allocate(item_type(item_count), _STAT)
-      call ESMF_StateGet(state, itemNameList=item_name, itemTypeList=item_type, _RC)
-      do idx = 1, item_count
-         if (item_type(idx) /= ESMF_STATEITEM_FIELD) then
-            _FAIL("FieldBundle has not been implemented yet")
-         end if
-         call ESMF_StateGet(state, item_name(idx), field, _RC)
-         call ESMF_FieldGet(field, status=field_status, _RC)
-         if (field_status == ESMF_FIELDSTATUS_COMPLETE) then
-            call ESMF_FieldBundleAdd(bundle, [field], _RC)
-         end if
-      end do
-      deallocate(item_name, item_type, _STAT)
+      call ESMF_StateGet(state, itemName=itemName, field=field, _RC)
+      call MAPL_FieldGet(field, &
+           typekind=typekind, &
+           num_levels=num_levels, &
+           vert_staggerloc=vert_staggerloc, &
+           num_vgrid_levels=num_vgrid_levels, &
+           ungridded_dims=ungridded_dims, &
+           units=units, standard_name=standard_name, long_name=long_name, &
+           is_active=is_active, _RC)
 
       _RETURN(_SUCCESS)
-   end function get_bundle_from_state_
+      _UNUSED_DUMMY(unusable)
+   end subroutine state_get
 
 end module mapl3g_StateGet

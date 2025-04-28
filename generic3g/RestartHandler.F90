@@ -4,11 +4,11 @@ module mapl3g_RestartHandler
 
    use, intrinsic :: iso_c_binding, only: c_ptr
    use esmf
-   use mapl3g_geom_mgr, only: MaplGeom
+   use mapl3g_Geom_API, only: MaplGeom
    use mapl_ErrorHandling, only: MAPL_Verify, MAPL_Return, MAPL_Assert
    use mapl3g_geomio, only: bundle_to_metadata, GeomPFIO, make_geom_pfio, get_mapl_geom
    use mapl3g_SharedIO, only: esmf_to_pfio_type
-   use mapl3g_StateGet, only: MAPL_StateGet
+   use mapl3g_FieldBundle_API, only: MAPL_FieldBundleCreate
    use pFIO, only: PFIO_READ, FileMetaData, NetCDF4_FileFormatter
    use pFIO, only: i_Clients, o_Clients
    use pFlogger, only: logging, logger
@@ -71,7 +71,7 @@ contains
          ! TODO: the file_name should come from OuterMetaComponents's hconfig
          file_name = trim(this%gc_name) // "_" // trim(state_type) // "_checkpoint.nc4"
          call this%lgr%info("Writing checkpoint: %a", trim(file_name))
-         out_bundle = MAPL_StateGet(state, _RC)
+         out_bundle = MAPL_FieldBundleCreate(state, _RC)
          call this%write_bundle_(out_bundle, file_name, rc)
       end if
 

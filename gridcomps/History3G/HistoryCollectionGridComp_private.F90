@@ -2,15 +2,16 @@
 module mapl3g_HistoryCollectionGridComp_private
 
    use generic3g
-   use mapl3g_VariableSpec, only: VariableSpec, make_VariableSpec, make_VariableSpecFromAspects
+   use mapl3g_VariableSpec, only: VariableSpec, make_VariableSpec
    use esmf
    use Mapl_ErrorHandling
    use gFTL2_StringVector
-   use mapl3g_geom_mgr
+   use mapl3g_Geom_API
    use MAPL_NewArthParserMod, only: parser_variables_in_expression
    use MAPL_TimeStringConversion
    use MAPL_BaseMod, only: MAPL_UnpackTime
    use mapl3g_UngriddedDims
+   use mapl3g_FieldClassAspect
    use mapl3g_FrequencyAspect, only: FrequencyAspect
    use mapl3g_TypekindAspect, only: TypekindAspect
    use mapl3g_UnitsAspect, only: UnitsAspect
@@ -297,13 +298,11 @@ contains
       do while (ftn_iter /= ftn_end)
          call ftn_iter%next()
          short_name = ftn_iter%of()
-         varspec = make_VariableSpecFromAspects(ESMF_STATEINTENT_IMPORT, short_name, &
-            & vertical_aspect=VerticalGridAspect(vertical_stagger=VERTICAL_STAGGER_MIRROR), &
-            & units_aspect=UnitsAspect(opts%units), &
-            & typekind_aspect=TypekindAspect(opts%typekind), &
-            & frequency_aspect=FrequencyAspect(accumulation_type=opts%accumulation_type, &
-            & timeStep=opts%timeStep, offset=opts%runTime_offset), &
-            & _RC)
+         varspec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name, &
+              units=opts%units, typekind=opts%typekind, &
+              accumulation_type=opts%accumulation_type, timestep = opts%timestep, offset=opts%runTime_offset, &
+              vertical_stagger=VERTICAL_STAGGER_MIRROR, &
+              _RC)
          call MAPL_GridCompAddVarSpec(gridcomp, varspec, _RC)
       end do
       _RETURN(_SUCCESS)

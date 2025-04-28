@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.54.2
+  VERSION 2.55.1
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
@@ -241,7 +241,7 @@ if (BUILD_WITH_FARGPARSE)
    add_subdirectory (benchmarks)
 endif()
 
-add_subdirectory (geom_mgr)
+add_subdirectory (geom)
 add_subdirectory (regridder_mgr)
 add_subdirectory (hconfig_utils)
 

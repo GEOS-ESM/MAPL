@@ -1,13 +1,13 @@
 #include "MAPL_Generic.h"
 module mapl3g_SharedIO
    use mapl_ErrorHandlingMod
-   use mapl3g_FieldBundleGet
-   use mapl3g_FieldGet
+   use mapl3g_FieldBundle_API
+   use mapl3g_Field_API
    use mapl3g_VerticalStaggerLoc
    use pfio
    use gFTL2_StringVector
    use gFTL2_StringSet
-   use mapl3g_geom_mgr
+   use mapl3g_Geom_API
    use MAPL_BaseMod
    use mapl3g_UngriddedDims
    use mapl3g_UngriddedDim
@@ -271,9 +271,9 @@ contains
       type(FileMetaData), intent(inout) :: metadata
       integer, optional, intent(out) :: rc
       integer :: status
-      type(UngriddedDims) :: field_ungridded_dims, ungridded_dims
+      type(UngriddedDims) :: field_ungridded_dims
       type(UngriddedDim) :: u
-      integer :: i, j
+      integer :: ifield, jdim
       type(ESMF_Field) :: field
       type(ESMF_Field), allocatable :: fieldList(:)
       type(StringSet) :: dim_names
@@ -281,11 +281,11 @@ contains
       logical :: is_new
 
       call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
-      do i = 1, size(fieldList)
-         call MAPL_FieldGet(fieldList(i), ungridded_dims=field_ungridded_dims, _RC)
+      do ifield = 1, size(fieldList)
+         call MAPL_FieldGet(fieldList(ifield), ungridded_dims=field_ungridded_dims, _RC)
          
-         do j = 1, field_ungridded_dims%get_num_ungridded()
-            u = ungridded_dims%get_ith_dim_spec(i)
+         do jdim = 1, field_ungridded_dims%get_num_ungridded()
+            u = field_ungridded_dims%get_ith_dim_spec(jdim)
             dim_name = u%get_name()
             call dim_names%insert(dim_name, is_new=is_new)
             if (is_new) then

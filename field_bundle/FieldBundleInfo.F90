@@ -25,6 +25,8 @@ module mapl3g_FieldBundleInfo
       procedure fieldbundle_set_internal
    end interface
 
+   character(*), parameter :: KEY_FIELDBUNDLETYPE_FLAG = '/FieldBundleType_Flag'
+
 
 contains
 
@@ -34,6 +36,7 @@ contains
         typekind, interpolation_weights, &
         ungridded_dims, num_levels, vert_staggerloc, num_vgrid_levels, &
         units, long_name, standard_name, &
+        is_active, &
         rc)
 
       type(ESMF_Info), intent(in) :: info
@@ -49,6 +52,7 @@ contains
       character(:), optional, allocatable, intent(out) :: units
       character(:), optional, allocatable, intent(out) :: long_name
       character(:), optional, allocatable, intent(out) :: standard_name
+      logical, optional, intent(out) :: is_active
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -62,7 +66,7 @@ contains
       end if
 
       if (present(fieldBundleType)) then
-         call ESMF_InfoGet(info, key=namespace_//KEY_FIELDBUNDLETYPE, value=fieldBundleType_str, _RC)
+         call ESMF_InfoGetCharAlloc(info, key=namespace_//KEY_FIELDBUNDLETYPE_FLAG, value=fieldBundleType_str, _RC)
          fieldBundleType = FieldBundleType_Flag(fieldBundleType_str)
       end if
 
@@ -80,7 +84,7 @@ contains
       call MAPL_FieldInfoGetInternal(info, namespace = namespace_//KEY_FIELD_PROTOTYPE, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, num_vgrid_levels=num_vgrid_levels, &
-           units=units, long_name=long_name, standard_name=standard_name, _RC)
+           units=units, long_name=long_name, standard_name=standard_name, is_active=is_active, _RC)
 
 
       _RETURN(_SUCCESS)
@@ -111,6 +115,7 @@ contains
         ungridded_dims, &
         num_levels, vert_staggerloc, &
         units, standard_name, long_name, &
+        is_active, &
         rc)
 
       type(ESMF_Info), intent(inout) :: info
@@ -126,6 +131,7 @@ contains
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
+      logical, optional, intent(in) :: is_active
       integer, optional, intent(out) :: rc
       
       integer :: status
@@ -145,7 +151,7 @@ contains
 
       if (present(fieldBundleType)) then
          fieldBundleType_str = fieldBundleType%to_string()
-         call ESMF_InfoSet(info, key=namespace_ // KEY_FIELDBUNDLETYPE, value=fieldBundleType_str, _RC)
+         call ESMF_InfoSet(info, key=namespace_ // KEY_FIELDBUNDLETYPE_FLAG, value=fieldBundleType_str, _RC)
       end if
 
       if (present(interpolation_weights)) then
@@ -155,7 +161,8 @@ contains
        call MAPL_FieldInfoSetInternal(info, namespace=namespace_ // KEY_FIELD_PROTOTYPE, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
-           units=units, long_name=long_name, standard_name=standard_name, _RC)
+           units=units, long_name=long_name, standard_name=standard_name, &
+           is_active=is_active, _RC)
 
       _RETURN(_SUCCESS)
 

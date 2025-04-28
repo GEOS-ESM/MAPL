@@ -6,6 +6,7 @@ module mapl3g_FieldClassAspect
    use mapl3g_StateItemAspect
    use mapl3g_ClassAspect
    use mapl3g_GeomAspect
+   use mapl3g_HorizontalDimsSpec
    use mapl3g_VerticalGridAspect
    use mapl3g_UnitsAspect
    use mapl3g_TypekindAspect
@@ -21,7 +22,7 @@ module mapl3g_FieldClassAspect
    use mapl3g_MultiState
    use mapl3g_ESMF_Utilities, only: get_substate
 
-   use mapl3g_FieldCreate
+   use mapl3g_Field_API
    use mapl_FieldUtilities
 
    use mapl_ErrorHandling
@@ -54,6 +55,7 @@ module mapl3g_FieldClassAspect
       procedure :: connect_to_export
 
       procedure :: create
+      procedure :: activate
       procedure :: allocate
       procedure :: destroy
       procedure :: add_to_state
@@ -132,6 +134,17 @@ contains
       _RETURN(ESMF_SUCCESS)
    end subroutine create
 
+   subroutine activate(this, rc)
+      class(FieldClassAspect), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call MAPL_FieldSet(this%payload, is_active=.true., _RC)
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine activate
+
    ! Tile / Grid   X  or X, Y
    subroutine allocate(this, other_aspects, rc)
       class(FieldClassAspect), intent(inout) :: this
@@ -143,12 +156,15 @@ contains
 
       type(GeomAspect) :: geom_aspect
       type(ESMF_Geom) :: geom
+      type(HorizontalDimsSpec) :: horizontal_dims_spec
+      integer :: dim_count
+      integer, allocatable :: grid_to_field_map(:)
 
-      type(VerticalGridAspect) :: vert_aspect
-      class(VerticalGrid), allocatable :: vert_grid
+      type(VerticalGridAspect) :: vertical_aspect
+      class(VerticalGrid), allocatable :: vertical_grid
       type(VerticalStaggerLoc) :: vertical_stagger
-      integer, allocatable :: num_levels_grid
-      integer, allocatable :: num_levels
+      integer, allocatable :: num_vgrid_levels
+      integer, allocatable :: num_field_levels
 
       type(UngriddedDimsAspect) :: ungridded_dims_aspect
       type(UngriddedDims) :: ungridded_dims
@@ -159,6 +175,8 @@ contains
       type(TypekindAspect) :: typekind_aspect
       type(ESMF_TypeKind_Flag) :: typekind
 
+      integer :: idim
+
       call ESMF_FieldGet(this%payload, status=fstatus, _RC)
       _RETURN_IF(fstatus == ESMF_FIELDSTATUS_COMPLETE)
 
@@ -166,14 +184,22 @@ contains
       geom = geom_aspect%get_geom(_RC)
       call ESMF_FieldEmptySet(this%payload, geom, _RC)
 
-      vert_aspect = to_VerticalGridAspect(other_aspects, _RC)
-      vert_grid = vert_aspect%get_vertical_grid(_RC)
-      num_levels_grid = vert_grid%get_num_levels()
-      vertical_stagger = vert_aspect%get_vertical_stagger()
+      call ESMF_GeomGet(geom, dimCount=dim_count, _RC)
+      allocate(grid_to_field_map(dim_count), source=0)
+      horizontal_dims_spec = geom_aspect%get_horizontal_dims_spec(_RC)
+      _ASSERT(horizontal_dims_spec /= HORIZONTAL_DIMS_UNKNOWN, "should be one of GEOM/NONE")
+      if (horizontal_dims_spec == HORIZONTAL_DIMS_GEOM) then
+         grid_to_field_map = [(idim, idim=1,dim_count)]
+      end if
+
+      vertical_aspect = to_VerticalGridAspect(other_aspects, _RC)
+      vertical_grid = vertical_aspect%get_vertical_grid(_RC)
+      num_vgrid_levels = vertical_grid%get_num_levels()
+      vertical_stagger = vertical_aspect%get_vertical_stagger()
       if (vertical_stagger == VERTICAL_STAGGER_EDGE) then
-         num_levels = num_levels_grid + 1
+         num_field_levels = num_vgrid_levels + 1
       else if (vertical_stagger == VERTICAL_STAGGER_CENTER) then
-         num_levels = num_levels_grid
+         num_field_levels = num_vgrid_levels
       end if
 
       ungridded_dims_aspect = to_UngriddedDimsAspect(other_aspects, _RC)
@@ -187,8 +213,9 @@ contains
 
       call MAPL_FieldEmptyComplete(this%payload, &
            typekind=typekind, &
+           gridToFieldMap=grid_to_field_map, &
            ungridded_dims=ungridded_dims, &
-           num_levels=num_levels, &
+           num_levels=num_field_levels, &
            vert_staggerLoc=vertical_stagger, &
            units=units, &
            standard_name=this%standard_name, &

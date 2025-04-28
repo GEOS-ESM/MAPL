@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_VectorClassAspect
-   use mapl3g_FieldBundleGet
+   use mapl3g_FieldBundle_API
    use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
@@ -27,6 +27,7 @@ module mapl3g_VectorClassAspect
    use mapl_FieldUtilities
 
    use mapl_ErrorHandling
+   use gftl2_StringVector
    use esmf
    implicit none(type,external)
    private
@@ -43,6 +44,7 @@ module mapl3g_VectorClassAspect
    type, extends(ClassAspect) :: VectorClassAspect
       private
       type(ESMF_FieldBundle) :: payload
+      type(StringVector) :: short_names
       type(FieldClassAspect) :: component_specs(2)
    contains
       procedure :: get_aspect_order
@@ -54,6 +56,7 @@ module mapl3g_VectorClassAspect
       procedure :: connect_to_export
 
       procedure :: create
+      procedure :: activate
       procedure :: allocate
       procedure :: destroy
       procedure :: add_to_state
@@ -69,10 +72,14 @@ module mapl3g_VectorClassAspect
 
 contains
 
-   function new_VectorClassAspect_basic(component_specs) result(aspect)
+   function new_VectorClassAspect_basic(short_names, component_specs) result(aspect)
       type(VectorClassAspect) :: aspect
+      type(StringVector), intent(in) :: short_names
       type(FieldClassAspect), intent(in) :: component_specs(2)
+
+      aspect%short_names = short_names
       aspect%component_specs = component_specs
+      
    end function new_VectorClassAspect_basic
 
 
@@ -110,10 +117,21 @@ contains
 
       integer :: status
 
-      this%payload = ESMF_FieldBundleCreate(_RC)
+      this%payload = MAPL_FieldBundleCreate(fieldBundleType=FIELDBUNDLETYPE_VECTOR, _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine create
+
+   subroutine activate(this, rc)
+      class(VectorClassAspect), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call MAPL_FieldBundleSet(this%payload, is_active=.true., _RC)
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine activate
 
    ! Tile / Grid   X  or X, Y
    subroutine allocate(this, other_aspects, rc)

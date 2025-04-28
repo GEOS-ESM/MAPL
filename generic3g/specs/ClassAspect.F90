@@ -21,6 +21,7 @@ module mapl3g_ClassAspect
    contains
       procedure(I_get_aspect_order), deferred :: get_aspect_order
       procedure(I_create), deferred :: create
+      procedure(I_create), deferred :: activate
       procedure(I_destroy), deferred :: destroy
       procedure(I_allocate), deferred :: allocate
 

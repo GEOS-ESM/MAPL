@@ -152,8 +152,8 @@ We can also add for the sake of our example here, the optional column:
 More column options are listed in the file: [MAPL_GridCompSpecs_ACG.py
 ](https://github.com/GEOS-ESM/MAPL/blob/main/Apps/MAPL_GridCompSpecs_ACG.py).
 
-Assume that we create such a file (that we name `MyComponent_StateSpecs.rc`) and include the fields used in the previous section.
-`MyComponent_StateSpecs.rc` looks like:
+Assume that we create such a file (that we name `MyComponent_StateSpecs.acg`) and include the fields used in the previous section.
+`MyComponent_StateSpecs.acg` looks like:
 
 <details>
 <summary><font color="green"> Sample spec file content</font></summary>
@@ -225,7 +225,7 @@ category: INTERNAL
 >
 
 
-Running `MAPL_GridCompSpecs_ACG.py` on the file `MyComponent_StateSpecs.rc` generates at compilation time four (4) include files:
+Running `MAPL_GridCompSpecs_ACG.py` on the file `MyComponent_StateSpecs.acg` generates at compilation time four (4) include files:
 
 1. `MyComponent_Export___.h` for the `MAPL_AddExportSpec` calls in the `SetServices` routine:
 
@@ -325,7 +325,7 @@ call MAPL_GetPointer(EXPORT, CNV_FRC, 'CNV_FRC', ALLOC=.TRUE., RC=STATUS); VERIF
 
 ### Edit the Source Code
 
-In the `SetServices` routine, all the `MAPL_AddExportSpec` and `MAPL_AddImportSpec` calls for the variables listed in the `MyComponent_StateSpecs.rc` need to be removed and replaced with the two lines just after the declaration of the local variables:
+In the `SetServices` routine, all the `MAPL_AddExportSpec` and `MAPL_AddImportSpec` calls for the variables listed in the `MyComponent_StateSpecs.acg` need to be removed and replaced with the two lines just after the declaration of the local variables:
 ```
 ...
 #include "MyComponent_Export___.h"
@@ -347,7 +347,7 @@ Similarly in the  `Run` routine, the array declaration section and the `MAPL_Get
 The following lines need to be added in the  `CMakeLists.txt` file:
 
 ```
-mapl_acg (${this}   MyComponent_StateSpecs.rc
+mapl_acg (${this}   MyComponent_StateSpecs.acg
           IMPORT_SPECS EXPORT_SPECS INTERNAL_SPECS
           GET_POINTERS DECLARE_POINTERS)
 ```

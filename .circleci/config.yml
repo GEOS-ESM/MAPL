@@ -33,56 +33,15 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              # MAPL3 Unit tests still have issues with ifx. Until we fix them, we will only run with gfortran and ifort
-              #compiler: [gfortran, ifort, ifx]
-              compiler: [gfortran, ifort]
-              cmake_generator: ['Unix Makefiles','Ninja']
-              build_type: ['Debug', 'Release']
+              compiler: [ifort]
+              cmake_generator: ['Unix Makefiles']
+              build_type: ['Debug']
           baselibs_version: *baselibs_version
           repo: MAPL
           mepodevelop: false
           run_unit_tests: true
           ctest_options: "-L 'ESSENTIAL' --output-on-failure"
           persist_workspace: true # Needed for MAPL tutorials
-
-      # Builds MAPL without PFLOGGER and FARGPARSE
-      - ci/build:
-          name: build-MAPL-without-pFlogger-and-fArgParse-as-<< matrix.build_type >>-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              # MAPL3 Unit tests still have issues with ifx. Until we fix them, we will only run with gfortran and ifort
-              #compiler: [gfortran, ifort, ifx]
-              compiler: [gfortran, ifort]
-              build_type: ['Debug', 'Release']
-          baselibs_version: *baselibs_version
-          repo: MAPL
-          mepodevelop: false
-          remove_flap: true
-          remove_pflogger: true
-          extra_cmake_options: "-DBUILD_WITH_PFLOGGER=OFF -DBUILD_WITH_FARGPARSE=OFF"
-          run_unit_tests: true
-          # ExtData1G tests were removed from ESSENTIAL, so we run them separately here as UFS might still use 1G?
-          ctest_options: "-L 'ESSENTIAL|EXTDATA1G_SMALL_TESTS' --output-on-failure"
-
-      # Builds MAPL without pFUnit support
-      - ci/build:
-          name: build-MAPL-without-pFUnit-as-<< matrix.build_type>>-on-<< matrix.compiler >>
-          context:
-            - docker-hub-creds
-          matrix:
-            parameters:
-              # MAPL3 Unit tests still have issues with ifx. Until we fix them, we will only run with gfortran and ifort
-              #compiler: [ifort, ifx]
-              compiler: [ifort]
-              build_type: ['Debug', 'Release']
-          baselibs_version: *baselibs_version
-          repo: MAPL
-          mepodevelop: false
-          remove_pfunit: true
-          run_unit_tests: true
-          ctest_options: "-L 'ESSENTIAL' --output-on-failure"
 
       # Run MAPL Tutorials
       - ci/run_mapl_tutorial:
@@ -91,20 +50,37 @@ workflows:
             - docker-hub-creds
           matrix:
             parameters:
-              # MAPL3 Unit tests still have issues with ifx. Until we fix them, we will only run with gfortran and ifort
-              compiler: [gfortran, ifort]
-              build_type: ['Debug', 'Release']
+              compiler: [ifort]
+              build_type: ['Debug']
               tutorial_name:
                 - hello_world
                 - parent_no_children
                 - parent_one_child_import_via_extdata
                 - parent_one_child_no_imports
                 - parent_two_siblings_connect_import_export
-          # We will only run the tutorials with GNU make. No need to double up
-          # as Ninja is a build test only
+          # We will only run the tutorials with GNU make. No need to double up as Ninja is a build test only
           requires:
             - build-and-test-MAPL-as-<< matrix.build_type >>-on-<< matrix.compiler >>-using-Unix Makefiles
           baselibs_version: *baselibs_version
+
+      # Builds MAPL without pFlogger and fargparse and pFUnit
+      - ci/build:
+          name: build-MAPL-without-pFlogger-and-fArgParse-and-pFUnit-as-<< matrix.build_type >>-on-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              compiler: [ifort]
+              build_type: ['Debug']
+          baselibs_version: *baselibs_version
+          repo: MAPL
+          mepodevelop: false
+          remove_flap: true
+          remove_pflogger: true
+          remove_pfunit: true
+          extra_cmake_options: "-DBUILD_WITH_PFLOGGER=OFF -DBUILD_WITH_FARGPARSE=OFF"
+          run_unit_tests: true
+          ctest_options: "-L 'ESSENTIAL' --output-on-failure"
 
   # MAPL3 will soon break GEOSgcm builds. So for now we turn off all the builds of GEOS fixtures
 

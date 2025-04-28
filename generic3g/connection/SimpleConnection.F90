@@ -6,9 +6,9 @@ module mapl3g_SimpleConnection
    use mapl3g_ConnectionPt
    use mapl3g_StateRegistry
    use mapl3g_VirtualConnectionPt
+   use mapl3g_VirtualConnectionPtVector
    use mapl3g_ActualConnectionPt
    use mapl3g_ActualPtVec_Map
-   use mapl3g_ActualPtVector
    use mapl3g_GriddedComponentDriver
    use mapl3g_StateItemExtension
    use mapl3g_StateItemExtensionVector
@@ -94,14 +94,14 @@ contains
       do i = 1, size(dst_extensions)
          dst_extension => dst_extensions(i)%ptr
          spec => dst_extension%get_spec()
-         call spec%set_active()
+         call spec%activate(_RC)
          call spec%set_allocated()
       end do
 
       do i = 1, size(src_extensions)
          src_extension => src_extensions(i)%ptr
          spec => src_extension%get_spec()
-         call spec%set_active()
+         call spec%activate(_RC)
          call activate_dependencies(src_extension, src_registry, _RC)
       end do
         
@@ -193,19 +193,19 @@ contains
 
       integer :: status
       integer :: i
-      type(StringVector) :: dependencies
+      type(VirtualConnectionPtVector) :: dependencies
       class(StateItemExtension), pointer :: dep_extension
       type(StateItemSpec), pointer :: spec
       type(StateItemSpec), pointer :: dep_spec
 
       spec => extension%get_spec()
-      dependencies = spec%get_raw_dependencies()
+      dependencies = spec%get_dependencies()
       do i = 1, dependencies%size()
-         associate (v_pt => VirtualConnectionPt(state_intent='export', short_name=dependencies%of(i)) )
+         associate (v_pt => dependencies%of(i))
            dep_extension => registry%get_primary_extension(v_pt, _RC)
          end associate
          dep_spec => dep_extension%get_spec()
-         call dep_spec%set_active()
+         call dep_spec%activate(_RC)
       end do
 
       _RETURN(_SUCCESS)

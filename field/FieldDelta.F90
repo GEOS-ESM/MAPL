@@ -6,6 +6,7 @@
 module mapl3g_FieldDelta
    use mapl3g_FieldInfo
    use mapl3g_FieldGet
+   use mapl3g_FieldSet
    use mapl3g_VerticalStaggerLoc
    use mapl3g_InfoUtilities
    use mapl_FieldPointerUtilities
@@ -144,8 +145,8 @@ contains
          integer :: status
          integer :: num_levels_a, num_levels_b
 
-         call MAPL_FieldGet(f_a, num_levels=num_levels_a, _RC)
-         call MAPL_FieldGet(f_b, num_levels=num_levels_b, _RC)
+         call FieldGet(f_a, num_levels=num_levels_a, _RC)
+         call FieldGet(f_b, num_levels=num_levels_b, _RC)
 
           if (num_levels_a /= num_levels_b) then
               num_levels = num_levels_b
@@ -164,8 +165,8 @@ contains
          integer :: status
          character(len=:), allocatable :: units_a, units_b
 
-         call MAPL_FieldGet(f_a, units=units_a, _RC)
-         call MAPL_FieldGet(f_b, units=units_b, _RC)
+         call FieldGet(f_a, units=units_a, _RC)
+         call FieldGet(f_b, units=units_b, _RC)
 
          if (units_a /= units_b) then
             allocate(character(len_trim(units_b)) :: units)
@@ -192,7 +193,7 @@ contains
       call ESMF_FieldGet(f, geom=this%geom, typekind=typekind, _RC)
 
       allocate(this%num_levels)
-      call MAPL_FieldGet(f, num_levels=this%num_levels, units=this%units, _RC)
+      call FieldGet(f, num_levels=this%num_levels, units=this%units, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine initialize_field_delta_degenerate
@@ -231,7 +232,7 @@ contains
          _RETURN_UNLESS(present(num_levels))
          _RETURN_IF(ignore == 'num_levels')
 
-         call MAPL_FieldSet(field, num_levels=num_levels, _RC)
+         call FieldSet(field, num_levels=num_levels, _RC)
 
          _RETURN(_SUCCESS)
       end subroutine update_num_levels
@@ -247,7 +248,7 @@ contains
          _RETURN_UNLESS(present(units))
          _RETURN_IF(ignore == 'units')
 
-         call MAPL_FieldSet(field, units=units, _RC)
+         call FieldSet(field, units=units, _RC)
 
          _RETURN(_SUCCESS)
       end subroutine update_units
@@ -380,13 +381,13 @@ contains
          if (ignore == 'num_levels') return
          if (.not. present(new_num_levels)) return
 
-         call MAPL_FieldGet(field, vert_staggerloc=vert_staggerloc, _RC)
+         call FieldGet(field, vert_staggerloc=vert_staggerloc, _RC)
 
          ! Surface fields are not impacted by change in vertical grid
          _RETURN_IF(vert_staggerloc == VERTICAL_STAGGER_NONE)
 
 
-         call MAPL_FieldGet(field, num_levels=current_num_levels, _RC)
+         call FieldGet(field, num_levels=current_num_levels, _RC)
          _ASSERT(count(vert_staggerloc == [VERTICAL_STAGGER_CENTER, VERTICAL_STAGGER_EDGE]) == 1, 'unsupported vertical stagger')
          ungriddedUBound(1) = this%num_levels
 

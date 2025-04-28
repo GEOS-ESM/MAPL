@@ -75,7 +75,6 @@ module mapl3g_StateRegistry
 
       ! Actions on specs
       procedure :: allocate
-      procedure :: set_blanket_geometry
       procedure :: add_to_states
 
       procedure :: filter ! for MatchConnection
@@ -172,7 +171,7 @@ contains
 
       extension = StateItemExtension(spec)
       call this%owned_items%push_back(extension)
-     family = ExtensionFamily(this%owned_items%back())
+      family = ExtensionFamily(this%owned_items%back())
       call this%add_family(virtual_pt, family, _RC)
       
       _RETURN(_SUCCESS)
@@ -616,33 +615,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine allocate
 
-   subroutine set_blanket_geometry(this, geom, vertical_grid, rc)
-      class(StateRegistry), target, intent(inout) :: this
-      type(ESMF_Geom), optional, intent(in) :: geom
-      class(VerticalGrid), optional, intent(in) :: vertical_grid
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(StateItemExtensionVectorIterator) :: iter
-      class(StateItemExtension), pointer :: extension
-      type(StateItemSpec), pointer :: spec
-
-      associate (e => this%owned_items%ftn_end())
-        iter = this%owned_items%ftn_begin()
-        do while (iter /= e)
-           call iter%next()
-           extension => iter%of()
-           spec => extension%get_spec()
-           if (spec%is_active()) then
-              call spec%set_geometry(geom, vertical_grid, _RC)
-           end if
-        end do
-      end associate
-      
-      _RETURN(_SUCCESS)
-   end subroutine set_blanket_geometry
-
-  subroutine add_to_states(this, multi_state, mode, rc)
+   subroutine add_to_states(this, multi_state, mode, rc)
       use mapl3g_MultiState
       use mapl3g_ActualConnectionPt
       use esmf
@@ -849,7 +822,7 @@ contains
          coupler_states = producer%get_states()
          a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='import', short_name='import[1]'))
          last_spec => closest_extension%get_spec()
-         call last_spec%set_active()
+         call last_spec%activate(_RC)
          call last_spec%add_to_state(coupler_states, a_pt, _RC)
          a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='export', short_name='export[1]'))
          new_spec => new_extension%get_spec()
