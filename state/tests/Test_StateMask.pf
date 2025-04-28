@@ -7,6 +7,7 @@ module Test_StateMask
    use pfunit
    use MAPL_ExceptionHandling
    use MAPL_StateUtils
+   use ESMF_TestMethod_mod
 
    implicit none
 
@@ -14,7 +15,7 @@ contains
 
    @Before
    subroutine set_up_data(this)
-      class(MpiTestMethod), intent(inout) :: this
+      class(ESMF_TestMethod), intent(inout) :: this
  
       integer :: status, rc
 
@@ -28,16 +29,16 @@ contains
 
    @after
    subroutine teardown(this)
-      class(MpiTestMethod), intent(inout) :: this
+      class(ESMF_TestMethod), intent(inout) :: this
       call ESMF_FieldDestroy(field_2d, noGarbage=.true.)
       call ESMF_FieldDestroy(field_3d, noGarbage=.true.)
       call ESMF_FieldDestroy(mask_field, noGarbage=.true.)
       call ESMF_StateDestroy(state, noGarbage=.true.)
    end subroutine teardown
 
-   @Test(npes=[1])
+   @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_region_mask_2d(this)
-      class(MpiTestMethod), intent(inout) :: this
+      class(ESMF_TestMethod), intent(inout) :: this
 
       integer :: status, rc
       real(ESMF_KIND_R4), pointer :: ptr2d(:,:), mask_ptr(:,:)
@@ -61,9 +62,9 @@ contains
 
    end subroutine test_region_mask_2d
 
-   @Test(npes=[1])
+   @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_region_mask_3d(this)
-      class(MpiTestMethod), intent(inout) :: this
+      class(ESMF_TestMethod), intent(inout) :: this
 
       integer :: status, rc, i
       real(ESMF_KIND_R4), pointer :: ptr3d(:,:,:), mask_ptr(:,:)
