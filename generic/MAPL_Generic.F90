@@ -10042,6 +10042,7 @@ contains
       type (ESMF_Grid)                      :: GRID
       integer                               :: nn,ny
       character(len=ESMF_MAXSTR)            :: GridName
+      character(len=ESMF_MAXSTR)            :: Prefix
       character(len=2)                      :: dateline
 #ifdef CREATE_REGULAR_GRIDS
       logical                               :: isRegular
@@ -10055,6 +10056,9 @@ contains
          call ESMF_GridCompGet( GC, name=Comp_Name,   rc = status )
          _VERIFY(status)
          Iam = trim(Comp_Name)//Iam
+         Prefix = trim(comp_name)//MAPL_CF_COMPONENT_SEPARATOR
+      else
+         Prefix = ''
       endif
 
       ! New option to get grid from existing component
@@ -10091,23 +10095,25 @@ contains
          _FAIL('needs informative message')
       endif
 
-      call MAPL_ConfigPrepend(state%cf,trim(comp_name),MAPL_CF_COMPONENT_SEPARATOR,'NX:',rc=status)
-      _VERIFY(status)
-      call MAPL_ConfigPrepend(state%cf,trim(comp_name),MAPL_CF_COMPONENT_SEPARATOR,'NY:',rc=status)
-      _VERIFY(status)
+      if (trim(Prefix) /= '') then
+         call MAPL_ConfigPrepend(state%cf,trim(comp_name),MAPL_CF_COMPONENT_SEPARATOR,'NX:',rc=status)
+         _VERIFY(status)
+         call MAPL_ConfigPrepend(state%cf,trim(comp_name),MAPL_CF_COMPONENT_SEPARATOR,'NY:',rc=status)
+         _VERIFY(status)
+      endif
 
-      call ESMF_ConfigGetAttribute(state%cf,gridname,label=trim(comp_name)//MAPL_CF_COMPONENT_SEPARATOR//'GRIDNAME:',rc=status)
+      call ESMF_ConfigGetAttribute(state%cf,gridname,label=trim(Prefix)//'GRIDNAME:',rc=status)
       _VERIFY(status)
       nn = len_trim(gridname)
       dateline = gridname(nn-1:nn)
       if (dateline == 'CF') then
-         call ESMF_ConfigGetAttribute(state%CF,ny,label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//'NY:',rc=status)
+         call ESMF_ConfigGetAttribute(state%CF,ny,label=trim(Prefix)//'NY:',rc=status)
          _VERIFY(status)
-         call MAPL_ConfigSetAttribute(state%CF, value=ny/6, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//'NY:',rc=status)
+         call MAPL_ConfigSetAttribute(state%CF, value=ny/6, label=trim(Prefix)//'NX:',rc=status)
          _VERIFY(status)
       end if
 
-      grid = grid_manager%make_grid(state%CF, prefix=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR, rc=status)
+      grid = grid_manager%make_grid(state%CF, prefix=trim(Prefix), rc=status)
       _VERIFY(status)
 
       call state%grid%set(grid, _RC)
@@ -10125,9 +10131,9 @@ contains
 
    contains
 
-      subroutine MAPL_ConfigPrepend(cf,prefix,separator,label,rc)
+      subroutine MAPL_ConfigPrepend(cf, comp_name,separator,label,rc)
          type(ESMF_Config), intent(inout) :: cf
-         character(len=*) , intent(in   ) :: prefix
+         character(len=*) , intent(in   ) :: comp_name
          character(len=*) , intent(in   ) :: separator
          character(len=*) , intent(in   ) :: label
          integer, optional , intent(out  ) :: rc
@@ -10136,11 +10142,11 @@ contains
          character(len=ESMF_MAXSTR) :: Iam = "MAPL_ConfigPrepend"
          integer  :: val
 
-         call ESMF_ConfigGetAttribute( cf, val, label=trim(prefix)//trim(separator)//trim(label), rc = status )
+         call ESMF_ConfigGetAttribute( cf, val, label=trim(comp_name)//trim(separator)//trim(label), rc = status )
          if (status /= ESMF_SUCCESS) then
             call ESMF_ConfigGetAttribute(CF,val,label=trim(label),rc=status)
             _VERIFY(status)
-            call MAPL_ConfigSetAttribute(CF, val, label=trim(prefix)//trim(separator)//trim(label),rc=status)
+            call MAPL_ConfigSetAttribute(CF, val, label=trim(comp_name)//trim(separator)//trim(label),rc=status)
             _VERIFY(status)
          end if
 

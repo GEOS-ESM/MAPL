@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix a bug in MAPL_GridCreate to set "NX" and clean up when GC is not present
 - Fixed bug in profiler demo
 
 ### Added
