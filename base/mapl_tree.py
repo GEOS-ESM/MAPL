@@ -178,7 +178,7 @@ class MAPL_Tree():
                        )
 
         if self.trim or self.repo:
-            is_not_comp = not ( 'GridComp' in compname_ )
+            is_not_comp = not ( 'GridComp' in compname_ or 'Plug' in compname_ )
             is_not_repo = not ( isRoot or compname_[0]=='@' or compname_[-1]=='@' )
             if self.trim and is_not_comp:
                 return False # not written

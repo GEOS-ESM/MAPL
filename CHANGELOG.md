@@ -7,16 +7,76 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed bug in profiler demo
+
 ### Added
 Added optional start_date and start_time to control the output window for each History collection. No output will be written before then. If not specified, these default to the beginning of the experiment.
 
 ### Changed
 
-### Fixed
+- Update `components.yaml`
+  - `ESMA_cmake` v3.58.2
+    - Fix for XCode 16.3
 
 ### Removed
 
 ### Deprecated
+
+## [2.55.1] - 2025-04-23
+
+### Fixed
+
+- Renamed module for convervative vertical regridding code so as to not conflict so an external module
+
+### Added
+
+- Added a few error traps in ExtData when processing veritcal coordinate for use in regridding
+
+## [2.55.0] - 2025-04-15
+
+### Fixed
+
+- Fixed problem related to stale pointers to temp copies of dummy arguments in `MAPL_Cap.F90`.  Fix is to add `TARGET` attribute in select locations.
+- Fix for case where 2nd argument to `transfer()` was not allocated in the OpenMP support layer.  Was not detected by other compilers.  The fix is to use a literal integer array instead.
+- Fixed problem in History when no fields appear on the `fields:` line in a collection (issue #3525)
+- Fixed bug that broke SCM model in GEOS
+- Fix ExtData2G unit test for GNU on Discover
+- Fixed nesting of internal timers (issue #3412)
+- Fixed issue of `make tests` not building all needed executables
+- Incorrect specification of EOL for Darwin+NAG in `MAPL_Config`.
+- Untrapped exceptions in `MAPL_LatLonGridFactory.F90`
+
+### Added
+
+- Added subroutine to write nc4 tile file
+- Added new supported units for vertical regridding in ExtData, now supports `kg kg-1`, `mol mol-1`, `kg m-2` as well as per second variations of these, i.e. `kg kg-1 s-1`
+- Added CI build using spack
+- Added `Release` build CI tests for MAPL
+- Added new option to rule for ExtData2G to disable vertical regridding, default is true, vertical regridding is disabled
+- Added experimental capabiltiy to regrid from constituents in volume mixing, mass mixing, emissions units from one set of hybrid sigma levels to model levels in ExtData2G
+- Added subdirectory GetHorzIJIndex in the Tests directory for testing subroutine `MAPL_GetHorzIJIndex` to ensure the subroutine fails is teh cubed-sphere assumption is violated and also if the returned I and J indices are not correct.
+
+### Changed
+
+- Changed ExtData keyword `disable_vertical_regridding` (default `true`) to `enable_vertical_regridding` (default `false`)
+- Relaxed the MPI thread levels to `MPI_THREAD_SERIALIZED` required by ESMF
+- Update `components.yaml`
+  - `ESMA_env` v4.36.0
+    - Update to Baselibs 7.32.0 (gFTL v1.15.2 needed for MAPL3 work)
+    - Remove SLES12 at NCCS, update to GEOSpyD 24.11.3
+  - `ESMA_cmake` v3.58.1
+    - Remove SLES12 at NCCS, update f2py detection, update ifx flags
+    - Clean up GCC 10+ warnings
+- Update `.editorconfig` for Fortran files enforcing 3-space indents and line length of 132
+- Migrated much of the CI to GitHub Actions
+
+## [2.54.2] - 2025-03-18
+
+### Fixed
+
+- Fixed bug when proccessing history collection list identified by NAG
 
 ## [2.54.1] - 2025-02-07
 
@@ -29,6 +89,7 @@ Added optional start_date and start_time to control the output window for each H
 - Add column for ACG (ALIAS) that set the pointer variable to a different name than the `short_name`
 - Updated CI to use Baselibs 7.31.0
   - Updates to GFE v1.18.0
+- Use oserver for Mask sampler
 
 ## [2.53.1] - 2025-01-29
 
