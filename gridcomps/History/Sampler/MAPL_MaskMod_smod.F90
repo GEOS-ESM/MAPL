@@ -245,6 +245,8 @@ module subroutine  create_metadata(this,global_attributes,rc)
     type(StringStringMap), target, intent(in) :: global_attributes
     integer, optional, intent(out)          :: rc
 
+    type(GriddedIOitemVectorIterator) :: iter
+    type(GriddedIOitem), pointer :: item
     type(variable)   :: v
     type(ESMF_Field) :: field
     integer          :: fieldCount
@@ -277,12 +279,12 @@ module subroutine  create_metadata(this,global_attributes,rc)
     !- add time dimension to metadata
     call this%timeinfo%add_time_to_metadata(this%metadata,_RC)
 
-    v = Variable(type=pFIO_REAL64, dimensions='mask_index')
+    v = Variable(type=pFIO_REAL32, dimensions='mask_index')
     call v%add_attribute('long_name','longitude')
     call v%add_attribute('unit','degree_east')
     call this%metadata%add_variable('lons',v)
 
-    v = Variable(type=pFIO_REAL64, dimensions='mask_index')
+    v = Variable(type=pFIO_REAL32, dimensions='mask_index')
     call v%add_attribute('long_name','latitude')
     call v%add_attribute('unit','degree_north')
     call this%metadata%add_variable('lats',v)
@@ -296,42 +298,45 @@ module subroutine  create_metadata(this,global_attributes,rc)
 
     !__ 2. filemetadata: extract field from bundle, add_variable to metadata
     !
-    call ESMF_FieldBundleGet(this%bundle, fieldCount=fieldCount, _RC)
-    allocate (fieldNameList(fieldCount), _STAT)
-    call ESMF_FieldBundleGet(this%bundle, fieldNameList=fieldNameList, _RC)
-    do i=1, fieldCount
-       var_name=trim(fieldNameList(i))
-       call ESMF_FieldBundleGet(this%bundle,var_name,field=field,_RC)
-       call ESMF_FieldGet(field,rank=field_rank,_RC)
-       call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=is_present,_RC)
-       if ( is_present ) then
-          call ESMF_AttributeGet(field, NAME="LONG_NAME",VALUE=long_name, _RC)
-       else
-          long_name = var_name
-       endif
-       call ESMF_AttributeGet(field,name="UNITS",isPresent=is_present,_RC)
-       if ( is_present ) then
-          call ESMF_AttributeGet(field, NAME="UNITS",VALUE=units, _RC)
-       else
-          units = 'unknown'
-       endif
+    iter = this%items%begin()
+    do while (iter /= this%items%end())
+       item => iter%get()
+       if (item%itemType == ItemTypeScalar) then
+          var_name=item%xname
+          call ESMF_FieldBundleGet(this%bundle,var_name,field=field,_RC)
+          call ESMF_FieldGet(field,rank=field_rank,_RC)
+          call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=is_present,_RC)
+          if ( is_present ) then
+             call ESMF_AttributeGet(field, NAME="LONG_NAME",VALUE=long_name, _RC)
+          else
+             long_name = var_name
+          endif
+          call ESMF_AttributeGet(field,name="UNITS",isPresent=is_present,_RC)
+          if ( is_present ) then
+             call ESMF_AttributeGet(field, NAME="UNITS",VALUE=units, _RC)
+          else
+             units = 'unknown'
+          endif
 
-       if (field_rank==2) then
-          vdims = "mask_index"
-          v = variable(type=pfio_REAL32,dimensions=trim(vdims))
-       else if (field_rank==3) then
-          vdims = "mask_index,lev"
-          v = variable(type=pfio_REAL32,dimensions=trim(vdims))
+          if (field_rank==2) then
+             vdims = "mask_index"
+             v = variable(type=pfio_REAL32,dimensions=trim(vdims))
+          else if (field_rank==3) then
+             vdims = "mask_index,lev"
+             v = variable(type=pfio_REAL32,dimensions=trim(vdims))
+          end if
+
+          call v%add_attribute('units',         trim(units))
+          call v%add_attribute('long_name',     trim(long_name))
+          call v%add_attribute('missing_value', MAPL_UNDEF)
+          call v%add_attribute('_FillValue',    MAPL_UNDEF)
+          call v%add_attribute('valid_range',   (/-MAPL_UNDEF,MAPL_UNDEF/))
+          call this%metadata%add_variable(trim(var_name),v,_RC)
+
+          _VERIFY(status)
+          call iter%next()
        end if
-
-       call v%add_attribute('units',         trim(units))
-       call v%add_attribute('long_name',     trim(long_name))
-       call v%add_attribute('missing_value', MAPL_UNDEF)
-       call v%add_attribute('_FillValue',    MAPL_UNDEF)
-       call v%add_attribute('valid_range',   (/-MAPL_UNDEF,MAPL_UNDEF/))
-       call this%metadata%add_variable(trim(var_name),v,_RC)
-    end do
-    deallocate (fieldNameList, _STAT)
+    enddo
 
 
     if (this%itemOrderAlphabetical) then
@@ -884,9 +889,9 @@ module subroutine  create_metadata(this,global_attributes,rc)
     !__ 1. put_var: time variable
     !
     this%rtime(1) = this%compute_time_for_current(current_time,_RC) ! rtime: seconds since opening file
-    
+
     if (this%use_pfio) then
-       if (mapl_am_i_root()) write(6,*) 'ck: mask write id: ', this%write_collection_id       
+       if (mapl_am_i_root()) write(6,*) 'ck: mask write id: ', this%write_collection_id
        ref = ArrayReference(this%rtime)
        call oClients%stage_nondistributed_data(this%write_collection_id,trim(filename),'time',ref)
 
@@ -1066,13 +1071,13 @@ module subroutine  create_metadata(this,global_attributes,rc)
 !       allocate(global_start,source=[1])
 !       allocate(global_count,source=[this%npt_mask_tot])
 !       print*, 'mask this%write_collection_id', this%write_collection_id
-!       print*, 'mask this%npt_mask_tot', this%npt_mask_tot       
+!       print*, 'mask this%npt_mask_tot', this%npt_mask_tot
 !    else
 !       allocate(local_start,source=[0])
 !       allocate(global_start,source=[0])
 !       allocate(global_count,source=[0])
 !    end if
-!    
+!
 !    ref = ArrayReference(this%lons_deg)
 !    call oClients%collective_stage_data(this%write_collection_id,trim(filename),'lons', &
 !         ref,start=local_start, global_start=global_start, global_count=global_count)
@@ -1109,7 +1114,6 @@ module subroutine  create_metadata(this,global_attributes,rc)
         _RETURN(ESMF_SUCCESS)
 
      end subroutine modifyTime
-
 
 
    module subroutine alphabatize_variables(this,nfixedVars,rc)
