@@ -595,25 +595,4 @@ module MAPL_StateMaskMod
  _RETURN(ESMF_SUCCESS)
 
  END SUBROUTINE ExtDataExtractIntegers
-
- !function create_field_from_field(input_field,rc) result(output_field)
-    !type(ESMF_Field) :: output_field
-    !type(ESMF_Field), intent(in) :: input_field
-    !integer, optional, intent(out) :: rc
-
-    !integer :: status
-    !type(ESMF_Grid) :: grid
-    !integer :: rank
-    !type(ESMF_TypeKind_Flag) :: typekind
-    !integer :: lb(1),ub(1)
-
-    !call ESMF_FieldGet(input_field,grid=grid,rank=rank,typekind=typekind,ungriddedLBound=lb,ungriddedUBound=ub,_RC)
-    !if (rank==2) then
-       !output_field = ESMF_FieldCreate(grid,typekind,_RC)
-    !else if (rank==3) then
-       !output_field = ESMF_FieldCreate(grid,typekind,ungriddedLBound=lb,ungriddedUBound=ub,name="temp_field",_RC)
-    !end if
-    !_RETURN(_SUCCESS)
-  !end function
-
 end module MAPL_StateMaskMod
