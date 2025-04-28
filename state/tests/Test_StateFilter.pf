@@ -1,0 +1,218 @@
+#include "MAPL_Generic.h"
+
+module Test_StateFilter
+
+   use state_utils_setup
+   use ESMF
+   use pfunit
+   use MAPL_ExceptionHandling
+   use MAPL_StateUtils
+
+   implicit none
+
+contains
+
+   @Before
+   subroutine set_up_data(this)
+      class(MpiTestMethod), intent(inout) :: this
+ 
+      integer :: status, rc
+
+      grid = ESMF_GridCreateNoPeriDim(countsPerDeDim1=[3], countsPerDeDim2=[3], _RC)
+      field_2d = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="field_2d", _RC)
+      field_3d = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="field_3d",ungriddedLBound=[1],ungriddedUBound=[2], _RC)
+      extra_2d = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="extra_2d", _RC)
+      extra_3d = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="extra_3d",ungriddedLBound=[1],ungriddedUBound=[2], _RC)
+      mask_field = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="region_mask", _RC)
+		state = ESMF_StateCreate(fieldList=[field_2d,field_3d,mask_field,extra_2d,extra_3d], _RC)
+
+   end subroutine set_up_data
+
+   @after
+   subroutine teardown(this)
+      class(MpiTestMethod), intent(inout) :: this
+      call ESMF_FieldDestroy(field_2d, noGarbage=.true.)
+      call ESMF_FieldDestroy(field_3d, noGarbage=.true.)
+      call ESMF_FieldDestroy(mask_field, noGarbage=.true.)
+      call ESMF_FieldDestroy(extra_2d, noGarbage=.true.)
+      call ESMF_FieldDestroy(extra_3d, noGarbage=.true.)
+      call ESMF_StateDestroy(state, noGarbage=.true.)
+   end subroutine teardown
+
+   @Test(npes=[1])
+   subroutine test_filter_region_mask_2d(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      integer :: status, rc
+      real(ESMF_KIND_R4), pointer :: ptr2d(:,:), mask_ptr(:,:)
+      type(StateMask) :: mask
+      real(ESMF_KIND_R4), allocatable :: result_array(:,:), masked_array(:,:) 
+      real(ESMF_KIND_R4) :: rval
+      type(ESMF_Config) :: cf
+      type(ESMF_HConfig) :: hcf
+
+      hcf = ESMF_HConfigCreate(content='{FILTER%field_2d: "regionmask(@,region_mask;2,5)"}', _RC)
+      cf = ESMF_ConfigCreate(hconfig=hcf, _RC)
+
+      call ESMF_FieldGet(mask_field, 0, farrayPtr=mask_ptr, _RC)
+      call ESMF_FieldGet(field_2d, 0, farrayPtr=ptr2d, _RC)
+      rval = 17.0 
+      ptr2d = rval
+      allocate(result_array(3,3),_STAT)
+      result_array= reshape([0.0, rval, 0.0, rval, rval, 0.0, rval, rval, 0.0],shape=[3,3])
+      mask_ptr =    reshape([1.0, 5.0,  1.0, 5.0,  2.0,  1.0, 2.0,  5.0,  1.0],shape=[3,3])
+
+      call MAPL_StateFilterItem(state, cf, "field_2d", masked_array, _RC)
+      @assertEqual(result_array, masked_array)
+      _RETURN(_SUCCESS)
+
+   end subroutine test_filter_region_mask_2d
+
+   @Test(npes=[1])
+   subroutine test_filter_arithmetic_2d(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      integer :: status, rc
+      real(ESMF_KIND_R4), pointer :: ptr2d(:,:), extra_ptr(:,:)
+      type(StateMask) :: mask
+      real(ESMF_KIND_R4), allocatable :: result_array(:,:), masked_array(:,:) 
+      real(ESMF_KIND_R4) :: rval
+      type(ESMF_Config) :: cf
+      type(ESMF_HConfig) :: hcf
+
+      hcf = ESMF_HConfigCreate(content='{FILTER%field_2d: "@+extra_2d"}', _RC)
+      cf = ESMF_ConfigCreate(hconfig=hcf, _RC)
+
+      call ESMF_FieldGet(extra_2d, 0, farrayPtr=extra_ptr, _RC)
+      call ESMF_FieldGet(field_2d, 0, farrayPtr=ptr2d, _RC)
+      rval = 17.0 
+      ptr2d = rval
+      extra_ptr = 2.0*rval
+
+      rval=3.0*rval
+
+      allocate(result_array(3,3),_STAT)
+      result_array= reshape([rval, rval, rval, rval, rval, rval, rval, rval, rval],shape=[3,3])
+
+      call MAPL_StateFilterItem(state, cf, "field_2d", masked_array, _RC)
+      @assertEqual(result_array, masked_array)
+      _RETURN(_SUCCESS)
+
+   end subroutine test_filter_arithmetic_2d
+
+   @Test(npes=[1])
+   subroutine test_filter_identity_2d(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      integer :: status, rc
+      real(ESMF_KIND_R4), pointer :: ptr2d(:,:)
+      real(ESMF_KIND_R4), allocatable :: result_array(:,:), masked_array(:,:) 
+      real(ESMF_KIND_R4) :: rval
+      type(ESMF_Config) :: cf
+      type(ESMF_HConfig) :: hcf
+
+      hcf = ESMF_HConfigCreate(content='{FILTER%foo: "@+extra_2d"}', _RC)
+      cf = ESMF_ConfigCreate(hconfig=hcf, _RC)
+
+      call ESMF_FieldGet(field_2d, 0, farrayPtr=ptr2d, _RC)
+      rval = 17.0 
+      ptr2d = rval
+
+      allocate(result_array(3,3),_STAT)
+      result_array= reshape([rval, rval, rval, rval, rval, rval, rval, rval, rval],shape=[3,3])
+
+      call MAPL_StateFilterItem(state, cf, "field_2d", masked_array, _RC)
+      @assertEqual(result_array, masked_array)
+      _RETURN(_SUCCESS)
+
+   end subroutine test_filter_identity_2d
+
+   @Test(npes=[1])
+   subroutine test_filter_default_2d(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      integer :: status, rc
+      real(ESMF_KIND_R4), pointer :: ptr2d(:,:), extra_ptr(:,:)
+      real(ESMF_KIND_R4), allocatable :: result_array(:,:), masked_array(:,:) 
+      real(ESMF_KIND_R4) :: rval
+      type(ESMF_Config) :: cf
+      type(ESMF_HConfig) :: hcf
+
+      hcf = ESMF_HConfigCreate(content='{FILTER%*: "@+extra_2d"}', _RC)
+      cf = ESMF_ConfigCreate(hconfig=hcf, _RC)
+
+      call ESMF_FieldGet(extra_2d, 0, farrayPtr=extra_ptr, _RC)
+      call ESMF_FieldGet(field_2d, 0, farrayPtr=ptr2d, _RC)
+      rval = 17.0 
+      ptr2d = rval
+      extra_ptr = 2.0*rval
+
+      rval=3.0*rval
+
+      allocate(result_array(3,3),_STAT)
+      result_array = rval
+
+      call MAPL_StateFilterItem(state, cf, "field_2d", masked_array, _RC)
+      @assertEqual(result_array, masked_array)
+      _RETURN(_SUCCESS)
+
+   end subroutine test_filter_default_2d
+
+   @Test(npes=[1])
+   subroutine test_filter_identity_3d(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      integer :: status, rc
+      real(ESMF_KIND_R4), pointer :: ptr3d(:,:,:)
+      real(ESMF_KIND_R4), allocatable :: result_array(:,:,:), masked_array(:,:,:) 
+      real(ESMF_KIND_R4) :: rval
+      type(ESMF_Config) :: cf
+      type(ESMF_HConfig) :: hcf
+
+      hcf = ESMF_HConfigCreate(content='{FILTER%foo: "@+extra_2d"}', _RC)
+      cf = ESMF_ConfigCreate(hconfig=hcf, _RC)
+
+      call ESMF_FieldGet(field_3d, 0, farrayPtr=ptr3d, _RC)
+      rval = 17.0 
+      ptr3d = rval
+
+      allocate(result_array(3,3,2),_STAT)
+      result_array = rval
+
+      call MAPL_StateFilterItem(state, cf, "field_3d", masked_array, _RC)
+      @assertEqual(result_array, masked_array)
+      _RETURN(_SUCCESS)
+
+   end subroutine test_filter_identity_3d
+
+   @Test(npes=[1])
+   subroutine test_filter_arithmetic_3d(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      integer :: status, rc
+      real(ESMF_KIND_R4), pointer :: ptr3d(:,:,:), extra_ptr(:,:,:)
+      real(ESMF_KIND_R4), allocatable :: result_array(:,:,:), masked_array(:,:,:)
+      real(ESMF_KIND_R4) :: rval
+      type(ESMF_Config) :: cf
+      type(ESMF_HConfig) :: hcf
+
+      hcf = ESMF_HConfigCreate(content='{FILTER%field_3d: "@+extra_3d"}', _RC)
+      cf = ESMF_ConfigCreate(hconfig=hcf, _RC)
+
+      call ESMF_FieldGet(extra_3d, 0, farrayPtr=extra_ptr, _RC)
+      call ESMF_FieldGet(field_3d, 0, farrayPtr=ptr3d, _RC)
+      rval = 17.0 
+      ptr3d = rval
+      extra_ptr = 2.0*rval
+
+      rval=3.0*rval
+
+      allocate(result_array(3,3,2),_STAT)
+      result_array=rval
+
+      call MAPL_StateFilterItem(state, cf, "field_3d", masked_array, _RC)
+      @assertEqual(result_array, masked_array)
+      _RETURN(_SUCCESS)
+   end subroutine test_filter_arithmetic_3d
+
+end module Test_StateFilter
