@@ -51,7 +51,7 @@ contains
       type(ESMF_Config) :: cf
       type(ESMF_HConfig) :: hcf
 
-      hcf = ESMF_HConfigCreate(content='{FILTER%field_2d: "regionmask(@,region_mask;2,5)"}', _RC)
+      hcf = ESMF_HConfigCreate(content='{FILTER.field_2d: "regionmask(@,region_mask;2,5)"}', _RC)
       cf = ESMF_ConfigCreate(hconfig=hcf, _RC)
 
       call ESMF_FieldGet(mask_field, 0, farrayPtr=mask_ptr, _RC)
@@ -79,7 +79,7 @@ contains
       type(ESMF_Config) :: cf
       type(ESMF_HConfig) :: hcf
 
-      hcf = ESMF_HConfigCreate(content='{FILTER%field_2d: "@+extra_2d"}', _RC)
+      hcf = ESMF_HConfigCreate(content='{FILTER.field_2d: "@+extra_2d"}', _RC)
       cf = ESMF_ConfigCreate(hconfig=hcf, _RC)
 
       call ESMF_FieldGet(extra_2d, 0, farrayPtr=extra_ptr, _RC)
@@ -110,7 +110,7 @@ contains
       type(ESMF_Config) :: cf
       type(ESMF_HConfig) :: hcf
 
-      hcf = ESMF_HConfigCreate(content='{FILTER%foo: "@+extra_2d"}', _RC)
+      hcf = ESMF_HConfigCreate(content='{FILTER.foo: "@+extra_2d"}', _RC)
       cf = ESMF_ConfigCreate(hconfig=hcf, _RC)
 
       call ESMF_FieldGet(field_2d, 0, farrayPtr=ptr2d, _RC)
@@ -137,7 +137,7 @@ contains
       type(ESMF_Config) :: cf
       type(ESMF_HConfig) :: hcf
 
-      hcf = ESMF_HConfigCreate(content='{FILTER%*: "@+extra_2d"}', _RC)
+      hcf = ESMF_HConfigCreate(content='{FILTER.*: "@+extra_2d"}', _RC)
       cf = ESMF_ConfigCreate(hconfig=hcf, _RC)
 
       call ESMF_FieldGet(extra_2d, 0, farrayPtr=extra_ptr, _RC)
@@ -168,7 +168,7 @@ contains
       type(ESMF_Config) :: cf
       type(ESMF_HConfig) :: hcf
 
-      hcf = ESMF_HConfigCreate(content='{FILTER%foo: "@+extra_2d"}', _RC)
+      hcf = ESMF_HConfigCreate(content='{FILTER.foo: "@+extra_2d"}', _RC)
       cf = ESMF_ConfigCreate(hconfig=hcf, _RC)
 
       call ESMF_FieldGet(field_3d, 0, farrayPtr=ptr3d, _RC)
@@ -195,7 +195,7 @@ contains
       type(ESMF_Config) :: cf
       type(ESMF_HConfig) :: hcf
 
-      hcf = ESMF_HConfigCreate(content='{FILTER%field_3d: "@+extra_3d"}', _RC)
+      hcf = ESMF_HConfigCreate(content='{FILTER.field_3d: "@+extra_3d"}', _RC)
       cf = ESMF_ConfigCreate(hconfig=hcf, _RC)
 
       call ESMF_FieldGet(extra_3d, 0, farrayPtr=extra_ptr, _RC)

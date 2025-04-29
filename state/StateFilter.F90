@@ -11,6 +11,7 @@ module MAPL_StateFilter
 
    public StateFilterItem
    character(len=1), parameter :: var_placeholder = "@"
+   character(len=1), parameter :: separator = "."
 
    interface StateFilterItem
       procedure StateFilter_R4_2D
@@ -44,13 +45,13 @@ module MAPL_StateFilter
       allocate(array( lbound(ptr2d_old,1):ubound(ptr2d_old,1) , lbound(ptr2d_old,2):ubound(ptr2d_old,2) ),  _STAT) 
       array = ptr2d_old
  
-      call ESMF_ConfigFindLabel(config, "FILTER%"//trim(itemName)//":", isPresent=name_Present, _RC)
+      call ESMF_ConfigFindLabel(config, "FILTER"//separator//trim(itemName)//":", isPresent=name_Present, _RC)
       if (name_Present) then
-         call ESMF_ConfigGetAttribute(config, filter_expression, label="FILTER%"//trim(itemName)//":", _RC)
+         call ESMF_ConfigGetAttribute(config, filter_expression, label="FILTER"//separator//trim(itemName)//":", _RC)
       else
-         call ESMF_ConfigFindLabel(config, "FILTER%*:", isPresent=default_Present, _RC)
+         call ESMF_ConfigFindLabel(config, "FILTER"//separator//"*:", isPresent=default_Present, _RC)
          _RETURN_UNLESS(default_present)
-         call ESMF_ConfigGetAttribute(config, filter_expression, label="FILTER%*:", _RC)
+         call ESMF_ConfigGetAttribute(config, filter_expression, label="FILTER"//separator//"*:", _RC)
       end if
 
       call FieldClone(old_field, new_field, _RC)
@@ -97,13 +98,13 @@ module MAPL_StateFilter
       allocate(array( lbound(ptr3d_old,1):ubound(ptr3d_old,1) , lbound(ptr3d_old,2):ubound(ptr3d_old,2), lbound(ptr3d_old,3):ubound(ptr3d_old,3) ),  _STAT) 
       array = ptr3d_old
  
-      call ESMF_ConfigFindLabel(config, "FILTER%"//trim(itemName)//":", isPresent=name_Present, _RC)
+      call ESMF_ConfigFindLabel(config, "FILTER"//separator//trim(itemName)//":", isPresent=name_Present, _RC)
       if (name_Present) then
-         call ESMF_ConfigGetAttribute(config, filter_expression, label="FILTER%"//trim(itemName)//":", _RC)
+         call ESMF_ConfigGetAttribute(config, filter_expression, label="FILTER"//separator//trim(itemName)//":", _RC)
       else
-         call ESMF_ConfigFindLabel(config, "FILTER%*:", isPresent=default_Present, _RC)
+         call ESMF_ConfigFindLabel(config, "FILTER"//separator//"*:", isPresent=default_Present, _RC)
          _RETURN_UNLESS(default_present)
-         call ESMF_ConfigGetAttribute(config, filter_expression, label="FILTER%*:", _RC)
+         call ESMF_ConfigGetAttribute(config, filter_expression, label="FILTER"//separator//"*:", _RC)
       end if
 
       call FieldClone(old_field, new_field, _RC)
