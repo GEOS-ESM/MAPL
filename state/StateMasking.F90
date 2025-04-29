@@ -143,8 +143,8 @@ module MAPL_StateMaskMod
           allocate(rvar2d(size(var2d,1),size(var2d,2)),_STAT)
           rvar2d=var2d
        else if (rank == 3) then
-          allocate(rvar3d(size(var3d,1),size(var3d,2),size(var3d,3)),_STAT)
           call ESMF_FieldGet(field,0,farrayPtr=var3d,_RC)
+          allocate(rvar3d(size(var3d,1),size(var3d,2),size(var3d,3)),_STAT)
           rvar3d=var3d
        else
           _FAIL('Rank must be 2 or 3')
