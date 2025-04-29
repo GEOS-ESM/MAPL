@@ -40,8 +40,8 @@ call MAPL_AddImportSpec(GC,                              &
     DIMS       = MAPL_DimsHorzVert,                      &
     VLOCATION  = MAPL_VLocationEdge,                     &
     AVERAGING_INTERVAL = AVRGNINT,                       &
-    REFRESH_INTERVAL   = RFRSHINT,            RC=STATUS  )
-VERIFY_(STATUS)
+    REFRESH_INTERVAL   = RFRSHINT,                       &
+    _RC)
 
 call MAPL_AddImportSpec(GC,                              &
     SHORT_NAME = 'ZLE',                                  &
@@ -50,8 +50,8 @@ call MAPL_AddImportSpec(GC,                              &
     DIMS       =  MAPL_DimsHorzVert,                     &
     VLOCATION  =  MAPL_VLocationEdge,                    &
     AVERAGING_INTERVAL = AVRGNINT,                       &
-    REFRESH_INTERVAL   = RFRSHINT,            RC=STATUS  )
-VERIFY_(STATUS)
+    REFRESH_INTERVAL   = RFRSHINT                        &
+    _RC)
 
 call MAPL_AddImportSpec(GC,                              &
     SHORT_NAME = 'T',                                    &
@@ -60,24 +60,24 @@ call MAPL_AddImportSpec(GC,                              &
     DIMS       = MAPL_DimsHorzVert,                      &
     VLOCATION  = MAPL_VLocationCenter,                   &
     AVERAGING_INTERVAL = AVRGNINT,                       &
-    REFRESH_INTERVAL   = RFRSHINT,            RC=STATUS  )
-VERIFY_(STATUS)
+    REFRESH_INTERVAL   = RFRSHINT,                       &
+    _RC)
 
 call MAPL_AddExportSpec(GC,                              &
     SHORT_NAME='ZPBLCN',                                 &
     LONG_NAME ='boundary_layer_depth',                   &
     UNITS     ='m'   ,                                   &
     DIMS      = MAPL_DimsHorzOnly,                       &
-    VLOCATION = MAPL_VLocationNone,           RC=STATUS  )
-VERIFY_(STATUS)
+    VLOCATION = MAPL_VLocationNone,                      &
+    _RC)
 
 call MAPL_AddExportSpec(GC,                              &
     SHORT_NAME='CNV_FRC',                                &
     LONG_NAME ='convective_fraction',                    &
     UNITS     =''  ,                                     &
     DIMS      = MAPL_DimsHorzOnly,                       &
-    VLOCATION = MAPL_VLocationNone,           RC=STATUS  )
-VERIFY_(STATUS)
+    VLOCATION = MAPL_VLocationNone,                      &
+    _RC)
 ```
 
 </details>
@@ -96,12 +96,12 @@ real, pointer, dimension(:,:)   :: ZPBLCN
 real, pointer, dimension(:,:)   :: CNV_FRC
 ...
 ...
-call MAPL_GetPointer(IMPORT, PLE,  'PLE', RC=STATUS); VERIFY_(STATUS)
-call MAPL_GetPointer(IMPORT, ZLE,  'ZLE', RC=STATUS); VERIFY_(STATUS)
-call MAPL_GetPointer(IMPORT, T,     'T' , RC=STATUS); VERIFY_(STATUS)
+call MAPL_GetPointer(IMPORT, PLE,  'PLE', _RC)
+call MAPL_GetPointer(IMPORT, ZLE,  'ZLE', _RC)
+call MAPL_GetPointer(IMPORT, T,     'T' , _RC)
 
-call MAPL_GetPointer(EXPORT, ZPBLCN,  'ZPBLCN' , ALLOC=.TRUE., RC=STATUS); VERIFY_(STATUS)
-call MAPL_GetPointer(EXPORT, CNV_FRC, 'CNV_FRC', ALLOC=.TRUE., RC=STATUS); VERIFY_(STATUS)
+call MAPL_GetPointer(EXPORT, ZPBLCN,  'ZPBLCN' , ALLOC=.TRUE., _RC)
+call MAPL_GetPointer(EXPORT, CNV_FRC, 'CNV_FRC', ALLOC=.TRUE., _RC)
 ```
 
 </details>
@@ -114,7 +114,7 @@ We want to move all the calls (`MAPL_AddImportSpec`, `MAPL_AddExportSpec`, and `
 Create the Specification (`spec`) ASCII File
 ---
 
-The automatic code generator takes as input an ASCII specification file that has a header and followed by blocks for the ESMF gridded component Fields, which are grouped by `ESMF_State`. The first two lines form the header which takes this form:
+The automatic code generator takes as input an ASCII [specification file](#custom-anchor-point-spec-file) ("spec file") that has a header and followed by blocks for the ESMF gridded component Fields, which are grouped by `ESMF_State`. The first two lines form the header which takes this form:
 
 <pre>
 schema_version: 2.0.0
@@ -132,7 +132,7 @@ Each block starts with a single line:
 category: <i>STATE</i>
 </pre>
 
-where *`STATE`* is the `ESMF_State` for the fields in the block: `IMPORT`, `EXPORT`, or `INTERNAL`. The colon and the space are significant. The fields follow the category line, and they are organized into a data table. The first row of the table is the column names, and the remaining rows are the fields terminated by a blank line. Each row contains the values for the columns for a single field. Most of the columns are arguments for the `MAPL_Add`*`STATE`*`Spec` procedure. In addition, there are special columns, which are discussed later in this document. 
+where *`STATE`* is the `ESMF_State` for the fields in the block: `IMPORT`, `EXPORT`, or `INTERNAL`. The colon and the space are significant. The fields follow the category line, and they are organized into a data table. The first row of the table is the column names, and the remaining rows are the fields terminated by a blank line. Each row contains the values for the columns for a single field. Most of the columns are arguments for the `MAPL_Add`*`STATE`*`Spec` procedure. In addition, there are special columns, which are discussed later in this document. Lines beginning with `#` are ignored, but they are not treated as blank lines. They serve no functional purpose, but they can be used for comments and visual layout.
 
 The mandatory columns are:
 
@@ -157,10 +157,10 @@ We can add, for the sake of our example here, the optional column:
      - `BOOT`: `MAPL_RestartBoot`
      - `SKIPI`: `MAPL_RestartSkipInitial`
 
-Note that some columns have literal values, like `SHORT_NAME`, while others like `DIMS` have a set of allowed values with abbreviations for the allowed values as listed above.
+Note that some columns have literal values, like `SHORT_NAME`, while others like `DIMS` have a set of allowed values with abbreviations for the allowed values as listed above. (A complete list of [columns](#custom-anchor-point-columns) appears later in this document.)
 
 ### Row Value Abbreviations
-The following abbreviations can be used:
+The following abbreviations are supported currently:
 
 | Column Name &nbsp; | Row Value &nbsp; | *Abbreviation* |
 | :--- | :--- | :--- |
@@ -184,37 +184,37 @@ In a block, if a column is blank in a Field row, that column is ignored for the 
 Assume that we create such a file (that we name `MyComponent_StateSpecs.rc`) and include the fields used in the previous section.
 `MyComponent_StateSpecs.rc` looks like:
 
+<a name="custom-anchor-point-spec-file"></a>
+
 ```
 schema_version: 2.0.0
 component: MyComponent
 
 category: IMPORT
 #----------------------------------------------------------------------------
-#  VARIABLE            | DIMENSIONS  |          Additional Metadata
+#  VARIABLE                | DIMENSIONS      |     Additional Metadata
 #----------------------------------------------------------------------------
- SHORT_NAME | UNITS    | DIMS | VLOC | RESTART | LONG_NAME
+ SHORT_NAME   | UNITS      | DIMS   | VLOC   | RESTART  | LONG_NAME
 #----------------------------------------------------------------------------
- ZLE        | m        | xyz  | E    |         | geopotential_height
- T          | K        | xyz  | C    | OPT     | air_temperature
- PLE        | Pa       | xyz  | E    | OPT     | air_pressure
+ ZLE          | m          | xyz    | E      |          | geopotential_height
+ T            | K          | xyz    | C      | OPT      | air_temperature
+ PLE          | Pa         | xyz    | E      | OPT      | air_pressure
 
 category: EXPORT
 #---------------------------------------------------------------------------
-#  VARIABLE             | DIMENSIONS  |          Additional Metadata
+#  VARIABLE                 | DIMENSIONS      |    Additional Metadata
 #---------------------------------------------------------------------------
- SHORT_NAME | UNITS     | DIMS | VLOC |  LONG_NAME
+ SHORT_NAME   | UNITS       | DIMS   | VLOC   |  LONG_NAME
 #---------------------------------------------------------------------------
- ZPBLCN     | m         | xy   | N    |  boundary_layer_depth
- CNV_FRC    |           | xy   | N    |  convective_fraction
+ ZPBLCN       | m           | xy     | N      |  boundary_layer_depth
+ CNV_FRC      |             | xy     | N      |  convective_fraction
 
 category: INTERNAL
 #---------------------------------------------------------------------------
-#  VARIABLE    | DIMENSION   |          Additional Metadata
+#  VARIABLE         | DIMENSION   |          Additional Metadata
 #---------------------------------------------------------------------------
-  SHORT_NAME | UNITS | DIMS | VLOC | ADD2EXPORT | FRIENDLYTO | LONG_NAME
+ SHORT_NAME | UNITS | DIMS | VLOC | ADD2EXPORT | FRIENDLYTO | LONG_NAME
 #---------------------------------------------------------------------------
-
-
 ```
 
 Running the automatic code generator on the file `MyComponent_StateSpecs.rc` generates four (4) include files at compilation time:
@@ -227,16 +227,16 @@ call MAPL_AddExportSpec(GC,                              &
     LONG_NAME ='boundary_layer_depth',                   &
     UNITS     ='m'   ,                                   &
     DIMS      = MAPL_DimsHorzOnly,                       &
-    VLOCATION = MAPL_VLocationNone,           RC=STATUS  )
-VERIFY_(STATUS)
+    VLOCATION = MAPL_VLocationNone,                      &
+    _RC)
 
 call MAPL_AddExportSpec(GC,                              &
     SHORT_NAME='CNV_FRC',                                &
     LONG_NAME ='convective_fraction',                    &
     UNITS     =''  ,                                     &
     DIMS      = MAPL_DimsHorzOnly,                       &
-    VLOCATION = MAPL_VLocationNone,           RC=STATUS  )
-VERIFY_(STATUS)
+    VLOCATION = MAPL_VLocationNone,                      &
+    _RC)
 ```
 
 2. `MyComponent_Import___.h` for the `MAPL_AddImportSpec` calls in the `SetServices` routine:
@@ -249,8 +249,8 @@ call MAPL_AddImportSpec(GC,                              &
     DIMS       = MAPL_DimsHorzVert,                      &
     VLOCATION  = MAPL_VLocationEdge,                     &
     AVERAGING_INTERVAL = AVRGNINT,                       &
-    REFRESH_INTERVAL   = RFRSHINT,            RC=STATUS  )
-VERIFY_(STATUS)
+    REFRESH_INTERVAL   = RFRSHINT,                       &
+    _RC)
 
 call MAPL_AddImportSpec(GC,                              &
     SHORT_NAME = 'ZLE',                                  &
@@ -259,8 +259,8 @@ call MAPL_AddImportSpec(GC,                              &
     DIMS       =  MAPL_DimsHorzVert,                     &
     VLOCATION  =  MAPL_VLocationEdge,                    &
     AVERAGING_INTERVAL = AVRGNINT,                       &
-    REFRESH_INTERVAL   = RFRSHINT,            RC=STATUS  )
-VERIFY_(STATUS)
+    REFRESH_INTERVAL   = RFRSHINT,                       &
+    _RC)
 
 call MAPL_AddImportSpec(GC,                              &
     SHORT_NAME = 'T',                                    &
@@ -269,8 +269,8 @@ call MAPL_AddImportSpec(GC,                              &
     DIMS       = MAPL_DimsHorzVert,                      &
     VLOCATION  = MAPL_VLocationCenter,                   &
     AVERAGING_INTERVAL = AVRGNINT,                       &
-    REFRESH_INTERVAL   = RFRSHINT,            RC=STATUS  )
-VERIFY_(STATUS)
+    REFRESH_INTERVAL   = RFRSHINT,                       &
+    _RC)
 ```
 
 3. `MyComponent_DeclarePointer___.h` for all the multi-dimensional array declartions associated with the fields for all the states) in the `Run` method (The `#include MyComponent_DeclarePointer___.h` statement should be in the local declaration variable section.):
@@ -286,12 +286,12 @@ real, pointer, dimension(:,:)   :: CNV_FRC
 4. `MyComponent_GetPointer___.h` for all the `MAPL_GetPointer` calls in the `Run` method (The `#include MyComponent_GetPointer___.h` statement needs to be placed well before any field is accessed.):
 
 ```fortran
-call MAPL_GetPointer(IMPORT, PLE,     'PLE'     , RC=STATUS); VERIFY_(STATUS)
-call MAPL_GetPointer(IMPORT, ZLE,     'ZLE'     , RC=STATUS); VERIFY_(STATUS)
-call MAPL_GetPointer(IMPORT, T,       'T'       , RC=STATUS); VERIFY_(STATUS)
+call MAPL_GetPointer(IMPORT, PLE,     'PLE'     , _RC)
+call MAPL_GetPointer(IMPORT, ZLE,     'ZLE'     , _RC)
+call MAPL_GetPointer(IMPORT, T,       'T'       , _RC)
 
-call MAPL_GetPointer(EXPORT, ZPBLCN,  'ZPBLCN' , ALLOC=.TRUE., RC=STATUS); VERIFY_(STATUS)
-call MAPL_GetPointer(EXPORT, CNV_FRC, 'CNV_FRC', ALLOC=.TRUE., RC=STATUS); VERIFY_(STATUS)
+call MAPL_GetPointer(EXPORT, ZPBLCN,  'ZPBLCN' , ALLOC=.TRUE., _RC)
+call MAPL_GetPointer(EXPORT, CNV_FRC, 'CNV_FRC', ALLOC=.TRUE., _RC)
 ```
 
 Edit the Source Code
@@ -330,10 +330,12 @@ mapl_acg (${this}   MyComponent_StateSpecs.rc
 
 If there is no Internal state, `INTERNAL_SPECS` is not required in the above command, but there is no harm in including it. 
 
+<a name="custom-anchor-point-columns"></a>
+
 Columns
 ---
 
-These are the possible columns in a spec file:
+These spec file columns are supported currently:
 
 - `DIMS`
 - `LONG_NAME`
@@ -381,12 +383,12 @@ where the `CONDITION` column is not blank. For this `IMPORT` block:
 ```fortran
 category: IMPORT
 #----------------------------------------------------------------------------
-#  VARIABLE            | DIMENSIONS  |          Additional Metadata
+# VARIABLE  | DIMENSIONS |          Additional Metadata
 #----------------------------------------------------------------------------
- SHORT_NAME | UNITS    | DIMS | VLOC | CONDITION   | LONG_NAME
+ SHORT_NAME | UNITS      | DIMS   | VLOC   | CONDITION   | LONG_NAME
 #----------------------------------------------------------------------------
- PU         | ppm      | xyz  | E    | NOX==.TRUE. | SO2 concentration
- T          | K        | xyz  | C    |             | air_temperature
+ PU         | ppm        | xyz    | E      | NOX==.TRUE. | SO2 concentration
+ T          | K          | xyz    | C      |             | air_temperature
 ```
 
 the ACG would generate this Fortran code:
@@ -399,8 +401,7 @@ if (NOX==.TRUE.) then
         UNITS      = 'ppm',                                  &
         DIMS       = MAPL_DimsHorzVert,                      &
         VLOCATION  = MAPL_VLocationEdge,                     &
-        RC=STATUS  )
-    VERIFY_(STATUS)
+        _RC)
 end if
 
 call MAPL_AddImportSpec(GC,                              &
@@ -409,19 +410,18 @@ call MAPL_AddImportSpec(GC,                              &
     UNITS      = 'K',                                    &
     DIMS       = MAPL_DimsHorzVert,                      &
     VLOCATION  = MAPL_VLocationCenter,                   &
-    RC=STATUS  )
-VERIFY_(STATUS)
+    _RC)
 ```
 
 and
 
 ```fortran
 if (NOX=.TRUE.) then
-    call MAPL_GetPointer(IMPORT, PU,     'PU'     , RC=STATUS); VERIFY_(STATUS)
+    call MAPL_GetPointer(IMPORT, PU,     'PU'     , _RC) 
 else
     nullify(PU)
 end if
-call MAPL_GetPointer(IMPORT, T,       'T'       , RC=STATUS); VERIFY_(STATUS)
+call MAPL_GetPointer(IMPORT, T,       'T'       , _RC)
 ```
 
 in the include files for *IMPORTS* and the `MAPL_GetPointer` calls, respectively.
@@ -455,13 +455,13 @@ schema_version: 2.0.0
 component: MyComponent
 
 category: IMPORT
-#-------------------------------------------------------------------------------
-#  FIELD                        | DIMENSIONS  |  Additional Metadata
-#-------------------------------------------------------------------------------
-     SHORT_NAME          | UNITS      | DIMS | VLOC | UNGRIDDED | LONG_NAME
-#-------------------------------------------------------------------------------
- *MASS             | kg kg-1    | xyz  | C    |           | * Mass Mixing Ratio
-#-------------------------------------------------------------------------------
+#--------------------------------------------------------------------
+#  FIELD              | DIMENSIONS  |  Additional Metadata
+#--------------------------------------------------------------------
+ SHORT_NAME | UNITS   | DIMS | VLOC | UNGRIDDED | LONG_NAME
+#--------------------------------------------------------------------
+ *MASS      | kg kg-1 | xyz  | C    |           | * Mass Mixing Ratio
+#--------------------------------------------------------------------
 ```
 
 will lead to the source code:
@@ -473,12 +473,12 @@ will lead to the source code:
        UNITS      = 'kg kg-1',               &
        DIMS       =  MAPL_DimsHorzVert,      &
        VLOCATION  =  MAPL_VLocationCenter,   &
-       RC=STATUS  )
+       _RC)
 
 ...
    real, pointer :: mycomponentmass(:,:,:)
 ...
-   call MAPL_GetPointer(IMPORT, mycomponentmass, "MyComponentMASS", rc=status)
+   call MAPL_GetPointer(IMPORT, mycomponentmass, "MyComponentMASS", _RC)
 ...
 ```
 Note the addition of `MyComponent` to the short and long names. 
@@ -495,13 +495,13 @@ For instance, if we have the following in the `spec` file:
 
 ```
 category: IMPORT
-#---------------------------------------------------------------------------------------
-#  FIELD                        | DIMENSIONS  |  Additional Metadata
-#---------------------------------------------------------------------------------------
-     SHORT_NAME    | UNITS      | DIMS | VLOC | UNGRIDDED | ALIAS   | LONG_NAME
-#---------------------------------------------------------------------------------------
-  MASS             | kg kg-1    | xyz  | C    |           | new_mass | Mass Mixing Ratio
-#---------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+#  FIELD               | DIMENSIONS  |  Additional Metadata
+#------------------------------------------------------------------------------
+ SHORT_NAME | UNITS    | DIMS | VLOC | UNGRIDDED | ALIAS    | LONG_NAME
+#------------------------------------------------------------------------------
+  MASS      | kg kg-1  | xyz  | C    |           | new_mass | Mass Mixing Ratio
+#------------------------------------------------------------------------------
 ```
 
 then the generated source code will be:
@@ -516,19 +516,19 @@ for which the `ALLOC` column is not blank. This block in the spec file:
 
 ```fortran
 category: IMPORT
-#---------------------------------------------------------------------------------------
-#  FIELD                        | DIMENSIONS  |  Additional Metadata
-#---------------------------------------------------------------------------------------
-     SHORT_NAME    | UNITS      | DIMS | VLOC |   ALLOC  | LONG_NAME
-#---------------------------------------------------------------------------------------
-  T                | K          | xyz  | C    |  .TRUE.  | air_temperature
-#---------------------------------------------------------------------------------------
+#-----------------------------------------------------------
+#  FIELD            | DIMENSIONS  |  Additional Metadata
+#-----------------------------------------------------------
+ SHORT_NAME | UNITS | DIMS | VLOC | ALLOC  | LONG_NAME
+#-----------------------------------------------------------
+ T          | K     | xyz  | C    | .TRUE. | air temperature
+#-----------------------------------------------------------
 ```
 
 would produce this code in the `MAPL_GetPointer` include file:
 
 ```fortran
-call MAPL_GetPointer(IMPORT, T, 'T', ALLOC=.TRUE., RC=STATUS); VERIFY_(STATUS)
+call MAPL_GetPointer(IMPORT, T, 'T', ALLOC=.TRUE., _RC)
 ```
 
 ### Sample code
