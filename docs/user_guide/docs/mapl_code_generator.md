@@ -15,16 +15,16 @@ The number of variables can be large and make the declaration process cumbersome
 The automatic code generator relies on a formatted ASCII file (`spec` file) to automatically generate include files at compilation time containing the code segments necessary to define and access the expected state member variables.
 In this document, we describe the necessary [steps](https://github.com/GEOS-ESM/MAPL/wiki/Setting-Up-MAPL-Automatic-Code-Generator) (click on the link for more detailed information) to follow to use the tool.
 
-To simplify this document, we use the words _Imports_, _Exports_ and _Internals_ to refer to member variables of the Import, Export and Internal states, respectively.
+To simplify this document, we use the words *IMPORTS*, *EXPORTS*, and *INTERNALS* to refer to member variables of the Import, Export and Internal states, respectively.
 
 Understanding the Issue
 ---
 
-Consider the `MOIST` gridded component for example. It has over fifty (50) _Imports_ and over five hundred (500) _Exports_.
+Consider the `MOIST` gridded component for example. It has over fifty (50) *IMPORTS* and over five hundred (500) *EXPORTS*.
 Registering them (with `MAPL_AddImportSpec` and `MAPL_AddExportSpec` calls) in the `SetServices` routine requires at least seven (7) lines of Fortran statements for each Field. 
 For instance, assume that we have:
-- `PLE`, `ZLE`, and `T` as _Imports_, and
-- `ZPBLCN` and `CNV_FRC` as _Exports_.
+- `PLE`, `ZLE`, and `T` as *IMPORTS*, and
+- `ZPBLCN` and `CNV_FRC` as *EXPORTS*.
 
 
 The `SetServices` routine will contains the `MAPL_AddImportSpec` and `MAPL_AddExportSpec` calls.
@@ -136,33 +136,31 @@ where *`STATE`* is the `ESMF_State` for the fields in the block: `IMPORT`, `EXPO
 
 The mandatory columns are:
 
-- `SHORT_NAME`: name of the field as it is declared in the gridded component
-- `UNIT`: unit of the field
-- `DIMS`: dimensions of the field with any of the three options
+- `SHORT_NAME`
+- `UNITS`
+- `LONG_NAME`
+- `DIMS`
      - `z`: `MAPL_DimsVertOnly`
      - `xy`: `MAPL_DimsHorzOnly`
      - `xyz`: `MAPL_DimsHorzVert`
-- `VLOC`: vertical location with any of the three options: 
+- `VLOC`
      - `C`: `MAPL_VlocationCenter`
      - `E`: `MAPL_VlocationEdge`
      - `N`: `MAPL_VlocationNone`
-- `LONG_NAME`:  the long name of the field (this particular column is typically the last one on the right)
 
 We can add, for the sake of our example here, the optional column:
 
-- `RESTART`: (optional and only needed for Import fields) can have the options:
+- `RESTART`
      - `OPT`: `MAPL_RestartOptional`
      - `SKIP`: `MAPL_RestartSkip`
      - `REQ`: `MAPL_RestartRequired`
      - `BOOT`: `MAPL_RestartBoot`
      - `SKIPI`: `MAPL_RestartSkipInitial`
 
-Note that some columns have literal values, like `SHORT_NAME`, while others have abbreviations for the allowed values, such as `DIMS`. In the latter case, the abbreviations represent the allowed values of the columns.
+Note that some columns have literal values, like `SHORT_NAME`, while others like `DIMS` have a set of allowed values with abbreviations for the allowed values as listed above.
 
 ### Row Value Abbreviations
 The following abbreviations can be used:
-
-_Row Value Abbreviations_
 
 | Column Name &nbsp; | Row Value &nbsp; | *Abbreviation* |
 | :--- | :--- | :--- |
@@ -180,6 +178,8 @@ _Row Value Abbreviations_
 | `ADD2EXPORT` | `.TRUE.` | *`T`* |
 | | `.FALSE.` | *`F`* |
  
+Because the rows are delimited by the pipe symbol, the row values do not appear in quotes or brackets, and commas are treated as part of the value.
+In a block, if a column is blank in a Field row, that column is ignored for the Field. 
 
 Assume that we create such a file (that we name `MyComponent_StateSpecs.rc`) and include the fields used in the previous section.
 `MyComponent_StateSpecs.rc` looks like:
@@ -313,7 +313,7 @@ Similarly, the array declaration section and the `MAPL_GetPointer` calls in the 
 ...
 #include "MyComponent_DeclarePointer___.h"
 ...
-#include "MyComponent_GetPointer___.h"
+#include "MyComponent_GetPointer___.h"*IMPORTS*
 ...
 ```
 
@@ -335,50 +335,99 @@ Columns
 
 These are the possible columns in a spec file:
 
-| Column |
-| :--- |
-| `DIMS` |
-| `LONG_NAME` |
-| `SHORT_NAME` |
-| `UNITS` |
-| `ADD2EXPORT` |
-| `ATTR_INAMES` |
-| `ATTR_IVALUES` |
-| `ATTR_RNAMES` |
-| `ATTR_RVALUES` |
-| `AVERAGING_INTERVAL` |
-| `DATATYPE` |
-| `DEFAULT` |
-| `DEPENDS_ON_CHILDREN` |
-| `DEPENDS_ON` |
-| `FIELD_TYPE` |
-| `FRIENDLYTO` |
-| `HALOWIDTH` |
-| `NUM_SUBTILES` |
-| `PRECISION` |
-| `REFRESH_INTERVAL` |
-| `RESTART` |
-| `ROTATION` |
-| `STAGGERING` |
-| `UNGRIDDED_DIMS` |
-| `UNGRIDDED_COORDS` |
-| `UNGRIDDED_NAME` |
-| `UNGRIDDED_UNIT` |
-| `VLOCATION` |
-| `ALIAS` |
-| `ALLOC` |
-| `CONDITION` |
+- `DIMS`
+- `LONG_NAME`
+- `SHORT_NAME`
+- `UNITS`
+- `ADD2EXPORT`
+- `ATTR_INAMES`
+- `ATTR_IVALUES`
+- `ATTR_RNAMES`
+- `ATTR_RVALUES`
+- `AVERAGING_INTERVAL`
+- `DATATYPE`
+- `DEFAULT`
+- `DEPENDS_ON_CHILDREN`
+- `DEPENDS_ON`
+- `FIELD_TYPE`
+- `FRIENDLYTO`
+- `HALOWIDTH`
+- `NUM_SUBTILES`
+- `PRECISION`
+- `REFRESH_INTERVAL`
+- `RESTART`
+- `ROTATION`
+- `STAGGERING`
+- `UNGRIDDED_DIMS`
+- `UNGRIDDED_COORDS`
+- `UNGRIDDED_NAME`
+- `UNGRIDDED_UNIT`
+- `VLOCATION`
+- `ALIAS`
+- `ALLOC`
+- `CONDITION`
 
 Additional features
 ---
 
-The document [Setting Up MAPL Automatic Code Generator](https://github.com/GEOS-ESM/MAPL/wiki/Setting-Up-MAPL-Automatic-Code-Generator) lists more features of the tool.
-We want to highlight two here.
+The document [Setting Up MAPL Automatic Code Generator](https://github.com/GEOS-ESM/MAPL/wiki/Setting-Up-MAPL-Automatic-Code-Generator) lists more features of the ACG.
+A few are discussed below.
+
+### Conditional Fields
+The `CONDITION` column places an `if` block around the procedure calls for a Field.
+For example, if the `IMPORT` block includes the `CONDITION` column, `if` blocks will be placed around the `MAPL_AddImportSpec` and `MAPL_GetPointer` calls for any Fields 
+where the `CONDITION` column is not blank. For this `IMPORT` block:
+    
+```fortran
+category: IMPORT
+#----------------------------------------------------------------------------
+#  VARIABLE            | DIMENSIONS  |          Additional Metadata
+#----------------------------------------------------------------------------
+ SHORT_NAME | UNITS    | DIMS | VLOC | CONDITION   | LONG_NAME
+#----------------------------------------------------------------------------
+ PU         | ppm      | xyz  | E    | NOX==.TRUE. | SO2 concentration
+ T          | K        | xyz  | C    |             | air_temperature
+```
+
+the ACG would generate this Fortran code:
+
+```fortran
+if (NOX==.TRUE.) then
+    call MAPL_AddImportSpec(GC,                              &
+        SHORT_NAME = 'PU',                                   &
+        LONG_NAME  = 'SO2 concentration',                    &
+        UNITS      = 'ppm',                                  &
+        DIMS       = MAPL_DimsHorzVert,                      &
+        VLOCATION  = MAPL_VLocationEdge,                     &
+        RC=STATUS  )
+    VERIFY_(STATUS)
+end if
+
+call MAPL_AddImportSpec(GC,                              &
+    SHORT_NAME = 'T',                                    &
+    LONG_NAME  = 'temperature',                          &
+    UNITS      = 'K',                                    &
+    DIMS       = MAPL_DimsHorzVert,                      &
+    VLOCATION  = MAPL_VLocationCenter,                   &
+    RC=STATUS  )
+VERIFY_(STATUS)
+```
+
+and
+
+```fortran
+if (NOX=.TRUE.) then
+    call MAPL_GetPointer(IMPORT, PU,     'PU'     , RC=STATUS); VERIFY_(STATUS)
+else
+    nullify(PU)
+end if
+call MAPL_GetPointer(IMPORT, T,       'T'       , RC=STATUS); VERIFY_(STATUS)
+```
+
+in the include files for *IMPORTS* and the `MAPL_GetPointer` calls, respectively.
 
 ### Column Name Abbreviations
 The following abbreviations can be used for some of the column names:
-
-_Column Name Abbreviations_
 
 | Column Name &nbsp; | *Abbreviation* |
 | :----- | :------------ |
@@ -449,7 +498,7 @@ category: IMPORT
 #---------------------------------------------------------------------------------------
 #  FIELD                        | DIMENSIONS  |  Additional Metadata
 #---------------------------------------------------------------------------------------
-     SHORT_NAME          | UNITS      | DIMS | VLOC | UNGRIDDED | ALIAS   | LONG_NAME
+     SHORT_NAME    | UNITS      | DIMS | VLOC | UNGRIDDED | ALIAS   | LONG_NAME
 #---------------------------------------------------------------------------------------
   MASS             | kg kg-1    | xyz  | C    |           | new_mass | Mass Mixing Ratio
 #---------------------------------------------------------------------------------------
@@ -461,6 +510,26 @@ then the generated source code will be:
    real, pointer, dimension(:,:,:) :: new_mass
 ```
 
+### ALLOC
+The `ALLOC` column adds the `ALLOC` argument to the `MAPL_GetPointer` call for any Field
+for which the `ALLOC` column is not blank. This block in the spec file:
+
+```fortran
+category: IMPORT
+#---------------------------------------------------------------------------------------
+#  FIELD                        | DIMENSIONS  |  Additional Metadata
+#---------------------------------------------------------------------------------------
+     SHORT_NAME    | UNITS      | DIMS | VLOC |   ALLOC  | LONG_NAME
+#---------------------------------------------------------------------------------------
+  T                | K          | xyz  | C    |  .TRUE.  | air_temperature
+#---------------------------------------------------------------------------------------
+```
+
+would produce this code in the `MAPL_GetPointer` include file:
+
+```fortran
+call MAPL_GetPointer(IMPORT, T, 'T', ALLOC=.TRUE., RC=STATUS); VERIFY_(STATUS)
+```
 
 ### Sample code
 We provide a sample code (gridded component module, `spec` and `CMakeLists.txt` files) that shows
