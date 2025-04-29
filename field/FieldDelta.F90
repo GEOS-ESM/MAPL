@@ -6,7 +6,6 @@
 module mapl3g_FieldDelta
    use mapl3g_FieldInfo
    use mapl3g_FieldGet
-   use mapl3g_FieldSet
    use mapl3g_VerticalStaggerLoc
    use mapl3g_InfoUtilities
    use mapl_FieldPointerUtilities
@@ -228,11 +227,13 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
+         type(ESMF_Info) :: info
 
          _RETURN_UNLESS(present(num_levels))
          _RETURN_IF(ignore == 'num_levels')
 
-         call FieldSet(field, num_levels=num_levels, _RC)
+         call ESMF_InfoGetFromHost(field, info, _RC)
+         call FieldInfoSetInternal(info, num_levels=num_levels, _RC)
 
          _RETURN(_SUCCESS)
       end subroutine update_num_levels
@@ -244,11 +245,13 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
+         type(ESMF_Info) :: info
 
          _RETURN_UNLESS(present(units))
          _RETURN_IF(ignore == 'units')
 
-         call FieldSet(field, units=units, _RC)
+         call ESMF_InfoGetFromHost(field, info, _RC)
+         call FieldInfoSetInternal(info, units=units, _RC)
 
          _RETURN(_SUCCESS)
       end subroutine update_units

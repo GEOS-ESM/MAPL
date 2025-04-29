@@ -41,7 +41,7 @@ contains
 
       call ESMF_InfoGetFromHost(field, field_info, _RC)
 
-      call MAPL_FieldInfoSetInternal(field_info, &
+      call FieldInfoSetInternal(field_info, &
            num_levels=num_levels, &
            vert_staggerloc=vert_staggerloc, &
            ungridded_dims=ungridded_dims, &

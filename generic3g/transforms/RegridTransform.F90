@@ -1,13 +1,16 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_RegridTransform
+   use mapl3g_Field_API
+   use mapl3g_FieldBundle_API
    use mapl3g_ExtensionTransform
+   use mapl3g_AspectId
    use mapl3g_regridder_mgr
    use mapl3g_StateItem
    use mapl_ErrorHandling
    use esmf
 
-   implicit none
+   implicit none(type,external)
    private
 
    public :: RegridTransform
@@ -47,7 +50,7 @@ contains
    end function new_ScalarRegridTransform
 
    subroutine change_geoms(this, src_geom, dst_geom)
-      type(ScalarRegridTransform), intent(inout) :: transform
+      class(ScalarRegridTransform), intent(inout) :: this
       type(ESMF_Geom), intent(in) :: src_geom
       type(ESMF_Geom), intent(in) :: dst_geom
       this%src_geom = src_geom
@@ -88,6 +91,7 @@ contains
          type(ESMF_StateItem_Flag) :: itemType
          type(ESMF_Field) :: f
          type(ESMF_FieldBundle) :: fb
+         type(ESMF_Geom) :: geom
 
          call ESMF_StateGet(state, itemName, itemType=itemType, _RC)
          if (itemType == ESMF_STATEITEM_FIELD) then
@@ -101,6 +105,7 @@ contains
          end if
 
          _RETURN(_SUCCESS)
+      end function get_geom
    end subroutine initialize
 
 
@@ -138,7 +143,7 @@ contains
 
    function get_aspect_id(this) result(id)
       type(AspectId) :: id
-      class(ExtensionTransform), intent(in) :: this
+      class(ScalarRegridTransform), intent(in) :: this
 
       id = GEOM_ASPECT_ID
    end function get_aspect_id

@@ -111,8 +111,7 @@ contains
       call ESMF_InfoGetFromHost(field, field_info, _RC)
       vert_staggerloc_ = VERTICAL_STAGGER_NONE
       if (present(vert_staggerloc)) vert_staggerloc_ = vert_staggerloc
-      call MAPL_FieldInfoSetInternal( &
-           field_info, &
+      call FieldInfoSetInternal(field_info, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, &
            vert_staggerloc=vert_staggerloc_, &

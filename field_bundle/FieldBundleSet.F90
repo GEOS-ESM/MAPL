@@ -63,7 +63,7 @@ contains
 
       ! Some things are treated as field info:
       call ESMF_InfoGetFromHost(fieldBundle, bundle_info, _RC)
-      call MAPL_FieldBundleInfoSetInternal(bundle_info, &
+      call FieldBundleInfoSetInternal(bundle_info, &
            fieldBundleType=fieldBundleType, &
            typekind=typekind, interpolation_weights=interpolation_weights, &
            ungridded_dims=ungridded_dims, &

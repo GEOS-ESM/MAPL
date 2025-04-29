@@ -12,31 +12,31 @@ module mapl3g_FieldInfo
    implicit none(type,external)
    private
 
-   public :: MAPL_FieldInfoGetShared
-   public :: MAPL_FieldInfoSetShared
-   public :: MAPL_FieldInfoSetInternal
-   public :: MAPL_FieldInfoGetInternal
-   public :: MAPL_FieldInfoCopyShared
+   public :: FieldInfoGetShared
+   public :: FieldInfoSetShared
+   public :: FieldInfoSetInternal
+   public :: FieldInfoGetInternal
+   public :: FieldInfoCopyShared
 
-   interface MAPL_FieldInfoSetShared
+   interface FieldInfoSetShared
       procedure info_field_set_shared_i4
-   end interface MAPL_FieldInfoSetShared
+   end interface FieldInfoSetShared
 
-   interface MAPL_FieldInfoGetShared
+   interface FieldInfoGetShared
       procedure info_field_get_shared_i4
-   end interface MAPL_FieldInfoGetShared
+   end interface FieldInfoGetShared
 
-   interface MAPL_FieldInfoSetInternal
+   interface FieldInfoSetInternal
       module procedure field_info_set_internal
-   end interface MAPL_FieldInfoSetInternal
+   end interface FieldInfoSetInternal
 
-   interface MAPL_FieldInfoGetInternal
+   interface FieldInfoGetInternal
       module procedure field_info_get_internal
    end interface
 
-    interface MAPL_FieldInfoCopyShared
+    interface FieldInfoCopyShared
       procedure :: field_info_copy_shared
-   end interface MAPL_FieldInfoCopyShared
+   end interface FieldInfoCopyShared
 
    character(*), parameter :: KEY_UNITS = "/units"
    character(*), parameter :: KEY_LONG_NAME = "/long_name"
