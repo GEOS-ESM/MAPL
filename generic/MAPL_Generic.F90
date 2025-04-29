@@ -10098,8 +10098,9 @@ contains
       nn = len_trim(gridname)
       dateline = gridname(nn-1:nn)
       if (dateline == 'CF') then
+         ! convert global NY to a local NY for each face
          call ESMF_ConfigGetAttribute(state%CF,ny,label=trim(Prefix)//'NY:', _RC)
-         call MAPL_ConfigSetAttribute(state%CF, value=ny/6, label=trim(Prefix)//'NX:', _RC)
+         call MAPL_ConfigSetAttribute(state%CF, value=ny/6, label=trim(Prefix)//'NY:', _RC)
       end if
 
       grid = grid_manager%make_grid(state%CF, prefix=trim(Prefix), _RC)
