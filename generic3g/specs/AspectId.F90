@@ -17,6 +17,7 @@ module mapl3g_AspectId
    public :: VERTICAL_GRID_ASPECT_ID
    public :: FREQUENCY_ASPECT_ID
    public :: TYPEKIND_ASPECT_ID
+   public :: INVALID_ASPECT_ID
    public :: MOCK_ASPECT_ID
    
    type :: AspectId
@@ -26,6 +27,7 @@ module mapl3g_AspectId
       procedure :: to_string
    end type AspectId
 
+   type(AspectId), parameter :: INVALID_ASPECT_ID = AspectId(-1)
    type(AspectId), parameter :: CLASS_ASPECT_ID = AspectId(1)
    type(AspectId), parameter :: GEOM_ASPECT_ID = AspectId(2)
    type(AspectId), parameter :: UNITS_ASPECT_ID = AspectId(3)

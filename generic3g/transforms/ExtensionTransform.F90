@@ -1,5 +1,6 @@
 #include "MAPL_Generic.h"
 module mapl3g_ExtensionTransform
+   use mapl3g_AspectId
    use mapl_ErrorHandling
    use ESMF
    implicit none
@@ -13,6 +14,7 @@ module mapl3g_ExtensionTransform
       procedure(I_run), deferred :: update
       procedure :: runs_invalidate
       procedure :: invalidate
+      procedure :: get_aspect_id
    end type ExtensionTransform
 
 
@@ -53,5 +55,12 @@ contains
       class(ExtensionTransform), intent(in) :: this
       runs_invalidate = .FALSE.
    end function runs_invalidate
+
+   function get_aspect_id(this) result(id)
+      type(AspectId) :: id
+      class(ExtensionTransform), intent(in) :: this
+
+      id = INVALID_ASPECT_ID
+   end function get_aspect_id
 
 end module mapl3g_ExtensionTransform
