@@ -26,10 +26,12 @@ For instance, assume that we have:
 - `PLE`, `ZLE`, and `T` as _Imports_, and
 - `ZPBLCN` and `CNV_FRC` as _Exports_.
 
-The `SetServices` routine will have the calls:
+
+The `SetServices` routine will contains the `MAPL_AddImportSpec` and `MAPL_AddExportSpec` calls.
 
 <details>
-<summary><font color="green">SetServices source code</font></summary>
+<summary><font color="green">Click to see SetServices source code.</font></summary>
+
 ```fortran
 call MAPL_AddImportSpec(GC,                              &
     SHORT_NAME = 'PLE',                                  &
@@ -81,10 +83,10 @@ VERIFY_(STATUS)
 </details>
 
 Such statements for over five hundred fifty (550) fields leads to more than thirty five hundred (3500) lines of code. 
-In addition, we must declare the necessary multi-dimensional arrays and access the memory location of each member variable through a `MAPL_GetPointer` call in the `Run` subroutine:
+In addition, we must declare the necessary multi-dimensional arrays and access the memory location of each member variable through a `MAPL_GetPointer` call in the `Run` subroutine.
 
 <details>
-<summary><font color="green">Sample code in Run method </font></summary>
+<summary><font color="green">Click to see Run source code.</font></summary>
 
 ```fortran
 real, pointer, dimension(:,:,:) :: PLE
@@ -112,26 +114,39 @@ We want to move all the calls (`MAPL_AddImportSpec`, `MAPL_AddExportSpec`, and `
 Create the Specification (`spec`) ASCII File
 ---
 
-The automatic code generator takes as input an ASCII specification file that has three main sections:
+The automatic code generator takes as input an ASCII specification file that has a header and followed by blocks for the ESMF gridded component Fields, which are grouped by `ESMF_State`. The first two lines form the header which takes this form:
 
-1. `category: IMPORT`: for listing the _Imports_
-2. `category: EXPORT`: for listing the _Exports_
-3. `category: INTERNAL`: for listing the _Internals_
+<pre>
+schema_version: 2.0.0
+component: <i>component_name</i>
+</pre>
 
-Each category is organized as a data table: a set of rows and columns where each row is associated with a unique field. The first row is column names.
+The space in each line is significant. The current `schema_version` is
+`2.0.0`, and *`component_name`* is the name of the GridComp. A blank
+line separates the header from the State blocks, and each State block is
+separated from the next State block by a blank line.
+
+Each block starts with a single line:
+
+<pre>
+category: <i>STATE</i>
+</pre>
+
+where *`STATE`* is the `ESMF_State` for the fields in the block: `IMPORT`, `EXPORT`, or `INTERNAL`. The colon and the space are significant. The fields follow the category line, and they are organized into a data table. The first row of the table is the column names, and the remaining rows are the fields terminated by a blank line. Each row contains the values for the columns for a single field. Most of the columns are arguments for the `MAPL_Add`*`STATE`*`Spec` procedure. In addition, there are special columns, which are discussed later in this document. 
+
 The mandatory columns are:
 
-- `NAME`: name of the field as it is declared in the gridded component
+- `SHORT_NAME`: name of the field as it is declared in the gridded component
 - `UNIT`: unit of the field
 - `DIMS`: dimensions of the field with any of the three options
-     - `z`: corresponding to `MAPL_DimsVertOnly`
-     - `xy`: corresponding to `MAPL_DimsHorzOnly`
-     - `xyz`: corresponding to `MAPL_DimsHorzVert`
+     - `z`: `MAPL_DimsVertOnly`
+     - `xy`: `MAPL_DimsHorzOnly`
+     - `xyz`: `MAPL_DimsHorzVert`
 - `VLOC`: vertical location with any of the three options: 
-     - `C`: corresponding to `MAPL_VlocationCenter`
-     - `E`: corresponding to `MAPL_VlocationEdge`
-     - `N`: corresponding to `MAPL_VlocationNone`
-- `LONG NAME`:  the long name of the field (this particular column is typically the last one on the right)
+     - `C`: `MAPL_VlocationCenter`
+     - `E`: `MAPL_VlocationEdge`
+     - `N`: `MAPL_VlocationNone`
+- `LONG_NAME`:  the long name of the field (this particular column is typically the last one on the right)
 
 We can add, for the sake of our example here, the optional column:
 
@@ -142,15 +157,32 @@ We can add, for the sake of our example here, the optional column:
      - `BOOT`: `MAPL_RestartBoot`
      - `SKIPI`: `MAPL_RestartSkipInitial`
 
-> __Note__  
-> The dimensions of a field appearing in the `DIMS` column, can be listed using either the short name, say `z`, or the corresponding MAPL name, say `MAPL_DimsVertOnly`.
->
+Note that some columns have literal values, like `SHORT_NAME`, while others have abbreviations for the allowed values, such as `DIMS`. In the latter case, the abbreviations represent the allowed values of the columns.
+
+### Row Value Abbreviations
+The following abbreviations can be used:
+
+_Row Value Abbreviations_
+
+| Column Name &nbsp; | Row Value &nbsp; | *Abbreviation* |
+| :--- | :--- | :--- |
+| `DIMS` &nbsp; | `MAPL_DimsVertOnly` &nbsp; | *`Z`* |
+|  | `MAPL_DimsHorzOnly` &nbsp; | *`XY`* |
+|  | `MAPL_DimsHorzVert` &nbsp; | *`XYZ`* |
+| `VLOCATION` | `MAPL_VlocationCenter` &nbsp; | *`C`* |
+|  | `MAPL_VlocationEdge` &nbsp; | *`E`* |
+|  | `MAPL_VlocationNone` &nbsp; | *`N`* |
+| `RESTART_EMIT` | `MAPL_RestartOptional` &nbsp; | *`OPT`* |
+| | `MAPL_RestartSkip` &nbsp; | *`SKIP`* |
+| |`MAPL_RestartRequired` &nbsp; | *`REQ`* |
+| | `MAPL_RestartBoot` &nbsp; | *`BOOT`* |
+| | `MAPL_RestartSkipInitial` &nbsp; | *`SKIPI`* |
+| `ADD2EXPORT` | `.TRUE.` | *`T`* |
+| | `.FALSE.` | *`F`* |
+ 
 
 Assume that we create such a file (that we name `MyComponent_StateSpecs.rc`) and include the fields used in the previous section.
 `MyComponent_StateSpecs.rc` looks like:
-
-<details>
-<summary><font color="green"> Sample spec file content</font></summary>
 
 ```
 schema_version: 2.0.0
@@ -160,7 +192,7 @@ category: IMPORT
 #----------------------------------------------------------------------------
 #  VARIABLE            | DIMENSIONS  |          Additional Metadata
 #----------------------------------------------------------------------------
-     NAME   | UNITS    | DIMS | VLOC | RESTART | LONG NAME
+ SHORT_NAME | UNITS    | DIMS | VLOC | RESTART | LONG_NAME
 #----------------------------------------------------------------------------
  ZLE        | m        | xyz  | E    |         | geopotential_height
  T          | K        | xyz  | C    | OPT     | air_temperature
@@ -170,7 +202,7 @@ category: EXPORT
 #---------------------------------------------------------------------------
 #  VARIABLE             | DIMENSIONS  |          Additional Metadata
 #---------------------------------------------------------------------------
- NAME       | UNITS     | DIMS | VLOC |  LONG NAME
+ SHORT_NAME | UNITS     | DIMS | VLOC |  LONG_NAME
 #---------------------------------------------------------------------------
  ZPBLCN     | m         | xy   | N    |  boundary_layer_depth
  CNV_FRC    |           | xy   | N    |  convective_fraction
@@ -179,51 +211,15 @@ category: INTERNAL
 #---------------------------------------------------------------------------
 #  VARIABLE    | DIMENSION   |          Additional Metadata
 #---------------------------------------------------------------------------
-  NAME | UNITS | DIMS | VLOC | ADD2EXPORT | FRIENDLYTO | LONG NAME
+  SHORT_NAME | UNITS | DIMS | VLOC | ADD2EXPORT | FRIENDLYTO | LONG_NAME
 #---------------------------------------------------------------------------
 
 
-#********************************************************
-#
-# Legend
-#
-#------------------------------------------------------------------
-# Column label | MAPL keyword/interpretation |  Default
-#--------------|---------------------------------------------------
-# NAME         | short_name                  |
-# UNITS        | units                       |
-# DIMS         | dims                        |
-# VLOC         | VLocation                   | MAPL_VLocationNone
-# LONG NAME    | long_name                   |
-# COND         | if (<logical-expr>) then    |  .FALSE.
-# NUM_SUBTILES | num_subtiles
-# ...
-#------------------------------------------------------------------
-#
-#--------------------------------------------
-# Entry alias  | Column | MAPL keyword/interpretation
-#--------------|-----------------------------
-# xyz          | DIMS   | MAPL_HorzVert
-# xy           | DIMS   | MAPL_HorzOnly
-# z            | DIMS   | MAPL_VertOnly  (plus ungridded)
-# C            | VLOC   | MAPL_VlocationCenter
-# E            | VLOC   | MAPL_VlocationEdge
-# N            | VLOC   | MAPL_VlocationNone
-#--------------------------------------------
 ```
-
-</details>
-
-> __Important__  
-> The header of two lines starting with `schema_version` and `component` is required. The format of these lines is *`variable_name`*: *`variable_value`* where the column and space are necessary. The schema version is `2.0.0`, currently, and the component is name of the GridComp, which in this example is `MyComponent`.
-
 
 Running the automatic code generator on the file `MyComponent_StateSpecs.rc` generates four (4) include files at compilation time:
 
 1. `MyComponent_Export___.h` for the `MAPL_AddExportSpec` calls in the `SetServices` routine:
-
-<details>
-<summary><font color="green"> Sample include file for Exports</font></summary>
 
 ```
 call MAPL_AddExportSpec(GC,                              &
@@ -243,12 +239,7 @@ call MAPL_AddExportSpec(GC,                              &
 VERIFY_(STATUS)
 ```
 
-</details>
-
 2. `MyComponent_Import___.h` for the `MAPL_AddImportSpec` calls in the `SetServices` routine:
-
-<details>
-<summary><font color="green"> Sample include file for Imports</font></summary>
 
 ```fortran
 call MAPL_AddImportSpec(GC,                              &
@@ -282,12 +273,7 @@ call MAPL_AddImportSpec(GC,                              &
 VERIFY_(STATUS)
 ```
 
-</details>
-
 3. `MyComponent_DeclarePointer___.h` for all the multi-dimensional array declartions associated with the fields for all the states) in the `Run` method (The `#include MyComponent_DeclarePointer___.h` statement should be in the local declaration variable section.):
-
-<details>
-<summary><font color="green">Sample include file for pointer declarations</font></summary>
 
 ```fortran
 real, pointer, dimension(:,:,:) :: PLE
@@ -297,12 +283,7 @@ real, pointer, dimension(:,:)   :: ZPBLCN
 real, pointer, dimension(:,:)   :: CNV_FRC
 ```
 
-</details>
-
 4. `MyComponent_GetPointer___.h` for all the `MAPL_GetPointer` calls in the `Run` method (The `#include MyComponent_GetPointer___.h` statement needs to be placed well before any field is accessed.):
-
-<details>
-<summary><font color="green">Sample include file for MAPL_GetPointer calls</font></summary>
 
 ```fortran
 call MAPL_GetPointer(IMPORT, PLE,     'PLE'     , RC=STATUS); VERIFY_(STATUS)
@@ -312,9 +293,6 @@ call MAPL_GetPointer(IMPORT, T,       'T'       , RC=STATUS); VERIFY_(STATUS)
 call MAPL_GetPointer(EXPORT, ZPBLCN,  'ZPBLCN' , ALLOC=.TRUE., RC=STATUS); VERIFY_(STATUS)
 call MAPL_GetPointer(EXPORT, CNV_FRC, 'CNV_FRC', ALLOC=.TRUE., RC=STATUS); VERIFY_(STATUS)
 ```
- 
- </details>
-
 
 Edit the Source Code
 ---
@@ -352,16 +330,73 @@ mapl_acg (${this}   MyComponent_StateSpecs.rc
 
 If there is no Internal state, `INTERNAL_SPECS` is not required in the above command, but there is no harm in including it. 
 
+Columns
+---
+
+These are the possible columns in a spec file:
+
+| Column |
+| :--- |
+| `DIMS` |
+| `LONG_NAME` |
+| `SHORT_NAME` |
+| `UNITS` |
+| `ADD2EXPORT` |
+| `ATTR_INAMES` |
+| `ATTR_IVALUES` |
+| `ATTR_RNAMES` |
+| `ATTR_RVALUES` |
+| `AVERAGING_INTERVAL` |
+| `DATATYPE` |
+| `DEFAULT` |
+| `DEPENDS_ON_CHILDREN` |
+| `DEPENDS_ON` |
+| `FIELD_TYPE` |
+| `FRIENDLYTO` |
+| `HALOWIDTH` |
+| `NUM_SUBTILES` |
+| `PRECISION` |
+| `REFRESH_INTERVAL` |
+| `RESTART` |
+| `ROTATION` |
+| `STAGGERING` |
+| `UNGRIDDED_DIMS` |
+| `UNGRIDDED_COORDS` |
+| `UNGRIDDED_NAME` |
+| `UNGRIDDED_UNIT` |
+| `VLOCATION` |
+| `ALIAS` |
+| `ALLOC` |
+| `CONDITION` |
+
 Additional features
 ---
 
 The document [Setting Up MAPL Automatic Code Generator](https://github.com/GEOS-ESM/MAPL/wiki/Setting-Up-MAPL-Automatic-Code-Generator) lists more features of the tool.
 We want to highlight two here.
 
+### Column Name Abbreviations
+The following abbreviations can be used for some of the column names:
+
+_Column Name Abbreviations_
+
+| Column Name &nbsp; | *Abbreviation* |
+| :----- | :------------ |
+| `SHORT_NAME` &nbsp;| *`NAME`* |
+| `LONG_NAME` &nbsp; | *`LONG NAME`* |
+| `ADD2EXPORT` &nbsp; | *`ADDEXP`* |
+| `AVERAGING_INTERVAL` &nbsp; | *`AVINT`* |
+| `FRIENDLYTO` &nbsp; | *`FRIEND2`* |
+| `NUM_SUBTILES` &nbsp; | *`NUMSUBS`* |
+| `PRECISION` &nbsp; | *`PREC`* |
+| `UNGRIDDED_DIMS` &nbsp; | *`UNGRID`* |
+|  &nbsp; | *`UNGRIDDED`* |
+| `VLOCATION` &nbsp; | *`VLOC`* |
+| `CONDITION` &nbsp; | *`COND`* |
 
 ### Use of asterisk to expand names
 
-The values in the `NAME` and `LONG NAME` columns can be preceded by an asterisk (`*`). 
+The values in the `SHORT_NAME` and `LONG_NAME` columns can be preceded by an asterisk (`*`). 
 When the tool processes the `spec` file , the `*` is substituted with the component name.
 
 For instance the `spec` file:
@@ -374,7 +409,7 @@ category: IMPORT
 #-------------------------------------------------------------------------------
 #  FIELD                        | DIMENSIONS  |  Additional Metadata
 #-------------------------------------------------------------------------------
-     NAME          | UNITS      | DIMS | VLOC | UNGRIDDED | LONG NAME
+     SHORT_NAME          | UNITS      | DIMS | VLOC | UNGRIDDED | LONG_NAME
 #-------------------------------------------------------------------------------
  *MASS             | kg kg-1    | xyz  | C    |           | * Mass Mixing Ratio
 #-------------------------------------------------------------------------------
@@ -401,14 +436,11 @@ Note the addition of `MyComponent` to the short and long names.
 This feature can be important if we want to use the content of a `spec` file
 across several instances of a component.
 
-### Aliases
+### Pointer Variable Names
 
-By default, the tool takes the value of the column `NAME` as the name of the
-pointer variable associated with the field. 
-For instance if `MASS` is the value in the `spec` file, then the created
-pointer variable would be  `mass`.
-It is possible to overload this variable name by adding a new column
-(labelled `ALIAS`) in the `spec` file.
+By default, the ACG uses the value of the column `SHORT_NAME` as the name of the
+pointer variable associated with the field. For instance if `mass` is the short name in 
+the `spec` file, the created pointer variable is `mass`. To use an alternate name for the pointer variable add the column `ALIAS`, and supply the alternate name in the specification file.
 
 For instance, if we have the following in the `spec` file:
 
@@ -417,7 +449,7 @@ category: IMPORT
 #---------------------------------------------------------------------------------------
 #  FIELD                        | DIMENSIONS  |  Additional Metadata
 #---------------------------------------------------------------------------------------
-     NAME          | UNITS      | DIMS | VLOC | UNGRIDDED | ALIAS   | LONG NAME
+     SHORT_NAME          | UNITS      | DIMS | VLOC | UNGRIDDED | ALIAS   | LONG_NAME
 #---------------------------------------------------------------------------------------
   MASS             | kg kg-1    | xyz  | C    |           | new_mass | Mass Mixing Ratio
 #---------------------------------------------------------------------------------------
