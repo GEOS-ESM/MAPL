@@ -836,7 +836,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
     class(MaskSampler), intent(inout) :: this
     type(ESMF_Time), intent(inout)          :: current_time
     character(len=*), intent(in) :: filename
-    type (ClientManager), target, optional, intent(inout) :: oClients
+    type (ClientManager), optional, intent(inout) :: oClients
     integer, optional, intent(out)          :: rc
     !
     integer :: status
@@ -862,7 +862,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
     type(GriddedIOitemVectorIterator) :: iter
     type(GriddedIOitem), pointer :: item
     type(ESMF_VM) :: vm
-    type(ArrayReference) :: ref
+    type(ArrayReference), target :: ref
 
     this%obs_written=this%obs_written+1
 

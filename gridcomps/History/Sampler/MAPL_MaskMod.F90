@@ -186,7 +186,7 @@ module MaskSamplerMod
        class(MaskSampler), intent(inout)       :: this
        type(ESMF_Time), intent(inout)          :: current_time
        character(len=*), intent(in)            :: filename
-       type (ClientManager), target, optional, intent(inout) :: oClients
+       type (ClientManager), optional, intent(inout) :: oClients
        integer, optional, intent(out)          :: rc
      end subroutine regrid_append_file
 
