@@ -216,7 +216,7 @@ module MaskSamplerMod
 
     module subroutine modifyTime(this, oClients, rc)
       class(MaskSampler), intent(inout) :: this
-      type (ClientManager), optional, intent(inout) :: oClients
+      type (ClientManager), target, optional, intent(inout) :: oClients
       integer, optional, intent(out) :: rc
     end subroutine modifyTime
 
