@@ -98,6 +98,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `ESMA_cmake` v3.58.2
     - Fix for XCode 16.3
 
+- Update documentation on ACG in repo
+
 ### Removed
 
 ### Deprecated
