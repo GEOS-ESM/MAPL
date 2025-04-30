@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added a new `StateFilterItem` funtion to apply a mask or extra using a combination of variables from a state and return an array with the result
+
 ### Changed
 
 - Update `components.yaml`
@@ -23,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `ESMA_cmake` v3.59.0
     - Fix for XCode 16.3
     - Fixes for f2py with MPT
+
+- Update documentation on ACG in repo
 
 ### Removed
 
