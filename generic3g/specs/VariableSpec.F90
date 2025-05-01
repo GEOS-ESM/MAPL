@@ -226,10 +226,6 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-
-      contains
-
-
    end function make_VariableSpec
 
    subroutine split_name(encoded_name, name_1, name_2, rc)

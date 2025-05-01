@@ -52,7 +52,7 @@ contains
       integer :: status
 
       field = MAPL_FieldEmptyCreate(_RC)
-      _ASSERT(present(num_levels) .eqv. present(vert_staggerloc), "num_levels and vert_staggerloc must be both present or both absent")
+      call vertical_level_sanity_check(num_levels, vert_staggerloc, _RC)
 
       call ESMF_FieldEmptySet(field, geom=geom, _RC)
       call MAPL_FieldEmptyComplete(field, &
@@ -62,6 +62,7 @@ contains
            _RC)
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
    end function field_create
 
    subroutine field_empty_complete( field, &
@@ -90,6 +91,7 @@ contains
       type(ESMF_Geom) :: geom
       integer :: dim_count, idim, status
 
+      call vertical_level_sanity_check(num_levels, vert_staggerloc, _RC)
       if (present(gridToFieldMap)) then
          grid_to_field_map = gridToFieldMap
       else
@@ -139,5 +141,17 @@ contains
       end if
 
    end function make_bounds
+
+   subroutine vertical_level_sanity_check(num_levels, vertical_stagger, rc)
+      integer, optional, intent(in) :: num_levels
+      type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
+      integer, optional, intent(out) :: rc
+
+      if (present(num_levels)) then
+         _ASSERT(present(vertical_stagger), "vertical stagger is not present")
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine vertical_level_sanity_check
 
 end module mapl3g_FieldCreate
