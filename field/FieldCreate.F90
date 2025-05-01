@@ -116,6 +116,7 @@ contains
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, &
            vert_staggerloc=vert_staggerloc_, &
+           grid_to_field_map=grid_to_field_map, &
            units=units, &
            standard_name=standard_name, &
            long_name=long_name, &
@@ -148,7 +149,7 @@ contains
       integer, optional, intent(out) :: rc
 
       if (present(num_levels)) then
-         _ASSERT(present(vertical_stagger), "vertical stagger is not present")
+         _ASSERT(present(vertical_stagger), "vertical_stagger must be specified for 3D fields")
       end if
 
       _RETURN(_SUCCESS)
