@@ -2,7 +2,7 @@
 import argparse
 import sys
 from os.path import splitext, basename
-from os import linesep
+from os import linesep as LINESEP
 import csv
 from collections.abc import Sequence
 from functools import partial, reduce
@@ -18,8 +18,10 @@ SIZE_INDENT = 3
 TERMINATOR = '_RC)'
 UNIT = ()
 INDENT = SPACE * SIZE_INDENT
+DIMSTR = ':'
+DIMDELIM = ','
 
-ARGDICT = 'argdict' 
+ARGS = 'args' 
 AS = 'as'
 CONSTANTS = 'constants'
 CONTROL = 'control'
@@ -28,7 +30,7 @@ DEALIASED = 'dealiased'
 FLAGS = 'flags'
 FROM = 'from'
 GC_ARGNAME = 'gridcomp'
-IF_BLOCK = 'if_block'
+MAKE_BLOCK = 'make_block'
 INTENT_PREFIX = 'ESMF_STATEINTENT_'
 MANDATORY = 'mandatory'
 MAPPED = 'mapped' 
@@ -68,7 +70,7 @@ VSTAGGER = 'vstagger'
 # command-line option constants
 GC_VARIABLE = 'gridcomp_variable'
 GC_VARIABLE_DEFAULT = 'gc'
-LONGNAME_GLOB_PREFIX = "longname_glob_prefix" # Should add alias for cmd option wdb
+STANDARD_NAME_PREFIX = "standard_name_prefix" # Should add alias for cmd option wdb
 # procedure names
 ADDSPEC = "MAPL_GridCompAddFieldSpec"
 GETPOINTER = "MAPL_StateGetPointer"
@@ -167,12 +169,12 @@ def get_options(args):
         'vlocation': VSTAGGER
     }
 
-    options[CONTROLS] = {IF_BLOCK: {MAPPING: IF_BLOCK, FLAGS: {CONTROL, AS}, FROM: CONDITION}} 
+    options[CONTROLS] = {MAKE_BLOCK: {MAPPING: MAKE_BLOCK, FLAGS: {CONTROL, AS}, FROM: CONDITION}} 
 
-    options[ARGDICT] = vars(args) 
+    options[ARGS] = args
 
     options[MAPPED] = { 
-        STANDARD_NAME_ARG: {MAPPING: STANDARD_NAME, FROM: (STANDARD_NAME, LONGNAME_GLOB_PREFIX), AS: STANDARD_NAME}, 
+        STANDARD_NAME_ARG: {MAPPING: STANDARD_NAME, FROM: (STANDARD_NAME, STANDARD_NAME_PREFIX), AS: STANDARD_NAME}, 
         INTENT_ARG: {FROM: (STATE_INTENT, STATE), MAPPING: (ID, dict(zip(states, intents))), FLAGS: AS},
         RANK: {MAPPING: RANK, FLAGS: {STORE, MANDATORY}, FROM: (DIMS, UNGRIDDED_DIMS)}, 
         STATE_ARG: {FROM: (STATE, STATE_INTENT), MAPPING: (ID, dict(zip(intents, states))), FLAGS: AS} 
@@ -183,29 +185,28 @@ def get_options(args):
     return options
 
 # Procedures for writing to files
-def emit_specs(values, options):
-    emitted = emit_args(values, flatten_options(options))
-    if condition := values.get(CONDITION):
-        return condition(emitted)
-    return emitted
+def emit_specs(specs, options):
+    return ((spec[STATE], emit_spec(spec, options)) for spec in specs)
+
+def emit_spec(spec, options):
+    flat_options = flatten_options(options)
+    f = spec[CONDITION] if spec[CONDITION] else ID
+    return f(emit_args(spec, flat_options))
 
 def emit_args(values, options):
-    gc_variable = options[GC_VARIABLE]
-    columns = [c for c in values if is_printable(options.get(c))]
-    lines = [f"{INDENT}{AMP} {column}={values[column]}{DELIMITER}{AMP}" for column in columns]
-    return [f"{CALL} {ADDSPEC}({GC_ARGNAME}={gc_variable}, {AMP}", *lines, f"{INDENT}{AMP} {TERMINATOR}"]
+    lines = [f"{INDENT}& {c}={values[c]}{DELIMITER}&"
+             for c in values if is_printable(options.get(c))]
+    return [f"{CALL} {ADDSPEC}({GC_ARGNAME}={options[GC_VARIABLE]}, &",
+            *lines, f"{INDENT}& {TERMINATOR}"]
 
-def emit_declare_pointers(values):
-    name = values[INTERNAL_NAME]
-    rank = values[RANK]
-    kind = f'(kind={values[PRECISION]})' if PRECISION in values else EMPTY
-    middle = ',:'*(rank-1)
-    return f'real{kind}, pointer, dimension(:{middle}) :: {name}'
+def emit_declare_pointers(values, options=None):
+    decl = 'real{}, pointer'.format('(kind={})'.format(values[PRECISION]) if PRECISION else EMPTY)
+    var = f'{values[INTERNAL_NAME]}({DIMDELIM.join(DIMSTR*values[RANK])})'
+    return [f'{decl} :: {var}']
 
-def emit_get_pointers(values):
-    internal_name = values[INTERNAL_NAME]
+def emit_get_pointers(values, options=None):
     condition = values.get(CONDITION)
-    parts = [f'{CALL} {GETPOINTER}({values[STATE]}', internal_name, values[SHORT_NAME]]
+    parts = [f'{CALL} {GETPOINTER}({values[STATE]}', values[INTERNAL_NAME], values[SHORT_NAME]]
     if alloc := values.get(ALLOC):
         parts.append(f'{ALLOC}={convert_to_fortran_logical(alloc)}')
     line = DELIMITER.join([*parts, TERMINATOR])
@@ -213,34 +214,36 @@ def emit_get_pointers(values):
 
 ############################ PARSE COMMAND ARGUMENTS ###########################
 def get_args():
-    parser = argparse.ArgumentParser(description='Generate FieldSpecs, pointer declarations, and get_pointer calls for MAPL Gridded Component')
-    parser.add_argument("input", action='store',
-                    help="input filename")
-    parser.add_argument("-n", "--name", action="store",
+    description = ['generate fieldspecs',
+                   'pointer declarations',
+                   'and get_pointer calls for mapl gridded component']
+    parser = argparse.ArgumentParser(description=", ".join(description))
+    parser.add_argument("input", action='store', help="input filename")
+    parser.add_argument("-n", "--name", action="store", dest="name",
                     help="override default grid component name derived from input filename")
-    parser.add_argument("-i", "--import_specs", action="store", nargs='?',
-                    default=None, const="{component}_Import___.h",
+    parser.add_argument("-i", "--import-specs", "--import_specs", action="store",
+                    nargs='?', dest="import", default=argparse.SUPPRESS, const=None,
                     help="override default output filename for AddImportSpec() code")
-    parser.add_argument("-x", "--export_specs", action="store", nargs='?',
-                    default=None, const="{component}_Export___.h",
+    parser.add_argument("-x", "--export-specs", "--export_specs", action="store",
+                    nargs='?', dest="export", default=argparse.SUPPRESS, const=None,
                     help="override default output filename for AddExternalSpec() code")
-    parser.add_argument("-p", "--internal_specs", action="store", nargs='?',
-                    default=None, const="{component}_Internal___.h",
+    parser.add_argument("-p", "--internal-specs", "--internal_specs", action="store",
+                    nargs='?', dest="internal", default=argparse.SUPPRESS, const=None,
                     help="override default output filename for AddImportSpec() code")
-    parser.add_argument("-g", "--get-pointers", action="store", nargs='?',
-                    default=None, const="{component}_GetPointer___.h",
+    parser.add_argument("-g", "--get-pointers", "--get_pointers", action="store", nargs='?',
+                    dest="get", default=argparse.SUPPRESS, const=None,#"{component}_GetPointer___.h",
                     help="override default output filename for get_pointer() code")
-    parser.add_argument("-d", "--declare-pointers", action="store", nargs='?',
-                    const="{component}_DeclarePointer___.h", default=None,
+    parser.add_argument("-d", "--declare-pointers", "--declare_pointers", action="store",
+                    nargs='?', dest="declare", const=None,#"{component}_DeclarePointer___.h",
+                    default=argparse.SUPPRESS,
                     help="override default output filename for pointer declaration code")
-    parser.add_argument("--" + LONGNAME_GLOB_PREFIX, dest=LONGNAME_GLOB_PREFIX,
-                    action="store", nargs='?', default=None,
+    parser.add_argument("--standard-name-prefix", "--standard_name_prefix",
+                    "--longname-glob-prefix", "--longname_glob_prefix",
+                    action="store", nargs='?', default=None, dest=STANDARD_NAME_PREFIX,
                     help="alternative prefix for long_name substitution")
-    parser.add_argument(f"--{GC_VARIABLE}", dest=GC_VARIABLE,
-                    action="store", nargs='?', default=GC_VARIABLE_DEFAULT,
-                    help="ESMF_GridComp variable name")
+    parser.add_argument(f"--{GC_VARIABLE}", dest=GC_VARIABLE, action="store", 
+                    nargs='?', default=GC_VARIABLE_DEFAULT, help="ESMF_GridComp variable name")
     return parser.parse_args()
-
 
 # READ_SPECS function
 def read_specs(specs_filename):
@@ -296,8 +299,8 @@ def get_from_keys(option):
         case tuple() | list() as s:
             return s
 
-def get_from_values(keys, values, argdict):
-    get_from_value = lambda k: values.get(k, argdict.get(k))
+def get_from_values(keys, values, args):
+    get_from_value = lambda k: values.get(k, args.get(k))
     match keys:
         case str() as key:
             value = get_from_value(key)
@@ -320,7 +323,7 @@ def map_spec_values(values, options):
         m = fetch_mapping_function(option.get(MAPPING))
         (first, *tail) = get_from_keys(option)
         name = option.get(AS, first if has_as_flag(option) else option_name) 
-        values[name] = m(*get_from_values((first, *tail), values, options[ARGDICT]))
+        values[name] = m(*get_from_values((first, *tail), values, options[ARGS]))
     return values, []
 
 def get_mandatory_option_keys(options):
@@ -376,26 +379,35 @@ def flatten_options(o):
         flat.update(v)
     return flat 
 
+def open_file(component, filename, name, suffix=''):
+    fname = filename if filename else f"{component}_{name.capitalize()}{suffix.capitalize()}___.h"
+    return open_with_header(fname)
+
 ################################# EMIT_VALUES ##################################
 def emit_values(specs, options):
 
-    argdict = options[ARGDICT]
+    args = options[ARGS]
     exit_code_ = ERROR
 
-    add_newline = lambda s: f"{s.rstrip()}{linesep}"
+    add_newline = lambda s: f"{s.rstrip()}{LINESEP}"
+    add_newlines = lambda lines: (add_newline(line) for line in lines)
 
-    component, declare_pointers, get_pointers = (argdict.get(k) for k in ('name', 'declare_pointers', 'get-pointers'))
+    component, declare_pointers, get_pointers = (args.get(k) for k in ('name', 'declare', 'get'))
     if component is None:
-        component, _ = splitext(basename(argdict['input']))
+        component, _ = splitext(basename(args['input']))
         component = component.replace('_Registry','').replace('_StateSpecs','')
 
 # open all output files
     f_specs = {}
     states = options[CONSTANTS][STATES]
     for state in states:
-        if state_specs := argdict.get(state + "_specs"):
-            fname = state_specs.format(component=component)
-            f_specs[state] = open_with_header(fname)
+        if state in args:
+            f_specs[state] = open_file(component, args[state], state)
+#            if state_specs := args[state]:
+#        if state_specs := args.get(state):
+#            fname = state_specs.format(component=component)
+            #f_specs[state] = open_with_header(fname)
+#            f_specs[state] = open_file(component, fname)
         else:
             f_specs[state] = None
 
@@ -409,11 +421,17 @@ def emit_values(specs, options):
     else:
         f_get_pointers = None
 
+    emitted = [emit_spec(spec, options), emit_declare_pointers(spec), emit_get_pointers(spec)) for spec in specs]
+    filtered = ((s, add_newlines(e), add_newlines(d), add_newlines(g)) for ((s, e), d, g) in emitted if s in set(states).intersect(f_specs))
+    for state in set(states).intersect(f_specs):
+        state_emitted = filter(lambda e: e[STATE] == state, emitted)
+
 # Generate code from specs (processed above)
     for state in states:
         for values in filter(lambda s: s[STATE] == state, specs):
             if f_specs[state]:
-                f_specs[state].writelines([add_newline(line) for line in emit_specs(values, options)])
+                _, lines = emit_spec(values, options)
+                f_specs[state].writelines([add_newline(line) for line in lines])
             if f_declare_pointers:
                 f_declare_pointers.write(add_newline(emit_declare_pointers(values)))
             if f_get_pointers:
@@ -428,7 +446,7 @@ def emit_values(specs, options):
     if f_get_pointers:
         f_get_pointers.close()
 
-        return SUCCESS
+    return SUCCESS
 
 ############################### HELPER FUNCTIONS ###############################
 def add_quotes(s):
@@ -483,15 +501,15 @@ def mangle_standard_name(name, prefix):
     return add_quotes(name)
 
 def make_if_block(condition, text, else_block=[]):
-    condition_line = f"if ({condition}) then{linesep}"
-    conclusion = f"end if{linesep}"
-    lines = [f"{INDENT}{line}{linesep}" for line in text] + else_block
-    return [condition_line] + lines + [conclusion]
+    lines = [f"{INDENT}{l}" for l in text] + else_block
+    return [f"if ({condition}) then", *lines, f"end if"]
+    
     
 def make_else_block(name=None):
+    lines = []
     if name:
-        return [f'else{linesep}', f'{INDENT}nullify({name}){linesep}']
-    return []
+        lines.extend([f'else', f'{INDENT}nullify({name})'])
+    return lines
 
 ######################### WRITERS for writing AddSpecs #########################
 NAMED_MAPPINGS = {
@@ -501,7 +519,7 @@ NAMED_MAPPINGS = {
         MANGLED: lambda name: add_quotes(name.replace("*","'//trim(comp_name)//'")) if name else None,
         STANDARD_NAME: mangle_standard_name,
         RANK: compute_rank, 
-        IF_BLOCK: lambda value: partial(make_if_block, value) if value else None
+        MAKE_BLOCK: lambda value: partial(make_if_block, value) if value else ID
         }
 
 def fetch_mapping_function(m, func_dict=NAMED_MAPPINGS):
@@ -542,10 +560,10 @@ def main():
     exit_code = ERROR
 
 # Process command line arguments
-    args = get_args()
+    args = vars(get_args())
 
 # Get options
-    required_keys = {SPECIFICATIONS, SPEC_ALIASES, CONTROLS, ARGDICT, MAPPED}
+    required_keys = {SPECIFICATIONS, SPEC_ALIASES, CONTROLS, ARGS, MAPPED}
     options = get_options(args)
     missing_keys = required_keys.difference(options)
     intersection = required_keys.intersection(options)
@@ -553,7 +571,7 @@ def main():
         raise RuntimeError(f"Some option types are missing: {missing_keys}")
 
 # Process blocked CSV input file
-    parsed_specs = read_specs(args.input)
+    parsed_specs = read_specs(args['input'])
 
     values, results = get_values(parsed_specs, options)
     missing = [(r[SPEC], r[MISSING_MANDATORY]) for r in results if r[MISSING_MANDATORY]]
