@@ -93,12 +93,8 @@ contains
       type(ESMF_Geom) :: geom
       integer :: dim_count, idim, status
 
-<<<<<<< HEAD
       call vertical_level_sanity_check(num_levels, vert_staggerloc, _RC)
       if (present(gridToFieldMap)) then
-=======
-     if (present(gridToFieldMap)) then
->>>>>>> e1d9b8b90d6 (Some cleanup.)
          grid_to_field_map = gridToFieldMap
       else
          call ESMF_FieldGet(field, geom=geom, _RC)
