@@ -1,10 +1,11 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_RegridTransform
+   use mapl3g_TransformId
    use mapl3g_Field_API
    use mapl3g_FieldBundle_API
    use mapl3g_ExtensionTransform
-   use mapl3g_AspectId
+   use mapl3g_TransformId
    use mapl3g_regridder_mgr
    use mapl3g_StateItem
    use mapl_ErrorHandling
@@ -25,7 +26,7 @@ module mapl3g_RegridTransform
       procedure :: initialize
       procedure :: update
       procedure :: change_geoms
-      procedure :: get_aspect_id
+      procedure :: get_transformId
    end type ScalarRegridTransform
 
    interface RegridTransform
@@ -141,11 +142,11 @@ contains
       _UNUSED_DUMMY(clock)
    end subroutine update
 
-   function get_aspect_id(this) result(id)
-      type(AspectId) :: id
+   function get_transformId(this) result(id)
+      type(TransformId) :: id
       class(ScalarRegridTransform), intent(in) :: this
 
-      id = GEOM_ASPECT_ID
-   end function get_aspect_id
+      id = GEOM_TRANSFORM_ID
+   end function get_transformId
 
 end module mapl3g_RegridTransform

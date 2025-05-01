@@ -46,8 +46,8 @@ contains
       call ESMF_StateGet(state, itemName=itemName, field=field, _RC)
       call MAPL_FieldSet(field, &
            num_levels=num_levels, &
-           vert_staggerloc=vert_staggerloc, &
-           ungridded_dims=ungridded_dims, &
+!#           vert_staggerloc=vert_staggerloc, &
+!#           ungridded_dims=ungridded_dims, &
            units=units, &
            is_active=is_active, &
            _RC)

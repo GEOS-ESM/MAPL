@@ -23,6 +23,7 @@ module mapl3g_FieldClassAspect
    use mapl3g_ESMF_Utilities, only: get_substate
 
    use mapl3g_Field_API
+   use mapl3g_FieldInfo
    use mapl_FieldUtilities
 
    use mapl_ErrorHandling
@@ -139,8 +140,12 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(ESMF_Info) :: info
 
-      call MAPL_FieldSet(this%payload, is_active=.true., _RC)
+      call ESMF_InfoGetFromHost(this%payload, info, _RC)
+      call FieldInfoSetInternal(info, &
+           is_active=.true., &
+           _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine activate

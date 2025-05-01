@@ -3,6 +3,7 @@
 module mapl3g_FieldSet
    use mapl3g_VerticalStaggerLoc
    use mapl3g_FieldInfo
+   use mapl3g_FieldDelta
    use mapl_KeywordEnforcer
    use mapl_ErrorHandling
    use mapl3g_UngriddedDims
@@ -20,34 +21,28 @@ contains
 
 
    subroutine field_set(field, &
+        geom, &
+        unusable, &
         num_levels, &
-        vert_staggerloc, &
-        ungridded_dims, &
         units, &
-        is_active, &
         rc)
 
 
       type(ESMF_Field), intent(inout) :: field
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      type(ESMF_Geom), optional, intent(in) :: geom
       integer, optional, intent(in) :: num_levels
-      type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
-      type(UngriddedDims), optional, intent(in) :: ungridded_dims
       character(len=*), optional, intent(in) :: units
-      logical, optional, intent(in) :: is_active
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(ESMF_Info) :: field_info
+      type(FieldDelta) :: field_delta
 
-      call ESMF_InfoGetFromHost(field, field_info, _RC)
 
-      call FieldInfoSetInternal(field_info, &
-           num_levels=num_levels, &
-           vert_staggerloc=vert_staggerloc, &
-           ungridded_dims=ungridded_dims, &
-           units=units, &
-           is_active=is_active, &
-           _RC)
+      field_delta = FieldDelta(geom=geom, num_levels=num_levels, units=units)
+      call field_delta%update_field(field, _RC)
+
 
       _RETURN(_SUCCESS)
    end subroutine field_set

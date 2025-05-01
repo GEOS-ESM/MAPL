@@ -151,7 +151,6 @@ contains
       type(StateItemExtension), pointer :: new_extension
       type(StateItemSpec), pointer :: new_spec
       type(ActualConnectionPt) :: effective_pt
-      type(GriddedComponentDriver), pointer :: coupler
       type(ActualConnectionPt) :: a_pt
       type(MultiState) :: coupler_states
 

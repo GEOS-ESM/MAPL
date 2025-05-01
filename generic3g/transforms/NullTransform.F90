@@ -5,6 +5,7 @@
 ! error conditions.
 
 module mapl3g_NullTransform
+   use mapl3g_TransformId
    use mapl3g_ExtensionTransform
    use mapl_ErrorHandling
    implicit none
@@ -16,6 +17,7 @@ module mapl3g_NullTransform
    contains
       procedure :: initialize
       procedure :: update
+      procedure :: get_transformId
    end type NullTransform
 
    interface NullTransform
@@ -55,5 +57,12 @@ contains
       _UNUSED_DUMMY(exportState)
       _UNUSED_DUMMY(clock)
   end subroutine update
+
+   function get_transformId(this) result(id)
+      type(TransformId) :: id
+      class(NullTransform), intent(in) :: this
+
+      id = NULL_TRANSFORM_ID
+   end function get_transformId
 
 end module mapl3g_NullTransform

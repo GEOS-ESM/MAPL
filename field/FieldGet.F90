@@ -53,12 +53,12 @@ contains
          short_name = trim(fname)
       end if
 
-      if (present(typekind)) then
-         call ESMF_FieldGet(field, typekind=typekind, _RC)
-      end if
-
       if (present(geom)) then
          call ESMF_FieldGet(field, geom=geom, _RC)
+      end if
+
+      if (present(typekind)) then
+         call ESMF_FieldGet(field, typekind=typekind, _RC)
       end if
 
       call ESMF_InfoGetFromHost(field, field_info, _RC)

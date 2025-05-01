@@ -1,3 +1,4 @@
+#define _SUCCESS 0
 #define _VERIFY(status) \
    if(status /= 0) then; \
       call assert_that(status, is(0), location=SourceLocation(__FILE__,__LINE__)); \

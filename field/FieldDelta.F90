@@ -215,7 +215,7 @@ contains
       call this%reallocate_field(field, ignore=ignore_, _RC)
 
       call update_num_levels(this%num_levels, field, ignore=ignore_, _RC)
-      call update_units(this%units, field, ignore=ignore, _RC)
+      call update_units(this%units, field, ignore=ignore_, _RC)
 
       _RETURN(_SUCCESS)
    contains
@@ -312,7 +312,7 @@ contains
 
       _RETURN_UNLESS(new_array)
 
-      call MAPL_EmptyField(field, _RC)
+      call ESMF_FieldEmptyReset(field, status=ESMF_FIELDSTATUS_EMPTY, _RC)
       call ESMF_FieldEmptySet(field, geom, _RC)
 
       call ESMF_FieldEmptyComplete(field, &
