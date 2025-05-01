@@ -6,10 +6,12 @@ module Test_propagate_time_varying
    use mapl3g_CouplerPhases
    use mapl3g_ExtensionTransform
    use mapl3g_RegridTransform
+   use mapl3g_CopyTransform
    use mapl3g_TimeInterpolateTransform
    use mapl3g_MultiState
    use mapl3g_Geom_API
    use mapl3g_Field_API
+   use mapl3g_FieldInfo
    use mapl3g_GenericCoupler
    use mapl3g_FieldBundle_API
    use funit
@@ -219,5 +221,76 @@ contains
       end subroutine setup
       
    end subroutine test_propagate_geom
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_propagate_shared_attrs(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(GeomManager), pointer :: geom_mgr
+      integer :: status
+      type(ESMF_Field) :: f0, f1
+      type(ESMF_Field) :: f0_alias, f1_alias
+      type(ESMF_Grid) :: grid
+      class(ExtensionTransform), allocatable :: transform
+      type(ESMF_GridComp) :: coupler
+      type(GriddedComponentDriver) :: driver
+      type(ESMF_Geom) :: geom
+      integer :: i
+      real :: x
+
+      geom_mgr => get_geom_manager()
+      call setup(_RC)
+
+      call driver%initialize(_RC)
+
+      call FieldInfoGetShared(f1, 'ATTR_1', value=i, _RC)
+      @assert_that(i, is(1))
+      call FieldInfoGetShared(f1, 'ATTR_2', value=x, _RC)
+      @assert_that(x, is(2.))
+
+   contains
+
+      subroutine setup(rc)
+         integer, optional, intent(out) :: rc
+
+         type(ESMF_HConfig) :: hconfig
+         type(MaplGeom) :: mapl_geom
+         type(ESMF_Clock) :: clock
+
+         type(MultiState) :: states
+         integer :: status
+         real(kind=ESMF_KIND_R4), pointer :: x4(:,:)
+         real(kind=ESMF_KIND_R8), pointer :: x8(:,:)
+         
+         hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}", _RC)
+         mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+         geom = mapl_geom%get_geom()
+
+         transform = CopyTransform(ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8)
+         coupler = make_coupler(transform, _RC)
+         driver = GriddedComponentDriver(coupler)
+         
+         f0 = MAPL_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, _RC)
+         call ESMF_FieldGet(f0, fArrayPtr=x4, _RC)
+         x4 = 1.
+         f0_alias = ESMF_NamedAlias(f0, name='import[1]', _RC)
+
+         f1 = MAPL_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R8, _RC)
+         call ESMF_FieldGet(f1, fArrayPtr=x8, _RC)
+         x8 = 0
+         f1_alias = ESMF_NamedAlias(f1, name='export[1]', _RC)
+         
+
+         states = driver%get_states()
+         call ESMF_StateAdd(states%importState, fieldList=[f0_alias], _RC)
+         call ESMF_StateAdd(states%exportState, fieldList=[f1_alias], _RC)
+
+         call FieldInfoSetShared(f0, 'ATTR_1', value=1, _RC)
+         call FieldInfoSetShared(f0, 'ATTR_2', value=2., _RC)
+
+         if (present(rc)) rc = _SUCCESS
+      end subroutine setup
+      
+    end subroutine test_propagate_shared_attrs
 
 end module Test_propagate_time_varying

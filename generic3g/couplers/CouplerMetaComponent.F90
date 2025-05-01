@@ -107,7 +107,8 @@ contains
       type(ESMF_Geom) :: geom_in, geom_out
 
       call this%initialize_sources(_RC)
-!#     call copy_shared_attributes()
+      _HERE, 'copy shared attrs'
+      call copy_shared_attributes()
             
       geom_in = get_geom(importState, IMPORT_NAME, _RC)
       geom_out = get_geom(exportState, EXPORT_NAME, _RC)
@@ -131,13 +132,17 @@ contains
          integer :: status
          type(ESMF_Info) :: info_in, info_out
          type(ESMF_Info) :: shared_attrs
+         logical :: has_shared
 
          call get_info(importState, itemName=IMPORT_NAME, info=info_in, _RC)
-         call get_info(exportState, itemName=EXPORT_NAME, info=info_out, _RC)
+         has_shared = ESMF_InfoIsPresent(info_in, INFO_SHARED_NAMESPACE, _RC)
+         _RETURN_UNLESS(has_shared)
 
          ! Shared attributes - can only alter from import side
-
          shared_attrs = ESMF_InfoCreate(info_in, INFO_SHARED_NAMESPACE, _RC)
+         _HERE, 'copy shared attrs'
+
+         call get_info(exportState, itemName=EXPORT_NAME, info=info_out, _RC)
          call ESMF_InfoSet(info_out, INFO_SHARED_NAMESPACE, shared_attrs, _RC)
          call ESMF_InfoDestroy(shared_attrs)
       
