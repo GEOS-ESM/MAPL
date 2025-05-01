@@ -6,8 +6,7 @@ module MAPL_ExtDataTypeDef
    use MAPL_ExtDataPointerUpdate
    use MAPL_ExtDataAbstractFileHandler
    use MAPL_FileMetadataUtilsMod
-   use MAPL_NewArthParserMod
-   use MAPL_ExtDataMask
+   use MAPL_StateUtils
    use VerticalCoordinateMod
    use mapl_ErrorHandlingMod
    implicit none
@@ -86,7 +85,7 @@ module MAPL_ExtDataTypeDef
      character(len=ESMF_MAXSTR)     :: name
      character(len=ESMF_MAXPATHLEN) :: expression
      logical                        :: masking
-     type(ExtDataMask), allocatable :: mask_definition
+     type(StateMask), allocatable :: mask_definition
      type(ExtDataPointerUpdate)     :: update_freq
      contains
         procedure :: evaluate_derived_field
@@ -133,10 +132,10 @@ module MAPL_ExtDataTypeDef
          integer :: status
          type(ESMF_Field) :: field
 
+         call ESMF_StateGet(state,trim(this%name),field,_RC)
          if (this%masking) then
-            call this%mask_definition%evaluate_mask(state,trim(this%name),_RC)
+            call this%mask_definition%evaluate_mask(state,field,_RC)
          else
-            call ESMF_StateGet(state,trim(this%name),field,_RC)
             call MAPL_StateEval(state,trim(this%expression),field,_RC)
          end if
          _RETURN(_SUCCESS)

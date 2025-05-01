@@ -48,7 +48,7 @@
 !----------------------------------------------------------------------
 ! End of original license
 
-MODULE MAPL_NewArthParserMod
+MODULE MAPL_StateArithmeticParserMod
 
   use ESMF
   use MAPL_BaseMod
@@ -1119,4 +1119,4 @@ CONTAINS
     endwhere
   END FUNCTION Heav3D
 
-END MODULE MAPL_NewArthParserMod
+END MODULE MAPL_StateArithmeticParserMod

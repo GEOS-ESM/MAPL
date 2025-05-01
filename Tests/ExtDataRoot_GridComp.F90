@@ -13,6 +13,7 @@ MODULE ExtDataUtRoot_GridCompMod
       use VarspecDescriptionVectorMod
       use netcdf
       use gFTL2_StringStringMap
+      use MAPL_StateUtils
       !use m_set_eta, only: set_eta
       use, intrinsic :: iso_fortran_env, only: REAL64
 
