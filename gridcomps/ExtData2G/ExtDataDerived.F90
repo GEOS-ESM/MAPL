@@ -5,8 +5,7 @@ module MAPL_ExtDataDerived
    use MAPL_KeywordEnforcerMod
    use MAPL_ExceptionHandling
    use gFTL2_StringVector
-   use MAPL_NewArthParserMod
-   use MAPL_ExtDataMask
+   use MAPL_StateUtils
    implicit none
    private
 
@@ -61,11 +60,11 @@ contains
       integer, intent(out), optional :: rc
 
       integer :: status
-      type(ExtDataMask), allocatable :: temp_mask
+      type(StateMask), allocatable :: temp_mask
 
       if (index(this%expression,"mask")/=0) then
          allocate(temp_mask)
-         temp_mask = ExtDataMask(this%expression)
+         temp_mask = StateMask(this%expression)
          variables_in_expression = temp_mask%get_mask_variables(_RC)
       else
          variables_in_expression = parser_variables_in_expression(this%expression,_RC)
