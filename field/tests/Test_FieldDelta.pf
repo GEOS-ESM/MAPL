@@ -35,8 +35,8 @@ contains
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom = ESMF_GeomCreate(grid, _RC)
 
-      f = ESMF_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
-      call MAPL_FieldSet(f, num_levels=ORIG_VGRID_LEVELS+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      f = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
+      call MAPL_FieldSet(f, num_levels=ORIG_VGRID_LEVELS+1, _RC)
 
       delta = FieldDelta(typekind=ESMF_TYPEKIND_R8)
       call delta%reallocate_field(f, _RC)
@@ -67,8 +67,8 @@ contains
       
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom = ESMF_GeomCreate(grid, _RC)
-      f = ESMF_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
-      call MAPL_FieldSet(f, num_levels=ORIG_VGRID_LEVELS+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      f = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
+      call MAPL_FieldSet(f, num_levels=ORIG_VGRID_LEVELS+1, _RC)
 
       call ESMF_FieldGet(f, fArrayPtr=x, _RC)
       x = FILL_VALUE
@@ -106,8 +106,8 @@ contains
       
       grid1 = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom1 = ESMF_GeomCreate(grid1, _RC)
-      f = ESMF_FieldCreate(geom1, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
-      call MAPL_FieldSet(f, num_levels=ORIG_VGRID_LEVELS+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      f = MAPL_FieldCreate(geom1, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
+      call MAPL_FieldSet(f, num_levels=ORIG_VGRID_LEVELS+1, _RC)
 
       grid2 = ESMF_GridCreateNoPeriDim(maxIndex=[3,5], name='I_AM_GROOT', _RC)
       geom2 = ESMF_GeomCreate(grid2, _RC)
@@ -145,8 +145,8 @@ contains
 
       grid1 = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom1 = ESMF_GeomCreate(grid1, _RC)
-      f = ESMF_FieldCreate(geom1, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
-      call MAPL_FieldSet(f, num_levels=ORIG_VGRID_LEVELS+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      f = MAPL_FieldCreate(geom1, typekind=ESMF_TYPEKIND_R4, name='in', _RC)
+      call MAPL_FieldSet(f, num_levels=ORIG_VGRID_LEVELS+1, _RC)
       call ESMF_FieldGet(f, fArrayPtr=x, _RC)
       x = FILL_VALUE
 
@@ -188,9 +188,10 @@ contains
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)
       geom = ESMF_GeomCreate(grid, _RC)
 
-      f = ESMF_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', &
-           ungriddedLbound=[1,1], ungriddedUbound=[ORIG_VGRID_LEVELS+1,3], _RC)
-      call MAPL_FieldSet(f, num_levels=ORIG_VGRID_LEVELS+1, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      f = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', &
+           ungridded_dims=UngriddedDims([3]), &
+           num_levels=ORIG_VGRID_LEVELS, vert_staggerloc=VERTICAL_STAGGER_EDGE, _RC)
+      call MAPL_FieldSet(f, num_levels=ORIG_VGRID_LEVELS+1, _RC)
 
       delta = FieldDelta(num_levels=NEW_NUM_LEVELS+1) ! edge
       call delta%reallocate_field(f, _RC)
@@ -228,9 +229,9 @@ contains
       geom = ESMF_GeomCreate(grid, _RC)
 
       ! Surface field
-      f = ESMF_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', &
-           ungriddedLbound=[1,1], ungriddedUbound=[2,3], _RC)
-      call MAPL_FieldSet(f, num_levels=0, vert_staggerloc=VERTICAL_STAGGER_NONE, _RC)
+      f = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', &
+           ungridded_dims=UngriddedDims([2,3]), _RC)
+      call MAPL_FieldSet(f, num_levels=0, _RC)
       call ESMF_FieldGet(f, fArrayPtr=x, _RC)
       x = FILL_VALUE
 
@@ -272,7 +273,7 @@ contains
       geom = ESMF_GeomCreate(grid, _RC)
 
       call ungridded_dims%add_dim(UngriddedDim(3))
-      f = MAPL_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, &
+      f = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', &
           num_levels=ORIG_VGRID_LEVELS,  ungridded_dims=ungridded_dims, &
           vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
       call ESMF_FieldGet(f, fArrayPtr=x, _RC)
@@ -318,17 +319,14 @@ contains
       grid_ref = ESMF_GridCreateNoPeriDim(maxIndex=[7,7], name='I_AM_GROOT', _RC)
       geom_ref = ESMF_GeomCreate(grid_ref, _RC)
 
-      f = ESMF_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', &
-           ungriddedLbound=[1,1], ungriddedUbound=[ORIG_VGRID_LEVELS,3], _RC)
+      f = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, name='in', &
+           ungridded_dims=UngriddedDims([ORIG_VGRID_LEVELS,3]), _RC)
 
-      f_ref = ESMF_FieldCreate(geom_ref, typekind=ESMF_TYPEKIND_R8, name='in', &
-           ungriddedLbound=[1,1], ungriddedUbound=[ORIG_VGRID_LEVELS-1,3], _RC)
+      f_ref = MAPL_FieldCreate(geom_ref, typekind=ESMF_TYPEKIND_R8, name='in', &
+           ungridded_dims=UngriddedDims([ORIG_VGRID_LEVELS-1,3]), _RC)
 
-      call MAPL_FieldSet(f, num_levels=ORIG_VGRID_LEVELS, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
-           units=ORIGINAL_UNITS, _RC)
-      call MAPL_FieldSet(f_ref, num_levels=ORIG_VGRID_LEVELS, vert_staggerloc=VERTICAL_STAGGER_CENTER, &
-           units=REFERENCE_UNITS, _RC)
-
+      call MAPL_FieldSet(f, num_levels=ORIG_VGRID_LEVELS, units=ORIGINAL_UNITS, _RC)
+      call MAPL_FieldSet(f_ref, num_levels=ORIG_VGRID_LEVELS, units=REFERENCE_UNITS, _RC)
 
       call delta%initialize(f, f_ref, _RC)
       call delta%update_field(f, ignore='geom', _RC)

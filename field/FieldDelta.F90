@@ -367,12 +367,12 @@ contains
          integer, optional, intent(inout) :: rc
 
          integer :: status
-         type(VerticalStaggerLoc) :: vert_staggerloc
          integer :: ungriddedDimCount
          integer :: rank
          integer :: current_num_levels
          integer, allocatable :: localElementCount(:)
          integer, allocatable :: current_ungriddedUBound(:)
+         type(VerticalStaggerLoc) :: vert_staggerloc
 
          call ESMF_FieldGet(field, &
               ungriddedDimCount=ungriddedDimCount, &
