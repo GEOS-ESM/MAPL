@@ -116,7 +116,6 @@ contains
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, &
            vert_staggerloc=vert_staggerloc_, &
-           grid_to_field_map=grid_to_field_map, &
            units=units, &
            standard_name=standard_name, &
            long_name=long_name, &
