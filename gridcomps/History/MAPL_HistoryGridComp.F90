@@ -30,7 +30,7 @@
   use MAPL_LocStreamMod
   use MAPL_CFIOMod
   use MAPL_GenericCplCompMod
-  use MAPL_NewArthParserMod
+  use MAPL_StateUtils
   use MAPL_SortMod
   use MAPL_ShmemMod
   use MAPL_StringGridMapMod
