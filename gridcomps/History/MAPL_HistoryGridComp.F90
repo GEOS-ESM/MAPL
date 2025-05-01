@@ -5829,7 +5829,7 @@ ENDDO PARSER
              write(unitw, '(20a)') (('-'), j=1,20)
           enddo
           write(unitw,'(a,/)') '::'
-          call scan_write_between_line1_line2_flush_Left (unitr, unitw, 'INDEX_VAR_NAMES:', '::')
+          call scan_write_between_line1_line2_flush_Left (unitr, unitw, 'Trajectory_Schema::', '::')
        end if
        call free_file(unitw, _RC)
     end do
@@ -5911,7 +5911,7 @@ ENDDO PARSER
              call scan_write_begin_with_line1_flush_Left (unitr, unitw, line)
           end do
 
-          call scan_write_between_line1_line2_flush_Left (unitr, unitw, 'INDEX_VAR_NAMES:', '::')
+          call scan_write_between_line1_line2_flush_Left (unitr, unitw, 'Trajectory_Schema::', '::')
           call scan_write_begin_with_line1_flush_Left (unitr, unitw, 'schema_version')
           call free_file(unitw, _RC)
           deallocate(grid_names)
