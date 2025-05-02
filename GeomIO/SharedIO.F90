@@ -131,15 +131,15 @@ contains
 
       type(MAPLGeom), pointer :: mapl_geom
       type(StringVector) :: grid_variables
-      type(ESMF_Geom) :: esmf_geom
+      type(ESMF_Geom) :: esmfgeom
       type(ESMF_Info) :: field_info
       character(len=:), allocatable :: vert_dim_name, ungridded_names
       logical :: vert_only
       integer :: grid_to_field_map(2), status
 
       ! horizontal dimension
-      call ESMF_FieldGet(field, geom=esmf_geom, _RC)
-      mapl_geom => get_mapl_geom(esmf_geom, _RC)
+      call ESMF_FieldGet(field, geom=esmfgeom, _RC)
+      mapl_geom => get_mapl_geom(esmfgeom, _RC)
       grid_variables = mapl_geom%get_gridded_dims()
       call ESMF_FieldGet(field, gridToFieldMap=grid_to_field_map, _RC)
       vert_only = .false.
