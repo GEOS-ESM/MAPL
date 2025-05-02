@@ -6,7 +6,6 @@
 module mapl3g_FieldDelta
    use mapl3g_FieldInfo
    use mapl3g_FieldGet
-   use mapl3g_FieldSet
    use mapl3g_VerticalStaggerLoc
    use mapl3g_InfoUtilities
    use mapl_FieldPointerUtilities
@@ -216,7 +215,7 @@ contains
       call this%reallocate_field(field, ignore=ignore_, _RC)
 
       call update_num_levels(this%num_levels, field, ignore=ignore_, _RC)
-      call update_units(this%units, field, ignore=ignore, _RC)
+      call update_units(this%units, field, ignore=ignore_, _RC)
 
       _RETURN(_SUCCESS)
    contains
@@ -228,11 +227,13 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
+         type(ESMF_Info) :: info
 
          _RETURN_UNLESS(present(num_levels))
          _RETURN_IF(ignore == 'num_levels')
 
-         call FieldSet(field, num_levels=num_levels, _RC)
+         call ESMF_InfoGetFromHost(field, info, _RC)
+         call FieldInfoSetInternal(info, num_levels=num_levels, _RC)
 
          _RETURN(_SUCCESS)
       end subroutine update_num_levels
@@ -244,11 +245,13 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
+         type(ESMF_Info) :: info
 
          _RETURN_UNLESS(present(units))
          _RETURN_IF(ignore == 'units')
 
-         call FieldSet(field, units=units, _RC)
+         call ESMF_InfoGetFromHost(field, info, _RC)
+         call FieldInfoSetInternal(info, units=units, _RC)
 
          _RETURN(_SUCCESS)
       end subroutine update_units
@@ -309,7 +312,7 @@ contains
 
       _RETURN_UNLESS(new_array)
 
-      call MAPL_EmptyField(field, _RC)
+      call ESMF_FieldEmptyReset(field, status=ESMF_FIELDSTATUS_EMPTY, _RC)
       call ESMF_FieldEmptySet(field, geom, _RC)
 
       call ESMF_FieldEmptyComplete(field, &
@@ -364,12 +367,12 @@ contains
          integer, optional, intent(inout) :: rc
 
          integer :: status
-         type(VerticalStaggerLoc) :: vert_staggerloc
          integer :: ungriddedDimCount
          integer :: rank
          integer :: current_num_levels
          integer, allocatable :: localElementCount(:)
          integer, allocatable :: current_ungriddedUBound(:)
+         type(VerticalStaggerLoc) :: vert_staggerloc
 
          call ESMF_FieldGet(field, &
               ungriddedDimCount=ungriddedDimCount, &

@@ -31,6 +31,7 @@ contains
         geom, typekind, &
         unusable, & ! keyword enforcement
         ! Optional ESMF args
+        name, &
         gridToFieldMap, ungridded_dims, &
         ! Optional MAPL args
         num_levels, vert_staggerloc, &
@@ -40,6 +41,7 @@ contains
       type(ESMF_Geom), intent(in) :: geom
       type(ESMF_TypeKind_Flag), intent(in) :: typekind
       class(KeywordEnforcer), optional, intent(in) :: unusable
+        character(*), optional, intent(in) :: name
       integer, optional, intent(in) :: gridToFieldMap(:)
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       integer, optional, intent(in) :: num_levels
@@ -51,7 +53,7 @@ contains
 
       integer :: status
 
-      field = MAPL_FieldEmptyCreate(_RC)
+      field = MAPL_FieldEmptyCreate(name=name, _RC)
       call vertical_level_sanity_check(num_levels, vert_staggerloc, _RC)
 
       call ESMF_FieldEmptySet(field, geom=geom, _RC)
@@ -111,8 +113,8 @@ contains
       call ESMF_InfoGetFromHost(field, field_info, _RC)
       vert_staggerloc_ = VERTICAL_STAGGER_NONE
       if (present(vert_staggerloc)) vert_staggerloc_ = vert_staggerloc
-      call MAPL_FieldInfoSetInternal( &
-           field_info, &
+
+      call FieldInfoSetInternal(field_info, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, &
            vert_staggerloc=vert_staggerloc_, &

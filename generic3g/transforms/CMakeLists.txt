@@ -1,5 +1,6 @@
 target_sources(MAPL.generic3g PRIVATE
 
+  TransformId.F90
   ExtensionTransform.F90
   NullTransform.F90
   TransformVector.F90

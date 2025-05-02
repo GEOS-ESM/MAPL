@@ -21,6 +21,7 @@ contains
 
    subroutine field_get(field, unusable, &
         short_name, typekind, &
+        geom, &
         num_levels, vert_staggerloc, num_vgrid_levels, &
         ungridded_dims, &
         units, standard_name, long_name, &
@@ -29,6 +30,7 @@ contains
 
       type(ESMF_Field), intent(in) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      type(ESMF_Geom), optional, intent(out) :: geom
       character(len=:), optional, allocatable, intent(out) :: short_name
       type(ESMF_TypeKind_Flag), optional, intent(out) :: typekind
       integer, optional, intent(out) :: num_levels
@@ -51,12 +53,16 @@ contains
          short_name = trim(fname)
       end if
 
+      if (present(geom)) then
+         call ESMF_FieldGet(field, geom=geom, _RC)
+      end if
+
       if (present(typekind)) then
          call ESMF_FieldGet(field, typekind=typekind, _RC)
       end if
 
       call ESMF_InfoGetFromHost(field, field_info, _RC)
-      call MAPL_FieldInfoGetInternal(field_info, &
+      call FieldInfoGetInternal(field_info, &
            num_levels=num_levels, &
            vert_staggerloc=vert_staggerloc, &
            num_vgrid_levels=num_vgrid_levels, &

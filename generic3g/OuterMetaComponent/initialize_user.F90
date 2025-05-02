@@ -18,13 +18,13 @@ contains
 
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_USER'
-      type(ComponentDriverPtrVector) :: export_Couplers
+      type(ComponentDriverPtrVector) :: import_Couplers
       type(ComponentDriverPtr) :: drvr
       integer :: i
 
-      export_couplers = this%registry%get_export_couplers()
-      do i = 1, export_couplers%size()
-         drvr = export_couplers%of(i)
+      import_couplers = this%registry%get_import_couplers()
+      do i = 1, import_couplers%size()
+         drvr = import_couplers%of(i)
          call drvr%ptr%initialize(phase_idx=GENERIC_COUPLER_INITIALIZE, _RC)
       end do
 

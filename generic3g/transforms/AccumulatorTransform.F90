@@ -1,5 +1,6 @@
 #include "MAPL_Generic.h"
 module mapl3g_AccumulatorTransform
+   use mapl3g_TransformId
    use mapl3g_ExtensionTransform
    use MAPL_InternalConstantsMod, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
    use MAPL_FieldUtilities, only: FieldSet 
@@ -22,6 +23,7 @@ module mapl3g_AccumulatorTransform
       ! Implementations of deferred procedures
       procedure :: initialize
       procedure :: update
+      procedure :: get_transformId
       ! Override procedures
       procedure :: invalidate
       procedure :: runs_invalidate
@@ -235,4 +237,11 @@ contains
       runs_invalidate = .TRUE.
    end function runs_invalidate
       
+   function get_transformId(this) result(id)
+      type(TransformId) :: id
+      class(AccumulatorTransform), intent(in) :: this
+
+      id = FREQUENCY_TRANSFORM_ID
+   end function get_transformId
+
 end module mapl3g_AccumulatorTransform
