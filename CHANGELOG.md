@@ -57,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Workaround to pass ifx 2025.1 tests in debug mode
 - Profile reporting has been relocated into the `./profile` directory.
 - Improved diagnostic message for profiler imbalances at end of run.
   Now gives the name of the timer that has not been stopped when
@@ -93,11 +94,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added a new `StateFilterItem` funtion to apply a mask or extra using a combination of variables from a state and return an array with the result
+
 ### Changed
 
 - Update `components.yaml`
-  - `ESMA_cmake` v3.58.2
+  - `ESMA_env` v4.37.0
+    - Update to Baselibs 7.33.0
+      - ESMF 8.8.1 (needed for MAPL3)
+      - Fixes for CMake 4
+  - `ESMA_cmake` v3.59.0
     - Fix for XCode 16.3
+    - Fixes for f2py with MPT
+
+- Update documentation on ACG in repo
 
 ### Removed
 

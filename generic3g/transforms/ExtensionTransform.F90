@@ -1,5 +1,7 @@
 #include "MAPL_Generic.h"
 module mapl3g_ExtensionTransform
+   use mapl3g_TransformId
+   use mapl3g_AspectId
    use mapl_ErrorHandling
    use ESMF
    implicit none
@@ -13,6 +15,7 @@ module mapl3g_ExtensionTransform
       procedure(I_run), deferred :: update
       procedure :: runs_invalidate
       procedure :: invalidate
+      procedure(I_get_transformId), deferred :: get_transformId
    end type ExtensionTransform
 
 
@@ -26,6 +29,13 @@ module mapl3g_ExtensionTransform
          type(ESMF_Clock) :: clock
          integer, optional, intent(out) :: rc
       end subroutine I_run
+
+      function I_get_transformId(this) result(id)
+         import TransformId
+         import ExtensionTransform
+         class(ExtensionTransform), intent(in) :: this
+         type(TransformId) :: id
+      end function I_get_transformId
    end interface
 
 contains

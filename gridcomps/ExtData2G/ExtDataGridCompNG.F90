@@ -38,7 +38,6 @@
    use MAPL_GenericMod
    use MAPL_VarSpecMod
    use MAPL_CFIOMod
-   use MAPL_NewArthParserMod
    use MAPL_ConstantsMod, only: MAPL_RADIANS_TO_DEGREES, MAPL_GRAV
    use, intrinsic :: iso_fortran_env, only: REAL32
    use linearVerticalInterpolation_mod
@@ -71,6 +70,7 @@
    use VerticalCoordinateMod
    use VerticalRegridConserveInterfaceMod
    use MAPL_AbstractGridFactoryMod
+   use MAPL_StateUtils
 
    IMPLICIT NONE
    PRIVATE

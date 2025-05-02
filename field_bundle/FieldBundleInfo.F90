@@ -14,14 +14,14 @@ module mapl3g_FieldBundleInfo
    implicit none(type,external)
    private
 
-   public :: MAPL_FieldBundleInfoGetInternal
-   public :: MAPL_FieldBundleInfoSetInternal
+   public :: FieldBundleInfoGetInternal
+   public :: FieldBundleInfoSetInternal
 
-   interface MAPL_FieldBundleInfoGetInternal
+   interface FieldBundleInfoGetInternal
       procedure fieldbundle_get_internal
    end interface
 
-   interface MAPL_FieldBundleInfoSetInternal
+   interface FieldBundleInfoSetInternal
       procedure fieldbundle_set_internal
    end interface
 
@@ -81,7 +81,7 @@ contains
       end if
 
       ! Field-prototype items that come from field-info
-      call MAPL_FieldInfoGetInternal(info, namespace = namespace_//KEY_FIELD_PROTOTYPE, &
+      call FieldInfoGetInternal(info, namespace = namespace_//KEY_FIELD_PROTOTYPE, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, num_vgrid_levels=num_vgrid_levels, &
            units=units, long_name=long_name, standard_name=standard_name, is_active=is_active, _RC)
@@ -158,7 +158,7 @@ contains
          call ESMF_InfoSet(info, key=namespace_ // KEY_INTERPOLATION_WEIGHTS, values=interpolation_weights, _RC)
       end if
 
-       call MAPL_FieldInfoSetInternal(info, namespace=namespace_ // KEY_FIELD_PROTOTYPE, &
+       call FieldInfoSetInternal(info, namespace=namespace_ // KEY_FIELD_PROTOTYPE, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
            units=units, long_name=long_name, standard_name=standard_name, &

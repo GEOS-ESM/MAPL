@@ -23,6 +23,7 @@ module mapl3g_FieldClassAspect
    use mapl3g_ESMF_Utilities, only: get_substate
 
    use mapl3g_Field_API
+   use mapl3g_FieldInfo
    use mapl_FieldUtilities
 
    use mapl_ErrorHandling
@@ -139,8 +140,12 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(ESMF_Info) :: info
 
-      call MAPL_FieldSet(this%payload, is_active=.true., _RC)
+      call ESMF_InfoGetFromHost(this%payload, info, _RC)
+      call FieldInfoSetInternal(info, &
+           is_active=.true., &
+           _RC)
 
       _RETURN(ESMF_SUCCESS)
    end subroutine activate
@@ -160,11 +165,11 @@ contains
       integer :: dim_count
       integer, allocatable :: grid_to_field_map(:)
 
-      type(VerticalGridAspect) :: vert_aspect
-      class(VerticalGrid), allocatable :: vert_grid
+      type(VerticalGridAspect) :: vertical_aspect
+      class(VerticalGrid), allocatable :: vertical_grid
       type(VerticalStaggerLoc) :: vertical_stagger
-      integer, allocatable :: num_levels_grid
-      integer, allocatable :: num_levels
+      integer, allocatable :: num_vgrid_levels
+      integer, allocatable :: num_field_levels
 
       type(UngriddedDimsAspect) :: ungridded_dims_aspect
       type(UngriddedDims) :: ungridded_dims
@@ -192,14 +197,14 @@ contains
          grid_to_field_map = [(idim, idim=1,dim_count)]
       end if
 
-      vert_aspect = to_VerticalGridAspect(other_aspects, _RC)
-      vert_grid = vert_aspect%get_vertical_grid(_RC)
-      num_levels_grid = vert_grid%get_num_levels()
-      vertical_stagger = vert_aspect%get_vertical_stagger()
+      vertical_aspect = to_VerticalGridAspect(other_aspects, _RC)
+      vertical_grid = vertical_aspect%get_vertical_grid(_RC)
+      num_vgrid_levels = vertical_grid%get_num_levels()
+      vertical_stagger = vertical_aspect%get_vertical_stagger()
       if (vertical_stagger == VERTICAL_STAGGER_EDGE) then
-         num_levels = num_levels_grid + 1
+         num_field_levels = num_vgrid_levels + 1
       else if (vertical_stagger == VERTICAL_STAGGER_CENTER) then
-         num_levels = num_levels_grid
+         num_field_levels = num_vgrid_levels
       end if
 
       ungridded_dims_aspect = to_UngriddedDimsAspect(other_aspects, _RC)
@@ -215,7 +220,7 @@ contains
            typekind=typekind, &
            gridToFieldMap=grid_to_field_map, &
            ungridded_dims=ungridded_dims, &
-           num_levels=num_levels, &
+           num_levels=num_field_levels, &
            vert_staggerLoc=vertical_stagger, &
            units=units, &
            standard_name=this%standard_name, &

@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_TimeInterpolateTransform
+   use mapl3g_TransformId
    use mapl3g_ExtensionTransform
    use mapl3g_regridder_mgr
    use mapl3g_FieldBundle_API
@@ -19,6 +20,7 @@ module mapl3g_TimeInterpolateTransform
    contains
       procedure :: initialize
       procedure :: update
+      procedure :: get_transformId
    end type TimeInterpolateTransform
 
    interface TimeInterpolateTransform
@@ -113,5 +115,12 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine run_r4
+
+   function get_transformId(this) result(id)
+      type(TransformId) :: id
+      class(TimeInterpolateTransform), intent(in) :: this
+
+      id = TIME_INTERP_TRANSFORM_ID
+   end function get_transformId
 
 end module mapl3g_TimeInterpolateTransform
