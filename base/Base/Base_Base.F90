@@ -805,7 +805,7 @@ contains
   end function MAPL_RemapBoundsFull_3dr4
 
   subroutine MAPL_PinFlagSet(pinflag)
-    type(ESMF_PIN_FLAG) :: pinflag
+    type(ESMF_PIN_FLAG), intent(in) :: pinflag
     pinflag_global = pinflag
   end subroutine MAPL_PinFlagSet
 

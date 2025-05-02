@@ -172,8 +172,7 @@ contains
     ! call pinflag getter
     pinflag = MAPL_PinFlagGet()
     
-    if (pinflag == ESMF_PIN_DE_TO_SSI .or. &
-         pinflag == ESMF_PIN_DE_TO_SSI_CONTIG) then
+    if (any(pinflag == [ESMF_PIN_DE_TO_SSI,ESMF_PIN_DE_TO_SSI_CONTIG])) then
        _ASSERT(ssiSharedMemoryEnabled, 'SSI shared memory is NOT supported')
     end if
 

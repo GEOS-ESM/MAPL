@@ -49,6 +49,7 @@ module MAPL_ApplicationSupport
 
       if (present(pinflag)) then
          ! call pinflag setter
+         call MAPL_PinFlagSet(pinflag)
       end if
 
    end subroutine MAPL_Initialize
