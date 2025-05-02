@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- define `comp_name` in `MAPL_GridCreate` when GC is not present
 - Fixed bug in profiler demo
 
 ### Added
