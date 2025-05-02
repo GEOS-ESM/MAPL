@@ -7,7 +7,6 @@ module MAPL_ApplicationSupport
  use pflogger, only: Logger
  use udunits2f, initialize_udunits => initialize, finalize_udunits => finalize
  use MAPL_Profiler, initialize_profiler =>initialize, finalize_profiler =>finalize
- use ESMF
 
  implicit none
  private
