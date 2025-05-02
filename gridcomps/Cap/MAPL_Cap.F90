@@ -108,10 +108,8 @@ contains
       call cap%initialize_mpi(rc=status)
       _VERIFY(status)
 
-      pinflag = GetPinFlagFromConfig(cap%cap_options%cap_rc_file, _RC)
       call MAPL_Initialize(comm=cap%comm_world, &
                            logging_config=cap%cap_options%logging_config, &
-                           pinflag=pinflag, &
                            rc=status)
       _VERIFY(status)
 
@@ -128,7 +126,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_PIN_Flag) :: pinflag
-      
+
       cap%name = name
 
       if (present(cap_options)) then
@@ -147,10 +145,8 @@ contains
       call cap%initialize_mpi(rc=status)
       _VERIFY(status)
 
-      pinflag = GetPinFlagFromConfig(cap%cap_options%cap_rc_file, _RC)
       call MAPL_Initialize(comm=cap%comm_world, &
                            logging_config=cap%cap_options%logging_config, &
-                           pinflag=pinflag, &
                            rc=status)
       _VERIFY(status)
 
@@ -284,6 +280,7 @@ contains
       type (ESMF_VM) :: vm
       character(len=:), allocatable :: esmfComm, esmfConfigFile
       integer :: esmfConfigFileLen
+      type(ESMF_PIN_Flag) :: pinflag
 
       _UNUSED_DUMMY(unusable)
 
@@ -346,7 +343,8 @@ contains
 
       call lgr%info("Running with MOAB library for ESMF Mesh: %l1", this%cap_options%with_esmf_moab)
 
-      call this%initialize_cap_gc(rc=status)
+      pinflag = GetPinFlagFromConfig(this%cap_options%cap_rc_file, _RC)
+      call this%initialize_cap_gc(pinflag=pinflag, rc=status)
       _VERIFY(status)
 
       call this%cap_gc%set_services(rc = status)
@@ -399,15 +397,21 @@ contains
 
    end subroutine run_model
 
-   subroutine initialize_cap_gc(this, unusable, n_run_phases, rc)
+   subroutine initialize_cap_gc(this, unusable, n_run_phases, pinflag, rc)
      class(MAPL_Cap), target, intent(inout) :: this
      class (KeywordEnforcer), optional, intent(in) :: unusable
      integer, optional, intent(in) :: n_run_phases
+     type(ESMF_PIN_Flag), optional, intent(in) :: pinflag
      integer, optional, intent(out) :: rc
 
      integer :: status
 
      _UNUSED_DUMMY(unusable)
+
+     if (present(pinflag)) then
+        ! call pinflag setter
+        call MAPL_PinFlagSet(pinflag)
+     end if
 
      if (this%non_dso) then
         call MAPL_CapGridCompCreate(this%cap_gc, this%get_cap_rc_file(), &
@@ -586,15 +590,16 @@ contains
      character(len=*), intent(in) :: rcfile
      integer, optional, intent(out) :: rc
      type(ESMF_PIN_Flag) :: pinflag
-     
+
      character(len=ESMF_MAXSTR) :: pinflag_str
      integer :: status
      type(ESMF_Config) :: config
-     
+
+     config = ESMF_ConfigCreate(_RC)
      call ESMF_ConfigLoadFile(config,rcfile, _RC)
      call ESMF_ConfigGetAttribute(config, value=pinflag_str, &
-          label='PINFLAG:', default='SSI_CONTIG', _RC)
-     
+          label='ESMF_PINFLAG:', default='SSI_CONTIG', _RC)
+
      select case (pinflag_str)
      case ('PET')
         pinflag = ESMF_PIN_DE_TO_PET
