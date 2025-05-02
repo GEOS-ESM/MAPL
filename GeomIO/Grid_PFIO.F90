@@ -86,6 +86,7 @@ contains
       type (ESMF_StateItem_Flag), allocatable  :: item_type(:)
       character(len=ESMF_MAXSTR) :: var_name
       type(ESMF_Field) :: field
+      type(ESMF_FieldStatus_Flag) :: field_status
       type(ESMF_Grid) :: grid
       type(ESMF_TypeKind_Flag) :: esmf_typekind
       type(pFIOServerBounds) :: server_bounds
@@ -102,12 +103,11 @@ contains
       allocate(item_type(num_fields), stat=status); _VERIFY(status)
       call ESMF_StateGet(state, itemNameList=item_name, itemTypeList=item_type, _RC)
       do idx = 1, num_fields
-         if (item_type(idx) /= ESMF_STATEITEM_FIELD) then
-            error stop "cannot read non-ESMF_STATEITEM_FIELD type"
-         end if
+         _ASSERT(item_type(idx) == ESMF_STATEITEM_FIELD, "can read only ESMF fields")
          var_name = item_name(idx)
          call ESMF_StateGet(state, var_name, field, _RC)
-         call ESMF_FieldGet(field, grid=grid, typekind=esmf_typekind, _RC)
+         call ESMF_FieldGet(field, grid=grid, status=field_status, typekind=esmf_typekind, _RC)
+         _ASSERT(field_status == ESMF_FIELDSTATUS_COMPLETE, "ESMF field is not complete")
          element_count = FieldGetLocalElementCount(field, _RC)
          server_bounds = pFIOServerBounds(grid, element_count, _RC)
          global_start = server_bounds%get_global_start()
