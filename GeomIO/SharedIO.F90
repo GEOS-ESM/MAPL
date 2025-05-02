@@ -142,8 +142,7 @@ contains
       mapl_geom => get_mapl_geom(esmfgeom, _RC)
       grid_variables = mapl_geom%get_gridded_dims()
       call ESMF_FieldGet(field, gridToFieldMap=grid_to_field_map, _RC)
-      vert_only = .false.
-      if (all(grid_to_field_map==0)) vert_only = .true.
+      vert_only = all(grid_to_field_map==0)
       dim_names = EMPTY
       if (.not. vert_only) dim_names = string_vec_to_comma_sep(grid_variables) // ","
 
