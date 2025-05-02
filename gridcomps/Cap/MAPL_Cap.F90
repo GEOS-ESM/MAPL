@@ -86,6 +86,7 @@ contains
       type ( MAPL_CapOptions), optional, intent(in) :: cap_options
       integer, optional, intent(out) :: rc
       integer :: status
+      type(ESMF_PIN_Flag) :: pinflag
 
       cap%name = name
       cap%set_services => set_services
@@ -107,8 +108,10 @@ contains
       call cap%initialize_mpi(rc=status)
       _VERIFY(status)
 
+      pinflag = GetPinFlagFromConfig(cap%cap_options%cap_rc_file, _RC)
       call MAPL_Initialize(comm=cap%comm_world, &
                            logging_config=cap%cap_options%logging_config, &
+                           pinflag=pinflag, &
                            rc=status)
       _VERIFY(status)
 
@@ -124,7 +127,8 @@ contains
       type ( MAPL_CapOptions), optional, intent(in) :: cap_options
       integer, optional, intent(out) :: rc
       integer :: status
-
+      type(ESMF_PIN_Flag) :: pinflag
+      
       cap%name = name
 
       if (present(cap_options)) then
@@ -143,8 +147,10 @@ contains
       call cap%initialize_mpi(rc=status)
       _VERIFY(status)
 
+      pinflag = GetPinFlagFromConfig(cap%cap_options%cap_rc_file, _RC)
       call MAPL_Initialize(comm=cap%comm_world, &
                            logging_config=cap%cap_options%logging_config, &
+                           pinflag=pinflag, &
                            rc=status)
       _VERIFY(status)
 
@@ -575,6 +581,36 @@ contains
      character(len=:), allocatable :: egress_file
      allocate(egress_file, source=this%cap_options%egress_file)
    end function get_egress_file
+
+   function GetPinFlagFromConfig(rcfile, rc) result(pinflag)
+     character(len=*), intent(in) :: rcfile
+     integer, optional, intent(out) :: rc
+     type(ESMF_PIN_Flag) :: pinflag
+     
+     character(len=ESMF_MAXSTR) :: pinflag_str
+     integer :: status
+     type(ESMF_Config) :: config
+     
+     call ESMF_ConfigLoadFile(config,rcfile, _RC)
+     call ESMF_ConfigGetAttribute(config, value=pinflag_str, &
+          label='PINFLAG:', default='SSI_CONTIG', _RC)
+     
+     select case (pinflag_str)
+     case ('PET')
+        pinflag = ESMF_PIN_DE_TO_PET
+     case ('VAS')
+        pinflag = ESMF_PIN_DE_TO_VAS
+     case ('SSI')
+        pinflag = ESMF_PIN_DE_TO_SSI
+     case ('SSI_CONTIG')
+        pinflag = ESMF_PIN_DE_TO_SSI_CONTIG
+     case default
+        _ASSERT(.false.,'Unsupported PIN flag')
+     end select
+
+     call ESMF_ConfigDestroy(config, _RC)
+     _RETURN(_SUCCESS)
+   end function GetPinFlagFromConfig
 
 end module MAPL_CapMod
 

@@ -6,7 +6,8 @@ module MAPL_ApplicationSupport
  use pflogger, only: logging
  use pflogger, only: Logger
  use MAPL_Profiler, initialize_profiler =>initialize, finalize_profiler =>finalize
-
+ use ESMF
+ 
  implicit none
  private
 
@@ -15,10 +16,11 @@ module MAPL_ApplicationSupport
 
  contains
 
-   subroutine MAPL_Initialize(unusable,comm,logging_config,rc)
+   subroutine MAPL_Initialize(unusable,comm,logging_config,pinflag,rc)
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(in) :: comm
       character(len=*), optional,intent(in) :: logging_config
+      type(ESMF_PIN_Flag), optional, intent(in) :: pinflag
       integer, optional, intent(out) :: rc
 
       character(:), allocatable :: logging_configuration_file
@@ -44,6 +46,10 @@ module MAPL_ApplicationSupport
       call start_global_time_profiler(rc=status)
       _VERIFY(status)
       _RETURN(_SUCCESS)
+
+      if (present(pinflag)) then
+         ! call pinflag setter
+      end if
 
    end subroutine MAPL_Initialize
 

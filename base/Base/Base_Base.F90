@@ -19,7 +19,7 @@ module MAPL_Base
 
   ! !USES:
   !
-  use ESMF, only: ESMF_MAXSTR
+  use ESMF, only: ESMF_MAXSTR, ESMF_PIN_FLAG, ESMF_PIN_DE_TO_SSI_CONTIG
   use, intrinsic :: iso_fortran_env, only: REAL64
   implicit NONE
   private
@@ -74,6 +74,8 @@ module MAPL_Base
   public MAPL_TrimString
   public MAPL_FieldSplit
   public MAPL_GetCorrectedPhase
+  public MAPL_PinFlagSet
+  public MAPL_PinFlagGet
 
 
   real,    public, parameter :: MAPL_UNDEF              = 1.0e15
@@ -787,6 +789,8 @@ module MAPL_Base
      end function
   end interface
 
+  type(ESMF_Pin_Flag), protected :: pinflag_global = ESMF_PIN_DE_TO_SSI_CONTIG
+
 contains
 
   ! NAG and Intel need inconsistent workarounds for this function if moved
@@ -800,6 +804,17 @@ contains
     MAPL_RemapBoundsFull_3dr4 => A
   end function MAPL_RemapBoundsFull_3dr4
 
+  subroutine MAPL_PinFlagSet(pinflag)
+    type(ESMF_PIN_FLAG) :: pinflag
+    pinflag_global = pinflag
+  end subroutine MAPL_PinFlagSet
+
+  function MAPL_PinFlagGet() result(pinflag)
+    type(ESMF_PIN_FLAG) :: pinflag
+
+    pinflag = pinflag_global
+  end function MAPL_PinFlagGet
+  
 end module MAPL_Base
 
 module MAPL_BaseMod

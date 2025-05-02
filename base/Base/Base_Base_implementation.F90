@@ -137,7 +137,6 @@ contains
     type(ESMF_Pin_Flag) :: pinflag
     type(ESMF_VM)       :: vm
     logical             :: ssiSharedMemoryEnabled
-    character(len=:), allocatable :: pinflag_str
 ! SSI
 
     call ESMF_FieldGet(field, grid=GRID, _RC)
@@ -170,21 +169,14 @@ contains
 
     call ESMF_VMGet(vm, ssiSharedMemoryEnabledFlag=ssiSharedMemoryEnabled, _RC)
 
-    select case (pinflag_str)
-    case ('PET')
-       pinflag = ESMF_PIN_DE_TO_PET
-    case ('VAS')
-       pinflag = ESMF_PIN_DE_TO_VAS
-    case ('SSI')
+    ! call pinflag getter
+    pinflag = MAPL_PinFlagGet()
+    
+    if (pinflag == ESMF_PIN_DE_TO_SSI .or. &
+         pinflag == ESMF_PIN_DE_TO_SSI_CONTIG) then
        _ASSERT(ssiSharedMemoryEnabled, 'SSI shared memory is NOT supported')
-       pinflag = ESMF_PIN_DE_TO_SSI
-    case ('SSI_CONTIG')
-       _ASSERT(ssiSharedMemoryEnabled, 'SSI shared memory is NOT supported')
-       pinflag = ESMF_PIN_DE_TO_SSI_CONTIG
-    case default
-       _ASSERT(ssiSharedMemoryEnabled, 'SSI shared memory is NOT supported')
-       pinflag = ESMF_PIN_DE_TO_SSI_CONTIG
-    end select
+    end if
+
 ! SSI
 
     Dimensionality: select case(DIMS)
