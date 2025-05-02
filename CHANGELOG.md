@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added a new `StateFilterItem` funtion to apply a mask or extra using a combination of variables from a state and return an array with the result
+- Implemented a new feature in to allow users to select the appropriate [`ESMF_PIN`](https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node6.html#const:pin_flag) values. Users control this via `CAP.rc` and the choices are:
+  - `ESMF_PINFLAG: PET` --> `ESMF_PIN_DE_TO_PET`
+  - `ESMF_PINFLAG: VAS` --> `ESMF_PIN_DE_TO_VAS`
+  - `ESMF_PINFLAG: SSI` --> `ESMF_PIN_DE_TO_SSI`
+  - `ESMF_PINFLAG: SSI_CONTIG` --> `ESMF_PIN_DE_TO_SSI_CONTIG`
+
 
 ### Changed
 
@@ -98,15 +104,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated CI to use Baselibs 7.31.0
   - Updates to GFE v1.18.0
 - Use oserver for Mask sampler
+
 ## [2.53.3] - 2025-05-02
 
 ### Added
 
 - Implemented a new feature in to allow users to select the appropriate [`ESMF_PIN`](https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node6.html#const:pin_flag) values. Users control this via `CAP.rc` and the choices are:
-  - `ESMF_PIN: PET` --> `ESMF_PIN_DE_TO_PET`
-  - `ESMF_PIN: VAS` --> `ESMF_PIN_DE_TO_VAS`
-  - `ESMF_PIN: SSI` --> `ESMF_PIN_DE_TO_SSI`
-  - `ESMF_PIN: SSI_CONTIG` --> `ESMF_PIN_DE_TO_SSI_CONTIG`
+  - `ESMF_PINFLAG: PET` --> `ESMF_PIN_DE_TO_PET`
+  - `ESMF_PINFLAG: VAS` --> `ESMF_PIN_DE_TO_VAS`
+  - `ESMF_PINFLAG: SSI` --> `ESMF_PIN_DE_TO_SSI`
+  - `ESMF_PINFLAG: SSI_CONTIG` --> `ESMF_PIN_DE_TO_SSI_CONTIG`
 
 ## [2.53.2] - 2025-03-20
 

@@ -86,7 +86,6 @@ contains
       type ( MAPL_CapOptions), optional, intent(in) :: cap_options
       integer, optional, intent(out) :: rc
       integer :: status
-      type(ESMF_PIN_Flag) :: pinflag
 
       cap%name = name
       cap%set_services => set_services
@@ -125,7 +124,6 @@ contains
       type ( MAPL_CapOptions), optional, intent(in) :: cap_options
       integer, optional, intent(out) :: rc
       integer :: status
-      type(ESMF_PIN_Flag) :: pinflag
 
       cap%name = name
 
