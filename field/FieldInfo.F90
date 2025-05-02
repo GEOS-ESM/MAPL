@@ -45,7 +45,6 @@ module mapl3g_FieldInfo
    character(*), parameter :: KEY_STANDARD_NAME = "/standard_name"
    character(*), parameter :: KEY_NUM_LEVELS = "/num_levels"
    character(*), parameter :: KEY_VERT_STAGGERLOC = "/vert_staggerloc"
-   character(*), parameter :: KEY_VERT_ONLY = "/vert_only"
    character(*), parameter :: KEY_UNGRIDDED_DIMS = "/ungridded_dims"
    character(*), parameter :: KEY_IS_ACTIVE = "/is_active"
 
@@ -59,7 +58,6 @@ contains
         namespace, &
         num_levels, vert_staggerloc, &
         ungridded_dims, &
-        grid_to_field_map, &
         units, long_name, standard_name, &
         is_active, &
         rc)
@@ -70,7 +68,6 @@ contains
       integer, optional, intent(in) :: num_levels
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
-      integer, optional, intent(in) :: grid_to_field_map(:)
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: long_name
       character(*), optional, intent(in) :: standard_name
@@ -80,7 +77,6 @@ contains
       integer :: status
       type(ESMF_Info) :: ungridded_info
       character(:), allocatable :: namespace_
-      logical :: vert_only
 
       namespace_ = INFO_INTERNAL_NAMESPACE
       if (present(namespace)) then
@@ -90,12 +86,6 @@ contains
       if (present(ungridded_dims)) then
          ungridded_info = ungridded_dims%make_info(_RC)
          call MAPL_InfoSet(info, namespace_ // KEY_UNGRIDDED_DIMS, ungridded_info, _RC)
-      end if
-
-      if (present(grid_to_field_map)) then
-         vert_only = .false.
-         if (all(grid_to_field_map==0)) vert_only = .true.
-         call MAPL_InfoSet(info, namespace_ // KEY_VERT_ONLY, vert_only, _RC)
       end if
 
       if (present(units)) then
@@ -149,7 +139,6 @@ contains
         num_levels, vert_staggerloc, num_vgrid_levels, &
         units, long_name, standard_name, &
         ungridded_dims, &
-        vert_only, &
         is_active, &
         rc)
 
@@ -163,7 +152,6 @@ contains
       character(:), optional, allocatable, intent(out) :: long_name
       character(:), optional, allocatable, intent(out) :: standard_name
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
-      logical, optional, intent(out) :: vert_only
       logical, optional, intent(out) :: is_active
       integer, optional, intent(out) :: rc
 
@@ -221,10 +209,6 @@ contains
 
       if (present(standard_name)) then
          call MAPL_InfoGet(info, namespace_ // KEY_STANDARD_NAME, standard_name, _RC)
-      end if
-
-      if (present(vert_only)) then
-         call MAPL_InfoGet(info, namespace_ // KEY_VERT_ONLY, vert_only, _RC)
       end if
 
       if (present(is_active)) then

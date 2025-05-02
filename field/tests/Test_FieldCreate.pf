@@ -11,7 +11,7 @@ module Test_FieldCreate
    use ESMF_TestMethod_mod
    use esmf
 
-   implicit none(type, external)
+   implicit none(type,external)
 
 contains
 
@@ -51,10 +51,8 @@ contains
       type(ESMF_Field) :: field
       type(ESMF_Geom) :: geom
       type(ESMF_Grid) :: grid
-      type(ESMF_Info) :: field_info
       real(kind=ESMF_KIND_R4), pointer :: farray(:, :, :)
       integer, parameter :: num_vgrid_levels = 5
-      logical :: vert_only
       integer :: num_levels, status
 
       field = ESMF_FieldEmptyCreate(_RC)
@@ -73,9 +71,6 @@ contains
       @assertEqual(num_levels, num_vgrid_levels+1)
       call assign_fptr_condensed_array(field, farray, _RC)
       @assertEqual(shape(farray), [1, num_vgrid_levels+1, 1])
-      call ESMF_InfoGetFromHost(field, field_info, _RC)
-      call FieldInfoGetInternal(field_info, vert_only=vert_only, _RC)
-      @assertTrue(vert_only)
 
       call ESMF_FieldDestroy(field, _RC)
       call ESMF_GeomDestroy(geom, _RC)
@@ -91,10 +86,8 @@ contains
       type(ESMF_Field) :: field
       type(ESMF_Geom) :: geom
       type(ESMF_Grid) :: grid
-      type(ESMF_info) :: field_info
       real(kind=ESMF_KIND_R4), pointer :: farray(:, :, :)
       integer, parameter :: num_vgrid_levels = 5
-      logical :: vert_only
       integer :: num_levels, status
 
       field = ESMF_FieldEmptyCreate(_RC)
@@ -112,9 +105,6 @@ contains
       @assertEqual(num_levels, num_vgrid_levels)
       call assign_fptr_condensed_array(field, farray, _RC)
       @assertEqual(shape(farray), [6, num_vgrid_levels, 1])
-      call ESMF_InfoGetFromHost(field, field_info, _RC)
-      call FieldInfoGetInternal(field_info, vert_only=vert_only, _RC)
-      @assertFalse(vert_only)
 
       call ESMF_FieldDestroy(field, _RC)
       call ESMF_GeomDestroy(geom, _RC)
