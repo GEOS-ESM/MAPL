@@ -10108,6 +10108,7 @@ contains
       type (ESMF_Grid)                      :: GRID
       integer                               :: nn,ny
       character(len=ESMF_MAXSTR)            :: GridName
+      character(len=ESMF_MAXSTR)            :: Prefix
       character(len=2)                      :: dateline
 #ifdef CREATE_REGULAR_GRIDS
       logical                               :: isRegular
@@ -10117,21 +10118,20 @@ contains
       !---------
 
       Iam='MAPL_GridCreate'
+      Prefix = ''
       if(present(GC)) then
-         call ESMF_GridCompGet( GC, name=Comp_Name,   rc = status )
-         _VERIFY(status)
+         call ESMF_GridCompGet( GC, name=Comp_Name,   _RC)
          Iam = trim(Comp_Name)//Iam
+         Prefix = trim(comp_name)//MAPL_CF_COMPONENT_SEPARATOR
       endif
 
       ! New option to get grid from existing component
       !-----------------------------------------------
 
       if(present(srcGC)) then
-         call ESMF_GridCompGet ( srcGC, grid=Grid, RC=status )
-         _VERIFY(status)
+         call ESMF_GridCompGet ( srcGC, grid=Grid, _RC)
          if(present(GC)) then
-            call ESMF_GridCompSet(GC, GRID=GRID, RC=status)
-            _VERIFY(status)
+            call ESMF_GridCompSet(GC, GRID=GRID, _RC)
          end if
          if(present(ESMFGRID)) then
             ESMFGRID=GRID
@@ -10141,46 +10141,40 @@ contains
 
 
 
-      call ESMF_VMGetCurrent(vm, rc=status)
-      _VERIFY(status)
+      call ESMF_VMGetCurrent(vm, _RC)
 
       ! Get MAPL object
       !----------------
 
       if(present(GC)) then
          _ASSERT(.not. present(MAPLOBJ),'needs informative message')
-         call MAPL_InternalStateGet(GC, STATE, RC=status)
-         _VERIFY(status)
+         call MAPL_InternalStateGet(GC, STATE, _RC)
       elseif(present(MAPLOBJ)) then
          STATE => MAPLOBJ
       else
          _FAIL('needs informative message')
       endif
 
-      call MAPL_ConfigPrepend(state%cf,trim(comp_name),MAPL_CF_COMPONENT_SEPARATOR,'NX:',rc=status)
-      _VERIFY(status)
-      call MAPL_ConfigPrepend(state%cf,trim(comp_name),MAPL_CF_COMPONENT_SEPARATOR,'NY:',rc=status)
-      _VERIFY(status)
+      if (trim(Prefix) /= '') then
+         call MAPL_ConfigPrepend(state%cf,trim(comp_name),MAPL_CF_COMPONENT_SEPARATOR,'NX:', _RC)
+         call MAPL_ConfigPrepend(state%cf,trim(comp_name),MAPL_CF_COMPONENT_SEPARATOR,'NY:', _RC)
+      endif
 
-      call ESMF_ConfigGetAttribute(state%cf,gridname,label=trim(comp_name)//MAPL_CF_COMPONENT_SEPARATOR//'GRIDNAME:',rc=status)
-      _VERIFY(status)
+      call ESMF_ConfigGetAttribute(state%cf,gridname,label=trim(Prefix)//'GRIDNAME:', _RC)
       nn = len_trim(gridname)
       dateline = gridname(nn-1:nn)
       if (dateline == 'CF') then
-         call ESMF_ConfigGetAttribute(state%CF,ny,label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//'NY:',rc=status)
-         _VERIFY(status)
-         call MAPL_ConfigSetAttribute(state%CF, value=ny/6, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//'NY:',rc=status)
-         _VERIFY(status)
+         ! convert global NY to a local NY for each face
+         call ESMF_ConfigGetAttribute(state%CF,ny,label=trim(Prefix)//'NY:', _RC)
+         call MAPL_ConfigSetAttribute(state%CF, value=ny/6, label=trim(Prefix)//'NY:', _RC)
       end if
 
-      grid = grid_manager%make_grid(state%CF, prefix=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR, rc=status)
-      _VERIFY(status)
+      grid = grid_manager%make_grid(state%CF, prefix=trim(Prefix), _RC)
 
       call state%grid%set(grid, _RC)
 
       if(present(GC)) then
-         call ESMF_GridCompSet(GC, GRID=GRID, RC=status)
-         _VERIFY(status)
+         call ESMF_GridCompSet(GC, GRID=GRID, _RC)
       end if
 
       if(present(ESMFGRID)) then
@@ -10191,9 +10185,9 @@ contains
 
    contains
 
-      subroutine MAPL_ConfigPrepend(cf,prefix,separator,label,rc)
+      subroutine MAPL_ConfigPrepend(cf, comp_name,separator,label,rc)
          type(ESMF_Config), intent(inout) :: cf
-         character(len=*) , intent(in   ) :: prefix
+         character(len=*) , intent(in   ) :: comp_name
          character(len=*) , intent(in   ) :: separator
          character(len=*) , intent(in   ) :: label
          integer, optional , intent(out  ) :: rc
@@ -10202,12 +10196,10 @@ contains
          character(len=ESMF_MAXSTR) :: Iam = "MAPL_ConfigPrepend"
          integer  :: val
 
-         call ESMF_ConfigGetAttribute( cf, val, label=trim(prefix)//trim(separator)//trim(label), rc = status )
+         call ESMF_ConfigGetAttribute( cf, val, label=trim(comp_name)//trim(separator)//trim(label), rc = status )
          if (status /= ESMF_SUCCESS) then
-            call ESMF_ConfigGetAttribute(CF,val,label=trim(label),rc=status)
-            _VERIFY(status)
-            call MAPL_ConfigSetAttribute(CF, val, label=trim(prefix)//trim(separator)//trim(label),rc=status)
-            _VERIFY(status)
+            call ESMF_ConfigGetAttribute(CF,val,label=trim(label), _RC)
+            call MAPL_ConfigSetAttribute(CF, val, label=trim(comp_name)//trim(separator)//trim(label), _RC)
          end if
 
          _RETURN(ESMF_SUCCESS)
