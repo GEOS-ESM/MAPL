@@ -69,7 +69,7 @@ contains
    end subroutine setServices
 
 
-   subroutine initialize(gridcomp, importState, exportState, clock, rc)
+   recursive subroutine initialize(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp) :: gridcomp
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
