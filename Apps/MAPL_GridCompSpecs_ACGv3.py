@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 import argparse
 import sys
-from os.path import splitext, basename
+from os.path import basename, splitext
 from os import linesep as LINESEP
 import csv
 from collections.abc import Sequence
 from functools import partial, reduce
+from operator import concat
 
 ################################# CONSTANTS ####################################
 SUCCESS = 0
@@ -27,9 +28,11 @@ CONSTANTS = 'constants'
 CONTROL = 'control'
 CONTROLS = 'controls'
 DEALIASED = 'dealiased'
+DECLARE = 'declare'
 FLAGS = 'flags'
 FROM = 'from'
 GC_ARGNAME = 'gridcomp'
+GET = 'get'
 MAKE_BLOCK = 'make_block'
 INTENT_PREFIX = 'ESMF_STATEINTENT_'
 MANDATORY = 'mandatory'
@@ -70,7 +73,7 @@ VSTAGGER = 'vstagger'
 # command-line option constants
 GC_VARIABLE = 'gridcomp_variable'
 GC_VARIABLE_DEFAULT = 'gc'
-STANDARD_NAME_PREFIX = "standard_name_prefix" # Should add alias for cmd option wdb
+STANDARD_NAME_PREFIX = "standard_name_prefix"
 # procedure names
 ADDSPEC = "MAPL_GridCompAddFieldSpec"
 GETPOINTER = "MAPL_StateGetPointer"
@@ -82,7 +85,7 @@ FALSE_VALUE = '.false.'
 TRUE_VALUE = '.true.'
 TRUE_VALUES = {'t', 'true', 'yes', 'y'}
 # identity function (id is a builtin function, so this is capitalized.)
-ID = lambda x: x
+ID = lambda u: u
 
 ##################################### FLAGS ####################################
 def get_set(o):
@@ -169,7 +172,7 @@ def get_options(args):
         'vlocation': VSTAGGER
     }
 
-    options[CONTROLS] = {MAKE_BLOCK: {MAPPING: MAKE_BLOCK, FLAGS: {CONTROL, AS}, FROM: CONDITION}} 
+    options[CONTROLS] = {MAKE_BLOCK: {MAPPING: MAKE_BLOCK, FLAGS: CONTROL, FROM: CONDITION}} 
 
     options[ARGS] = args
 
@@ -185,13 +188,22 @@ def get_options(args):
     return options
 
 # Procedures for writing to files
-def emit_specs(specs, options):
-    return ((spec[STATE], emit_spec(spec, options)) for spec in specs)
+def state_filter(states=None):
+    match states:
+        case str() as state:
+            return lambda s: s[STATE] == state
+        case list() | tuple():
+            return lambda s: s[STATE] in states
+        case _:
+            return lambda s: True
+
+def emit_specs(specs, options, states=None):
+    f = state_filter(states)
+    return [(spec[STATE], emit_spec(spec, flatten_options(options))) for spec in specs if f(spec)]
 
 def emit_spec(spec, options):
-    flat_options = flatten_options(options)
-    f = spec[CONDITION] if spec[CONDITION] else ID
-    return f(emit_args(spec, flat_options))
+    f = spec[MAKE_BLOCK]
+    return f(emit_args(spec, options))
 
 def emit_args(values, options):
     lines = [f"{INDENT}& {c}={values[c]}{DELIMITER}&"
@@ -199,18 +211,26 @@ def emit_args(values, options):
     return [f"{CALL} {ADDSPEC}({GC_ARGNAME}={options[GC_VARIABLE]}, &",
             *lines, f"{INDENT}& {TERMINATOR}"]
 
-def emit_declare_pointers(values, options=None):
-    decl = 'real{}, pointer'.format('(kind={})'.format(values[PRECISION]) if PRECISION else EMPTY)
-    var = f'{values[INTERNAL_NAME]}({DIMDELIM.join(DIMSTR*values[RANK])})'
-    return [f'{decl} :: {var}']
+def emit_declare_pointers(specs, states=None):
+    f = state_filter(states)
+    return DECLARE, [emit_declare_pointer(spec) for spec in specs if f(spec)]
 
-def emit_get_pointers(values, options=None):
-    condition = values.get(CONDITION)
-    parts = [f'{CALL} {GETPOINTER}({values[STATE]}', values[INTERNAL_NAME], values[SHORT_NAME]]
-    if alloc := values.get(ALLOC):
-        parts.append(f'{ALLOC}={convert_to_fortran_logical(alloc)}')
-    line = DELIMITER.join([*parts, TERMINATOR])
-    return condition([line], make_else_block(internal_name)) if condition else [line]
+def emit_declare_pointer(spec):
+    precision = spec.get(PRECISION)
+    decl = 'real{}, pointer'.format('(kind={})'.format(precision) if precision else EMPTY)
+    var = f'{spec[INTERNAL_NAME]}({DIMDELIM.join(DIMSTR*spec[RANK])})'
+    return ' :: '.join([decl, var])
+
+def emit_get_pointers(specs, states=None):
+    f = state_filter(states)
+    return GET, reduce(concat, (emit_get_pointer(spec) for spec in specs if f(spec)))
+
+def emit_get_pointer(spec):
+    f = spec[MAKE_BLOCK]
+    parts = [f'{CALL} {GETPOINTER}({spec[STATE]}', spec[INTERNAL_NAME], spec[SHORT_NAME], TERMINATOR]
+    if alloc := spec.get(ALLOC):
+        parts.insert(-1, f'{ALLOC}={convert_to_fortran_logical(alloc)}')
+    return f(DELIMITER.join(parts), make_else_block(spec[INTERNAL_NAME]))
 
 ############################ PARSE COMMAND ARGUMENTS ###########################
 def get_args():
@@ -370,7 +390,7 @@ def flatten_specs(specs):
         case Sequence():
             flat_specs = list(specs)
         case dict():
-            flat_specs = reduce(lambda a, c: a + c, specs.values(), [])
+            flat_specs = reduce(concat, specs.values(), [])
     return flat_specs
     
 def flatten_options(o):
@@ -386,65 +406,25 @@ def open_file(component, filename, name, suffix=''):
 ################################# EMIT_VALUES ##################################
 def emit_values(specs, options):
 
+    add_newlines = lambda lines: (f"{line.rstrip()}{LINESEP}" for line in lines)
     args = options[ARGS]
-    exit_code_ = ERROR
+    states = set(args).intersection(options[CONSTANTS][STATES])
 
-    add_newline = lambda s: f"{s.rstrip()}{LINESEP}"
-    add_newlines = lambda lines: (add_newline(line) for line in lines)
-
-    component, declare_pointers, get_pointers = (args.get(k) for k in ('name', 'declare', 'get'))
+    component = args.get('name')
     if component is None:
-        component, _ = splitext(basename(args['input']))
-        component = component.replace('_Registry','').replace('_StateSpecs','')
+        component = splitext(basename(args['input']))[0].replace('_Registry','').replace('_StateSpecs','')
 
-# open all output files
-    f_specs = {}
-    states = options[CONSTANTS][STATES]
+    emitted_specs = emit_specs(specs, options, states)
     for state in states:
-        if state in args:
-            f_specs[state] = open_file(component, args[state], state)
-#            if state_specs := args[state]:
-#        if state_specs := args.get(state):
-#            fname = state_specs.format(component=component)
-            #f_specs[state] = open_with_header(fname)
-#            f_specs[state] = open_file(component, fname)
-        else:
-            f_specs[state] = None
+        with open_file(component, args[state], state) as f:
+            filtered = [spec for s, spec in emitted_specs if s == state]
+            f.writelines(add_newlines(reduce(concat, filtered, [])))
 
-    f_declare_pointers = None
-    if declare_pointers:
-        f_declare_pointers = open_with_header(declare_pointers.format(component=component))
-
-    f_get_pointers = None
-    if get_pointers:
-        f_get_pointers = open_with_header(get_pointers.format(component=component))
-    else:
-        f_get_pointers = None
-
-    emitted = [emit_spec(spec, options), emit_declare_pointers(spec), emit_get_pointers(spec)) for spec in specs]
-    filtered = ((s, add_newlines(e), add_newlines(d), add_newlines(g)) for ((s, e), d, g) in emitted if s in set(states).intersect(f_specs))
-    for state in set(states).intersect(f_specs):
-        state_emitted = filter(lambda e: e[STATE] == state, emitted)
-
-# Generate code from specs (processed above)
-    for state in states:
-        for values in filter(lambda s: s[STATE] == state, specs):
-            if f_specs[state]:
-                _, lines = emit_spec(values, options)
-                f_specs[state].writelines([add_newline(line) for line in lines])
-            if f_declare_pointers:
-                f_declare_pointers.write(add_newline(emit_declare_pointers(values)))
-            if f_get_pointers:
-                f_get_pointers.writelines(add_newline(line) for line in emit_get_pointers(values))
-        
-# Close output files
-    for f in list(f_specs.values()):
-        if f:
-            f.close()
-    if f_declare_pointers:
-        f_declare_pointers.close()
-    if f_get_pointers:
-        f_get_pointers.close()
+    emitters = {DECLARE: emit_declare_pointers, GET: emit_get_pointers}
+    for key in set(emitters) & set(args):
+        _, emitted = emitters[key](specs, states)
+        with open_file(component, args[key], key, 'pointer') as f:
+            f.writelines(add_newlines(emitted))
 
     return SUCCESS
 
@@ -500,10 +480,25 @@ def mangle_standard_name(name, prefix):
         return f"trim({prefix_})//{name_}"
     return add_quotes(name)
 
-def make_if_block(condition, text, else_block=[]):
-    lines = [f"{INDENT}{l}" for l in text] + else_block
-    return [f"if ({condition}) then", *lines, f"end if"]
+def mkiterable(o, exclude_string = True):
+    return o if isiterable(o) else [o]
+
+def isiterable(o, exclude_string = True):
+    if o is None or exclude_string and isinstance(o, str):
+        return False
+    try:
+        iter(o)
+    except TypeError:
+        return False
+    else:
+        return True
     
+def make_block(condition, text, else_block=[]):
+    t = mkiterable(text)
+    if condition is None:
+        return t
+    lines = [f"{INDENT}{l}" for l in t] + else_block
+    return [f"if ({condition}) then", *lines, f"end if"]
     
 def make_else_block(name=None):
     lines = []
@@ -519,7 +514,7 @@ NAMED_MAPPINGS = {
         MANGLED: lambda name: add_quotes(name.replace("*","'//trim(comp_name)//'")) if name else None,
         STANDARD_NAME: mangle_standard_name,
         RANK: compute_rank, 
-        MAKE_BLOCK: lambda value: partial(make_if_block, value) if value else ID
+        MAKE_BLOCK: lambda value: partial(make_block, value)
         }
 
 def fetch_mapping_function(m, func_dict=NAMED_MAPPINGS):
@@ -532,7 +527,7 @@ def valid_index(seq, n):
 
 def make_mapping(m, func_sequence=None, func_dict=None):
     if m is None or m is UNIT:
-        return lambda t: t
+        return ID
     elif callable(m):
         return m
 
