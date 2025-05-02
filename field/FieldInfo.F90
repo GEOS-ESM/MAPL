@@ -12,31 +12,33 @@ module mapl3g_FieldInfo
    implicit none(type,external)
    private
 
-   public :: MAPL_FieldInfoGetShared
-   public :: MAPL_FieldInfoSetShared
-   public :: MAPL_FieldInfoSetInternal
-   public :: MAPL_FieldInfoGetInternal
-   public :: MAPL_FieldInfoCopyShared
+   public :: FieldInfoGetShared
+   public :: FieldInfoSetShared
+   public :: FieldInfoSetInternal
+   public :: FieldInfoGetInternal
+   public :: FieldInfoCopyShared
 
-   interface MAPL_FieldInfoSetShared
+   interface FieldInfoSetShared
       procedure info_field_set_shared_i4
-   end interface MAPL_FieldInfoSetShared
+      procedure info_field_set_shared_r4
+   end interface FieldInfoSetShared
 
-   interface MAPL_FieldInfoGetShared
+   interface FieldInfoGetShared
       procedure info_field_get_shared_i4
-   end interface MAPL_FieldInfoGetShared
+      procedure info_field_get_shared_r4
+   end interface FieldInfoGetShared
 
-   interface MAPL_FieldInfoSetInternal
+   interface FieldInfoSetInternal
       module procedure field_info_set_internal
-   end interface MAPL_FieldInfoSetInternal
+   end interface FieldInfoSetInternal
 
-   interface MAPL_FieldInfoGetInternal
+   interface FieldInfoGetInternal
       module procedure field_info_get_internal
    end interface
 
-    interface MAPL_FieldInfoCopyShared
+    interface FieldInfoCopyShared
       procedure :: field_info_copy_shared
-   end interface MAPL_FieldInfoCopyShared
+   end interface FieldInfoCopyShared
 
    character(*), parameter :: KEY_UNITS = "/units"
    character(*), parameter :: KEY_LONG_NAME = "/long_name"
@@ -235,6 +237,22 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine info_field_get_shared_i4
 
+   subroutine info_field_get_shared_r4(field, key, value, unusable, rc)
+      type(ESMF_Field), intent(in) :: field
+      character(*), intent(in) :: key
+      real(kind=ESMF_KIND_R4), intent(out) :: value
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: field_info
+
+      call ESMF_InfoGetFromHost(field, field_info, _RC)
+      call MAPL_InfoGet(field_info, key=concat(INFO_SHARED_NAMESPACE,key), value=value, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine info_field_get_shared_r4
 
    subroutine info_field_set_shared_i4(field, key, value, rc)
       type(ESMF_Field), intent(in) :: field
@@ -250,6 +268,21 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine info_field_set_shared_i4
+
+   subroutine info_field_set_shared_r4(field, key, value, rc)
+      type(ESMF_Field), intent(in) :: field
+      character(*), intent(in) :: key
+      real(kind=ESMF_KIND_R4), intent(in) :: value
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: field_info
+
+      call ESMF_InfoGetFromHost(field, field_info, _RC)
+      call MAPL_InfoSet(field_info, key=concat(INFO_SHARED_NAMESPACE,key), value=value, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine info_field_set_shared_r4
 
    subroutine field_info_copy_shared(field_in, field_out, rc)
       type(ESMF_Field), intent(in) :: field_in

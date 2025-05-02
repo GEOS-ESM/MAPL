@@ -3,6 +3,7 @@
 ! A copy might be between different kinds and precisions, so is really
 ! a converter.  But ... what is a better name.
 module mapl3g_CopyTransform
+   use mapl3g_TransformId
    use mapl3g_ExtensionTransform
    use mapl_ErrorHandling
    use esmf
@@ -17,6 +18,7 @@ module mapl3g_CopyTransform
    contains
       procedure :: initialize
       procedure :: update
+      procedure :: get_transformId
    end type CopyTransform
 
    interface CopyTransform
@@ -74,5 +76,11 @@ contains
       _RETURN(_SUCCESS)
    end subroutine update
 
+   function get_transformId(this) result(id)
+      type(TransformId) :: id
+      class(CopyTransform), intent(in) :: this
+
+      id = TYPEKIND_TRANSFORM_ID
+   end function get_transformId
 
 end module mapl3g_CopyTransform

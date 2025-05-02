@@ -77,7 +77,7 @@ contains
 
       ! Get these from FieldBundleInfo
       call ESMF_InfoGetFromHost(fieldBundle, bundle_info, _RC)
-      call MAPL_FieldBundleInfoGetInternal(bundle_info, &
+      call FieldBundleInfoGetInternal(bundle_info, &
            fieldBundleType=fieldBundleType, &
            typekind=typekind, interpolation_weights=interpolation_weights, &
            ungridded_dims=ungridded_dims, &

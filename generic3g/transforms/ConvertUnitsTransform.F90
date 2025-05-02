@@ -1,6 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_ConvertUnitsTransform
+   use mapl3g_TransformId
    use mapl3g_ExtensionTransform
    use udunits2f, only: UDUNITS_Converter => Converter
    use udunits2f, only: UDUNITS_GetConverter => get_converter
@@ -21,6 +22,7 @@ module mapl3g_ConvertUnitsTransform
    contains
       procedure :: initialize
       procedure :: update
+      procedure :: get_transformId
    end type ConvertUnitsTransform
 
 
@@ -98,4 +100,11 @@ contains
       _UNUSED_DUMMY(clock)
    end subroutine update
    
+   function get_transformId(this) result(id)
+      type(TransformId) :: id
+      class(ConvertUnitsTransform), intent(in) :: this
+
+      id = UNITS_TRANSFORM_ID
+   end function get_transformId
+
 end module mapl3g_ConvertUnitsTransform

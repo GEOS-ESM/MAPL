@@ -40,6 +40,8 @@ set (test_srcs
   Test_ExtensionTransform.pf
 
   Test_timestep_propagation.pf
+
+  Test_propagate_time_varying.pf
 )
 
 add_pfunit_ctest(

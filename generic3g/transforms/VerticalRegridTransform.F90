@@ -1,7 +1,7 @@
 #include "MAPL_Generic.h"
 
 module mapl3g_VerticalRegridTransform
-
+   use mapl3g_TransformId
    use mapl_ErrorHandling
    use mapl3g_FieldBundle_API
    use mapl3g_StateItem
@@ -32,6 +32,7 @@ module mapl3g_VerticalRegridTransform
    contains
       procedure :: initialize
       procedure :: update
+      procedure :: get_transformId
       procedure :: write_formatted
       generic :: write(formatted) => write_formatted
    end type VerticalRegridTransform
@@ -214,5 +215,12 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine regrid_field_
+
+   function get_transformId(this) result(id)
+      type(TransformId) :: id
+      class(VerticalRegridTransform), intent(in) :: this
+
+      id = VERTICAL_GRID_TRANSFORM_ID
+   end function get_transformId
 
 end module mapl3g_VerticalRegridTransform

@@ -17,13 +17,13 @@ contains
       f_in = ESMF_FieldEmptyCreate(name='f_in', _RC)
       f_out= ESMF_FieldEmptyCreate(name='f_out', _RC)
 
-      call MAPL_FieldInfoSetShared(f_in, key='a', value=1, _RC)
-      call MAPL_FieldInfoSetShared(f_in, key='b', value=2, _RC)
+      call FieldInfoSetShared(f_in, key='a', value=1, _RC)
+      call FieldInfoSetShared(f_in, key='b', value=2, _RC)
 
-      call MAPL_FieldInfoCopyShared(f_in, f_out, _RC)
+      call FieldInfoCopyShared(f_in, f_out, _RC)
 
-      call MAPL_FieldInfoGetShared(f_out, key='a', value=ia, _RC)
-      call MAPL_FieldInfoGetShared(f_out, key='b', value=ib, _RC)
+      call FieldInfoGetShared(f_out, key='a', value=ia, _RC)
+      call FieldInfoGetShared(f_out, key='b', value=ib, _RC)
 
       @assert_that(ia, is(1))
       @assert_that(ib, is(2))
