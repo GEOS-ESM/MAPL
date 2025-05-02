@@ -3,7 +3,8 @@
 
 module Test_FieldCreate
 
-   use mapl3g_Field_API, only: MAPL_FieldCreate, MAPL_FieldEmptyComplete, MAPL_FieldGet, MAPL_FieldInfoGetInternal
+   use mapl3g_Field_API, only: MAPL_FieldCreate, MAPL_FieldEmptyComplete, MAPL_FieldGet
+   use mapl3g_FieldInfo
    use mapl3g_VerticalStaggerLoc, only: VERTICAL_STAGGER_EDGE, VERTICAL_STAGGER_CENTER
    use mapl3g_FieldCondensedArray, only: assign_fptr_condensed_array
    use funit
@@ -73,7 +74,7 @@ contains
       call assign_fptr_condensed_array(field, farray, _RC)
       @assertEqual(shape(farray), [1, num_vgrid_levels+1, 1])
       call ESMF_InfoGetFromHost(field, field_info, _RC)
-      call MAPL_FieldInfoGetInternal(field_info, vert_only=vert_only, _RC)
+      call FieldInfoGetInternal(field_info, vert_only=vert_only, _RC)
       @assertTrue(vert_only)
 
       call ESMF_FieldDestroy(field, _RC)
@@ -112,7 +113,7 @@ contains
       call assign_fptr_condensed_array(field, farray, _RC)
       @assertEqual(shape(farray), [6, num_vgrid_levels, 1])
       call ESMF_InfoGetFromHost(field, field_info, _RC)
-      call MAPL_FieldInfoGetInternal(field_info, vert_only=vert_only, _RC)
+      call FieldInfoGetInternal(field_info, vert_only=vert_only, _RC)
       @assertFalse(vert_only)
 
       call ESMF_FieldDestroy(field, _RC)
