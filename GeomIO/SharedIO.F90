@@ -1,17 +1,19 @@
 #include "MAPL_Generic.h"
+
 module mapl3g_SharedIO
+
    use mapl_ErrorHandlingMod
    use mapl3g_FieldBundle_API
    use mapl3g_Field_API
    use mapl3g_VerticalStaggerLoc
-   use pfio
+   use pfio, only: FileMetaData, Variable
+   use pfio, only: PFIO_UNLIMITED, PFIO_REAL32, PFIO_REAL64
    use gFTL2_StringVector
    use gFTL2_StringSet
    use mapl3g_Geom_API
    use MAPL_BaseMod
    use mapl3g_UngriddedDims
    use mapl3g_UngriddedDim
-!#   use mapl3g_FieldDimensionInfo
    use esmf
 
    implicit none(type,external)
@@ -29,6 +31,7 @@ module mapl3g_SharedIO
    public :: ungridded_dim_names
 
    character(len=*), parameter :: EMPTY = ''
+
 contains
 
    function bundle_to_metadata(bundle, geom, rc) result(metadata)
@@ -53,7 +56,8 @@ contains
 
       ! Add time metadata
       call ESMF_TimeSet(fake_time, timeString="1900-04-03T21:00:00", _RC)
-      call metadata%add_dimension('time', pFIO_UNLIMITED)
+      call metadata%add_dimension('time', PFIO_UNLIMITED)
+
       time_var = create_time_variable(fake_time, _RC)
       call metadata%add_variable('time', time_var, _RC)
 
@@ -124,33 +128,40 @@ contains
       type(ESMF_Field), intent(in) :: field
       type(ESMF_Geom), intent(in) :: geom
       integer, optional, intent(out) :: rc
-      
+
       type(MAPLGeom), pointer :: mapl_geom
       type(StringVector) :: grid_variables
-      type(ESMF_Geom) :: esmfgeom
+      type(ESMF_Geom) :: esmf_geom
+      type(ESMF_Info) :: field_info
       character(len=:), allocatable :: vert_dim_name, ungridded_names
-      integer :: status
-      
-      call ESMF_FieldGet(field, geom=esmfgeom, _RC)
-      mapl_geom => get_mapl_geom(esmfgeom, _RC)
+      logical :: vert_only
+      integer :: grid_to_field_map(2), status
+
+      ! horizontal dimension
+      call ESMF_FieldGet(field, geom=esmf_geom, _RC)
+      mapl_geom => get_mapl_geom(esmf_geom, _RC)
       grid_variables = mapl_geom%get_gridded_dims()
-      dim_names = string_vec_to_comma_sep(grid_variables)
+      call ESMF_FieldGet(field, gridToFieldMap=grid_to_field_map, _RC)
+      vert_only = .false.
+      if (all(grid_to_field_map==0)) vert_only = .true.
+      dim_names = EMPTY
+      if (.not. vert_only) dim_names = string_vec_to_comma_sep(grid_variables) // ","
+
       ! add vertical dimension
       vert_dim_name = get_vertical_dimension_name_from_field(field, _RC)
-      if(vert_dim_name /= EMPTY) dim_names = dim_names // "," // vert_dim_name
+      if(vert_dim_name /= EMPTY) dim_names = dim_names // vert_dim_name // ","
       ! add any ungridded dimensions
       ungridded_names = ungridded_dim_names(field, _RC)
-      if(ungridded_names /= EMPTY) dim_names = dim_names // ungridded_names
+      if(ungridded_names /= EMPTY) dim_names = dim_names // ungridded_names // ","
       ! add time dimension
-      dim_names = dim_names // ",time"
+      dim_names = dim_names // "time"
 
       _RETURN(_SUCCESS)
    end function get_variable_dim_names
 
-
    function get_mapl_geom(geom, rc) result(mapl_geom)
       type(MAPLGeom), pointer :: mapl_geom
-      type(ESMF_Geom), intent(in) :: geom 
+      type(ESMF_Geom), intent(in) :: geom
       integer, optional, intent(out) :: rc
 
       integer :: status, id
@@ -169,15 +180,15 @@ contains
       integer, intent(out), optional :: rc
 
       if (esmf_type == ESMF_TYPEKIND_R4) then
-         pfio_type = pFIO_REAL32
+         pfio_type = PFIO_REAL32
       else if (esmf_type == ESMF_TYPEKIND_R8) then
-         pfio_type = pFIO_REAL64
+         pfio_type = PFIO_REAL64
       else
          _FAIL("Unsupported ESMF field typekind for output")
       end if
 
       _RETURN(_SUCCESS)
-   end function
+   end function esmf_to_pfio_type
 
    function string_vec_to_comma_sep(string_vec) result(comma_sep)
       character(len=:), allocatable :: comma_sep
@@ -194,8 +205,7 @@ contains
          comma_sep = comma_sep // "," // var
          call iter%next()
       enddo
-
-   end function  
+   end function string_vec_to_comma_sep
 
    function create_time_variable(current_time, rc) result(time_var)
       type(Variable) :: time_var
@@ -219,38 +229,22 @@ contains
       type(FileMetaData), intent(inout) :: metadata
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      integer :: num_levels
-      type(StringVectorIterator) :: iter
       character(len=:), allocatable :: dim_name
-      type(VerticalStaggerLoc) :: vert_staggerloc
-      integer :: i, num_vgrid_levels, field_vgrid_levels
+      type(VerticalStaggerLoc) :: vertical_stagger
       type(ESMF_Field), allocatable :: fieldList(:)
-
+      integer :: i, num_field_levels, status
 
       call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
-      num_vgrid_levels = 0
-      
       do i = 1, size(fieldList)
-         call MAPL_FieldGet(fieldList(i), vert_staggerloc=vert_staggerloc, _RC)
-         if (vert_staggerloc == VERTICAL_STAGGER_NONE) cycle
-
-         ! Ensure consistent vertical grid
-         call MAPL_FieldGet(fieldList(i), num_vgrid_levels=field_vgrid_levels, _RC)
-         if (num_vgrid_levels > 0) then
-            _ASSERT(field_vgrid_levels == num_vgrid_levels, "Inconsistent vertical grid in bundle.")
-         else
-            num_vgrid_levels = field_vgrid_levels
-         end if
-
-         dim_name = vert_staggerloc%get_dimension_name()
-         call metadata%add_dimension(dim_name, num_levels)
-
+         call MAPL_FieldGet(fieldList(i), vert_staggerloc=vertical_stagger, _RC)
+         if (vertical_stagger == VERTICAL_STAGGER_NONE) cycle
+         call MAPL_FieldGet(fieldList(i), num_levels=num_field_levels, _RC)
+         dim_name = vertical_stagger%get_dimension_name()
+         call metadata%add_dimension(dim_name, num_field_levels)
       end do
 
       _RETURN(_SUCCESS)
    end subroutine add_vertical_dimensions
-
 
    function get_vertical_dimension_name_from_field(field, rc) result(dim_name)
       character(len=:), allocatable :: dim_name
@@ -263,7 +257,6 @@ contains
       call MAPL_FieldGet(field, vert_staggerLoc=vert_staggerLoc, _RC)
       dim_name = vert_staggerLoc%get_dimension_name()
       _RETURN(_SUCCESS)
-
    end function get_vertical_dimension_name_from_field
 
    subroutine add_ungridded_dimensions(bundle, metadata, rc)
@@ -283,7 +276,7 @@ contains
       call MAPL_FieldBundleGet(bundle, fieldList=fieldList, _RC)
       do ifield = 1, size(fieldList)
          call MAPL_FieldGet(fieldList(ifield), ungridded_dims=field_ungridded_dims, _RC)
-         
+
          do jdim = 1, field_ungridded_dims%get_num_ungridded()
             u = field_ungridded_dims%get_ith_dim_spec(jdim)
             dim_name = u%get_name()
@@ -310,7 +303,6 @@ contains
       _RETURN(_SUCCESS)
    end function ungridded_dim_names
 
-   
    function cat_ungridded_dim_names(dims) result(dim_names)
       character(len=:), allocatable :: dim_names
       class(UngriddedDims), intent(in) :: dims
@@ -321,11 +313,14 @@ contains
       dim_names = EMPTY
       do i = 1, dims%get_num_ungridded()
          associate (u => dims%get_ith_dim_spec(i))
-           dim_names = JOIN(dim_names, u%get_name())
+           if (dim_names /= EMPTY) then
+              dim_names = JOIN(dim_names, u%get_name())
+           else
+              dim_names = u%get_name()
+           end if
          end associate
       end do
 #undef JOIN
-
    end function cat_ungridded_dim_names
 
 end module mapl3g_SharedIO
