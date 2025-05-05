@@ -30,6 +30,7 @@ contains
          geom = this%get_geom()
          restart_handler = RestartHandler(name, geom, clock, _RC)
          call restart_handler%write("import", importState, _RC)
+         call restart_handler%write("export", exportState, _RC)
          internal_state = this%get_internal_state()
          call restart_handler%write("internal", internal_state, _RC)
       end if
