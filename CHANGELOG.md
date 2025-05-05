@@ -71,6 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add invalid method to ExtensionAction with a no-op implementation in the abstract type
 - Change refTime to refTime_offset for several MAPL derived types
 - Change `.rc` to `.acg` in user guide and acg tutorial
+- Refactor ACG to produce MAPL3 procedures
 
 ### Fixed
 
