@@ -3,7 +3,7 @@
 module mapl3g_GeomPFIO
    use mapl_ErrorHandling
    use ESMF
-   use PFIO, only: i_Clients, o_Clients
+   use pfio, only: i_Clients, o_Clients, StringVariableMap, ArrayReference
    use mapl3g_Geom_API
    use mapl3g_SharedIO
    implicit none
