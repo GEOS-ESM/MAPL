@@ -22,6 +22,7 @@ module MAPL_ESMFFieldBundleRead
    use MAPL_StringTemplate
    use gFTL2_StringVector
    use MAPL_RegridMethods
+   use pFlogger, only: logging, Logger
    implicit none
    private
 
@@ -179,6 +180,14 @@ module MAPL_ESMFFieldBundleRead
          type(GriddedIOItemVector)            :: items
          character(len=ESMF_MAXSTR), allocatable :: field_names(:)
          type(GriddedIOitem) :: item
+
+         class(Logger), pointer :: lgr
+         character(len=ESMF_MAXSTR) :: timestring
+
+         lgr => logging%get_logger('MAPL.GRIDDEDIO')
+
+         call ESMF_TimeGet(time, timeString=timestring, _RC)
+         call lgr%info('MAPL_read_bundle: Reading file '//trim(file_tmpl)//' for time '//trim(timestring))
 
          call fill_grads_template(file_name,file_tmpl,time=time,rc=status)
          _VERIFY(status)
