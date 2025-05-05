@@ -400,8 +400,12 @@ contains
      integer, optional, intent(out) :: rc
 
      integer :: status
+     type(ESMF_PIN_Flag) :: pinflag
 
      _UNUSED_DUMMY(unusable)
+
+     pinflag = GetPinFlagFromConfig(this%cap_options%cap_rc_file, _RC)
+     call MAPL_PinFlagSet(pinflag)
 
      if (this%non_dso) then
         call MAPL_CapGridCompCreate(this%cap_gc, this%get_cap_rc_file(), &
@@ -575,6 +579,37 @@ contains
      character(len=:), allocatable :: egress_file
      allocate(egress_file, source=this%cap_options%egress_file)
    end function get_egress_file
+
+   function GetPinFlagFromConfig(rcfile, rc) result(pinflag)
+     character(len=*), intent(in) :: rcfile
+     integer, optional, intent(out) :: rc
+     type(ESMF_PIN_Flag) :: pinflag
+
+     character(len=ESMF_MAXSTR) :: pinflag_str
+     integer :: status
+     type(ESMF_Config) :: config
+
+     config = ESMF_ConfigCreate(_RC)
+     call ESMF_ConfigLoadFile(config,rcfile, _RC)
+     call ESMF_ConfigGetAttribute(config, value=pinflag_str, &
+          label='ESMF_PINFLAG:', default='SSI_CONTIG', _RC)
+
+     select case (pinflag_str)
+     case ('PET')
+        pinflag = ESMF_PIN_DE_TO_PET
+     case ('VAS')
+        pinflag = ESMF_PIN_DE_TO_VAS
+     case ('SSI')
+        pinflag = ESMF_PIN_DE_TO_SSI
+     case ('SSI_CONTIG')
+        pinflag = ESMF_PIN_DE_TO_SSI_CONTIG
+     case default
+        _ASSERT(.false.,'Unsupported PIN flag')
+     end select
+
+     call ESMF_ConfigDestroy(config, _RC)
+     _RETURN(_SUCCESS)
+   end function GetPinFlagFromConfig
 
 end module MAPL_CapMod
 
