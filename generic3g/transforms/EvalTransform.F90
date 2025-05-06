@@ -4,8 +4,8 @@ module mapl3g_EvalTransform
    use mapl3g_ExtensionTransform
    use mapl3g_TransformId
    use mapl3g_StateItem
-   use mapl3g_GriddedComponentDriver
-   use mapl3g_GriddedComponentDriverVector
+   use mapl3g_ComponentDriver
+   use mapl3g_ComponentDriverVector
    use mapl3g_CouplerPhases, only: GENERIC_COUPLER_UPDATE
    use mapl_ErrorHandling
    use esmf
@@ -18,7 +18,7 @@ module mapl3g_EvalTransform
    type, extends(ExtensionTransform) :: EvalTransform
       private
       character(:), allocatable :: expression
-      type(GriddedComponentDriverVector) :: input_couplers
+      type(ComponentDriverVector) :: input_couplers
       type(ESMF_State) :: input_state
    contains
       procedure :: initialize
@@ -36,7 +36,7 @@ contains
       type(EvalTransform) :: transform
       character(*), intent(in) :: expression
       type(ESMF_State), intent(in) :: input_state
-      type(GriddedComponentDriverVector), intent(in) :: input_couplers
+      type(ComponentDriverVector), intent(in) :: input_couplers
 
       transform%expression = expression
       transform%input_state = input_state
@@ -65,18 +65,25 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(GriddedComponentDriverVectorIterator) :: iter
+      type(ComponentDriverVectorIterator) :: iter
       type(ESMF_Field) :: f
-      real, pointer :: x(:,:)
+      real, pointer :: a(:,:)
+      real, pointer :: b(:,:)
+      real, pointer :: c(:,:)
 
       call update_with_target_attr(this, importState, exportState, clock, _RC)
 
 !#      call evaluate(this%expression, importState, _RC)
       ! hardwire result for now
 
+      call ESMF_StateGet(this%input_state, itemname='A', field=f, _RC)
+      call ESMF_FieldGet(f, fArrayPtr=A, _RC)
+      call ESMF_StateGet(this%input_state, itemname='B', field=f, _RC)
+      call ESMF_FieldGet(f, fArrayPtr=B, _RC)
       call ESMF_StateGet(exportState, itemname='export[1]', field=f, _RC)
-      call ESMF_FieldGet(f, fArrayPtr=x, _RC)
-      x = 3
+      call ESMF_FieldGet(f, fArrayPtr=C, _RC)
+
+      C = A + B
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(clock)
@@ -93,14 +100,14 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         type(GriddedComponentDriverVectorIterator) :: iter
-         type(GriddedComponentDriver), pointer :: coupler
+         type(ComponentDriverVectorIterator) :: iter
+         class(ComponentDriver), pointer :: coupler
          
          associate (e => this%input_couplers%ftn_end())
            iter = this%input_couplers%ftn_begin()
            do while (iter /= e)
               call iter%next()
-              coupler = iter%of()
+              coupler => iter%of()
               call coupler%run(phase_idx=GENERIC_COUPLER_UPDATE, _RC)
            end do
          end associate

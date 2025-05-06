@@ -20,8 +20,9 @@ module mapl3g_ExpressionClassAspect
 
    use mapl3g_EvalTransform
    use mapl3g_NullTransform
-   use mapl3g_GriddedComponentDriver
-   use mapl3g_GriddedComponentDriverVector
+   use mapl3g_ComponentDriver
+   use mapl3g_ComponentDriver
+   use mapl3g_ComponentDriverVector
    use mapl3g_ExtensionTransform
    use mapl3g_MultiState
    use mapl3g_ESMF_Utilities, only: get_substate
@@ -219,12 +220,11 @@ contains
 
       integer :: status
       integer :: i
-      type(GriddedComponentDriverVector), target :: input_couplers
-      class(GriddedComponentDriver), pointer :: coupler
+      type(ComponentDriverVector), target :: input_couplers
+      class(ComponentDriver), pointer :: coupler
       type(VirtualConnectionPtVector), target :: inputs
 
       type(MultiState) :: multi_state
-      type(ESMF_State) :: input_state
       type(VirtualConnectionPt), pointer :: v_pt
       type(ActualConnectionPt) :: a_pt
       type(StateItemExtension), pointer :: new_extension
@@ -234,12 +234,10 @@ contains
       class(StateItemAspect), pointer :: class_aspect
       type(ESMF_Field) :: field
 
-      input_state = ESMF_StateCreate(_RC)
-      multi_state = MultiState(importState=input_state)
+      multi_state = MultiState()
 
       select type (dst)
       type is (FieldClassAspect)
-!#         inputs = ...(expression)
          ! Hardwire for now
          call inputs%push_back(VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, 'A'))
          call inputs%push_back(VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, 'B'))
@@ -250,8 +248,7 @@ contains
             v_pt => inputs%of(i)
 !#            new_extension = src%registry%extend(v_pt, goal_spec, _RC)
             new_extension => src%registry%get_primary_extension(v_pt, _RC)
-!#            coupler => new_extension%get_producer()
-            coupler => null()
+            coupler => new_extension%get_producer()
             if (associated(coupler)) then
                call input_couplers%push_back(coupler)
             end if
@@ -261,14 +258,14 @@ contains
             select type(class_aspect)
             type is (FieldClassAspect)
                field = class_aspect%get_payload()
-               a_pt = ActualConnectionPt(VirtualConnectionPt(state_intent='import', short_name=v_pt%get_esmf_name()))
+               a_pt = ActualConnectionPt(v_pt)
                call class_aspect%add_to_state(multi_state, a_pt, _RC)
             class default
                _FAIL("unsupported aspect type; must be FieldClassAspect")
             end select
          end do
 
-         allocate(transform, source=EvalTransform(src%expression, input_state, input_couplers))
+         allocate(transform, source=EvalTransform(src%expression, multi_state%exportState, input_couplers))
       class default
          transform = NullTransform()
          _FAIL('expression connected to non-field')
