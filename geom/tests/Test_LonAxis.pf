@@ -176,7 +176,7 @@ contains
       @assert_that(status, is(0))
 
       expected_centers = [-180, -90, 0, 90] 
-      @assert_that(axis%get_centers(), every_item(is(near(expected_centers,1.d-10))))
+      @AssertEqual(expected_centers, axis%get_centers(), 1.d-8)
       
       call ESMF_HConfigDestroy(hconfig)
    end subroutine test_make_lon_axis_from_hconfig
