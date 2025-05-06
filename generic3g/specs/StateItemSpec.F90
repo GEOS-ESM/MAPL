@@ -118,7 +118,7 @@ contains
       is_allocated = this%allocated
    end function is_allocated
 
-   subroutine activate(this, rc)
+   recursive subroutine activate(this, rc)
       class(StateItemSpec), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
 

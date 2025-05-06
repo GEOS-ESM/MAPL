@@ -107,17 +107,19 @@ contains
       type(ESMF_Geom) :: geom_in, geom_out
 
       call this%initialize_sources(_RC)
-      _HERE, 'copy shared attrs'
-      call copy_shared_attributes()
+
+      if (this%transform%get_transformId() /= EVAL_TRANSFORM_ID) then
+         call copy_shared_attributes()
             
-      geom_in = get_geom(importState, IMPORT_NAME, _RC)
-      geom_out = get_geom(exportState, EXPORT_NAME, _RC)
-     if (this%transform%get_transformId() /= GEOM_TRANSFORM_ID) then
+         geom_in = get_geom(importState, IMPORT_NAME, _RC)
+         geom_out = get_geom(exportState, EXPORT_NAME, _RC)
+         if (this%transform%get_transformId() /= GEOM_TRANSFORM_ID) then
 !#         _ASSERT(geom_in == geom_out, 'mismatched geom in non regrid coupler')
-         this%time_varying%geom = geom_in
-      else
-         this%time_varying%geom_in = geom_in
-         this%time_varying%geom_out = geom_out
+            this%time_varying%geom = geom_in
+         else
+            this%time_varying%geom_in = geom_in
+            this%time_varying%geom_out = geom_out
+         end if
       end if
 
       call this%transform%initialize(importState, exportState, clock, _RC)
@@ -140,7 +142,6 @@ contains
 
          ! Shared attributes - can only alter from import side
          shared_attrs = ESMF_InfoCreate(info_in, INFO_SHARED_NAMESPACE, _RC)
-         _HERE, 'copy shared attrs'
 
          call get_info(exportState, itemName=EXPORT_NAME, info=info_out, _RC)
          call ESMF_InfoSet(info_out, INFO_SHARED_NAMESPACE, shared_attrs, _RC)
@@ -179,7 +180,9 @@ contains
       _RETURN_IF(this%is_up_to_date())
 
       call this%update_sources(_RC)
-      call this%update_time_varying(importState, exportState, clock, _RC)
+      if (this%transform%get_transformId() /= EVAL_TRANSFORM_ID) then
+         call this%update_time_varying(importState, exportState, clock, _RC)
+      end if
 
       call this%transform%update(importState, exportState, clock, _RC)
       call this%set_up_to_date()

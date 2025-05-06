@@ -16,4 +16,6 @@ target_sources(MAPL.generic3g PRIVATE
   MaxTransform.F90
   MinTransform.F90
   AccumulatorTransformInterface.F90
+
+  EvalTransform.F90
 )

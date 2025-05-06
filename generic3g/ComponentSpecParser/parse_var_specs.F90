@@ -52,8 +52,9 @@ contains
          type(UngriddedDims) :: ungridded_dims
          character(:), allocatable :: standard_name
          character(:), allocatable :: units
+         character(:), allocatable :: expression
          character(len=:), allocatable :: accumulation_type
-         type(ESMF_StateItem_Flag), allocatable :: itemtype
+         type(ESMF_StateItem_Flag) :: itemtype
          type(ESMF_StateIntent_Flag) :: esmf_state_intent
 
          type(StringVector) :: service_items
@@ -61,6 +62,7 @@ contains
          logical :: has_state
          logical :: has_standard_name
          logical :: has_units
+         logical :: has_expression
          logical :: has_accumulation_type
          type(ESMF_HConfig) :: subcfg
          type(StringVector) :: dependencies
@@ -95,6 +97,11 @@ contains
                units = ESMF_HConfigAsString(attributes,keyString='units', _RC)
             end if
 
+            has_expression = ESMF_HConfigIsDefined(attributes,keyString='expression', _RC)
+            if (has_expression) then
+               expression = ESMF_HConfigAsString(attributes,keyString='expression', _RC)
+            end if
+
             has_accumulation_type = ESMF_HConfigIsDefined(attributes, keyString=KEY_ACCUMULATION_TYPE, _RC)
             if(has_accumulation_type) then
                accumulation_type = ESMF_HConfigAsString(attributes, keyString=KEY_ACCUMULATION_TYPE, _RC)
@@ -102,7 +109,7 @@ contains
 
             vector_component_names = get_vector_component_names(attributes, _RC)
 
-            call to_itemtype(itemtype, attributes, _RC)
+            itemtype = to_itemtype(attributes, _RC)
             call to_service_items(service_items, attributes, _RC)
 
             dependencies = to_dependencies(attributes, _RC)
@@ -118,6 +125,7 @@ contains
                  service_items=service_items, &
                  standard_name=standard_name, &
                  dependencies=dependencies, &
+                 expression=expression, &
                  accumulation_type=accumulation_type, &
                  timeStep=timeStep, &
                  vector_component_names=vector_component_names, &
@@ -272,37 +280,7 @@ contains
       end function to_UngriddedDims
 
 
-      subroutine to_itemtype(itemtype, attributes, rc)
-         type(ESMF_StateItem_Flag), allocatable, intent(out) :: itemtype
-         type(ESMF_HConfig), target, intent(in) :: attributes
-         integer, optional, intent(out) :: rc
-
-         integer :: status
-         character(:), allocatable :: subclass
-         logical :: has_itemtype
-
-         has_itemtype = ESMF_HConfigIsDefined(attributes,keyString='class',_RC)
-         _RETURN_UNLESS(has_itemtype)
-
-         subclass= ESMF_HConfigAsString(attributes, keyString='class',_RC)
-
-         select case (ESMF_UtilStringLowerCase(subclass))
-         case ('field')
-            itemtype = MAPL_STATEITEM_FIELD
-         case ('vector')
-            itemtype = MAPL_STATEITEM_VECTOR
-         case ('service')
-            itemtype = MAPL_STATEITEM_SERVICE
-         case ('wildcard')
-            itemtype = MAPL_STATEITEM_WILDCARD
-         case default
-            _FAIL('unknown subclass for state item: '//subclass)
-         end select
-
-         _RETURN(_SUCCESS)
-      end subroutine to_itemtype
-
-      subroutine to_service_items(service_items, attributes, rc)
+     subroutine to_service_items(service_items, attributes, rc)
          type(StringVector), intent(out) :: service_items
          type(ESMF_HConfig), target, intent(in) :: attributes
          integer, optional, intent(out) :: rc

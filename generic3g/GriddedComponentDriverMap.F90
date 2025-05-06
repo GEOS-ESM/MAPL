@@ -12,7 +12,6 @@ module mapl3g_GriddedComponentDriverMap
 #undef Pair
 #undef OrderedMapIterator
 #undef OrderedMap
-#undef T_polymorphic
 #undef T
 #undef Key
 

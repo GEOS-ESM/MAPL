@@ -17,6 +17,7 @@ module mapl3g_TransformId
    public :: VERTICAL_GRID_TRANSFORM_ID
    public :: FREQUENCY_TRANSFORM_ID
    public :: TYPEKIND_TRANSFORM_ID
+   public :: EVAL_TRANSFORM_ID
    
    type :: TransformId
       private
@@ -33,6 +34,7 @@ module mapl3g_TransformId
    type(TransformId), parameter :: VERTICAL_GRID_TRANSFORM_ID = TransformId(4)
    type(TransformId), parameter :: FREQUENCY_TRANSFORM_ID = TransformId(5)
    type(TransformId), parameter :: TYPEKIND_TRANSFORM_ID = TransformId(6)
+   type(TransformId), parameter :: EVAL_TRANSFORM_ID = TransformId(7)
    
    interface operator(==)
       procedure equal
@@ -70,6 +72,8 @@ contains
          s = "FREQUENCY"
       case (TYPEKIND_TRANSFORM_ID%id)
          s = "TYPEKIND"
+      case (EVAL_TRANSFORM_ID%id)
+         s = "EVAL"
       case default
          s = "UNKNOWN"
       end select

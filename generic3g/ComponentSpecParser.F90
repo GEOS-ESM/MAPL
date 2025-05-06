@@ -40,6 +40,7 @@ module mapl3g_ComponentSpecParser
    public :: parse_SetServices
    public :: parse_geometry_spec
    public :: parse_timespec
+   public :: to_itemtype
 
    character(*), parameter :: MAPL_SECTION = 'mapl'
    character(*), parameter :: COMPONENT_GEOMETRY_SECTION = 'geometry'
@@ -124,6 +125,12 @@ module mapl3g_ComponentSpecParser
          type(ESMF_TimeInterval), allocatable, intent(out) :: offset
          integer, optional, intent(out) :: rc
       end subroutine parse_timespec
+
+      module function to_itemtype(attributes, rc) result(itemtype)
+         type(ESMF_StateItem_Flag) :: itemtype
+         type(ESMF_HConfig), target, intent(in) :: attributes
+         integer, optional, intent(out) :: rc
+      end function to_itemtype
 
    END INTERFACE
 

@@ -383,6 +383,7 @@ contains
       inner_name = full_name(idx+1:)
 
       alias = ESMF_NamedAlias(this%payload, name=inner_name, _RC)
+
       call ESMF_StateAdd(substate, [alias], _RC)
 
       _RETURN(_SUCCESS)
