@@ -30,7 +30,6 @@ contains
              exportState=exportState, &
              clock=this%clock, &
              phase=phase_idx, _USERRC)
-
       end associate
 
       _RETURN(_SUCCESS)

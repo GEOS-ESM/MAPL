@@ -16,7 +16,7 @@ contains
    module function parse_geometry_spec(mapl_cfg, registry, rc) result(geometry_spec)
       type(GeometrySpec) :: geometry_spec
       type(ESMF_HConfig), intent(in) :: mapl_cfg
-      type(StateRegistry), optional, target, intent(in) :: registry
+      type(StateRegistry), target, intent(in) :: registry
       integer, optional, intent(out) :: rc
 
       integer :: status

@@ -83,15 +83,16 @@ module mapl3g_ComponentSpecParser
       module function parse_geometry_spec(mapl_cfg, registry, rc) result(geometry_spec)
          type(GeometrySpec) :: geometry_spec
          type(ESMF_HConfig), intent(in) :: mapl_cfg
-         type(StateRegistry), optional, target, intent(in) :: registry
+         type(StateRegistry), target, intent(in) :: registry
          integer, optional, intent(out) :: rc
       end function parse_geometry_spec
 
-      module function parse_var_specs(hconfig, timeStep, offset, rc) result(var_specs)
+      module function parse_var_specs(hconfig, timeStep, offset, registry, rc) result(var_specs)
          type(VariableSpecVector) :: var_specs
          type(ESMF_HConfig), intent(in) :: hconfig
          type(ESMF_TimeInterval), optional, intent(in) :: timeStep
          type(ESMF_TimeInterval), optional, intent(in) :: offset
+         type(StateRegistry), target, intent(in) :: registry
          integer, optional, intent(out) :: rc
       end function parse_var_specs
 

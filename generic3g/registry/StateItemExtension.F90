@@ -150,6 +150,7 @@ contains
             other_aspects => new_spec%get_aspects()
             allocate(transform, source=src_aspect%make_transform(dst_aspect, other_aspects, rc=status))
             _VERIFY(status)
+
             call new_spec%set_aspect(dst_aspect, _RC)
             exit
          end if

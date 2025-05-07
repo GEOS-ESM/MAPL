@@ -5,6 +5,7 @@ module mapl3g_GenericCoupler
    use mapl3g_CouplerPhases
    use mapl3g_CouplerMetaComponent
    use mapl3g_ExtensionTransform
+   use mapl3g_TransformId
    use mapl3g_VerticalRegridTransform
    use mapl3g_ComponentDriver
    use mapl_ErrorHandlingMod
@@ -28,8 +29,12 @@ contains
 
       integer :: status
       type(CouplerMetaComponent), pointer :: coupler_meta
+      type(TransformId) :: id
+      character(:), allocatable :: name
 
-      coupler_gridcomp = ESMF_GridCompCreate(name='coupler', contextFlag=ESMF_CONTEXT_PARENT_VM, _RC)
+      id = transform%get_transformId()
+      name = 'coupler['//id%to_string()//']'
+      coupler_gridcomp = ESMF_GridCompCreate(name=name, contextFlag=ESMF_CONTEXT_PARENT_VM, _RC)
       call attach_coupler_meta(coupler_gridcomp, _RC)
       coupler_meta => get_coupler_meta(coupler_gridcomp, _RC)
 #ifndef __GFORTRAN__

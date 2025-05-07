@@ -18,6 +18,7 @@ module mapl3g_TransformId
    public :: FREQUENCY_TRANSFORM_ID
    public :: TYPEKIND_TRANSFORM_ID
    public :: EVAL_TRANSFORM_ID
+   public :: EXTEND_TRANSFORM_ID
    
    type :: TransformId
       private
@@ -35,6 +36,7 @@ module mapl3g_TransformId
    type(TransformId), parameter :: FREQUENCY_TRANSFORM_ID = TransformId(5)
    type(TransformId), parameter :: TYPEKIND_TRANSFORM_ID = TransformId(6)
    type(TransformId), parameter :: EVAL_TRANSFORM_ID = TransformId(7)
+   type(TransformId), parameter :: EXTEND_TRANSFORM_ID = TransformId(8)
    
    interface operator(==)
       procedure equal
@@ -74,24 +76,26 @@ contains
          s = "TYPEKIND"
       case (EVAL_TRANSFORM_ID%id)
          s = "EVAL"
+      case (EXTEND_TRANSFORM_ID%id)
+         s = "EXTEND"
       case default
          s = "UNKNOWN"
       end select
    end function to_string
 
 
-   logical function equal(a, b)
-      class(TransformId), intent(in) :: a, b
+   elemental logical function equal(a, b)
+      type(TransformId), intent(in) :: a, b
       equal = a%id == b%id
    end function equal
 
-   logical function not_equal(a, b)
-      class(TransformId), intent(in) :: a, b
+   elemental logical function not_equal(a, b)
+      type(TransformId), intent(in) :: a, b
       not_equal = .not. (a%id == b%id)
    end function not_equal
 
-   logical function less_than(a, b)
-      class(TransformId), intent(in) :: a, b
+   elemental logical function less_than(a, b)
+      type(TransformId), intent(in) :: a, b
       less_than = a%id < b%id
    end function less_than
 

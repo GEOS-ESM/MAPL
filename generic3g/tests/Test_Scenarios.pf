@@ -127,12 +127,13 @@ contains
               ScenarioDescription('service_service',         'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('export_dependency',       'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('regrid',                  'cap.yaml',         check_name, check_stateitem), &
-              ScenarioDescription('vector_1',                  'parent.yaml',      check_name, check_stateitem), &
+              ScenarioDescription('vector_1',                'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('propagate_geom',          'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('vertical_regridding',     'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('vertical_regridding_2',   'parent.yaml',      check_name, check_stateitem), &
               ScenarioDescription('vertical_regridding_3',   'AGCM.yaml',        check_name, check_stateitem), &
-              ScenarioDescription('expression',              'parent.yaml',      check_name, check_stateitem)  &
+              ScenarioDescription('expression',              'parent.yaml',      check_name, check_stateitem), & 
+              ScenarioDescription('expression_defer_geom',   'parent.yaml',      check_name, check_stateitem)  &
               ]
       end function add_params
 
@@ -327,12 +328,9 @@ contains
         integer :: itemCount
         character(len=ESMF_MAXSTR), allocatable :: names(:)
         if (expected_itemtype%ot /= itemtype%ot) then
-        _HERE, msg
            call ESMF_StateGet(state, itemcount=itemcount, _RC)
-           _HERE, itemCount
            allocate(names(itemCount))
            call ESMF_StateGet(state, itemNameList=names, _RC)
-           _HERE, trim(names(1))
         end if
       end block
       @assert_that(msg // ':: check item type of '//short_name, expected_itemtype == itemtype, is(true()))
@@ -468,6 +466,7 @@ contains
       integer, intent(out) :: rc
 
       real :: expected_field_value
+      real :: tolerance
       integer :: rank
       type(ESMF_TypeKind_Flag) :: typekind
       integer :: status
@@ -489,6 +488,10 @@ contains
       end if
 
       expected_field_value = ESMF_HConfigAsR4(expectations,keyString='value',_RC)
+      tolerance = 0.
+      if (ESMF_HConfigIsDefined(expectations, keyString='tolerance')) then
+         tolerance = ESMF_HConfigAsR4(expectations,keyString='tolerance',_RC)
+      end if
 
       call ESMF_StateGet(state, short_name, field, _RC)
       call ESMF_FieldGet(field, typekind=typekind, rank=rank, rc=status)
@@ -500,23 +503,23 @@ contains
             select case(rank)
             case(2)
                call ESMF_FieldGet(field, farrayPtr=x2, _RC)
-               if (.not. all(x2 == expected_field_value)) then
+               if (.not. all(abs(x2 - expected_field_value) <= tolerance)) then
                   _HERE, short_name
-                  _HERE, expected_field_value
+                  _HERE, expected_field_value, 'tol: ', tolerance
                   _HERE, minval(x2), maxval(x2)
                end if
-               @assert_that('value of '//short_name, all(x2 == expected_field_value), is(true()))
+               @assert_that('value of '//short_name, all(abs(x2 - expected_field_value) <= tolerance), is(true()))
             case(3)
                call ESMF_FieldGet(field, farrayPtr=x3, _RC)
-               if (.not. all(x3 == expected_field_value)) then
+               if (.not. all(abs(x3 - expected_field_value) <= tolerance)) then
                   _HERE, short_name
                   _HERE, expected_field_value
                   _HERE, minval(x3), maxval(x3)
                end if
-               @assert_that('value of '//short_name, all(x3 == expected_field_value), is(true()))
+               @assert_that('value of '//short_name, all(abs(x3 - expected_field_value) <= tolerance), is(true()))
             case(4)
                call ESMF_FieldGet(field, farrayPtr=x4, _RC)
-               @assert_that('value of '//short_name, all(x4 == expected_field_value), is(true()))
+               @assert_that('value of '//short_name, all(abs(x4 - expected_field_value) <= tolerance), is(true()))
             end select
          end block
       elseif (typekind == ESMF_TYPEKIND_R8) then
@@ -525,13 +528,13 @@ contains
             select case(rank)
             case(2)
                call ESMF_FieldGet(field, farrayPtr=x2, _RC)
-               @assert_that('value of '//short_name, all(x2 == expected_field_value), is(true()))
+               @assert_that('value of '//short_name, all(abs(x2 - expected_field_value) <= tolerance), is(true()))
             case(3)
                call ESMF_FieldGet(field, farrayPtr=x3, _RC)
-               @assert_that('value of '//short_name, all(x3 == expected_field_value), is(true()))
+               @assert_that('value of '//short_name, all(abs(x3 - expected_field_value) <= tolerance), is(true()))
             case(4)
                call ESMF_FieldGet(field, farrayPtr=x4, _RC)
-               @assert_that('value of '//short_name, all(x4 == expected_field_value), is(true()))
+               @assert_that('value of '//short_name, all(abs(x4 - expected_field_value) <= tolerance), is(true()))
             end select
          end block
       else

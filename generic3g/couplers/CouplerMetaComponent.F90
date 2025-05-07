@@ -108,7 +108,7 @@ contains
 
       call this%initialize_sources(_RC)
 
-      if (this%transform%get_transformId() /= EVAL_TRANSFORM_ID) then
+      if (all(this%transform%get_transformId() /= [EXTEND_TRANSFORM_ID, EVAL_TRANSFORM_ID])) then
          call copy_shared_attributes()
             
          geom_in = get_geom(importState, IMPORT_NAME, _RC)
@@ -123,7 +123,7 @@ contains
       end if
 
       call this%transform%initialize(importState, exportState, clock, _RC)
-      
+
       _RETURN(_SUCCESS)
 
    contains
@@ -177,10 +177,11 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+
       _RETURN_IF(this%is_up_to_date())
 
       call this%update_sources(_RC)
-      if (this%transform%get_transformId() /= EVAL_TRANSFORM_ID) then
+      if (all(this%transform%get_transformId() /= [EXTEND_TRANSFORM_ID, EVAL_TRANSFORM_ID])) then
          call this%update_time_varying(importState, exportState, clock, _RC)
       end if
 
@@ -574,7 +575,7 @@ contains
             call ESMF_StateGet(state, itemName, fieldBundle=fb, _RC)
             call ESMF_InfoGetFromHost(fb, info, _RC)
          else
-            _FAIL('Unsupported itemType; must be Field or FieldBundle')
+            _FAIL(itemName // ':: unsupported itemType; must be Field or FieldBundle')
          end if
 
          _RETURN(_SUCCESS)

@@ -232,7 +232,10 @@ contains
       type(StateItemSpec), target :: goal_spec
       type(AspectMap), pointer :: aspects
       class(StateItemAspect), pointer :: class_aspect
+      type(AspectMap), pointer :: goal_aspects
       type(ESMF_Field) :: field
+      type(VirtualConnectionPtVector) :: empty
+      integer :: n
 
       multi_state = MultiState()
 
@@ -242,12 +245,13 @@ contains
          call inputs%push_back(VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, 'A'))
          call inputs%push_back(VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, 'B'))
 
-!#         goal_spec = ...
-
-         do i = 1, inputs%size()
-            v_pt => inputs%of(i)
-!#            new_extension = src%registry%extend(v_pt, goal_spec, _RC)
-            new_extension => src%registry%get_primary_extension(v_pt, _RC)
+         goal_spec = StateItemSpec(other_aspects,empty)
+         goal_aspects => goal_spec%get_aspects()
+         n = goal_aspects%erase(CLASS_ASPECT_ID)
+         call goal_aspects%insert(CLASS_ASPECT_ID, FieldClassAspect(standard_name='', long_name=''))
+        do i = 1, inputs%size()
+      v_pt => inputs%of(i)
+      new_extension => src%registry%extend(v_pt, goal_spec, _RC)
             coupler => new_extension%get_producer()
             if (associated(coupler)) then
                call input_couplers%push_back(coupler)
@@ -267,7 +271,7 @@ contains
 
          allocate(transform, source=EvalTransform(src%expression, multi_state%exportState, input_couplers))
       class default
-         transform = NullTransform()
+         allocate(transform, source=NullTransform())
          _FAIL('expression connected to non-field')
       end select
 

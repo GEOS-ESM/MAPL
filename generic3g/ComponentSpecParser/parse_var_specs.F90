@@ -1,6 +1,7 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_ComponentSpecParser) parse_var_specs_smod
+   use mapl3g_VerticalGrid
    implicit none
    
 contains
@@ -8,11 +9,12 @@ contains
    ! A component is not required to have var_specs.   E.g, in theory GCM gridcomp will not
    ! have var specs in MAPL3, as it does not really have a preferred geom on which to declare
    ! imports and exports.
-   module function parse_var_specs(hconfig, timeStep, offset, rc) result(var_specs)
+   module function parse_var_specs(hconfig, timeStep, offset, registry, rc) result(var_specs)
       type(VariableSpecVector) :: var_specs
       type(ESMF_HConfig), intent(in) :: hconfig
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
       type(ESMF_TimeInterval), optional, intent(in) :: offset
+      type(StateRegistry), target, intent(in) :: registry
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -68,6 +70,12 @@ contains
          type(StringVector) :: dependencies
          type(StringVector) :: vector_component_names
 
+         type(GeometrySpec) :: geometry_spec
+         type(MaplGeom), pointer :: mapl_geom
+         type(GeomManager), pointer :: geom_mgr
+         type(ESMF_Geom), allocatable :: geom
+         class(VerticalGrid), allocatable :: vertical_grid
+
          has_state = ESMF_HConfigIsDefined(hconfig,keyString=state_intent, _RC)
          _RETURN_UNLESS(has_state)
 
@@ -114,6 +122,18 @@ contains
 
             dependencies = to_dependencies(attributes, _RC)
 
+            call ESMF_HconfigFileSave(attributes, name//'.yaml', _RC)
+            geometry_spec = parse_geometry_spec(attributes, registry, _RC)
+            if (allocated(geometry_spec%geom_spec)) then
+               geom_mgr => get_geom_manager()
+               mapl_geom => geom_mgr%get_mapl_geom(geometry_spec%geom_spec, _RC)
+               geom = mapl_geom%get_geom()
+            end if
+            if (allocated(geometry_spec%vertical_grid)) then
+               vertical_grid = geometry_spec%vertical_grid
+            end if
+
+
             esmf_state_intent = to_esmf_state_intent(state_intent)
             var_spec = make_VariableSpec(esmf_state_intent, short_name=short_name, &
                  units=units, &
@@ -126,6 +146,8 @@ contains
                  standard_name=standard_name, &
                  dependencies=dependencies, &
                  expression=expression, &
+                 geom=geom, &
+                 vertical_grid=vertical_grid, &
                  accumulation_type=accumulation_type, &
                  timeStep=timeStep, &
                  vector_component_names=vector_component_names, &
