@@ -43,7 +43,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: has_activate_all_exports, has_activate_all_imports
+      logical :: has_activate_all_exports, has_activate_all_imports, has_write_exports
 
       has_activate_all_exports = ESMF_HConfigIsDefined(hconfig,keyString=COMPONENT_ACTIVATE_ALL_EXPORTS, _RC)
       if (has_activate_all_exports) then
@@ -52,6 +52,10 @@ contains
       has_activate_all_imports = ESMF_HConfigIsDefined(hconfig,keyString=COMPONENT_ACTIVATE_ALL_IMPORTS, _RC)
       if (has_activate_all_imports) then
          spec%activate_all_imports = ESMF_HConfigASLogical(hconfig, keyString=COMPONENT_ACTIVATE_ALL_IMPORTS, _RC)
+      end if
+      has_write_exports = ESMF_HConfigIsDefined(hconfig,keyString=COMPONENT_WRITE_EXPORTS, _RC)
+      if (has_write_exports) then
+         spec%write_exports = ESMF_HConfigASLogical(hconfig, keyString=COMPONENT_WRITE_EXPORTS, _RC)
       end if
 
       _RETURN(_SUCCESS)

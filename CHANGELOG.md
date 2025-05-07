@@ -71,6 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add invalid method to ExtensionAction with a no-op implementation in the abstract type
 - Change refTime to refTime_offset for several MAPL derived types
 - Change `.rc` to `.acg` in user guide and acg tutorial
+- Refactor ACG to produce MAPL3 procedures
 
 ### Fixed
 
@@ -94,6 +95,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added logging prints for `MAPL_read_bundle`
 - Added a new `StateFilterItem` funtion to apply a mask or extra using a combination of variables from a state and return an array with the result
 
 ### Changed
@@ -108,6 +110,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Fixes for f2py with MPT
 
 - Update documentation on ACG in repo
+- Update CI to use ifx 2025.1
 
 ### Removed
 
@@ -117,11 +120,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Renamed module for convervative vertical regridding code so as to not conflict so an external module
+- Renamed module for conservative vertical regridding code so as to not conflict so an external module
 
 ### Added
 
-- Added a few error traps in ExtData when processing veritcal coordinate for use in regridding
+- Added a few error traps in ExtData when processing vertical coordinate for use in regridding
 
 ## [2.55.0] - 2025-04-15
 
