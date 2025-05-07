@@ -453,17 +453,21 @@ module mapl3g_OuterMetaComponent
 
 contains
 
-   subroutine set(this, unusable, activate_all_exports, activate_all_imports)
+   subroutine set(this, unusable, activate_all_exports, activate_all_imports, write_exports)
       class(OuterMetaComponent), intent(inout) :: this
       class(KE), optional, intent(in) :: unusable
       logical, optional, intent(in) :: activate_all_exports
       logical, optional, intent(in) :: activate_all_imports
+      logical, optional, intent(in) :: write_exports
 
       if (present(activate_all_exports)) then
          this%component_spec%activate_all_exports = activate_all_exports
       end if
       if (present(activate_all_imports)) then
          this%component_spec%activate_all_imports = activate_all_imports
+      end if
+      if (present(write_exports)) then
+         this%component_spec%write_exports = write_exports
       end if
 
    end subroutine set
