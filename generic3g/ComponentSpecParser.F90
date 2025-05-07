@@ -40,6 +40,7 @@ module mapl3g_ComponentSpecParser
    public :: parse_SetServices
    public :: parse_geometry_spec
    public :: parse_timespec
+   public :: to_itemtype
 
    character(*), parameter :: MAPL_SECTION = 'mapl'
    character(*), parameter :: COMPONENT_GEOMETRY_SECTION = 'geometry'
@@ -83,15 +84,16 @@ module mapl3g_ComponentSpecParser
       module function parse_geometry_spec(mapl_cfg, registry, rc) result(geometry_spec)
          type(GeometrySpec) :: geometry_spec
          type(ESMF_HConfig), intent(in) :: mapl_cfg
-         type(StateRegistry), optional, target, intent(in) :: registry
+         type(StateRegistry), target, intent(in) :: registry
          integer, optional, intent(out) :: rc
       end function parse_geometry_spec
 
-      module function parse_var_specs(hconfig, timeStep, offset, rc) result(var_specs)
+      module function parse_var_specs(hconfig, timeStep, offset, registry, rc) result(var_specs)
          type(VariableSpecVector) :: var_specs
          type(ESMF_HConfig), intent(in) :: hconfig
          type(ESMF_TimeInterval), optional, intent(in) :: timeStep
          type(ESMF_TimeInterval), optional, intent(in) :: offset
+         type(StateRegistry), target, intent(in) :: registry
          integer, optional, intent(out) :: rc
       end function parse_var_specs
 
@@ -125,6 +127,12 @@ module mapl3g_ComponentSpecParser
          type(ESMF_TimeInterval), allocatable, intent(out) :: offset
          integer, optional, intent(out) :: rc
       end subroutine parse_timespec
+
+      module function to_itemtype(attributes, rc) result(itemtype)
+         type(ESMF_StateItem_Flag) :: itemtype
+         type(ESMF_HConfig), target, intent(in) :: attributes
+         integer, optional, intent(out) :: rc
+      end function to_itemtype
 
    END INTERFACE
 

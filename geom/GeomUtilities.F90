@@ -61,7 +61,7 @@ contains
       integer :: id_b
 
       same_geom = .false. ! unless
-      
+
       id_a = MAPL_GeomGetId(geom_a, isPresent=has_id_a)
       id_b = MAPL_GeomGetId(geom_b, isPresent=has_id_b)
 

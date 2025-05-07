@@ -22,7 +22,7 @@ contains
       mapl_cfg = ESMF_HConfigCreateAt(hconfig, keyString=MAPL_SECTION, _RC)
 
       spec%geometry_spec = parse_geometry_spec(mapl_cfg, registry, _RC)
-      spec%var_specs = parse_var_specs(mapl_cfg, timeStep, offset, _RC)
+      spec%var_specs = parse_var_specs(mapl_cfg, timeStep, offset, registry, _RC)
       spec%connections = parse_connections(mapl_cfg, _RC)
       spec%children = parse_children(mapl_cfg, _RC)
 

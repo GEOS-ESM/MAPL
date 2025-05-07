@@ -169,6 +169,7 @@ contains
         case (2)
            can_connect_to = .false. ! double mirror
         end select ! no need for default clause
+
       end associate
 
    end function can_connect_to
@@ -191,7 +192,7 @@ contains
    logical function needs_extension_for(src, dst)
       class(StateItemAspect), intent(in) :: src, dst
 
-      if (either_is_mirror(src, dst)) then
+      if (dst%is_mirror()) then
          needs_extension_for = .false.
          return
       end if
