@@ -99,28 +99,13 @@ contains
       integer :: status
       type(ComponentDriverVectorIterator) :: iter
       type(ESMF_Field) :: f
-      !real, pointer :: a(:,:)
-      !real, pointer :: b(:,:)
-      !real, pointer :: c(:,:)
 
       call update_with_target_attr(this, importState, exportState, clock, _RC)
 
       call ESMF_StateGet(exportState, itemName='export[1]', field=f, _RC)
-!#      call evaluate(this%expression, this%input_state, f, _RC)
 
-      ! hardwire result for now
-      !call ESMF_StateGet(this%input_state, itemName='A', field=f, _RC)
-      !call ESMF_FieldGet(f, fArrayPtr=A, _RC)
-      !call ESMF_StateGet(this%input_state, itemName='B', field=f, _RC)
-      !call ESMF_FieldGet(f, fArrayPtr=B, _RC)
       call ESMF_StateGet(exportState, itemName='export[1]', field=f, _RC)
-      !call ESMF_FieldGet(f, fArrayPtr=C, _RC)
       call MAPL_StateEval(this%input_state, this%expression, f, _RC)
-
-!#      _HERE, 'A', shape(A), minval(A), maxVal(A)
-!#      _HERE, 'B', shape(B), minval(B), maxVal(B)
-      !C = A + B
-!#      _HERE, 'C', shape(C), minval(C), maxval(C)
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(clock)
