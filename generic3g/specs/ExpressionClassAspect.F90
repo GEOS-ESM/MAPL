@@ -36,7 +36,8 @@ module mapl3g_ExpressionClassAspect
    use mapl3g_Field_API
    use mapl3g_FieldInfo
    use mapl_FieldUtilities
-
+   use MAPL_StateArithmeticParserMod
+   use gftl2_StringVector
 
    use mapl_ErrorHandling
    use esmf
@@ -128,15 +129,22 @@ contains
       integer :: status
       type(StateItemExtension), pointer :: extension
       type(StateItemSpec), pointer :: spec
+      type(StringVector) :: expression_variables
+      type(StringVectorIterator) :: iter
+      character(:), pointer :: variable
 
-      extension => this%registry%get_primary_extension(VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, 'A'), _RC)
-      spec => extension%get_spec()
-      call spec%activate()
-
-      extension => this%registry%get_primary_extension(VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, 'B'), _RC)
-      spec => extension%get_spec()
-      call spec%activate()
-
+      expression_variables = parser_variables_in_expression(this%expression, _RC)
+      associate(b => expression_variables%begin(), e => expression_variables%end())
+      iter = b
+      do while (iter /= e)
+         variable => iter%of()
+         extension => this%registry%get_primary_extension(VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, variable), _RC)
+         spec => extension%get_spec()
+         call spec%activate()
+         call iter%next()
+      enddo
+      end associate
+          
       _RETURN(ESMF_SUCCESS)
    end subroutine activate
 
@@ -236,22 +244,33 @@ contains
       type(ESMF_Field) :: field
       type(VirtualConnectionPtVector) :: empty
       integer :: n
+      type(StringVector) :: expression_variables
+      type(StringVectorIterator) :: iter
+      character(:), pointer :: variable
 
       multi_state = MultiState()
 
+      !bmaa
       select type (dst)
       type is (FieldClassAspect)
-         ! Hardwire for now
-         call inputs%push_back(VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, 'A'))
-         call inputs%push_back(VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, 'B'))
+
+         expression_variables = parser_variables_in_expression(src%expression, _RC)
+         associate (b => expression_variables%begin(), e => expression_variables%end()) 
+         iter = b
+         do while (iter /= e)
+            variable => iter%of()
+            call inputs%push_back(VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, variable))
+            call iter%next()
+         enddo
+         end associate
 
          goal_spec = StateItemSpec(other_aspects,empty)
          goal_aspects => goal_spec%get_aspects()
          n = goal_aspects%erase(CLASS_ASPECT_ID)
          call goal_aspects%insert(CLASS_ASPECT_ID, FieldClassAspect(standard_name='', long_name=''))
         do i = 1, inputs%size()
-      v_pt => inputs%of(i)
-      new_extension => src%registry%extend(v_pt, goal_spec, _RC)
+            v_pt => inputs%of(i)
+            new_extension => src%registry%extend(v_pt, goal_spec, _RC)
             coupler => new_extension%get_producer()
             if (associated(coupler)) then
                call input_couplers%push_back(coupler)
