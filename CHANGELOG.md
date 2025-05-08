@@ -97,6 +97,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added logging prints for `MAPL_read_bundle`
 - Added a new `StateFilterItem` funtion to apply a mask or extra using a combination of variables from a state and return an array with the result
+- Implemented a new feature in to allow users to select the appropriate [`ESMF_PIN`](https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node6.html#const:pin_flag) values. Users control this via `CAP.rc` and the choices are:
+  - `ESMF_PINFLAG: PET` --> `ESMF_PIN_DE_TO_PET`
+  - `ESMF_PINFLAG: VAS` --> `ESMF_PIN_DE_TO_VAS`
+  - `ESMF_PINFLAG: SSI` --> `ESMF_PIN_DE_TO_SSI`
+  - `ESMF_PINFLAG: SSI_CONTIG` --> `ESMF_PIN_DE_TO_SSI_CONTIG` (default with no setting)
 
 ### Changed
 
