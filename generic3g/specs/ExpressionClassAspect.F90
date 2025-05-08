@@ -250,7 +250,6 @@ contains
 
       multi_state = MultiState()
 
-      !bmaa
       select type (dst)
       type is (FieldClassAspect)
 
