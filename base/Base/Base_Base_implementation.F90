@@ -133,12 +133,6 @@ contains
     integer                               :: lb1, lb2, lb3
     integer                               :: ub1, ub2, ub3
 
-! SSI
-    type(ESMF_Pin_Flag) :: pinflag
-    type(ESMF_VM)       :: vm
-    logical             :: ssiSharedMemoryEnabled
-! SSI
-
     call ESMF_FieldGet(field, grid=GRID, _RC)
     call MAPL_GridGet(GRID, localCellCountPerDim=COUNTS, _RC)
     call ESMF_GridGet(GRID, dimCount=gridRank, _RC)
@@ -164,20 +158,6 @@ contains
        szungrd = size(UNGRID)
     end if
 
-! SSI
-    call ESMF_VMGetCurrent(vm, _RC)
-
-    call ESMF_VMGet(vm, ssiSharedMemoryEnabledFlag=ssiSharedMemoryEnabled, _RC)
-
-    ! call pinflag getter
-    pinflag = MAPL_PinFlagGet()
-    
-    if (any(pinflag == [ESMF_PIN_DE_TO_SSI,ESMF_PIN_DE_TO_SSI_CONTIG])) then
-       _ASSERT(ssiSharedMemoryEnabled, 'SSI shared memory is NOT supported')
-    end if
-
-! SSI
-
     Dimensionality: select case(DIMS)
 
        ! Horizontal and vertical
@@ -193,12 +173,9 @@ contains
           case (1)
              allocate(VAR_1D(UNGRID(1)), _STAT)
              VAR_1D = INIT_VALUE
-             call ESMF_FieldEmptyComplete(FIELD, farray=VAR_1D,    &
-                  indexflag=ESMF_INDEX_DELOCAL, &
+             call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VAR_1D,    &
                   datacopyFlag = ESMF_DATACOPY_REFERENCE,             &
                   gridToFieldMap=gridToFieldMap,                      &
-                  ungriddedLBound=[1],&
-                  ungriddedUBound=[ungrid(1)], &
                   _RC)
           case default
              _FAIL( 'unsupported rank > 1')
@@ -209,12 +186,9 @@ contains
           case (1)
              allocate(VR8_1D(UNGRID(1)), _STAT)
              VR8_1D = INIT_VALUE
-             call ESMF_FieldEmptyComplete(FIELD, farray=VR8_1D,    &
-                  indexflag=ESMF_INDEX_DELOCAL, &
+             call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VR8_1D,    &
                   datacopyFlag = ESMF_DATACOPY_REFERENCE,             &
                   gridToFieldMap=gridToFieldMap,                      &
-                  ungriddedLBound=[1],&
-                  ungriddedUBound=[ungrid(1)], &
                   _RC)
           case default
              _FAIL( 'unsupported rank > 1')
@@ -246,23 +220,15 @@ contains
           allocate(VAR_1D(lb1:ub1), _STAT)
           VAR_1D = INIT_VALUE
 
-          call ESMF_FieldEmptyComplete(FIELD, farray=var_1d,  &
-               indexflag=ESMF_INDEX_DELOCAL, &
-               datacopyFlag = ESMF_DATACOPY_REFERENCE,             &
+          call ESMF_FieldEmptyComplete(FIELD, farrayPtr=var_1d,  &
                gridToFieldMap=gridToFieldMap,                           &
-               ungriddedLBound=[lb1],&
-               ungriddedUBound=[ub1], &
                _RC)
        else
           allocate(VR8_1D(lb1:ub1), _STAT)
           VR8_1D = INIT_VALUE
 
-          call ESMF_FieldEmptyComplete(FIELD, farray=vr8_1d,  &
-               indexflag=ESMF_INDEX_DELOCAL, &
-               datacopyFlag = ESMF_DATACOPY_REFERENCE,             &
+          call ESMF_FieldEmptyComplete(FIELD, farrayPtr=vr8_1d,  &
                gridToFieldMap=gridToFieldMap,                           &
-               ungriddedLBound=[lb1],&
-               ungriddedUBound=[ub1], &
                _RC)
        end if
 
@@ -283,62 +249,64 @@ contains
        if (typekind == ESMF_KIND_R4) then
           RankCase2d: select case (rank)
           case (2)
-             call ESMF_FieldEmptyComplete(FIELD, typekind=ESMF_TYPEKIND_R4, &
-                  gridToFieldMap=gridToFieldMap,              &
-                  totalLWidth=haloWidth(1:griddedDims),     &
-                  totalUWidth=haloWidth(1:griddedDims),     &
-                  pinflag=pinflag, _RC)
-             call ESMF_FieldGet(FIELD, farrayPtr=VAR_2D, _RC)
+             allocate(VAR_2D(lb1:ub1, lb2:ub2), _STAT)
              VAR_2D = INIT_VALUE
+             call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VAR_2D, &
+                  datacopyFlag = ESMF_DATACOPY_REFERENCE,         &
+                  gridToFieldMap=gridToFieldMap,              &
+                  totalLWidth=haloWidth(1:griddedDims),     &
+                  totalUWidth=haloWidth(1:griddedDims),     &
+                  _RC)
           case (3)
-             call ESMF_FieldEmptyComplete(FIELD, typekind=ESMF_TYPEKIND_R4, &
-                  gridToFieldMap=gridToFieldMap,              &
-                  totalLWidth=haloWidth(1:griddedDims),     &
-                  totalUWidth=haloWidth(1:griddedDims),     &
-                  ungriddedLBound=(/1/), ungriddedUBound=(/UNGRID(1)/),  &
-                  pinflag=pinflag,_RC)
-             call ESMF_FieldGet(FIELD, farrayPtr=VAR_3D, _RC)
+             allocate(VAR_3D(lb1:ub1, lb2:ub2, UNGRID(1)), _STAT)
              VAR_3D = INIT_VALUE
-          case (4)
-             call ESMF_FieldEmptyComplete(FIELD, typekind=ESMF_TYPEKIND_R4, &
+             call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VAR_3D, &
+                  datacopyFlag = ESMF_DATACOPY_REFERENCE,         &
                   gridToFieldMap=gridToFieldMap,              &
                   totalLWidth=haloWidth(1:griddedDims),     &
                   totalUWidth=haloWidth(1:griddedDims),     &
-                  ungriddedLBound=(/1,1/), ungriddedUBound=(/UNGRID(1),UNGRID(2)/), &
-                pinflag=pinflag, _RC)
-             call ESMF_FieldGet(FIELD, farrayPtr=VAR_4D, _RC)
+                  _RC)
+          case (4)
+             allocate(VAR_4D(lb1:ub1, lb2:ub2, UNGRID(1), UNGRID(2)), _STAT)
              VAR_4D = INIT_VALUE
+             call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VAR_4D, &
+                  datacopyFlag = ESMF_DATACOPY_REFERENCE,         &
+                  gridToFieldMap=gridToFieldMap,              &
+                  totalLWidth=haloWidth(1:griddedDims),     &
+                  totalUWidth=haloWidth(1:griddedDims),     &
+                  _RC)
           case default
              _FAIL('only up to 4D are supported')
           end select RankCase2d
        else
           select case (rank)
           case (2)
-          call ESMF_FieldEmptyComplete(FIELD, typekind=ESMF_TYPEKIND_R8, &
-               gridToFieldMap=gridToFieldMap,                   &
-               totalLWidth=haloWidth(1:griddedDims),            &
-               totalUWidth=haloWidth(1:griddedDims),            &
-                pinflag=pinflag, _RC)
-          call ESMF_FieldGet(FIELD, farrayPtr=VR8_2D, _RC)
-          VR8_2D = INIT_VALUE
+             allocate(VR8_2D(lb1:ub1, lb2:ub2), _STAT)
+             VR8_2D = INIT_VALUE
+             call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VR8_2D, &
+                  datacopyFlag = ESMF_DATACOPY_REFERENCE,          &
+                  gridToFieldMap=gridToFieldMap,                   &
+                  totalLWidth=haloWidth(1:griddedDims),            &
+                  totalUWidth=haloWidth(1:griddedDims),            &
+                  _RC)
           case (3)
-          call ESMF_FieldEmptyComplete(FIELD, typekind=ESMF_TYPEKIND_R8, &
-               gridToFieldMap=gridToFieldMap,                   &
-               totalLWidth=haloWidth(1:griddedDims),            &
-               totalUWidth=haloWidth(1:griddedDims),            &
-               ungriddedLBound=(/1/), ungriddedUBound=(/UNGRID(1)/),  &
-               pinflag=pinflag, _RC)
-          call ESMF_FieldGet(FIELD, farrayPtr=VR8_3D, _RC)
-          VR8_3D = INIT_VALUE
+             allocate(VR8_3D(lb1:ub1, lb2:ub2, UNGRID(1)), _STAT)
+             VR8_3D = INIT_VALUE
+             call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VR8_3D, &
+                  datacopyFlag = ESMF_DATACOPY_REFERENCE,          &
+                  gridToFieldMap=gridToFieldMap,                   &
+                  totalLWidth=haloWidth(1:griddedDims),            &
+                  totalUWidth=haloWidth(1:griddedDims),            &
+                  _RC)
           case (4)
-          call ESMF_FieldEmptyComplete(FIELD, typekind=ESMF_TYPEKIND_R8, &
-               gridToFieldMap=gridToFieldMap,              &
-               totalLWidth=haloWidth(1:griddedDims),     &
-               totalUWidth=haloWidth(1:griddedDims),     &
-               ungriddedLBound=(/1,1/), ungriddedUBound=(/UNGRID(1),UNGRID(2)/), &
-               pinflag=pinflag, _RC)
-          call ESMF_FieldGet(FIELD, farrayPtr=VR8_4D, _RC)
-          VR8_4D = INIT_VALUE
+             allocate(VR8_4D(lb1:ub1, lb2:ub2, UNGRID(1), UNGRID(2)), _STAT)
+             VR8_4D = INIT_VALUE
+             call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VR8_4D, &
+                  datacopyFlag = ESMF_DATACOPY_REFERENCE,         &
+                  gridToFieldMap=gridToFieldMap,              &
+                  totalLWidth=haloWidth(1:griddedDims),     &
+                  totalUWidth=haloWidth(1:griddedDims),     &
+                  _RC)
           case default
              _FAIL('only up to 4D are supported')
           end select
@@ -371,44 +339,48 @@ contains
        RankCase3d: select case(rank)
        case (3)
           if (typekind == ESMF_KIND_R4) then
-             call ESMF_FieldEmptyComplete(FIELD, typekind=ESMF_TYPEKIND_R4, &
-                  gridToFieldMap=gridToFieldMap,              &
-                  totalLWidth=haloWidth(1:griddedDims),     &
-                  totalUWidth=haloWidth(1:griddedDims),     &
-                  ungriddedLBound=(/lb3/), ungriddedUBound=(/ub3/),  &
-                  pinflag=pinflag, _RC)
-             call ESMF_FieldGet(FIELD, farrayPtr=VAR_3D, _RC)
+             NULLIFY(VAR_3D)
+             allocate(VAR_3D(lb1:ub1, lb2:ub2, lb3:ub3), _STAT)
              VAR_3D = INIT_VALUE
-          else
-             call ESMF_FieldEmptyComplete(FIELD, typekind=ESMF_TYPEKIND_R8, &
+             call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VAR_3D, &
+                  datacopyFlag = ESMF_DATACOPY_REFERENCE,         &
                   gridToFieldMap=gridToFieldMap,              &
                   totalLWidth=haloWidth(1:griddedDims),     &
                   totalUWidth=haloWidth(1:griddedDims),     &
-                  ungriddedLBound=(/lb3/), ungriddedUBound=(/ub3/),  &
-                  pinflag=pinflag, _RC)
-             call ESMF_FieldGet(FIELD, farrayPtr=VR8_3D, _RC)
+                  _RC)
+          else
+             NULLIFY(VR8_3D)
+             allocate(VR8_3D(lb1:ub1, lb2:ub2, lb3:ub3), _STAT)
              VR8_3D = INIT_VALUE
+             call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VR8_3D, &
+                  datacopyFlag = ESMF_DATACOPY_REFERENCE,         &
+                  gridToFieldMap=gridToFieldMap,              &
+                  totalLWidth=haloWidth(1:griddedDims),     &
+                  totalUWidth=haloWidth(1:griddedDims),     &
+                  _RC)
           endif
 
        case (4)
           if (typekind == ESMF_KIND_R4) then
-             call ESMF_FieldEmptyComplete(FIELD, typekind=ESMF_TYPEKIND_R4, &
-                  gridToFieldMap=gridToFieldMap,              &
-                  totalLWidth=haloWidth(1:griddedDims),     &
-                  totalUWidth=haloWidth(1:griddedDims),     &
-                  ungriddedLBound=(/lb3,1/), ungriddedUBound=(/ub3,ungrid(1)/),  &
-                   pinflag=pinflag, _RC)
-             call ESMF_FieldGet(FIELD, farrayPtr=VAR_4D, _RC)
+             NULLIFY(VAR_4D)
+             allocate(VAR_4D(lb1:ub1, lb2:ub2, lb3:ub3, ungrid(1)), _STAT)
              VAR_4D = INIT_VALUE
-          else
-             call ESMF_FieldEmptyComplete(FIELD, typekind=ESMF_TYPEKIND_R8, &
+             call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VAR_4D, &
+                  datacopyFlag = ESMF_DATACOPY_REFERENCE,         &
                   gridToFieldMap=gridToFieldMap,              &
                   totalLWidth=haloWidth(1:griddedDims),     &
                   totalUWidth=haloWidth(1:griddedDims),     &
-                  ungriddedLBound=(/lb3,1/), ungriddedUBound=(/ub3,ungrid(1)/),  &
-                   pinflag=pinflag, _RC)
-             call ESMF_FieldGet(FIELD, farrayPtr=VR8_4D, _RC)
+                  _RC)
+          else
+             NULLIFY(VR8_4D)
+             allocate(VR8_4D(lb1:ub1, lb2:ub2, lb3:ub3, ungrid(1)), _STAT)
              VR8_4D = INIT_VALUE
+             call ESMF_FieldEmptyComplete(FIELD, farrayPtr=VR8_4D, &
+                  datacopyFlag = ESMF_DATACOPY_REFERENCE,         &
+                  gridToFieldMap=gridToFieldMap,              &
+                  totalLWidth=haloWidth(1:griddedDims),     &
+                  totalUWidth=haloWidth(1:griddedDims),     &
+                  _RC)
           endif
 
        case default
@@ -1215,15 +1187,46 @@ contains
     !   are the SAME as the one in the original Field, if DoCopy flag is present
     !   and set to true we create a new array and copy the data, not just reference it
 
+    type(ESMF_Grid)         :: grid
+    character(len=ESMF_MAXSTR)       :: fieldName
+    integer, allocatable    :: gridToFieldMap(:)
+    integer                 :: gridRank
+    integer                 :: fieldRank
     integer                 :: status
+    integer                 :: unGridDims
     character(len=ESMF_MAXSTR), parameter :: Iam='MAPL_FieldCreateRename'
+    logical                 :: hasUngridDims
+    integer                 :: notGridded
     logical                 :: DoCopy_
     type(ESMF_DataCopy_Flag):: datacopy
+    real, pointer           :: var_1d(:)
+    real, pointer           :: var_2d(:,:)
+    real, pointer           :: var_3d(:,:,:)
+    real, pointer           :: var_4d(:,:,:,:)
+    real(kind=REAL64), pointer           :: vr8_1d(:)
+    real(kind=REAL64), pointer           :: vr8_2d(:,:)
+    real(kind=REAL64), pointer           :: vr8_3d(:,:,:)
+    real(kind=REAL64), pointer           :: vr8_4d(:,:,:,:)
+    type(ESMF_TypeKind_Flag)  :: tk
 
     DoCopy_ = .false.
     if (present(DoCopy) ) then
        DoCopy_ = DoCopy
     end if
+
+    call ESMF_FieldGet(FIELD, grid=GRID, dimCount=fieldRank, &
+         name=fieldName, _RC)
+    call ESMF_GridGet(GRID, dimCount=gridRank, _RC)
+   allocate(gridToFieldMap(gridRank), _STAT)
+    call ESMF_FieldGet(FIELD, gridToFieldMap=gridToFieldMap, typekind=tk, _RC)
+
+    hasUngridDims = .false.
+    notGridded = count(gridToFieldMap==0)
+    unGridDims = fieldRank - gridRank + notGridded
+
+    if (unGridDims > 0) then
+       hasUngridDims = .true.
+    endif
 
     if (doCopy_) then
        datacopy = ESMF_DATACOPY_VALUE
@@ -1231,7 +1234,71 @@ contains
        datacopy = ESMF_DATACOPY_REFERENCE
     end if
 
-    f = ESMF_FieldCreate(field, datacopyflag=datacopy, name=NAME, _RC)
+    f = MAPL_FieldCreateEmpty(name=NAME, grid=grid, _RC)
+
+    if (tk == ESMF_TypeKind_R4) then
+       select case (fieldRank)
+       case (1)
+          call ESMF_FieldGet(field, farrayPtr=var_1d, _RC)
+          call ESMF_FieldEmptyComplete(F, farrayPtr=VAR_1D,    &
+               gridToFieldMap=gridToFieldMap,                      &
+               datacopyFlag = datacopy,             &
+               _RC)
+       case (2)
+          call ESMF_FieldGet(field, farrayPtr=var_2d, _RC)
+          call ESMF_FieldEmptyComplete(F, farrayPtr=VAR_2D,    &
+               gridToFieldMap=gridToFieldMap,                      &
+               datacopyFlag = datacopy,             &
+               _RC)
+       case (3)
+          call ESMF_FieldGet(field, farrayPtr=var_3d, _RC)
+          call ESMF_FieldEmptyComplete(F, farrayPtr=VAR_3D,    &
+               gridToFieldMap=gridToFieldMap,                      &
+               datacopyFlag = datacopy,             &
+               _RC)
+       case (4)
+          call ESMF_FieldGet(field, farrayPtr=var_4d, _RC)
+          call ESMF_FieldEmptyComplete(F, farrayPtr=VAR_4D,    &
+               gridToFieldMap=gridToFieldMap,                      &
+               datacopyFlag = datacopy,             &
+               _RC)
+       case default
+          _FAIL( 'only upto 4D are supported')
+       end select
+    else if (tk == ESMF_TypeKind_R8) then
+       select case (fieldRank)
+       case (1)
+          call ESMF_FieldGet(field, farrayPtr=vr8_1d, _RC)
+          call ESMF_FieldEmptyComplete(F, farrayPtr=VR8_1D,    &
+               gridToFieldMap=gridToFieldMap,                      &
+               datacopyFlag = datacopy,             &
+               _RC)
+       case (2)
+          call ESMF_FieldGet(field, farrayPtr=vr8_2d, _RC)
+          call ESMF_FieldEmptyComplete(F, farrayPtr=VR8_2D,    &
+               gridToFieldMap=gridToFieldMap,                      &
+               datacopyFlag = datacopy,             &
+               _RC)
+       case (3)
+          call ESMF_FieldGet(field, farrayPtr=vr8_3d, _RC)
+          call ESMF_FieldEmptyComplete(F, farrayPtr=VR8_3D,    &
+               gridToFieldMap=gridToFieldMap,                      &
+               datacopyFlag = datacopy,             &
+               _RC)
+       case (4)
+          call ESMF_FieldGet(field, farrayPtr=vr8_4d, _RC)
+          call ESMF_FieldEmptyComplete(F, farrayPtr=VR8_4D,    &
+               gridToFieldMap=gridToFieldMap,                      &
+               datacopyFlag = datacopy,             &
+               _RC)
+       case default
+          _FAIL( 'only 2D and 3D are supported')
+       end select
+    else
+       _FAIL( 'unsupported typekind')
+    endif
+
+    deallocate(gridToFieldMap)
 
     call MAPL_FieldCopyAttributes(FIELD_IN=field, FIELD_OUT=f, _RC)
 
@@ -2911,7 +2978,7 @@ contains
        type(ESMF_Grid), intent(inout) :: grid
        logical :: OK
        integer :: I1, I2, J1, J2, j
-       real(ESMF_KIND_R8), allocatable :: corner_lons(:,:), corner_lats(:,:)
+       real(ESMF_KIND_R8), pointer :: corner_lons(:,:), corner_lats(:,:)
        real(ESMF_KIND_R8), allocatable :: lonRe(:), latRe(:)
        real(ESMF_KIND_R8), allocatable :: accurate_lat(:), accurate_lon(:)
        real(ESMF_KIND_R8) :: stretch_factor, target_lon, target_lat, shift0
@@ -2923,13 +2990,10 @@ contains
        call MAPL_GridGet(grid, localCellCountPerDim=local_dims, _RC)
        OK = .true.
        ! check the edge of face 1 along longitude
-       !call ESMF_GridGetCoord(grid,localDE=0,coordDim=1,staggerloc=ESMF_STAGGERLOC_CORNER, &
-       !     farrayPtr=corner_lons, _RC)
-       !call ESMF_GridGetCoord(grid,localDE=0,coordDim=2,staggerloc=ESMF_STAGGERLOC_CORNER, &
-       !     farrayPtr=corner_lats, _RC)
-       allocate(corner_lons(local_dims(1)+1, local_dims(2)+1))
-       allocate(corner_lats(local_dims(1)+1, local_dims(2)+1))
-       call MAPL_GridGetCorners(grid, corner_lons, corner_lats, _RC)
+       call ESMF_GridGetCoord(grid,localDE=0,coordDim=1,staggerloc=ESMF_STAGGERLOC_CORNER, &
+            farrayPtr=corner_lons, _RC)
+       call ESMF_GridGetCoord(grid,localDE=0,coordDim=2,staggerloc=ESMF_STAGGERLOC_CORNER, &
+            farrayPtr=corner_lats, _RC)
 
 
        if ( I1 == 1 .and. J1 == 1 ) then
@@ -3251,68 +3315,161 @@ contains
     ! local vars
     integer :: status
     integer :: k, n
-    integer :: k1,k2
+    integer :: k1,k2,kk
+    integer :: gridRank
+
     logical                    :: has_ungrd
     integer                    :: ungrd_cnt
     integer                    :: fieldRank
+    integer, allocatable       :: gridToFieldMap(:)
     integer, allocatable       :: ungrd(:)
-    integer, allocatable       :: localMinIndex(:), localMaxIndex(:)
+    real, pointer              :: ptr4d(:,:,:,:) => null()
+    real, pointer              :: ptr3d(:,:,:) => null()
+    real, pointer              :: ptr2d(:,:) => null()
     type(ESMF_Field)           :: f, fld
+    type(ESMF_Grid)            :: grid
+    type(ESMF_TypeKind_Flag)   :: tk
     character(len=ESMF_MAXSTR) :: name
     character(len=ESMF_MAXSTR) :: splitName
     character(len=ESMF_MAXSTR), allocatable :: splitNameArray(:)
     character(len=ESMF_MAXSTR) :: longName
 
-    call ESMF_FieldGet(field, name=name, _RC)
+    ! get ptr
+    ! loop over 3-d or 4-d dim
+    ! create 2d or 3d field
+    ! put in state/bundle
+    ! end-of-loop
+    call ESMF_FieldGet(field, name=name, grid=grid, typekind=tk, rc=status)
+    _VERIFY(STATUS)
 
-    call ESMF_FieldGet(FIELD, dimCount=fieldRank, _RC)
+    call ESMF_GridGet(GRID, dimCount=gridRank, rc=status)
+    _VERIFY(STATUS)
+    allocate(gridToFieldMap(gridRank), stat=status)
+    _VERIFY(STATUS)
+    call ESMF_FieldGet(field, gridToFieldMap=gridToFieldMap, rc=status)
+    _VERIFY(STATUS)
 
-    allocate(localMinIndex(fieldRank),localMaxIndex(fieldRank), _STAT)
-    call ESMF_FieldGet(Field, &
-         localMinIndex=localMinIndex, localMaxIndex=localMaxIndex, _RC)
+    if (tk == ESMF_TYPEKIND_R4) then
+       call ESMF_FieldGet(FIELD, dimCount=fieldRank, rc=status)
+       _VERIFY(STATUS)
+       if (fieldRank == 4) then
 
-    k1 = localMinIndex(fieldRank)
-    k2 = localMaxIndex(fieldRank)
-    deallocate(localMinIndex,localMaxIndex)
+          !ALT: assumes 1 DE per PET
+          call ESMF_FieldGet(Field,0,ptr4D,rc=status)
+          _VERIFY(STATUS)
+          n = size(ptr4d,4)
+          allocate(fields(n), stat=status)
+          _VERIFY(STATUS)
+          n = 0
+          k1=lbound(ptr4d,4)
+          k2=ubound(ptr4d,4)
+          kk = k2-k1+1
+          call genAlias(name, kk, splitNameArray, aliasName=aliasName,rc=status)
+          _VERIFY(STATUS)
 
-    n = k2 - k1 + 1
+          do k=k1,k2
+             n = n+1
+             ptr3d => ptr4d(:,:,:,k)
+             ! create a new field
+             splitName = splitNameArray(n)
+             f = MAPL_FieldCreateEmpty(name=splitName, grid=grid, rc=status)
+             _VERIFY(STATUS)
+             call ESMF_FieldEmptyComplete(F, farrayPtr=ptr3D,    &
+                  datacopyFlag = ESMF_DATACOPY_REFERENCE,             &
+                  gridToFieldMap=gridToFieldMap,                      &
+                  rc = status)
+             _VERIFY(STATUS)
+             ! copy attributes and adjust as necessary
+             fld = field ! shallow copy to get around intent(in/out)
+             call MAPL_FieldCopyAttributes(FIELD_IN=fld, FIELD_OUT=f, RC=status)
+             _VERIFY(STATUS)
 
-    allocate(fields(n), _STAT)
+             ! adjust ungridded dims attribute (if any)
+             call ESMF_AttributeGet(FIELD, NAME='UNGRIDDED_DIMS', isPresent=has_ungrd, RC=STATUS)
+             _VERIFY(STATUS)
+             if (has_ungrd) then
+                call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', itemcount=UNGRD_CNT, RC=STATUS)
+                _VERIFY(STATUS)
+                allocate(ungrd(UNGRD_CNT), stat=status)
+                _VERIFY(STATUS)
+                call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', valueList=UNGRD, RC=STATUS)
+                _VERIFY(STATUS)
+                call ESMF_AttributeRemove(F, NAME='UNGRIDDED_DIMS', RC=STATUS)
+                _VERIFY(STATUS)
+                if (ungrd_cnt > 1) then
+                   ungrd_cnt = ungrd_cnt - 1
+                   call ESMF_AttributeSet(F, NAME='UNGRIDDED_DIMS', &
+                        valueList=UNGRD(1:ungrd_cnt), RC=STATUS)
+                   _VERIFY(STATUS)
+                else
+                   has_ungrd = .false.
+                end if
+                deallocate(ungrd)
+             end if
 
-    call genAlias(name, n, splitNameArray, aliasName=aliasName,_RC)
+             fields(n) = f
+          end do
+       else if (fieldRank == 3) then
+          !ALT: assumes 1 DE per PET
+          call ESMF_FieldGet(Field,0,ptr3D,rc=status)
+          _VERIFY(STATUS)
+          n = size(ptr3d,3)
+          allocate(fields(n), stat=status)
+          _VERIFY(STATUS)
+          n = 0
+          k1=lbound(ptr3d,3)
+          k2=ubound(ptr3d,3)
+          kk = k2-k1+1
+          call genAlias(name, kk, splitNameArray, aliasName=aliasName,rc=status)
+          _VERIFY(STATUS)
+          do k=k1,k2
+             n = n+1
+             ptr2d => ptr3d(:,:,k)
+             ! create a new field
+             splitName = splitNameArray(n)
+             f = MAPL_FieldCreateEmpty(name=splitName, grid=grid, rc=status)
+             _VERIFY(STATUS)
+             call ESMF_FieldEmptyComplete(F, farrayPtr=ptr2D,    &
+                  datacopyFlag = ESMF_DATACOPY_REFERENCE,             &
+                  gridToFieldMap=gridToFieldMap,                      &
+                  rc = status)
+             _VERIFY(STATUS)
+             ! copy attributes and adjust as necessary
+             fld = field ! shallow copy to get around intent(in/out)
+             call MAPL_FieldCopyAttributes(FIELD_IN=fld, FIELD_OUT=f, RC=status)
+             _VERIFY(STATUS)
 
-    n = 0
-    do k=k1,k2
-       n = n+1
-       splitName = splitNameArray(n)
-       f = ESMF_FieldCreate(field, &
-            datacopyflag=ESMF_DATACOPY_REFERENCE, &
-            trailingUngridSlice=[k], name=splitName, _RC)
+             ! adjust ungridded dims attribute (if any)
+             call ESMF_AttributeGet(FIELD, NAME='UNGRIDDED_DIMS', isPresent=has_ungrd, RC=STATUS)
+             _VERIFY(STATUS)
+             if (has_ungrd) then
+                call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', itemcount=UNGRD_CNT, RC=STATUS)
+                _VERIFY(STATUS)
+                allocate(ungrd(UNGRD_CNT), stat=status)
+                _VERIFY(STATUS)
+                call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', valueList=UNGRD, RC=STATUS)
+                _VERIFY(STATUS)
+                call ESMF_AttributeRemove(F, NAME='UNGRIDDED_DIMS', RC=STATUS)
+                _VERIFY(STATUS)
+                if (ungrd_cnt > 1) then
+                   ungrd_cnt = ungrd_cnt - 1
+                   call ESMF_AttributeSet(F, NAME='UNGRIDDED_DIMS', &
+                        valueList=UNGRD(1:ungrd_cnt), RC=STATUS)
+                   _VERIFY(STATUS)
+                else
+                   has_ungrd = .false.
+                end if
+                deallocate(ungrd)
+             end if
 
-       ! copy attributes and adjust as necessary
-       fld = field ! shallow copy to get around intent(in/out)
-       call MAPL_FieldCopyAttributes(FIELD_IN=fld, FIELD_OUT=f, _RC)
-
-       ! adjust ungridded dims attribute (if any)
-       call ESMF_AttributeGet(FIELD, NAME='UNGRIDDED_DIMS', isPresent=has_ungrd, _RC)
-       if (has_ungrd) then
-          call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', itemcount=UNGRD_CNT, _RC)
-          allocate(ungrd(UNGRD_CNT), _STAT)
-          call ESMF_AttributeGet(F, NAME='UNGRIDDED_DIMS', valueList=UNGRD, _RC)
-          call ESMF_AttributeRemove(F, NAME='UNGRIDDED_DIMS', _RC)
-          if (ungrd_cnt > 1) then
-             ungrd_cnt = ungrd_cnt - 1
-             call ESMF_AttributeSet(F, NAME='UNGRIDDED_DIMS', &
-                  valueList=UNGRD(1:ungrd_cnt), _RC)
-          else
-             has_ungrd = .false.
-          end if
-          deallocate(ungrd)
+             fields(n) = f
+          end do
        end if
+    else if (tk == ESMF_TYPEKIND_R8) then
+       _FAIL( "R8 overload not implemented yet")
+    end if
 
-       fields(n) = f
-    end do
-
+    deallocate(gridToFieldMap)
     deallocate(splitNameArray)
     ! fields SHOULD be deallocated by the caller!!!
 
