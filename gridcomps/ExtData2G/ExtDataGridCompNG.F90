@@ -36,7 +36,6 @@
    use MAPL_GenericMod
    use MAPL_VarSpecMod
    use MAPL_CFIOMod
-   use MAPL_NewArthParserMod
    use MAPL_ConstantsMod, only: MAPL_RADIANS_TO_DEGREES, MAPL_GRAV
    use, intrinsic :: iso_fortran_env, only: REAL32
    use linearVerticalInterpolation_mod
@@ -67,6 +66,7 @@
    use MAPL_ExtDataDerivedExportVectorMod
    use VerticalCoordinateMod
    use VerticalRegridConserveInterfaceMod
+   use MAPL_StateUtils
 
    IMPLICIT NONE
    PRIVATE
@@ -902,6 +902,7 @@ CONTAINS
             (item%enable_vertical_regrid .eqv. .true.)) item%allow_vertical_regrid = .true.
         
         if (item%allow_vertical_regrid) then
+           _ASSERT(item%vcoord%vertical_type == model_pressure, "Vertical regridding requested in ExtData2G, but file is not on hybrid sigma levels")
            item%aux_ps = item%vcoord%surf_name
            if (index(item%units,mol_per_mol) > 0) then
               molecular_weight = metadata%get_var_attr_real32(item%var, 'molecular_weight', _RC) 

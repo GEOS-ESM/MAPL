@@ -3,7 +3,7 @@ module VerticalRegridConserveInterfaceMod
    use PFIO
    use MAPL_ExceptionHandling
    use MAPL_CommsMod
-   use GEOS_GmapMod
+   use MAPL_Eta2EtaMod
    use MAPL_ConstantsMod, only: MAPL_GRAV,MAPL_AIRMW,MAPL_H2OMW
    use udunits2f, UDUNITS_are_convertible => are_convertible, &
       initialize_udunits => initialize, finalize_udunits => finalize

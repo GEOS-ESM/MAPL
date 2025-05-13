@@ -9,6 +9,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- define `comp_name` in `MAPL_GridCreate` when GC is not present
+- Fixed bug in profiler demo
+
+### Added
+
+- Added logging prints for `MAPL_read_bundle`
+- Added a new `StateFilterItem` funtion to apply a mask or extra using a combination of variables from a state and return an array with the result
+- Implemented a new feature in to allow users to select the appropriate [`ESMF_PIN`](https://earthsystemmodeling.org/docs/release/latest/ESMF_refdoc/node6.html#const:pin_flag) values. Users control this via `CAP.rc` and the choices are:
+  - `ESMF_PINFLAG: PET` --> `ESMF_PIN_DE_TO_PET`
+  - `ESMF_PINFLAG: VAS` --> `ESMF_PIN_DE_TO_VAS`
+  - `ESMF_PINFLAG: SSI` --> `ESMF_PIN_DE_TO_SSI`
+  - `ESMF_PINFLAG: SSI_CONTIG` --> `ESMF_PIN_DE_TO_SSI_CONTIG` (default with no setting)
+
+### Changed
+
+- Update `components.yaml`
+  - `ESMA_env` v4.37.0
+    - Update to Baselibs 7.33.0
+      - ESMF 8.8.1 (needed for MAPL3)
+      - Fixes for CMake 4
+  - `ESMA_cmake` v3.59.0
+    - Fix for XCode 16.3
+    - Fixes for f2py with MPT
+
+- Update documentation on ACG in repo
+- Update CI to use ifx 2025.1
+
+### Removed
+
+### Deprecated
+
+## [2.55.1] - 2025-04-23
+
+### Fixed
+
+- Renamed module for conservative vertical regridding code so as to not conflict so an external module
+
+### Added
+
+- Added a few error traps in ExtData when processing vertical coordinate for use in regridding
+
+## [2.55.0] - 2025-04-15
+
+### Fixed
+
 - Fixed problem related to stale pointers to temp copies of dummy arguments in `MAPL_Cap.F90`.  Fix is to add `TARGET` attribute in select locations.
 - Fix for case where 2nd argument to `transfer()` was not allocated in the OpenMP support layer.  Was not detected by other compilers.  The fix is to use a literal integer array instead.
 - Add `schema.version: 1` to enable trajectory sampler using a single GRID_LABEL item
@@ -17,12 +62,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - change `geoval_fields` to `fields` in obs_platform
 - change `sampler_spec` to `sampler_type`
 - Fixed problem in History when no fields appear on the `fields:` line in a collection (issue #3525)
+- Fixed bug that broke SCM model in GEOS
+- Fix ExtData2G unit test for GNU on Discover
+- Fixed nesting of internal timers (issue #3412)
+- Fixed issue of `make tests` not building all needed executables
+- Incorrect specification of EOL for Darwin+NAG in `MAPL_Config`.
+- Untrapped exceptions in `MAPL_LatLonGridFactory.F90`
 
 ### Added
 
 - Added subroutine to write nc4 tile file
 - Added new supported units for vertical regridding in ExtData, now supports `kg kg-1`, `mol mol-1`, `kg m-2` as well as per second variations of these, i.e. `kg kg-1 s-1`
-
 - Added CI build using spack
 - Added `Release` build CI tests for MAPL
 - Added new option to rule for ExtData2G to disable vertical regridding, default is true, vertical regridding is disabled
@@ -42,19 +92,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Clean up GCC 10+ warnings
 - Update `.editorconfig` for Fortran files enforcing 3-space indents and line length of 132
 - Migrated much of the CI to GitHub Actions
-
-### Fixed
-
-- Fixed bug that broke SCM model in GEOS
-- Fix ExtData2G unit test for GNU on Discover
-- Fixed nesting of internal timers (issue #3412)
-- Fixed issue of `make tests` not building all needed executables
-- Incorrect specification of EOL for Darwin+NAG in `MAPL_Config`.
-- Untrapped exceptions in `MAPL_LatLonGridFactory.F90`
-
-### Removed
-
-### Deprecated
 
 ## [2.54.2] - 2025-03-18
 
