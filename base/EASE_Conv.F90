@@ -297,7 +297,7 @@ contains
     ! recall that EASE grid indexing is zero-based
 
     if (present(ll_lat))  call ease_inverse(EASElabel, 0., rows-0.5, ll_lat, tmplon)     
-    if (present(ur_lat))  call ease_inverse(EASElabel, 0.,     -0.5, ur_lat, tmplon)     
+    if (present(ur_lat))  call ease_inverse(EASElabel, cols-1.0,     -0.5, ur_lat, tmplon)     
     
     if (present(ll_lon))  ll_lon = -180.
     if (present(ur_lon))  ur_lon =  180.

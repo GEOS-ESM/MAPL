@@ -15,6 +15,7 @@ module MAPL_EASEGridFactoryMod
    use ESMF
    use pFIO
    use MAPL_CommsMod
+   use EASE_ConvMod
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none
@@ -75,7 +76,6 @@ module MAPL_EASEGridFactoryMod
       procedure :: init_halo
       procedure :: halo
 
-
       procedure :: initialize_from_file_metadata
       procedure :: initialize_from_config_with_prefix
       procedure :: initialize_from_esmf_distGrid
@@ -119,66 +119,61 @@ contains
 
 
    function EASEGridFactory_from_parameters(unusable, grid_name, &
-        & im_world, jm_world, lm, nx, ny, ims, jms, &
-        & pole, dateline, lon_range, lat_range, force_decomposition, rc) result(factory)
+        & lm, nx, ny, ims, jms, &
+        & force_decomposition, rc) result(factory)
       type (EASEGridFactory) :: factory
       class (KeywordEnforcer), optional, intent(in) :: unusable
       character(len=*), optional, intent(in) :: grid_name
 
-      ! grid details:
-      integer, optional, intent(in) :: im_world
-      integer, optional, intent(in) :: jm_world
+      ! grid details  are from grid_name:
       integer, optional, intent(in) :: lm
-      character(len=2), optional, intent(in) :: pole
-      character(len=2), optional, intent(in) :: dateline
-      type (RealMinMax), optional, intent(in) :: lon_range
-      type (RealMinMax), optional, intent(in) :: lat_range
-
       ! decomposition:
       integer, optional, intent(in) :: nx
       integer, optional, intent(in) :: ny
       integer, optional, intent(in) :: ims(:)
       integer, optional, intent(in) :: jms(:)
       logical, optional, intent(in) :: force_decomposition
-
       integer, optional, intent(out) :: rc
 
-      integer :: status
+      integer :: status, cols, rows
+      real    :: cell_area, ur_lat, ur_lon, ll_lat, ll_lon 
 
       _UNUSED_DUMMY(unusable)
 
-      factory%is_regular = .true.
+      factory%is_regular = .false.
       call set_with_default(factory%grid_name, grid_name, MAPL_GRID_NAME_DEFAULT)
 
       call set_with_default(factory%nx, nx, MAPL_UNDEFINED_INTEGER)
       call set_with_default(factory%ny, ny, MAPL_UNDEFINED_INTEGER)
 
-      call set_with_default(factory%im_world, im_world, MAPL_UNDEFINED_INTEGER)
-      call set_with_default(factory%jm_world, jm_world, MAPL_UNDEFINED_INTEGER)
+      call ease_extent(grid_name, cols, rows, cell_area=cell_area, ll_lon=ll_lon, ll_lat=ll_lat, ur_lon=ur_lon, ur_lat=ur_lat)
+
+      call set_with_default(factory%im_world, cols, MAPL_UNDEFINED_INTEGER)
+      call set_with_default(factory%jm_world, rows, MAPL_UNDEFINED_INTEGER)
       call set_with_default(factory%lm, lm, MAPL_UNDEFINED_INTEGER)
 
       ! default is unallocated
       if (present(ims)) factory%ims = ims
       if (present(jms)) factory%jms = jms
 
-      call set_with_default(factory%pole, pole, MAPL_UNDEFINED_CHAR)
-      call set_with_default(factory%dateline, dateline, MAPL_UNDEFINED_CHAR)
+      call set_with_default(factory%pole,     'XY', MAPL_UNDEFINED_CHAR)
+      call set_with_default(factory%dateline, 'DE', MAPL_UNDEFINED_CHAR)
 
-      call set_with_default(factory%lon_range, lon_range, RealMinMax(MAPL_UNDEFINED_REAL,MAPL_UNDEFINED_REAL))
-      call set_with_default(factory%lat_range, lat_range, RealMinMax(MAPL_UNDEFINED_REAL,MAPL_UNDEFINED_REAL))
+      factory%lat_range =  RealMinMax(ll_lat, ur_lat)
+
       call set_with_default(factory%force_decomposition, force_decomposition, .false.)
 
       call factory%check_and_fill_consistency(_RC)
 
       ! Compute the centers and corners
       factory%lon_centers = factory%compute_lon_centers(factory%dateline, _RC)
-      factory%lat_centers = factory%compute_lat_centers(factory%pole, _RC)
+      factory%lat_centers = factory%compute_lat_centers(_RC)
       factory%lon_centers_degrees = factory%compute_lon_centers(factory%dateline, &
             convert_to_radians = .false.,  _RC)
-      factory%lat_centers_degrees = factory%compute_lat_centers(factory%pole, &
+      factory%lat_centers_degrees = factory%compute_lat_centers( &
             convert_to_radians = .false.,  _RC)
       factory%lon_corners = factory%compute_lon_corners(factory%dateline, _RC)
-      factory%lat_corners = factory%compute_lat_corners(factory%pole, _RC)
+      factory%lat_corners = factory%compute_lat_corners(_RC)
 
       _RETURN(_SUCCESS)
 
@@ -210,7 +205,7 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: status
+      integer :: status, k
       type(ESMF_PoleKind_Flag) :: polekindflag(2)
 
       _UNUSED_DUMMY(unusable)
@@ -255,7 +250,8 @@ contains
          call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, _RC)
       end if
 
-      call ESMF_AttributeSet(grid, 'GridType', 'LatLon', _RC)
+      k = index(this%grid_name, '_M')
+      call ESMF_AttributeSet(grid, 'GridType',  this%grid_name(1:k-1), _RC)
       if (.not.this%periodic) then
          call ESMF_AttributeSet(grid, 'Global', .false., _RC)
       end if
@@ -454,20 +450,18 @@ contains
    end function get_lat_corners
 
 
-   function compute_lat_centers(this, pole, unusable, convert_to_radians, rc) result(lat_centers)
+   function compute_lat_centers(this, unusable, convert_to_radians, rc) result(lat_centers)
       use MAPL_Constants, only: MAPL_DEGREES_TO_RADIANS_R8
       use MAPL_BaseMod
       real(kind=REAL64), allocatable :: lat_centers(:)
       class (EASEGridFactory), intent(in) :: this
-      character(2), intent(in) :: pole
       class (KeywordEnforcer), optional, intent(in) :: unusable
       logical, optional, intent(in)  :: convert_to_radians
       integer, optional, intent(out) :: rc
 
-      real(kind=REAL64) :: delta, min_coord, max_coord
-      logical :: regional
+      real(kind=REAL32) :: lat, tmplon, s
       logical :: local_convert_to_radians
-      integer :: status
+      integer :: status, row
 
       _UNUSED_DUMMY(unusable)
       if (present(convert_to_radians)) then
@@ -478,85 +472,51 @@ contains
 
       allocate(lat_centers(this%jm_world))
 
-      regional  = (pole == 'XY')
-      if (regional) then
-         delta = (this%lat_range%max - this%lat_range%min) / this%jm_world
-         min_coord = this%lat_range%min + delta/2
-         max_coord = this%lat_range%max - delta/2
-      else ! global grid
-
-         select case (pole)
-         case ('PE')
-            delta = 180.d0 / this%jm_world
-            min_coord = -90.d0 + delta/2
-            max_coord = +90.d0 - delta/2
-         case ('PC')
-            _ASSERT(this%jm_world > 1,'degenerate grid')
-            min_coord = -90.d0
-            max_coord = +90.d0
-         end select
-      end if
+      ! 
+      ! EASE grid counting from North to South, and the index is based on 0
+      ! 
+      do row = 0, this%jm_world-1
+         s = row*1.0
+         call ease_inverse(this%grid_name, 0., s, lat, tmplon) 
+         lat_centers(this%jm_world - row) = lat ! use lat-lon grid index to avoid confusion
+      enddo
 
       if (local_convert_to_radians) then
-         lat_centers = MAPL_Range(min_coord, max_coord, this%jm_world, &
-              & conversion_factor=MAPL_DEGREES_TO_RADIANS_R8, rc=status)
-      else
-         lat_centers = MAPL_Range(min_coord, max_coord, this%jm_world, rc=status)
-      end if
+         lat_centers = lat_centers * MAPL_DEGREES_TO_RADIANS_R8
+      endif
 
       _RETURN(_SUCCESS)
 
    end function compute_lat_centers
 
-   function compute_lat_corners(this, pole, unusable, rc) result(lat_corners)
+   function compute_lat_corners(this, unusable, rc) result(lat_corners)
       use MAPL_Constants, only: MAPL_DEGREES_TO_RADIANS_R8
       use MAPL_BaseMod
       real(kind=REAL64), allocatable :: lat_corners(:)
       class (EASEGridFactory), intent(in) :: this
-      character(2), intent(in) :: pole
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      real(kind=REAL64) :: delta, min_coord, max_coord
-      logical :: regional
+      real(kind=REAL32) :: s, lat, tmplon 
 
-      integer :: status
+      integer :: status, row
 
       _UNUSED_DUMMY(unusable)
 
       allocate(lat_corners(this%jm_world+1))
 
-      regional  = (pole == 'XY')
-      if (regional) then
-         delta = (this%lat_range%max - this%lat_range%min) / this%jm_world
-         min_coord = this%lat_range%min
-         max_coord = this%lat_range%max
-      else ! global grid
+     
+      do row = 0, this%jm_world
+         s = row - 0.5
+         call ease_inverse(this%grid_name, 0., s, lat, tmplon) 
+         lat_corners(this%jm_world +1 -row) = lat
+      enddo
 
-         select case (pole)
-         case ('PE')
-            delta = 180.d0 / this%jm_world
-            min_coord = -90.d0
-            max_coord = +90.d0
-         case ('PC')
-            _ASSERT(this%jm_world > 1, 'degenerate grid')
-            delta = 180.d0 / (this%jm_world-1)
-            min_coord = -90.d0-delta/2
-            max_coord = +90.d0+delta/2
-         end select
-      end if
-
-      lat_corners = MAPL_Range(min_coord, max_coord, this%jm_world+1, &
-           & conversion_factor=MAPL_DEGREES_TO_RADIANS_R8, rc=status)
-      if (pole == 'PC') then
-         lat_corners(1)=-90.d0*MAPL_DEGREES_TO_RADIANS_R8
-         lat_corners(this%jm_world+1)=90.d0*MAPL_DEGREES_TO_RADIANS_R8
-      end if
+      lat_corners = lat_corners * MAPL_DEGREES_TO_RADIANS_R8
 
       _RETURN(_SUCCESS)
 
    end function compute_lat_corners
-
 
    subroutine add_horz_coordinates(this, grid, unusable, rc)
       use MAPL_BaseMod, only: MAPL_grid_interior
@@ -868,10 +828,10 @@ contains
                this%lon_centers_degrees = this%compute_lon_centers(this%dateline, &
                       convert_to_radians=.false., _RC)
                this%lon_corners = this%compute_lon_corners(this%dateline, _RC)
-               this%lat_centers_degrees = this%compute_lat_centers(this%pole, &
+               this%lat_centers_degrees = this%compute_lat_centers(&
                       convert_to_radians=.false., _RC)
-               this%lat_centers = this%compute_lat_centers(this%pole, _RC)
-               this%lat_corners = this%compute_lat_corners(this%pole, _RC)
+               this%lat_centers = this%compute_lat_centers( _RC)
+               this%lat_corners = this%compute_lat_corners( _RC)
             else
                this%lon_centers_degrees = this%lon_centers
                this%lat_centers_degrees = this%lat_centers
@@ -917,15 +877,16 @@ contains
 
       call ESMF_VmGetCurrent(VM, _RC)
 
-      this%is_regular = .true.
+      this%is_regular = .false.
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'GRIDNAME:', default=MAPL_GRID_NAME_DEFAULT)
       this%grid_name = trim(tmp)
 
       call ESMF_ConfigGetAttribute(config, this%nx, label=prefix//'NX:', default=MAPL_UNDEFINED_INTEGER)
       call ESMF_ConfigGetAttribute(config, this%ny, label=prefix//'NY:', default=MAPL_UNDEFINED_INTEGER)
 
-      call ESMF_ConfigGetAttribute(config, this%im_world, label=prefix//'IM_WORLD:', default=MAPL_UNDEFINED_INTEGER)
-      call ESMF_ConfigGetAttribute(config, this%jm_world, label=prefix//'JM_WORLD:', default=MAPL_UNDEFINED_INTEGER)
+      ! given grid_name, im_world and jm_world are comupted
+
+      call ease_extent(this%grid_name, this%im_world, this%jm_world)
 
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'IMS_FILE:', rc=status)
       if ( status == _SUCCESS ) then
@@ -942,14 +903,8 @@ contains
 
       call ESMF_ConfigGetAttribute(config, this%lm, label=prefix//'LM:', default=MAPL_UNDEFINED_INTEGER)
 
-      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'POLE:', default=MAPL_UNDEFINED_CHAR, rc=status)
-      if (status == _SUCCESS) then
-         this%pole = trim(tmp)
-      end if
-      call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'DATELINE:', default=MAPL_UNDEFINED_CHAR, rc=status)
-      if (status == _SUCCESS) then
-         this%dateline = trim(tmp)
-      end if
+      this%pole     = "XY"
+      this%dateline = "DE"
 
       call get_range(this%lon_range, 'LON_RANGE:', _RC)
       call get_range(this%lat_range, 'LAT_RANGE:', _RC)
@@ -959,11 +914,11 @@ contains
       this%lon_centers = this%compute_lon_centers(this%dateline, _RC)
       this%lon_centers_degrees = this%compute_lon_centers(this%dateline, &
                convert_to_radians = .false., _RC)
-      this%lat_centers = this%compute_lat_centers(this%pole, _RC)
-      this%lat_centers_degrees = this%compute_lat_centers(this%pole, &
+      this%lat_centers = this%compute_lat_centers( _RC)
+      this%lat_centers_degrees = this%compute_lat_centers(&
                convert_to_radians = .false., _RC)
       this%lon_corners = this%compute_lon_corners(this%dateline, _RC)
-      this%lat_corners = this%compute_lat_corners(this%pole, _RC)
+      this%lat_corners = this%compute_lat_corners( _RC)
 
       _RETURN(_SUCCESS)
 
@@ -1094,9 +1049,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      if (.not. allocated(this%grid_name)) then
-         this%grid_name = MAPL_GRID_NAME_DEFAULT
-      end if
+      _ASSERT( index(this%grid_name, 'EASE') /=0, "grid_name is important to EASE Grid")
 
       ! Check decomposition/bounds
       ! WY notes: should not have this assert
@@ -1104,24 +1057,12 @@ contains
       call verify(this%nx, this%im_world, this%ims, _RC)
       call verify(this%ny, this%jm_world, this%jms, _RC)
 
-      ! Check regional vs global
-      if (this%pole == 'XY') then ! regional
-         _ASSERT(this%lat_range%min /= MAPL_UNDEFINED_REAL, 'uninitialized min for lat_range')
-         _ASSERT(this%lat_range%max /= MAPL_UNDEFINED_REAL, 'uninitialized min for lat_range')
-      else ! global
-         _ASSERT(any(this%pole == ['PE', 'PC']), 'unsupported option for pole:'//this%pole)
-         _ASSERT(this%lat_range%min == MAPL_UNDEFINED_REAL, 'inconsistent min for lat_range')
-         _ASSERT(this%lat_range%max == MAPL_UNDEFINED_REAL, 'inconsistent max for lat_range')
-      end if
-      if (this%dateline == 'XY') then
-         this%periodic = .false.
-         _ASSERT(this%lon_range%min /= MAPL_UNDEFINED_REAL, 'uninitialized min for lon_range')
-         _ASSERT(this%lon_range%max /= MAPL_UNDEFINED_REAL, 'uninitialized max for lon_range')
-      else
-         _ASSERT(any(this%dateline == ['DC', 'DE', 'GC', 'GE']), 'unsupported option for dateline')
-         _ASSERT(this%lon_range%min == MAPL_UNDEFINED_REAL, 'inconsistent min for lon_range')
-         _ASSERT(this%lon_range%max == MAPL_UNDEFINED_REAL, 'inconsistent max for lon_range')
-      end if
+      ! Check regional vs global, EASE grid doesnot include poles
+      _ASSERT(this%lat_range%min /= MAPL_UNDEFINED_REAL, 'uninitialized min for lat_range')
+      _ASSERT(this%lat_range%max /= MAPL_UNDEFINED_REAL, 'uninitialized min for lat_range')
+      _ASSERT(this%lon_range%min == MAPL_UNDEFINED_REAL, 'inconsistent min for lon_range')
+      _ASSERT(this%lon_range%max == MAPL_UNDEFINED_REAL, 'inconsistent max for lon_range')
+
       if (.not.this%force_decomposition) then
          verify_decomp = this%check_decomposition(_RC)
          if ( (.not.verify_decomp) ) then
@@ -1272,7 +1213,7 @@ contains
 
       _UNUSED_DUMMY(unusable)
 
-      this%is_regular = .true.
+      this%is_regular = .false.
       call ESMF_DistGridGet(dist_grid, dimCount=dim_count, tileCount=tile_count)
       allocate(max_index(dim_count, tile_count))
       call ESMF_DistGridGet(dist_grid, maxindexPTile=max_index)
@@ -1287,41 +1228,8 @@ contains
       call ESMF_LocalArrayGet(lon_array, farrayPtr=lon, _RC)
       call ESMF_LocalArrayGet(lat_array, farrayPtr=lat, _RC)
 
-
-      if (abs(lat(1) + PI/2) < tiny) then
-         pole = 'PC'
-      elseif (abs(lat(1) + PI/2 - 0.5*(lat(2)-lat(1))) < tiny) then
-         pole = 'PE'
-      else
-         pole = 'PC'
-      end if
-
-      ! the code below is kluge to return DE/DC wheither or not the file lons are -180 to 180 or 0 360
-      ! it detects whether the first longitudes which are cell centers
-      ! If first longitude is 0 or -180 (DC) it is dateline center in that 0 or -180 is
-      ! in the center of a grid cell.
-      ! or shifted by half a grid box (DE) so 0 or -180 is the edge of a cell
-      ! really should have 4 options dateline edge (DE), dateline center(DC)
-      ! grenwich center (GC) and grenwich edge (GE) but the last 2 are not supported
-      ! if it is GC or GE we will shift the data on the usage so that it is DE or DC for now
-      do i=0,1
-         if (abs(lon(1) + PI*i) < tiny) then
-            dateline = 'DC'
-            exit
-         elseif (abs(lon(1) + PI*i - 0.5*(lon(2)-lon(1))) < tiny) then
-            dateline = 'DE'
-            exit
-         end if
-      end do
-      !if (abs(lon(1) + PI) < tiny) then
-      !dateline = 'DC'
-      !elseif (abs(lon(1) + PI - 0.5*(lon(2)-lon(1))) < tiny) then
-      !dateline = 'DE'
-      !elseif (abs(lon(1)) < tiny) then
-      !dateline = 'GC'
-      !elseif (abs(lon(1) - 0.5*(lon(2)-lon(1))) < tiny) then
-      !dateline = 'GE'
-      !end if
+      pole = 'XY'
+      dateline = 'DE'
 
       call MAPL_ConfigSetAttribute(config, pole, 'POLE:')
       call MAPL_ConfigSetAttribute(config, dateline, 'DATELINE:')
@@ -1441,13 +1349,35 @@ contains
    function generate_grid_name(this) result(name)
       character(len=:), allocatable :: name
       class (EASEGridFactory), intent(in) :: this
+      integer :: cols
 
-      character(len=4) :: im_string, jm_string
+      ! the factoru should have the grid name
+      cols = this%im_world
+      select case (cols)
+      case (964)
+        name = 'EASEv2_M36'
+      case (1388)
+        name = 'EASEv2_M25'
+      case (3856)
+        name = 'EASEv2_M09'
+      case (11568)
+        name = 'EASEv2_M03'
+      case (34704)
+        name = 'EASEv2_M01'
 
-      write(im_string,'(i4.4)') this%im_world
-      write(jm_string,'(i4.4)') this%jm_world
-
-      name = this%dateline // im_string // 'x' // this%pole // jm_string
+      case (963)
+        name = 'EASEv1_M36'
+      case (1383)
+        name = 'EASEv1_M25'
+      case (3852)
+        name = 'EASEv1_M09'
+      case (11556)
+        name = 'EASEv1_M03'
+      case (34668)
+        name = 'EASEv1_M01'
+      case default
+        stop ('EASEGridFactory does not support this solution')
+      end select
 
    end function generate_grid_name
 

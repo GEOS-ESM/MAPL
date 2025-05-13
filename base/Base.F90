@@ -35,6 +35,7 @@ module MAPLBase_Mod
   use MAPL_RegridMethods
   use MAPL_GridManagerMod
   use MAPL_LatLonGridFactoryMod
+  use MAPL_EASEGridFactoryMod
   use MAPL_CubedSphereGridFactoryMod
   use MAPL_ExternalGridFactoryMod
   use MAPL_ShmemMod
