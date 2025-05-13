@@ -845,6 +845,7 @@ module subroutine  create_metadata(this,global_attributes,rc)
     character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
     character(len=ESMF_MAXSTR) :: xname
     real(kind=ESMF_KIND_R8), allocatable :: rtimes(:)
+    real(kind=REAL32), allocatable :: rtime(:)
     integer :: i, j, k, rank
     integer :: nx, nz
     integer :: ix, iy, m
@@ -885,9 +886,15 @@ module subroutine  create_metadata(this,global_attributes,rc)
     !
     allocate( rtimes(1), _STAT )
     rtimes(1) = this%compute_time_for_current(current_time,_RC) ! rtimes: seconds since opening file
-    if (this%use_pfio) then
+    if (mapl_am_i_root()) then
+      allocate( rtime(1), _STAT )
+      rtime(1) = rtimes(1)
+   else
+      allocate( rtime(0), _STAT )
+   endif 
+   if (this%use_pfio) then
        this%rtime = rtimes(1)*1.0
-       ref = ArrayReference(this%rtime)
+       ref = ArrayReference(rtime)
        call oClients%collective_stage_data(this%write_collection_id,trim(filename),'time', &
             ref,start=[1], global_start=[1], global_count=[1])
        call this%stage2DLatLon(trim(filename),oClients=oClients,_RC)
@@ -1056,15 +1063,9 @@ module subroutine  create_metadata(this,global_attributes,rc)
     ! Note: we have already gatherV to root the lon/lat
     !       in sub. create_Geosat_grid_find_mask
     !
-    if (mapl_am_i_root()) then
-       allocate(local_start,source=[1])
-       allocate(global_start,source=[1])
-       allocate(global_count,source=[this%npt_mask_tot])
-    else
-       allocate(local_start,source=[0])
-       allocate(global_start,source=[0])
-       allocate(global_count,source=[0])
-    end if
+    allocate(local_start,source=[1])
+    allocate(global_start,source=[1])
+    allocate(global_count,source=[this%npt_mask_tot])
 
     ref = ArrayReference(this%lons_deg)
     call oClients%collective_stage_data(this%write_collection_id,trim(filename),'longitude', &
