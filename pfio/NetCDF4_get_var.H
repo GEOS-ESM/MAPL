@@ -3,7 +3,7 @@
 #if _RANK==0
 #  define _OPTIONS rc
 #else
-#  define _OPTIONS start, count, rc
+#  define _OPTIONS start, count, stride, rc
 #endif
 
 #include "new_overload.macro"
@@ -17,6 +17,7 @@
 #if _RANK != 0
       integer, optional, intent(in) :: start(:)
       integer, optional, intent(in) :: count(:)
+      integer, optional, intent(in) :: stride(:)
 #endif
       integer, optional, intent(out) :: rc
 
@@ -48,7 +49,7 @@
 #if (_RANK == 0)
       status = nf90_get_var(ncid, varid, values)
 #else
-      status = nf90_get_var(ncid, varid, values, start, count)
+      status = nf90_get_var(ncid, varid, values, start, count, stride)
 #endif
 #endif
      !$omp end critical

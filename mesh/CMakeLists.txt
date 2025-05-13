@@ -9,5 +9,9 @@ set(srcs
 find_package (GFTL REQUIRED)
 find_package (GFTL_SHARED REQUIRED)
 ecbuild_add_executable (TARGET to_mesh.x SOURCES ${srcs})
-target_link_libraries(to_mesh.x PRIVATE MAPL NetCDF::NetCDF_Fortran GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
+
+target_link_libraries(to_mesh.x PRIVATE
+    MAPL NetCDF::NetCDF_Fortran
+    GFTL_SHARED::gftl-shared-v2 GFTL::gftl-v2
+    MPI::MPI_Fortran
 )

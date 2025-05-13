@@ -1,8 +1,10 @@
+#include "MAPL_ErrLog.h"
 module sf_MeshElement
    use, intrinsic :: iso_fortran_env, only: REAL64
    use sf_Point
    use sf_Pixel
    use sf_PixelVector
+   use mapl_ErrorHandling
    implicit none(type,external)
    private
 
@@ -32,8 +34,8 @@ contains
          min_idx = min(min_idx, p%catch_index)
          max_idx = max(max_idx, p%catch_index)
       end do
-           
-      do_refine = max_idx /= min_idx
+
+      do_refine = (max_idx /= min_idx)
 
    end function do_refine
 
@@ -80,16 +82,31 @@ contains
         child%corners(1,1) = linear(a, b, real(ix-1,kind=REAL64)/nx, real(iy+0,kind=REAL64)/ny)
 
       end associate
-      
+
       do i = 1, element%pixels%size()
          p => element%pixels%of(i)
-         if (p%center%longitude >= element%lon_1 .and. p%center%longitude < element%lon_2) then
-            if (p%center%latitude >= element%lat_1 .and. p%center%latitude < element%lat_2) then
+         if (p%center%longitude >= child%lon_1 .and. p%center%longitude < child%lon_2) then
+            if (p%center%latitude >= child%lat_1 .and. p%center%latitude < child%lat_2) then
                call child%pixels%push_back(p)
             end if
          end if
       end do
 
    end function get_child
-      
+
+!!$   subroutine make_children(element, nx, ny) result(children)
+!!$      type(MeshElement) :: children(nx,ny)
+!!$      type(MeshElement), intent(in) :: element
+!!$      integer, intent(in) :: nx, ny
+!!$
+!!$      integer :: ix, jy, n
+!!$
+!!$      do iy = 1, ny
+!!$         do ix = 1, nx
+!!$            call set_bounds(e, children(ix,iy), ix, iy, nx, ny)
+!!$            call set_corners(e, children(ix,iy), ix, iy, nx, ny)
+!!$         end do
+!!$      end do
+!!$   end subroutine make_children
+!!$      
 end module sf_MeshElement
