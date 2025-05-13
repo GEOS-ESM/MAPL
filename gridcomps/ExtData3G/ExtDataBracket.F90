@@ -15,7 +15,7 @@ module mapl3g_ExtDataBracket
       type(ExtDataNode) :: right_node
       logical          :: disable_interpolation = .false.
       contains
-         procedure :: get_bracket_weights 
+         procedure :: compute_bracket_weights 
          procedure :: time_in_bracket
          procedure :: set_parameters
          procedure :: get_left_node
@@ -85,7 +85,7 @@ contains
 
    end function get_left_node
 
-   function get_bracket_weights(this,time,rc) result(weights)
+   function compute_bracket_weights(this,time,rc) result(weights)
       real :: weights(2)
       class(ExtDataBracket), intent(inout) :: this
       type(ESMF_Time), intent(in) :: time
@@ -110,6 +110,6 @@ contains
          weights(2) = 1.0 - alpha
       end if
 
-   end function get_bracket_weights 
+   end function compute_bracket_weights 
 
 end module mapl3g_ExtDataBracket
