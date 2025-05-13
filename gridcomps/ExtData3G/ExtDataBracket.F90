@@ -26,13 +26,13 @@ contains
 
    subroutine set_parameters(this, disable_interpolation, left_node, right_node)
       class(ExtDataBracket), intent(inout) :: this
-      logical, intent(in) :: disable_interpolation
-      type(ExtDataNode), intent(in) :: left_node
-      type(ExtDataNode), intent(in) :: right_node
+      logical, intent(in), optional :: disable_interpolation
+      type(ExtDataNode), intent(in), optional :: left_node
+      type(ExtDataNode), intent(in), optional :: right_node
 
-      this%disable_interpolation = disable_interpolation
-      this%left_node = left_node
-      this%right_node = right_node
+      if (present(disable_interpolation)) this%disable_interpolation = disable_interpolation
+      if (present(left_node)) this%left_node = left_node
+      if (present(right_node)) this%right_node = right_node
    end subroutine
 
    function time_in_bracket(this,time) result(in_bracket)
@@ -109,7 +109,6 @@ contains
          weights(1) = alpha
          weights(2) = 1.0 - alpha
       end if
-      _RETURN(_SUCCESS)
 
    end function get_bracket_weights 
 
