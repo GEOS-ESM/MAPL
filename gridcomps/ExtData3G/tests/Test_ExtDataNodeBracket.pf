@@ -64,18 +64,18 @@ contains
       disable_interp = .true.
       call bracket%set_parameters(disable_interp, node1, node2)
       time = interp_time1
-      weights = bracket%get_bracket_weights(time, _RC)
+      weights = bracket%compute_bracket_weights(time, _RC)
       @assertEqual(weights,[1.0,0.0])
 
       disable_interp = .false.
       call bracket%set_parameters(disable_interp, node1, node2)
       call ESMF_TimeSet(time,yy=2001, mm=4, dd=15, h=9, m=0, s=0, _RC)
-      weights = bracket%get_bracket_weights(time, _RC)
+      weights = bracket%compute_bracket_weights(time, _RC)
       @assertEqual(weights,[0.5,0.5])
 
       disable_interp = .true.
       call bracket%set_parameters(disable_interp, node1, node2)
-      weights = bracket%get_bracket_weights(time, _RC)
+      weights = bracket%compute_bracket_weights(time, _RC)
       @assertEqual(weights,[1.0,0.0])
       
    end subroutine test_bracket
