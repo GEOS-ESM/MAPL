@@ -573,5 +573,16 @@ contains
       
    end function make_ClassAspect
       
+   subroutine validate_variable_spec(spec, rc)
+      class(VariableSpec), intent(in) :: spec
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      call validate_short_name(spec%short_name, _RC)
+      call validate_state_intent(spec%state_item, _RC)
+
+      
+      
+   end subroutine validate_variable_spec
    
 end module mapl3g_VariableSpec
