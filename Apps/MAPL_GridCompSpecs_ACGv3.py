@@ -7,6 +7,7 @@ import csv
 from collections.abc import Sequence
 from functools import partial, reduce
 from operator import concat
+from re import compile
 
 ################################# CONSTANTS ####################################
 SUCCESS = 0
@@ -86,6 +87,7 @@ TRUE_VALUE = '.true.'
 TRUE_VALUES = {'t', 'true', 'yes', 'y'}
 # identity function (id is a builtin function, so this is capitalized.)
 ID = lambda u: u
+BRACKET_RE = compile('[][]')
 
 ##################################### FLAGS ####################################
 def get_set(o):
@@ -435,17 +437,30 @@ def add_quotes(s):
     return f"'{rm_quotes(s)}'"
 mk_array = lambda s: '[ ' + str(s).strip().strip('[]') + ']' if s else None
 rm_quotes = lambda s: s.replace('"', '').replace("'", '') if s else None
+def rm_brackets(s):
+    return BRACKET_RE.sub(EMPTY, s)
+count_true = lambda it, pred: sum(map(pred, it))
+split_bracketed = lambda s, d: (p.strip() for p in s.strip().strip('][').split(d))
+count_by_delim = lambda s, d: s.count(d)+1
+count_not_empty = lambda s, d: count_true(split_bracketed(s, d), lambda p: len(p) > 0)
+
 construct_string_vector = lambda value: f"{TO_STRING_VECTOR}({add_quotes(value)})" if value else None
 
 def convert_to_fortran_logical(b):
      return TRUE_VALUE if b.strip().strip('.').lower() in TRUE_VALUES else FALSE_VALUE 
 
 def compute_rank(dims, ungridded):
-    RANK_LOOKUP = {"'z'": 1, "'xy'": 2, "'xyz'": 3}
-    base_rank = RANK_LOOKUP.get(dims)
+    stripped_len = lambda s: len(s.strip())
+    base_rank = {"'z'": 1, "'xy'": 2, "'xyz'": 3}.get(dims)
     if base_rank is None:
         return None
-    extra_rank = len(ungridded.strip('][').split(',')) if ungridded else 0
+    extra_rank = 0
+    if ungridded:
+        r0 = count_by_delim(ungridded, DIMDELIM)
+        r1 = count_not_empty(ungridded, DIMDELIM)
+        if r0 != r1:
+            return None
+        extra_rank = r0
     return base_rank + extra_rank
 
 def header():
@@ -481,7 +496,7 @@ def mangle_standard_name(name, prefix):
     return add_quotes(name)
 
 def mkiterable(o, exclude_string = True):
-    return o if isiterable(o) else [o]
+    return o if isiterable(o, exclude_string=exclude_string) else [o]
 
 def isiterable(o, exclude_string = True):
     if o is None or exclude_string and isinstance(o, str):
@@ -511,7 +526,7 @@ NAMED_MAPPINGS = {
         STRING: lambda value: add_quotes(value),
         STRINGVECTOR: lambda value: construct_string_vector(value),
         ARRAY: lambda value: mk_array(value),
-        MANGLED: lambda name: add_quotes(name.replace("*","'//trim(comp_name)//'")) if name else None,
+        MANGLED: lambda name: f"'{rm_quotes(name).replace("*","'//trim(comp_name)//'")}'" if name else None,
         STANDARD_NAME: mangle_standard_name,
         RANK: compute_rank, 
         MAKE_BLOCK: lambda value: partial(make_block, value)
