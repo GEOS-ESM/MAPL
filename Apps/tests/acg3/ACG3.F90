@@ -4,12 +4,12 @@
 #define _FAILURE _SUCCESS-1
 module mapl3g_acg3
    use mapl3g_Generic, only: MAPL_GridCompAddFieldSpec
-   use mapl3g_StateGetPointer, only: MAPL_StateGetPointer
+   use mapl3g_State_API, only: MAPL_StateGetPointer
    use mapl_ErrorHandling
    use mapl_KeywordEnforcer
-   use esmf, only: ESMF_STATEITEM_FIELD, ESMF_SUCCESS
+   use esmf, only: ESMF_STATEITEM_FIELD, ESMF_SUCCESS, ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_INTERNAL
    use esmf, only: ESMF_State, ESMF_GridComp, Esmf_StateIntent_Flag, ESMF_Field
-   use mapl3g_VerticalStaggerLoc, only: VerticalStaggerLoc
+   use mapl3g_VerticalStaggerLoc
 
    implicit none(type, external) 
 
@@ -20,6 +20,8 @@ module mapl3g_acg3
 ! ACG3 is hardwired to use these three ESMF_State variable names from
 ! category headings in acg/acg3.acg.
    type(ESMF_State) :: IMPORT, EXPORT, INTERNAL
+   type(ESMF_GridComp) :: gc
+   character(len=*), parameter :: comp_name = 'comp_name'
 
 contains
 
