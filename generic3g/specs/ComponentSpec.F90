@@ -30,6 +30,7 @@ module mapl3g_ComponentSpec
       type(ESMF_HConfig), allocatable :: geom_hconfig ! optional
       logical :: activate_all_exports = .false. ! used for testing in isolation
       logical :: activate_all_imports = .false. ! used for testing in isolation
+      logical :: write_exports = .false. ! used for testing in isolation
 
    contains
       procedure :: has_geom_hconfig

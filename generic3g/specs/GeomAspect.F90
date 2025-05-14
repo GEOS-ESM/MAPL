@@ -1,5 +1,4 @@
 #include "MAPL_Generic.h"
-
 module mapl3g_GeomAspect
    use mapl3g_ActualConnectionPt
    use mapl3g_AspectId
@@ -8,6 +7,7 @@ module mapl3g_GeomAspect
    use mapl3g_Geom_API, only: MAPL_SameGeom
    use mapl3g_regridder_mgr, only: EsmfRegridderParam
    use mapl3g_ExtensionTransform
+   use mapl3g_ExtendTransform
    use mapl3g_RegridTransform
    use mapl3g_NullTransform
    use mapl_ErrorHandling
@@ -24,7 +24,7 @@ module mapl3g_GeomAspect
    end interface to_GeomAspect
 
    type, extends(StateItemAspect) :: GeomAspect
-      private
+!#      private
       type(ESMF_Geom), allocatable :: geom
       type(EsmfRegridderParam) :: regridder_param
       type(HorizontalDimsSpec) :: horizontal_dims_spec = HORIZONTAL_DIMS_GEOM ! none, geom
@@ -100,7 +100,11 @@ contains
 
       select type(dst)
       class is (GeomAspect)
-         matches = MAPL_SameGeom(src%geom, dst%geom) .and. (src%horizontal_dims_spec == dst%horizontal_dims_spec)
+         if (src%is_mirror()) then
+            matches = .false. ! need geom extension
+         else
+            matches = MAPL_SameGeom(src%geom, dst%geom) .and. (src%horizontal_dims_spec == dst%horizontal_dims_spec)
+         end if
       class default
          matches = .false.
       end select
@@ -121,7 +125,12 @@ contains
       dst_ = to_GeomAspect(dst, _RC)
 
       deallocate(transform)
-      allocate(transform, source=RegridTransform(src%geom, dst_%geom, dst_%regridder_param))
+
+      if (src%is_mirror()) then
+         allocate(transform, source=ExtendTransform())
+      else
+         allocate(transform, source=RegridTransform(src%geom, dst_%geom, dst_%regridder_param))
+      end if
 
       _RETURN(_SUCCESS)
    end function make_transform

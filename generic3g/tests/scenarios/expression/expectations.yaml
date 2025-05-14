@@ -1,0 +1,25 @@
+- component: A/<user>
+  export:
+    A: {status: complete, value=1.}
+    B: {status: complete, value=2.}
+- component: A
+  export:
+    A: {status: complete}
+    B: {status: complete}
+    expr(1): {status: complete}
+
+- component: B/<user>
+  import:
+    I: {status: complete, value: 1.}  # A=1, B=2, C=3, (A+B)/C=3
+- component: B
+  import:
+    I: {status: complete}
+- component: <user>
+  import: {}
+  export: {}
+  internal: {}
+- component: <root>
+  export:
+    A/expr(1): {status: complete}
+    A/A: {status: complete}
+    A/B: {status: complete}

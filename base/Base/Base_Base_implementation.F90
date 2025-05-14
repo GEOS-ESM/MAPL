@@ -173,8 +173,13 @@ contains
 
     call ESMF_VMGet(vm, ssiSharedMemoryEnabledFlag=ssiSharedMemoryEnabled, _RC)
 
-    _ASSERT(ssiSharedMemoryEnabled, 'SSI shared memory is NOT supported')
-    pinflag=ESMF_PIN_DE_TO_SSI_CONTIG  ! requires support for SSI shared memory
+    ! call pinflag getter
+    pinflag = MAPL_PinFlagGet()
+
+    if (any(pinflag == [ESMF_PIN_DE_TO_SSI,ESMF_PIN_DE_TO_SSI_CONTIG])) then
+       _ASSERT(ssiSharedMemoryEnabled, 'SSI shared memory is NOT supported')
+    end if
+
 ! SSI
 
     Dimensionality: select case(DIMS)
@@ -1365,7 +1370,7 @@ contains
     call ESMF_InfoSet(infoh,'DIMS',DIMS,_RC)
 
     call assign_fptr(f, ptr1d, _RC)
-    ptr1d = 0.0    
+    ptr1d = 0.0
 
     _RETURN(ESMF_SUCCESS)
   end function MAPL_FieldCreateNewgrid

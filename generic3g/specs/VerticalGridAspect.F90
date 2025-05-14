@@ -5,6 +5,7 @@ module mapl3g_VerticalGridAspect
    use mapl3g_AspectId
    use mapl3g_StateItemAspect
    use mapl3g_ExtensionTransform
+   use mapl3g_ExtendTransform
    use mapl3g_VerticalGrid
    use mapl3g_NullTransform
    use mapl3g_VerticalRegridTransform
@@ -108,10 +109,13 @@ contains
       class(VerticalGridAspect), intent(in) :: src
       class(StateItemAspect), intent(in) :: dst
 
-      
       select type(dst)
       class is (VerticalGridAspect)
-         matches = dst%vertical_grid%is_identical_to(src%vertical_grid)
+         if (src%is_mirror()) then
+            matches = .false. ! need geom extension
+         else
+            matches = dst%vertical_grid%is_identical_to(src%vertical_grid)
+         end if
       class default
          matches = .false.
       end select
@@ -133,6 +137,11 @@ contains
       type(TypekindAspect) :: typekind_aspect
       character(:), allocatable :: units
       integer :: status
+
+      if (src%is_mirror()) then
+         allocate(transform, source=ExtendTransform())
+         _RETURN(_SUCCESS)
+      end if
 
       allocate(transform,source=NullTransform()) ! just in case
       dst_ = to_VerticalGridAspect(dst, _RC)

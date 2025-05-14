@@ -6,6 +6,7 @@
 #include "MAPL_ErrLog.h"
 module Test_ComponentSpecParser
    use funit
+   use mapl3g_StateItem
    use mapl3g_UserSetServices
    use mapl3g_ComponentSpecParser
    use mapl3g_ChildSpec
@@ -13,7 +14,7 @@ module Test_ComponentSpecParser
    use mapl_ErrorHandling
    use MAPL_TimeStringConversion
    use esmf
-   implicit none
+   implicit none(type,external)
 
 contains
 
@@ -236,5 +237,44 @@ contains
       call ESMF_HConfigDestroy(hconfig, _RC)
 
    end subroutine test_parse_timespec
+
+   @test
+   subroutine test_to_itemType()
+      type(ESMF_StateItem_Flag) :: itemtype
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate(content='{}')
+      itemtype = to_ItemType(hconfig)
+      @assert_that(itemType == MAPL_STATEITEM_FIELD, is(true()))
+      call ESMF_HConfigDestroy(hconfig)
+      
+      hconfig = ESMF_HConfigCreate(content='{class: vector}')
+      itemtype = to_ItemType( hconfig)
+      @assert_that(itemType == MAPL_STATEITEM_VECTOR, is(true()))
+      call ESMF_HConfigDestroy(hconfig)
+
+      hconfig = ESMF_HConfigCreate(content='{expression: A+B}')
+      itemtype = to_ItemType(hconfig)
+      @assert_that(itemType == MAPL_STATEITEM_EXPRESSION, is(true()))
+      call ESMF_HConfigDestroy(hconfig)
+
+      hconfig = ESMF_HConfigCreate(content='{}')
+      itemtype = to_ItemType(hconfig)
+      @assert_that(itemType == MAPL_STATEITEM_FIELD, is(true()))
+      call ESMF_HConfigDestroy(hconfig)
+      
+      hconfig = ESMF_HConfigCreate(content='{class: vector}')
+      itemtype = to_ItemType( hconfig)
+      @assert_that(itemType == MAPL_STATEITEM_VECTOR, is(true()))
+      call ESMF_HConfigDestroy(hconfig)
+
+      ! We do NOT allow "expression + other classes
+      hconfig = ESMF_HConfigCreate(content='{class: bracket, expression: A+B}')
+      itemtype = to_ItemType(hconfig, rc=status)
+      @assertExceptionRaised("Subclass bracket does not support expressions.")
+      call ESMF_HConfigDestroy(hconfig)
+
+   end subroutine test_to_itemType
 
 end module Test_ComponentSpecParser

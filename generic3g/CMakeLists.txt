@@ -21,6 +21,7 @@ set(srcs
   ComponentDriverPtrVector.F90
   GriddedComponentDriver.F90
   GriddedComponentDriverMap.F90
+  GriddedComponentDriverVector.F90
 
   MultiState.F90
   InnerMetaComponent.F90
@@ -92,7 +93,8 @@ esma_add_fortran_submodules(
   SUBDIRECTORY ComponentSpecParser
   SOURCES parse_child.F90 parse_children.F90 parse_connections.F90
           parse_var_specs.F90 parse_geometry_spec.F90 parse_component_spec.F90
-          parse_setservices.F90 parse_timespec.F90)
+          parse_setservices.F90 parse_timespec.F90
+	  to_itemtype.F90)
 
 esma_add_fortran_submodules(
   TARGET MAPL.generic3g

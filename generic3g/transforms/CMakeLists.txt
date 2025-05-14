@@ -3,6 +3,7 @@ target_sources(MAPL.generic3g PRIVATE
   TransformId.F90
   ExtensionTransform.F90
   NullTransform.F90
+  ExtendTransform.F90
   TransformVector.F90
 
   RegridTransform.F90
@@ -16,4 +17,6 @@ target_sources(MAPL.generic3g PRIVATE
   MaxTransform.F90
   MinTransform.F90
   AccumulatorTransformInterface.F90
+
+  EvalTransform.F90
 )

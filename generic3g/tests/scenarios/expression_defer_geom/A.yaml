@@ -1,0 +1,47 @@
+file_geom: &file_geom
+  esmf_geom:
+    class: latlon
+    im_world: 8
+    jm_world: 7
+    pole: PC
+    dateline: DC
+  vertical_grid:
+    class: basic
+    num_levels: 5
+
+model_geom: &model_geom
+  esmf_geom:
+    class: latlon
+    im_world: 12
+    jm_world: 13
+    pole: PC
+    dateline: DC
+
+  vertical_grid:
+    class: basic
+    num_levels: 5
+
+mapl:
+
+  states:
+    import: {}
+    export:
+      expr:
+        expression: A + B
+        units: m
+        vertical_dim_spec: NONE
+      A:
+        standard_name: A
+        units: 'm'
+        default_value: 1
+        vertical_dim_spec: NONE
+        geometry: *file_geom
+
+      B:
+        standard_name: B
+        units: 'm'
+        default_value: 2
+        vertical_dim_spec: NONE
+        geometry: *file_geom
+
+    internal: {}
