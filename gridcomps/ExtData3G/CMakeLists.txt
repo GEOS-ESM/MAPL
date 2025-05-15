@@ -3,13 +3,15 @@ esma_set_this (OVERRIDE MAPL.extdata3g)
 set(srcs
  ExtDataGridComp.F90
  ExtDataGridComp_private.F90
+ ExtDataNode.F90
+ ExtDataBracket.F90
  )
 
 find_package (MPI REQUIRED)
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.generic3g MAPL.GeomIO PFLOGGER::pflogger TYPE SHARED)
+  DEPENDENCIES MAPL.generic3g PFLOGGER::pflogger TYPE SHARED)
 
 if(ESMF_HCONFIGSET_HAS_INTENT_INOUT)
   target_compile_definitions(${this} PRIVATE ESMF_HCONFIGSET_HAS_INTENT_INOUT)

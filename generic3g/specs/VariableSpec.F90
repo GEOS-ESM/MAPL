@@ -3,12 +3,15 @@ module mapl3g_VariableSpec
    use mapl3g_StateItemSpec
    use mapl3g_StateItemAspect
    use mapl3g_GeomAspect
+
    use mapl3g_ClassAspect
    use mapl3g_FieldClassAspect
    use mapl3g_VectorClassAspect
    use mapl3g_BracketClassAspect
    use mapl3g_WildcardClassAspect
    use mapl3g_ServiceClassAspect
+   use mapl3g_ExpressionClassAspect
+
    use mapl3g_UnitsAspect
    use mapl3g_AttributesAspect
    use mapl3g_UngriddedDimsAspect
@@ -75,7 +78,11 @@ module mapl3g_VariableSpec
       !---------------------
       ! Service
       !---------------------
-      type(StringVector) :: service_items ! default emtpy
+      type(StringVector) :: service_items ! default empty
+      !---------------------
+      ! Expression
+      !---------------------
+      character(:), allocatable :: expression ! default empt
 
       
       !=====================
@@ -157,6 +164,7 @@ contains
         service_items, &
         attributes, &
         bracket_size, &
+        expression, &
         dependencies, &
         regrid_param, &
         horizontal_dims_spec, &
@@ -174,6 +182,7 @@ contains
       character(*), optional, intent(in) :: standard_name
       type(ESMF_Geom), optional, intent(in) :: geom
       character(*), optional, intent(in) :: units
+      character(*), optional, intent(in) :: expression
       type(ESMF_StateItem_Flag), optional, intent(in) :: itemtype
       type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
       class(VerticalGrid), optional, intent(in) :: vertical_grid
@@ -206,6 +215,7 @@ contains
       _SET_OPTIONAL(standard_name)
       _SET_OPTIONAL(geom)
       _SET_OPTIONAL(units)
+      _SET_OPTIONAL(expression)
       _SET_OPTIONAL(itemtype)
       _SET_OPTIONAL(typekind)
       _SET_OPTIONAL(vertical_grid)
@@ -222,7 +232,6 @@ contains
       _SET_OPTIONAL(timeStep)
       _SET_OPTIONAL(offset)
       _SET_OPTIONAL(vector_component_names)
-
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -382,6 +391,7 @@ contains
       dependencies = this%make_dependencies(_RC)
       spec = new_StateItemSpec(aspects, dependencies=dependencies)
       
+
       _RETURN(_SUCCESS)
    end function make_StateitemSpec
 
@@ -552,6 +562,8 @@ contains
       case (MAPL_STATEITEM_SERVICE%ot)
          _ASSERT(present(registry), 'must have registry for creating a Service')
          aspect = ServiceClassAspect(registry, this%service_items)
+      case (MAPL_STATEITEM_EXPRESSION%ot)
+         aspect = ExpressionClassAspect(registry=registry, expression=this%expression)
       case default
          aspect=FieldClassAspect('') ! must allocate something
          _FAIL('Unsupported itemType.')

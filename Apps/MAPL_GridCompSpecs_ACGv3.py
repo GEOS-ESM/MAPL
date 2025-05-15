@@ -152,6 +152,10 @@ def get_options(args):
         'itemtype': {}, 
         'orientation': {}, 
         'regrid_method': {}, 
+        'restart': {MAPPING: dict(
+                [(b, TRUE_VALUE) for b in 'T TRUE true t True'.split()] + 
+                [(b, FALSE_VALUE) for b in 'F FALSE false f False'.split()]
+            )},
         STATE: {FLAGS: {MANDATORY, STORE}}, 
         'typekind': {MAPPING: { 
             'R4': 'ESMF_Typekind_R4',

@@ -64,9 +64,7 @@ contains
       allocate(item_type(item_count), _STAT)
       call ESMF_StateGet(state, itemNameList=item_name, itemTypeList=item_type, _RC)
       do idx = 1, item_count
-         if (item_type(idx) /= ESMF_STATEITEM_FIELD) then
-            _FAIL("FieldBundle has not been implemented yet")
-         end if
+         if (item_type(idx) /= ESMF_STATEITEM_FIELD) cycle
          call ESMF_StateGet(state, item_name(idx), field, _RC)
          call ESMF_FieldGet(field, status=field_status, _RC)
          if (field_status == ESMF_FIELDSTATUS_COMPLETE) then

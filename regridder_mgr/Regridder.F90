@@ -101,7 +101,6 @@ contains
       type(GeomManager), pointer :: geom_mgr
       type(ESMF_Geom) :: geom_in, geom_out
 
-      _HERE
       call MAPL_FieldBundleGet(fb_in, fieldList=uv_in, _RC)
       call MAPL_FieldBundleGet(fb_out, fieldList=uv_out, _RC)
 

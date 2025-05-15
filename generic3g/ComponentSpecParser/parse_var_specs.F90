@@ -1,6 +1,7 @@
 #include "MAPL_ErrLog.h"
 
 submodule (mapl3g_ComponentSpecParser) parse_var_specs_smod
+   use mapl3g_VerticalGrid
    implicit none
    
 contains
@@ -8,11 +9,12 @@ contains
    ! A component is not required to have var_specs.   E.g, in theory GCM gridcomp will not
    ! have var specs in MAPL3, as it does not really have a preferred geom on which to declare
    ! imports and exports.
-   module function parse_var_specs(hconfig, timeStep, offset, rc) result(var_specs)
+   module function parse_var_specs(hconfig, timeStep, offset, registry, rc) result(var_specs)
       type(VariableSpecVector) :: var_specs
       type(ESMF_HConfig), intent(in) :: hconfig
       type(ESMF_TimeInterval), optional, intent(in) :: timeStep
       type(ESMF_TimeInterval), optional, intent(in) :: offset
+      type(StateRegistry), target, intent(in) :: registry
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -52,8 +54,9 @@ contains
          type(UngriddedDims) :: ungridded_dims
          character(:), allocatable :: standard_name
          character(:), allocatable :: units
+         character(:), allocatable :: expression
          character(len=:), allocatable :: accumulation_type
-         type(ESMF_StateItem_Flag), allocatable :: itemtype
+         type(ESMF_StateItem_Flag) :: itemtype
          type(ESMF_StateIntent_Flag) :: esmf_state_intent
 
          type(StringVector) :: service_items
@@ -61,10 +64,17 @@ contains
          logical :: has_state
          logical :: has_standard_name
          logical :: has_units
+         logical :: has_expression
          logical :: has_accumulation_type
          type(ESMF_HConfig) :: subcfg
          type(StringVector) :: dependencies
          type(StringVector) :: vector_component_names
+
+         type(GeometrySpec) :: geometry_spec
+         type(MaplGeom), pointer :: mapl_geom
+         type(GeomManager), pointer :: geom_mgr
+         type(ESMF_Geom), allocatable :: geom
+         class(VerticalGrid), allocatable :: vertical_grid
 
          has_state = ESMF_HConfigIsDefined(hconfig,keyString=state_intent, _RC)
          _RETURN_UNLESS(has_state)
@@ -95,6 +105,11 @@ contains
                units = ESMF_HConfigAsString(attributes,keyString='units', _RC)
             end if
 
+            has_expression = ESMF_HConfigIsDefined(attributes,keyString='expression', _RC)
+            if (has_expression) then
+               expression = ESMF_HConfigAsString(attributes,keyString='expression', _RC)
+            end if
+
             has_accumulation_type = ESMF_HConfigIsDefined(attributes, keyString=KEY_ACCUMULATION_TYPE, _RC)
             if(has_accumulation_type) then
                accumulation_type = ESMF_HConfigAsString(attributes, keyString=KEY_ACCUMULATION_TYPE, _RC)
@@ -102,10 +117,22 @@ contains
 
             vector_component_names = get_vector_component_names(attributes, _RC)
 
-            call to_itemtype(itemtype, attributes, _RC)
+            itemtype = to_itemtype(attributes, _RC)
             call to_service_items(service_items, attributes, _RC)
 
             dependencies = to_dependencies(attributes, _RC)
+
+            call ESMF_HconfigFileSave(attributes, name//'.yaml', _RC)
+            geometry_spec = parse_geometry_spec(attributes, registry, _RC)
+            if (allocated(geometry_spec%geom_spec)) then
+               geom_mgr => get_geom_manager()
+               mapl_geom => geom_mgr%get_mapl_geom(geometry_spec%geom_spec, _RC)
+               geom = mapl_geom%get_geom()
+            end if
+            if (allocated(geometry_spec%vertical_grid)) then
+               vertical_grid = geometry_spec%vertical_grid
+            end if
+
 
             esmf_state_intent = to_esmf_state_intent(state_intent)
             var_spec = make_VariableSpec(esmf_state_intent, short_name=short_name, &
@@ -118,6 +145,9 @@ contains
                  service_items=service_items, &
                  standard_name=standard_name, &
                  dependencies=dependencies, &
+                 expression=expression, &
+                 geom=geom, &
+                 vertical_grid=vertical_grid, &
                  accumulation_type=accumulation_type, &
                  timeStep=timeStep, &
                  vector_component_names=vector_component_names, &
@@ -272,37 +302,7 @@ contains
       end function to_UngriddedDims
 
 
-      subroutine to_itemtype(itemtype, attributes, rc)
-         type(ESMF_StateItem_Flag), allocatable, intent(out) :: itemtype
-         type(ESMF_HConfig), target, intent(in) :: attributes
-         integer, optional, intent(out) :: rc
-
-         integer :: status
-         character(:), allocatable :: subclass
-         logical :: has_itemtype
-
-         has_itemtype = ESMF_HConfigIsDefined(attributes,keyString='class',_RC)
-         _RETURN_UNLESS(has_itemtype)
-
-         subclass= ESMF_HConfigAsString(attributes, keyString='class',_RC)
-
-         select case (ESMF_UtilStringLowerCase(subclass))
-         case ('field')
-            itemtype = MAPL_STATEITEM_FIELD
-         case ('vector')
-            itemtype = MAPL_STATEITEM_VECTOR
-         case ('service')
-            itemtype = MAPL_STATEITEM_SERVICE
-         case ('wildcard')
-            itemtype = MAPL_STATEITEM_WILDCARD
-         case default
-            _FAIL('unknown subclass for state item: '//subclass)
-         end select
-
-         _RETURN(_SUCCESS)
-      end subroutine to_itemtype
-
-      subroutine to_service_items(service_items, attributes, rc)
+     subroutine to_service_items(service_items, attributes, rc)
          type(StringVector), intent(out) :: service_items
          type(ESMF_HConfig), target, intent(in) :: attributes
          integer, optional, intent(out) :: rc
