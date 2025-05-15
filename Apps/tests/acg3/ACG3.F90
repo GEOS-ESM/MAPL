@@ -9,8 +9,9 @@ module mapl3g_acg3
    use mapl_KeywordEnforcer
    use esmf, only: ESMF_STATEITEM_FIELD, ESMF_SUCCESS, ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_INTERNAL
    use esmf, only: ESMF_State, ESMF_GridComp, Esmf_StateIntent_Flag, ESMF_Field
+   use esmf, only: ESMF_KIND_R4, ESMF_KIND_R8
    use mapl3g_VerticalStaggerLoc
-
+   use, intrinsic :: iso_fortran_env, only: R64 => real64, R32 => real32
    implicit none(type, external) 
 
    public :: add_field_spec
