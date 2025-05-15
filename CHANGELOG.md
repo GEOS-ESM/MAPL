@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - define `comp_name` in `MAPL_GridCreate` when GC is not present
 - Fixed bug in profiler demo
+- Fixed uninitialized num_levels bug causing gcc14 to crash a node due to alloting enormous amount of memory
 
 ### Added
 
