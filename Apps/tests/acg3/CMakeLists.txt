@@ -7,6 +7,7 @@ set (srcs
 add_library (${this} ${srcs})
 target_link_libraries(${this} PRIVATE MAPL.shared MAPL.field MAPL.state MAPL.generic3g MAPL ESMF::ESMF)
 target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+target_include_directories (${this} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 
 mapl_acg (${this}   compile_test.acg
@@ -20,7 +21,7 @@ mapl_acg (${this}   compile_test.acg
 
 # Add test 
 add_test (NAME ${this}
-  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target ${this} --verbose
+  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target ${this}
   )
 
 set_tests_properties(${this} PROPERTIES LABELS "ESSENTIAL")
