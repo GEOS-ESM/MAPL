@@ -11,7 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed bug with dervied exports in ExtData in filter function
 - define `comp_name` in `MAPL_GridCreate` when GC is not present
+- Define `comp_name` in `MAPL_GridCreate` when GC is not present
 - Fixed bug in profiler demo
+- Fix for GNU + MVAPICH 4 disabling ieee halting around `MPI_Init_thread()`
 
 ### Added
 
