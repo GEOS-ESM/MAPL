@@ -120,10 +120,10 @@ module MAPL_StateMaskMod
       integer, allocatable :: regionNumbers(:), flag(:)
       integer, allocatable :: mask(:,:)
       real, pointer        :: rmask(:,:)
-      real, allocatable    :: rvar2d(:,:)
-      real, allocatable    :: rvar3d(:,:,:)
       real, pointer        :: var2d(:,:)
       real, pointer        :: var3d(:,:,:)
+      real, pointer        :: out_var2d(:,:)
+      real, pointer        :: out_var3d(:,:,:)
       integer              :: rank,ib,ie
 
       call ESMF_FieldGet(field,rank=rank,_RC)
@@ -139,13 +139,11 @@ module MAPL_StateMaskMod
 
        call MAPL_GetPointer(state,rmask,maskName,_RC)
        if (rank == 2) then
-          call ESMF_FieldGet(field,0,farrayPtr=var2d,_RC)
-          allocate(rvar2d(size(var2d,1),size(var2d,2)),_STAT)
-          rvar2d=var2d
+          call ESMF_FieldGet(field,0,farrayPtr=out_var2d,_RC)
+          call MAPL_GetPointer(state,var2d, vartomask, _RC)
        else if (rank == 3) then
-          call ESMF_FieldGet(field,0,farrayPtr=var3d,_RC)
-          allocate(rvar3d(size(var3d,1),size(var3d,2),size(var3d,3)),_STAT)
-          rvar3d=var3d
+          call ESMF_FieldGet(field,0,farrayPtr=out_var3d,_RC)
+          call MAPL_GetPointer(state,var3d, vartomask, _RC)
        else
           _FAIL('Rank must be 2 or 3')
        end if
@@ -173,12 +171,12 @@ module MAPL_StateMaskMod
        END DO
 
        if (rank == 2) then
-          var2d = rvar2d
-          where(mask == 0) var2d = 0.0
+          out_var2d = var2d
+          where(mask == 0) out_var2d = 0.0
        else if (rank == 3) then
-          var3d = rvar3d
+          out_var3d = var3d
           do i=1,size(var3d,3)
-             where(mask == 0) var3d(:,:,i) = 0.0
+             where(mask == 0) out_var3d(:,:,i) = 0.0
           enddo
        end if
        deallocate( mask)
@@ -196,10 +194,10 @@ module MAPL_StateMaskMod
 
        integer :: i
        character(len=:), allocatable :: vartomask,clatS,clatN
-       real, allocatable    :: rvar2d(:,:)
-       real, allocatable    :: rvar3d(:,:,:)
        real, pointer        :: var2d(:,:)
        real, pointer        :: var3d(:,:,:)
+       real, pointer        :: out_var2d(:,:)
+       real, pointer        :: out_var3d(:,:,:)
        real(REAL64), pointer :: lats(:,:)
        real(REAL64)         :: limitS, limitN
        type(ESMF_Grid)      :: grid
@@ -228,24 +226,22 @@ module MAPL_StateMaskMod
        end if
 
        if (rank == 2) then
-          call ESMF_FieldGet(field,0,farrayPtr=var2d,_RC)
-          allocate(rvar2d(size(var2d,1),size(var2d,2)),_STAT)
-          rvar2d=var2d
+          call ESMF_FieldGet(field,0,farrayPtr=out_var2d,_RC)
+          call MAPL_GetPointer(state,var2d, vartomask, _RC)
        else if (rank == 3) then
-          call ESMF_FieldGet(field,0,farrayPtr=var3d,_RC)
-          allocate(rvar3d(size(var3d,1),size(var3d,2),size(var3d,3)),_STAT)
-          rvar3d=var3d
+          call ESMF_FieldGet(field,0,farrayPtr=out_var3d,_RC)
+          call MAPL_GetPointer(state,var3d, vartomask, _RC)
        else
           _FAIL('Rank must be 2 or 3')
        end if
 
        if (rank == 2) then
-          var2d = 0.0
-          where(limitS <= lats .and. lats <=limitN) var2d = rvar2d
+          out_var2d = 0.0
+          where(limitS <= lats .and. lats <=limitN) out_var2d = var2d
        else if (rank == 3) then
-          var3d = 0.0
+          out_var3d = 0.0
           do i=1,size(var3d,3)
-             where(limitS <= lats .and. lats <=limitN) var3d(:,:,i) = rvar3d(:,:,i)
+             where(limitS <= lats .and. lats <=limitN) out_var3d(:,:,i) = var3d(:,:,i)
           enddo
        end if
 
@@ -262,8 +258,8 @@ module MAPL_StateMaskMod
 
        integer :: i
        character(len=:), allocatable :: vartomask,strtmp
-       real, allocatable    :: rvar2d(:,:)
-       real, allocatable    :: rvar3d(:,:,:)
+       real, pointer        :: out_var2d(:,:)
+       real, pointer        :: out_var3d(:,:,:)
        real, pointer        :: var2d(:,:)
        real, pointer        :: var3d(:,:,:)
        real(REAL64), pointer :: lats(:,:)
@@ -378,23 +374,21 @@ module MAPL_StateMaskMod
 
        if (rank == 2) then
           call ESMF_FieldGet(field,0,farrayPtr=var2d,_RC)
-          allocate(rvar2d(size(var2d,1),size(var2d,2)),_STAT)
-          rvar2d=var2d
+          call MAPL_GetPointer(state,var2d, vartomask, _RC)
        else if (rank == 3) then
           call ESMF_FieldGet(field,0,farrayPtr=var3d,_RC)
-          allocate(rvar3d(size(var3d,1),size(var3d,2),size(var3d,3)),_STAT)
-          rvar3d=var3d
+          call MAPL_GetPointer(state,var3d, vartomask, _RC)
        else
           _FAIL('Rank must be 2 or 3')
        end if
 
        if (rank == 2) then
-          var2d = 0.0
-          where(limitS <= lats .and. lats <=limitN .and. limitW1 <= lons .and. lons <= limitE1 ) var2d = rvar2d
+          out_var2d = 0.0
+          where(limitS <= lats .and. lats <=limitN .and. limitW1 <= lons .and. lons <= limitE1 ) out_var2d = var2d
        else if (rank == 3) then
-          var3d = 0.0
+          out_var3d = 0.0
           do i=1,size(var3d,3)
-             where(limitS <= lats .and. lats <=limitN .and. limitW1 <= lons .and. lons <= limitE1 ) var3d(:,:,i) = rvar3d(:,:,i)
+             where(limitS <= lats .and. lats <=limitN .and. limitW1 <= lons .and. lons <= limitE1 ) out_var3d(:,:,i) = var3d(:,:,i)
           enddo
        end if
 
@@ -402,14 +396,16 @@ module MAPL_StateMaskMod
           allocate(temp2d(size(var2d,1),size(var2d,2)),stat=status)
           _VERIFY(STATUS)
           if (rank == 2) then
+             out_var2d = 0.0
              temp2d = 0.0
-             where(limitS <= lats .and. lats <=limitN .and. limitW2 <= lons .and. lons <= limitE2 ) temp2d = rvar2d
-             var2d=var2d+temp2d
+             where(limitS <= lats .and. lats <=limitN .and. limitW2 <= lons .and. lons <= limitE2 ) temp2d = var2d
+             out_var2d=out_var2d+temp2d
           else if (rank == 3) then
+             out_var3d = 0.0
              do i=1,size(var3d,3)
                 temp2d = 0.0
-                where(limitS <= lats .and. lats <=limitN .and. limitW2 <= lons .and. lons <= limitE2 ) temp2d = rvar3d(:,:,i)
-                var3d(:,:,i)=var3d(:,:,i)+temp2d
+                where(limitS <= lats .and. lats <=limitN .and. limitW2 <= lons .and. lons <= limitE2 ) temp2d = var3d(:,:,i)
+                out_var3d(:,:,i)=out_var3d(:,:,i)+temp2d
              enddo
           end if
           deallocate(temp2d)
