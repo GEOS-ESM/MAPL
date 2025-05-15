@@ -20,8 +20,15 @@ mapl_acg (${this}   compile_test.acg
           )
 
 # Add test 
-add_test (NAME ${this}
+add_test (NAME "${this}.compile"
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target ${this}
   )
+
+# Add ACG3 unit tests
+set (PYTHON_EXECUTABLE python3)
+set (PYTHON_UNIT_TEST unittest)
+add_test(NAME "${this}.unittests"
+  COMMAND ${PYTHON_EXECUTABLE} -m ${PYTHON_UNIT_TEST} unittest
+)
 
 set_tests_properties(${this} PROPERTIES LABELS "ESSENTIAL")
