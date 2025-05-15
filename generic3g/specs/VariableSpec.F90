@@ -150,6 +150,10 @@ module mapl3g_VariableSpec
       procedure :: make_ClassAspect
    end type VariableSpec
 
+   interface is_in
+      module procedure :: is_in_integer
+      module procedure :: is_in_realR4
+   end interface is_in
 contains
 
    function make_VariableSpec( &
@@ -583,12 +587,279 @@ contains
       class(VariableSpec), intent(in) :: spec
       integer, optional, intent(out) :: rc
       integer :: status
+      character, parameter :: UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+      character, parameter :: LOWER = 'abcdefghijklmnopqrstuvwxyz'
+      character, parameter :: ALPHA = UPPER // LOWER
+      character, parameter :: NUMERIC = '0123456789'
+      character, parameter :: ALPHANUMERIC = ALPHA // NUMERIC
+      character, parameter :: FORTRAN_IDENTIFIER = ALPHANUMERIC // '_'
 
       call validate_short_name(spec%short_name, _RC)
       call validate_state_intent(spec%state_item, _RC)
+      call validate_item_type(spec%itemType, _RC)
+      call validate_standard_name(spec%standard_name, _RC)
+      call validate_long_name(spec%long_name, _RC)
+      call validate_vector_component_names(spec%vector_component_names, _RC)
+      call validate_default_value(spec%default_value, _RC)
+      call validate_bracket_size(spec%bracket_size, _RC)
+      call validate_service_items(spec%service_items, _RC)
+      call validate_expression(spec%expression, _RC)
+      call validate_typekind(spec%typekind, _RC)
+      call validate_geom(spec%geom, _RC)
+      call validate_horizontal_dims_spec(spec%horizontal_dims_spec, _RC)
+      call validate_regrid_param_regrid_method(spec%regrid_param, spec%regrid_method, _RC)
+      call validate_timestep(spec%timestep, _RC)
+      call validate_offset(spec%offset, _RC)
+      call validate_ungridded_dims(spec%ungridded_dims, _RC)
+      call validate_attributes(spec%attributes, _RC)
+      call validate_dependencies(spec%dependencies, _RC)
 
-      
-      
    end subroutine validate_variable_spec
    
+   logical function is_valid_string(c, first_alpha) result(lval)
+      character(len=*), intent(in) :: c
+      logical, optional, intent(in) :: first_alpha
+      character, parameter :: ALPHANUMERIC(6)  = ['A', 'Z', 'a', 'z', '0', '9']
+      character(len=*), parameter :: OTHER = '_'
+      integer :: i, n
+      logical :: check_first
+      
+      check_first = .FALSE.
+      if(present(first_alpha)) check_first = first_alpha 
+      if(c == '') return
+      i = 1
+      if(check_first) then
+         lval = is_in(iachar(c(i)), iachar(ALPHANUMERIC(1, 4)))
+         i = i + 1
+      end if
+
+      do while (lval .and. i <= len(c))
+         lval = is_in(iachar(c(i)), iachar(ALPHANUMERIC)) .or. index(OTHER, c(i)) > 0
+         i = i + 1
+      end do
+
+   end function is_valid_string
+         
+   logical function is_in_integer(n, bounds) result(lval)
+      integer, intent(in) :: n
+      integer, intent(in) :: bounds(:)
+      integer :: i
+
+      lval = .TRUE.
+      if(.not. present(bounds)) return
+      if(size(bounds) < 1) return
+
+      if(size(bounds) == 1)
+         lval = n == bounds(1)
+         return
+      end if
+
+      lval = .FALSE.
+      do i = 2, mod(size(bounds), 2), 2
+         lval = .not. (n < minval(bounds(i-1) .or. n > maxval(bounds(i))
+         if(lval) exit
+      end do
+      
+   end function is_in_integer
+
+   logical function is_in_realR4(t, bounds) result(lval)
+      real(kind=ESMF_KIND_R4), intent(in) :: t
+      real(kind=ESMF_KIND_R4), intent(in) :: bounds(:)
+      integer :: i
+
+      lval = .TRUE.
+      if(.not. present(bounds)) return
+      if(size(bounds) < 1) return
+
+      lval = .FALSE.
+      do i = 2, mod(size(bounds), 2), 2
+         lval = .not. (n < minval(bounds(i-1) .or. n > maxval(bounds(i))
+         if(lval) exit
+      end do
+
+   end function is_in_realR4
+
+   subroutine validate_string_vector(strings, valid_strings, rc)
+      class(StringVector), optional, intent(in) :: strings
+      class(StringVector), optional, intent(in) :: valid_strings
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(StringVectorIterator) :: iter
+      logical :: found
+
+      if(.not.(present(strings) .or. present(valid_strings))) then
+         _RETURN(_SUCCESS)
+      end if
+
+      iter = strings%begin()
+      do while(iter /= strings%end())
+         call string_is_in_vector(iter%of(), valid_strings, _RC)
+      end do
+      _RETURN(_SUCCESS)
+
+      contains
+
+         subroutine string_is_in_vector(s, v, rc)
+            character(len=*), intent(in) :: s
+            type(StringVector), intent(in) :: v
+            integer, optional, intent(out) :: rc
+            integer :: status
+            type(StringVectorIterator) :: iter
+            logical :: found
+
+            found = .FALSE.
+            iter = v%begin()
+            associate(itof => iter%of())
+               do while(.not. (iter == v%end() .or. found))
+                  found = s == itof
+               end do
+            end associate
+            _ASSERT(found, "Invalid string :: " // s)
+
+         end subroutine string_is_in_vector
+
+   end subroutine validate_string_vector
+
+   subroutine validate_short_name(val, rc)
+      character(len=*), intent(in) :: val
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _ASSERT(is_valid_string(val, .TRUE.), 'Invalid value')
+      _RETURN(_SUCCESS)
+
+   end subroutine validate_short_name
+
+#define IS_IN_SET_(V, S) findloc(S, V) >= lbound(S)
+   subroutine validate_state_intent(val, rc)
+      type(ESMF_StateIntent_Flag), intent(in) :: val
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_StateIntent_Flag), parameter :: VALID(*) = &
+         & [ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_INTERNAL]
+
+      _ASSERT(IS_IN_SET_(val, VALID), "Invalid value")
+      _RETURN(_SUCCESS)
+
+   end subroutine validate_state_intent
+
+   subroutine validate_item_type(val, rc)
+      type(ESMF_StateItem_Flag), intent(in):: item_type
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_StateItem_Flag), parameter :: VALID(*) = &
+         & [ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE]
+
+      _ASSERT(IS_IN_SET_(val, VALID, 'Invalid value')
+      _RETURN(_SUCCESS)
+
+   end subroutine validate_item_type
+
+   subroutine validate_standard_name(val, rc)
+      character(len=*), intent(in) :: val
+      integer, optional, intent(out) :: rc
+      integer :: status 
+      
+      _ASSERT(is_valid_string(val), 'Invalid value')
+      _RETURN(_SUCCESS)
+
+   end subroutine validate_standard_name
+
+   subroutine validate_long_name(val, rc)
+      character(len=*), intent(in) :: val
+      integer, optional, intent(out) :: rc
+      integer :: status 
+      
+      _ASSERT(is_valid_string(val), 'Invalid value')
+      _RETURN(_SUCCESS)
+
+   end subroutine validate_long_name
+
+   subroutine validate_standard_name_long_name(standard, long, rc)
+      character(len=*), optional, intent(in) :: standard
+      character(len=*), optional, intent(in) :: long
+      integer, optional, intent(out) :: rc
+      integer :: status 
+
+      if present(standard) then
+         call validate_standard_name(standard, _RC)
+         _RETURN(_SUCCESS)
+      end if
+
+      if present(long) then
+         call validate_long_name(long, _RC)
+         _RETURN(_SUCCESS)
+      end if
+
+      _FAIL("Neither name present")
+
+   end subroutine validate_standard_name_long_name
+
+   subroutine validate_vector_component_names(val, rc)
+      class(StringVector), intent(in) :: val
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(StringVector) :: valid_names
+
+      call validate_string_vector(val, valid_names , _RC)
+      
+   end subroutine validate_vector_component_names
+
+   subroutine validate_default_value(val, rc)
+      real(kind=ESMF_KIND_R4), intent(in) :: val
+      integer, optional, intent(out) :: rc
+      integer :: status
+      real(kind=ESMF_KIND_R4), parameter :: bounds(0)
+
+      _ASSERT(is_in(val, bounds), "Invalid value")
+      _RETURN(_SUCCESS)
+
+   end subroutine validate_default_value
+
+   subroutine validate_bracket_size(spec%bracket_size, rc)
+      TYPE :: bracket_size
+   end subroutine validate_bracket_size
+
+   subroutine validate_service_items(spec%service_items, rc)
+      TYPE :: service_items
+   end subroutine validate_service_items
+
+   subroutine validate_expression(spec%expression, rc)
+      TYPE :: expression
+   end subroutine validate_expression
+
+   subroutine validate_typekind(spec%typekind, rc)
+      TYPE :: typekind
+   end subroutine validate_typekind
+
+   subroutine validate_geom(spec%geom, rc)
+      TYPE :: geom
+   end subroutine validate_geom
+
+   subroutine validate_horizontal_dims_spec(spec%horizontal_dims_spec, rc)
+      TYPE :: horizontal_dims_spec
+   end subroutine validate_horizontal_dims_spec
+
+      call validate_regrid_param_regrid_method(spec%regrid_param, spec%regrid_method, _RC)
+   subroutine validate_timestep(spec%timestep, rc)
+      TYPE :: timestep
+   end subroutine validate_timestep
+
+   subroutine validate_offset(spec%offset, rc)
+      TYPE :: offset
+   end subroutine validate_offset
+
+   subroutine validate_ungridded_dims(spec%ungridded_dims, rc)
+      TYPE :: ungridded_dims
+   end subroutine validate_ungridded_dims
+
+   subroutine validate_attributes(spec%attributes, rc)
+      TYPE :: attributes
+   end subroutine validate_attributes
+
+   subroutine validate_dependencies(spec%dependencies, rc)
+      TYPE :: dependencies
+   end subroutine validate_dependencies
+
 end module mapl3g_VariableSpec
+
