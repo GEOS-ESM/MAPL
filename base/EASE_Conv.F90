@@ -84,6 +84,7 @@ module EASE_ConvMod
   public :: ease_convert
   public :: ease_inverse
   public :: ease_extent
+  public :: ease_grid_name
 
   ! =======================================================================
   !
@@ -777,6 +778,37 @@ contains
     endif
            
   end subroutine easeV2_get_params
+
+  function ease_grid_name(cols) result(name)
+      integer, intent(in) :: cols
+      character(len=:), allocatable :: name
+      ! the factoru should have the grid name
+      select case (cols)
+      case (964)
+        name = 'EASEv2_M36'
+      case (1388)
+        name = 'EASEv2_M25'
+      case (3856)
+        name = 'EASEv2_M09'
+      case (11568)
+        name = 'EASEv2_M03'
+      case (34704)
+        name = 'EASEv2_M01'
+            
+      case (963)
+        name = 'EASEv1_M36'
+      case (1383)
+        name = 'EASEv1_M25'
+      case (3852)
+        name = 'EASEv1_M09'
+      case (11556)
+        name = 'EASEv1_M03'
+      case (34668)
+        name = 'EASEv1_M01'
+      case default
+        stop ('EASEGridFactory does not support this solution')
+      end select
+  end function
   
   ! *******************************************************************
 

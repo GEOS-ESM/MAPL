@@ -612,6 +612,7 @@ contains
       character(:), allocatable :: lon_name
       character(:), allocatable :: lat_name
       character(:), allocatable :: lev_name
+      character(:), allocatable :: grid_name
       integer :: i
       logical :: hasLon, hasLat, hasLongitude, hasLatitude, hasLev,hasLevel,regLat,regLon
       real(kind=REAL64) :: del12,delij
@@ -645,6 +646,10 @@ contains
                _FAIL('no longitude coordinate')
             end if
          end if
+
+         grid_name = ease_grid_name(im)
+         this%grid_name = grid_name
+
          lat_name = 'lat'
          hasLat = file_metadata%has_dimension(lat_name)
          if (hasLat) then
@@ -658,6 +663,7 @@ contains
                _FAIL('no latitude coordinate')
             end if
          end if
+
          hasLev=.false.
          hasLevel=.false.
          lev_name = 'lev'
@@ -872,6 +878,7 @@ contains
       integer :: status
       character(len=ESMF_MAXSTR) :: tmp
       type(ESMF_VM) :: VM
+      real :: ur_lat, ll_lat
 
       _UNUSED_DUMMY(unusable)
 
@@ -886,7 +893,7 @@ contains
 
       ! given grid_name, im_world and jm_world are comupted
 
-      call ease_extent(this%grid_name, this%im_world, this%jm_world)
+      call ease_extent(this%grid_name, this%im_world, this%jm_world, ll_lat=ll_lat, ur_lat=ur_lat)
 
       call ESMF_ConfigGetAttribute(config, tmp, label=prefix//'IMS_FILE:', rc=status)
       if ( status == _SUCCESS ) then
@@ -907,7 +914,7 @@ contains
       this%dateline = "DE"
 
       call get_range(this%lon_range, 'LON_RANGE:', _RC)
-      call get_range(this%lat_range, 'LAT_RANGE:', _RC)
+      this%lat_range = RealMinMax(ll_lat, ur_lat)
       call this%check_and_fill_consistency(_RC)
 
       ! Compute the centers and corners
@@ -1200,7 +1207,8 @@ contains
       integer, allocatable :: max_index(:,:)
       integer :: status
       character(len=2) :: pole ,dateline
-
+      character(len=:), allocatable :: grid_name
+     
       type (ESMF_Config) :: config
       type (ESMF_VM) :: vm
       integer :: nPet
@@ -1222,6 +1230,9 @@ contains
       call MAPL_ConfigSetAttribute(config, max_index(1,1), 'IM_WORLD:', _RC)
       call MAPL_ConfigSetAttribute(config, max_index(2,1), 'JM_WORLD:', _RC)
       call MAPL_ConfigSetAttribute(config, max_index(3,1), 'LM:', _RC)
+
+      grid_name = ease_grid_name(max_index(1,1))
+      call MAPL_ConfigSetAttribute(config, grid_name, 'GRIDNAME:', _RC)
 
       lon => null()
       lat => null()
@@ -1349,36 +1360,9 @@ contains
    function generate_grid_name(this) result(name)
       character(len=:), allocatable :: name
       class (EASEGridFactory), intent(in) :: this
-      integer :: cols
-
-      ! the factoru should have the grid name
-      cols = this%im_world
-      select case (cols)
-      case (964)
-        name = 'EASEv2_M36'
-      case (1388)
-        name = 'EASEv2_M25'
-      case (3856)
-        name = 'EASEv2_M09'
-      case (11568)
-        name = 'EASEv2_M03'
-      case (34704)
-        name = 'EASEv2_M01'
-
-      case (963)
-        name = 'EASEv1_M36'
-      case (1383)
-        name = 'EASEv1_M25'
-      case (3852)
-        name = 'EASEv1_M09'
-      case (11556)
-        name = 'EASEv1_M03'
-      case (34668)
-        name = 'EASEv1_M01'
-      case default
-        stop ('EASEGridFactory does not support this solution')
-      end select
-
+      
+      name = ease_grid_name(this%im_world)
+   
    end function generate_grid_name
 
    function check_decomposition(this,unusable,rc) result(can_decomp)
