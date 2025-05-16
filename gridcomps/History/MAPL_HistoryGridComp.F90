@@ -978,7 +978,6 @@ contains
           list(n)%timeseries_output = .true.
        end if
 
-
 ! Handle "backwards" mode: this is hidden (i.e. not documented) feature
 ! Defaults to .false.
        call ESMF_ConfigGetAttribute ( cfg, reverse, default=0, &
@@ -1751,10 +1750,9 @@ ENDDO PARSER
        else
           sec = MAPL_nsecf(list(n)%frequency) / 2
        endif
-       if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
+       if (trim(list(n)%sampler_type) == 'swath' ) then
           call ESMF_TimeIntervalGet(Hsampler%Frequency_epoch, s=sec, _RC)
-       end if
-       if (list(n)%sampler_type == 'station' .OR. list(n)%sampler_type == 'mask') then
+       elseif (list(n)%sampler_type == 'station' .OR. list(n)%sampler_type == 'mask') then
           sec = MAPL_nsecf(list(n)%frequency)
        end if
        call ESMF_TimeIntervalSet( INTSTATE%STAMPOFFSET(n), S=sec, _RC )
@@ -2493,7 +2491,7 @@ ENDDO PARSER
           else
              list(n)%vdata = VerticalData(positive=list(n)%positive,_RC)
           end if
-          if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
+          if (trim(list(n)%sampler_type) == 'swath' ) then
              call list(n)%xsampler%set_param(deflation=list(n)%deflate,_RC)
              call list(n)%xsampler%set_param(quantize_algorithm=list(n)%quantize_algorithm,_RC)
              call list(n)%xsampler%set_param(quantize_level=list(n)%quantize_level,_RC)
@@ -2549,7 +2547,7 @@ ENDDO PARSER
              call list(n)%station_sampler%add_metadata_route_handle(items=list(n)%items,bundle=list(n)%bundle,timeinfo=list(n)%timeInfo,vdata=list(n)%vdata,_RC)
           else
              global_attributes = list(n)%global_atts%define_collection_attributes(_RC)
-             if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
+             if (trim(list(n)%sampler_type) == 'swath' ) then
                 pgrid => IntState%output_grids%at(trim(list(n)%output_grid_label))
                 call list(n)%xsampler%Create_bundle_RH(list(n)%items,list(n)%bundle,Hsampler%tunit,ogrid=pgrid,vdata=list(n)%vdata,_RC)
              else
@@ -3540,7 +3538,7 @@ ENDDO PARSER
          Writing(n) = .false.
       else if (list(n)%timeseries_output) then
          Writing(n) = ESMF_AlarmIsRinging ( list(n)%trajectory%alarm )
-      else if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
+      else if (trim(list(n)%sampler_type) == 'swath' ) then
          Writing(n) = ESMF_AlarmIsRinging ( Hsampler%alarm )
       else
          Writing(n) = ESMF_AlarmIsRinging ( list(n)%his_alarm )
@@ -3591,7 +3589,7 @@ ENDDO PARSER
   ! swath only
    epoch_swath_grid_case: do n=1,nlist
       call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
-      if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
+      if (trim(list(n)%sampler_type) == 'swath' ) then
          call MAPL_TimerOn(GENSTATE,"Swath")
          call MAPL_TimerOn(GENSTATE,"RegridAccum")
          call Hsampler%regrid_accumulate(list(n)%xsampler,_RC)
@@ -3716,7 +3714,7 @@ ENDDO PARSER
                      inquire (file=trim(filename(n)),exist=file_exists)
                      _ASSERT(.not.file_exists,trim(filename(n))//" being created for History output already exists")
                   end if
-                  if (index(trim(list(n)%output_grid_label), 'SwathGrid') == 0) then
+                  if (trim(list(n)%sampler_type) /= 'swath' ) then
                      call list(n)%mGriddedIO%modifyTime(oClients=o_Clients,_RC)
                   endif
                   list(n)%currentFile = filename(n)
@@ -3886,7 +3884,7 @@ ENDDO PARSER
   ! swath only
    epoch_swath_regen_grid: do n=1,nlist
       call MAPL_TimerOn(GENSTATE,trim(list(n)%collection))
-      if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
+      if (trim(list(n)%sampler_type) == 'swath' ) then
          call MAPL_TimerOn(GENSTATE,"Swath")
          if( ESMF_AlarmIsRinging ( Hsampler%alarm ) .and. .not. ESMF_AlarmIsRinging(list(n)%end_alarm) ) then
             call MAPL_TimerOn(GENSTATE,"RegenGrid")
