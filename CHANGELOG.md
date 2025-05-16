@@ -95,6 +95,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed bug in profiler demo
 - Fixed uninitialized num_levels bug causing gcc14 to crash a node due to allocating enormous amount of memory
 - Fix for GNU + MVAPICH 4 disabling ieee halting around `MPI_Init_thread()`
+- Test if `GridCornerLons:` and `GridCornerLats:` attributes are present before removing
 
 ### Added
 
