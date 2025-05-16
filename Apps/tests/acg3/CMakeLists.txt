@@ -2,6 +2,7 @@ esma_set_this (OVERRIDE MAPL.Apps.tests.acg3)
 
 set (srcs
     ACG3.F90
+    unittests.py
     )
 
 add_library (${this} ${srcs})
@@ -23,12 +24,13 @@ mapl_acg (${this}   compile_test.acg
 add_test (NAME "${this}.compile"
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target ${this}
   )
+set_tests_properties("${this}.compile" PROPERTIES LABELS "ESSENTIAL")
 
 # Add ACG3 unit tests
 set (PYTHON_EXECUTABLE python3)
 set (PYTHON_UNIT_TEST unittest)
 add_test(NAME "${this}.unittests"
-  COMMAND ${PYTHON_EXECUTABLE} -m ${PYTHON_UNIT_TEST} unittest
+  COMMAND ${PYTHON_EXECUTABLE} -m ${PYTHON_UNIT_TEST} unittests
 )
 
-set_tests_properties(${this} PROPERTIES LABELS "ESSENTIAL")
+set_tests_properties("${this}.unittests" PROPERTIES LABELS "ESSENTIAL")
