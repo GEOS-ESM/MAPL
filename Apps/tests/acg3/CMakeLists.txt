@@ -27,10 +27,10 @@ add_test (NAME "${this}.compile"
 set_tests_properties("${this}.compile" PROPERTIES LABELS "ESSENTIAL")
 
 # Add ACG3 unit tests
-set (PYTHON_EXECUTABLE python3)
-set (PYTHON_UNIT_TEST unittest)
+set (PYTHON_UNIT_TEST_MODULE unittest)
 add_test(NAME "${this}.unittests"
-  COMMAND ${PYTHON_EXECUTABLE} -m ${PYTHON_UNIT_TEST} unittests
+  COMMAND ${Python3_EXECUTABLE} -m ${PYTHON_UNIT_TEST_MODULE} unittests
 )
 
+set_tests_properties("${this}.compile" PROPERTIES LABELS "ESSENTIAL")
 set_tests_properties("${this}.unittests" PROPERTIES LABELS "ESSENTIAL")
