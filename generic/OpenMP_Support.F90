@@ -47,7 +47,7 @@ module MAPL_OpenMP_Support
     end interface make_substates
 
 
-    CONTAINS 
+    CONTAINS
 
     integer function get_current_thread() result(current_thread)
         current_thread = 0  ! default if OpenMP is not used
@@ -68,7 +68,7 @@ module MAPL_OpenMP_Support
         integer :: local_count(3)
         integer :: status
         type(Interval), allocatable :: bounds(:)
-        
+
         call MAPL_GridGet(primary_grid,localcellcountPerDim=local_count, _RC)
         bounds = find_bounds(local_count(2), num_grids)
         subgrids = make_subgrids(primary_grid, bounds, _RC)
@@ -93,7 +93,8 @@ module MAPL_OpenMP_Support
         real(kind=ESMF_KIND_R8), allocatable :: corner_lats(:,:), corner_lons(:,:)
         real(kind=ESMF_KIND_R8), allocatable :: lats1d(:), lons1d(:)
         character(len=ESMF_MAXSTR) :: name
-   
+        logical :: isPresent
+
         call ESMF_GridGet(primary_grid, name=name, _RC)
          !print*, 'Printing bounds for ', trim(name)
         !do i = 1, size(bounds)
@@ -124,8 +125,14 @@ module MAPL_OpenMP_Support
            call ESMF_AttributeCopy(primary_grid, subgrids(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
 
            ! delete corner lon/lat atttributes in the subgrid
-           call ESMF_AttributeRemove(subgrids(i), name='GridCornerLons:') 
-           call ESMF_AttributeRemove(subgrids(i), name='GridCornerLats:') 
+           call ESMF_AttributeGet(subgrids(i), name='GridCornerLons:', isPresent=isPresent, _RC)
+           if (isPresent) then
+              call ESMF_AttributeRemove(subgrids(i), name='GridCornerLons:')
+           end if
+           call ESMF_AttributeGet(subgrids(i), name='GridCornerLats:', isPresent=isPresent, _RC)
+           if (isPresent) then
+              call ESMF_AttributeRemove(subgrids(i), name='GridCornerLats:')
+           end if
         end do
 
         ! get lons/lats from original grid
@@ -152,8 +159,8 @@ module MAPL_OpenMP_Support
 
            allocate(new_corner_lons(size(new_lons,1)+1,size(new_lons,2)+1))
            allocate(new_corner_lats(size(new_lats,1)+1,size(new_lats,2)+1))
-  
-           new_corner_lons = corner_lons(:,bounds(i)%min:bounds(i)%max+1) 
+
+           new_corner_lons = corner_lons(:,bounds(i)%min:bounds(i)%max+1)
            new_corner_lats = corner_lats(:,bounds(i)%min:bounds(i)%max+1)
 
            ! translate the 2d arrays into 1D arrays, lines 2462 to 2468 in base/Base/Base_implementation.F90
@@ -180,7 +187,7 @@ module MAPL_OpenMP_Support
         end do
         _RETURN(ESMF_SUCCESS)
     end function make_subgrids_from_bounds
-        
+
 
     function make_subfields_from_num_grids(primary_field, num_subgrids, unusable, rc) result(subfields)
         type(ESMF_Field), allocatable :: subfields(:)
@@ -216,21 +223,21 @@ module MAPL_OpenMP_Support
         type(ESMF_TypeKind_Flag) :: typekind
         integer :: rank
         integer :: local_count(3)
-        character(len=ESMF_MAXSTR) :: name 
+        character(len=ESMF_MAXSTR) :: name
         type(ESMF_Grid), allocatable :: subgrids(:)
         type(Interval), allocatable :: bounds(:)
         type(ESMF_Grid) :: primary_grid
-         
+
 
         call ESMF_FieldGet(primary_field, grid=primary_grid, typekind=typekind, rank=rank, name=name,  _RC)
         !print*, 'No failure with field named:', name
         call MAPL_GridGet(primary_grid,localcellcountPerDim=local_count, _RC)
-       
+
         bounds = find_bounds(local_count(2), num_subgrids)
         subgrids = make_subgrids(primary_grid, num_subgrids, _RC)
         allocate(subfields(size(bounds)))
         !print *, __FILE__,__LINE__, num_subgrids, size(bounds), trim(name)
-        
+
         ! 1d, r4 or r8
         if (rank == 1) then
            subfields = spread(primary_field, dim=1, ncopies=num_subgrids)
@@ -242,7 +249,7 @@ module MAPL_OpenMP_Support
               subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_2d_r4, name=name,  _RC)
               call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
            end do
-       
+
         ! 2d, r8
         else if (typekind == ESMF_TYPEKIND_R8 .AND. rank == 2) then
            call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_2d_r8,  _RC)
@@ -251,22 +258,22 @@ module MAPL_OpenMP_Support
               subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_2d_r8, name=name,  _RC)
               call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
            end do
-        
+
         ! 3d, r4
         else if (typekind == ESMF_TYPEKIND_R4 .AND. rank == 3) then
            call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_3d_r4,  _RC)
            do i = 1, size(bounds)
-              new_ptr_3d_r4(1:,1:,lbound(old_ptr_3d_r4,3):) => old_ptr_3d_r4(:,bounds(i)%min:bounds(i)%max,lbound(old_ptr_3d_r4,3):) 
+              new_ptr_3d_r4(1:,1:,lbound(old_ptr_3d_r4,3):) => old_ptr_3d_r4(:,bounds(i)%min:bounds(i)%max,lbound(old_ptr_3d_r4,3):)
               subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_3d_r4, name=name, _RC)
               call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
            end do
-       
+
         ! 3d, r8
         else if (typekind == ESMF_TYPEKIND_R8 .AND. rank == 3) then
            call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_3d_r8,  _RC)
            do i = 1, size(bounds)
               new_ptr_3d_r8(1:,1:,lbound(old_ptr_3d_r8,3):) => old_ptr_3d_r8(:,bounds(i)%min:bounds(i)%max,lbound(old_ptr_3d_r8,3):)
-              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_3d_r8, name=name,  _RC) 
+              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_3d_r8, name=name,  _RC)
               call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
            end do
 
@@ -275,7 +282,7 @@ module MAPL_OpenMP_Support
            call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_4d_r4,  _RC)
            do i = 1, size(bounds)
               new_ptr_4d_r4 => old_ptr_4d_r4(:,bounds(i)%min:bounds(i)%max,:,:)
-              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_4d_r4, name=name,  _RC) 
+              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_4d_r4, name=name,  _RC)
               call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
            end do
 
@@ -284,7 +291,7 @@ module MAPL_OpenMP_Support
            call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_4d_r8,  _RC)
            do i = 1, size(bounds)
               new_ptr_4d_r8 => old_ptr_4d_r8(:,bounds(i)%min:bounds(i)%max,:,:)
-              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_4d_r8, name=name,  _RC) 
+              subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_4d_r8, name=name,  _RC)
               call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
            end do
 
@@ -301,7 +308,7 @@ module MAPL_OpenMP_Support
         else if (typekind == ESMF_TYPEKIND_I4 .AND. rank == 3) then
            call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_3d_i4,  _RC)
            do i = 1, size(bounds)
-              new_ptr_3d_i4 => old_ptr_3d_i4(:,bounds(i)%min:bounds(i)%max,:) 
+              new_ptr_3d_i4 => old_ptr_3d_i4(:,bounds(i)%min:bounds(i)%max,:)
               subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_3d_i4, name=name, _RC)
               call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
            end do
@@ -310,7 +317,7 @@ module MAPL_OpenMP_Support
         else if (typekind == ESMF_TYPEKIND_I4 .AND. rank == 4) then
            call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_4d_i4,  _RC)
            do i = 1, size(bounds)
-              new_ptr_4d_i4 => old_ptr_4d_i4(:,bounds(i)%min:bounds(i)%max,:,:) 
+              new_ptr_4d_i4 => old_ptr_4d_i4(:,bounds(i)%min:bounds(i)%max,:,:)
               subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_4d_i4, name=name, _RC)
               call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
            end do
@@ -319,16 +326,16 @@ module MAPL_OpenMP_Support
         else if (typekind == ESMF_TYPEKIND_I8 .AND. rank == 2) then
             call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_2d_i8,  _RC)
            do i = 1, size(bounds)
-              new_ptr_2d_i8 => old_ptr_2d_i8(:,bounds(i)%min:bounds(i)%max) 
+              new_ptr_2d_i8 => old_ptr_2d_i8(:,bounds(i)%min:bounds(i)%max)
               subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_2d_i8, name=name, _RC)
               call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
            end do
-           
+
         ! 3d, i8
         else if (typekind == ESMF_TYPEKIND_I8 .AND. rank == 3) then
             call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_3d_i8,  _RC)
            do i = 1, size(bounds)
-              new_ptr_3d_i8 => old_ptr_3d_i8(:,bounds(i)%min:bounds(i)%max,:) 
+              new_ptr_3d_i8 => old_ptr_3d_i8(:,bounds(i)%min:bounds(i)%max,:)
               subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_3d_i8, name=name, _RC)
               call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
            end do
@@ -337,11 +344,11 @@ module MAPL_OpenMP_Support
         else if (typekind == ESMF_TYPEKIND_I8 .AND. rank == 4) then
             call ESMF_FieldGet(field=primary_field, localDe=0, farrayPtr=old_ptr_4d_i8,  _RC)
            do i = 1, size(bounds)
-              new_ptr_4d_i8 => old_ptr_4d_i8(:,bounds(i)%min:bounds(i)%max,:,:) 
+              new_ptr_4d_i8 => old_ptr_4d_i8(:,bounds(i)%min:bounds(i)%max,:,:)
               subfields(i) = ESMF_FieldCreate(subgrids(i), new_ptr_4d_i8, name=name, _RC)
               call ESMF_AttributeCopy(primary_field, subfields(i), attcopy=ESMF_ATTCOPY_VALUE, _RC)
            end do
-        
+
         end if
 
         _RETURN(ESMF_SUCCESS)
@@ -351,7 +358,7 @@ module MAPL_OpenMP_Support
     function find_bounds(yDim, num_grids) result(bounds)
         integer, intent(in) :: yDim
         integer, intent(in) :: num_grids
-        type(Interval), allocatable :: bounds(:) 
+        type(Interval), allocatable :: bounds(:)
         integer :: i, step
         integer :: count, numOfFirstSize, numOfSecondSize, firstSize, secondSize
         allocate(bounds(num_grids))
@@ -367,21 +374,21 @@ module MAPL_OpenMP_Support
             count = count + 1
             end do
         ! if at least one grid is a different size
-        else 
-            firstSize = yDim/num_grids 
+        else
+            firstSize = yDim/num_grids
             numOfSecondSize = modulo(yDim, num_grids)
             numOfFirstSize = num_grids - numOfSecondSize
             secondSize = (yDim - firstSize * numOfFirstSize) / numOfSecondSize
-            
+
             count = 1
-            do i = 1, numOfFirstSize * firstSize, firstSize 
+            do i = 1, numOfFirstSize * firstSize, firstSize
             bounds(count)%min = i
             bounds(count)%max = i + firstSize - 1
             count = count + 1
             end do
 
             do i = numOfFirstSize * firstSize + 1, yDim, secondSize
-            bounds(count)%min = i   
+            bounds(count)%min = i
             bounds(count)%max = i + secondSize - 1
             count = count + 1
             end do
@@ -394,7 +401,7 @@ module MAPL_OpenMP_Support
         real(kind=ESMF_KIND_R8), pointer :: output_array(:,:)
 
         allocate(output_array(size(input_array,1), bounds%max - bounds%min + 1))
-        output_array(:,:) = input_array(:,bounds%min:bounds%max) 
+        output_array(:,:) = input_array(:,bounds%min:bounds%max)
 
     end function
 
@@ -410,7 +417,7 @@ module MAPL_OpenMP_Support
        character(len=ESMF_MAXSTR) :: name
 
        allocate(sub_bundles(num_grids))
-      
+
        ! get number of fields and field list from field bundle
        call ESMF_FieldBundleGet(bundle, fieldCount=num_fields, name=name, _RC)
        allocate(field_list(num_fields))
@@ -641,4 +648,4 @@ module MAPL_OpenMP_Support
 
     end subroutine get_callbacks
 
-end module MAPL_OpenMP_Support 
+end module MAPL_OpenMP_Support

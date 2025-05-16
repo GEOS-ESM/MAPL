@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.40.6] - 2025-05-16
+
+### Fixed
+
+- Test if `GridCornerLons:` and `GridCornerLats:` attributes are present before removing
+
 ## [2.40.5] - 2024-05-31
 
 ### Removed
