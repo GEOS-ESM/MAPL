@@ -422,7 +422,7 @@ contains
     character(len=ESMF_MAXSTR), allocatable :: regexList(:)
     type(StringStringMap) :: global_attributes
     character(len=ESMF_MAXSTR) :: name,regrid_method
-    logical :: has_conservative_keyword, has_regrid_keyword
+    logical :: has_conservative_keyword, has_regrid_keyword, has_extrap_keyword
     integer :: create_mode
     character(len=:), allocatable :: uppercase_algorithm
     character(len=2) :: tmpchar
@@ -902,6 +902,12 @@ contains
        tm_default = -1
        call ESMF_ConfigGetAttribute ( cfg, list(n)%tm, default=tm_default, &
                                       label=trim(string) // 'tm:', _RC )
+
+       call ESMF_ConfigFindLabel ( cfg, label=trim(string) // 'ecmwf_extrap:',isPresent=has_extrap_keyword,_RC)
+       if (has_extrap_keyword) then
+          call ESMF_ConfigGetAttribute ( cfg, list(n)%extrap_below_surf, &
+                                         label=trim(string) // 'ecmwf_extrap:'  ,_RC )
+       end if
 
        call ESMF_ConfigFindLabel ( cfg, label=trim(string) // 'conservative:',isPresent=has_conservative_keyword,_RC)
        call ESMF_ConfigFindLabel ( cfg, label=trim(string) // 'regrid_method:',isPresent=has_regrid_keyword,_RC)

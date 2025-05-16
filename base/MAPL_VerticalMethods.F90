@@ -49,6 +49,7 @@ module MAPL_VerticalDataMod
      integer, allocatable :: ks_e(:,:,:) ! edge
      real,    allocatable :: weight(:,:,:)
      real,    allocatable :: weight_e(:,:,:) !edge
+     logical :: extrap_below_surf = .false.
      contains
         procedure :: append_vertical_metadata
         procedure :: get_interpolating_variable
@@ -66,7 +67,7 @@ module MAPL_VerticalDataMod
 
   contains
 
-     function newVerticalData(levels,vcoord,vscale,vunit,positive,long_name,standard_name,force_no_regrid,rc) result(vdata)
+     function newVerticalData(levels,vcoord,vscale,vunit,positive,long_name,standard_name,force_no_regrid,extrap_below_surf,rc) result(vdata)
         type(VerticalData) :: vData
         real, pointer, intent(in), optional :: levels(:)
         real, intent(in), optional :: vscale
@@ -76,6 +77,7 @@ module MAPL_VerticalDataMod
         character(len=*), optional, intent(in) :: long_name
         character(len=*), optional, intent(in) :: standard_name
         logical, optional, intent(in) :: force_no_regrid
+        logical, optional, intent(in) :: extrap_below_surf
         integer, optional, intent(Out) :: rc
 
         logical :: local_force_no_regrid
@@ -114,6 +116,8 @@ module MAPL_VerticalDataMod
         else
            local_force_no_regrid = .false.
         end if
+
+        if(present(extrap_below_surf)) vdata%extrap_below_surf = extrap_below_surf
 
         if (.not.present(levels)) then
            if (trim(vdata%positive)=='down') then
