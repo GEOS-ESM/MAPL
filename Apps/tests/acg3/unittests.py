@@ -274,11 +274,6 @@ def get_result_info(result):
             'unsuccessful': sum(len(r) for r in (nfailures, nerrors, nunexpectedSuccesses))
         }
 
-if __name__ == '__main__':
-    result = unittest.main()
-    result_info = get_result_info(result)
-    sys.exit(result_info['rc'])
-
 class MAPL_TestResult:
 
     def __init__(self, result):
@@ -380,3 +375,8 @@ def parse_result(result):
     skipped = result.skipped
     expectedFailures = result.expectedFailures
     unexpectedSuccesses = result.unexpectedSuccesses
+
+if __name__ == '__main__':
+    result = unittest.main()
+    result_info = get_result_info(result)
+    sys.exit(result_info['rc'])
