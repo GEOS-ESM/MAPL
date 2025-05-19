@@ -445,13 +445,11 @@ module MAPL_FileMetadataUtilsMod
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: isPresent
       character(:), allocatable :: fname
       class(CoordinateVariable), pointer :: var
       type(Attribute), pointer :: attr
       character(len=:), pointer :: vdim
       class(*), pointer :: coordUnitPtr
-      class(*), pointer :: coordStandardNamePtr
       class(*), pointer :: ptr(:)
  
       fname = this%get_file_name(_RC)
