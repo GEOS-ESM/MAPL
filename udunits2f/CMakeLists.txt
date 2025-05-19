@@ -11,10 +11,16 @@ set(srcs
   )
 list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 
+# Use static not shared for GCHP
+#esma_add_library(${this}
+#  SRCS ${srcs}
+#  DEPENDENCIES MAPL.shared
+#  TYPE SHARED
+#)
 esma_add_library(${this}
   SRCS ${srcs}
   DEPENDENCIES MAPL.shared
-  TYPE SHARED
+  TYPE STATIC
 )
 
 target_include_directories (${this} PUBLIC
