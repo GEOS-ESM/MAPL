@@ -1,4 +1,4 @@
-!-----------------------------------------------------
+q!-----------------------------------------------------
 ! Note that this implementation only supports
 ! "square" faces on the cube.   I.e. the number of
 ! cells along each axis (of each face) are the same.
@@ -647,13 +647,8 @@ contains
 
          this%target_lon_degrees = this%target_lon
          this%target_lat_degrees = this%target_lat
-         ! GCHP method (merge conflict)
-         !this%target_lon=this%target_lon*MAPL_PI/180.0
-         !this%target_lat=this%target_lat*MAPL_PI/180.0
-         ! GEOS method (merge conflict)
          this%target_lon=this%target_lon*pi/180.d0
          this%target_lat=this%target_lat*pi/180.d0
-         ! End conflict (ewl)
          
       end if
 
