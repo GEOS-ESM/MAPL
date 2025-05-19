@@ -87,9 +87,10 @@ if(NOT TARGET GFTL_SHARED::gftl-shared)
   # MAPL currently requires at least gFTL-shared 1.6.1
   find_package(GFTL_SHARED 1.6.1 REQUIRED)
 else ()
-  if (GFTL_SHARED_VERSION VERSION_LESS 1.6.1)
-    message(FATAL_ERROR "gFTL-shared must be at least 1.6.1")
-  endif ()
+  # Remove version check error is using GCHP
+  #if (GFTL_SHARED_VERSION VERSION_LESS 1.6.1)
+  #  message(FATAL_ERROR "gFTL-shared must be at least 1.6.1")
+  #endif ()
 endif()
 message (STATUS "Found gFTL-shared: ${GFTL_DIR} (found version ${GFTL_SHARED_VERSION})")
 
@@ -98,9 +99,10 @@ if(BUILD_WITH_FARGPARSE)
   if(NOT TARGET FARGPARSE::fargparse)
     find_package(FARGPARSE 1.5.0 REQUIRED)
   else()
-    if (FARGPARSE_VERSION VERSION_LESS 1.5.0)
-      message(FATAL_ERROR "fArgParse must be at least 1.5.0")
-    endif ()
+    # Remove version check error if using GCHP
+    #if (FARGPARSE_VERSION VERSION_LESS 1.5.0)
+    #  message(FATAL_ERROR "fArgParse must be at least 1.5.0")
+    #endif ()
   endif()
   message (STATUS "Building with fArgParse")
   message (STATUS "Found fArgParse: ${FARGPARSE_DIR} (found version ${FARGPARSE_VERSION})")
@@ -243,7 +245,8 @@ if (PFUNIT_FOUND)
   add_subdirectory (pfunit EXCLUDE_FROM_ALL)
 endif ()
 
-add_subdirectory (Tests)
+# Exclude tests for GCHP
+#add_subdirectory (Tests)
 
 # @env will exist here if MAPL is built as itself but not as part of, say, GEOSgcm
 esma_add_subdirectory (ESMA_env FOUND ESMA_env_FOUND)
