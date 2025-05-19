@@ -1135,6 +1135,21 @@ contains
 
        endif LEVS ! selected levels
 
+       if (list(n)%extrap_below_surf) then
+          list(n)%field_set%nfields = list(n)%field_set%nfields + 1
+          allocate( fields(4,  list(n)%field_set%nfields), _STAT )
+          fields(1,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(1,:)
+          fields(2,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(2,:)
+          fields(3,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(3,:)
+          fields(4,1:list(n)%field_set%nfields-1) = list(n)%field_set%fields(4,:)
+          fields(1,  list(n)%field_set%nfields  ) = "PHIS"
+          fields(2,  list(n)%field_set%nfields  ) = "DYN"
+          fields(3,  list(n)%field_set%nfields  ) = "PHIS"
+          fields(4,  list(n)%field_set%nfields  ) = BLANK
+          deallocate( list(n)%field_set%fields, _STAT )
+          list(n)%field_set%fields => fields
+       end if
+
        vvarn(n) = vvar
 
        cubeFormat = 1
