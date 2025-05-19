@@ -909,7 +909,7 @@ CONTAINS
         _VERIFY(status)
         if (trim(levName) /='') then
            call item%file_metadata%get_coordinate_info(levName,coordSize=item%lm,coordUnits=tLevUnits, &
-                coordStandardName=tLevStandardName,coords=levFile,_RC)
+                standard_name=tLevStandardName,coords=levFile,_RC)
            levUnits=MAPL_TrimString(tlevUnits)
            ! check if vertical coordinate is pressure or dimensionless pressure proxy
            item%levUnit = ESMF_UtilStringLowerCase(levUnits)

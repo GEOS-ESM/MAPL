@@ -2183,7 +2183,7 @@ CONTAINS
         _VERIFY(status)
         if (trim(levName) /='') then
            call metadata%get_coordinate_info(levName,coordSize=item%lm,coordUnits=tLevUnits, &
-                coordStandardName=tLevStandardName,coords=levFile,__RC__)
+                standard_name=tLevStandardName,coords=levFile,__RC__)
 
            ! GCHP: use trim to avoid gfortran issue
            !levUnits=MAPL_TrimString(tlevUnits)
