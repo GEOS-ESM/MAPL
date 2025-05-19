@@ -191,6 +191,8 @@ module MAPL_GriddedIOMod
            this%vdata=VerticalData(rc=status)
            _VERIFY(status)
         end if
+        ! Pass isPosDown for GCHP
+        !call this%vdata%append_vertical_metadata(this%metadata,this%input_bundle,rc=status)
         call this%vdata%append_vertical_metadata(this%metadata,this%input_bundle,posDown=isPosDown,rc=status)
         _VERIFY(status)
         this%doVertRegrid = (this%vdata%regrid_type /= VERTICAL_METHOD_NONE)
