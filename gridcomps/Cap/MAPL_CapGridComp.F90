@@ -82,7 +82,7 @@ module MAPL_CapGridCompMod
      procedure :: initialize_history
      procedure :: run
      procedure :: step
-     procedure :: step_reverse
+     procedure :: step_reverse  ! Added for GCHP adjoint
      procedure :: finalize
      procedure :: get_model_duration
      procedure :: get_am_i_root
@@ -213,7 +213,7 @@ contains
     character(len=ESMF_MAXSTR )           :: DYCORE
     character(len=ESMF_MAXPATHLEN) :: user_dirpath,tempString
     logical                      :: tend,foundPath
-    integer                      :: reverseTime
+    integer                      :: reverseTime            ! Added for GCHP adjoint
     logical                      :: cap_clock_is_present
 
 
@@ -475,16 +475,10 @@ contains
     ! ----------------------------------------------
     call ESMF_ConfigGetAttribute(cap%cf_root, value=ReplayMode, Label="REPLAY_MODE:", default="NoReplay", _RC)
 
-    ! pass REVERSE_TIME resource to history and root config
-    call MAPL_GetResource(MAPLOBJ, reverseTime, "REVERSE_TIME:", default = 0, rc = status) 
-    _VERIFY(status)
-
-    call MAPL_ConfigSetAttribute(cap%cf_root, value=reverseTime,  Label="REVERSE_TIME:",  rc=status)
-    _VERIFY(STATUS)
-
-    call MAPL_ConfigSetAttribute(cap%cf_hist, value=reverseTime,  Label="REVERSE_TIME:",  rc=status)
-    _VERIFY(STATUS)
-
+    ! Added for GCHP adjoint: pass REVERSE_TIME resource to history and root config
+    call MAPL_GetResource(MAPLOBJ, reverseTime, "REVERSE_TIME:", default = 0, _RC)
+    call MAPL_ConfigSetAttribute(cap%cf_root, value=reverseTime,  Label="REVERSE_TIME:", _RC)
+    call MAPL_ConfigSetAttribute(cap%cf_hist, value=reverseTime,  Label="REVERSE_TIME:", _RC)
 
     ! Register the children with MAPL
     !--------------------------------
@@ -1036,7 +1030,7 @@ contains
     integer, optional, intent(in)  :: phase
     integer, optional, intent(out) :: rc
 
-    integer :: reverse_time ! GCHP only
+    integer :: reverse_time ! Added for GCHP adjoint
     
     integer :: n, status, phase_
     logical :: done
@@ -1053,13 +1047,9 @@ contains
 
     if (.not. cap%printspec > 0) then
 
-       ! Check if user wants to reverse time
-       call MAPL_Set(MAPLOBJ, name = cap%name, cf = cap%config, rc = status)
-       _VERIFY(status)
-       call MAPL_GetResource(MAPLOBJ, reverse_time, label='REVERSE_TIME:', &
-            default=0, rc = status)
-       _VERIFY(STATUS)
-
+       ! Added for GCHP adjoint: Check if user wants to reverse time
+       call MAPL_Set(MAPLOBJ, name = cap%name, cf = cap%config, _RC)
+       call MAPL_GetResource(MAPLOBJ, reverse_time, label='REVERSE_TIME:', default=0, _RC)
        if ( reverse_time == 1 ) then
           if (MAPL_Am_I_Root()) THEN
              WRITE(*,1001) cap%nsteps
@@ -1104,8 +1094,7 @@ contains
           call ESMF_ClockSet( cap%clock_hist, direction=ESMF_DIRECTION_REVERSE, &
                               advanceCount=0_8, rc=status )
           cap%nsteps = cap%nsteps + 1
-       endif ! reverse_time == 1
-
+       endif ! reverse_time == 1, end of section for GCHP adjoint
 
        ! Time Loop starts by checking for Segment Ending Time
        !-----------------------------------------------------
@@ -1125,10 +1114,10 @@ contains
 
           if (.not.cap%lperp) then
 
-             ! Special handling for GCHP adjoint (when reverse_time is 1)
-             if ( reverse_time == 0 ) then
-                done = ESMF_ClockIsStopTime(cap%clock_hist, _RC )
-             else
+             done = ESMF_ClockIsStopTime(cap%clock_hist, _RC )
+
+             ! Added for GCHP adjoint
+             if ( reverse_time == 1 ) then
                 done = ESMF_ClockIsDone(cap%clock_hist, _RC )
                 if (MAPL_Am_I_Root() .and. done) THEN
                    call ESMF_ClockPrint(cap%clock_hist, options='currTime string', _RC )
@@ -1136,13 +1125,14 @@ contains
                    call ESMF_ClockPrint(cap%clock_hist, options='direction', _RC )
                 endif
              endif
+
              if (done) exit
           endif
 
           if ( reverse_time == 0 ) then
              call cap%step(phase=phase_, _RC )
           else
-             call cap%step_reverse(n .eq. 1, status)
+             call cap%step_reverse(n .eq. 1, status) ! Added for GCHP adjoint
           endif
 
           ! Reset loop average timer to get a better
@@ -1550,6 +1540,7 @@ contains
     _RETURN(_SUCCESS)
   end subroutine rewind_clock
 
+  Added for GCHP adjoint
   subroutine step_reverse(this, first, rc)
     class(MAPL_CapGridComp), intent(inout) :: this
     logical, intent(in)  :: first
@@ -1781,7 +1772,7 @@ contains
     _ASSERT(NUM_DT>=0, 'NUM_DT should be >= 0.')
     _ASSERT(DEN_DT> 0, 'DEN_DT should be > 0.')
     _ASSERT(NUM_DT<DEN_DT, 'NUM_DT should be < DEN_DT')
-    !_ASSERT(HEARTBEAT_DT>=0, 'HEARTBEAT_DT should be >= 0.')
+    _ASSERT(HEARTBEAT_DT>=0, 'HEARTBEAT_DT should be >= 0.')
 
     ! initialize calendar to be Gregorian type
     ! ----------------------------------------
@@ -1869,7 +1860,7 @@ contains
          startTime = currTime, &
          _RC)
 
-    if (endTime < startTime) duration = -duration ! GCHP
+    if (endTime < startTime) duration = -duration ! Added for GCHP adjoint
 
     maxDuration = EndTime - currTime
     if (duration > maxDuration) duration = maxDuration
