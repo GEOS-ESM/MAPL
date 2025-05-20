@@ -80,7 +80,7 @@
   integer, parameter         :: MAPL_ExtDataLeft          = 1
   integer, parameter         :: MAPL_ExtDataRight         = 2
   logical                    :: hasRun
-  logical, SAVE              :: firstRun   ! GCHP
+  logical, SAVE              :: firstRun   ! Added for GCHP
   character(len=ESMF_MAXSTR) :: error_msg_str
 
   type BracketingFields
@@ -105,7 +105,7 @@
      integer                      :: Trans
      real                         :: scale, offset
      logical                      :: do_offset, do_scale
-     logical                      :: levPosAttrUp = .false.   ! GCHP
+     logical                      :: levPosAttrUp = .false. ! Added for GCHP
      character(len=ESMF_MAXSTR)   :: var
      character(len=ESMF_MAXPATHLEN)   :: file
      logical                      :: hasFileReffTime
@@ -123,7 +123,7 @@
      integer                      :: tindex1,tindex2
      integer                      :: climyear
      type(ESMF_TimeInterval)      :: frequency
-     logical                      :: frequency_is_constant ! GCHP
+     logical                      :: frequency_is_constant ! Added for GCHP
      type(ESMF_Time)              :: reff_time
 
      ! if primary export represents a pair of vector fields
@@ -155,7 +155,6 @@
      character(len=4)             :: importVDir = "down"
      character(len=4)             :: fileVDir = "down"
      character(len=ESMF_MAXSTR)   :: levUnit
-     character(len=ESMF_MAXSTR)   :: levStandardName
      logical                      :: havePressure = .false.
   end type PrimaryExport
 
@@ -389,7 +388,7 @@ CONTAINS
    call ESMF_GridCompGet( GC, name=comp_name, config=CF_main, _RC )
    Iam = trim(comp_name) // '::' // trim(Iam)
 
-   ! GCHP: Initialize firstRun to true
+   ! Added for GCHP
    firstRun = .true.
  
 !  Extract relevant runtime information
@@ -1603,7 +1602,7 @@ CONTAINS
    deallocate(doUpdate)
    deallocate(useTime)
 
-   if (firstRun) firstRun = .false.   ! GCHP
+   if (firstRun) firstRun = .false.   ! Added for GCHP
    if (hasRun .eqv. .false.) hasRun = .true.
    call MAPL_TimerOff(MAPLSTATE,"Run")
 
@@ -2246,7 +2245,7 @@ CONTAINS
      subroutine UpdateBracketTime(item,cTime,currTime,bSide,interpTime,fileTime,file_processed,allowExtrap,rc)
         type(PrimaryExport),                 intent(inout) :: item
         type(ESMF_Time),                     intent(inout) :: cTime
-        type(ESMF_Time),                     intent(in   ) :: currTime ! GCHP
+        type(ESMF_Time),                     intent(in   ) :: currTime ! Added for GCHP
         character(len=1),                    intent(in   ) :: bSide
         type(ESMF_TIME),                     intent(inout) :: interpTime
         type(ESMF_TIME),                     intent(inout) :: fileTime
@@ -2259,12 +2258,12 @@ CONTAINS
         type(ESMF_Time)                            :: newTime
         integer                                    :: curDate,curTime,n,tindex
         integer(ESMF_KIND_I4)                      :: iyr, imm, idd, ihr, imn, isc, oldYear
-        integer(ESMF_KIND_I4)                      :: cYear, cMonth  ! GCHP
+        integer(ESMF_KIND_I4)                      :: cYear, cMonth                         ! Added for GCHP
         integer(ESMF_KIND_I4)                      :: fyr, fmm, fdd, fhr, fmn, fsc
         type(ESMF_TimeInterval)                    :: zero
         type(ESMF_Time)                            :: fTime
         logical                                    :: UniFileClim
-        logical                                    :: UniFileDOW  ! GCHP
+        logical                                    :: UniFileDOW      ! Added for GCHP
         type(ESMF_Time)                            :: readTime
 
         ! Allow for extrapolation.. up to a limit
@@ -2276,7 +2275,7 @@ CONTAINS
         logical                                    :: LExtrap, RExtrap, LExact, RExact
         logical                                    :: LSide, RSide, intOK, bracketScan
 
-        type(ESMF_TimeInterval)                    :: yrTimeStep  ! GCHP
+        type(ESMF_TimeInterval)                    :: yrTimeStep      ! Added for GCHP
         type(ESMF_Time), allocatable               :: xTSeries(:)
         type(FileMetaDataUtils), pointer           :: fdata
 
@@ -2285,7 +2284,7 @@ CONTAINS
         call lgr%debug('Updating %a1 bracket for %a',bside, trim(item%name))
         call ESMF_TimeIntervalSet(zero,_RC)
 
-        call ESMF_TimeIntervalSet(yrTimeStep, yy=1, rc=rc) ! GCHP
+        call ESMF_TimeIntervalSet(yrTimeStep, yy=1, rc=rc) ! Added for GCHP
 
         ! Default
         fTime = cTime
@@ -2893,10 +2892,10 @@ CONTAINS
         class(FileMetadataUtils),            intent(inout) :: fdata
         type(ESMF_Time),                     intent(in   ) :: tSeries(:)
         type(ESMF_Time),                     intent(inout) :: cTime
-        type(ESMF_Time),                     intent(in   ) :: currTime   ! GCHP
+        type(ESMF_Time),                     intent(in   ) :: currTime   ! Added for GCHP
         character(len=1),                    intent(in   ) :: bSide
         logical,                             intent(in   ) :: UniFileClim
-        logical,                             intent(in   ) :: UniFileDOW ! GCHP
+        logical,                             intent(in   ) :: UniFileDOW ! Added for GCHP
         type(ESMF_TIME),                     intent(inout) :: interpTime
         type(ESMF_TIME),                     intent(inout) :: fileTime
         integer,                             intent(inout) :: tindex
@@ -2914,7 +2913,7 @@ CONTAINS
         logical                            :: LSide, RSide
         integer                            :: yrOffset, yrOffsetNeg, targYear
         integer                            :: iEntry
-        integer                            :: monthOffset, targDOW ! GCHP
+        integer                            :: monthOffset, targDOW        ! Added for GCHP
         type(ESMF_Time), allocatable       :: tSeriesC(:)
         logical                            :: foundYear
         integer                            :: tSteps, curYear, nsteps
@@ -4495,7 +4494,7 @@ CONTAINS
   real, pointer :: ptrF(:,:,:),ptrR(:,:,:)
   integer :: lm_in,lm_out,i
 
-  integer :: lb_in,lb_out,ub_in,ub_out  ! GCHP
+  integer :: lb_in,lb_out,ub_in,ub_out  ! Added for GCHP
 
   Iam = "MAPL_ExtDataFillField"
 
@@ -4506,8 +4505,8 @@ CONTAINS
   ptrF = 0.0
   lm_in= size(ptrR,3)
 
-  lb_in=lbound(ptrR,3)   ! GCHP
-  ub_in=ubound(ptrR,3)   ! GCHP
+  lb_in=lbound(ptrR,3)   ! Added for GCHP
+  ub_in=ubound(ptrR,3)   ! Added for GCHP
 
   lm_out = size(ptrF,3)
   if (trim(item%importVDir)=="down") then

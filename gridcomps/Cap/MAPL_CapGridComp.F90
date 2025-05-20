@@ -1540,7 +1540,7 @@ contains
     _RETURN(_SUCCESS)
   end subroutine rewind_clock
 
-  Added for GCHP adjoint
+  ! Added for GCHP adjoint
   subroutine step_reverse(this, first, rc)
     class(MAPL_CapGridComp), intent(inout) :: this
     logical, intent(in)  :: first

@@ -112,7 +112,6 @@ module MAPL_GriddedIOMod
         _RETURN(ESMF_SUCCESS)
      end function new_MAPL_GriddedIO
 
-     ! Add posDown argument in GCHP
      subroutine CreateFileMetaData(this,items,bundle,timeInfo,vdata,ogrid,global_attributes,posDown,rc)
         class (MAPL_GriddedIO), target, intent(inout) :: this
         type(GriddedIOitemVector), target, intent(inout) :: items
