@@ -2,6 +2,7 @@ esma_set_this (OVERRIDE MAPL.Apps.tests.acg3)
 
 set (srcs
     ACG3.F90
+    acg3_unittests.py
     )
 
 add_library (${this} ${srcs})
@@ -20,8 +21,18 @@ mapl_acg (${this}   compile_test.acg
           )
 
 # Add test 
-add_test (NAME ${this}
+add_test (NAME "${this}.compile"
   COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target ${this}
   )
+set_tests_properties("${this}.compile" PROPERTIES LABELS "ESSENTIAL")
 
-set_tests_properties(${this} PROPERTIES LABELS "ESSENTIAL")
+# Add ACG3 unit tests
+set (PYTHON_UNIT_TEST_MODULE unittest)
+add_test(NAME "${this}.unittests"
+  COMMAND ${Python3_EXECUTABLE} -m ${PYTHON_UNIT_TEST_MODULE} discover -v ${CMAKE_CURRENT_LIST_DIR} -p acg3_unittests.py
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+set_tests_properties("${this}.compile" PROPERTIES LABELS "ESSENTIAL")
+set_tests_properties("${this}.unittests" PROPERTIES LABELS "ESSENTIAL")
+set_tests_properties("${this}.unittests" PROPERTIES ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_LIST_DIR}/../../:${CMAKE_CURRENT_BINARY_DIR}:$ENV{PYTHONPATH}")
