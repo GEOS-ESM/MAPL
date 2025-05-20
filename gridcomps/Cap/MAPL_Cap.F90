@@ -406,7 +406,7 @@ contains
      _UNUSED_DUMMY(unusable)
 
      pinflag = GetPinFlagFromConfig(this%cap_options%cap_rc_file, _RC)
-        call MAPL_PinFlagSet(pinflag)
+     call MAPL_PinFlagSet(pinflag)
 
      if (this%non_dso) then
         call MAPL_CapGridCompCreate(this%cap_gc, this%get_cap_rc_file(), &
