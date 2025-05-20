@@ -6,9 +6,21 @@ from functools import reduce, partial
 from operator import concat
 from collections import namedtuple
 import sys
-sys.path.append('../../')
 import MAPL_GridCompSpecs_ACGv3 as acg3
+#sys.path.append('../../')
+#import MAPL_GridCompSpecs_ACGv3 as acg3
  
+"""
+class ACG_TestSuite(unittest.TestSuite):
+
+    def run(self, result):
+        result = super().run(result)
+        return result
+
+    def process_results(self, result):
+        pass
+"""
+
 TestParams = namedtuple('TestParams', 'value test msg'.split())
 
 def general_msg(variable='EXPECTED VARIABLE', value=None):
@@ -246,6 +258,17 @@ class TestHelpers(unittest.TestCase):
     def test_flatten_specs_bad(self):
         self.assertIsNone(acg3.flatten_specs(2), msg=self.msg('None'))
 
+test_cases = (TestMappings, TestHelpers)
+
+def load_tests(loader, tests, pattern):
+    suite = unittest.TestSuite()
+    for test_class in test_cases:
+        tests = loader.loadTestsFromTestCase(test_class)
+        suite.addTests(tests)
+    return suite
+
+"""
+
 def get_args():
     parser = argparse.ArgumentParser(description='Perform unit tests on MAPL_GridCompSpecs_ACGv3')
     parser.add_argument("-v", "--verbosity", action="store", nargs='?',
@@ -254,7 +277,8 @@ def get_args():
 
 def get_result_info(result):
     nfailures, nerrors, nskipped, nunexpectedSuccesses, nexpectedFailures = 
-        tuple(len(r) for r in (result.failures, result.errors, result.unexpectedSuccesses, result.expectedFailures))
+        tuple(len(r) for r in (result.failures, result.errors, result.skipped,
+        result.unexpectedSuccesses, result.expectedFailures))
     return {
         'rc': 0 if result.wasSuccessful() else -1,
         'collected durations': result.collectedDurations,
@@ -321,7 +345,7 @@ class MAPL_TestResult:
 
         match exclude:
             case str() as s:
-                excludes = s.split())
+                excludes = s.split()
             case Sequence as seq:
                 excludes = [name for name in seq if isinstance(name, str)]
 
@@ -380,3 +404,4 @@ if __name__ == '__main__':
     result = unittest.main()
     result_info = get_result_info(result)
     sys.exit(result_info['rc'])
+    """
