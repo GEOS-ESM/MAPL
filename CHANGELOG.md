@@ -108,6 +108,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `ESMF_PINFLAG: VAS` --> `ESMF_PIN_DE_TO_VAS`
   - `ESMF_PINFLAG: SSI` --> `ESMF_PIN_DE_TO_SSI`
   - `ESMF_PINFLAG: SSI_CONTIG` --> `ESMF_PIN_DE_TO_SSI_CONTIG` (default with no setting)
+- Added a new column to the ACG (MAPL2), FILTER, which generates declarations and allocations of arrays (StateFilterItem)
 
 ### Changed
 
