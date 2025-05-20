@@ -7,19 +7,6 @@ from operator import concat
 from collections import namedtuple
 import sys
 import MAPL_GridCompSpecs_ACGv3 as acg3
-#sys.path.append('../../')
-#import MAPL_GridCompSpecs_ACGv3 as acg3
- 
-"""
-class ACG_TestSuite(unittest.TestSuite):
-
-    def run(self, result):
-        result = super().run(result)
-        return result
-
-    def process_results(self, result):
-        pass
-"""
 
 TestParams = namedtuple('TestParams', 'value test msg'.split())
 
@@ -254,10 +241,6 @@ class TestHelpers(unittest.TestCase):
             with self.subTest(test=test, msg=msg):
                 test(r, msg)
 
-    @unittest.skip('Disabled pending bugfix')
-    def test_flatten_specs_bad(self):
-        self.assertIsNone(acg3.flatten_specs(2), msg=self.msg('None'))
-
 test_cases = (TestMappings, TestHelpers)
 
 def load_tests(loader, tests, pattern):
@@ -266,142 +249,3 @@ def load_tests(loader, tests, pattern):
         tests = loader.loadTestsFromTestCase(test_class)
         suite.addTests(tests)
     return suite
-
-"""
-
-def get_args():
-    parser = argparse.ArgumentParser(description='Perform unit tests on MAPL_GridCompSpecs_ACGv3')
-    parser.add_argument("-v", "--verbosity", action="store", nargs='?',
-        default=1, type=int, choices=tuple(range(1,3)), help="verbosity of output")
-    return parser.parse_args()
-
-def get_result_info(result):
-    nfailures, nerrors, nskipped, nunexpectedSuccesses, nexpectedFailures = 
-        tuple(len(r) for r in (result.failures, result.errors, result.skipped,
-        result.unexpectedSuccesses, result.expectedFailures))
-    return {
-        'rc': 0 if result.wasSuccessful() else -1,
-        'collected durations': result.collectedDurations,
-        'failures': result.failures,
-        'errors': result.errors,
-        'skipped': result.skipped,
-        'unexpected successes': result.unexpectedSuccesses,
-        'expected failures': result.expectedFailures,
-        'tests': [name for name, _ in results['collected duration']],
-        'number': {
-            'total': result.testsRun,
-            'failures': nfailures,
-            'errors': nerrors,
-            'skipped': nskipped,
-            'unexpectedSuccesses': nunexpectedSuccesses,
-            'expected failures': nexpectedFailures,
-            'unsuccessful': sum(len(r) for r in (nfailures, nerrors, nunexpectedSuccesses))
-        }
-
-class MAPL_TestResult:
-
-    def __init__(self, result):
-        numbers.update(dict((name, len(l) for name, l in results.items())))
-        self.numbers = numbers
-        names = dict((name, [n for n, _ in l]) for name, l in results.items() if name not in ['collected durations', 'unexpectedSuccesses'])
-        names.update({'testsRun': [name for name, _ in results['collected duration']]})
-
-        self.result_strings = dict((name, tb) for name, in results.keys()
-
-        list_names = 'failed errors'.split()
-        list_names.append('unexpected successes')
-        list_names.append('skipped')
-        list_names.append('expected failures')
-        lists = [result.failures, result.errors, result.skipped,
-            result.unexpectedSuccesses, result.expectedFailures]
-        counts = {
-            'tests': result.testsR
-        counts = dict(zip(['tests']+list_names, [result.testsRun]+lists))
-        numbers = [result.testsRun] + [len(v) for l in lists]
-        names = [[str(tc) for tc, _ in l] for l in lists]
-        trace
-        self.numbers = dict(zip(number_names, numbers))
-        self.number = {
-                'tests': result.testsRun,
-                'failed': len(result.failures),
-                'errors': len(result.errors),
-                'skipped': len(result.skipped),
-                'unexpected successes': len(result.unexpectedSuccesses),
-                'expected failures': len(result.expectedFailures)
-            }
-        self.names = dict(zip(list_names, lists))
-
-    @property
-    def number_unsuccessful(self, include=None, exclude=None):
-        includes = None
-        match include:
-            case str() as s:
-                includes = s.split()
-            case Sequence() as seq:
-                includes = [name for name in seq if isinstance(name, str)]
-            case _:
-                includes = 'failed errors'.split().append('unexpected successes')
-        excludes = []
-
-        match exclude:
-            case str() as s:
-                excludes = s.split()
-            case Sequence as seq:
-                excludes = [name for name in seq if isinstance(name, str)]
-
-        return reduce(lambda a, c: a+self.number.get(c, 0), set(includes).difference(excludes), 0)
-
-    def write_numbers(self, numbers=None):
-        line = "{} tests were {}."
-        match numbers:
-            case str() as key if key in self.number:
-                n = self.number[key]
-                description = None
-                match key:
-                    case 'tests':
-                        description = 'executed'
-                    case 'failed':
-                        description = 'failures'
-                    case _:
-                        description = key
-                    return line.format(n, description)
-            case Sequence():
-                return [self.write_numbers(name) for name in numbers if isinstance(name, str)]
-            case _:
-                return []
-
-    def writelines(self, successful=True, numbers=None):
-        lines = []
-        if successful:
-            lines.append("{} tests were {} successful.".format(*(('All', '') if self.successful else ('Some', 'not '))))
-        if numbers:
-            numberlines = []
-            match numbers:
-                case str() as name:
-                    numberlines.append(self.write_numbers(name))
-                case Sequence() as seq:
-                    numberlines.extend(self.write_numbers(seq))
-                case bool():
-                    numberlines.extend(self.write_numbers(self.numbers.keys()))
-        
-def parse_result(result):
-    r = MAPL_TestResult()
-    r.successful = result.wasSuccessful()
-    r.tests = result.testsRun
-    r.errors = len(result.errors)
-    r.failed = len(result.failures)
-    r.skipped = len(result.skipped)
-    r.expectedFailures = len(result.expectedFailures)
-    r.unexpectedSuccesses = len(result.unexpectedSuccesses)
-
-    errors = result.errors
-    failures = result.failures
-    skipped = result.skipped
-    expectedFailures = result.expectedFailures
-    unexpectedSuccesses = result.unexpectedSuccesses
-
-if __name__ == '__main__':
-    result = unittest.main()
-    result_info = get_result_info(result)
-    sys.exit(result_info['rc'])
-    """
