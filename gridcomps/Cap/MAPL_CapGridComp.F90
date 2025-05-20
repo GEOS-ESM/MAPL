@@ -1114,7 +1114,7 @@ contains
 
           if (.not.cap%lperp) then
 
-             done = ESMF_ClockIsStopTime(cap%clock_hist, _RC )
+             done = ESMF_ClockIsStopTime(cap%clock_hist, _RC)
 
              ! Added for GCHP adjoint
              if ( reverse_time == 1 ) then
@@ -1130,7 +1130,7 @@ contains
           endif
 
           if ( reverse_time == 0 ) then
-             call cap%step(phase=phase_, _RC )
+             call cap%step(phase=phase_, _RC)
           else
              call cap%step_reverse(n .eq. 1, status) ! Added for GCHP adjoint
           endif

@@ -3616,6 +3616,7 @@ contains
        is_stretched = .false.
     end if
 
+
     ! verify that file is compatible with fields in bundle we are reading
 
     if (nVars == 0) then

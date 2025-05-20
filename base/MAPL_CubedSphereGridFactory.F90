@@ -1,4 +1,4 @@
-q!-----------------------------------------------------
+!-----------------------------------------------------
 ! Note that this implementation only supports
 ! "square" faces on the cube.   I.e. the number of
 ! cells along each axis (of each face) are the same.
@@ -644,12 +644,10 @@ contains
          _ASSERT(this%target_lat >= -90.0, 'Latitude should be greater than -90.0 degrees')
          _ASSERT(this%target_lat <= 90, 'Latitude should be less than 90.0 degrees')
          this%stretched_cube = .true.
-
          this%target_lon_degrees = this%target_lon
          this%target_lat_degrees = this%target_lat
          this%target_lon=this%target_lon*pi/180.d0
          this%target_lat=this%target_lat*pi/180.d0
-         
       end if
 
       ! Check decomposition/bounds
