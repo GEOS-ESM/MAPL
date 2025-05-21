@@ -148,7 +148,12 @@ RESTART_EMIT = make_entry_emit({'OPT'  : 'MAPL_RestartOptional', 'SKIP' : 'MAPL_
 
 
 ############################ Special EMIT functions ############################
+
+# This emit function emits the name of the variable for the config argument
+# based the value of the FILTER column.
 emit_cf = lambda value: 'CF' if value else ''
+
+# This emit function emits a Python bool value based on the FILTER column.
 emit_filter = lambda value: (value.lower() in TRUE_VALUES) if value else False
 
 
@@ -333,12 +338,6 @@ class MAPL_DataSpec:
         precision = self.spec_values.get(Option.PRECISION)
         kind = f"(kind={precision})" if precision else ''
         return f"{self.newline()}real{kind}, {vartype}, {dimension} :: {self.internal_name}"
-#        text = self.newline() + 'real'
-#        if Option.PRECISION in self.spec_values:
-#            kind = self.spec_values.get(Option.PRECISION)
-#            text = text + '(kind=' + str(kind) + ')'
-#        text = text +', pointer, ' + dimension + ' :: ' + self.internal_name
-#        return text
 
     def emit_get_pointer(self):
         """ Generate MAPL_GetPointer calls for the MAPL_DataSpec (self) """
