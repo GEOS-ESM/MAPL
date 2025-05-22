@@ -2226,25 +2226,6 @@ ENDDO PARSER
                end if
             end if
 
-!ewl: merge conflict. This was in old GCHP MAPL.
-!               if (.false. .and. MAPL_AM_I_ROOT()) THEN
-!                  WRITE(*,*) 'REFRESH = ', REFRESH, ' AVGINT = ', AVGINT
-!                  WRITE(*,*) 'acc_int = ', MAPL_nsecf(list(n)%acc_interval), &
-!                       ' freq = ', MAPL_nsecf(list(n)%frequency)
-!               endif
-!
-!               call MAPL_VarSpecCreateInList(INTSTATE%SRCS(n)%SPEC,    &
-!                    SHORT_NAME = SHORT_NAME,                                 &
-!                    LONG_NAME  = LONG_NAME,                                  &
-!                    UNITS      = UNITS,                                      &
-!                    DIMS       = DIMS,                                       &
-!                    ACCMLT_INTERVAL= avgint,                                 &
-!                    COUPLE_INTERVAL= REFRESH,                                &
-!                    VLOCATION  = VLOCATION,                                  &
-!                    FIELD_TYPE = FIELD_TYPE,                                 &
-!                    RC=STATUS  )
-!               _VERIFY(STATUS)
-!ewl: new code
             if (IntState%average(n)) then
                call MAPL_StateAdd(IntState%CIM(N), f_extra, _RC)
 
