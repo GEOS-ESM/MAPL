@@ -9,11 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.56.0] - 2025-05-23
+
+### Fixed
+
 - Fixed sampler history output
 - Fixed bug with dervied exports in ExtData in filter function
 - define `comp_name` in `MAPL_GridCreate` when GC is not present
 - Fixed bug in profiler demo
-- Fixed uninitialized num_levels bug causing gcc14 to crash a node due to allocating enormous amount of memory
+- Fixed uninitialized `num_levels` bug causing gcc14 to crash a node due to allocating enormous amount of memory
 - Fix for GNU + MVAPICH 4 disabling ieee halting around `MPI_Init_thread()`
 - Test if `GridCornerLons:` and `GridCornerLats:` attributes are present before removing
 - Fixed ExtData bug causing time interpolation to be skipped if no current reads
@@ -45,14 +57,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Cache `proc_description`
     - Support for ecbuild updates
     - Enforce our allowed `CMAKE_BUILD_TYPE`
-
 - Update documentation on ACG in repo
 - Update CI to use ifx 2025.1
 - Update Tests to ExtData1G tests are ESSENTIAL and run by default again
-
-### Removed
-
-### Deprecated
 
 ## [2.55.1] - 2025-04-23
 
