@@ -86,6 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Change macro in field/undo_function_overload.macro
 - Fixed bug with AccumulatorAction and subtypes
 - Added a check to assign_fptr that verifies that the pointer type/kind matches the Field typekind
+- Fixed handling of invalid value for RESTART column in ACG3
 
 ## [Unreleased]
 
