@@ -132,21 +132,21 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          call ESMF_ConfigGetAttribute(config, value=traj%var_name_time_full, default="", &
               label=trim(STR_KW) // 'time:', _RC)
          call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
-              label=trim(STR_KW) // 'reftime:', _RC)
+              label=trim(STR_KW) // 'obs_reftime:', _RC)
          if (trim(STR1)=='') then
             traj%obsfile_start_time = currTime
             call ESMF_TimeGet(currTime, timestring=STR1, _RC)
             if (mapl_am_I_root()) then
-               write(6,105) 'obs_file reftime missing, default = currTime :', trim(STR1)
+               write(6,105) 'obs reftime missing, default = currTime :', trim(STR1)
             endif
          else
             call ESMF_TimeSet(traj%obsfile_start_time, STR1, _RC)
             if (mapl_am_I_root()) then
-               write(6,105) 'obs_file reftime provided: ', trim(STR1)
+               write(6,105) 'obs reftime provided: ', trim(STR1)
             end if
          end if
          call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
-              label=trim(STR_KW)//'frequency:', _RC)
+              label=trim(STR_KW)//'obs_frequency:', _RC)
          _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
 
          if (mapl_am_I_root()) write(6,105) 'obs_file frequency:', trim(STR1)
@@ -268,22 +268,22 @@ submodule (HistoryTrajectoryMod)  HistoryTrajectory_implement
          end if
 
          call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
-              label=trim(STR_KW) // 'reftime:', _RC)
+              label=trim(STR_KW) // 'obs_reftime:', _RC)
          if (trim(STR1)=='') then
             traj%obsfile_start_time = currTime
             call ESMF_TimeGet(currTime, timestring=STR1, _RC)
             if (mapl_am_I_root()) then
-               write(6,105) 'obs_file_begin missing, default = currTime :', trim(STR1)
+               write(6,105) 'obs reftime missing, default = currTime :', trim(STR1)
             endif
          else
             call ESMF_TimeSet(traj%obsfile_start_time, STR1, _RC)
             if (mapl_am_I_root()) then
-               write(6,105) 'obs_file_begin provided: ', trim(STR1)
+               write(6,105) 'obs_reftime provided: ', trim(STR1)
             end if
          end if
 
          call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
-              label=trim(STR_KW) // 'refquency:', _RC)
+              label=trim(STR_KW) // 'obs_refquency:', _RC)
          _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
          if (mapl_am_I_root()) write(6,105) 'obs_file_interval:', trim(STR1)
          if (mapl_am_I_root()) write(6,106) 'Epoch (second)   :', second

@@ -55,7 +55,6 @@ module MAPL_SwathGridFactoryMod
       logical                        :: found_group
 
       type(ESMF_Time)                :: obsfile_start_time   ! user specify
-      type(ESMF_Time)                :: obsfile_end_time
       type(ESMF_TimeInterval)        :: obsfile_interval
       type(ESMF_TimeInterval)        :: EPOCH_FREQUENCY
       integer                        :: obsfile_Ts_index     ! for epoch
@@ -491,18 +490,18 @@ contains
 
 
       call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
-           label= prefix// 'obs_file_begin:', _RC)
-      _ASSERT (trim(STR1)/='', 'obs_file_begin missing, critical for data with 5 min interval!')
+           label= prefix// 'obs_reftime:', _RC)
+      _ASSERT (trim(STR1)/='', 'obs_reftime missing, critical for data with 5 min interval!')
       call ESMF_TimeSet(this%obsfile_start_time, timestring=STR1, _RC)
 
       if (mapl_am_I_root()) then
-         write(6,105) 'obs_file_begin provided: ', trim(STR1)
+         write(6,105) 'obs_reftime provided: ', trim(STR1)
       end if
 
       call ESMF_ConfigGetAttribute(config, value=STR1, default="", &
-           label= prefix// 'obs_file_interval:', _RC)
-      _ASSERT(STR1/='', 'fatal error: obs_file_interval not provided in RC file')
-      if (mapl_am_I_root()) write(6,105) 'obs_file_interval:', trim(STR1)
+           label= prefix// 'obs_frequency:', _RC)
+      _ASSERT(STR1/='', 'fatal error: obs_frequency not provided in RC file')
+      if (mapl_am_I_root()) write(6,105) 'obs_frequency:', trim(STR1)
       if (mapl_am_I_root()) write(6,106) 'Epoch (second)   :', second
 
       i= index( trim(STR1), ' ' )

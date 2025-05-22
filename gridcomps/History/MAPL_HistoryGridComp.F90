@@ -628,7 +628,7 @@ contains
 
          do n=1, count
             call ESMF_ConfigGetAttribute(config, value=grid_type, label=trim(grid_name(n))//".GRID_TYPE:",_RC)
-            if (trim(grid_type)=='trajectory') then
+            if (trim(grid_type)=='Trajectory') then
                mark(n)=0
             end if
          end do
