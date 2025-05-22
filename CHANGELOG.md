@@ -26,17 +26,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `ESMF_PINFLAG: SSI` --> `ESMF_PIN_DE_TO_SSI`
   - `ESMF_PINFLAG: SSI_CONTIG` --> `ESMF_PIN_DE_TO_SSI_CONTIG` (default with no setting)
 - Added a new column to the ACG (MAPL2), FILTER, which generates declarations and allocations of arrays (StateFilterItem)
+- Add `BUILD_INFO.rc` file that contains build info filled in by CMake
 
 ### Changed
 
 - Update `components.yaml`
-  - `ESMA_env` v4.37.0
+  - `ESMA_env` v4.38.0
     - Update to Baselibs 7.33.0
       - ESMF 8.8.1 (needed for MAPL3)
       - Fixes for CMake 4
-  - `ESMA_cmake` v3.59.0
+    - Cache `ENVIRONMENT_MODULES`
+  - `ESMA_cmake` v3.62.1
     - Fix for XCode 16.3
     - Fixes for f2py with MPT
+    - Fixes for f2py on various machines
+    - Cache `proc_description`
+    - Support for ecbuild updates
+    - Enforce our allowed `CMAKE_BUILD_TYPE`
 
 - Update documentation on ACG in repo
 - Update CI to use ifx 2025.1
