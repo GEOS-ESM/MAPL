@@ -2,7 +2,6 @@ set(srcs
   Point.F90
   Pixel.F90
   MeshElement.F90
-  PixelVector.F90
   MeshElementVector.F90
   driver.F90
 )
