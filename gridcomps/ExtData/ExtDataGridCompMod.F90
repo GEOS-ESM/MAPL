@@ -155,6 +155,7 @@
      character(len=4)             :: importVDir = "down"
      character(len=4)             :: fileVDir = "down"
      character(len=ESMF_MAXSTR)   :: levUnit
+     character(len=ESMF_MAXSTR)   :: levStandardName
      logical                      :: havePressure = .false.
   end type PrimaryExport
 
@@ -1441,82 +1442,76 @@ CONTAINS
    ! GCHP: extra prints
    call lgr%debug('ExtData Run_: ---PopulateBundle')
 
-   if (IOBundles%size() == 0) then
-      deallocate(doUpdate)
-      deallocate(useTime)
-      if (hasRun .eqv. .false.) hasRun = .true.
-      call MAPL_TimerOff(MAPLSTATE,"-Read_Loop")
-      call MAPL_TimerOff(MAPLSTATE,"Run")
-      _RETURN(ESMF_SUCCESS)
-   endif
+   if (IOBundles%size() /= 0) then
+      bundle_iter = IOBundles%begin()
+      do while (bundle_iter /= IoBundles%end())
+         io_bundle => bundle_iter%get()
+         bracket_side = io_bundle%bracket_side
+         entry_num = io_bundle%entry_index
+         file_Processed = io_bundle%file_name
+         item => self%primary%item(entry_num)
 
-   bundle_iter = IOBundles%begin()
-   do while (bundle_iter /= IoBundles%end())
-      io_bundle => bundle_iter%get()
-      bracket_side = io_bundle%bracket_side
-      entry_num = io_bundle%entry_index
-      file_Processed = io_bundle%file_name
-      item => self%primary%item(entry_num)
+         io_bundle%pbundle = ESMF_FieldBundleCreate(rc=status)
+         _VERIFY(STATUS)
 
-      io_bundle%pbundle = ESMF_FieldBundleCreate(rc=status)
+         call MAPL_ExtDataPopulateBundle(item,bracket_side,io_bundle%pbundle,rc=status)
+         _VERIFY(status)
+         call bundle_iter%next()
+      enddo
+
+      call MAPL_TimerOn(MAPLSTATE,"--PRead")
+      call MAPL_TimerOn(MAPLSTATE,"---CreateCFIO")
+      call MAPL_ExtDataCreateCFIO(IOBundles, rc=status)
+      _VERIFY(status)
+      call MAPL_TimerOff(MAPLSTATE,"---CreateCFIO")
+
+      call MAPL_TimerOn(MAPLSTATE,"---prefetch")
+
+      ! GCHP: extra prints
+      call lgr%debug('ExtData Run_: ---prefetch')
+
+      call MAPL_ExtDataPrefetch(IOBundles, rc=status)
+      _VERIFY(status)
+      call MAPL_TimerOff(MAPLSTATE,"---prefetch")
+      _VERIFY(STATUS)
+      call MAPL_TimerOn(MAPLSTATE,"---IclientDone")
+
+      ! GCHP: extra prints
+      call lgr%debug('ExtData Run_: ---IclientDone')
+
+      call i_Clients%done_collective_prefetch(_RC)
+      call i_Clients%wait(_RC)
+
+      call MAPL_TimerOff(MAPLSTATE,"---IclientDone")
       _VERIFY(STATUS)
 
-      call MAPL_ExtDataPopulateBundle(item,bracket_side,io_bundle%pbundle,rc=status)
+      call MAPL_TimerOn(MAPLSTATE,"---read-prefetch")
+
+      ! GCHP: extra prints
+      call lgr%debug('ExtData Run_: ---read-prefetch')
+
+      call MAPL_ExtDataReadPrefetch(IOBundles,rc=status)
       _VERIFY(status)
-      call bundle_iter%next()
-   enddo
+      call MAPL_TimerOff(MAPLSTATE,"---read-prefetch")
+      call MAPL_TimerOff(MAPLSTATE,"--PRead")
 
-   call MAPL_TimerOn(MAPLSTATE,"--PRead")
-   call MAPL_TimerOn(MAPLSTATE,"---CreateCFIO")
-   call MAPL_ExtDataCreateCFIO(IOBundles, rc=status)
-   _VERIFY(status)
-   call MAPL_TimerOff(MAPLSTATE,"---CreateCFIO")
+      ! GCHP: extra prints
+      call lgr%debug('ExtData Run_: Vertical interpolation')
 
-   call MAPL_TimerOn(MAPLSTATE,"---prefetch")
-
-   ! GCHP: extra prints
-   call lgr%debug('ExtData Run_: ---prefetch')
-
-   call MAPL_ExtDataPrefetch(IOBundles, rc=status)
-   _VERIFY(status)
-   call MAPL_TimerOff(MAPLSTATE,"---prefetch")
-   _VERIFY(STATUS)
-   call MAPL_TimerOn(MAPLSTATE,"---IclientDone")
-
-   ! GCHP: extra prints
-   call lgr%debug('ExtData Run_: ---IclientDone')
-
-   call i_Clients%done_collective_prefetch(_RC)
-   call i_Clients%wait(_RC)
-
-   call MAPL_TimerOff(MAPLSTATE,"---IclientDone")
-   _VERIFY(STATUS)
-
-   call MAPL_TimerOn(MAPLSTATE,"---read-prefetch")
-
-   ! GCHP: extra prints
-   call lgr%debug('ExtData Run_: ---read-prefetch')
-
-   call MAPL_ExtDataReadPrefetch(IOBundles,rc=status)
-   _VERIFY(status)
-   call MAPL_TimerOff(MAPLSTATE,"---read-prefetch")
-   call MAPL_TimerOff(MAPLSTATE,"--PRead")
-
-   ! GCHP: extra prints
-   call lgr%debug('ExtData Run_: Vertical interpolation')
-
-   bundle_iter = IOBundles%begin()
-   do while (bundle_iter /= IOBundles%end())
-      io_bundle => bundle_iter%get()
-      bracket_side = io_bundle%bracket_side
-      entry_num = io_bundle%entry_index
-      item => self%primary%item(entry_num)
-      call MAPL_ExtDataVerticalInterpolate(self,item,bracket_side,rc=status)
+      bundle_iter = IOBundles%begin()
+      do while (bundle_iter /= IOBundles%end())
+         io_bundle => bundle_iter%get()
+         bracket_side = io_bundle%bracket_side
+         entry_num = io_bundle%entry_index
+         item => self%primary%item(entry_num)
+         call MAPL_ExtDataVerticalInterpolate(self,item,bracket_side,rc=status)
+         _VERIFY(status)
+         call bundle_iter%next()
+      enddo
+      call MAPL_ExtDataDestroyCFIO(IOBundles,rc=status)
       _VERIFY(status)
-      call bundle_iter%next()
-   enddo
-   call MAPL_ExtDataDestroyCFIO(IOBundles,rc=status)
-   _VERIFY(status)
+
+   endif
 
    call MAPL_TimerOff(MAPLSTATE,"-Read_Loop")
 
