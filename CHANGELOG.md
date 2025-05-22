@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed sampler history output
 - Fixed bug with dervied exports in ExtData in filter function
 - define `comp_name` in `MAPL_GridCreate` when GC is not present
 - Fixed bug in profiler demo
@@ -47,6 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update documentation on ACG in repo
 - Update CI to use ifx 2025.1
+- Update Tests to ExtData1G tests are ESSENTIAL and run by default again
 
 ### Removed
 
