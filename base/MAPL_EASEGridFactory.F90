@@ -205,7 +205,7 @@ contains
       class (KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: status, k
+      integer :: status
       type(ESMF_PoleKind_Flag) :: polekindflag(2)
 
       _UNUSED_DUMMY(unusable)
@@ -250,11 +250,9 @@ contains
          call ESMF_AttributeSet(grid, name='GRID_LM', value=this%lm, _RC)
       end if
 
-      k = index(this%grid_name, '_M')
-      call ESMF_AttributeSet(grid, 'GridType',  this%grid_name(1:k-1), _RC)
-      if (.not.this%periodic) then
-         call ESMF_AttributeSet(grid, 'Global', .false., _RC)
-      end if
+      call ESMF_AttributeSet(grid, 'GridType',  'EASE', _RC)
+      ! set to false. no pole in EASE
+      call ESMF_AttributeSet(grid, 'Global', .false., _RC)
 
       _RETURN(_SUCCESS)
    end function create_basic_grid
