@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.55.1
+  VERSION 2.56.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
@@ -259,6 +259,9 @@ install (
    DESTINATION ${INSTALL_DATA_DIR}
    FILES_MATCHING PATTERN "mapl_*.cmake"
    )
+
+configure_file(BUILD_INFO.rc.in BUILD_INFO.rc @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/BUILD_INFO.rc DESTINATION etc)
 
 # https://www.scivision.dev/cmake-auto-gitignore-build-dir/
 # --- auto-ignore build directory
