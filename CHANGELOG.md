@@ -41,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update documentation on ACG in repo
 - Update CI to use ifx 2025.1
+- Update Tests to ExtData1G tests are ESSENTIAL and run by default again
 
 ### Removed
 
