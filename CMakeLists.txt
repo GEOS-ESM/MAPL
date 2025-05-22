@@ -273,6 +273,9 @@ install (
    FILES_MATCHING PATTERN "mapl_*.cmake"
    )
 
+configure_file(BUILD_INFO.rc.in BUILD_INFO.rc @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/BUILD_INFO.rc DESTINATION etc)
+
 # https://www.scivision.dev/cmake-auto-gitignore-build-dir/
 # --- auto-ignore build directory
 if(NOT EXISTS ${PROJECT_BINARY_DIR}/.gitignore)
