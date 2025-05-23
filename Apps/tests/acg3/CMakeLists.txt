@@ -34,8 +34,5 @@ add_test(NAME "${this}.unittests"
 )
 
 set_tests_properties("${this}.compile" PROPERTIES LABELS "ESSENTIAL")
-<<<<<<< HEAD
-=======
 set_tests_properties("${this}.unittests" PROPERTIES LABELS "ESSENTIAL")
 set_tests_properties("${this}.unittests" PROPERTIES ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_LIST_DIR}/../../:${CMAKE_CURRENT_BINARY_DIR}:$ENV{PYTHONPATH}")
->>>>>>> 961477c8aaa (All tests pass)

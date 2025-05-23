@@ -95,6 +95,7 @@ module MAPL_OpenMP_Support
         real(kind=ESMF_KIND_R8), allocatable :: corner_lats(:,:), corner_lons(:,:)
         real(kind=ESMF_KIND_R8), allocatable :: lats1d(:), lons1d(:)
         character(len=ESMF_MAXSTR) :: name
+        type(ESMF_Info) :: info_in, info_out, infoh
         logical :: isPresent
 
         call ESMF_GridGet(primary_grid, name=name, _RC)

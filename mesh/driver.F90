@@ -39,8 +39,8 @@ program main
    integer(kind=INT64) :: i, n
 
    call MPI_Init(status)
-!#   in_filename = 'GEOS5_10arcsec_mask.nc'
-   in_filename = 'GlobCover2009_10arcsec.nc4'
+   in_filename = 'GEOS5_10arcsec_mask.nc'
+!!$   in_filename = 'GlobCover2009_10arcsec.nc4'
    call fill_pixels(pixels, in_filename, _RC)
    _HERE, 'raster: ', shape(pixels)
 
@@ -158,14 +158,16 @@ contains
       integer :: status
 
       real(kind=REAL64), allocatable :: longitudes(:), latitudes(:)
-!!$      character(*), parameter :: LANDCOVER = 'CatchIndex'
-      character(*), parameter :: LANDCOVER = 'landcover'
+      character(*), parameter :: LANDCOVER = 'CatchIndex'
+!!$      character(*), parameter :: LANDCOVER = 'landcover'
 
       call formatter%open(filename, mode=PFIO_READ, _RC)
 
       filemd = formatter%read(_RC)
-      n_lon = filemd%get_dimension('longitude')
-      n_lat = filemd%get_dimension('latitude')
+      n_lon = filemd%get_dimension('N_lon')
+      n_lat = filemd%get_dimension('N_lat')
+!!$      n_lon = filemd%get_dimension('longitude')
+!!$      n_lat = filemd%get_dimension('latitude')
       _HERE, n_lon, n_lat
 
       allocate(longitudes(n_lon), latitudes(n_lat))
