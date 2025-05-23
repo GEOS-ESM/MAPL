@@ -6,7 +6,7 @@ set (srcs
         ExtDataGridCompMod.F90
     )
 
-esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.constants MAPL.base MAPL.generic MAPL.pfio
+esma_add_library (${this} SRCS ${srcs} DEPENDENCIES MAPL.shared MAPL.constants MAPL.base MAPL.generic MAPL.pfio MAPL.state_utils
         MAPL.griddedio MAPL_cfio_r4  TYPE ${MAPL_LIBRARY_TYPE})
 target_link_libraries (${this} PUBLIC GFTL::gftl GFTL_SHARED::gftl-shared ESMF::ESMF NetCDF::NetCDF_Fortran
                                PRIVATE MPI::MPI_Fortran OpenMP::OpenMP_Fortran)
