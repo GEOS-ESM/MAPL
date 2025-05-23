@@ -8,6 +8,7 @@ program main
    use sf_MeshElement
    use sf_MeshElementVector
    use pfio
+   use esmf
    use mpi
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT64
    implicit none(type,external)
@@ -38,7 +39,8 @@ program main
    integer(kind=INT64) :: i, n
 
    call MPI_Init(status)
-   in_filename = 'GEOS5_10arcsec_mask.nc'
+!#   in_filename = 'GEOS5_10arcsec_mask.nc'
+   in_filename = 'GlobCover2009_10arcsec.nc4'
    call fill_pixels(pixels, in_filename, _RC)
    _HERE, 'raster: ', shape(pixels)
 
@@ -96,6 +98,7 @@ program main
    counters = 0
    do i = 1, elements%size()
       e => elements%of(i)
+      _ASSERT(.not. do_refine(e), 'hmm algorithm did not complete')
       p => e%pixels(1,1)
       catch_index = p%catch_index
       select case (catch_index)
@@ -109,9 +112,12 @@ program main
          counters(4) = counters(4) + 1
       end select
    end do
-   _HERE,'counts: ',counters
-   
+   _HERE,'counts: ocean: ', counters(1), 'land: ', counters(2), 'lake: ', counters(3), 'landice: ', counters(4)
+
+   call ESMF_Initialize(_RC)
+!#   call create_mesh(elements, mesh, _RC)
 !#   call write_to_file(elements, out_filename)
+   call ESMF_Finalize(_RC)
 
    call MPI_Finalize(status)
 contains
@@ -152,12 +158,14 @@ contains
       integer :: status
 
       real(kind=REAL64), allocatable :: longitudes(:), latitudes(:)
+!!$      character(*), parameter :: LANDCOVER = 'CatchIndex'
+      character(*), parameter :: LANDCOVER = 'landcover'
 
       call formatter%open(filename, mode=PFIO_READ, _RC)
 
       filemd = formatter%read(_RC)
-      n_lon = filemd%get_dimension('N_lon')
-      n_lat = filemd%get_dimension('N_lat')
+      n_lon = filemd%get_dimension('longitude')
+      n_lat = filemd%get_dimension('latitude')
       _HERE, n_lon, n_lat
 
       allocate(longitudes(n_lon), latitudes(n_lat))
@@ -173,20 +181,14 @@ contains
          pixels(i,:)%center%latitude = latitudes
       end do
 
-!#      call formatter%get_var('CatchIndex', pixels(:,:)%catch_index, _RC)
-      _HERE
-      call formatter%get_var('CatchIndex', pixels(:,:n_lat/4)%catch_index, &
+      call formatter%get_var(LANDCOVER, pixels(:,:n_lat/4)%catch_index, &
            count=[n_lon,n_lat/4], start=[1,1], _RC)
-     _HERE
-      call formatter%get_var('CatchIndex', pixels(:,n_lat/4+1:n_lat/2)%catch_index, &
+      call formatter%get_var(LANDCOVER, pixels(:,n_lat/4+1:n_lat/2)%catch_index, &
            count=[n_lon,n_lat/4], start=[1,1+n_lat/4], _RC)
-      _HERE
-      call formatter%get_var('CatchIndex', pixels(:,n_lat/2+1:3*n_lat/4)%catch_index, &
+      call formatter%get_var(LANDCOVER, pixels(:,n_lat/2+1:3*n_lat/4)%catch_index, &
            count=[n_lon,n_lat/4], start=[1,1+n_lat/2], _RC)
-      _HERE
-      call formatter%get_var('CatchIndex', pixels(:,3*n_lat/4+1:)%catch_index, &
+      call formatter%get_var(LANDCOVER, pixels(:,3*n_lat/4+1:)%catch_index, &
            count=[n_lon,n_lat/4], start=[1,1+3*n_lat/4], _RC)
-      _HERE
 
       call formatter%close(_RC)
 
@@ -255,7 +257,7 @@ contains
       integer :: i, m, p
 
       ! We want factors of 3 last to keep 3x3 catchments "together".  So "3" is the last prime we check.
-      integer, parameter :: PRIMES(*) = [2, 5, 7, 11, 13, 3]
+      integer, parameter :: PRIMES(*) = [31, 29, 23, 19, 17, 13, 11, 7, 5, 2, 3]
 
       factors = [integer :: ] ! empty
       m = n
@@ -275,5 +277,39 @@ contains
       end do
 
    end function get_factors
-      
+
+!#   subroutine create_mesh(elements, mesh, rc)
+!#      type(MeshElementMap), intent(in) :: elements
+!#      type(ESMF_Mesh), intent(out) :: mesh
+!#      integer, optional, intent(out) :: rc
+!#
+!#      integer :: status
+!#
+!#      integer, allocatable :: nodeIds(:)
+!#      real(kind=ESMF_KIND_R8), allocatable :: nodeCoords(:)
+!#      integer :: nodeMask(4)
+!#      integer, allocatable :: elementIds(:)
+!#      integer, allocatable :: elementTypes(:)
+!#      integer, allocatable :: elementConn(:)
+!#
+!#      integer :: num_elements
+!#      integer :: i
+!#
+!#      num_elements = elements%size()
+!#      allocate(elementIds(num_elements)
+!#      allocate(elementTypes(num_elements), source=ESMF_MESHELEMTYPE_QUAD)
+!#      allocate(elementConn(4*num_elements))
+!#      do i = 1, num_elements
+!#         e => ...
+!#         elementIds(i) = i
+!#         elementConn(i+0:i+3) = [e_node(1), e_node(2), e_node(3), e_node(4), MESH_POLYBREAK_IND]
+!#      end do
+!#      elementMask = [OCEAN_MASK, LAND_MASK, LAKE_MASK, LANDICE_MASK]
+!#      
+!#      mesh = ESMF_MeshCreate1Part(parametricDim=2, spatialDim=2, &
+!#           nodeIds, nodeCoords, &
+!#           elementIds, elementTypes, elementConn, elementMask&
+!#           _RC)
+!#      
+!#   end subroutine create_mesh
 end program main

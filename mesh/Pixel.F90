@@ -1,6 +1,6 @@
 module sf_Pixel
    use sf_Point
-   use, intrinsic :: iso_fortran_env, only: REAL64
+   use, intrinsic :: iso_fortran_env, only: REAL64, INT16, INT32
 
    private
 
@@ -10,7 +10,8 @@ module sf_Pixel
 
    type :: Pixel
       type(Point) :: center
-      integer :: catch_index
+      integer(kind=INT32) :: catch_index
+!!$      integer(kind=INT16) :: catch_index
    end type Pixel
 
 end module sf_Pixel

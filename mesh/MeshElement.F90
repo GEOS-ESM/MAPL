@@ -12,7 +12,7 @@ module sf_MeshElement
    public :: do_refine
    public :: get_child
 
-   integer, parameter :: WP = REAL32
+   integer, parameter :: WP = REAL64
 
    type :: MeshElement
       real(kind=WP) :: lon_1, lon_2, lat_1, lat_2
@@ -25,6 +25,11 @@ contains
       type(MeshElement), intent(in) :: element
 
       integer :: min_idx, max_idx
+
+      if (size(element%pixels) == 0) then
+         print*,'failure - have refined too far somehow'
+         do_refine = .false.
+      end if
 
       min_idx = maxval(element%pixels%catch_index)
       max_idx = minval(element%pixels%catch_index)
