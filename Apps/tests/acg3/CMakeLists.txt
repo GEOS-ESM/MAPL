@@ -29,7 +29,13 @@ set_tests_properties("${this}.compile" PROPERTIES LABELS "ESSENTIAL")
 # Add ACG3 unit tests
 set (PYTHON_UNIT_TEST_MODULE unittest)
 add_test(NAME "${this}.unittests"
-  COMMAND ${Python3_EXECUTABLE} -m ${PYTHON_UNIT_TEST_MODULE} unittests
+  COMMAND ${Python3_EXECUTABLE} -m ${PYTHON_UNIT_TEST_MODULE} discover -v ${CMAKE_CURRENT_LIST_DIR} -p unittests.py
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 set_tests_properties("${this}.compile" PROPERTIES LABELS "ESSENTIAL")
+<<<<<<< HEAD
+=======
+set_tests_properties("${this}.unittests" PROPERTIES LABELS "ESSENTIAL")
+set_tests_properties("${this}.unittests" PROPERTIES ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_LIST_DIR}/../../:${CMAKE_CURRENT_BINARY_DIR}:$ENV{PYTHONPATH}")
+>>>>>>> 961477c8aaa (All tests pass)
