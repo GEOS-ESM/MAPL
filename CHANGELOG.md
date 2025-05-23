@@ -55,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add ALIAS column for ACG for MAPL3
 - Add time accumulation to History3G
 - Add unit tests for ACG3
+- Add enumerators for RESTART setting
 
 ### Changed
 
