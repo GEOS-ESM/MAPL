@@ -3,7 +3,7 @@
 
 module pFIO_UtilitiesMod
    use, intrinsic :: iso_c_binding, only: c_sizeof 
-   use, intrinsic :: iso_fortran_env, only: INT32,REAL32,INT64,REAL64
+   use, intrinsic :: iso_fortran_env, only: INT16, INT32,REAL32,INT64,REAL64
    use pFIO_ConstantsMod
    use MAPL_ExceptionHandling
    implicit none
@@ -18,6 +18,8 @@ module pFIO_UtilitiesMod
 
    interface serialize_buffer_length
       module procedure serialize_buffer_length_string
+      module procedure serialize_buffer_length_int16_0d
+      module procedure serialize_buffer_length_int16_1d
       module procedure serialize_buffer_length_int32_0d
       module procedure serialize_buffer_length_int32_1d
       module procedure serialize_buffer_length_int64_0d
@@ -32,6 +34,8 @@ module pFIO_UtilitiesMod
 
    interface serialize_intrinsic
       module procedure serialize_string
+      module procedure serialize_int16_0d
+      module procedure serialize_int16_1d
       module procedure serialize_int32_0d
       module procedure serialize_int32_1d
       module procedure serialize_int64_0d
@@ -46,6 +50,8 @@ module pFIO_UtilitiesMod
 
    interface deserialize_intrinsic
       module procedure deserialize_string
+      module procedure deserialize_int16_0d
+      module procedure deserialize_int16_1d
       module procedure deserialize_int32_0d
       module procedure deserialize_int32_1d
       module procedure deserialize_int64_0d
@@ -81,6 +87,23 @@ contains
 
       _RETURN(_SUCCESS)
    end function serialize_buffer_length_string
+
+   integer function serialize_buffer_length_int16_0d(scalar, rc) result(length)
+      integer(kind=INT16), intent(in) :: scalar
+      integer, optional, intent(out) :: rc
+
+      length = 1
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(scalar)
+   end function serialize_buffer_length_int16_0d
+
+   integer function serialize_buffer_length_int16_1d(array, rc) result(length)
+      integer(kind=INT16), intent(in) :: array(:)
+      integer, optional, intent(out) :: rc
+
+      length = 1 + size(array)
+      _RETURN(_SUCCESS)
+   end function serialize_buffer_length_int16_1d
 
    integer function serialize_buffer_length_int32_0d(scalar, rc) result(length)
       integer(kind=INT32), intent(in) :: scalar
@@ -186,6 +209,29 @@ contains
       _RETURN(_SUCCESS)
    end function serialize_string
 
+
+   function serialize_int16_0d(scalar, rc) result(buffer)
+      integer(kind=INT32), allocatable :: buffer(:)
+      integer(kind=INT16), intent(in) :: scalar
+      integer, optional, intent(out) :: rc
+
+      buffer = [scalar]
+
+      _RETURN(_SUCCESS)
+   end function serialize_int16_0d
+
+
+   function serialize_int16_1d(array, rc) result(buffer)
+      integer(kind=INT32), allocatable :: buffer(:)
+      integer(kind=INT16), intent(in) :: array(:)
+      integer, optional, intent(out) :: rc
+
+      integer(kind=INT16) :: n
+
+      n = size(array)
+      buffer = [n+1, transfer(array,[1])]
+      _RETURN(_SUCCESS)
+   end function serialize_int16_1d
 
    function serialize_int32_0d(scalar, rc) result(buffer)
       integer(kind=INT32), allocatable :: buffer(:)
@@ -331,6 +377,34 @@ contains
    end subroutine deserialize_string
 
    
+   subroutine deserialize_int16_0d(buffer, scalar, rc)
+      integer(kind=INT32), intent(in) :: buffer(:)
+      integer(kind=INT16), intent(out) :: scalar
+      integer, optional, intent(out) :: rc
+
+      _ASSERT(size(buffer) >= 1, "wrong buffer")      
+      scalar = transfer(buffer(1:), scalar)
+
+      _RETURN(_SUCCESS)
+   end subroutine deserialize_int16_0d
+
+
+   subroutine deserialize_int16_1d(buffer, array, rc)
+      integer(kind=INT32), intent(in) :: buffer(:)
+      integer(kind=INT16), allocatable, intent(out) :: array(:)
+      integer, optional, intent(out) :: rc
+
+      integer(kind=INT32) :: n
+
+      _ASSERT(size(buffer) >= 1, "wrong buffer")      
+
+      n = buffer(1)
+      allocate(array(n-1))
+      array = transfer(buffer(2:n),array)
+
+      _RETURN(_SUCCESS)
+   end subroutine deserialize_int16_1d
+
    subroutine deserialize_int32_0d(buffer, scalar, rc)
       integer(kind=INT32), intent(in) :: buffer(:)
       integer(kind=INT32), intent(out) :: scalar
