@@ -68,7 +68,8 @@ contains
       character(len=:), allocatable :: lev_name, temp_units, formula_terms, standard_name, bounds_var, ak_name, bk_name, ps_name, source_file
       type(NETCDF4_FileFormatter) :: file_formatter
       real, allocatable :: temp_ak(:,:), temp_bk(:,:)
-
+   
+      vertical_coord%num_levels = 0 ! initialze
       var => metadata%get_variable(var_name, _RC)
       dimensions => var%get_dimensions()
       lev_name = ''
