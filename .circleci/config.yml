@@ -82,97 +82,101 @@ workflows:
           run_unit_tests: true
           ctest_options: "-L 'ESSENTIAL' --output-on-failure"
 
-  # MAPL3 will soon break GEOSgcm builds. So for now we turn off all the builds of GEOS fixtures
+  # MAPL3 will soon break GEOSgcm builds. We believe it can build, but not currently run
+  #build-and-run-GEOSgcm:
+  build--GEOSgcm:
+    jobs:
+      # Build GEOSgcm
+      - ci/build:
+          name: build-GEOSgcm-on-<< matrix.compiler >>
+          context:
+            - docker-hub-creds
+          matrix:
+            parameters:
+              compiler: [gfortran, ifort, ifx]
+          baselibs_version: *baselibs_version
+          repo: GEOSgcm
+          checkout_fixture: true
+          fixture_branch: release/MAPL-v3
+          mepodevelop: true
+          checkout_mapl3_release_branch: true
+          checkout_mapl_branch: true
+          persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day
 
-  ###################################################################################################################
-  # build-and-run-GEOSgcm:                                                                                          #
-  #   jobs:                                                                                                         #
-  #     # Build GEOSgcm                                                                                             #
-  #     - ci/build:                                                                                                 #
-  #         name: build-GEOSgcm-on-<< matrix.compiler >>                                                            #
-  #         context:                                                                                                #
-  #           - docker-hub-creds                                                                                    #
-  #         matrix:                                                                                                 #
-  #           parameters:                                                                                           #
-  #             compiler: [gfortran, ifort, ifx]                                                                    #
-  #         baselibs_version: *baselibs_version                                                                     #
-  #         repo: GEOSgcm                                                                                           #
-  #         checkout_fixture: true                                                                                  #
-  #         fixture_branch: release/MAPL-v3                                                                         #
-  #         mepodevelop: true                                                                                       #
-  #         checkout_mapl3_release_branch: true                                                                     #
-  #         checkout_mapl_branch: true                                                                              #
-  #         persist_workspace: true # Needs to be true to run fv3/gcm experiment, costs extra, retained for one day #
-  #                                                                                                                 #
-  #     # Run GCM (1 hour, no ExtData)                                                                              #
-  #     - ci/run_gcm:                                                                                               #
-  #         name: run-GCM-on-<< matrix.compiler >>                                                                  #
-  #         context:                                                                                                #
-  #           - docker-hub-creds                                                                                    #
-  #         matrix:                                                                                                 #
-  #           parameters:                                                                                           #
-  #             compiler: [gfortran, ifort, ifx]                                                                    #
-  #         requires:                                                                                               #
-  #           - build-GEOSgcm-on-<< matrix.compiler >>                                                              #
-  #         repo: GEOSgcm                                                                                           #
-  #         baselibs_version: *baselibs_version                                                                     #
-  #         bcs_version: *bcs_version                                                                               #
-  #                                                                                                                 #
-  #     # Run Coupled GCM (1 hour, no ExtData)                                                                      #
-  #     - ci/run_gcm:                                                                                               #
-  #         name: run-coupled-GCM-on-<< matrix.compiler >>                                                          #
-  #         context:                                                                                                #
-  #           - docker-hub-creds                                                                                    #
-  #         matrix:                                                                                                 #
-  #           parameters:                                                                                           #
-  #             compiler: [gfortran, ifort]                                                                         #
-  #         requires:                                                                                               #
-  #           - build-GEOSgcm-on-<< matrix.compiler >>                                                              #
-  #         repo: GEOSgcm                                                                                           #
-  #         baselibs_version: *baselibs_version                                                                     #
-  #         bcs_version: *bcs_version                                                                               #
-  #         gcm_ocean_type: MOM6                                                                                    #
-  #         change_layout: false                                                                                    #
-  #                                                                                                                 #
-  # build-GEOSldas:                                                                                                 #
-  #   jobs:                                                                                                         #
-  #     # Build GEOSldas                                                                                            #
-  #     - ci/build:                                                                                                 #
-  #         name: build-GEOSldas-on-<< matrix.compiler >>                                                           #
-  #         context:                                                                                                #
-  #           - docker-hub-creds                                                                                    #
-  #         matrix:                                                                                                 #
-  #           parameters:                                                                                           #
-  #             compiler: [gfortran, ifort]                                                                         #
-  #         baselibs_version: *baselibs_version                                                                     #
-  #         repo: GEOSldas                                                                                          #
-  #         mepodevelop: false                                                                                      #
-  #         checkout_fixture: true                                                                                  #
-  #         fixture_branch: release/MAPL-v3                                                                         #
-  #         checkout_mapl3_release_branch: true                                                                     #
-  #         checkout_mapl_branch: true                                                                              #
-  #                                                                                                                 #
-  # build-GEOSadas:                                                                                                 #
-  #   jobs:                                                                                                         #
-  #     # Build GEOSadas (ifort only, needs a couple develop branches)                                              #
-  #     - ci/build:                                                                                                 #
-  #         name: build-GEOSadas-on-<< matrix.compiler >>                                                           #
-  #         context:                                                                                                #
-  #           - docker-hub-creds                                                                                    #
-  #         matrix:                                                                                                 #
-  #           parameters:                                                                                           #
-  #             compiler: [ifort]                                                                                   #
-  #         resource_class: xlarge                                                                                  #
-  #         baselibs_version: *baselibs_version                                                                     #
-  #         repo: GEOSadas                                                                                          #
-  #         checkout_fixture: true                                                                                  #
-  #         fixture_branch: release/MAPL-v3                                                                         #
-  #         checkout_mapl3_release_branch: true                                                                     #
-  #         checkout_mapl_branch: true                                                                              #
-  #         mepodevelop: false                                                                                      #
-  #         rebuild_procs: 4                                                                                        #
-  #         build_type: Release                                                                                     #
-  ###################################################################################################################
+      ######################################################
+      # # Run GCM (1 hour, no ExtData)                     #
+      # - ci/run_gcm:                                      #
+      #     name: run-GCM-on-<< matrix.compiler >>         #
+      #     context:                                       #
+      #       - docker-hub-creds                           #
+      #     matrix:                                        #
+      #       parameters:                                  #
+      #         compiler: [gfortran, ifort, ifx]           #
+      #     requires:                                      #
+      #       - build-GEOSgcm-on-<< matrix.compiler >>     #
+      #     repo: GEOSgcm                                  #
+      #     baselibs_version: *baselibs_version            #
+      #     bcs_version: *bcs_version                      #
+      #                                                    #
+      # # Run Coupled GCM (1 hour, no ExtData)             #
+      # - ci/run_gcm:                                      #
+      #     name: run-coupled-GCM-on-<< matrix.compiler >> #
+      #     context:                                       #
+      #       - docker-hub-creds                           #
+      #     matrix:                                        #
+      #       parameters:                                  #
+      #         compiler: [gfortran, ifort]                #
+      #     requires:                                      #
+      #       - build-GEOSgcm-on-<< matrix.compiler >>     #
+      #     repo: GEOSgcm                                  #
+      #     baselibs_version: *baselibs_version            #
+      #     bcs_version: *bcs_version                      #
+      #     gcm_ocean_type: MOM6                           #
+      #     change_layout: false                           #
+      ######################################################
+
+  #########################################################
+  # build-GEOSldas:                                       #
+  #   jobs:                                               #
+  #     # Build GEOSldas                                  #
+  #     - ci/build:                                       #
+  #         name: build-GEOSldas-on-<< matrix.compiler >> #
+  #         context:                                      #
+  #           - docker-hub-creds                          #
+  #         matrix:                                       #
+  #           parameters:                                 #
+  #             compiler: [gfortran, ifort]               #
+  #         baselibs_version: *baselibs_version           #
+  #         repo: GEOSldas                                #
+  #         mepodevelop: false                            #
+  #         checkout_fixture: true                        #
+  #         fixture_branch: release/MAPL-v3               #
+  #         checkout_mapl3_release_branch: true           #
+  #         checkout_mapl_branch: true                    #
+  #########################################################
+
+  ######################################################################
+  # build-GEOSadas:                                                    #
+  #   jobs:                                                            #
+  #     # Build GEOSadas (ifort only, needs a couple develop branches) #
+  #     - ci/build:                                                    #
+  #         name: build-GEOSadas-on-<< matrix.compiler >>              #
+  #         context:                                                   #
+  #           - docker-hub-creds                                       #
+  #         matrix:                                                    #
+  #           parameters:                                              #
+  #             compiler: [ifort]                                      #
+  #         resource_class: xlarge                                     #
+  #         baselibs_version: *baselibs_version                        #
+  #         repo: GEOSadas                                             #
+  #         checkout_fixture: true                                     #
+  #         fixture_branch: release/MAPL-v3                            #
+  #         checkout_mapl3_release_branch: true                        #
+  #         checkout_mapl_branch: true                                 #
+  #         mepodevelop: false                                         #
+  #         rebuild_procs: 4                                           #
+  #         build_type: Release                                        #
+  ######################################################################
 
   build-and-publish-docker:
     when:
