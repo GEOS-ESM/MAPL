@@ -27,7 +27,7 @@ module pFIO_UnlimitedEntityMod
    use pFIO_ConstantsMod
    use pFIO_UtilitiesMod
    use MAPL_ExceptionHandling
-   use, intrinsic :: iso_fortran_env, only: INT32, INT64
+   use, intrinsic :: iso_fortran_env, only: INT16, INT32, INT64
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
 
    implicit none
@@ -129,6 +129,8 @@ contains
       class (*), allocatable :: values1d(:)
 
       select type (values)
+      type is (integer(INT16))
+         allocate(values1d, source = reshape(values, [product(shape(values))]))
       type is (integer(INT32))
          allocate(values1d, source = reshape(values, [product(shape(values))]))
       type is (integer(INT64))
@@ -157,6 +159,8 @@ contains
       class (*), allocatable :: values1d(:)
 
       select type (values)
+      type is (integer(INT16))
+         allocate(values1d, source = reshape(values, [product(shape(values))]))
       type is (integer(INT32))
          allocate(values1d, source = reshape(values, [product(shape(values))]))
       type is (integer(INT64))
@@ -185,6 +189,8 @@ contains
       class (*), allocatable :: values1d(:)
 
       select type (values)
+      type is (integer(INT16))
+         allocate(values1d, source = reshape(values, [product(shape(values))]))
       type is (integer(INT32))
          allocate(values1d, source = reshape(values, [product(shape(values))]))
       type is (integer(INT64))
@@ -213,6 +219,8 @@ contains
       class (*), allocatable :: values1d(:)
 
       select type (values)
+      type is (integer(INT16))
+         allocate(values1d, source = reshape(values, [product(shape(values))]))
       type is (integer(INT32))
          allocate(values1d, source = reshape(values, [product(shape(values))]))
       type is (integer(INT64))
@@ -414,6 +422,11 @@ contains
          if (.not. equal) return
 
          select type (values_a)
+         type is (integer(INT16))
+            select type (values_b)
+            type is (integer(INT16))
+               equal = all(values_a == values_b)
+            end select
          type is (integer(INT32))
             select type (values_b)
             type is (integer(INT32))
@@ -457,6 +470,11 @@ contains
 
 
          select type (value_a)
+         type is (integer(INT16))
+            select type (value_b)
+            type is (integer(INT16))
+               equal = (value_a == value_b)
+            end select
          type is (integer(INT32))
             select type (value_b)
             type is (integer(INT32))
@@ -528,6 +546,11 @@ contains
          else         
          ! check type
          select type (value => this%value)
+         type is (integer(INT16))
+            type_kind = pFIO_INT16
+            buffer = [serialize_intrinsic(this%shape), &
+                      serialize_intrinsic(type_kind),  &
+                      serialize_intrinsic(value)]
          type is (integer(INT32))
             type_kind = pFIO_INT32
             buffer = [serialize_intrinsic(this%shape), &
@@ -565,6 +588,11 @@ contains
       case (1:)
          ! check type
          select type (values=>this%values)
+         type is (integer(INT16))
+            type_kind = pFIO_INT16
+            buffer = [serialize_intrinsic(this%shape), &
+                      serialize_intrinsic(type_kind),  &
+                      serialize_intrinsic(values)]
          type is (integer(INT32))
             type_kind = pFIO_INT32
             buffer = [serialize_intrinsic(this%shape), &
@@ -622,12 +650,14 @@ contains
    
          integer :: n,type_kind,length
    
+         integer(KIND=INT16) :: value_int16
          integer(KIND=INT32) :: value_int32
          integer(KIND=INT64) :: value_int64
          real(KIND=REAL32)   :: value_real32
          real(KIND=REAL64)   :: value_real64
          logical :: value_logical
    
+         integer(KIND=INT16), allocatable :: values_int16(:)
          integer(KIND=INT32), allocatable :: values_int32(:)
          integer(KIND=INT64), allocatable :: values_int64(:)
          real(KIND=REAL32), allocatable :: values_real32(:)
@@ -651,6 +681,9 @@ contains
          select case (rank)
          case (0)
             select case (type_kind)
+            case (pFIO_INT16)
+                call deserialize_intrinsic(buffer(n:),value_int16)
+                call this%set(value_int16)
             case (pFIO_INT32)
                 call deserialize_intrinsic(buffer(n:),value_int32)
                 call this%set(value_int32)
@@ -677,6 +710,9 @@ contains
             end select
          case (1:)
             select case (type_kind)
+            case (pFIO_INT16)
+                call deserialize_intrinsic(buffer(n:),values_int16)
+                allocate(this%values, source =values_int16)
             case (pFIO_INT32)
                 call deserialize_intrinsic(buffer(n:),values_int32)
                 allocate(this%values, source =values_int32)

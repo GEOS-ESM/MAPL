@@ -12,7 +12,7 @@ module pFIO_VariableMod
    use pFIO_AttributeMod
    use pFIO_StringAttributeMapMod
    use pFIO_StringAttributeMapUtilMod
-   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT32, INT64
+   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64, INT16, INT32, INT64
    implicit none
    private
 
@@ -42,6 +42,7 @@ module pFIO_VariableMod
 
       procedure :: get_attribute
       procedure :: get_attribute_string
+      procedure :: get_attribute_int16
       procedure :: get_attribute_int32
       procedure :: get_attribute_int64
       procedure :: get_attribute_real32
@@ -340,6 +341,31 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_attribute_real64
+
+   function get_attribute_int16(this,attr_name,rc) result(attr_int16)
+      integer(INT16) :: attr_int16
+      class(Variable), intent(inout) :: this
+      character(len=*), intent(in) :: attr_name
+      integer, optional, intent(out) :: rc
+
+      integer(INT16) :: tmp(1)
+      integer :: status
+      type(Attribute), pointer :: attr
+      class(*), pointer :: attr_val(:)
+
+      attr => this%get_attribute(attr_name,_RC)
+      _ASSERT(associated(attr),"no attribute named "//attr_name)
+      attr_val => attr%get_values()
+      select type(attr_val)
+      type is(integer(kind=INT16))
+         tmp = attr_val
+         attr_int16 = tmp(1)
+      class default
+         _FAIL('unsupported subclass (not int162) for units of attribute named '//attr_name)
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_attribute_int16
 
    function get_attribute_int32(this,attr_name,rc) result(attr_int32)
       integer(INT32) :: attr_int32

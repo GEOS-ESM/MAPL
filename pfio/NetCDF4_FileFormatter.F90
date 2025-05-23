@@ -2,7 +2,7 @@
 #include "unused_dummy.H"
 
 module pFIO_NetCDF4_FileFormatterMod
-   use, intrinsic :: iso_fortran_env, only: INT32, INT64
+   use, intrinsic :: iso_fortran_env, only: INT16, INT32, INT64
    use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
    use, intrinsic :: iso_fortran_env, only: error_unit
    use MAPL_ExceptionHandling
@@ -46,6 +46,11 @@ module pFIO_NetCDF4_FileFormatterMod
 
       procedure :: ___SUB(get_var,string,1)
 
+      procedure :: ___SUB(get_var,int16,0)
+      procedure :: ___SUB(get_var,int16,1)
+      procedure :: ___SUB(get_var,int16,2)
+      procedure :: ___SUB(get_var,int16,3)
+      procedure :: ___SUB(get_var,int16,4)
       procedure :: ___SUB(get_var,int32,0)
       procedure :: ___SUB(get_var,int32,1)
       procedure :: ___SUB(get_var,int32,2)
@@ -68,6 +73,11 @@ module pFIO_NetCDF4_FileFormatterMod
       procedure :: ___SUB(get_var,real64,4)
 
       procedure :: ___SUB(put_var,string,1)
+      procedure :: ___SUB(put_var,int16,0)
+      procedure :: ___SUB(put_var,int16,1)
+      procedure :: ___SUB(put_var,int16,2)
+      procedure :: ___SUB(put_var,int16,3)
+      procedure :: ___SUB(put_var,int16,4)
       procedure :: ___SUB(put_var,int32,0)
       procedure :: ___SUB(put_var,int32,1)
       procedure :: ___SUB(put_var,int32,2)
@@ -91,6 +101,11 @@ module pFIO_NetCDF4_FileFormatterMod
 
 
       generic :: get_var => ___SUB(get_var,string,1)
+      generic :: get_var => ___SUB(get_var,int16,0)
+      generic :: get_var => ___SUB(get_var,int16,1)
+      generic :: get_var => ___SUB(get_var,int16,2)
+      generic :: get_var => ___SUB(get_var,int16,3)
+      generic :: get_var => ___SUB(get_var,int16,4)
       generic :: get_var => ___SUB(get_var,int32,0)
       generic :: get_var => ___SUB(get_var,int32,1)
       generic :: get_var => ___SUB(get_var,int32,2)
@@ -113,6 +128,11 @@ module pFIO_NetCDF4_FileFormatterMod
       generic :: get_var => ___SUB(get_var,real64,4)
 
       generic :: put_var => ___SUB(put_var,string,1)
+      generic :: put_var => ___SUB(put_var,int16,0)
+      generic :: put_var => ___SUB(put_var,int16,1)
+      generic :: put_var => ___SUB(put_var,int16,2)
+      generic :: put_var => ___SUB(put_var,int16,3)
+      generic :: put_var => ___SUB(put_var,int16,4)
       generic :: put_var => ___SUB(put_var,int32,0)
       generic :: put_var => ___SUB(put_var,int32,1)
       generic :: put_var => ___SUB(put_var,int32,2)
@@ -813,6 +833,8 @@ contains
       rc = _SUCCESS
 
       select case (fio_type)
+      case (pFIO_INT16)
+         xtype = NF90_SHORT
       case (pFIO_INT32)
          xtype = NF90_INT
       case (pFIO_INT64)
@@ -840,6 +862,8 @@ contains
       rc = _SUCCESS
 
       select case (xtype)
+      case (NF90_SHORT)
+         fio_type = pFIO_INT16
       case (NF90_INT)
          fio_type = pFIO_INT32
       case (NF90_INT64)
@@ -1247,6 +1271,30 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine inq_variables
+
+   ! INT16
+#define _VARTYPE 6
+#  define _RANK 0
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#  define _RANK 1
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#  define _RANK 2
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#  define _RANK 3
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#  define _RANK 4
+#    include "NetCDF4_get_var.H"
+#    include "NetCDF4_put_var.H"
+#  undef _RANK
+#undef _VARTYPE
 
    ! INT32
 #define _VARTYPE 1
