@@ -78,11 +78,11 @@ module MAPL_ObsUtilMod
 contains
 
   subroutine get_obsfile_Tbracket_from_epoch(currTime, &
-       obsfile_start_time, obsfile_end_time, obsfile_interval, &
+       obsfile_start_time, obsfile_interval, &
        epoch_frequency, obsfile_Ts_index, obsfile_Te_index, rc)
     implicit none
     type(ESMF_Time), intent(in) :: currTime
-    type(ESMF_Time), intent(in) :: obsfile_start_time, obsfile_end_time
+    type(ESMF_Time), intent(in) :: obsfile_start_time
     type(ESMF_TimeInterval), intent(in) :: obsfile_interval, epoch_frequency
     integer, intent(out) :: obsfile_Ts_index
     integer, intent(out) :: obsfile_Te_index
@@ -272,12 +272,12 @@ contains
   !
 
   subroutine Find_M_files_for_currTime (currTime, &
-       obsfile_start_time, obsfile_end_time, obsfile_interval, &
+       obsfile_start_time, obsfile_interval, &
        epoch_frequency, file_template, M, filenames, &
        T_offset_in_file_content, rc)
     implicit none
     type(ESMF_Time), intent(in) :: currTime
-    type(ESMF_Time), intent(in) :: obsfile_start_time, obsfile_end_time
+    type(ESMF_Time), intent(in) :: obsfile_start_time
     type(ESMF_TimeInterval), intent(in) :: obsfile_interval, epoch_frequency
     character(len=*), intent(in) :: file_template
     integer, intent(out) :: M
@@ -285,7 +285,7 @@ contains
     type(ESMF_TimeInterval), intent(in), optional :: T_offset_in_file_content
     integer, optional, intent(out) :: rc
 
-    type(ESMF_Time) :: T1, Tn
+    type(ESMF_Time) :: T1
     type(ESMF_Time) :: cT1
     type(ESMF_Time) :: Ts, Te
     type(ESMF_TimeInterval) :: dT1, dT2, dTs, dTe
@@ -309,10 +309,8 @@ contains
     endif
 
     !    T1 = obsfile_start_time + Toff
-    !    Tn = obsfile_end_time + Toff
 
     T1 = obsfile_start_time
-    Tn = obsfile_end_time
 
     cT1 = currTime
     dT1 = currTime - T1
