@@ -153,7 +153,7 @@ def get_options(args):
         'orientation': {}, 
         'regrid_method': {}, 
         'restart': {MAPPING: dict(
-                [(b, TRUE_VALUE) for b in 'T TRUE true t True'.split()] + 
+                [(b, TRUE_VALUE) for b in 'T t TRUE true True SKIP Skip skip'.split()] + 
                 [(b, FALSE_VALUE) for b in 'F FALSE false f False'.split()]
             )},
         STATE: {FLAGS: {MANDATORY, STORE}}, 
@@ -340,7 +340,7 @@ def digest_spec(spec, options):
     tuples = [(k, spec[k]) for k, v in spec.items() if k in options and spec[k]]
     spec_options = [options[k] for k, _ in tuples]
     mapping_functions = [fetch_mapping_function(so.get(MAPPING)) for so in spec_options]
-    values = dict((n, f(v)) for (n, v), f in zip(tuples, mapping_functions))
+    values = dict((n, f(v)) for (n, v), f in zip(tuples, mapping_functions) if f(v))
     return values, set(spec).difference(values)
 
 def map_spec_values(values, options):
