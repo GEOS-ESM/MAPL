@@ -47,7 +47,7 @@ set (srcs
   MAPL_XYGridFactory.F90
   MAPL_NetCDF.F90                       Plain_netCDF_Time.F90
   MAPL_DateTime_Parsing_ESMF.F90	MAPL_ObsUtil.F90
-  EASE_Conv.F90
+  MAPL_EASEConv.F90
   MAPL_EASEGridFactory.F90
   # Orphaned program: should not be in this library.
   # tstqsat.F90
@@ -82,10 +82,6 @@ endforeach()
 ecbuild_add_executable (TARGET cub2latlon.x SOURCES cub2latlon_regridder.F90 DEPENDS ESMF::ESMF MAPL.shared)
 target_link_libraries (cub2latlon.x PRIVATE ${this} MAPL.pfio MPI::MPI_Fortran OpenMP::OpenMP_Fortran)
 set_target_properties(cub2latlon.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
-
-ecbuild_add_executable (TARGET test_ease.x SOURCES test_ease.F90 DEPENDS  ${this})
-target_link_libraries (test_ease.x PRIVATE ${this})
-set_target_properties(test_ease.x PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
 
 if (EXTENDED_SOURCE)
   esma_fortran_generator_list (${this} ${EXTENDED_SOURCE})

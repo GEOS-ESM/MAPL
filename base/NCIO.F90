@@ -17,7 +17,7 @@ module NCIOMod
   use MAPL_BaseMod
   use MAPL_CommsMod
   use MAPL_SortMod
-  use EASE_ConvMod, only:  ease_grid_name
+  use MAPL_EASEConvMod, only:  ease_grid_name
   !use MAPL_RangeMod
   use MAPL_ShmemMod
   use MAPL_ExceptionHandling

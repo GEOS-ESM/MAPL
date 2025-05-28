@@ -15,7 +15,7 @@ module MAPL_EASEGridFactoryMod
    use ESMF
    use pFIO
    use MAPL_CommsMod
-   use EASE_ConvMod
+   use MAPL_EASEConvMod
    use, intrinsic :: iso_fortran_env, only: REAL32
    use, intrinsic :: iso_fortran_env, only: REAL64
    implicit none

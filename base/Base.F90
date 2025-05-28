@@ -51,6 +51,7 @@ module MAPLBase_Mod
   use MAPL_FileMetadataUtilsMod
   use MAPL_VerticalDataMod
   use MAPL_SphericalGeometry
+  use MAPL_EASEConvMod
   logical, save, private :: mapl_is_initialized = .false.
 
 end module MAPLBase_Mod
