@@ -1,5 +1,4 @@
 
-
 if    (TX<=TMIN(PHASE)) then
    TI = TMIN(PHASE)
 elseif(TX>=TMAX(PHASE)) then
@@ -13,7 +12,7 @@ if(MXRT) then
 else
    EF = 1.0-ESFAC
 endif
- 
+
 if(UTBL) then ! Use table
 
 ! Initialize table, if necessary
@@ -30,10 +29,10 @@ if(UTBL) then ! Use table
 ! Compute saturation specific humidity
 
    if(present(PL)) then
-      if(PX > MINPFAC*EX) then
-         DD  = 1.0/(PX - EF*EX)
+      if(PP > MINPFAC*EX) then
+         DD  = 1.0/(PP - EF*EX)
          EX  = ESFAC*EX*DD
-         DDQ = ESFAC*PX*DD*DD*DDQ
+         DDQ = ESFAC*PP*DD*DD*DDQ
       else
          if(MXRT) then
            EX  = MAX_RS
@@ -69,10 +68,10 @@ else  ! Use exact formulation
 ! Compute saturation specific humidity
 
    if(present(PL)) then
-      if(PX > MINPFAC*EX) then
-         DD  = 1.0/(PX - EF*EX)
+      if(PP > MINPFAC*EX) then
+         DD  = 1.0/(PP - EF*EX)
          EX  = ESFAC*EX*DD
-         DDQ = ESFAC*PX*DD*DD*DDQ
+         DDQ = ESFAC*PP*DD*DD*DDQ
       else
          if(MXRT) then
            EX  = MAX_RS

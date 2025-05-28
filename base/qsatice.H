@@ -9,15 +9,15 @@ if(TX>=TMAX(ICE)) then
 #else
 #define FUNC Qsatd0
 #endif
-
-   if(present(PL)) then
-      if(present(DQ)) then
-         EX = FUNC(TX,PL=PX,DQ=DX)
+   
+   if(present(PL)) then	
+      if(present(DQ)) then	
+         EX = FUNC(TX,PL=PX,DQ=DX,Pascals=.true.)
       else
-         EX = FUNC(TX,PL=PX)
+         EX = FUNC(TX,PL=PX,Pascals=.true.)
       endif
    else
-      if(present(DQ)) then
+      if(present(DQ)) then	
          EX = FUNC(TX,DQ=DX)
       else
          EX = FUNC(TX)
