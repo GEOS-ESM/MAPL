@@ -1,5 +1,4 @@
 !------------------------------------------------------------------------------
-!  $Id$
 !               Global Modeling and Assimilation Office (GMAO)                !
 !                    Goddard Earth Observing System (GEOS)                    !
 !                                 MAPL Component                              !
@@ -23,7 +22,7 @@
 !#### File Used
 ! The main computations are done in the following include files:
 !```
-!      eqsat.H esatlqu.H esatice.H qsatlqu.H qsatice.H. 
+!      eqsat.H esatlqu.H esatice.H qsatlqu.H qsatice.H.
 !```
 !
 ! @bug
@@ -34,24 +33,20 @@
 !
 module MAPL_SatVaporMod
 
-
+! !USES:
+!
 #ifdef MAPL_MODE
   use MAPL_Constants
 #endif
-
   use, intrinsic :: iso_fortran_env, only: REAL32, REAL64
-
-! !USES:
-!
-!  use MAPL_Constants
 !
   implicit none
   private
 !
 ! !PUBLIC MEMBER FUNCTIONS:
 !
-! 
-    public MAPL_EQsatSET ! A subroutine to set parameters that control 
+!
+    public MAPL_EQsatSET ! A subroutine to set parameters that control
                          ! the behavior of MAPL\_EQsat
 !
     public MAPL_EQsat    ! The working function.
@@ -59,10 +54,6 @@ module MAPL_SatVaporMod
 ! !PUBLIC DATA MEMBERS:
 !
 ! Enumeration values for the saturation vapor pressure formulation to be used.
-
-  public MAPL_UseStarrQsat
-  public MAPL_UseGoffGratchQsat
-  public MAPL_UseMurphyKoopQsat
 
   interface MAPL_EQsat
      module procedure QSAT0
@@ -155,14 +146,9 @@ module MAPL_SatVaporMod
 
 ! Enumeration for formulation type
 
-  integer,   parameter :: Starr      = 1
-  integer,   parameter :: GoffGratch = 2
-  integer,   parameter :: MurphyKoop = 3
-
-  integer,   parameter :: MAPL_UseStarrQsat      = Starr
-  integer,   parameter :: MAPL_UseGoffGratchQsat = GoffGratch
-  integer,   parameter :: MAPL_UseMurphyKoopQsat = MurphyKoop
-
+  integer,   parameter :: Starr      = MAPL_UseStarrQsat
+  integer,   parameter :: GoffGratch = MAPL_UseGoffGratchQsat
+  integer,   parameter :: MurphyKoop = MAPL_UseMurphyKoopQsat
 
 ! Tables and other Global variables
 
@@ -212,8 +198,8 @@ contains
 ! **Formulation** sets the saturation vapor pressure function to use
 ! to use in generating tables or for `exact` calculations.
 ! Three formulations of saturation vapor pressure are supported:
-!- the Starr code, as was used in NSIPP-1 (MAPL_UseStarrQsat), 
-!- the Goff-Gratch formulation, as used in CAM (MAPL_UseGoffGratchQsat), and 
+!- the Starr code, as was used in NSIPP-1 (MAPL_UseStarrQsat),
+!- the Goff-Gratch formulation, as used in CAM (MAPL_UseGoffGratchQsat), and
 !- Murphy and Koop (2005, QJRMS) (MAPL_UseMurphyKoopQsat).
 !
 ! If it has not been set, the formulation is Starr (MAPL_UseStarrQsat).
@@ -224,7 +210,7 @@ contains
 !
 ! **MixingRatio** sets whether MAPL_EQsat will return saturation mixing ratio (true)
 ! or saturation specific humidity (false) when the pressure is present
-! (see MAPL_EQsat documentation). If never set, it is false; 
+! (see MAPL_EQsat documentation). If never set, it is false;
 ! if not specified, it is left unmodified.
 !
 ! MAPL_EQsatSET also initializes the tables. If MAPL_EQsatSET is
@@ -347,8 +333,6 @@ contains
 
 !=========================================================================
 
-!BOPI
-
 ! !IROUTINE: MAPL_EQsat - Computes saturation vapor pressure or specific humidity
 
 ! !INTERFACE:
@@ -459,7 +443,6 @@ contains
 !   saturation specific humidity at $\frac{1}{2}$. In either case the derivative is set to zero.
 ! \newline
 !
-!EOPI
 
 #define TX TL
 #define PX PL
