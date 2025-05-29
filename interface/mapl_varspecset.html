@@ -71,6 +71,11 @@
                   <a class="nav-link" href="../lists/programs.html">Programs</a>
                 </li>
             </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
           </div><!--/.nav-collapse -->
         </div>
       </nav>
@@ -89,20 +94,20 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title="<p> 0.0% of total for procedures.</p>Including implementation: 126 statements,  0.2% of total for procedures.">3 statements</a>
+                 title="<p> 0.0% of total for procedures.</p>Including implementation: 132 statements,  0.2% of total for procedures.">6 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
-              <a href="../src/VarSpecType.F90"> Source File</a>
+              <a href="../src/VarSpec.F90"> Source File</a>
             </li>
         </ul>
       </div>
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/varspectype.f90.html'>VarSpecType.F90</a></li>
-                <li class="breadcrumb-item"><a href='../module/mapl_varspectypemod.html'>MAPL_VarSpecTypeMod</a></li>
+                <li class="breadcrumb-item"><a href='../sourcefile/varspec.f90.html'>VarSpec.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_varspecmod.html'>MAPL_VarSpecMod</a></li>
             <li class="breadcrumb-item active" aria-current="page">MAPL_VarSpecSet</li>
           </ol>
         </nav>
@@ -148,7 +153,10 @@
       </a>
       <div id="modprocs-0" class="collapse">
         <div class="list-group list-group-flush">
-            <a class="list-group-item" href="../interface/mapl_varspecset.html#moduleprocedure-mapl_varspecsetnew~2">MAPL_VarSpecSetNew</a>
+            <a class="list-group-item" href="../interface/mapl_varspecset.html#moduleprocedure-mapl_varspecsetregular">MAPL_VarSpecSetRegular</a>
+            <a class="list-group-item" href="../interface/mapl_varspecset.html#moduleprocedure-mapl_varspecsetfieldptr">MAPL_VarSpecSetFieldPtr</a>
+            <a class="list-group-item" href="../interface/mapl_varspecset.html#moduleprocedure-mapl_varspecsetbundleptr">MAPL_VarSpecSetBundlePtr</a>
+            <a class="list-group-item" href="../interface/mapl_varspecset.html#moduleprocedure-mapl_varspecsetstateptr">MAPL_VarSpecSetStatePtr</a>
         </div>
       </div>
     </div>
@@ -168,7 +176,7 @@
 
         <h2>Module Procedures</h2>
             <div class="card">
-    <div class="card-header codesum"><span class="anchor" id="proc-mapl_varspecsetnew"></span> <h3>private  subroutine MAPL_VarSpecSetNew(spec, short_name, long_name, units, dims, vlocation, field, bundle, state, stat, accmlt_interval, couple_interval, offset, label, friendlyto, field_type, staggering, rotation, grid, donotallocate, alwaysallocate, positive, rc)  
+    <div class="card-header codesum"><span class="anchor" id="proc-mapl_varspecsetregular"></span> <h3>private  subroutine MAPL_VarSpecSetRegular(SPEC, SHORT_NAME, LONG_NAME, UNITS, DIMS, VLOCATION, FIELD, BUNDLE, STATE, STAT, ACCMLT_INTERVAL, COUPLE_INTERVAL, OFFSET, LABEL, FRIENDLYTO, FIELD_TYPE, STAGGERING, ROTATION, GRID, doNotAllocate, alwaysAllocate, RC)  
 </h3></div>
     <div class="card-body">
         
@@ -186,22 +194,22 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-spec~20"></span>
-              class(<a href='../type/mapl_varspectype.html'>MAPL_VarSpecType</a>),
+              <span class="anchor" id="variable-spec~15"></span>
+              type(<a href='../type/mapl_varspec.html'>MAPL_VarSpec</a>),
             </td>
 <td>intent(inout)</td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>spec</strong></td>
+            <td><strong>SPEC</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-short_name~4"></span>
+              <span class="anchor" id="variable-short_name~16"></span>
               character(len=*),
             </td>
 <td>intent(in),</td>
@@ -209,14 +217,14 @@
               
             </td>
             <td>::</td>
-            <td><strong>short_name</strong></td>
+            <td><strong>SHORT_NAME</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-long_name~7"></span>
+              <span class="anchor" id="variable-long_name~8"></span>
               character(len=*),
             </td>
 <td>intent(in),</td>
@@ -224,14 +232,14 @@
               
             </td>
             <td>::</td>
-            <td><strong>long_name</strong></td>
+            <td><strong>LONG_NAME</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-units~11"></span>
+              <span class="anchor" id="variable-units~8"></span>
               character(len=*),
             </td>
 <td>intent(in),</td>
@@ -239,14 +247,14 @@
               
             </td>
             <td>::</td>
-            <td><strong>units</strong></td>
+            <td><strong>UNITS</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-dims~12"></span>
+              <span class="anchor" id="variable-dims~33"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -254,14 +262,14 @@
               
             </td>
             <td>::</td>
-            <td><strong>dims</strong></td>
+            <td><strong>DIMS</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-vlocation"></span>
+              <span class="anchor" id="variable-vlocation~6"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -269,14 +277,14 @@
               
             </td>
             <td>::</td>
-            <td><strong>vlocation</strong></td>
+            <td><strong>VLOCATION</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-field~41"></span>
+              <span class="anchor" id="variable-field~39"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
             </td>
 <td>intent(in),</td>
@@ -284,29 +292,29 @@
               
             </td>
             <td>::</td>
-            <td><strong>field</strong></td>
+            <td><strong>FIELD</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-bundle~14"></span>
-              type(ESMF_fieldbundle),
+              <span class="anchor" id="variable-bundle~24"></span>
+              type(ESMF_FieldBundle),
             </td>
 <td>intent(in),</td>
               <td>optional</td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>bundle</strong></td>
+            <td><strong>BUNDLE</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-state~9"></span>
+              <span class="anchor" id="variable-state~95"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
             </td>
 <td>intent(in),</td>
@@ -314,14 +322,14 @@
               
             </td>
             <td>::</td>
-            <td><strong>state</strong></td>
+            <td><strong>STATE</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-stat~3"></span>
+              <span class="anchor" id="variable-stat~9"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -329,14 +337,14 @@
               
             </td>
             <td>::</td>
-            <td><strong>stat</strong></td>
+            <td><strong>STAT</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-accmlt_interval"></span>
+              <span class="anchor" id="variable-accmlt_interval~3"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -344,14 +352,14 @@
               
             </td>
             <td>::</td>
-            <td><strong>accmlt_interval</strong></td>
+            <td><strong>ACCMLT_INTERVAL</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-couple_interval"></span>
+              <span class="anchor" id="variable-couple_interval~4"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -359,14 +367,14 @@
               
             </td>
             <td>::</td>
-            <td><strong>couple_interval</strong></td>
+            <td><strong>COUPLE_INTERVAL</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-offset~12"></span>
+              <span class="anchor" id="variable-offset~4"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -374,14 +382,14 @@
               
             </td>
             <td>::</td>
-            <td><strong>offset</strong></td>
+            <td><strong>OFFSET</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-label~5"></span>
+              <span class="anchor" id="variable-label~13"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -389,14 +397,14 @@
               
             </td>
             <td>::</td>
-            <td><strong>label</strong></td>
+            <td><strong>LABEL</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-friendlyto"></span>
+              <span class="anchor" id="variable-friendlyto~4"></span>
               character(len=*),
             </td>
 <td>intent(in),</td>
@@ -404,14 +412,14 @@
               
             </td>
             <td>::</td>
-            <td><strong>friendlyto</strong></td>
+            <td><strong>FRIENDLYTO</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-field_type"></span>
+              <span class="anchor" id="variable-field_type~6"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -419,14 +427,14 @@
               
             </td>
             <td>::</td>
-            <td><strong>field_type</strong></td>
+            <td><strong>FIELD_TYPE</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-staggering"></span>
+              <span class="anchor" id="variable-staggering~6"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -434,14 +442,14 @@
               
             </td>
             <td>::</td>
-            <td><strong>staggering</strong></td>
+            <td><strong>STAGGERING</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-rotation"></span>
+              <span class="anchor" id="variable-rotation~6"></span>
               integer,
             </td>
 <td>intent(in),</td>
@@ -449,14 +457,14 @@
               
             </td>
             <td>::</td>
-            <td><strong>rotation</strong></td>
+            <td><strong>ROTATION</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-grid~69"></span>
+              <span class="anchor" id="variable-grid~50"></span>
               type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
             </td>
 <td>intent(in),</td>
@@ -464,14 +472,14 @@
               
             </td>
             <td>::</td>
-            <td><strong>grid</strong></td>
+            <td><strong>GRID</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-donotallocate"></span>
+              <span class="anchor" id="variable-donotallocate~2"></span>
               logical,
             </td>
 <td>intent(in),</td>
@@ -479,14 +487,14 @@
               
             </td>
             <td>::</td>
-            <td><strong>donotallocate</strong></td>
+            <td><strong>doNotAllocate</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-alwaysallocate"></span>
+              <span class="anchor" id="variable-alwaysallocate~2"></span>
               logical,
             </td>
 <td>intent(in),</td>
@@ -494,29 +502,14 @@
               
             </td>
             <td>::</td>
-            <td><strong>alwaysallocate</strong></td>
+            <td><strong>alwaysAllocate</strong></td>
             <td>
                 
             </td>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-positive~6"></span>
-              character(len=positive_length),
-            </td>
-<td>intent(in),</td>
-              <td>optional</td>            <td>
-              
-            </td>
-            <td>::</td>
-            <td><strong>positive</strong></td>
-            <td>
-                
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-rc~659"></span>
+              <span class="anchor" id="variable-rc~349"></span>
               integer,
             </td>
 <td>intent(out),</td>
@@ -524,7 +517,214 @@
               
             </td>
             <td>::</td>
-            <td><strong>rc</strong></td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-mapl_varspecsetfieldptr"></span> <h3>private  subroutine MAPL_VarSpecSetFieldPtr(SPEC, FIELDPTR, RC)  
+</h3></div>
+    <div class="card-body">
+        
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-spec~16"></span>
+              type(<a href='../type/mapl_varspec.html'>MAPL_VarSpec</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>SPEC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fieldptr"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_field.html'>ESMF_Field</a>),
+            </td>
+<td></td>
+              <td></td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>FIELDPTR</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~350"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-mapl_varspecsetbundleptr"></span> <h3>private  subroutine MAPL_VarSpecSetBundlePtr(SPEC, BUNDLEPTR, RC)  
+</h3></div>
+    <div class="card-body">
+        
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-spec~17"></span>
+              type(<a href='../type/mapl_varspec.html'>MAPL_VarSpec</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>SPEC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bundleptr"></span>
+              type(ESMF_FieldBundle),
+            </td>
+<td></td>
+              <td></td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>BUNDLEPTR</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~351"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+            <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-mapl_varspecsetstateptr"></span> <h3>private  subroutine MAPL_VarSpecSetStatePtr(SPEC, STATEPTR, RC)  
+</h3></div>
+    <div class="card-body">
+        
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-spec~18"></span>
+              type(<a href='../type/mapl_varspec.html'>MAPL_VarSpec</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>SPEC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-stateptr"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>),
+            </td>
+<td></td>
+              <td></td>            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>STATEPTR</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~352"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
             <td>
                 
             </td>
@@ -553,7 +753,7 @@
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2025-05-29T13:40:13.393381+0000             </p>
+ on 2025-05-29T14:32:09.884235+0000             </p>
           </div>
         </div>
         <br>
