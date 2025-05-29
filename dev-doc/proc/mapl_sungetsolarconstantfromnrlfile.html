@@ -1,0 +1,708 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_SunGetSolarConstantFromNRLFile &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_SunGetSolarConstantFromNRLFile
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">214 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_sun_uc.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_sun_uc.f90.html'>MAPL_sun_uc.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_sunmod.html'>MAPL_SunMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_SunGetSolarConstantFromNRLFile</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_sungetsolarconstantfromnrlfile.html#src">MAPL_SunGetSolarConstantFromNRLFile</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine MAPL_SunGetSolarConstantFromNRLFile(CLOCK, filename_in, SC, MG, SB, PersistSolar, rc)  
+</h2>
+    
+
+    <p>Acquire the TSI, Mg, and SB from file.</p>
+<p>@note Bug
+     Band values for RRTMG not implemented</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clock~9"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CLOCK</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-filename_in"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>filename_in</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sc~4"></span>
+              real,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>SC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mg"></span>
+              real,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>MG</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sb"></span>
+              real,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>SB</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-persistsolar"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>PersistSolar</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~19"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">MAPL_SunGetSolarConstantFromNRLFile</span><span class="p">(</span><span class="n">CLOCK</span><span class="p">,</span><span class="n">filename_in</span><span class="p">,</span><span class="n">SC</span><span class="p">,</span><span class="n">MG</span><span class="p">,</span><span class="n">SB</span><span class="p">,</span><span class="n">PersistSolar</span><span class="p">,</span><span class="n">rc</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">implicit none</span>
+
+<span class="k">      type</span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">CLOCK</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">filename_in</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">                  </span><span class="kd">::</span><span class="w"> </span><span class="n">SC</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">                  </span><span class="kd">::</span><span class="w"> </span><span class="n">MG</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">                  </span><span class="kd">::</span><span class="w"> </span><span class="n">SB</span>
+<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">PersistSolar</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">)</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">VM</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">noonCurrentDay</span><span class="p">,</span><span class="w"> </span><span class="n">prevNoon</span><span class="p">,</span><span class="w"> </span><span class="n">nextNoon</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">intToNextNoon</span><span class="p">,</span><span class="w"> </span><span class="n">oneDayInterval</span>
+
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">currentTime</span><span class="p">,</span><span class="w"> </span><span class="n">origTime</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">timeBasedOnCycle24</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Time</span><span class="p">)</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">startCycle24</span><span class="p">,</span><span class="w"> </span><span class="n">startCycle25</span>
+<span class="w">      </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">timeSinceStartOfCycle25</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">currentYear</span><span class="p">,</span><span class="w"> </span><span class="n">currentMon</span><span class="p">,</span><span class="w"> </span><span class="n">currentDay</span><span class="p">,</span><span class="w"> </span><span class="n">currentDOY</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">prevDOY</span><span class="p">,</span><span class="w"> </span><span class="n">nextDOY</span><span class="p">,</span><span class="w"> </span><span class="n">prevNoonYear</span><span class="p">,</span><span class="w"> </span><span class="n">nextNoonYear</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">originalYear</span><span class="p">,</span><span class="w"> </span><span class="n">originalMon</span><span class="p">,</span><span class="w"> </span><span class="n">originalDay</span><span class="p">,</span><span class="w"> </span><span class="n">origDOY</span>
+
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">)</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">days_r8</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">INDX1</span><span class="p">,</span><span class="w"> </span><span class="n">INDX2</span><span class="p">,</span><span class="w"> </span><span class="n">i</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">STATUS</span><span class="p">,</span><span class="w"> </span><span class="n">UNIT</span>
+
+<span class="w">      </span><span class="kt">real</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">FAC</span>
+
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXPATHLEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">FILENAME</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">amIRoot</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">deId</span><span class="p">,</span><span class="w"> </span><span class="n">NPES</span>
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">outOfTable</span>
+
+<span class="w">      </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">PersistSolar_</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">YEAR_NOT_FOUND</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">99</span>
+
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">line</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">commentChar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;#&quot;</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">stat</span>
+
+<span class="nb">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">save</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">TableCreated</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">save</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">yearTable</span><span class="p">,</span><span class="w"> </span><span class="n">doyTable</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w">    </span><span class="k">save</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tsi</span><span class="p">,</span><span class="w"> </span><span class="n">mgindex</span><span class="p">,</span><span class="w"> </span><span class="n">sbindex</span>
+<span class="w">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">save</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">numlines</span>
+
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">Logger</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lgr</span>
+
+<span class="w">      </span><span class="n">lgr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">logging</span><span class="p">%</span><span class="n">get_logger</span><span class="p">(</span><span class="s1">&#39;MAPL.SUN&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">PersistSolar</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">PersistSolar_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PersistSolar</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">PersistSolar_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="k">      call </span><span class="n">ESMF_VMGetCurrent</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_VmGet</span><span class="p">(</span><span class="n">VM</span><span class="p">,</span><span class="w"> </span><span class="n">localPet</span><span class="o">=</span><span class="n">deId</span><span class="p">,</span><span class="w"> </span><span class="n">petCount</span><span class="o">=</span><span class="n">npes</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">      </span><span class="n">amIRoot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">deId</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
+
+<span class="w">      </span><span class="n">CREATE_TABLE</span><span class="p">:</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="w"> </span><span class="n">TableCreated</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="w">         </span><span class="c">! First we open the file on root to get the</span>
+<span class="w">         </span><span class="c">! number of lines so we can allocate our tables</span>
+<span class="w">         </span><span class="c">! ---------------------------------------------</span>
+
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">amIRoot</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="w">            </span><span class="c">! Open the file</span>
+<span class="w">            </span><span class="c">! -------------</span>
+<span class="w">            </span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">filename_in</span><span class="p">)</span>
+<span class="w">            </span><span class="k">open</span><span class="p">(</span><span class="n">newunit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="k">file</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="n">form</span><span class="o">=</span><span class="s2">&quot;formatted&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="o">=</span><span class="s2">&quot;old&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">iostat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">status</span><span class="o">==</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;Could not find NRL data file &#39;</span><span class="o">//</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">filename</span><span class="w"> </span><span class="p">))</span>
+
+<span class="w">            </span><span class="c">! Determine length of file</span>
+<span class="w">            </span><span class="c">! ------------------------</span>
+<span class="w">            </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Scanning the Solar Table to determine number of data points&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="n">numlines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">num_lines_in_file</span><span class="p">(</span><span class="n">UNIT</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Solar Table Data Points: %i0&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">numlines</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">end if</span>
+
+<span class="w">         </span><span class="c">! Broadcast the number of lines</span>
+<span class="w">         </span><span class="c">! -----------------------------</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_CommsBcast</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="k">DATA</span><span class="o">=</span><span class="n">numlines</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">ROOT</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">         </span><span class="c">! Allocate our arrays on all processes</span>
+<span class="w">         </span><span class="c">! ------------------------------------</span>
+
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">yearTable</span><span class="p">(</span><span class="n">numlines</span><span class="p">),</span><span class="w"> </span><span class="n">source</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w">   </span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">doyTable</span><span class="p">(</span><span class="n">numlines</span><span class="p">),</span><span class="w">  </span><span class="n">source</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w">   </span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">tsi</span><span class="p">(</span><span class="n">numlines</span><span class="p">),</span><span class="w">       </span><span class="n">source</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">mgindex</span><span class="p">(</span><span class="n">numlines</span><span class="p">),</span><span class="w">   </span><span class="n">source</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">         </span><span class="k">allocate</span><span class="p">(</span><span class="n">sbindex</span><span class="p">(</span><span class="n">numlines</span><span class="p">),</span><span class="w">   </span><span class="n">source</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+
+<span class="w">         </span><span class="c">! Back to root to read in the values</span>
+<span class="w">         </span><span class="c">! ----------------------------------</span>
+
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">amIRoot</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">            call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Reading the Solar Table&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="k">do</span>
+<span class="k">               read</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="s1">&#39;(A)&#39;</span><span class="p">,</span><span class="n">iostat</span><span class="o">=</span><span class="nb">stat</span><span class="p">)</span><span class="w"> </span><span class="n">line</span>
+<span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">is_iostat_end</span><span class="p">(</span><span class="nb">stat</span><span class="p">))</span><span class="w"> </span><span class="k">exit</span>
+<span class="w">               </span><span class="c">! Skip lines starting with #-comments</span>
+<span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">index</span><span class="w"> </span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="n">commentChar</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span>
+<span class="k">               read</span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">yearTable</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">doyTable</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">tsi</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">mgindex</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">sbindex</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">               </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="k">end do</span>
+
+<span class="w">            </span><span class="c">! Belt and suspenders check that all data was read</span>
+<span class="w">            </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">yearTable</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">numlines</span><span class="p">,</span><span class="s2">&quot;Inconsistency in NRL number of lines&quot;</span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">close</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">IOSTAT</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">end if</span>
+
+<span class="w">         </span><span class="c">! Broadcast the tables</span>
+<span class="w">         </span><span class="c">! --------------------</span>
+
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_CommsBcast</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="k">DATA</span><span class="o">=</span><span class="n">yearTable</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="o">=</span><span class="n">numlines</span><span class="p">,</span><span class="w"> </span><span class="n">ROOT</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_CommsBcast</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="k">DATA</span><span class="o">=</span><span class="n">doyTable</span><span class="p">,</span><span class="w">  </span><span class="n">N</span><span class="o">=</span><span class="n">numlines</span><span class="p">,</span><span class="w"> </span><span class="n">ROOT</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_CommsBcast</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="k">DATA</span><span class="o">=</span><span class="n">tsi</span><span class="p">,</span><span class="w">       </span><span class="n">N</span><span class="o">=</span><span class="n">numlines</span><span class="p">,</span><span class="w"> </span><span class="n">ROOT</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_CommsBcast</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="k">DATA</span><span class="o">=</span><span class="n">mgindex</span><span class="p">,</span><span class="w">   </span><span class="n">N</span><span class="o">=</span><span class="n">numlines</span><span class="p">,</span><span class="w"> </span><span class="n">ROOT</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">MAPL_CommsBcast</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="k">DATA</span><span class="o">=</span><span class="n">sbindex</span><span class="p">,</span><span class="w">   </span><span class="n">N</span><span class="o">=</span><span class="n">numlines</span><span class="p">,</span><span class="w"> </span><span class="n">ROOT</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">         </span><span class="n">TableCreated</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.</span>
+
+<span class="w">      </span><span class="k">end if </span><span class="n">CREATE_TABLE</span>
+
+<span class="w">      </span><span class="c">! Now we need to find the two bracketing days</span>
+<span class="w">      </span><span class="c">! -------------------------------------------</span>
+
+<span class="w">      </span><span class="c">! Get current time</span>
+<span class="w">      </span><span class="c">! ----------------</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_ClockGet</span><span class="p">(</span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">CURRTIME</span><span class="o">=</span><span class="n">currentTime</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="w"> </span><span class="n">currentTime</span><span class="p">,</span><span class="w"> </span><span class="n">YY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">currentYear</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span>
+<span class="w">                                      </span><span class="n">MM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">currentMon</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span>
+<span class="w">                                      </span><span class="n">DD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">currentDay</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span>
+<span class="w">                               </span><span class="n">dayOfYear</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">currentDOY</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! Test if current time is outside our file</span>
+<span class="w">      </span><span class="c">! ----------------------------------------</span>
+
+<span class="w">      </span><span class="n">outOfTable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">FALSE</span><span class="p">.</span>
+
+<span class="w">      </span><span class="c">! First is current year higher than last in file...</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">currentYear</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">yearTable</span><span class="p">(</span><span class="n">numlines</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">outOfTable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.</span>
+<span class="w">      </span><span class="c">! ...or if a partial year, are we near the end</span>
+<span class="w">      </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">currentYear</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">yearTable</span><span class="p">(</span><span class="n">numlines</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">currentDOY</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">doyTable</span><span class="p">(</span><span class="n">numlines</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">outOfTable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">TRUE</span><span class="p">.</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="w">      </span><span class="c">! If we are out of the table...</span>
+<span class="w">      </span><span class="c">! -----------------------------</span>
+
+<span class="w">      </span><span class="n">OUT_OF_TABLE</span><span class="p">:</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">outOfTable</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">         </span><span class="n">PERSIST_SOLAR</span><span class="p">:</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">PersistSolar_</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="w">            </span><span class="c">! If we are outOfTable and we have the PersistSolar</span>
+<span class="w">            </span><span class="c">! option we just use the last value in the table...</span>
+<span class="w">            </span><span class="c">! -------------------------------------------------</span>
+
+<span class="w">            </span><span class="n">SC</span><span class="w"> </span><span class="o">=</span><span class="w">     </span><span class="n">tsi</span><span class="p">(</span><span class="n">numlines</span><span class="p">)</span>
+<span class="w">            </span><span class="n">MG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mgindex</span><span class="p">(</span><span class="n">numlines</span><span class="p">)</span>
+<span class="w">            </span><span class="n">SB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sbindex</span><span class="p">(</span><span class="n">numlines</span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Off the end of table, persisting last values&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;  tsi at end of table: %F8.3&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">tsi</span><span class="p">(</span><span class="n">numlines</span><span class="p">))</span>
+<span class="w">            </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;  mgindex at end of table: %F8.6&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">mgindex</span><span class="p">(</span><span class="n">numlines</span><span class="p">))</span>
+<span class="w">            </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;  sbindex at end of table: %F9.4&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">sbindex</span><span class="p">(</span><span class="n">numlines</span><span class="p">))</span>
+
+<span class="w">            </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">else</span>
+
+<span class="w">            </span><span class="c">! If we are out of the table and not persisting, we must</span>
+<span class="w">            </span><span class="c">! recenter our day to be based on the last complete Solar Cycle</span>
+<span class="w">            </span><span class="c">! -------------------------------------------------------------</span>
+
+<span class="w">            </span><span class="c">! Create an ESMF_Time at start of Cycle 24</span>
+<span class="w">            </span><span class="c">! ----------------------------------------</span>
+<span class="w">            </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="w"> </span><span class="n">startCycle24</span><span class="p">,</span><span class="w"> </span><span class="n">YY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2008</span><span class="p">,</span><span class="w">  </span><span class="p">&amp;</span>
+<span class="w">                                             </span><span class="n">MM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span>
+<span class="w">                                             </span><span class="n">DD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">     </span><span class="p">&amp;</span>
+<span class="w">                                              </span><span class="n">H</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span>
+<span class="w">                                              </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">00</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span>
+<span class="w">                                              </span><span class="n">S</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">00</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">            </span><span class="c">! Create an ESMF_Time at start of Cycle 25</span>
+<span class="w">            </span><span class="c">! ----------------------------------------</span>
+<span class="w">            </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="w"> </span><span class="n">startCycle25</span><span class="p">,</span><span class="w"> </span><span class="n">YY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2019</span><span class="p">,</span><span class="w">  </span><span class="p">&amp;</span>
+<span class="w">                                             </span><span class="n">MM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span>
+<span class="w">                                             </span><span class="n">DD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">     </span><span class="p">&amp;</span>
+<span class="w">                                              </span><span class="n">H</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span>
+<span class="w">                                              </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">00</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span>
+<span class="w">                                              </span><span class="n">S</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">00</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">            </span><span class="c">! Create TimeInterval based on interval</span>
+<span class="w">            </span><span class="c">! from start of latest Cycle 25</span>
+<span class="w">            </span><span class="c">! -------------------------------------</span>
+
+<span class="w">            </span><span class="n">timeSinceStartOfCycle25</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">currentTime</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">startCycle25</span>
+
+<span class="w">            </span><span class="c">! Make a new time based on that</span>
+<span class="w">            </span><span class="c">! interval past start of Cycle 24</span>
+<span class="w">            </span><span class="c">! -------------------------------</span>
+
+<span class="w">            </span><span class="n">timeBasedOnCycle24</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">startCycle24</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">timeSinceStartOfCycle25</span>
+
+<span class="w">            </span><span class="c">! Store our original time just in case</span>
+<span class="w">            </span><span class="c">! ------------------------------------</span>
+<span class="w">            </span><span class="n">origTime</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">currentTime</span>
+<span class="w">            </span><span class="n">originalYear</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">currentYear</span>
+<span class="w">            </span><span class="n">originalMon</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">currentMon</span>
+<span class="w">            </span><span class="n">originalDay</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">currentDay</span>
+<span class="w">            </span><span class="n">origDOY</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">currentDOY</span>
+
+<span class="w">            </span><span class="c">! Make our &quot;current&quot; time the one calculated above</span>
+<span class="w">            </span><span class="c">! ------------------------------------------------</span>
+<span class="w">            </span><span class="n">currentTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">timeBasedOnCycle24</span>
+
+<span class="w">            </span><span class="c">! Get new currentYear, currentMon, currentDay</span>
+<span class="w">            </span><span class="c">! -------------------------------------------</span>
+
+<span class="w">            </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="w"> </span><span class="n">currentTime</span><span class="p">,</span><span class="w"> </span><span class="n">YY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">currentYear</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span>
+<span class="w">                                            </span><span class="n">MM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">currentMon</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span>
+<span class="w">                                            </span><span class="n">DD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">currentDay</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span>
+<span class="w">                                     </span><span class="n">dayOfYear</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">currentDOY</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Off the end of table, moving into last complete cycle&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;  Original Year-Mon-Day to Find: %i0.4~-%i0.2~-%i0.2&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">originalYear</span><span class="p">,</span><span class="n">originalMon</span><span class="p">,</span><span class="n">originalDay</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;  Original Day of Year: %i0&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">origDOY</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;  New Year-Mon-Day to Find: %i0.4~-%i0.2~-%i0.2&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">currentYear</span><span class="p">,</span><span class="n">currentMon</span><span class="p">,</span><span class="n">currentDay</span><span class="p">)</span>
+<span class="w">            </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;  New Day of Year: %i0&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">currentDOY</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">end if </span><span class="n">PERSIST_SOLAR</span>
+
+<span class="w">      </span><span class="k">end if </span><span class="n">OUT_OF_TABLE</span>
+
+<span class="w">      </span><span class="c">! Create an ESMF_Time on noon of current day</span>
+<span class="w">      </span><span class="c">! ------------------------------------------</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeSet</span><span class="p">(</span><span class="w"> </span><span class="n">noonCurrentDay</span><span class="p">,</span><span class="w"> </span><span class="n">YY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">currentYear</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                                         </span><span class="n">MM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">currentMon</span><span class="p">,</span><span class="w">  </span><span class="p">&amp;</span>
+<span class="w">                                         </span><span class="n">DD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">currentDay</span><span class="p">,</span><span class="w">  </span><span class="p">&amp;</span>
+<span class="w">                                          </span><span class="n">H</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w">          </span><span class="p">&amp;</span>
+<span class="w">                                          </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">00</span><span class="p">,</span><span class="w">          </span><span class="p">&amp;</span>
+<span class="w">                                          </span><span class="n">S</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">00</span><span class="p">,</span><span class="w">       </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! Figure out bracketing days for interpolation</span>
+<span class="w">      </span><span class="c">! NOTE: nextNoon is mainly for debugging purposes</span>
+<span class="w">      </span><span class="c">! -----------------------------------------------</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">oneDayInterval</span><span class="p">,</span><span class="w"> </span><span class="n">D</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">currentTime</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">noonCurrentDay</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         </span><span class="n">prevNoon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">noonCurrentDay</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">oneDayInterval</span>
+<span class="w">         </span><span class="n">nextNoon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">noonCurrentDay</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         </span><span class="n">prevNoon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">noonCurrentDay</span>
+<span class="w">         </span><span class="n">nextNoon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">noonCurrentDay</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">oneDayInterval</span>
+<span class="w">      </span><span class="k">end if</span>
+
+<span class="w">      </span><span class="c">! Get the DOYs</span>
+<span class="w">      </span><span class="c">! ------------</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="w"> </span><span class="n">prevNoon</span><span class="p">,</span><span class="w"> </span><span class="n">YY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prevNoonYear</span><span class="p">,</span><span class="w"> </span><span class="n">dayOfYear</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prevDOY</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeGet</span><span class="p">(</span><span class="w"> </span><span class="n">nextNoon</span><span class="p">,</span><span class="w"> </span><span class="n">YY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nextNoonYear</span><span class="p">,</span><span class="w"> </span><span class="n">dayOfYear</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nextDOY</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! Our interpolation factor is based of when we are compared to the next noon</span>
+<span class="w">      </span><span class="c">! --------------------------------------------------------------------------</span>
+<span class="w">      </span><span class="n">intToNextNoon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nextNoon</span><span class="o">-</span><span class="n">currentTime</span>
+
+<span class="w">      </span><span class="c">! The FAC for interpolating is just the real version</span>
+<span class="w">      </span><span class="c">! of the size of the timeinterval to the next noon</span>
+<span class="w">      </span><span class="c">! --------------------------------------------------</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_TimeIntervalGet</span><span class="p">(</span><span class="n">intToNextNoon</span><span class="p">,</span><span class="w"> </span><span class="n">d_r8</span><span class="o">=</span><span class="n">days_r8</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">FAC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">real</span><span class="p">(</span><span class="n">days_r8</span><span class="p">)</span>
+
+<span class="w">      </span><span class="c">! Use our find_file_index function to get the index for previous noon</span>
+<span class="w">      </span><span class="c">! -------------------------------------------------------------------</span>
+<span class="w">      </span><span class="n">INDX1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">find_file_index</span><span class="p">(</span><span class="n">numlines</span><span class="p">,</span><span class="w"> </span><span class="n">yearTable</span><span class="p">,</span><span class="w"> </span><span class="n">prevNoonYear</span><span class="p">,</span><span class="w"> </span><span class="n">prevDOY</span><span class="p">)</span>
+<span class="w">      </span><span class="n">INDX2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">INDX1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+
+<span class="w">      </span><span class="c">! Linear Interpolation to the given day-of-month</span>
+<span class="w">      </span><span class="c">! ----------------------------------------------</span>
+
+<span class="w">      </span><span class="n">SC</span><span class="w"> </span><span class="o">=</span><span class="w">     </span><span class="n">tsi</span><span class="p">(</span><span class="n">INDX1</span><span class="p">)</span><span class="o">*</span><span class="n">FAC</span><span class="w"> </span><span class="o">+</span><span class="w">     </span><span class="n">tsi</span><span class="p">(</span><span class="n">INDX2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">FAC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">MG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mgindex</span><span class="p">(</span><span class="n">INDX1</span><span class="p">)</span><span class="o">*</span><span class="n">FAC</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">mgindex</span><span class="p">(</span><span class="n">INDX2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">FAC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">SB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sbindex</span><span class="p">(</span><span class="n">INDX1</span><span class="p">)</span><span class="o">*</span><span class="n">FAC</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">sbindex</span><span class="p">(</span><span class="n">INDX2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">FAC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;  First DOY to Find:     %i3&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">prevDOY</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;    file_index for date: %i6&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">INDX1</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;    yearTable(date):     %i4&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">yearTable</span><span class="p">(</span><span class="n">INDX1</span><span class="p">))</span>
+<span class="w">      </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;    doyTable(date):      %i3&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">doyTable</span><span class="p">(</span><span class="n">INDX1</span><span class="p">))</span>
+<span class="w">      </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;    tsi(date):           %f8.3&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">tsi</span><span class="p">(</span><span class="n">INDX1</span><span class="p">))</span>
+<span class="w">      </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;    mgindex(date):       %f8.6&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">mgindex</span><span class="p">(</span><span class="n">INDX1</span><span class="p">))</span>
+<span class="w">      </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;    sbindex(date):       %f9.4&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">sbindex</span><span class="p">(</span><span class="n">INDX1</span><span class="p">))</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;  Second DOY to Find:    %i3&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">nextDOY</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;    file_index for date: %i6&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">INDX2</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;    yearTable(date):     %i4&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">yearTable</span><span class="p">(</span><span class="n">INDX2</span><span class="p">))</span>
+<span class="w">      </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;    doyTable(date):      %i3&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">doyTable</span><span class="p">(</span><span class="n">INDX2</span><span class="p">))</span>
+<span class="w">      </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;    tsi(date):           %f8.3&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">tsi</span><span class="p">(</span><span class="n">INDX2</span><span class="p">))</span>
+<span class="w">      </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;    mgindex(date):       %f8.6&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">mgindex</span><span class="p">(</span><span class="n">INDX2</span><span class="p">))</span>
+<span class="w">      </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;    sbindex(date):       %f9.4&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">sbindex</span><span class="p">(</span><span class="n">INDX2</span><span class="p">))</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">lgr</span><span class="p">%</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;  Interpolation Factor:  %f8.6&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">FAC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">contains</span>
+
+<span class="k">         </span><span class="kt">integer </span><span class="k">function </span><span class="n">num_lines_in_file</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="nb">count</span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">implicit none</span>
+
+<span class="k">            </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unit</span>
+
+<span class="w">            </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">line</span>
+<span class="w">            </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">stat</span>
+<span class="nb">            </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">commentChar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;#&quot;</span>
+
+<span class="w">            </span><span class="nb">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+
+<span class="w">            </span><span class="k">do</span>
+<span class="k">               read</span><span class="p">(</span><span class="n">unit</span><span class="p">,</span><span class="s1">&#39;(A)&#39;</span><span class="p">,</span><span class="n">iostat</span><span class="o">=</span><span class="nb">stat</span><span class="p">)</span><span class="w"> </span><span class="n">line</span>
+<span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">is_iostat_end</span><span class="p">(</span><span class="nb">stat</span><span class="p">))</span><span class="w"> </span><span class="k">exit</span>
+<span class="w">               </span><span class="c">! Skip lines starting with #-comments</span>
+<span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">index</span><span class="w"> </span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="n">commentChar</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span>
+<span class="k">               </span><span class="nb">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">count</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="k">end do</span>
+
+<span class="k">            rewind</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span>
+
+<span class="w">         </span><span class="k">end function </span><span class="n">num_lines_in_file</span>
+
+<span class="w">         </span><span class="kt">integer </span><span class="k">function </span><span class="n">find_file_index</span><span class="p">(</span><span class="n">numlines</span><span class="p">,</span><span class="w"> </span><span class="n">year</span><span class="p">,</span><span class="w"> </span><span class="n">year_to_find</span><span class="p">,</span><span class="w"> </span><span class="n">doy_to_find</span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">implicit none</span>
+
+<span class="k">            </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">numlines</span>
+<span class="w">            </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="w"> </span><span class="k">dimension</span><span class="p">(</span><span class="n">numlines</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">year</span>
+<span class="w">            </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">year_to_find</span><span class="p">,</span><span class="w"> </span><span class="n">doy_to_find</span>
+
+<span class="w">            </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">yr_index</span>
+
+<span class="w">            </span><span class="c">! Find the index for the year</span>
+<span class="w">            </span><span class="c">! ---------------------------</span>
+
+<span class="w">            </span><span class="n">yr_index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">YEAR_NOT_FOUND</span>
+
+<span class="w">            </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">numlines</span>
+<span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">year</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">year_to_find</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                  </span><span class="n">yr_index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span>
+<span class="w">                  </span><span class="k">exit</span>
+<span class="k">               end if</span>
+<span class="k">            end do</span>
+
+<span class="k">            if</span><span class="w"> </span><span class="p">(</span><span class="n">yr_index</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">YEAR_NOT_FOUND</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               </span><span class="n">find_file_index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">YEAR_NOT_FOUND</span>
+<span class="w">            </span><span class="k">else</span>
+<span class="k">               </span><span class="n">find_file_index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">yr_index</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">doy_to_find</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="k">end if</span>
+
+<span class="k">         end function </span><span class="n">find_file_index</span>
+
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">MAPL_SunGetSolarConstantFromNRLFile</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-05-29T13:44:04.635271+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

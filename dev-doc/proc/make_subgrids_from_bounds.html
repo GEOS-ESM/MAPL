@@ -1,0 +1,432 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>make_subgrids_from_bounds &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>make_subgrids_from_bounds
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">105 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/OpenMP_Support.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/openmp_support.f90.html'>OpenMP_Support.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_openmp_support.html'>MAPL_OpenMP_Support</a></li>
+            <li class="breadcrumb-item active" aria-current="page">make_subgrids_from_bounds</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/make_subgrids_from_bounds.html#src">make_subgrids_from_bounds</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  function make_subgrids_from_bounds(primary_grid, bounds, unusable, rc) result(subgrids)  
+</h2>
+        <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='../module/mapl_basemod.html'>MAPL_BaseMod</a></li>
+              </ul>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-primary_grid~2"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>primary_grid</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bounds~3"></span>
+              type(<a href='../type/interval.html'>Interval</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>bounds</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unusable~195"></span>
+              class(<a href='../type/keywordenforcer~58.html'>KeywordEnforcer</a>),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unusable</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1043"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-subgrids~2"></span>
+          type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>), allocatable, (:)
+        </small>
+      </h3>
+      
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">    </span><span class="k">function </span><span class="n">make_subgrids_from_bounds</span><span class="p">(</span><span class="n">primary_grid</span><span class="p">,</span><span class="w"> </span><span class="n">bounds</span><span class="p">,</span><span class="w"> </span><span class="n">unusable</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">subgrids</span><span class="p">)</span>
+<span class="w">        </span><span class="k">use </span><span class="n">MAPL_BaseMod</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">MAPL_GridGetCorners</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">subgrids</span><span class="p">(:)</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">primary_grid</span><span class="w"> </span><span class="c">! inout to use MAPL_GridGetCorners</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">Interval</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bounds</span><span class="p">(:)</span>
+<span class="w">        </span><span class="k">class</span><span class="p">(</span><span class="n">KeywordEnforcer</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unusable</span>
+<span class="w">        </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">        </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">local_count</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="n">global_count</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">        </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">        </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">petMap</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">        </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">myPet</span><span class="p">,</span><span class="w"> </span><span class="n">section</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="nb">count</span><span class="p">,</span><span class="w"> </span><span class="n">size_</span>
+<span class="w">        </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_VM</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vm</span>
+<span class="w">        </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_lats</span><span class="p">(:,:),</span><span class="w"> </span><span class="n">new_lons</span><span class="p">(:,:)</span>
+<span class="w">        </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lats</span><span class="p">(:,:),</span><span class="w"> </span><span class="n">lons</span><span class="p">(:,:)</span>
+<span class="w">        </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">new_corner_lats</span><span class="p">(:,:),</span><span class="w"> </span><span class="n">new_corner_lons</span><span class="p">(:,:)</span>
+<span class="w">        </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">corner_lats</span><span class="p">(:,:),</span><span class="w"> </span><span class="n">corner_lons</span><span class="p">(:,:)</span>
+<span class="w">        </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lats1d</span><span class="p">(:),</span><span class="w"> </span><span class="n">lons1d</span><span class="p">(:)</span>
+<span class="w">        </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">name</span>
+<span class="w">        </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">isPresent</span>
+
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_GridGet</span><span class="p">(</span><span class="n">primary_grid</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">         </span><span class="c">!print*, &#39;Printing bounds for &#39;, trim(name)</span>
+<span class="w">        </span><span class="c">!do i = 1, size(bounds)</span>
+<span class="w">        </span><span class="c">!   print*, trim(name), &#39;,&#39;, i, &#39;:&#39;, &#39;Bounds min:&#39;, bounds(i)%min, &#39;Bounds max:&#39;, bounds(i)%max</span>
+<span class="w">        </span><span class="c">!end do</span>
+
+<span class="w">        </span><span class="k">allocate</span><span class="p">(</span><span class="n">subgrids</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">bounds</span><span class="p">)))</span>
+<span class="w">        </span><span class="k">call </span><span class="n">MAPL_GridGet</span><span class="p">(</span><span class="n">primary_grid</span><span class="p">,</span><span class="n">localcellcountPerDim</span><span class="o">=</span><span class="n">local_count</span><span class="p">,</span><span class="w"> </span><span class="n">globalCellCountPerDim</span><span class="o">=</span><span class="n">global_count</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_VMGetCurrent</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_VMGet</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">localPET</span><span class="o">=</span><span class="n">myPET</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">petMap</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">myPet</span>
+<span class="w">        </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+<span class="w">           </span><span class="n">section</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">max</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">min</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">           </span><span class="c">! make each grid</span>
+<span class="w">           </span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_GridCreateNoPeriDim</span><span class="p">(</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="n">countsPerDEDim1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">local_count</span><span class="p">(</span><span class="mi">1</span><span class="p">)],</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="n">countsPerDEDim2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">section</span><span class="p">],</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="n">indexFlag</span><span class="o">=</span><span class="n">ESMF_INDEX_DELOCAL</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="n">coordDep1</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="n">coordDep2</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="n">coordSys</span><span class="o">=</span><span class="n">ESMF_COORDSYS_SPH_RAD</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="n">petMap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">petMap</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">           </span><span class="k">call </span><span class="n">ESMF_GridAddCoord</span><span class="p">(</span><span class="n">grid</span><span class="o">=</span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">staggerloc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CENTER</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">ESMF_AttributeCopy</span><span class="p">(</span><span class="n">primary_grid</span><span class="p">,</span><span class="w"> </span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">attcopy</span><span class="o">=</span><span class="n">ESMF_ATTCOPY_VALUE</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">           </span><span class="c">! delete corner lon/lat atttributes in the subgrid</span>
+<span class="w">           </span><span class="k">call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;GridCornerLons:&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">isPresent</span><span class="o">=</span><span class="n">isPresent</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isPresent</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              call </span><span class="n">ESMF_AttributeRemove</span><span class="p">(</span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;GridCornerLons:&#39;</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end if</span>
+<span class="k">           call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;GridCornerLats:&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">isPresent</span><span class="o">=</span><span class="n">isPresent</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isPresent</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              call </span><span class="n">ESMF_AttributeRemove</span><span class="p">(</span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;GridCornerLats:&#39;</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end if</span>
+<span class="k">        end do</span>
+
+<span class="w">        </span><span class="c">! get lons/lats from original grid</span>
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_GridGetCoord</span><span class="p">(</span><span class="n">grid</span><span class="o">=</span><span class="n">primary_grid</span><span class="p">,</span><span class="w"> </span><span class="n">coordDim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">             </span><span class="n">staggerloc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CENTER</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">lons</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">        </span><span class="k">call </span><span class="n">ESMF_GridGetCoord</span><span class="p">(</span><span class="n">grid</span><span class="o">=</span><span class="n">primary_grid</span><span class="p">,</span><span class="w"> </span><span class="n">coordDim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">             </span><span class="n">staggerloc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CENTER</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">lats</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">        </span><span class="c">! get corner lons/lats from original grid</span>
+<span class="w">        </span><span class="k">allocate</span><span class="p">(</span><span class="n">corner_lons</span><span class="p">(</span><span class="n">local_count</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">local_count</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">        </span><span class="k">allocate</span><span class="p">(</span><span class="n">corner_lats</span><span class="p">(</span><span class="n">local_count</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">local_count</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">        </span><span class="k">call </span><span class="n">MAPL_GridGetCorners</span><span class="p">(</span><span class="n">primary_grid</span><span class="p">,</span><span class="w"> </span><span class="n">corner_lons</span><span class="p">,</span><span class="w"> </span><span class="n">corner_lats</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">        </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">ESMF_GridGetCoord</span><span class="p">(</span><span class="n">grid</span><span class="o">=</span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">coordDim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="n">staggerloc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CENTER</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">new_lons</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="n">new_lons</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">subset_array</span><span class="p">(</span><span class="n">lons</span><span class="p">,</span><span class="w"> </span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+
+<span class="w">           </span><span class="k">call </span><span class="n">ESMF_GridGetCoord</span><span class="p">(</span><span class="n">grid</span><span class="o">=</span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">coordDim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">localDE</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="n">staggerloc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CENTER</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">new_lats</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="n">new_lats</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">subset_array</span><span class="p">(</span><span class="n">lats</span><span class="p">,</span><span class="w"> </span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+
+<span class="w">           </span><span class="k">allocate</span><span class="p">(</span><span class="n">new_corner_lons</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">new_lons</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">new_lons</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">           </span><span class="k">allocate</span><span class="p">(</span><span class="n">new_corner_lats</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">new_lats</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">new_lats</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="w">           </span><span class="n">new_corner_lons</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">corner_lons</span><span class="p">(:,</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">min</span><span class="p">:</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">max</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">           </span><span class="n">new_corner_lats</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">corner_lats</span><span class="p">(:,</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">min</span><span class="p">:</span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">max</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="w">           </span><span class="c">! translate the 2d arrays into 1D arrays, lines 2462 to 2468 in base/Base/Base_implementation.F90</span>
+<span class="w">           </span><span class="n">size_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">new_corner_lons</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">new_corner_lons</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span>
+<span class="w">           </span><span class="k">allocate</span><span class="p">(</span><span class="n">lons1d</span><span class="p">(</span><span class="n">size_</span><span class="p">))</span>
+<span class="w">           </span><span class="k">allocate</span><span class="p">(</span><span class="n">lats1d</span><span class="p">(</span><span class="n">size_</span><span class="p">))</span>
+<span class="w">           </span><span class="nb">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">           </span><span class="k">do </span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">new_corner_lons</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">              </span><span class="k">do </span><span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">new_corner_lons</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">                 </span><span class="nb">count</span><span class="o">=</span><span class="nb">count</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">                 </span><span class="n">lons1d</span><span class="p">(</span><span class="nb">count</span><span class="p">)</span><span class="o">=</span><span class="n">new_corner_lons</span><span class="p">(</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span>
+<span class="w">                 </span><span class="n">lats1d</span><span class="p">(</span><span class="nb">count</span><span class="p">)</span><span class="o">=</span><span class="n">new_corner_lats</span><span class="p">(</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">)</span>
+<span class="w">              </span><span class="k">end do</span>
+<span class="k">           end do</span>
+
+<span class="w">           </span><span class="c">! add the these arrays as attributes in the subgrids</span>
+<span class="w">           </span><span class="k">call </span><span class="n">ESMF_AttributeSet</span><span class="p">(</span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;GridCornerLons:&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="n">itemCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">count</span><span class="p">,</span><span class="w"> </span><span class="n">valueList</span><span class="o">=</span><span class="n">lons1d</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">ESMF_AttributeSet</span><span class="p">(</span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;GridCornerLats:&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="n">itemCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">count</span><span class="p">,</span><span class="w"> </span><span class="n">valueList</span><span class="o">=</span><span class="n">lats1d</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">block</span>
+<span class="k">              </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">global_grid_info</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span>
+<span class="w">              </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i1</span><span class="p">,</span><span class="n">i2</span><span class="p">,</span><span class="n">j1</span><span class="p">,</span><span class="n">j2</span>
+<span class="w">              </span><span class="k">call </span><span class="n">MAPL_Grid_Interior</span><span class="p">(</span><span class="n">primary_grid</span><span class="p">,</span><span class="n">i1</span><span class="p">,</span><span class="n">i2</span><span class="p">,</span><span class="n">j1</span><span class="p">,</span><span class="n">j2</span><span class="p">)</span>
+<span class="w">              </span><span class="n">global_grid_info</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">global_count</span>
+<span class="w">              </span><span class="c">!global_grid_info(4:6) = local_count</span>
+<span class="w">              </span><span class="n">global_grid_info</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">new_lons</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">              </span><span class="n">global_grid_info</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">new_lons</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">              </span><span class="n">global_grid_info</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">local_count</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">              </span><span class="n">global_grid_info</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i1</span>
+<span class="w">              </span><span class="n">global_grid_info</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i2</span>
+<span class="w">              </span><span class="n">global_grid_info</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">min</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">              </span><span class="n">global_grid_info</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">max</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">              </span><span class="n">global_grid_info</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bounds</span><span class="p">(</span><span class="n">i</span><span class="p">)%</span><span class="nb">min</span>
+<span class="nb">              </span><span class="k">call </span><span class="n">ESMF_AttributeSet</span><span class="p">(</span><span class="n">subgrids</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;GLOBAL_GRID_INFO&quot;</span><span class="p">,</span><span class="w">  </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="n">itemCount</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span><span class="w"> </span><span class="n">valueList</span><span class="o">=</span><span class="n">global_grid_info</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end block</span>
+
+<span class="k">            deallocate</span><span class="p">(</span><span class="n">lons1d</span><span class="p">,</span><span class="w"> </span><span class="n">lats1d</span><span class="p">)</span>
+<span class="w">            </span><span class="k">deallocate</span><span class="p">(</span><span class="n">new_corner_lons</span><span class="p">,</span><span class="w"> </span><span class="n">new_corner_lats</span><span class="p">)</span>
+<span class="w">        </span><span class="k">end do</span>
+<span class="k">        </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+<span class="w">        </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">unusable</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end function </span><span class="n">make_subgrids_from_bounds</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-05-29T13:44:04.635271+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

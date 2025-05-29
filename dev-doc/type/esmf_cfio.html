@@ -1,0 +1,1111 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>ESMF_CFIO &ndash; MAPL </title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>ESMF_CFIO
+      <small>Derived Type</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title="<p> 0.3% of total for derived types.</p>Including implementation: 48 statements,  0.0% of total for derived types.">48 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/ESMF_CFIOFileMod.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/esmf_cfiofilemod.f90.html'>ESMF_CFIOFileMod.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/esmf_cfiofilemod.html'>ESMF_CFIOFileMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">ESMF_CFIO</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-format~13">format</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-attcharnames~4">attCharNames</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-attchars">attChars</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-attintnames~4">attIntNames</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-attrealnames~4">attRealNames</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-cfioobjname">cfioObjName</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-comment">comment</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-contact~2">contact</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-convention">convention</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-expid~3">expid</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-fname~3">fName</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-fnametmplt">fNameTmplt</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-history~2">history</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-institution">institution</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-references">references</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-source~3">source</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-title~4">title</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-attcharcnts~2">attCharCnts</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-attintcnts~2">attIntCnts</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-attints">attInts</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-attrealcnts~2">attRealCnts</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-begtime~5">begTime</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-date~22">date</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-deflate~4">deflate</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-fid~5">fid</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-mgrids">mGrids</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-mvars">mVars</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-nattchar">nAttChar</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-nattint">nAttInt</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-nattreal">nAttReal</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-prec~2">prec</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-sd_id~2">sd_id</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-tsteps~2">tSteps</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-timeinc~9">timeInc</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-vdir">vdir</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-iscyclic">isCyclic</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-isgridset~2">isGridSet</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-isopen">isOpen</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-usevertexcoordinates">useVertexCoordinates</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-formatversion">FormatVersion</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-attreals">attReals</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-grids~2">grids</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-varobjs">varObjs</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-clist~2">cList</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-ilist~2">iList</a>
+            <a class="list-group-item" href="../type/esmf_cfio.html#variable-rlist~2">rList</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../type/esmf_cfio.html#src">ESMF_CFIO</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+      <h2 id="type-def-statement">
+        type, public :: ESMF_CFIO</h2>
+    <p>Define a new data type <code>ESMF_CFIO</code> &ndash; a CFIO object(file) with file name,
+CFIO variable objects, time, grid index and global attributes.</p>
+    <br>
+
+    <section>
+    <h2>Components</h2>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-format~13"></span>
+              character(len=16),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>format</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>output/input format &ndash; GrADS or SDF(HDF)
+default is SDF.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attcharnames~4"></span>
+              character(len=MLEN),
+            </td>
+              <td>public,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attCharNames</strong>(:)</td>
+<td>=&gt; </td>
+                <td>NULL()</td>
+            <td>
+                <p>User defined char
+attribute name</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attchars"></span>
+              character(len=MLEN),
+            </td>
+              <td>public,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attChars</strong>(:)</td>
+<td>=&gt; </td>
+                <td>NULL()</td>
+            <td>
+                <p>char attributes</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attintnames~4"></span>
+              character(len=MLEN),
+            </td>
+              <td>public,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attIntNames</strong>(:)</td>
+<td>=&gt; </td>
+                <td>NULL()</td>
+            <td>
+                <p>int attribute name</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attrealnames~4"></span>
+              character(len=MLEN),
+            </td>
+              <td>public,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attRealNames</strong>(:)</td>
+<td>=&gt; </td>
+                <td>NULL()</td>
+            <td>
+                <p>Real attribute name</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cfioobjname"></span>
+              character(len=MLEN),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>cfioObjName</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>name for this CFIO object</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-comment"></span>
+              character(len=MLEN),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>comment</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-contact~2"></span>
+              character(len=MLEN),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>contact</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Who to contact about the data set</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-convention"></span>
+              character(len=MLEN),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>convention</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>CFIO</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-expid~3"></span>
+              character(len=MLEN),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>expid</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Experiment I</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fname~3"></span>
+              character(len=MLEN),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fName</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>file name in this CFIO obj.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fnametmplt"></span>
+              character(len=MLEN),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fNameTmplt</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>file name in this CFIO obj.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-history~2"></span>
+              character(len=MLEN),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>history</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-institution"></span>
+              character(len=MLEN),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>institution</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-references"></span>
+              character(len=MLEN),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>references</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-source~3"></span>
+              character(len=MLEN),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>source</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Source of data, e.g. NASA/GMAO</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-title~4"></span>
+              character(len=MLEN),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>title</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>A title for the data set</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attcharcnts~2"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attCharCnts</strong>(:)</td>
+<td>=&gt; </td>
+                <td>NULL()</td>
+            <td>
+                <p>length of char attributes</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attintcnts~2"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attIntCnts</strong>(:)</td>
+<td>=&gt; </td>
+                <td>NULL()</td>
+            <td>
+                <p>length of int attributes</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attints"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attInts</strong>(:,:)</td>
+<td>=&gt; </td>
+                <td>NULL()</td>
+            <td>
+                <p>global integer attributes</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attrealcnts~2"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attRealCnts</strong>(:)</td>
+<td>=&gt; </td>
+                <td>NULL()</td>
+            <td>
+                <p>length of real attributes</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-begtime~5"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>begTime</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>hhmmss</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-date~22"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>date</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>yyyymmdd</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-deflate~4"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>deflate</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>gzip compress level</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fid~5"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fid</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>file ID for internal use</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mgrids"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>mGrids</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>total number of grids</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mvars"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>mVars</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>total number of variables</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nattchar"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nAttChar</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Number of char attributes</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nattint"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nAttInt</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Number of int attributes</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nattreal"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nAttReal</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Number of Real attributes</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-prec~2"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>prec</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Desired precision of data</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sd_id~2"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>sd_id</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>file ID for EOS</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tsteps~2"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>tSteps</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>total time steps</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-timeinc~9"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>timeInc</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>time step increment</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vdir"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vdir</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>The positive vertical direction</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-iscyclic"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>isCyclic</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>flag for cyclic for input files</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-isgridset~2"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>isGridSet</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>True only if grid was passed in</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-isopen"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>isOpen</strong></td>
+<td> =</td>
+                <td>.false.</td>
+            <td>
+                <p>flag to check fName is opened or not</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-usevertexcoordinates"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>useVertexCoordinates</strong></td>
+<td> =</td>
+                <td>.false.</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-formatversion"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>FormatVersion</strong></td>
+<td> =</td>
+                <td>1.0</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-attreals"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>attReals</strong>(:,:)</td>
+<td>=&gt; </td>
+                <td>NULL()</td>
+            <td>
+                <p>global real attributes</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grids~2"></span>
+              type(<a href='esmf_cfiogrid.html'>ESMF_CFIOGrid</a>),
+            </td>
+              <td>public,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>grids</strong>(:)</td>
+<td>=&gt; </td>
+                <td>null()</td>
+            <td>
+                <p>CFIO variable grid</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-varobjs"></span>
+              type(<a href='esmf_cfiovarinfo.html'>ESMF_CFIOVarInfo</a>),
+            </td>
+              <td>public,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>varObjs</strong>(:)</td>
+<td>=&gt; </td>
+                <td>null()</td>
+            <td>
+                <p>CFIO variable objects</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clist~2"></span>
+              type(<a href='cnode.html'>cNode</a>),
+            </td>
+              <td>public,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>cList</strong></td>
+<td>=&gt; </td>
+                <td>NULL()</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ilist~2"></span>
+              type(<a href='inode.html'>iNode</a>),
+            </td>
+              <td>public,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>iList</strong></td>
+<td>=&gt; </td>
+                <td>NULL()</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rlist~2"></span>
+              type(<a href='rnode.html'>rNode</a>),
+            </td>
+              <td>public,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>rList</strong></td>
+<td>=&gt; </td>
+                <td>NULL()</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </section>
+    <br>
+    
+
+
+
+    <section>
+    <h3><span class="anchor" id="src"></span>Source Code</h3>
+    <div class="hl codehilite"><pre><span></span><span class="w">      </span><span class="k">type </span><span class="n">ESMF_CFIO</span>
+<span class="c">!         private</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MLEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cfioObjName</span><span class="w">   </span><span class="c">!! name for this CFIO object</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MLEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fName</span><span class="w">         </span><span class="c">!! file name in this CFIO obj.</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MLEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fNameTmplt</span><span class="w">    </span><span class="c">!! file name in this CFIO obj.</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MLEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">expid</span><span class="w">         </span><span class="c">!! Experiment I</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mVars</span><span class="w">                     </span><span class="c">!! total number of variables</span>
+<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_CFIOVarInfo</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">varObjs</span><span class="p">(:)</span><span class="o">=&gt;</span><span class="nb">null</span><span class="p">()</span><span class="w"> </span><span class="c">!! CFIO variable objects</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mGrids</span><span class="w">                    </span><span class="c">!! total number of grids</span>
+<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_CFIOGrid</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grids</span><span class="p">(:)</span><span class="o">=&gt;</span><span class="nb">null</span><span class="p">()</span><span class="w">     </span><span class="c">!! CFIO variable grid</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vdir</span><span class="w">                      </span><span class="c">!! The positive vertical direction</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">date</span><span class="w">                      </span><span class="c">!! yyyymmdd</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">begTime</span><span class="w">                   </span><span class="c">!! hhmmss</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">timeInc</span><span class="w">                   </span><span class="c">!! time step increment</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tSteps</span><span class="w">                    </span><span class="c">!! total time steps</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">deflate</span><span class="w">                   </span><span class="c">!! gzip compress level</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MLEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">title</span><span class="w">    </span><span class="c">!! A title for the data set</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MLEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">source</span><span class="w">   </span><span class="c">!! Source of data, e.g. NASA/GMAO</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MLEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">contact</span><span class="w">  </span><span class="c">!! Who to contact about the data set</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MLEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">history</span><span class="w">  </span><span class="c">!!</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MLEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">convention</span><span class="w"> </span><span class="c">!! CFIO</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MLEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">institution</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MLEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">references</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MLEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comment</span>
+
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nAttChar</span><span class="w"> </span><span class="c">!! Number of char attributes</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nAttReal</span><span class="w"> </span><span class="c">!! Number of Real attributes</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nAttInt</span><span class="w">  </span><span class="c">!! Number of int attributes</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attCharCnts</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">NULL</span><span class="p">()</span><span class="w">       </span><span class="c">!! length of char attributes</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attRealCnts</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">NULL</span><span class="p">()</span><span class="w">       </span><span class="c">!! length of real attributes</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attIntCnts</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">NULL</span><span class="p">()</span><span class="w">        </span><span class="c">!! length of int attributes</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MLEN</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attCharNames</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">NULL</span><span class="p">()</span><span class="c">!! User defined char</span>
+<span class="w">                                                       </span><span class="c">!! attribute name</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MLEN</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attRealNames</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">NULL</span><span class="p">()</span><span class="c">!! Real attribute name</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MLEN</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attIntNames</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">NULL</span><span class="p">()</span><span class="w"> </span><span class="c">!! int attribute name</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">MLEN</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attChars</span><span class="p">(:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">NULL</span><span class="p">()</span><span class="w"> </span><span class="c">!! char attributes</span>
+<span class="w">         </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attReals</span><span class="p">(:,:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">NULL</span><span class="p">()</span><span class="w">           </span><span class="c">!! global real attributes</span>
+<span class="w">         </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">attInts</span><span class="p">(:,:)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">NULL</span><span class="p">()</span><span class="w">         </span><span class="c">!! global integer attributes</span>
+
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">prec</span><span class="w">                         </span><span class="c">!! Desired precision of data</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">fid</span><span class="w">                          </span><span class="c">!! file ID for internal use</span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">sd_id</span><span class="w">                        </span><span class="c">!! file ID for EOS</span>
+<span class="w">         </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">isGridSet</span><span class="w">           </span><span class="c">!! True only if grid was passed in</span>
+<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">iNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">iList</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">NULL</span><span class="p">()</span>
+<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">rNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rList</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">NULL</span><span class="p">()</span>
+<span class="w">         </span><span class="k">type</span><span class="p">(</span><span class="n">cNode</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">cList</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">NULL</span><span class="p">()</span>
+<span class="w">         </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">isOpen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w">             </span><span class="c">!! flag to check fName is opened or not</span>
+<span class="c">!         integer :: nSteps</span>
+<span class="w">         </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">isCyclic</span><span class="w">            </span><span class="c">!! flag for cyclic for input files</span>
+<span class="w">         </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">format</span><span class="w">    </span><span class="c">!! output/input format -- GrADS or SDF(HDF)</span>
+<span class="w">                                        </span><span class="c">!! default is SDF.</span>
+<span class="w">         </span><span class="kt">logical</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">useVertexCoordinates</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">         </span><span class="kt">real</span><span class="w">              </span><span class="kd">::</span><span class="w"> </span><span class="n">FormatVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">      </span><span class="k">end type </span><span class="n">ESMF_CFIO</span>
+</pre></div>
+
+    </section>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-05-29T13:44:04.635271+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

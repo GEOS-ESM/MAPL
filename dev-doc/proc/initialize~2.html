@@ -1,0 +1,643 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Initialize &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Initialize
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">227 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/GenericCplComp.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/genericcplcomp.f90.html'>GenericCplComp.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_genericcplcompmod.html'>MAPL_GenericCplCompMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Initialize</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/initialize~2.html#src">Initialize</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine Initialize(CC, SRC, DST, CLOCK, RC)  
+</h2>
+    
+
+    <p><code>Initialize</code> method for generic couplers.</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-cc~3"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_cplcomp.html'>ESMF_CplComp</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-src"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>SRC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dst"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_state.html'>ESMF_State</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>DST</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-clock~36"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_clock.html'>ESMF_Clock</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>CLOCK</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~154"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>RC</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">subroutine </span><span class="n">Initialize</span><span class="p">(</span><span class="n">CC</span><span class="p">,</span><span class="w"> </span><span class="n">SRC</span><span class="p">,</span><span class="w"> </span><span class="n">DST</span><span class="p">,</span><span class="w"> </span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="p">)</span>
+
+<span class="c">! !ARGUMENTS:</span>
+
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_CplComp</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">CC</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">SRC</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_State</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">DST</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Clock</span><span class="p">)</span><span class="w">        </span><span class="kd">::</span><span class="w"> </span><span class="n">CLOCK</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="w">  </span><span class="n">OUT</span><span class="p">)</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">RC</span>
+
+<span class="c">!EOPI</span>
+
+<span class="c">! ErrLog Variables</span>
+
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">IAm</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">COMP_NAME</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                       </span><span class="kd">::</span><span class="w"> </span><span class="n">STATUS</span>
+
+<span class="c">! Locals</span>
+
+<span class="w">    </span><span class="kt">character</span><span class="w"> </span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">NAME</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_GenericCplState</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">STATE</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_GenericCplWrap</span><span class="w"> </span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">WRAP</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="w">   </span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">TCPL</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="w">   </span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">TCLR</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="w">   </span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">TS</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_TimeInterval</span><span class="w">   </span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">TOFF</span><span class="w"> </span><span class="c">! offset for alarms</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Time</span><span class="w">           </span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">TM0</span><span class="w"> </span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Time</span><span class="w">           </span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">currTime</span><span class="w"> </span><span class="c">! current time of the clock</span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Time</span><span class="w">           </span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">rTime</span><span class="w"> </span>
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Calendar</span><span class="w">       </span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">cal</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">J</span><span class="p">,</span><span class="w"> </span><span class="n">L1</span><span class="p">,</span><span class="w"> </span><span class="n">LN</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">NCPLS</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">DIMS</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">                         </span><span class="kd">::</span><span class="w"> </span><span class="n">PTR1</span><span class="w"> </span><span class="p">(:</span><span class="w">    </span><span class="p">)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">                         </span><span class="kd">::</span><span class="w"> </span><span class="n">PTR2</span><span class="w"> </span><span class="p">(:,:</span><span class="w">  </span><span class="p">)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">                         </span><span class="kd">::</span><span class="w"> </span><span class="n">PTR3</span><span class="w"> </span><span class="p">(:,:,:)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">                         </span><span class="kd">::</span><span class="w"> </span><span class="n">PTR4</span><span class="w"> </span><span class="p">(:,:,:,:)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">                         </span><span class="kd">::</span><span class="w"> </span><span class="n">PTR10</span><span class="p">(:</span><span class="w">    </span><span class="p">)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">                         </span><span class="kd">::</span><span class="w"> </span><span class="n">PTR20</span><span class="p">(:,:</span><span class="w">  </span><span class="p">)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">                         </span><span class="kd">::</span><span class="w"> </span><span class="n">PTR30</span><span class="p">(:,:,:)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">                         </span><span class="kd">::</span><span class="w"> </span><span class="n">PTR40</span><span class="p">(:,:,:,:)</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">OFFSET</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w">                      </span><span class="kd">::</span><span class="w"> </span><span class="n">ungrd</span><span class="p">(:)</span>
+<span class="w">    </span><span class="kt">logical</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">has_ungrd</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w">                      </span><span class="kd">::</span><span class="w"> </span><span class="n">field</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">cplfunc</span>
+<span class="w">    </span><span class="kt">logical</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">isPresent</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">globalOffset</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">specOffset</span>
+<span class="w">    </span><span class="kt">logical</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">clockYetToAdvance</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                               </span><span class="kd">::</span><span class="w"> </span><span class="n">timeStep</span><span class="w"> </span><span class="c">! in seconds</span>
+
+<span class="c">! Begin...</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">SRC</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">DST</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">UNUSED_DUMMY</span><span class="p">(</span><span class="n">CLOCK</span><span class="p">)</span>
+
+<span class="c">! Get the target components name and set-up traceback handle.</span>
+<span class="c">! -----------------------------------------------------------</span>
+
+<span class="w">    </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;MAPL_GenericCplCompInitialize&quot;</span>
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_CplCompGet</span><span class="p">(</span><span class="w"> </span><span class="n">CC</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="n">COMP_NAME</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">COMP_NAME</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">Iam</span>
+
+<span class="c">! Retrieve the pointer to the internal state. It comes in a wrapper.</span>
+<span class="c">! ------------------------------------------------------------------</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_CplCompGetInternalState</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">CC</span><span class="p">,</span><span class="w"> </span><span class="n">WRAP</span><span class="p">,</span><span class="w"> </span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">STATE</span><span class="w">  </span><span class="o">=&gt;</span><span class="w">  </span><span class="n">WRAP</span><span class="p">%</span><span class="n">INTERNAL_STATE</span>
+
+<span class="c">! The number of couplings for this pair</span>
+<span class="c">!--------------------------------------</span>
+
+<span class="w">    </span><span class="n">NCPLS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">DST_SPEC</span><span class="p">)</span>
+
+<span class="w">    </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">NCPLS</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">SRC_SPEC</span><span class="p">),</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span>
+
+<span class="c">! Allocate arrays of ESMF arrays for accumulators</span>
+<span class="c">!-------------------------------------------------</span>
+
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">ACCUMULATORS</span><span class="p">(</span><span class="n">NCPLS</span><span class="p">),</span><span class="w"> </span><span class="nb">STAT</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">ARRAY_COUNT</span><span class="w"> </span><span class="p">(</span><span class="n">NCPLS</span><span class="p">),</span><span class="w"> </span><span class="nb">STAT</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">DO </span><span class="n">J</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">NCPLS</span>
+<span class="w">       </span><span class="k">NULLIFY</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">ARRAY_COUNT</span><span class="p">(</span><span class="n">J</span><span class="p">)%</span><span class="n">ptr1c</span><span class="p">)</span>
+<span class="w">       </span><span class="k">NULLIFY</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">ARRAY_COUNT</span><span class="p">(</span><span class="n">J</span><span class="p">)%</span><span class="n">ptr2c</span><span class="p">)</span>
+<span class="w">       </span><span class="k">NULLIFY</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">ARRAY_COUNT</span><span class="p">(</span><span class="n">J</span><span class="p">)%</span><span class="n">ptr3c</span><span class="p">)</span>
+<span class="w">       </span><span class="k">NULLIFY</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">ARRAY_COUNT</span><span class="p">(</span><span class="n">J</span><span class="p">)%</span><span class="n">ptr4c</span><span class="p">)</span>
+<span class="w">    </span><span class="k">END DO</span>
+<span class="k">    allocate</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">ACCUM_RANK</span><span class="w"> </span><span class="p">(</span><span class="n">NCPLS</span><span class="p">),</span><span class="w"> </span><span class="nb">STAT</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">couplerType</span><span class="p">(</span><span class="n">NCPLS</span><span class="p">),</span><span class="w"> </span><span class="nb">STAT</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="c">! Allocate internal state objects</span>
+<span class="c">! -------------------------------</span>
+
+<span class="w">    </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">CLEAR_INTERVAL</span><span class="w"> </span><span class="p">(</span><span class="n">NCPLS</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">COUPLE_INTERVAL</span><span class="p">(</span><span class="n">NCPLS</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">TIME_TO_CLEAR</span><span class="w">  </span><span class="p">(</span><span class="n">NCPLS</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">TIME_TO_COUPLE</span><span class="w"> </span><span class="p">(</span><span class="n">NCPLS</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="k">allocate</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">ACCUM_COUNT</span><span class="w">     </span><span class="p">(</span><span class="n">NCPLS</span><span class="p">),</span><span class="w"> </span><span class="nb">stat</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="c">! Get clock info</span>
+<span class="c">!---------------</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_ClockGet</span><span class="p">(</span><span class="n">CLOCK</span><span class="p">,</span><span class="w"> </span><span class="n">calendar</span><span class="o">=</span><span class="n">cal</span><span class="p">,</span><span class="w"> </span><span class="n">currTime</span><span class="o">=</span><span class="n">currTime</span><span class="p">,</span><span class="w"> </span><span class="n">timeStep</span><span class="o">=</span><span class="n">TS</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">TM0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">currTime</span>
+
+<span class="w">    </span><span class="k">call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">CC</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;ClockYetToAdvance&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">         </span><span class="n">isPresent</span><span class="o">=</span><span class="n">isPresent</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isPresent</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">CC</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;ClockYetToAdvance&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="k">value</span><span class="o">=</span><span class="n">clockYetToAdvance</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="k">       </span><span class="n">clockYetToAdvance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">    </span><span class="k">endif</span>
+
+<span class="k">    </span><span class="n">globalOffset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">clockYetToAdvance</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       call </span><span class="n">ESMF_TimeIntervalGet</span><span class="p">(</span><span class="n">TS</span><span class="p">,</span><span class="w"> </span><span class="n">S</span><span class="o">=</span><span class="n">timeStep</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="n">globalOffset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">timeStep</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="c">! Initialize the counters to 0. This may do some unnecessary</span>
+<span class="c">!   accumulations immediately after initialize</span>
+<span class="c">!-----------------------------------------------------------</span>
+
+<span class="w">    </span><span class="n">STATE</span><span class="p">%</span><span class="n">ACCUM_COUNT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+
+<span class="w">    </span><span class="k">DO </span><span class="n">J</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">NCPLS</span>
+
+<span class="c">! Get info from the DST spec</span>
+<span class="c">!---------------------------</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_VarSpecGet</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">DST_SPEC</span><span class="p">(</span><span class="n">J</span><span class="p">),</span><span class="w">        </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">ACCMLT_INTERVAL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">CLEAR_INTERVAL</span><span class="p">(</span><span class="n">J</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">COUPLE_INTERVAL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">COUPLE_INTERVAL</span><span class="p">(</span><span class="n">J</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">OFFSET</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="n">specOffset</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">SHORT_NAME</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">NAME</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                                            </span><span class="n">RC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">STATUS</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="c">! Initalize COUPLE ALARM from destination properties</span>
+<span class="c">!---------------------------------------------------</span>
+
+<span class="w">       </span><span class="n">OFFSET</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">specOffset</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">globalOffset</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">TCPL</span><span class="p">,</span><span class="w"> </span><span class="n">S</span><span class="o">=</span><span class="n">STATE</span><span class="p">%</span><span class="n">COUPLE_INTERVAL</span><span class="p">(</span><span class="n">J</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">calendar</span><span class="o">=</span><span class="n">cal</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">TOFF</span><span class="p">,</span><span class="w"> </span><span class="n">S</span><span class="o">=</span><span class="n">OFFSET</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">            </span><span class="n">calendar</span><span class="o">=</span><span class="n">cal</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">       </span><span class="n">rTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TM0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">TOFF</span>
+
+<span class="w">       </span><span class="k">do while</span><span class="w"> </span><span class="p">(</span><span class="n">rTime</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">currTime</span><span class="p">)</span>
+<span class="w">          </span><span class="n">rTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rTime</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">TCPL</span>
+<span class="w">       </span><span class="k">end do</span>
+
+<span class="k">       if</span><span class="w"> </span><span class="p">(</span><span class="nb">associated</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">TIME2CPL_ALARM</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">STATE</span><span class="p">%</span><span class="n">TIME_TO_COUPLE</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">TIME2CPL_ALARM</span>
+<span class="w">          </span><span class="n">STATE</span><span class="p">%</span><span class="n">TIME_TO_CLEAR</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">TIME2CPL_ALARM</span>
+<span class="w">       </span><span class="k">else</span>
+<span class="k">          </span><span class="n">STATE</span><span class="p">%</span><span class="n">TIME_TO_COUPLE</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_AlarmCreate</span><span class="p">(</span><span class="n">NAME</span><span class="o">=</span><span class="s1">&#39;TIME2COUPLE_&#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">COMP_NAME</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;_&#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">),</span><span class="w">   </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">clock</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="n">CLOCK</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">ringInterval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TCPL</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">ringTime</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">rTime</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">sticky</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="w">   </span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">          </span><span class="k">if</span><span class="p">(</span><span class="n">rTime</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">currTime</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             call </span><span class="n">ESMF_AlarmRingerOn</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">TIME_TO_COUPLE</span><span class="p">(</span><span class="n">J</span><span class="p">),</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">);</span><span class="w"> </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="k">end if</span>
+
+<span class="c">! initalize CLEAR ALARM from destination properties</span>
+<span class="c">!--------------------------------------------------</span>
+
+<span class="w">          </span><span class="k">call </span><span class="n">ESMF_TimeIntervalSet</span><span class="p">(</span><span class="n">TCLR</span><span class="p">,</span><span class="w"> </span><span class="n">S</span><span class="o">=</span><span class="n">STATE</span><span class="p">%</span><span class="n">CLEAR_INTERVAL</span><span class="p">(</span><span class="n">J</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">calendar</span><span class="o">=</span><span class="n">cal</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">TCLR</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">TS</span><span class="p">)</span><span class="w"> </span><span class="n">TCLR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TS</span>
+
+<span class="w">          </span><span class="c">!rTime = TM0 + TOFF - TCLR</span>
+<span class="w">          </span><span class="n">rTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TM0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">TOFF</span>
+
+<span class="w">          </span><span class="c">!do while (rTime &lt; currTime) </span>
+<span class="w">             </span><span class="c">!rTime = rTime + TCPL</span>
+<span class="w">          </span><span class="c">!end do</span>
+
+<span class="w">          </span><span class="n">STATE</span><span class="p">%</span><span class="n">TIME_TO_CLEAR</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_AlarmCreate</span><span class="p">(</span><span class="n">NAME</span><span class="o">=</span><span class="s1">&#39;TIME2CLEAR_&#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">COMP_NAME</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="o">//</span><span class="w"> </span><span class="s1">&#39;_&#39;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">NAME</span><span class="p">),</span><span class="w">   </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">clock</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="n">CLOCK</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">ringInterval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TCLR</span><span class="p">,</span><span class="w">    </span><span class="p">&amp;</span><span class="w"> </span>
+<span class="w">               </span><span class="n">ringTime</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">rTime</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">sticky</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">rc</span><span class="o">=</span><span class="n">STATUS</span><span class="w">   </span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">          </span><span class="k">if</span><span class="p">(</span><span class="n">rTime</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">currTime</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             call </span><span class="n">ESMF_AlarmRingerOn</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">TIME_TO_CLEAR</span><span class="p">(</span><span class="n">J</span><span class="p">),</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">);</span><span class="w"> </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="k">end if</span>
+<span class="k">       end if</span>
+
+<span class="c">! Get info from the SRC spec</span>
+<span class="c">!---------------------------</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">MAPL_VarSpecGet</span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">SRC_SPEC</span><span class="p">(</span><span class="n">J</span><span class="p">),</span><span class="w">      </span><span class="p">&amp;</span>
+<span class="w">                            </span><span class="n">DIMS</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="n">DIMS</span><span class="p">,</span><span class="w">      </span><span class="p">&amp;</span>
+<span class="w">                            </span><span class="n">SHORT_NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NAME</span><span class="p">,</span><span class="w">      </span><span class="p">&amp;</span>
+<span class="w">                            </span><span class="n">UNGRIDDED_DIMS</span><span class="o">=</span><span class="n">UNGRD</span><span class="p">,</span><span class="w">   </span><span class="p">&amp;</span>
+<span class="w">                                           </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="c">! We currently make these d1mension assumptions</span>
+<span class="c">!----------------------------------------------</span>
+
+<span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="n">DIMS</span><span class="o">==</span><span class="n">MAPL_DIMSHORZVERT</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">DIMS</span><span class="o">=</span><span class="mi">3</span>
+<span class="w">       </span><span class="k">elseif</span><span class="p">(</span><span class="n">DIMS</span><span class="o">==</span><span class="n">MAPL_DIMSHORZONLY</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">DIMS</span><span class="o">==</span><span class="n">MAPL_DIMSTILETILE</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">DIMS</span><span class="o">=</span><span class="mi">2</span>
+<span class="w">       </span><span class="k">elseif</span><span class="p">(</span><span class="n">DIMS</span><span class="o">==</span><span class="n">MAPL_DIMSVERTONLY</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">DIMS</span><span class="o">==</span><span class="n">MAPL_DIMSTILEONLY</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">DIMS</span><span class="o">=</span><span class="mi">1</span>
+<span class="w">       </span><span class="k">else</span>
+<span class="k">          </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_FAILURE</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if</span>
+
+
+<span class="k">       </span><span class="n">has_ungrd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">associated</span><span class="p">(</span><span class="n">UNGRD</span><span class="p">)</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">has_ungrd</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">DIMS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DIMS</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">UNGRD</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">DIMS</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="s1">&#39;needs informative message&#39;</span><span class="p">)</span><span class="w"> </span><span class="c">! ALT: due to laziness we are supporting only 4 dims</span>
+
+<span class="w">       </span><span class="n">STATE</span><span class="p">%</span><span class="n">ACCUM_RANK</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DIMS</span>
+
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_StateGet</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="p">,</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="s2">&quot;CPLFUNC&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">isPresent</span><span class="o">=</span><span class="n">isPresent</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isPresent</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="o">=</span><span class="s2">&quot;CPLFUNC&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">VALUE</span><span class="o">=</span><span class="n">cplfunc</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">       </span><span class="k">else</span>
+<span class="k">          </span><span class="n">cplfunc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_CplAverage</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="k">       </span><span class="n">state</span><span class="p">%</span><span class="n">couplerType</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cplfunc</span>
+
+<span class="c">! Create Accumulators for 3 dimensions</span>
+<span class="c">!-------------------------------------</span>
+
+<span class="w">       </span><span class="k">select case</span><span class="p">(</span><span class="n">DIMS</span><span class="p">)</span>
+
+<span class="w">       </span><span class="k">case</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="c">! Get SRC pointer, making sure it is allocated.</span>
+<span class="w">          </span><span class="k">call </span><span class="n">MAPL_GetPointer</span><span class="p">(</span><span class="n">SRC</span><span class="p">,</span><span class="w"> </span><span class="n">PTR4</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="p">,</span><span class="w"> </span><span class="n">ALLOC</span><span class="o">=</span><span class="p">.</span><span class="n">TRUE</span><span class="p">.,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="c">! Allocate space for accumulator</span>
+<span class="w">          </span><span class="n">L1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">LBOUND</span><span class="p">(</span><span class="n">PTR4</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">          </span><span class="n">LN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">UBOUND</span><span class="p">(</span><span class="n">PTR4</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">          </span><span class="k">allocate</span><span class="p">(</span><span class="n">PTR40</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">PTR4</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="n">size</span><span class="p">(</span><span class="n">PTR4</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="n">L1</span><span class="p">:</span><span class="n">LN</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">PTR4</span><span class="p">,</span><span class="mi">4</span><span class="p">)),</span><span class="w"> </span><span class="nb">STAT</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">couplerType</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MAPL_CplAverage</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">couplerType</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MAPL_CplAccumulate</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             </span><span class="n">PTR40</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_UNDEF</span>
+<span class="w">          </span><span class="k">else</span>
+<span class="c">! Set accumulator values to zero</span>
+<span class="w">             </span><span class="n">PTR40</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">          </span><span class="k">endif</span>
+<span class="c">! Put pointer in accumulator</span>
+<span class="w">          </span><span class="n">STATE</span><span class="p">%</span><span class="n">ACCUMULATORS</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="o">=</span><span class="n">ESMF_LocalArrayCreate</span><span class="p">(</span><span class="w"> </span><span class="n">PTR40</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span>
+<span class="w">       </span><span class="k">case</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="c">! Get SRC pointer, making sure it is allocated.</span>
+<span class="w">          </span><span class="k">call </span><span class="n">MAPL_GetPointer</span><span class="p">(</span><span class="n">SRC</span><span class="p">,</span><span class="w"> </span><span class="n">PTR3</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="p">,</span><span class="w"> </span><span class="n">ALLOC</span><span class="o">=</span><span class="p">.</span><span class="n">TRUE</span><span class="p">.,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="c">! Allocate space for accumulator</span>
+<span class="w">          </span><span class="n">L1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">LBOUND</span><span class="p">(</span><span class="n">PTR3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">          </span><span class="n">LN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">UBOUND</span><span class="p">(</span><span class="n">PTR3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">          </span><span class="k">allocate</span><span class="p">(</span><span class="n">PTR30</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">PTR3</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="n">size</span><span class="p">(</span><span class="n">PTR3</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="n">L1</span><span class="p">:</span><span class="n">LN</span><span class="p">),</span><span class="w"> </span><span class="nb">STAT</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">couplerType</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MAPL_CplAverage</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">couplerType</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MAPL_CplAccumulate</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             </span><span class="n">PTR30</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_UNDEF</span>
+<span class="w">          </span><span class="k">else</span>
+<span class="c">! Set accumulator values to zero</span>
+<span class="w">             </span><span class="n">PTR30</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">          </span><span class="k">endif</span>
+<span class="c">! Put pointer in accumulator</span>
+<span class="w">          </span><span class="n">STATE</span><span class="p">%</span><span class="n">ACCUMULATORS</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="o">=</span><span class="n">ESMF_LocalArrayCreate</span><span class="p">(</span><span class="w"> </span><span class="n">PTR30</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span>
+<span class="w">       </span><span class="k">case</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">MAPL_GetPointer</span><span class="p">(</span><span class="n">SRC</span><span class="p">,</span><span class="w"> </span><span class="n">PTR2</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="p">,</span><span class="w"> </span><span class="n">ALLOC</span><span class="o">=</span><span class="p">.</span><span class="n">TRUE</span><span class="p">.,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="k">allocate</span><span class="p">(</span><span class="n">PTR20</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">PTR2</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="n">size</span><span class="p">(</span><span class="n">PTR2</span><span class="p">,</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="nb">STAT</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">couplerType</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MAPL_CplAverage</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">couplerType</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MAPL_CplAccumulate</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             </span><span class="n">PTR20</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_UNDEF</span>
+<span class="w">          </span><span class="k">else</span>
+<span class="k">             </span><span class="n">PTR20</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">          </span><span class="k">end if</span>
+<span class="k">          </span><span class="n">STATE</span><span class="p">%</span><span class="n">ACCUMULATORS</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="o">=</span><span class="n">ESMF_LocalArrayCreate</span><span class="p">(</span><span class="w"> </span><span class="n">PTR20</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">       </span><span class="k">case</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">          </span><span class="k">call </span><span class="n">MAPL_GetPointer</span><span class="p">(</span><span class="n">SRC</span><span class="p">,</span><span class="w"> </span><span class="n">PTR1</span><span class="p">,</span><span class="w"> </span><span class="n">NAME</span><span class="p">,</span><span class="w"> </span><span class="n">ALLOC</span><span class="o">=</span><span class="p">.</span><span class="n">TRUE</span><span class="p">.,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="k">allocate</span><span class="p">(</span><span class="n">PTR10</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">PTR1</span><span class="p">)),</span><span class="w"> </span><span class="nb">STAT</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">STATE</span><span class="p">%</span><span class="n">couplerType</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MAPL_CplAverage</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">STATE</span><span class="p">%</span><span class="n">couplerType</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">MAPL_CplAccumulate</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">             </span><span class="n">PTR10</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPL_UNDEF</span>
+<span class="w">          </span><span class="k">else</span>
+<span class="k">             </span><span class="n">PTR10</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">          </span><span class="k">end if</span>
+<span class="k">          </span><span class="n">STATE</span><span class="p">%</span><span class="n">ACCUMULATORS</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="o">=</span><span class="n">ESMF_LocalArrayCreate</span><span class="p">(</span><span class="w"> </span><span class="n">PTR10</span><span class="p">,</span><span class="w"> </span><span class="n">RC</span><span class="o">=</span><span class="n">STATUS</span><span class="p">)</span>
+<span class="w">          </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span>
+
+<span class="w">       </span><span class="k">case </span><span class="n">default</span>
+<span class="w">          </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_FAILURE</span><span class="p">)</span>
+
+<span class="w">       </span><span class="k">end select</span>
+<span class="k">    end do</span>
+
+<span class="k">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">Initialize</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-05-29T13:44:04.635271+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>
