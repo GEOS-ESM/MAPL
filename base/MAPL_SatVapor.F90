@@ -337,13 +337,12 @@ contains
 
 ! !INTERFACE:
 
-!    function MAPL_EQsat(TL,PL,DQ,OverIce,UseRamp,Ramp,Pascals) result(QS)
+!    function MAPL_EQsat(TL,PL,DQ,OverIce,UseRamp,Ramp) result(QS)
 !
 ! !ARGUMENTS:
 !
 !      real,               intent(IN)  :: TL      ! Temperature in Kelvins.
-!      real,     optional, intent(IN)  :: PL      ! Air pressure in hectopascals (by default)
-                                                  ! or pascals if the optional Pascals is set
+!      real,     optional, intent(IN)  :: PL      ! Air pressure in Pascals
 !      real,     optional, intent(OUT) :: DQ      ! Derivative of result wrt TL.
 !      logical,  optional, intent(IN)  :: OverIce ! If set, result is over ice;
                                                   ! otherwise it is over liquid
@@ -353,12 +352,7 @@ contains
                                                   ! *Celsius*) below which an ice calculation
                                                   ! is done, ramping to 0°C where liquid
                                                   ! is used. This setting overrides OverIce.
-!      logical,  optional, intent(IN)  :: Pascals ! If TRUE, pressure is in pascals
-                                                  ! else it in millibars. By default,
-                                                  ! the assumption is that pressure
-                                                  ! is passed in in hectopascals to
-                                                  ! emulate GEOS_QSAT
-!      real                            :: QS      ! Result is in pascals for pressure
+!      real                            :: QS      ! Result is in Pascals for pressure
                                                   ! otherwise, nondimensional.
 !
 !    Overloads:
@@ -387,14 +381,9 @@ contains
 !    OverIce (\textit{vide infra}).
 ! \newline
 
-!    Pressures can be passed in as hectopascals (default) or as pascals if an optional Pascals
-!    arguement is provided. All temperatures in Kelvins, except Ramp which is
+!    Pressures are in Pascals
+!    All temperatures in Kelvins, except Ramp which is
 !    supplied in degrees Celsius.
-! \newline
-
-!    If the logical argument Pascals is supplied and is .FALSE., the pressure is assumed
-!    to be in millibars and is converted to pascals internally. If .TRUE., the pressure
-!    is assumed to be in pascals. All internal calculations are done in pascals.
 ! \newline
 
 !    The choice of saturation vapor pressure formulation is set with MAPL\_EQsatSET.
@@ -449,26 +438,25 @@ contains
 #define EX QS
 #define DX DQ
 #define KIND_ 4
-  recursive function QSAT0(TL,PL,DQ,OverIce,UseRamp,Ramp,Pascals) result(QS)
-    real(kind=REAL32),              intent(IN) :: TL
-    real(kind=REAL32), optional,    intent(IN) :: PL
-    real(kind=REAL32), optional,    intent(OUT):: DQ
-    logical,optional,    intent(IN) :: OverIce
-    logical,optional,    intent(IN) :: UseRamp
-    real(kind=REAL32), optional,    intent(IN) :: Ramp
-    logical,optional,    intent(IN) :: Pascals
-    real(kind=REAL32)                          :: QS
+  recursive function QSAT0(TL,PL,DQ,OverIce,UseRamp,Ramp) result(QS)
+    real(kind=REAL32),           intent(IN)  :: TL
+    real(kind=REAL32), optional, intent(IN)  :: PL
+    real(kind=REAL32), optional, intent(OUT) :: DQ
+    logical,           optional, intent(IN)  :: OverIce
+    logical,           optional, intent(IN)  :: UseRamp
+    real(kind=REAL32), optional, intent(IN)  :: Ramp
+    real(kind=REAL32)                        :: QS
 
 
-    real(kind=REAL32)    :: TI,W
-    real(kind=REAL32)    :: DD, TT, EF
-    real(kind=REAL32)    :: DDQ
-    integer   :: IT
-    logical   :: OverLqu
+    real(kind=REAL32) :: TI,W
+    real(kind=REAL32) :: DD, TT, EF
+    real(kind=REAL32) :: DDQ
+    integer           :: IT
+    logical           :: OverLqu
 
-    logical   :: UseRamp_
-    real(kind=REAL32)    :: Ramp_
-    real(kind=REAL32)    :: PP, URAMP, QQ, QI, DQQ, DQI
+    logical           :: UseRamp_
+    real(kind=REAL32) :: Ramp_
+    real(kind=REAL32) :: PP, URAMP, QQ, QI, DQQ, DQI
 
     if(present(UseRamp)) then
        UseRamp_ = UseRamp
@@ -487,15 +475,7 @@ contains
     if(present(OverIce)) OverLqu=.not.OverIce
 
     if (present(PL)) then
-       if (present(Pascals)) then
-          if (Pascals) then
-             PP = PX
-          else
-             PP = PX * 100.
-          end if
-       else
-          PP = PX * 100.
-       end if
+       PP = PX
     end if
 
     if(UseRamp_) then
@@ -514,26 +494,25 @@ contains
 #undef  KIND_
 #define KIND_ 8
 
-  recursive function QSATD0(TL,PL,DQ,OverIce,UseRamp,Ramp,Pascals) result(QS)
-    real(kind=REAL64),              intent(IN) :: TL
-    real(kind=REAL64), optional,    intent(IN) :: PL
-    real(kind=REAL64), optional,    intent(OUT):: DQ
-    logical,optional,    intent(IN) :: OverIce
-    logical,optional,    intent(IN) :: UseRamp
-    real(kind=REAL64), optional,    intent(IN) :: Ramp
-    logical,optional,    intent(IN) :: Pascals
-    real(kind=REAL64)                          :: QS
+  recursive function QSATD0(TL,PL,DQ,OverIce,UseRamp,Ramp) result(QS)
+    real(kind=REAL64),           intent(IN)  :: TL
+    real(kind=REAL64), optional, intent(IN)  :: PL
+    real(kind=REAL64), optional, intent(OUT) :: DQ
+    logical,           optional, intent(IN)  :: OverIce
+    logical,           optional, intent(IN)  :: UseRamp
+    real(kind=REAL64), optional, intent(IN)  :: Ramp
+    real(kind=REAL64)                        :: QS
 
 
-    real(kind=REAL64)    :: TI,W
-    real(kind=REAL64)    :: DD, TT, EF
-    real(kind=REAL64)    :: DDQ
-    integer   :: IT
-    logical   :: OverLqu
+    real(kind=REAL64) :: TI,W
+    real(kind=REAL64) :: DD, TT, EF
+    real(kind=REAL64) :: DDQ
+    integer           :: IT
+    logical           :: OverLqu
 
-    logical   :: UseRamp_
-    real(kind=REAL64)    :: Ramp_
-    real(kind=REAL64)    :: PP, URAMP, QQ, QI, DQQ, DQI
+    logical           :: UseRamp_
+    real(kind=REAL64) :: Ramp_
+    real(kind=REAL64) :: PP, URAMP, QQ, QI, DQQ, DQI
 
     if(present(UseRamp)) then
        UseRamp_ = UseRamp
@@ -552,15 +531,7 @@ contains
     if(present(OverIce)) OverLqu=.not.OverIce
 
     if (present(PL)) then
-       if (present(Pascals)) then
-          if (Pascals) then
-             PP = PX
-          else
-             PP = PX * 100.D0
-          end if
-       else
-          PP = PX * 100.D0
-       end if
+       PP = PX
     end if
 
     if(UseRamp_) then
@@ -589,26 +560,25 @@ contains
 #undef  KIND_
 #define KIND_ 4
 
-   function QSAT1(TL,PL,DQ,OverIce,UseRamp,Ramp,Pascals) result(QS)
-    real(kind=REAL32),              intent(IN) :: TL(:)
-    real(kind=REAL32), optional,    intent(IN) :: PL(:)
-    real(kind=REAL32), optional,    intent(OUT):: DQ(:)
-    logical,optional,    intent(IN) :: OverIce
-    logical,optional,    intent(IN) :: UseRamp
-    real(kind=REAL32), optional,    intent(IN) :: Ramp
-    logical,optional,    intent(IN) :: Pascals
-    real(kind=REAL32)                          :: QS(SIZE(TL,1))
+   function QSAT1(TL,PL,DQ,OverIce,UseRamp,Ramp) result(QS)
+    real(kind=REAL32),           intent(IN)  :: TL(:)
+    real(kind=REAL32), optional, intent(IN)  :: PL(:)
+    real(kind=REAL32), optional, intent(OUT) :: DQ(:)
+    logical,           optional, intent(IN)  :: OverIce
+    logical,           optional, intent(IN)  :: UseRamp
+    real(kind=REAL32), optional, intent(IN)  :: Ramp
+    real(kind=REAL32)                        :: QS(SIZE(TL,1))
 
-    integer   :: I
-    real(kind=REAL32)    :: TI,W
-    real(kind=REAL32)    :: DD, TT, EF
-    real(kind=REAL32)    :: DDQ
-    integer   :: IT
-    logical   :: OverLqu
+    integer           :: I
+    real(kind=REAL32) :: TI,W
+    real(kind=REAL32) :: DD, TT, EF
+    real(kind=REAL32) :: DDQ
+    integer           :: IT
+    logical           :: OverLqu
 
-    logical   :: UseRamp_
-    real(kind=REAL32)    :: Ramp_
-    real(kind=REAL32)    :: PP, URAMP, QQ, QI, DQQ, DQI
+    logical           :: UseRamp_
+    real(kind=REAL32) :: Ramp_
+    real(kind=REAL32) :: PP, URAMP, QQ, QI, DQQ, DQI
 
     if(present(UseRamp)) then
        UseRamp_ = UseRamp
@@ -629,15 +599,7 @@ contains
     do I=1,size(TL,1)
 
        if (present(PL)) then
-          if (present(Pascals)) then
-             if (Pascals) then
-                PP = PX
-             else
-                PP = PX * 100.
-             end if
-          else
-             PP = PX * 100.
-          end if
+          PP = PX
        end if
 
        if(UseRamp_) then
@@ -657,26 +619,25 @@ contains
 #undef  KIND_
 #define KIND_ 8
 
-   function QSATD1(TL,PL,DQ,OverIce,UseRamp,Ramp,Pascals) result(QS)
-    real(kind=REAL64),              intent(IN) :: TL(:)
-    real(kind=REAL64), optional,    intent(IN) :: PL(:)
-    real(kind=REAL64), optional,    intent(OUT):: DQ(:)
-    logical,optional,    intent(IN) :: OverIce
-    logical,optional,    intent(IN) :: UseRamp
-    real(kind=REAL64), optional,    intent(IN) :: Ramp
-    logical,optional,    intent(IN) :: Pascals
-    real(kind=REAL64)                          :: QS(SIZE(TL,1))
+   function QSATD1(TL,PL,DQ,OverIce,UseRamp,Ramp) result(QS)
+    real(kind=REAL64),           intent(IN)  :: TL(:)
+    real(kind=REAL64), optional, intent(IN)  :: PL(:)
+    real(kind=REAL64), optional, intent(OUT) :: DQ(:)
+    logical,           optional, intent(IN)  :: OverIce
+    logical,           optional, intent(IN)  :: UseRamp
+    real(kind=REAL64), optional, intent(IN)  :: Ramp
+    real(kind=REAL64)                        :: QS(SIZE(TL,1))
 
-    integer   :: I
-    real(kind=REAL64)    :: TI,W
-    real(kind=REAL64)    :: DDQ
-    real(kind=REAL64)    :: DD, TT, EF
-    integer   :: IT
-    logical   :: OverLqu
+    integer           :: I
+    real(kind=REAL64) :: TI,W
+    real(kind=REAL64) :: DDQ
+    real(kind=REAL64) :: DD, TT, EF
+    integer           :: IT
+    logical           :: OverLqu
 
-    logical   :: UseRamp_
-    real(kind=REAL64)    :: Ramp_
-    real(kind=REAL64)    :: PP, URAMP, QQ, QI, DQQ, DQI
+    logical           :: UseRamp_
+    real(kind=REAL64) :: Ramp_
+    real(kind=REAL64) :: PP, URAMP, QQ, QI, DQQ, DQI
 
     if(present(UseRamp)) then
        UseRamp_ = UseRamp
@@ -697,15 +658,7 @@ contains
     do I=1,size(TL,1)
 
        if (present(PL)) then
-          if (present(Pascals)) then
-             if (Pascals) then
-                PP = PX
-             else
-                PP = PX * 100.D0
-             end if
-          else
-             PP = PX * 100.D0
-          end if
+          PP = PX
        end if
 
        if(UseRamp_) then
@@ -735,26 +688,25 @@ contains
 #undef  KIND_
 #define KIND_ 4
 
-   function QSAT2(TL,PL,DQ,OverIce,UseRamp,Ramp,Pascals) result(QS)
-    real(kind=REAL32),              intent(IN) :: TL(:,:)
-    real(kind=REAL32), optional,    intent(IN) :: PL(:,:)
-    real(kind=REAL32), optional,    intent(OUT):: DQ(:,:)
-    logical,optional,    intent(IN) :: OverIce
-    logical,optional,    intent(IN) :: UseRamp
-    real(kind=REAL32), optional,    intent(IN) :: Ramp
-    logical,optional,    intent(IN) :: Pascals
-    real(kind=REAL32)    :: QS(SIZE(TL,1),SIZE(TL,2))
+   function QSAT2(TL,PL,DQ,OverIce,UseRamp,Ramp) result(QS)
+    real(kind=REAL32),           intent(IN)  :: TL(:,:)
+    real(kind=REAL32), optional, intent(IN)  :: PL(:,:)
+    real(kind=REAL32), optional, intent(OUT) :: DQ(:,:)
+    logical,           optional, intent(IN)  :: OverIce
+    logical,           optional, intent(IN)  :: UseRamp
+    real(kind=REAL32), optional, intent(IN)  :: Ramp
+    real(kind=REAL32)                        :: QS(SIZE(TL,1),SIZE(TL,2))
 
-    integer   :: I, J
-    real(kind=REAL32)    :: TI,W
-    real(kind=REAL32)    :: DDQ
-    real(kind=REAL32)    :: DD, TT, EF
-    integer   :: IT
-    logical   :: OverLqu
+    integer           :: I, J
+    real(kind=REAL32) :: TI,W
+    real(kind=REAL32) :: DDQ
+    real(kind=REAL32) :: DD, TT, EF
+    integer           :: IT
+    logical           :: OverLqu
 
-    logical   :: UseRamp_
-    real(kind=REAL32)    :: Ramp_
-    real(kind=REAL32)    :: PP, URAMP, QQ, QI, DQQ, DQI
+    logical           :: UseRamp_
+    real(kind=REAL32) :: Ramp_
+    real(kind=REAL32) :: PP, URAMP, QQ, QI, DQQ, DQI
 
     if(present(UseRamp)) then
        UseRamp_ = UseRamp
@@ -776,15 +728,7 @@ contains
        do I=1,size(TL,1)
 
           if (present(PL)) then
-             if (present(Pascals)) then
-                if (Pascals) then
-                   PP = PX
-                else
-                   PP = PX * 100.
-                end if
-             else
-                PP = PX * 100.
-             end if
+             PP = PX
           end if
 
           if(UseRamp_) then
@@ -805,26 +749,25 @@ contains
 #undef  KIND_
 #define KIND_ 8
 
-   function QSATD2(TL,PL,DQ,OverIce,UseRamp,Ramp,Pascals) result(QS)
-    real(kind=REAL64),              intent(IN) :: TL(:,:)
-    real(kind=REAL64), optional,    intent(IN) :: PL(:,:)
-    real(kind=REAL64), optional,    intent(OUT):: DQ(:,:)
-    logical,optional,    intent(IN) :: OverIce
-    logical,optional,    intent(IN) :: UseRamp
-    real(kind=REAL64), optional,    intent(IN) :: Ramp
-    logical,optional,    intent(IN) :: Pascals
-    real(kind=REAL64)    :: QS(SIZE(TL,1),SIZE(TL,2))
+   function QSATD2(TL,PL,DQ,OverIce,UseRamp,Ramp) result(QS)
+    real(kind=REAL64),           intent(IN)  :: TL(:,:)
+    real(kind=REAL64), optional, intent(IN)  :: PL(:,:)
+    real(kind=REAL64), optional, intent(OUT) :: DQ(:,:)
+    logical,           optional, intent(IN)  :: OverIce
+    logical,           optional, intent(IN)  :: UseRamp
+    real(kind=REAL64), optional, intent(IN)  :: Ramp
+    real(kind=REAL64)                        :: QS(SIZE(TL,1),SIZE(TL,2))
 
-    integer   :: I, J
-    real(kind=REAL64)    :: TI,W
-    real(kind=REAL64)    :: DDQ
-    real(kind=REAL64)    :: DD, TT, EF
-    integer   :: IT
-    logical   :: OverLqu
+    integer           :: I, J
+    real(kind=REAL64) :: TI,W
+    real(kind=REAL64) :: DDQ
+    real(kind=REAL64) :: DD, TT, EF
+    integer           :: IT
+    logical           :: OverLqu
 
-    logical   :: UseRamp_
-    real(kind=REAL64)    :: Ramp_
-    real(kind=REAL64)    :: PP, URAMP, QQ, QI, DQQ, DQI
+    logical           :: UseRamp_
+    real(kind=REAL64) :: Ramp_
+    real(kind=REAL64) :: PP, URAMP, QQ, QI, DQQ, DQI
 
     if(present(UseRamp)) then
        UseRamp_ = UseRamp
@@ -846,15 +789,7 @@ contains
        do I=1,size(TL,1)
 
           if (present(PL)) then
-             if (present(Pascals)) then
-                if (Pascals) then
-                   PP = PX
-                else
-                   PP = PX * 100.D0
-                end if
-             else
-                PP = PX * 100.D0
-             end if
+             PP = PX
           end if
 
           if(UseRamp_) then
@@ -885,26 +820,25 @@ contains
 #undef  KIND_
 #define KIND_ 4
 
-   function QSAT3(TL,PL,DQ,OverIce,UseRamp,Ramp,Pascals) result(QS)
-    real(kind=REAL32),              intent(IN) :: TL(:,:,:)
-    real(kind=REAL32), optional,    intent(IN) :: PL(:,:,:)
-    real(kind=REAL32), optional,    intent(OUT):: DQ(:,:,:)
-    logical,optional,    intent(IN) :: OverIce
-    logical,optional,    intent(IN) :: UseRamp
-    real(kind=REAL32), optional,    intent(IN) :: Ramp
-    logical,optional,    intent(IN) :: Pascals
-    real(kind=REAL32)    :: QS(SIZE(TL,1),SIZE(TL,2),SIZE(TL,3))
+   function QSAT3(TL,PL,DQ,OverIce,UseRamp,Ramp) result(QS)
+    real(kind=REAL32),           intent(IN)  :: TL(:,:,:)
+    real(kind=REAL32), optional, intent(IN)  :: PL(:,:,:)
+    real(kind=REAL32), optional, intent(OUT) :: DQ(:,:,:)
+    logical,           optional, intent(IN)  :: OverIce
+    logical,           optional, intent(IN)  :: UseRamp
+    real(kind=REAL32), optional, intent(IN)  :: Ramp
+    real(kind=REAL32)                        :: QS(SIZE(TL,1),SIZE(TL,2),SIZE(TL,3))
 
-    integer   :: I, J, K
-    real(kind=REAL32)    :: TI,W
-    real(kind=REAL32)    :: DDQ
-    real(kind=REAL32)    :: DD, TT, EF
-    integer   :: IT
-    logical   :: OverLqu
+    integer           :: I, J, K
+    real(kind=REAL32) :: TI,W
+    real(kind=REAL32) :: DDQ
+    real(kind=REAL32) :: DD, TT, EF
+    integer           :: IT
+    logical           :: OverLqu
 
-    logical   :: UseRamp_
-    real(kind=REAL32)    :: Ramp_
-    real(kind=REAL32)    :: PP, URAMP, QQ, QI, DQQ, DQI
+    logical           :: UseRamp_
+    real(kind=REAL32) :: Ramp_
+    real(kind=REAL32) :: PP, URAMP, QQ, QI, DQQ, DQI
 
     if(present(UseRamp)) then
        UseRamp_ = UseRamp
@@ -927,15 +861,7 @@ contains
           do I=1,size(TL,1)
 
              if (present(PL)) then
-                if (present(Pascals)) then
-                   if (Pascals) then
-                      PP = PX
-                   else
-                      PP = PX * 100.
-                   end if
-                else
-                   PP = PX * 100.
-                end if
+                PP = PX
              end if
 
              if(UseRamp_) then
@@ -957,26 +883,25 @@ contains
 #undef  KIND_
 #define KIND_ 8
 
-   function QSATD3(TL,PL,DQ,OverIce,UseRamp,Ramp,Pascals) result(QS)
-    real(kind=REAL64),              intent(IN) :: TL(:,:,:)
-    real(kind=REAL64), optional,    intent(IN) :: PL(:,:,:)
-    real(kind=REAL64), optional,    intent(OUT):: DQ(:,:,:)
-    logical,optional,    intent(IN) :: OverIce
-    logical,optional,    intent(IN) :: UseRamp
-    real(kind=REAL64), optional,    intent(IN) :: Ramp
-    logical,optional,    intent(IN) :: Pascals
-    real(kind=REAL64)    :: QS(SIZE(TL,1),SIZE(TL,2),SIZE(TL,3))
+   function QSATD3(TL,PL,DQ,OverIce,UseRamp,Ramp) result(QS)
+    real(kind=REAL64),           intent(IN)  :: TL(:,:,:)
+    real(kind=REAL64), optional, intent(IN)  :: PL(:,:,:)
+    real(kind=REAL64), optional, intent(OUT) :: DQ(:,:,:)
+    logical,           optional, intent(IN)  :: OverIce
+    logical,           optional, intent(IN)  :: UseRamp
+    real(kind=REAL64), optional, intent(IN)  :: Ramp
+    real(kind=REAL64)                        :: QS(SIZE(TL, 1),SIZE(TL,2),SIZE(TL,3))
 
-    integer   :: I, J, K
-    real(kind=REAL64)    :: TI,W
-    real(kind=REAL64)    :: DDQ
-    real(kind=REAL64)    :: DD, TT, EF
-    integer   :: IT
-    logical   :: OverLqu
+    integer           :: I, J, K
+    real(kind=REAL64) :: TI,W
+    real(kind=REAL64) :: DDQ
+    real(kind=REAL64) :: DD, TT, EF
+    integer           :: IT
+    logical           :: OverLqu
 
-    logical   :: UseRamp_
-    real(kind=REAL64)    :: Ramp_
-    real(kind=REAL64)    :: PP, URAMP, QQ, QI, DQQ, DQI
+    logical           :: UseRamp_
+    real(kind=REAL64) :: Ramp_
+    real(kind=REAL64) :: PP, URAMP, QQ, QI, DQQ, DQI
 
     if(present(UseRamp)) then
        UseRamp_ = UseRamp
@@ -999,15 +924,7 @@ contains
           do I=1,size(TL,1)
 
              if (present(PL)) then
-                if (present(Pascals)) then
-                   if (Pascals) then
-                      PP = PX
-                   else
-                      PP = PX * 100.D0
-                   end if
-                else
-                   PP = PX * 100.D0
-                end if
+                PP = PX
              end if
 
              if(UseRamp_) then

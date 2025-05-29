@@ -47,26 +47,26 @@ else  ! Use exact formulation
 
    if (TI <= URAMP) then
       if (present(PL)) then
-         EX = FUNC(TX,PL=PP,DQ=DDQ,OverIce=.true.,Pascals=.true.)
+         EX = FUNC(TX,PL=PP,DQ=DDQ,OverIce=.true.)
       else
-         EX = FUNC(TX,DQ=DDQ,OverIce=.true.,Pascals=.true.)
+         EX = FUNC(TX,DQ=DDQ,OverIce=.true.)
       endif
    else if (TI >= 0.0) then
       if (present(PL)) then
-         EX = FUNC(TX,PL=PP,DQ=DDQ,OverIce=.false.,Pascals=.true.)
+         EX = FUNC(TX,PL=PP,DQ=DDQ,OverIce=.false.)
       else
-         EX = FUNC(TX,DQ=DDQ,OverIce=.false.,Pascals=.true.)
+         EX = FUNC(TX,DQ=DDQ,OverIce=.false.)
       endif
    else
       if (present(PL)) then
-         QQ = FUNC(TX,PL=PP,DQ=DQQ,OverIce=.false.,Pascals=.true.)
-         QI = FUNC(TX,PL=PP,DQ=DQI,OverIce=.true.,Pascals=.true.)
+         QQ = FUNC(TX,PL=PP,DQ=DQQ,OverIce=.false.)
+         QI = FUNC(TX,PL=PP,DQ=DQI,OverIce=.true.)
          TI = TI/URAMP
          DDQ = TI*(DQI - DQQ) + DQQ
          EX = TI*( QI -  QQ) +  QQ
       else
-         QQ = FUNC(TX,DQ=DQQ,OverIce=.false.,Pascals=.true.)
-         QI = FUNC(TX,DQ=DQI,OverIce=.true.,Pascals=.true.)
+         QQ = FUNC(TX,DQ=DQQ,OverIce=.false.)
+         QI = FUNC(TX,DQ=DQI,OverIce=.true.)
          TI = TI/URAMP
          DDQ = TI*(DQI - DQQ) + DQQ
          EX = TI*( QI -  QQ) +  QQ
