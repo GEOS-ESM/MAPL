@@ -880,7 +880,10 @@ CONTAINS
         if (trim(item%file_template) == "/dev/null") then
            _RETURN(_SUCCESS)
         end if
-        filename = item%filestream%find_any_file(current_time, _RC)
+        filename = item%filestream%find_any_file(current_time, item%fail_on_missing_file, _RC)
+        if (.not.(item%fail_on_missing_file) .and. filename == 'NONE') then
+           _RETURN(_SUCCESS)
+        end if
         collection => DataCollections%at(item%pfioCollection_id)
         metadata => collection%find(filename,_RC)
         item%file_metadata = metadata
