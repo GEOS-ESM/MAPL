@@ -270,7 +270,7 @@ contains
     type(ESMF_State), pointer      :: exptmp (:)
     type(ESMF_State)               :: expsrc, expdst
     type(ESMF_Time)                :: StartTime
-    type(ESMF_Time)                :: EndTime
+    type(ESMF_Time)                :: EndTime  ! Added for GCHP adjoint
     type(ESMF_Time)                :: CurrTime
     type(ESMF_Time)                ::  RingTime
     type(ESMF_Time)                ::   RefTime
@@ -278,7 +278,7 @@ contains
     type(ESMF_Time)                :: nextMonth
     type(ESMF_TimeInterval)        :: oneMonth, dur
     type(ESMF_TimeInterval)        :: Frequency
-    type(ESMF_TimeInterval)        :: OneSecond
+    type(ESMF_TimeInterval)        :: OneSecond ! Added for GCHP adjoint
     type(ESMF_Array)               :: array
     type(ESMF_Field)               :: field,f_extra
     type(ESMF_Calendar)            ::  cal
@@ -430,11 +430,9 @@ contains
     character(len=:), allocatable :: uppercase_algorithm
     character(len=2) :: tmpchar
 
-
-    ! For GCHP adjoint
+    ! Added for GCHP adjoint
     type(ESMF_Time)                :: debugTime
     type(ESMF_TimeInterval)        :: timeStep
-    character(len=ESMF_MAXSTR)     :: TimeString
     logical                        :: ringing
     integer                        :: alarmCount
     integer                        :: reverseTime
@@ -561,7 +559,7 @@ contains
     call ESMF_ConfigGetAttribute(config, value=intstate%version,          &
                                          label='VERSION:', default=0, _RC)
 
-    ! Are we running the GCHP adjoint?
+    ! Added for GCHP adjoint
     call ESMF_ConfigGetAttribute(config, value=reverseTime,                    &
                                          label="REVERSE_TIME:", default=0, _RC)
 
@@ -572,6 +570,8 @@ contains
        print *, 'Descr: ',trim(INTSTATE%expdsc)
        print *, 'DisableSubVmChecks:', disableSubVmChecks
        print *
+
+       ! Added for GCHP adjoint
        if (reverseTime .eq. 1) THEN
           print *, 'REVERSE_TIME = "',  reverseTime, '"'
        endif
@@ -1296,7 +1296,7 @@ contains
 ! ------------------------------------------------------------
        if (RefTime == startTime) then
           if (list(n)%backwards) then
-             RingTime = RefTime
+             RingTime = RefTime       ! Added for GCHP adjoint
           else
              RingTime = RefTime + Frequency
           endif
@@ -1304,15 +1304,17 @@ contains
 !
        if (RingTime < currTime .and. sec /= 0 ) then
           if (list(n)%backwards) then
-             RingTime = RingTime - (INT((currTime - RingTime)/frequency)+1)*frequency
+             RingTime = RingTime - (INT((currTime - RingTime)/frequency)+1)*frequency ! Added for GCHP adjoint
           else
              RingTime = RingTime + (INT((currTime - RingTime)/frequency)+1)*frequency
           endif
        endif
+
+       ! Added for GCHP
        if(.true. .and.  MAPL_AM_I_ROOT() ) then
           write(6,*) "Setting history alarm for species ", n
 
-          call ESMF_TimeGet  ( RingTime, timeString=tmpstring, rc=status ) ; _VERIFY(STATUS)
+          call ESMF_TimeGet  ( RingTime, timeString=tmpstring, _RC )
 
           read(tmpstring( 1: 4),'(i4.4)') year
           read(tmpstring( 6: 7),'(i2.2)') month
@@ -1322,15 +1324,15 @@ contains
           write(6,'(1X,"RingTime: ",i4.4, "/", i2.2, "/", i2.2, "T", i2.2, ":", i2.2, "   backwards:",L1)') &
                year, month, day, hour, minute, list(n)%backwards
 
-          call ESMF_ClockGet(clock, currtime=debugtime, timeStep=timestep,rc=status) ; _VERIFY(STATUS)
-          call ESMF_TimeIntervalGet  ( timestep, h=hour,m=minute, rc=status ) ; _VERIFY(STATUS)
+          call ESMF_ClockGet(clock, currtime=debugtime, timeStep=timestep, _RC )
+          call ESMF_TimeIntervalGet  ( timestep, h=hour,m=minute, _RC )
 
           if (hour < 0 .or. minute < 0) then 
              write(6,'("Clock Timestep = -", i2.2, ":", i2.2)') hour, abs(minute)
           else
              write(6,'("Clock Timestep = ", i2.2, ":", i2.2)') hour, abs(minute)
           end if
-          call ESMF_TimeGet  ( DebugTime, timeString=tmpstring, rc=status ) ; _VERIFY(STATUS)
+          call ESMF_TimeGet  ( DebugTime, timeString=tmpstring, _RC )
 
           read(tmpstring( 1: 4),'(i4.4)') year
           read(tmpstring( 6: 7),'(i2.2)') month
@@ -1340,18 +1342,18 @@ contains
           write(6,'(1X,"Current Time: ",i4.4, "/", i2.2, "/", i2.2, "T", i2.2, ":", i2.2, "   backwards:",L1)') &
                year, month, day, hour, minute, list(n)%backwards
        endif
+
        if ( list(n)%backwards ) then
           ! Pass sticky=.false. for GCHP adjoint
-          !list(n)%his_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, _RC )
           list(n)%his_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, sticky=.false., _RC )
        else
           list(n)%his_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, sticky=.false., _RC )
        endif
 
-       ! For GCHP adjoint debugging
-       !call ESMF_ClockGetAlarmList(clock, ESMF_ALARMLIST_ALL, &
-       !     alarmCount=alarmCount, rc = status )
-       !_VERIFY(STATUS)
+       !--------------------------------------
+       ! Start section added for GCHP adjoint
+       !--------------------------------------
+       call ESMF_ClockGetAlarmList(clock, ESMF_ALARMLIST_ALL, alarmCount=alarmCount, _RC )
        ! WRITE(6,'("     History Clock now has ", i3, " alarms.")') alarmCount
 
        ! I don't understand what's going on here. For some reason when I create the alarm when the clock is running
@@ -1360,23 +1362,21 @@ contains
        !    call ESMF_AlarmSet(list(n)%his_alarm, RingTime=RingTime, ringing=.false., rc=status); _VERIFY(STATUS)
        ! endif
        if(.false. .and.  MAPL_AM_I_ROOT() ) then
-          call ESMF_AlarmGet(list(n)%his_alarm, RingTime=DebugTime,  ringing=ringing, rc=STATUS); _VERIFY(STATUS)
-          call ESMF_TimeGet  ( DebugTime, timeString=TimeString, rc=status ) ; _VERIFY(STATUS)
+          call ESMF_AlarmGet(list(n)%his_alarm, RingTime=DebugTime,  ringing=ringing, _RC )
+          call ESMF_TimeGet  ( DebugTime, TimeString=tmpstring, _RC )
 
-          read(timestring( 1: 4),'(i4.4)') year
-          read(timestring( 6: 7),'(i2.2)') month
-          read(timestring( 9:10),'(i2.2)') day
-          read(timestring(12:13),'(i2.2)') hour
-          read(timestring(15:16),'(i2.2)') minute
+          read(tmpstring( 1: 4),'(i4.4)') year
+          read(tmpstring( 6: 7),'(i2.2)') month
+          read(tmpstring( 9:10),'(i2.2)') day
+          read(tmpstring(12:13),'(i2.2)') hour
+          read(tmpstring(15:16),'(i2.2)') minute
           write(6,'(1X,"Alarm ", i3, " Ring Time: ",i4.4, "/", i2.2, "/", i2.2, "T", i2.2, ":", i2.2, " ringing: ", L1)') &
                n, year, month, day, hour, minute, ringing
        endif
+       !--------------------------------------
+       ! End of section added for GCHP adjoint
+       !--------------------------------------
 
-
-       !ALT if monthly overwrite duration and frequency
-       if (list(n)%monthly) then
-          list(n)%duration = 1 !ALT simply non-zero
-       end if
        if( list(n)%duration.ne.0 ) then
           if (.not.list(n)%monthly) then
              sec = MAPL_nsecf( list(n)%duration )
@@ -1387,22 +1387,20 @@ contains
              ! and for debugging print
              call WRITE_PARALLEL("DEBUG: monthly averaging is active for collection "//trim(list(n)%collection))
           end if
-          ! RingTime = RefTime + IntState%StampOffset(n)
+          ! RingTime = RefTime + IntState%StampOffset(n) ! ewl note: who commented this out?
           RingTime = RefTime
           if (RingTime < currTime) then
               RingTime = RingTime + (INT((currTime - RingTime)/frequency)+1)*frequency
           endif
           if ( list(n)%backwards ) then
              ! Pass sticky=.false. for GCHP adjoint
-             !list(n)%seg_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, _RC )
              list(n)%seg_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, sticky=.false., _RC )
           else
              list(n)%seg_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, sticky=.false., _RC )
           endif
 
-          ! For GCHP adjoint debugging
-          !call ESMF_ClockGetAlarmList(clock, ESMF_ALARMLIST_ALL, &
-          !     alarmCount=alarmCount, _RC )
+          ! Added for GCHP adjoint
+          call ESMF_ClockGetAlarmList(clock, ESMF_ALARMLIST_ALL, alarmCount=alarmCount, _RC )
 
           if (list(n)%monthly .and. (currTime == RingTime)) then
              call ESMF_AlarmRingerOn( list(n)%his_alarm,_RC )
@@ -1413,9 +1411,8 @@ contains
           list(n)%seg_alarm = ESMF_AlarmCreate( clock=clock, enabled=.false., &
                ringTime=currTime, name='historyNewSegment', _RC )
 
-          ! For GCHP adjoint debugging
-          !call ESMF_ClockGetAlarmList(clock, ESMF_ALARMLIST_ALL, &
-          !     alarmCount=alarmCount, _RC )
+          ! Added for GCHP adjoint
+          call ESMF_ClockGetAlarmList(clock, ESMF_ALARMLIST_ALL, alarmCount=alarmCount, _RC )
 
        endif
 
@@ -1442,7 +1439,6 @@ contains
        enddo
        if ( list(n)%backwards ) then
           ! Pass sticky=.false. for GCHP adjoint
-          !list(n)%mon_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, _RC )
           list(n)%mon_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, sticky=.false., _RC )
        else
           list(n)%mon_alarm = ESMF_AlarmCreate( clock=clock, RingInterval=Frequency, RingTime=RingTime, sticky=.false., _RC )
@@ -1455,9 +1451,9 @@ contains
           list(n)%his_alarm = list(n)%mon_alarm
           intState%stampOffset(n) = Frequency ! we go to the beginning of the month
        end if
-       call ESMF_ClockGetAlarmList(clock, ESMF_ALARMLIST_ALL, &
-            alarmCount=alarmCount, rc = status )
-       _VERIFY(STATUS)
+
+       ! Added for GCHP adjoint
+       call ESMF_ClockGetAlarmList(clock, ESMF_ALARMLIST_ALL, alarmCount=alarmCount, _RC )
        ! WRITE(6,'("     History Clock now has ", i3, " alarms.")') alarmCount
 
 ! End Alarm based on start_date and start_time
@@ -1511,14 +1507,13 @@ contains
 
            if ( list(n)%backwards ) then
               ! Pass sticky=.false. for GCHP adjoint
-              !list(n)%end_alarm = ESMF_AlarmCreate( clock=clock, RingTime=RingTime, _RC )
               list(n)%end_alarm = ESMF_AlarmCreate( clock=clock, RingTime=RingTime, sticky=.false., _RC )
            else
               list(n)%end_alarm = ESMF_AlarmCreate( clock=clock, RingTime=RingTime, sticky=.false., _RC )
            endif
         else
 
-           ! ewl: previous code in GCHP MAPL 2.26. Comment out for now.
+           ! Previous code in GCHP MAPL 2.26 for GCHP adjoint
            !if (reverseTime .eq. 1) then
            !   if (MAPL_Am_I_Root()) &
            !        WRITE(*,*) ' Setting end_alarm to disabled!'
@@ -1531,20 +1526,19 @@ contains
            !   list(n)%end_alarm = ESMF_AlarmCreate( clock=clock, RingTime=ringTime, sticky=.false., _RC )
            !endif
 
-           ! New code in MAPL 2.55 (ewl)
+           ! New code in MAPL 2.55. Might need to be adapted for GCHP adjoint with code above.
            if ( list(n)%backwards ) then
               list(n)%end_alarm = ESMF_AlarmCreate( clock=clock, RingTime=CurrTime, _RC )
            else
               list(n)%end_alarm = ESMF_AlarmCreate( clock=clock, RingTime=CurrTime, sticky=.false., _RC )
            endif
 
-           ! For GCHP adjoint debugging
-           call ESMF_ClockGetAlarmList(clock, ESMF_ALARMLIST_ALL, &
-                alarmCount=alarmCount, _RC )
+           ! Added for GCHP adjoint
+           call ESMF_ClockGetAlarmList(clock, ESMF_ALARMLIST_ALL, alarmCount=alarmCount, _RC )
            ! WRITE(6,'("     History Clock now has ", i3, " alarms.")') alarmCount
 
            call  ESMF_AlarmRingerOff(list(n)%end_alarm, _RC )
-        endif
+       endif
 
        call ESMF_ConfigDestroy(cfg, _RC)
     enddo LISTLOOP
@@ -3517,12 +3511,10 @@ ENDDO PARSER
 
     type(Logger), pointer          :: lgr
 
-!   Debug variables
+    ! Added for GCHP adjoint
     type(ESMF_Time)                :: CurrTime
-    character(len=ESMF_MAXSTR)     :: TimeString
     integer                        :: year,month,day,hour,minute
     logical                        :: alarmEnabled
-    type(ESMF_Time)                ::  RingTime
     character(len=ESMF_MAXSTR)     :: tmpstring
 
 
@@ -3555,47 +3547,48 @@ ENDDO PARSER
 
    allocate(Ignore (nlist), _STAT)
    Ignore = .false.
-   
+
+    ! Added for GCHP adjoint
    if(.false. .and.  MAPL_AM_I_ROOT() ) then
       write(6,*) "Checking history time"
-      call ESMF_ClockGet ( clock,  currTime=CurrTime ,rc=STATUS ) ; _VERIFY(STATUS)
+      call ESMF_ClockGet ( clock,  currTime=CurrTime, _RC )
 
-      call ESMF_TimeGet  ( CurrTime, timeString=TimeString, rc=status ) ; _VERIFY(STATUS)
+      call ESMF_TimeGet  ( CurrTime, TimeString=tmpstring, _RC )
 
-      read(timestring( 1: 4),'(i4.4)') year
-      read(timestring( 6: 7),'(i2.2)') month
-      read(timestring( 9:10),'(i2.2)') day
-      read(timestring(12:13),'(i2.2)') hour
-      read(timestring(15:16),'(i2.2)') minute
+      read(tmpstring( 1: 4),'(i4.4)') year
+      read(tmpstring( 6: 7),'(i2.2)') month
+      read(tmpstring( 9:10),'(i2.2)') day
+      read(tmpstring(12:13),'(i2.2)') hour
+      read(tmpstring(15:16),'(i2.2)') minute
       write(6,'(1X,"CurrTime: ",i4.4, "/", i2.2, "/", i2.2, "T", i2.2, ":", i2.2, "   FWD:",L1)') &
            year, month, day, hour, minute, FWD
       do n=1,nlist
-         call ESMF_AlarmGet(list(n)%his_alarm, ringTime=CurrTime,  ringing=alarmEnabled, rc=STATUS); _VERIFY(STATUS)
-         call ESMF_TimeGet  ( CurrTime, timeString=TimeString, rc=status ) ; _VERIFY(STATUS)
+         call ESMF_AlarmGet(list(n)%his_alarm, ringTime=CurrTime,  ringing=alarmEnabled, _RC )
+         call ESMF_TimeGet  ( CurrTime, TimeString=tmpstring, _RC )
 
-         read(timestring( 1: 4),'(i4.4)') year
-         read(timestring( 6: 7),'(i2.2)') month
-         read(timestring( 9:10),'(i2.2)') day
-         read(timestring(12:13),'(i2.2)') hour
-         read(timestring(15:16),'(i2.2)') minute
+         read(tmpstring( 1: 4),'(i4.4)') year
+         read(tmpstring( 6: 7),'(i2.2)') month
+         read(tmpstring( 9:10),'(i2.2)') day
+         read(tmpstring(12:13),'(i2.2)') hour
+         read(tmpstring(15:16),'(i2.2)') minute
          write(6,'(1X,"Alarm ", i3, " Ring Time: ",i4.4, "/", i2.2, "/", i2.2, "T", i2.2, ":", i2.2, " ringing: ", L1)') &
               n, year, month, day, hour, minute, alarmEnabled
 
-         call ESMF_AlarmGet(list(n)%his_alarm, prevRingTime=CurrTime,  enabled=alarmEnabled, rc=STATUS); _VERIFY(STATUS)
-         call ESMF_TimeGet  ( CurrTime, timeString=TimeString, rc=status ) ; _VERIFY(STATUS)
+         call ESMF_AlarmGet(list(n)%his_alarm, prevRingTime=CurrTime,  enabled=alarmEnabled, _RC )
+         call ESMF_TimeGet  ( CurrTime, TimeString=tmpstring, _RC )
 
-         read(timestring( 1: 4),'(i4.4)') year
-         read(timestring( 6: 7),'(i2.2)') month
-         read(timestring( 9:10),'(i2.2)') day
-         read(timestring(12:13),'(i2.2)') hour
-         read(timestring(15:16),'(i2.2)') minute
+         read(tmpstring( 1: 4),'(i4.4)') year
+         read(tmpstring( 6: 7),'(i2.2)') month
+         read(tmpstring( 9:10),'(i2.2)') day
+         read(tmpstring(12:13),'(i2.2)') hour
+         read(tmpstring(15:16),'(i2.2)') minute
          write(6,'(1X,"Alarm ", i3, " Prev Ring Time: ",i4.4, "/", i2.2, "/", i2.2, "T", i2.2, ":", i2.2, " enabled: ", L1)') &
               n, year, month, day, hour, minute, alarmEnabled
 
       end do
    endif
-  ! decide if clock direction and collections' backwards mode agree
 
+   ! decide if clock direction and collections' backwards mode agree
    do n=1,nlist
       if (list(n)%backwards .eqv. FWD) Ignore(n) = .true.
    end do
@@ -3678,10 +3671,13 @@ ENDDO PARSER
       if (list(n)%disabled .or. ESMF_AlarmIsRinging(list(n)%end_alarm) ) then
          list(n)%disabled = .true.
          Writing(n) = .false.
+
+         ! Added for GCHP adjoint
          if (MAPL_am_I_Root()) THEN
             WRITE(*, 1999) n
          ENDIF
 1999     FORMAT('Not Writing alarm ', i3, ' because end_alarm is ringing')
+
       else if (list(n)%timeseries_output) then
          Writing(n) = ESMF_AlarmIsRinging ( list(n)%trajectory%alarm )
       else if (index(trim(list(n)%output_grid_label), 'SwathGrid') > 0) then
