@@ -1,0 +1,100 @@
+#include "MAPL_Generic.h"
+
+module Test_StateMask
+
+   use state_utils_setup
+   use ESMF
+   use pfunit
+   use MAPL_ExceptionHandling
+   use MAPL_StateUtils
+   use ESMF_TestMethod_mod
+
+   implicit none
+
+contains
+
+   @Before
+   subroutine set_up_data(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+ 
+      integer :: status, rc
+
+      grid = ESMF_GridCreateNoPeriDim(countsPerDeDim1=[3], countsPerDeDim2=[3], _RC)
+      field_2d = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="field_2d", _RC)
+      out_field_2d = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="out_field_2d", _RC)
+      field_3d = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="field_3d",ungriddedLBound=[1],ungriddedUBound=[2], _RC)
+      out_field_3d = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="out_field_3d",ungriddedLBound=[1],ungriddedUBound=[2], _RC)
+      mask_field = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name="region_mask", _RC)
+		state = ESMF_StateCreate(fieldList=[field_2d,field_3d,mask_field], _RC)
+
+   end subroutine set_up_data
+
+   @after
+   subroutine teardown(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      call ESMF_FieldDestroy(field_2d, noGarbage=.true.)
+      call ESMF_FieldDestroy(field_3d, noGarbage=.true.)
+      call ESMF_FieldDestroy(mask_field, noGarbage=.true.)
+      call ESMF_StateDestroy(state, noGarbage=.true.)
+   end subroutine teardown
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_region_mask_2d(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer :: status, rc
+      real(ESMF_KIND_R4), pointer :: ptr2d(:,:), mask_ptr(:,:)
+      type(StateMask) :: mask
+      real(ESMF_KIND_R4), allocatable :: expected_array(:,:)
+      real(ESMF_KIND_R4) :: rval
+      character(len=:), allocatable :: expr
+
+      call ESMF_FieldGet(mask_field, 0, farrayPtr=mask_ptr, _RC)
+      call ESMF_FieldGet(field_2d, 0, farrayPtr=ptr2d, _RC)
+      expr = "regionmask(field_2d,region_mask;2,5)"
+      rval = 17.0 
+      ptr2d = rval
+      allocate(expected_array(3,3),_STAT)
+      expected_array= reshape([0.0, rval, 0.0, rval, rval, 0.0, rval, rval, 0.0],shape=[3,3])
+      mask_ptr =    reshape([1.0, 5.0,  1.0, 5.0,  2.0,  1.0, 2.0,  5.0,  1.0],shape=[3,3])
+      mask = StateMask(expr, _RC)
+      call mask%evaluate_mask(state,out_field_2d,_RC)
+
+      call ESMF_FieldGet(out_field_2d, 0, farrayPtr=ptr2d, _RC)
+      @assertEqual(expected_array, ptr2d)
+      _RETURN(_SUCCESS)
+
+   end subroutine test_region_mask_2d
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_region_mask_3d(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer :: status, rc, i
+      real(ESMF_KIND_R4), pointer :: ptr3d(:,:,:), mask_ptr(:,:)
+      type(StateMask) :: mask
+      real(ESMF_KIND_R4), allocatable :: expected_array(:,:)
+      real(ESMF_KIND_R4) :: rval
+      character(len=:), allocatable :: expr
+
+      call ESMF_FieldGet(mask_field, 0, farrayPtr=mask_ptr, _RC)
+      call ESMF_FieldGet(field_3d, 0, farrayPtr=ptr3d, _RC)
+      expr = "regionmask(field_3d,region_mask;2,5)"
+      rval = 17.0 
+      ptr3d = rval
+      allocate(expected_array(3,3),_STAT)
+      expected_array= reshape([0.0, rval, 0.0, rval, rval, 0.0, rval, rval, 0.0],shape=[3,3])
+      mask_ptr =    reshape([1.0, 5.0,  1.0, 5.0,  2.0,  1.0, 2.0,  5.0,  1.0],shape=[3,3])
+      mask = StateMask(expr, _RC)
+      call mask%evaluate_mask(state,out_field_3d,_RC)
+
+      call ESMF_FieldGet(out_field_3d, 0, farrayPtr=ptr3d, _RC)
+      do i=1,size(ptr3d,3) 
+         @assertEqual(expected_array, ptr3d(:,:,i))
+      enddo
+      _RETURN(_SUCCESS)
+
+   end subroutine test_region_mask_3d
+
+
+end module Test_StateMask

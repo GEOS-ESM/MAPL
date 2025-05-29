@@ -1,0 +1,1412 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>MAPL_GetHorzIJIndex &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>MAPL_GetHorzIJIndex
+      <small>Module Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">135 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Base_Base_implementation.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/base_base_implementation.f90.html'>Base_Base_implementation.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/base_implementation.html'>Base_Implementation</a></li>
+            <li class="breadcrumb-item active" aria-current="page">MAPL_GetHorzIJIndex</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mapl_gethorzijindex.html#src">MAPL_GetHorzIJIndex</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>module subroutine MAPL_GetHorzIJIndex(npts, II, JJ, lon, lat, lonR8, latR8, Grid, rc)  
+    <a href="../interface/mapl_gethorzijindex.html"><button type="button" class="btn btn-info depwarn">Interface &rarr;</button></a>
+</h2>
+    
+
+    <p><code>MAPL_GetHorzIJIndex</code> &ndash; Get indexes on destributed ESMF grid for an arbitary lat and lon</p>
+<p>For a set of longitudes and latitudes in radians this routine will return the indexes for the domain
+Depending on how it is invoked these will be the local domain or the global indices.
+If the Lat/Lon pair is not in the domain -1 is returned.
+The routine works for both the gmao cube and lat/lon grids.
+Currently the lat/lon grid is asumed to go from -180 to 180</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-npts"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>npts</strong></td>
+            <td>
+                <p>number of points in lat and lon arrays</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ii~4"></span>
+              integer,
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>II</strong>(npts)</td>
+            <td>
+                <p>array of the first index for each lat and lon</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-jj~4"></span>
+              integer,
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>JJ</strong>(npts)</td>
+            <td>
+                <p>array of the second index for each lat and lon</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lon~13"></span>
+              real,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>lon</strong>(npts)</td>
+            <td>
+                <p>array of longitudes in radians</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lat~13"></span>
+              real,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>lat</strong>(npts)</td>
+            <td>
+                <p>array of latitudes in radians</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lonr8"></span>
+              real(kind=ESMF_KIND_R8),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>lonR8</strong>(npts)</td>
+            <td>
+                <p>array of longitudes in radians</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-latr8"></span>
+              real(kind=ESMF_KIND_R8),
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>latR8</strong>(npts)</td>
+            <td>
+                <p>array of latitudes in radians</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-grid~4"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_grid.html'>ESMF_Grid</a>),
+            </td>
+<td>intent(inout),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Grid</strong></td>
+            <td>
+                <p>ESMF grid</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~934"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                <p>return code</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_gethorzijindex~~CallsGraph Pages: 1 -->
+<svg id="procmapl_gethorzijindexCallsGraph" width="641pt" height="367pt"
+ viewBox="0.00 0.00 641.00 366.98" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_gethorzijindex~~CallsGraph" class="graph" transform="scale(0.44 0.44) rotate(0) translate(4 821)">
+<title>proc~~mapl_gethorzijindex~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-821 1437,-821 1437,4 -4,4"/>
+<!-- proc~mapl_gethorzijindex -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node1" class="node">
+<title>proc~mapl_gethorzijindex</title>
+<polygon fill="none" stroke="black" points="124,-351 0,-351 0,-327 124,-327 124,-351"/>
+<text text-anchor="middle" x="62" y="-336.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GetHorzIJIndex</text>
+</g>
+<!-- ESMF_GridGet -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node2" class="node">
+<title>ESMF_GridGet</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridget.html" xlink:title="ESMF_GridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="973,-758 885,-758 885,-734 973,-734 973,-758"/>
+<text text-anchor="middle" x="929" y="-743.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gethorzijindex&#45;&gt;ESMF_GridGet -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge1" class="edge">
+<title>proc~mapl_gethorzijindex&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#ff0000" d="M65.85,-351.3C84,-426.11 190.43,-817 433.5,-817 433.5,-817 433.5,-817 620,-817 718.04,-817 829.25,-782.42 887.5,-761.52"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="888.86,-764.75 897.06,-758.04 886.47,-758.17 888.86,-764.75"/>
+</g>
+<!-- ESMF_GridGetCoord -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node3" class="node">
+<title>ESMF_GridGetCoord</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridgetcoord.html" xlink:title="ESMF_GridGetCoord">
+<polygon fill="#a7506f" stroke="#a7506f" points="299.5,-24 179.5,-24 179.5,0 299.5,0 299.5,-24"/>
+<text text-anchor="middle" x="239.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGetCoord</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gethorzijindex&#45;&gt;ESMF_GridGetCoord -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge2" class="edge">
+<title>proc~mapl_gethorzijindex&#45;&gt;ESMF_GridGetCoord</title>
+<path fill="none" stroke="#ff0000" d="M63.2,-327C64.59,-282.23 75.52,-123.17 160,-38 163.42,-34.55 167.31,-31.56 171.48,-28.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="173.24,-31.99 180.39,-24.18 169.92,-25.83 173.24,-31.99"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node4" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node4"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="968.5,-261 889.5,-261 889.5,-237 968.5,-237 968.5,-261"/>
+<text text-anchor="middle" x="929" y="-246.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gethorzijindex&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge3" class="edge">
+<title>proc~mapl_gethorzijindex&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M124.17,-332.64C287.46,-315.65 731.22,-269.47 879.22,-254.08"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="879.77,-257.54 889.36,-253.02 879.05,-250.57 879.77,-257.54"/>
+</g>
+<!-- interface~mapl_getglobalhorzijindex -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node5" class="node">
+<title>interface~mapl_getglobalhorzijindex</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node5"><a xlink:href="../interface/mapl_getglobalhorzijindex.html" xlink:title="MAPL_GetGlobalHorzIJIndex">
+<polygon fill="#a7506f" stroke="#a7506f" points="319,-254 160,-254 160,-230 319,-230 319,-254"/>
+<text text-anchor="middle" x="239.5" y="-239.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GetGlobalHorzIJIndex</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gethorzijindex&#45;&gt;interface~mapl_getglobalhorzijindex -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge4" class="edge">
+<title>proc~mapl_gethorzijindex&#45;&gt;interface~mapl_getglobalhorzijindex</title>
+<path fill="none" stroke="#ff0000" d="M80.81,-326.8C99.95,-313.94 131.48,-293.42 160,-278 172.95,-271 187.51,-264.07 200.54,-258.2"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="202,-261.38 209.72,-254.11 199.16,-254.98 202,-261.38"/>
+</g>
+<!-- interface~mapl_grid_interior -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node6" class="node">
+<title>interface~mapl_grid_interior</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node6"><a xlink:href="../interface/mapl_grid_interior.html" xlink:title="MAPL_GRID_INTERIOR">
+<polygon fill="#a7506f" stroke="#a7506f" points="304,-527 175,-527 175,-503 304,-503 304,-527"/>
+<text text-anchor="middle" x="239.5" y="-512.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GRID_INTERIOR</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gethorzijindex&#45;&gt;interface~mapl_grid_interior -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge5" class="edge">
+<title>proc~mapl_gethorzijindex&#45;&gt;interface~mapl_grid_interior</title>
+<path fill="none" stroke="#ff0000" d="M71.14,-351.14C86.71,-373.87 122.55,-423.74 160,-459 175.18,-473.29 194.17,-486.94 209.67,-497.18"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="208.04,-500.29 218.34,-502.79 211.85,-494.42 208.04,-500.29"/>
+</g>
+<!-- proc~mapl_gridget -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node7" class="node">
+<title>proc~mapl_gridget</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node7"><a xlink:href="../proc/mapl_gridget.html" xlink:title="MAPL_GridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="663,-496 575,-496 575,-472 663,-472 663,-496"/>
+<text text-anchor="middle" x="619" y="-481.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gethorzijindex&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_gethorzijindex&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#ff0000" d="M77.78,-351.09C95.97,-365.32 128.37,-388.59 160,-401 299.51,-455.75 477.26,-474.74 564.62,-481.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="564.6,-484.55 574.82,-481.75 565.08,-477.56 564.6,-484.55"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node8" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node8"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="970,-219 888,-219 888,-195 970,-195 970,-219"/>
+<text text-anchor="middle" x="929" y="-204.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gethorzijindex&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_gethorzijindex&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M70.38,-326.67C104.27,-271.73 251.24,-52 433.5,-52 433.5,-52 433.5,-52 620,-52 718.21,-52 750.62,-52.76 835,-103 870.09,-123.89 899.3,-162.38 915.16,-186.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="912.38,-188.37 920.75,-194.87 918.26,-184.57 912.38,-188.37"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node9" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node9"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="967,-423 891,-423 891,-399 967,-399 967,-423"/>
+<text text-anchor="middle" x="929" y="-408.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gethorzijindex&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_gethorzijindex&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M120.14,-351.05C192.66,-365.27 321.78,-387 433.5,-387 433.5,-387 433.5,-387 620,-387 712.53,-387 820.22,-397.9 880.62,-405.01"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="880.27,-408.49 890.62,-406.2 881.1,-401.54 880.27,-408.49"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node13" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node13"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1164,-339 1030,-339 1030,-315 1164,-315 1164,-339"/>
+<text text-anchor="middle" x="1097" y="-324.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge9" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M949.46,-261.15C967.94,-272.37 996.72,-289.08 1023,-301 1031.19,-304.72 1040.08,-308.26 1048.74,-311.48"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="1047.79,-314.86 1058.38,-314.96 1050.17,-308.27 1047.79,-314.86"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node14" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node14"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1171,-259 1023,-259 1023,-235 1171,-235 1171,-259"/>
+<text text-anchor="middle" x="1097" y="-244.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge10" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#7fff00" stroke-dasharray="5,2" d="M968.5,-248.54C981.78,-248.38 997.21,-248.19 1012.66,-248"/>
+<polygon fill="#7fff00" stroke="#7fff00" points="1012.84,-251.5 1022.8,-247.88 1012.76,-244.5 1012.84,-251.5"/>
+</g>
+<!-- proc~mapl_getglobalhorzijindex -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node16" class="node">
+<title>proc~mapl_getglobalhorzijindex</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node16"><a xlink:href="../proc/mapl_getglobalhorzijindex.html" xlink:title="MAPL_GetGlobalHorzIJIndex">
+<polygon fill="#d9534f" stroke="#d9534f" points="514,-244 355,-244 355,-220 514,-220 514,-244"/>
+<text text-anchor="middle" x="434.5" y="-229.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GetGlobalHorzIJIndex</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_getglobalhorzijindex&#45;&gt;proc~mapl_getglobalhorzijindex -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge11" class="edge">
+<title>interface~mapl_getglobalhorzijindex&#45;&gt;proc~mapl_getglobalhorzijindex</title>
+<path fill="none" stroke="#00ff3f" stroke-dasharray="5,2" d="M319,-237.93C327.48,-237.49 336.14,-237.04 344.73,-236.6"/>
+<polygon fill="#00ff3f" stroke="#00ff3f" points="344.95,-240.09 354.76,-236.08 344.59,-233.1 344.95,-240.09"/>
+</g>
+<!-- proc~mapl_grid_interior -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node18" class="node">
+<title>proc~mapl_grid_interior</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node18"><a xlink:href="../proc/mapl_grid_interior.html" xlink:title="MAPL_GRID_INTERIOR">
+<polygon fill="#d9534f" stroke="#d9534f" points="683.5,-616 554.5,-616 554.5,-592 683.5,-592 683.5,-616"/>
+<text text-anchor="middle" x="619" y="-601.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GRID_INTERIOR</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_grid_interior&#45;&gt;proc~mapl_grid_interior -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge12" class="edge">
+<title>interface~mapl_grid_interior&#45;&gt;proc~mapl_grid_interior</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M291.41,-527C360.32,-543.25 483.12,-572.2 556.92,-589.6"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="556.46,-593.09 566.99,-591.97 558.06,-586.27 556.46,-593.09"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_GridGet -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#003fff" d="M627.31,-496.07C642.42,-520.05 679.43,-573.94 724,-604 767.23,-633.15 793.12,-610.93 835,-642 856.99,-658.32 852.98,-671.38 871,-692 881.83,-704.39 895.12,-717.1 906.14,-727.08"/>
+<polygon fill="#003fff" stroke="#003fff" points="903.9,-729.77 913.7,-733.81 908.56,-724.54 903.9,-729.77"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge19" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#003fff" d="M621.73,-471.79C627.86,-433.37 652.14,-314.04 724,-255 767.42,-219.32 832.72,-209.22 877.68,-206.83"/>
+<polygon fill="#003fff" stroke="#003fff" points="877.95,-210.32 887.79,-206.4 877.66,-203.32 877.95,-210.32"/>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge20" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#003fff" d="M651.97,-471.94C672.37,-464.57 699.48,-455.38 724,-449 777.04,-435.21 839.07,-424.39 880.68,-417.88"/>
+<polygon fill="#003fff" stroke="#003fff" points="881.45,-421.3 890.8,-416.32 880.39,-414.39 881.45,-421.3"/>
+</g>
+<!-- ESMF_AttributeGet -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node10" class="node">
+<title>ESMF_AttributeGet</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node10"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_attributeget.html" xlink:title="ESMF_AttributeGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="835,-675 724,-675 724,-651 835,-651 835,-675"/>
+<text text-anchor="middle" x="779.5" y="-660.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_AttributeGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_AttributeGet -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_AttributeGet</title>
+<path fill="none" stroke="#003fff" d="M628.43,-496.16C641.33,-514.79 666.73,-551.57 688,-583 704.17,-606.89 702.2,-618.11 724,-637 727.91,-640.39 732.34,-643.44 736.94,-646.15"/>
+<polygon fill="#003fff" stroke="#003fff" points="735.45,-649.32 745.91,-650.96 738.75,-643.15 735.45,-649.32"/>
+</g>
+<!-- ESMF_DistGridGet -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node11" class="node">
+<title>ESMF_DistGridGet</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node11"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_distgridget.html" xlink:title="ESMF_DistGridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="983,-575 875,-575 875,-551 983,-551 983,-575"/>
+<text text-anchor="middle" x="929" y="-560.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DistGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_gridget&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#003fff" d="M647.35,-496.06C668.07,-504.82 697.4,-516.41 724,-524 770.51,-537.27 824.28,-547.35 864.94,-553.93"/>
+<polygon fill="#003fff" stroke="#003fff" points="864.56,-557.41 874.99,-555.52 865.66,-550.5 864.56,-557.41"/>
+</g>
+<!-- proc~mapl_distgridget -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node15" class="node">
+<title>proc~mapl_distgridget</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node15"><a xlink:href="../proc/mapl_distgridget.html" xlink:title="MAPL_DistGridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="833.5,-515 725.5,-515 725.5,-491 833.5,-491 833.5,-515"/>
+<text text-anchor="middle" x="779.5" y="-500.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_DistGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#003fff" d="M663.31,-489.19C679.32,-491.11 697.82,-493.33 715.24,-495.42"/>
+<polygon fill="#003fff" stroke="#003fff" points="715,-498.91 725.35,-496.63 715.84,-491.96 715,-498.91"/>
+</g>
+<!-- proc~mapl_getimsjms -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node17" class="node">
+<title>proc~mapl_getimsjms</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node17"><a xlink:href="../proc/mapl_getimsjms.html" xlink:title="MAPL_GetImsJms">
+<polygon fill="#d9534f" stroke="#d9534f" points="831,-321 728,-321 728,-297 831,-297 831,-321"/>
+<text text-anchor="middle" x="779.5" y="-306.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GetImsJms</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_getimsjms -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge17" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_getimsjms</title>
+<path fill="none" stroke="#003fff" d="M630.89,-471.97C657.81,-442.25 727.67,-365.12 760.7,-328.65"/>
+<polygon fill="#003fff" stroke="#003fff" points="763.41,-330.87 767.53,-321.11 758.22,-326.17 763.41,-330.87"/>
+</g>
+<!-- proc~mapl_gridhasde -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node19" class="node">
+<title>proc~mapl_gridhasde</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node19"><a xlink:href="../proc/mapl_gridhasde.html" xlink:title="MAPL_GridHasDE">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="831.5,-595 727.5,-595 727.5,-571 831.5,-571 831.5,-595"/>
+<text text-anchor="middle" x="779.5" y="-580.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridHasDE</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge18" class="edge">
+<title>proc~mapl_gridget&#45;&gt;proc~mapl_gridhasde</title>
+<path fill="none" stroke="#003fff" d="M635.66,-496.24C655.55,-511.49 691.24,-537.87 724,-557 729.58,-560.26 735.64,-563.46 741.62,-566.44"/>
+<polygon fill="#003fff" stroke="#003fff" points="740.34,-569.71 750.87,-570.91 743.39,-563.41 740.34,-569.71"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node12" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node12"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="1331,-238 1216,-238 1216,-214 1331,-214 1331,-238"/>
+<text text-anchor="middle" x="1273.5" y="-223.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge21" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#7f00ff" d="M970.3,-209.24C1028.27,-212.45 1135.93,-218.42 1205.86,-222.3"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="1205.71,-225.8 1215.89,-222.86 1206.1,-218.81 1205.71,-225.8"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node20" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node20"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="1340,-315 1207,-315 1207,-291 1340,-291 1340,-315"/>
+<text text-anchor="middle" x="1273.5" y="-300.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#7f00ff" d="M970.16,-218.97C976.04,-221.51 981.85,-224.51 987,-228 1006.8,-241.42 1001.88,-256.77 1023,-268 1076.4,-296.39 1144.91,-304.33 1196.63,-305.62"/>
+<polygon fill="#7f00ff" stroke="#7f00ff" points="1196.68,-309.12 1206.73,-305.79 1196.8,-302.12 1196.68,-309.12"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00bf" d="M967.3,-403.22C1015.15,-392.79 1100.38,-372.7 1171,-348 1194.3,-339.85 1219.68,-328.6 1239.24,-319.38"/>
+<polygon fill="#ff00bf" stroke="#ff00bf" points="1240.82,-322.51 1248.34,-315.04 1237.8,-316.19 1240.82,-322.51"/>
+</g>
+<!-- at -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node22" class="node">
+<title>at</title>
+<polygon fill="#777777" stroke="#777777" points="1431.5,-222 1377.5,-222 1377.5,-198 1431.5,-198 1431.5,-222"/>
+<text text-anchor="middle" x="1404.5" y="-207.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">at</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;at -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge24" class="edge">
+<title>proc~get_error_message&#45;&gt;at</title>
+<path fill="none" stroke="#e7ff00" d="M1331.08,-218.98C1343.29,-217.47 1355.89,-215.91 1367.08,-214.52"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="1367.83,-217.95 1377.32,-213.25 1366.97,-211 1367.83,-217.95"/>
+</g>
+<!-- insert -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node23" class="node">
+<title>insert</title>
+<polygon fill="#777777" stroke="#777777" points="1431.5,-264 1377.5,-264 1377.5,-240 1431.5,-240 1431.5,-264"/>
+<text text-anchor="middle" x="1404.5" y="-249.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">insert</text>
+</g>
+<!-- proc~get_error_message&#45;&gt;insert -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge25" class="edge">
+<title>proc~get_error_message&#45;&gt;insert</title>
+<path fill="none" stroke="#e7ff00" d="M1331.08,-237.4C1343.42,-239.89 1356.14,-242.46 1367.42,-244.73"/>
+<polygon fill="#e7ff00" stroke="#e7ff00" points="1366.83,-248.18 1377.32,-246.72 1368.21,-241.32 1366.83,-248.18"/>
+</g>
+<!-- proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_assert_condition&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#5cff00" d="M1164.47,-317.86C1174.98,-316.41 1185.92,-314.91 1196.62,-313.44"/>
+<polygon fill="#5cff00" stroke="#5cff00" points="1197.36,-316.87 1206.79,-312.04 1196.41,-309.93 1197.36,-316.87"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~get_error_message -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ff2e" d="M1171.25,-238.19C1182.67,-236.81 1194.43,-235.4 1205.7,-234.04"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="1206.38,-237.48 1215.89,-232.81 1205.54,-230.53 1206.38,-237.48"/>
+</g>
+<!-- proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_assert_return_code&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff2e" d="M1135.43,-259.01C1161.68,-267.44 1196.98,-278.76 1225.17,-287.81"/>
+<polygon fill="#00ff2e" stroke="#00ff2e" points="1224.24,-291.19 1234.83,-290.91 1226.37,-284.52 1224.24,-291.19"/>
+</g>
+<!-- proc~mapl_distgridget&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_distgridget&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00ffb9" d="M808.14,-490.94C816.9,-486.82 826.5,-481.99 835,-477 859.65,-462.52 886.07,-443.38 904.43,-429.44"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="906.95,-431.92 912.75,-423.06 902.69,-426.37 906.95,-431.92"/>
+</g>
+<!-- proc~mapl_distgridget&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_distgridget&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#00ffb9" d="M810.35,-515.14C833.01,-524.36 864.38,-537.12 889.02,-547.15"/>
+<polygon fill="#00ffb9" stroke="#00ffb9" points="887.87,-550.45 898.45,-550.98 890.5,-543.97 887.87,-550.45"/>
+</g>
+<!-- proc~mapl_getglobalhorzijindex&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_getglobalhorzijindex&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#00b9ff" d="M512.3,-219.97C593.18,-209.42 723.93,-198.43 835,-217 840.35,-217.9 863.34,-225.8 885.12,-233.53"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="884.05,-236.86 894.65,-236.92 886.4,-230.27 884.05,-236.86"/>
+</g>
+<!-- proc~mapl_getglobalhorzijindex&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge35" class="edge">
+<title>proc~mapl_getglobalhorzijindex&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#00b9ff" d="M444.3,-244.15C473.45,-284.41 567.05,-413.65 603.39,-463.82"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="600.59,-465.92 609.29,-471.97 606.26,-461.82 600.59,-465.92"/>
+</g>
+<!-- proc~mapl_getglobalhorzijindex&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge36" class="edge">
+<title>proc~mapl_getglobalhorzijindex&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#00b9ff" d="M442.08,-219.87C457.11,-193.64 496.77,-132.17 550,-109 676.19,-54.06 839.96,-147.89 902.34,-189.08"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="900.54,-192.09 910.8,-194.76 904.44,-186.28 900.54,-192.09"/>
+</g>
+<!-- proc~mapl_getglobalhorzijindex&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge37" class="edge">
+<title>proc~mapl_getglobalhorzijindex&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#00b9ff" d="M469.05,-244.08C491.86,-252.27 522.74,-263.34 550,-273 676.52,-317.85 709.49,-325.38 835,-373 853.27,-379.93 873.35,-388.07 890.17,-395.04"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="889.08,-398.37 899.66,-398.98 891.77,-391.91 889.08,-398.37"/>
+</g>
+<!-- interface~mapl_gridgetcorners -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node24" class="node">
+<title>interface~mapl_gridgetcorners</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node24"><a xlink:href="../interface/mapl_gridgetcorners.html" xlink:title="MAPL_GridGetCorners">
+<polygon fill="#a7506f" stroke="#a7506f" points="684,-184 554,-184 554,-160 684,-160 684,-184"/>
+<text text-anchor="middle" x="619" y="-169.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridGetCorners</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getglobalhorzijindex&#45;&gt;interface~mapl_gridgetcorners -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge32" class="edge">
+<title>proc~mapl_getglobalhorzijindex&#45;&gt;interface~mapl_gridgetcorners</title>
+<path fill="none" stroke="#00b9ff" d="M472.43,-219.86C501.1,-210.43 541.01,-197.31 571.79,-187.19"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="573.03,-190.47 581.44,-184.02 570.84,-183.82 573.03,-190.47"/>
+</g>
+<!-- interface~mapl_gridgetinterior -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node25" class="node">
+<title>interface~mapl_gridgetinterior</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node25"><a xlink:href="../interface/mapl_gridgetinterior.html" xlink:title="MAPL_GridGetInterior">
+<polygon fill="#a7506f" stroke="#a7506f" points="682.5,-142 555.5,-142 555.5,-118 682.5,-118 682.5,-142"/>
+<text text-anchor="middle" x="619" y="-127.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridGetInterior</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getglobalhorzijindex&#45;&gt;interface~mapl_gridgetinterior -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge33" class="edge">
+<title>proc~mapl_getglobalhorzijindex&#45;&gt;interface~mapl_gridgetinterior</title>
+<path fill="none" stroke="#00b9ff" d="M449.39,-219.94C470.05,-202.54 510.68,-170.36 550,-151 553.97,-149.04 558.17,-147.22 562.44,-145.54"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="563.7,-148.81 571.87,-142.07 561.28,-142.24 563.7,-148.81"/>
+</g>
+<!-- interface~mapl_reverse_schmidt -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node26" class="node">
+<title>interface~mapl_reverse_schmidt</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node26"><a xlink:href="../interface/mapl_reverse_schmidt.html" xlink:title="MAPL_Reverse_Schmidt">
+<polygon fill="#a7506f" stroke="#a7506f" points="688,-264 550,-264 550,-240 688,-240 688,-264"/>
+<text text-anchor="middle" x="619" y="-249.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Reverse_Schmidt</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getglobalhorzijindex&#45;&gt;interface~mapl_reverse_schmidt -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge34" class="edge">
+<title>proc~mapl_getglobalhorzijindex&#45;&gt;interface~mapl_reverse_schmidt</title>
+<path fill="none" stroke="#00b9ff" d="M514.22,-240.63C522.66,-241.55 531.24,-242.49 539.67,-243.42"/>
+<polygon fill="#00b9ff" stroke="#00b9ff" points="539.54,-246.92 549.86,-244.53 540.3,-239.96 539.54,-246.92"/>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;interface~mapl_assert -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge38" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#002eff" d="M810.35,-296.86C833.01,-287.64 864.38,-274.88 889.02,-264.85"/>
+<polygon fill="#002eff" stroke="#002eff" points="890.5,-268.03 898.45,-261.02 887.87,-261.55 890.5,-268.03"/>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge40" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#002eff" d="M813.12,-296.99C820.8,-293.24 828.61,-288.59 835,-283 857,-263.78 848.14,-246.19 871,-228 873.44,-226.06 876.07,-224.29 878.83,-222.67"/>
+<polygon fill="#002eff" stroke="#002eff" points="880.62,-225.69 887.93,-218.02 877.43,-219.45 880.62,-225.69"/>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge41" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#002eff" d="M809.2,-321.11C817.73,-325.13 826.94,-329.89 835,-335 861.72,-351.95 889.45,-375.51 907.59,-391.89"/>
+<polygon fill="#002eff" stroke="#002eff" points="905.47,-394.69 915.22,-398.86 910.2,-389.53 905.47,-394.69"/>
+</g>
+<!-- interface~mapl_sort -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node27" class="node">
+<title>interface~mapl_sort</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node27"><a xlink:href="../interface/mapl_sort.html" xlink:title="MAPL_Sort">
+<polygon fill="#a7506f" stroke="#a7506f" points="963,-321 895,-321 895,-297 963,-297 963,-321"/>
+<text text-anchor="middle" x="929" y="-306.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Sort</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_getimsjms&#45;&gt;interface~mapl_sort -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge39" class="edge">
+<title>proc~mapl_getimsjms&#45;&gt;interface~mapl_sort</title>
+<path fill="none" stroke="#002eff" d="M831.26,-309C848.65,-309 867.94,-309 884.68,-309"/>
+<polygon fill="#002eff" stroke="#002eff" points="884.74,-312.5 894.74,-309 884.74,-305.5 884.74,-312.5"/>
+</g>
+<!-- proc~mapl_grid_interior&#45;&gt;ESMF_GridGet -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge45" class="edge">
+<title>proc~mapl_grid_interior&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#5c00ff" d="M626.4,-616.05C640.34,-640.97 676.12,-697.92 724,-723 770.77,-747.49 831.71,-751.34 874.77,-750.24"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="874.9,-753.73 884.77,-749.88 874.65,-746.74 874.9,-753.73"/>
+</g>
+<!-- proc~mapl_grid_interior&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge47" class="edge">
+<title>proc~mapl_grid_interior&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#5c00ff" d="M630.97,-591.91C646.36,-574.23 674.05,-539.62 688,-505 724.55,-414.33 661.42,-363.11 724,-288 757.57,-247.71 787.26,-269.69 835,-248 851.66,-240.43 854.36,-235.63 871,-228 874.88,-226.22 878.96,-224.48 883.08,-222.8"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="884.65,-225.95 892.69,-219.04 882.1,-219.43 884.65,-225.95"/>
+</g>
+<!-- proc~mapl_grid_interior&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge48" class="edge">
+<title>proc~mapl_grid_interior&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#5c00ff" d="M626.93,-591.94C641.61,-567.46 678.28,-511.75 724,-482 767.14,-453.93 786.45,-466.09 835,-449 853.7,-442.42 874.14,-434.19 891.07,-427.07"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="892.76,-430.16 900.6,-423.03 890.03,-423.71 892.76,-430.16"/>
+</g>
+<!-- proc~mapl_grid_interior&#45;&gt;ESMF_AttributeGet -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge42" class="edge">
+<title>proc~mapl_grid_interior&#45;&gt;ESMF_AttributeGet</title>
+<path fill="none" stroke="#5c00ff" d="M652.46,-616.08C676.71,-625.11 710.07,-637.53 736.38,-647.32"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="735.49,-650.73 746.09,-650.93 737.94,-644.17 735.49,-650.73"/>
+</g>
+<!-- proc~mapl_grid_interior&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge44" class="edge">
+<title>proc~mapl_grid_interior&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#5c00ff" d="M630.64,-616.22C647.95,-635.08 684.32,-670.5 724,-684 770.71,-699.89 790.75,-705.8 835,-684 856.85,-673.24 895.28,-615.53 915.21,-583.85"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="918.22,-585.64 920.54,-575.3 912.28,-581.94 918.22,-585.64"/>
+</g>
+<!-- proc~mapl_grid_interior&#45;&gt;proc~mapl_distgridget -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge46" class="edge">
+<title>proc~mapl_grid_interior&#45;&gt;proc~mapl_distgridget</title>
+<path fill="none" stroke="#5c00ff" d="M639.12,-591.82C666.97,-574.07 718.84,-541.02 750.85,-520.62"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="752.76,-523.55 759.31,-515.23 749,-517.65 752.76,-523.55"/>
+</g>
+<!-- ESMF_DELayoutGet -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node21" class="node">
+<title>ESMF_DELayoutGet</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node21"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_delayoutget.html" xlink:title="ESMF_DELayoutGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="987,-683 871,-683 871,-659 987,-659 987,-683"/>
+<text text-anchor="middle" x="929" y="-668.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DELayoutGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_grid_interior&#45;&gt;ESMF_DELayoutGet -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge43" class="edge">
+<title>proc~mapl_grid_interior&#45;&gt;ESMF_DELayoutGet</title>
+<path fill="none" stroke="#5c00ff" d="M627.62,-616.02C642.73,-638.61 678.99,-686.74 724,-705 781.14,-728.18 853.42,-704.96 894.81,-687.16"/>
+<polygon fill="#5c00ff" stroke="#5c00ff" points="896.43,-690.27 904.15,-683.01 893.59,-683.87 896.43,-690.27"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_GridGet -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge51" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#e700ff" d="M815.52,-595.13C822.6,-598.77 829.54,-603.34 835,-609 862.92,-637.94 847.94,-659.06 871,-692 880.25,-705.21 893.12,-717.74 904.29,-727.4"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="902.14,-730.16 912.05,-733.9 906.63,-724.79 902.14,-730.16"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_return -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge52" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#e700ff" d="M796.28,-570.79C809.01,-559.98 826.22,-542.98 835,-524 890.65,-403.73 788.76,-331.92 871,-228 873.26,-225.14 875.95,-222.67 878.91,-220.54"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="880.93,-223.41 887.84,-215.38 877.43,-217.35 880.93,-223.41"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_verify -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge53" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#e700ff" d="M791.98,-570.98C803.15,-559.19 820.52,-540.6 835,-524 862.84,-492.08 893.86,-453.81 912.11,-431"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="914.94,-433.06 918.45,-423.06 909.47,-428.7 914.94,-433.06"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge50" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#e700ff" d="M831.67,-576.06C842.38,-574.61 853.78,-573.06 864.86,-571.56"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="865.47,-575.01 874.91,-570.2 864.53,-568.07 865.47,-575.01"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge49" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet</title>
+<path fill="none" stroke="#e700ff" d="M807.78,-595.08C816.6,-599.23 826.34,-604.08 835,-609 858.78,-622.51 884.56,-639.93 902.94,-652.87"/>
+<polygon fill="#e700ff" stroke="#e700ff" points="901.14,-655.89 911.32,-658.82 905.19,-650.18 901.14,-655.89"/>
+</g>
+<!-- proc~initialize~8 -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_node28" class="node">
+<title>proc~initialize~8</title>
+<g id="a_proc~~mapl_gethorzijindex~~CallsGraph_node28"><a xlink:href="../proc/initialize~8.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="1433,-315 1376,-315 1376,-291 1433,-291 1433,-315"/>
+<text text-anchor="middle" x="1404.5" y="-300.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_throw_exception&#45;&gt;proc~initialize~8 -->
+<g id="proc~~mapl_gethorzijindex~~CallsGraph_edge54" class="edge">
+<title>proc~mapl_throw_exception&#45;&gt;proc~initialize~8</title>
+<path fill="none" stroke="#ff008b" d="M1340.13,-303C1348.88,-303 1357.59,-303 1365.63,-303"/>
+<polygon fill="#ff008b" stroke="#ff008b" points="1365.77,-306.5 1375.77,-303 1365.77,-299.5 1365.77,-306.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_gethorzijindexCallsGraph = svgPanZoom('#procmapl_gethorzijindexCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~mapl_gethorzijindex~~CalledByGraph Pages: 1 -->
+<svg id="procmapl_gethorzijindexCalledByGraph" width="641pt" height="84pt"
+ viewBox="0.00 0.00 641.00 83.73" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~mapl_gethorzijindex~~CalledByGraph" class="graph" transform="scale(0.72 0.72) rotate(0) translate(4 112)">
+<title>proc~~mapl_gethorzijindex~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 884,-112 884,4 -4,4"/>
+<!-- proc~mapl_gethorzijindex -->
+<g id="proc~~mapl_gethorzijindex~~CalledByGraph_node1" class="node">
+<title>proc~mapl_gethorzijindex</title>
+<polygon fill="none" stroke="black" points="880,-66 756,-66 756,-42 880,-42 880,-66"/>
+<text text-anchor="middle" x="818" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">MAPL_GetHorzIJIndex</text>
+</g>
+<!-- interface~mapl_gethorzijindex -->
+<g id="proc~~mapl_gethorzijindex~~CalledByGraph_node2" class="node">
+<title>interface~mapl_gethorzijindex</title>
+<g id="a_proc~~mapl_gethorzijindex~~CalledByGraph_node2"><a xlink:href="../interface/mapl_gethorzijindex.html" xlink:title="MAPL_GetHorzIJIndex">
+<polygon fill="#a7506f" stroke="#a7506f" points="720,-66 596,-66 596,-42 720,-42 720,-66"/>
+<text text-anchor="middle" x="658" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GetHorzIJIndex</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_gethorzijindex&#45;&gt;proc~mapl_gethorzijindex -->
+<g id="proc~~mapl_gethorzijindex~~CalledByGraph_edge1" class="edge">
+<title>interface~mapl_gethorzijindex&#45;&gt;proc~mapl_gethorzijindex</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M720.09,-54C728.51,-54 737.23,-54 745.81,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="745.82,-57.5 755.82,-54 745.82,-50.5 745.82,-57.5"/>
+</g>
+<!-- proc~check_expected_index -->
+<g id="proc~~mapl_gethorzijindex~~CalledByGraph_node3" class="node">
+<title>proc~check_expected_index</title>
+<g id="a_proc~~mapl_gethorzijindex~~CalledByGraph_node3"><a xlink:href="../proc/check_expected_index.html" xlink:title="check_expected_index">
+<polygon fill="#d9534f" stroke="#d9534f" points="538.5,-108 406.5,-108 406.5,-84 538.5,-84 538.5,-108"/>
+<text text-anchor="middle" x="472.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">check_expected_index</text>
+</a>
+</g>
+</g>
+<!-- proc~check_expected_index&#45;&gt;interface~mapl_gethorzijindex -->
+<g id="proc~~mapl_gethorzijindex~~CalledByGraph_edge2" class="edge">
+<title>proc~check_expected_index&#45;&gt;interface~mapl_gethorzijindex</title>
+<path fill="none" stroke="#ff0000" d="M526.08,-83.96C547.39,-79.09 572.17,-73.42 594.4,-68.33"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="595.44,-71.68 604.41,-66.04 593.88,-64.86 595.44,-71.68"/>
+</g>
+<!-- proc~check_unexpected_index -->
+<g id="proc~~mapl_gethorzijindex~~CalledByGraph_node4" class="node">
+<title>proc~check_unexpected_index</title>
+<g id="a_proc~~mapl_gethorzijindex~~CalledByGraph_node4"><a xlink:href="../proc/check_unexpected_index.html" xlink:title="check_unexpected_index">
+<polygon fill="#d9534f" stroke="#d9534f" points="545,-66 400,-66 400,-42 545,-42 545,-66"/>
+<text text-anchor="middle" x="472.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">check_unexpected_index</text>
+</a>
+</g>
+</g>
+<!-- proc~check_unexpected_index&#45;&gt;interface~mapl_gethorzijindex -->
+<g id="proc~~mapl_gethorzijindex~~CalledByGraph_edge3" class="edge">
+<title>proc~check_unexpected_index&#45;&gt;interface~mapl_gethorzijindex</title>
+<path fill="none" stroke="#ff0000" d="M545.23,-54C558.53,-54 572.42,-54 585.7,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="585.72,-57.5 595.72,-54 585.72,-50.5 585.72,-57.5"/>
+</g>
+<!-- proc~create_geosat_grid_find_mask -->
+<g id="proc~~mapl_gethorzijindex~~CalledByGraph_node5" class="node">
+<title>proc~create_geosat_grid_find_mask</title>
+<g id="a_proc~~mapl_gethorzijindex~~CalledByGraph_node5"><a xlink:href="../proc/create_geosat_grid_find_mask.html" xlink:title="create_Geosat_grid_find_mask">
+<polygon fill="#d9534f" stroke="#d9534f" points="560,-24 385,-24 385,0 560,0 560,-24"/>
+<text text-anchor="middle" x="472.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">create_Geosat_grid_find_mask</text>
+</a>
+</g>
+</g>
+<!-- proc~create_geosat_grid_find_mask&#45;&gt;interface~mapl_gethorzijindex -->
+<g id="proc~~mapl_gethorzijindex~~CalledByGraph_edge4" class="edge">
+<title>proc~create_geosat_grid_find_mask&#45;&gt;interface~mapl_gethorzijindex</title>
+<path fill="none" stroke="#ff0000" d="M526.08,-24.04C547.39,-28.91 572.17,-34.58 594.4,-39.67"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="593.88,-43.14 604.41,-41.96 595.44,-36.32 593.88,-43.14"/>
+</g>
+<!-- interface~create_geosat_grid_find_mask -->
+<g id="proc~~mapl_gethorzijindex~~CalledByGraph_node6" class="node">
+<title>interface~create_geosat_grid_find_mask</title>
+<g id="a_proc~~mapl_gethorzijindex~~CalledByGraph_node6"><a xlink:href="../interface/create_geosat_grid_find_mask.html" xlink:title="MaskSampler%create_Geosat_grid_find_mask">
+<polygon fill="#a7506f" stroke="#a7506f" points="349,-24 93,-24 93,0 349,0 349,-24"/>
+<text text-anchor="middle" x="221" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MaskSampler%create_Geosat_grid_find_mask</text>
+</a>
+</g>
+</g>
+<!-- interface~create_geosat_grid_find_mask&#45;&gt;proc~create_geosat_grid_find_mask -->
+<g id="proc~~mapl_gethorzijindex~~CalledByGraph_edge7" class="edge">
+<title>interface~create_geosat_grid_find_mask&#45;&gt;proc~create_geosat_grid_find_mask</title>
+<path fill="none" stroke="#0000ff" stroke-dasharray="5,2" d="M349.31,-12C357.85,-12 366.37,-12 374.72,-12"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="374.81,-15.5 384.81,-12 374.81,-8.5 374.81,-15.5"/>
+</g>
+<!-- proc~run~8 -->
+<g id="proc~~mapl_gethorzijindex~~CalledByGraph_node7" class="node">
+<title>proc~run~8</title>
+<g id="a_proc~~mapl_gethorzijindex~~CalledByGraph_node7"><a xlink:href="../proc/run~8.html" xlink:title="run">
+<polygon fill="#d9534f" stroke="#d9534f" points="248,-87 194,-87 194,-63 248,-63 248,-87"/>
+<text text-anchor="middle" x="221" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">run</text>
+</a>
+</g>
+</g>
+<!-- proc~run~8&#45;&gt;proc~check_expected_index -->
+<g id="proc~~mapl_gethorzijindex~~CalledByGraph_edge5" class="edge">
+<title>proc~run~8&#45;&gt;proc~check_expected_index</title>
+<path fill="none" stroke="#ff0000" d="M248.23,-77.21C283.05,-80.14 345.99,-85.44 396.19,-89.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="396.11,-93.17 406.37,-90.52 396.7,-86.19 396.11,-93.17"/>
+</g>
+<!-- proc~run~8&#45;&gt;proc~check_unexpected_index -->
+<g id="proc~~mapl_gethorzijindex~~CalledByGraph_edge6" class="edge">
+<title>proc~run~8&#45;&gt;proc~check_unexpected_index</title>
+<path fill="none" stroke="#00ff00" d="M248.23,-72.79C281.59,-69.98 340.75,-65 389.8,-60.88"/>
+<polygon fill="#00ff00" stroke="#00ff00" points="390.11,-64.36 399.78,-60.04 389.52,-57.39 390.11,-64.36"/>
+</g>
+<!-- proc~initialize~17 -->
+<g id="proc~~mapl_gethorzijindex~~CalledByGraph_node8" class="node">
+<title>proc~initialize~17</title>
+<g id="a_proc~~mapl_gethorzijindex~~CalledByGraph_node8"><a xlink:href="../proc/initialize~17.html" xlink:title="initialize">
+<polygon fill="#d9534f" stroke="#d9534f" points="57,-24 0,-24 0,0 57,0 57,-24"/>
+<text text-anchor="middle" x="28.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize~17&#45;&gt;interface~create_geosat_grid_find_mask -->
+<g id="proc~~mapl_gethorzijindex~~CalledByGraph_edge8" class="edge">
+<title>proc~initialize~17&#45;&gt;interface~create_geosat_grid_find_mask</title>
+<path fill="none" stroke="#ff0000" d="M57.2,-12C64.63,-12 73.18,-12 82.4,-12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="82.65,-15.5 92.65,-12 82.65,-8.5 82.65,-15.5"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocmapl_gethorzijindexCalledByGraph = svgPanZoom('#procmapl_gethorzijindexCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">  </span><span class="k">module subroutine </span><span class="n">MAPL_GetHorzIJIndex</span><span class="p">(</span><span class="n">npts</span><span class="p">,</span><span class="n">II</span><span class="p">,</span><span class="n">JJ</span><span class="p">,</span><span class="n">lon</span><span class="p">,</span><span class="n">lat</span><span class="p">,</span><span class="n">lonR8</span><span class="p">,</span><span class="n">latR8</span><span class="p">,</span><span class="n">Grid</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">    </span><span class="k">implicit none</span>
+<span class="w">    </span><span class="c">!ARGUMENTS:</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w">                      </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">npts</span><span class="w">        </span><span class="c">!! number of points in lat and lon arrays</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w">                      </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">II</span><span class="p">(</span><span class="n">npts</span><span class="p">)</span><span class="w">    </span><span class="c">!! array of the first index for each lat and lon</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w">                      </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">JJ</span><span class="p">(</span><span class="n">npts</span><span class="p">)</span><span class="w">    </span><span class="c">!! array of the second index for each lat and lon</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">               </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lon</span><span class="p">(</span><span class="n">npts</span><span class="p">)</span><span class="w">   </span><span class="c">!! array of longitudes in radians</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w">               </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lat</span><span class="p">(</span><span class="n">npts</span><span class="p">)</span><span class="w">   </span><span class="c">!! array of latitudes in radians</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lonR8</span><span class="p">(</span><span class="n">npts</span><span class="p">)</span><span class="w"> </span><span class="c">!! array of longitudes in radians</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">latR8</span><span class="p">(</span><span class="n">npts</span><span class="p">)</span><span class="w"> </span><span class="c">!! array of latitudes in radians</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_Grid</span><span class="p">),</span><span class="w">    </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Grid</span><span class="w">        </span><span class="c">!! ESMF grid</span>
+<span class="w">    </span><span class="kt">integer</span><span class="p">,</span><span class="w">            </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span><span class="w">          </span><span class="c">!! return code</span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">    </span><span class="kt">integer</span><span class="w">                         </span><span class="kd">::</span><span class="w"> </span><span class="n">IM_World</span><span class="p">,</span><span class="w"> </span><span class="n">JM_World</span><span class="p">,</span><span class="w"> </span><span class="n">dims</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                         </span><span class="kd">::</span><span class="w"> </span><span class="n">IM</span><span class="p">,</span><span class="w"> </span><span class="n">JM</span><span class="p">,</span><span class="w"> </span><span class="n">counts</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">lons</span><span class="p">(:,:)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">     </span><span class="kd">::</span><span class="w"> </span><span class="n">lats</span><span class="p">(:,:)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">elons</span><span class="p">(:)</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">elats</span><span class="p">(:)</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="n">iiloc</span><span class="p">,</span><span class="n">jjloc</span><span class="p">,</span><span class="w"> </span><span class="n">i1</span><span class="p">,</span><span class="w"> </span><span class="n">i2</span><span class="p">,</span><span class="w"> </span><span class="n">j1</span><span class="p">,</span><span class="w"> </span><span class="n">j2</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R4</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lonloc</span><span class="p">,</span><span class="n">latloc</span>
+<span class="w">    </span><span class="kt">logical</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">localSearch</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">tmp_lons</span><span class="p">(:),</span><span class="n">tmp_lats</span><span class="p">(:)</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_CoordSys_Flag</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">coordSys</span>
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXSTR</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">grid_type</span>
+
+<span class="w">    </span><span class="c">! if the grid is present then we can just get the prestored edges and the dimensions of the grid</span>
+<span class="w">    </span><span class="c">! this also means we are running on a distributed grid</span>
+<span class="w">    </span><span class="c">! if grid not present then the we just be running outside of ESMF and the user must</span>
+<span class="w">    </span><span class="c">! pass in the the dimensions of the grid and we must compute them</span>
+<span class="w">    </span><span class="c">! and assume search on the global domain</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">Grid</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       call </span><span class="n">MAPL_GridGet</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">localCellCountPerDim</span><span class="o">=</span><span class="n">counts</span><span class="p">,</span><span class="n">globalCellCountPerDim</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="n">IM_World</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dims</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">       </span><span class="n">JM_World</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dims</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">       </span><span class="n">IM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">counts</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">       </span><span class="n">JM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">counts</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="w">       </span><span class="n">localSearch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="k">       </span><span class="n">localSearch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    allocate</span><span class="p">(</span><span class="n">tmp_lons</span><span class="p">(</span><span class="n">npts</span><span class="p">),</span><span class="n">tmp_lats</span><span class="p">(</span><span class="n">npts</span><span class="p">))</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">lat</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">tmp_lons</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lon</span>
+<span class="w">       </span><span class="n">tmp_lats</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lat</span>
+<span class="w">    </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">lonR8</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="nb">present</span><span class="p">(</span><span class="n">latR8</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">       </span><span class="n">tmp_lons</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lonR8</span>
+<span class="w">       </span><span class="n">tmp_lats</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">latR8</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    if</span><span class="w"> </span><span class="p">(</span><span class="n">im_world</span><span class="o">*</span><span class="mi">6</span><span class="o">==</span><span class="n">jm_world</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+
+<span class="k">      call </span><span class="n">MAPL_GetGlobalHorzIJIndex</span><span class="p">(</span><span class="n">npts</span><span class="p">,</span><span class="w"> </span><span class="n">II</span><span class="p">,</span><span class="w"> </span><span class="n">JJ</span><span class="p">,</span><span class="w"> </span><span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span><span class="w"> </span><span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span><span class="w"> </span><span class="n">lonR8</span><span class="o">=</span><span class="n">lonR8</span><span class="p">,</span><span class="w"> </span><span class="n">latR8</span><span class="o">=</span><span class="n">latR8</span><span class="p">,</span><span class="w"> </span><span class="n">Grid</span><span class="o">=</span><span class="n">Grid</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">MAPL_Grid_Interior</span><span class="p">(</span><span class="n">Grid</span><span class="p">,</span><span class="n">i1</span><span class="p">,</span><span class="n">i2</span><span class="p">,</span><span class="n">j1</span><span class="p">,</span><span class="n">j2</span><span class="p">)</span>
+<span class="w">      </span><span class="c">! convert index to local, if it is not in domain, set it to -1 just as the legacy code</span>
+<span class="w">      </span><span class="k">where</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">i1</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">II</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">II</span><span class="w"> </span><span class="o">&lt;=</span><span class="n">i2</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">j1</span><span class="o">&lt;=</span><span class="n">JJ</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">JJ</span><span class="o">&lt;=</span><span class="n">j2</span><span class="p">)</span>
+<span class="w">        </span><span class="n">II</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">II</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">i1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">        </span><span class="n">JJ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JJ</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">j1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">      </span><span class="n">elsewhere</span>
+<span class="w">        </span><span class="n">II</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
+<span class="w">        </span><span class="n">JJ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
+<span class="w">      </span><span class="k">end where</span>
+
+<span class="k">    else</span>
+<span class="k">       </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">localSearch</span><span class="p">,</span><span class="s2">&quot;Global Search for IJ for latlon not implemented&quot;</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_GridGetCoord</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="n">coordDim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">localDe</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">staggerloc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CORNER</span><span class="p">,</span><span class="w"> </span><span class="n">fArrayPtr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lons</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_GridGetCoord</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="n">coordDim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">localDe</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="n">staggerloc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CORNER</span><span class="p">,</span><span class="w"> </span><span class="n">fArrayPtr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lats</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="k">allocate</span><span class="p">(</span><span class="n">elons</span><span class="p">(</span><span class="n">im</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">       </span><span class="k">allocate</span><span class="p">(</span><span class="n">elats</span><span class="p">(</span><span class="n">jm</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">       </span><span class="k">call </span><span class="n">ESMF_GridGet</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span><span class="n">coordSys</span><span class="o">=</span><span class="n">coordSys</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">       </span><span class="n">elons</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lons</span><span class="p">(:,</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">       </span><span class="n">elats</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lats</span><span class="p">(</span><span class="mi">1</span><span class="p">,:)</span>
+<span class="w">       </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">coordSys</span><span class="o">==</span><span class="n">ESMF_COORDSYS_SPH_DEG</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="n">elons</span><span class="o">=</span><span class="n">elons</span><span class="o">*</span><span class="n">MAPL_DEGREES_TO_RADIANS_R8</span>
+<span class="w">          </span><span class="n">elats</span><span class="o">=</span><span class="n">elats</span><span class="o">*</span><span class="n">MAPL_DEGREES_TO_RADIANS_R8</span>
+<span class="w">       </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="n">coordSys</span><span class="o">==</span><span class="n">ESMF_COORDSYS_CART</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">          </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;Unsupported coordinate system:  ESMF_COORDSYS_CART&#39;</span><span class="p">)</span>
+<span class="w">       </span><span class="k">end if</span>
+<span class="w">       </span><span class="c">! lat-lon grid goes from -180 to 180 shift if we must</span>
+<span class="w">       </span><span class="c">! BMA this -180 to 180 might change at some point</span>
+<span class="w">       </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">npts</span>
+<span class="w">          </span><span class="n">lonloc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tmp_lons</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">          </span><span class="n">latloc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tmp_lats</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">lonloc</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">MAPL_PI</span><span class="p">)</span><span class="w"> </span><span class="n">lonloc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lonloc</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">2.0</span><span class="o">*</span><span class="n">MAPL_PI</span>
+<span class="w">          </span><span class="n">IIloc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ijsearch</span><span class="p">(</span><span class="n">elons</span><span class="p">,</span><span class="n">im</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">lonloc</span><span class="p">,.</span><span class="n">false</span><span class="p">.)</span>
+<span class="w">          </span><span class="n">JJloc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ijsearch</span><span class="p">(</span><span class="n">elats</span><span class="p">,</span><span class="n">jm</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">latloc</span><span class="p">,.</span><span class="n">false</span><span class="p">.)</span>
+<span class="w">          </span><span class="n">II</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IIloc</span>
+<span class="w">          </span><span class="n">JJ</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JJloc</span>
+<span class="w">       </span><span class="k">end do</span>
+<span class="k">       deallocate</span><span class="p">(</span><span class="n">elons</span><span class="p">,</span><span class="n">elats</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end if</span>
+
+<span class="k">    deallocate</span><span class="p">(</span><span class="n">tmp_lons</span><span class="p">,</span><span class="w"> </span><span class="n">tmp_lats</span><span class="p">)</span>
+<span class="w">    </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="n">ESMF_SUCCESS</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">contains</span>
+
+<span class="k">    </span><span class="kt">integer </span><span class="k">function </span><span class="n">ijsearch</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span><span class="nb">idim</span><span class="p">,</span><span class="n">valueIn</span><span class="p">,</span><span class="n">periodic</span><span class="p">)</span><span class="w"> </span><span class="c">! fast bisection version</span>
+<span class="w">      </span><span class="k">implicit NONE</span>
+<span class="k">      </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">idim</span>
+<span class="nb">      </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">coords</span><span class="p">(:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">valueIn</span>
+<span class="w">      </span><span class="kt">logical</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">periodic</span>
+<span class="w">      </span><span class="kt">integer </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">i1</span><span class="p">,</span><span class="w"> </span><span class="n">i2</span><span class="p">,</span><span class="w"> </span><span class="n">k</span>
+<span class="w">      </span><span class="kt">real</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="k">value</span>
+<span class="k">      value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">valueIn</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">periodic</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="k">value</span><span class="o">&gt;</span><span class="n">coords</span><span class="p">(</span><span class="nb">idim</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">36</span><span class="mf">0.</span>
+<span class="w">      </span><span class="k">endif</span>
+
+<span class="k">      </span><span class="n">ijsearch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
+<span class="w">      </span><span class="n">i1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">      </span><span class="n">i2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">idim</span>
+<span class="nb">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">coords</span><span class="p">(</span><span class="nb">idim</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">coords</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">         do </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nb">idim</span><span class="w">  </span><span class="c">! it should never take take long</span>
+<span class="w">            </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">i1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i2</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="k">value</span><span class="w"> </span><span class="p">.</span><span class="n">ge</span><span class="p">.</span><span class="w"> </span><span class="n">coords</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               if</span><span class="w"> </span><span class="p">(</span><span class="k">value</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="n">coords</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                  </span><span class="n">ijsearch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span>
+<span class="w">                  </span><span class="k">exit</span>
+<span class="k">               else</span>
+<span class="k">                  </span><span class="n">i1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span>
+<span class="w">               </span><span class="k">end if</span>
+<span class="k">            else</span>
+<span class="k">               </span><span class="n">i2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span>
+<span class="w">            </span><span class="k">endif</span>
+<span class="k">         end do</span>
+<span class="k">      else</span>
+<span class="k">         do </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nb">idim</span><span class="w">  </span><span class="c">! it should never take take long</span>
+<span class="w">            </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">i1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i2</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="k">value</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="n">coords</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">               if</span><span class="w"> </span><span class="p">(</span><span class="k">value</span><span class="w"> </span><span class="p">.</span><span class="n">ge</span><span class="p">.</span><span class="w"> </span><span class="n">coords</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                  </span><span class="n">ijsearch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span>
+<span class="w">                  </span><span class="k">exit</span>
+<span class="k">               else</span>
+<span class="k">                  </span><span class="n">i1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span>
+<span class="w">               </span><span class="k">end if</span>
+<span class="k">            else</span>
+<span class="k">               </span><span class="n">i2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span>
+<span class="w">            </span><span class="k">endif</span>
+<span class="k">         end do</span>
+<span class="k">      endif</span>
+<span class="k">    end function </span><span class="n">ijsearch</span>
+
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">MAPL_GetHorzIJIndex</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-05-29T14:32:59.075060+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

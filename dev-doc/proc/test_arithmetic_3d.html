@@ -1,0 +1,589 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>test_arithmetic_3d &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>test_arithmetic_3d
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">25 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/Test_StateArithmetic.pf"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_statearithmetic.pf.html'>Test_StateArithmetic.pf</a></li>
+                <li class="breadcrumb-item"><a href='../module/test_statearithmetic.html'>Test_StateArithmetic</a></li>
+            <li class="breadcrumb-item active" aria-current="page">test_arithmetic_3d</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/test_arithmetic_3d.html#src">test_arithmetic_3d</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine test_arithmetic_3d(this)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~397"></span>
+              class(<a href='../type/esmf_testmethod.html'>ESMF_TestMethod</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~test_arithmetic_3d~~CallsGraph Pages: 1 -->
+<svg id="proctest_arithmetic_3dCallsGraph" width="641pt" height="449pt"
+ viewBox="0.00 0.00 641.00 449.30" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~test_arithmetic_3d~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 446)">
+<title>proc~~test_arithmetic_3d~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-446 638,-446 638,4 -4,4"/>
+<!-- proc~test_arithmetic_3d -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_node1" class="node">
+<title>proc~test_arithmetic_3d</title>
+<polygon fill="none" stroke="black" points="111,-358 0,-358 0,-334 111,-334 111,-358"/>
+<text text-anchor="middle" x="55.5" y="-343.6" font-family="Helvetica,sans-Serif" font-size="10.50">test_arithmetic_3d</text>
+</g>
+<!-- assertequal -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_node2" class="node">
+<title>assertequal</title>
+<polygon fill="#777777" stroke="#777777" points="233,-442 158,-442 158,-418 233,-418 233,-442"/>
+<text text-anchor="middle" x="195.5" y="-427.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">assertequal</text>
+</g>
+<!-- proc~test_arithmetic_3d&#45;&gt;assertequal -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_edge1" class="edge">
+<title>proc~test_arithmetic_3d&#45;&gt;assertequal</title>
+<path fill="none" stroke="#ff0000" d="M71.92,-358.11C89.47,-371.56 119.3,-393.43 147,-409 149.83,-410.59 152.8,-412.15 155.82,-413.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="154.39,-416.85 164.93,-417.98 157.4,-410.53 154.39,-416.85"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_node3" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="238,-400 153,-400 153,-376 238,-376 238,-400"/>
+<text text-anchor="middle" x="195.5" y="-385.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~test_arithmetic_3d&#45;&gt;esmf_fieldget -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_edge2" class="edge">
+<title>proc~test_arithmetic_3d&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ff0000" d="M96.05,-358.04C111.35,-362.69 129.03,-368.07 145.15,-372.98"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="144.36,-376.4 154.95,-375.96 146.4,-369.7 144.36,-376.4"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_node4" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~test_arithmetic_3d~~CallsGraph_node4"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="236.5,-358 154.5,-358 154.5,-334 236.5,-334 236.5,-358"/>
+<text text-anchor="middle" x="195.5" y="-343.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~test_arithmetic_3d&#45;&gt;proc~mapl_return -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_edge3" class="edge">
+<title>proc~test_arithmetic_3d&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M111.04,-346C122,-346 133.47,-346 144.28,-346"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="144.4,-349.5 154.4,-346 144.4,-342.5 144.4,-349.5"/>
+</g>
+<!-- proc~mapl_stateeval -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_node5" class="node">
+<title>proc~mapl_stateeval</title>
+<g id="a_proc~~test_arithmetic_3d~~CallsGraph_node5"><a xlink:href="../proc/mapl_stateeval.html" xlink:title="MAPL_StateEval">
+<polygon fill="#d9534f" stroke="#d9534f" points="244,-192 147,-192 147,-168 244,-168 244,-192"/>
+<text text-anchor="middle" x="195.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_StateEval</text>
+</a>
+</g>
+</g>
+<!-- proc~test_arithmetic_3d&#45;&gt;proc~mapl_stateeval -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_edge4" class="edge">
+<title>proc~test_arithmetic_3d&#45;&gt;proc~mapl_stateeval</title>
+<path fill="none" stroke="#ff0000" d="M66.65,-333.79C90.17,-305.49 148.64,-235.16 177.64,-200.28"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="180.64,-202.15 184.34,-192.22 175.25,-197.68 180.64,-202.15"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_node6" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~test_arithmetic_3d~~CallsGraph_node6"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="410.5,-318 334.5,-318 334.5,-294 410.5,-294 410.5,-318"/>
+<text text-anchor="middle" x="372.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~test_arithmetic_3d&#45;&gt;proc~mapl_verify -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_edge5" class="edge">
+<title>proc~test_arithmetic_3d&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M102.75,-333.92C116.87,-330.6 132.5,-327.28 147,-325 207.76,-315.43 278.58,-310.45 324.18,-308.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="324.55,-311.51 334.36,-307.51 324.19,-304.52 324.55,-311.51"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_node13" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~test_arithmetic_3d~~CallsGraph_node13"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="430,-398 315,-398 315,-374 430,-374 430,-398"/>
+<text text-anchor="middle" x="372.5" y="-383.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_edge6" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#00ff66" d="M236.65,-355.18C258.11,-360.08 285.01,-366.23 309.13,-371.74"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="308.39,-375.17 318.92,-373.98 309.95,-368.34 308.39,-375.17"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_node14" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~test_arithmetic_3d~~CallsGraph_node14"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="634,-338 501,-338 501,-314 634,-314 634,-338"/>
+<text text-anchor="middle" x="567.5" y="-323.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_edge7" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#00ff66" d="M236.8,-343.82C297.57,-340.54 413.7,-334.26 490.64,-330.1"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="490.96,-333.59 500.76,-329.55 490.59,-326.6 490.96,-333.59"/>
+</g>
+<!-- proc~mapl_stateeval&#45;&gt;proc~mapl_verify -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_edge14" class="edge">
+<title>proc~mapl_stateeval&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0066ff" d="M202.64,-192.28C214.41,-214.51 242.36,-261.28 280,-285 293.11,-293.26 309.1,-298.28 324.02,-301.33"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="323.68,-304.82 334.14,-303.14 324.91,-297.93 323.68,-304.82"/>
+</g>
+<!-- esmf_stateget -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_node7" class="node">
+<title>esmf_stateget</title>
+<polygon fill="#777777" stroke="#777777" points="416.5,-276 328.5,-276 328.5,-252 416.5,-252 416.5,-276"/>
+<text text-anchor="middle" x="372.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_stateget</text>
+</g>
+<!-- proc~mapl_stateeval&#45;&gt;esmf_stateget -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_edge8" class="edge">
+<title>proc~mapl_stateeval&#45;&gt;esmf_stateget</title>
+<path fill="none" stroke="#0066ff" d="M208.96,-192.14C224.38,-206.46 252.02,-229.96 280,-243 291.89,-248.54 305.35,-252.67 318.21,-255.73"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="317.84,-259.24 328.36,-257.97 319.35,-252.4 317.84,-259.24"/>
+</g>
+<!-- interface~fieldsarebroadcastconformable -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_node8" class="node">
+<title>interface~fieldsarebroadcastconformable</title>
+<g id="a_proc~~test_arithmetic_3d~~CallsGraph_node8"><a xlink:href="../interface/fieldsarebroadcastconformable.html" xlink:title="FieldsAreBroadCastConformable">
+<polygon fill="#a7506f" stroke="#a7506f" points="465,-234 280,-234 280,-210 465,-210 465,-234"/>
+<text text-anchor="middle" x="372.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">FieldsAreBroadCastConformable</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_stateeval&#45;&gt;interface~fieldsarebroadcastconformable -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_edge9" class="edge">
+<title>proc~mapl_stateeval&#45;&gt;interface~fieldsarebroadcastconformable</title>
+<path fill="none" stroke="#0066ff" d="M243.71,-192.05C255.55,-195.03 268.23,-198.17 280,-201 289.17,-203.21 298.88,-205.49 308.4,-207.7"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="307.7,-211.13 318.23,-209.97 309.28,-204.31 307.7,-211.13"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_node9" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~test_arithmetic_3d~~CallsGraph_node9"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="412,-192 333,-192 333,-168 412,-168 412,-192"/>
+<text text-anchor="middle" x="372.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_stateeval&#45;&gt;interface~mapl_assert -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_edge10" class="edge">
+<title>proc~mapl_stateeval&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#0066ff" d="M244.32,-180C268.67,-180 298.22,-180 322.71,-180"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="322.87,-183.5 332.87,-180 322.87,-176.5 322.87,-183.5"/>
+</g>
+<!-- proc~bytecode_dealloc -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_node10" class="node">
+<title>proc~bytecode_dealloc</title>
+<g id="a_proc~~test_arithmetic_3d~~CallsGraph_node10"><a xlink:href="../proc/bytecode_dealloc.html" xlink:title="bytecode_dealloc">
+<polygon fill="#d9534f" stroke="#d9534f" points="425.5,-150 319.5,-150 319.5,-126 425.5,-126 425.5,-150"/>
+<text text-anchor="middle" x="372.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bytecode_dealloc</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_stateeval&#45;&gt;proc~bytecode_dealloc -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_edge11" class="edge">
+<title>proc~mapl_stateeval&#45;&gt;proc~bytecode_dealloc</title>
+<path fill="none" stroke="#0066ff" d="M243.71,-167.95C255.55,-164.97 268.23,-161.83 280,-159 289.51,-156.71 299.59,-154.35 309.44,-152.06"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="310.24,-155.47 319.2,-149.81 308.67,-148.65 310.24,-155.47"/>
+</g>
+<!-- proc~checksyntax -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_node11" class="node">
+<title>proc~checksyntax</title>
+<g id="a_proc~~test_arithmetic_3d~~CallsGraph_node11"><a xlink:href="../proc/checksyntax.html" xlink:title="CheckSyntax">
+<polygon fill="#d9534f" stroke="#d9534f" points="413.5,-108 331.5,-108 331.5,-84 413.5,-84 413.5,-108"/>
+<text text-anchor="middle" x="372.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">CheckSyntax</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_stateeval&#45;&gt;proc~checksyntax -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_edge12" class="edge">
+<title>proc~mapl_stateeval&#45;&gt;proc~checksyntax</title>
+<path fill="none" stroke="#0066ff" d="M208.96,-167.86C224.38,-153.54 252.02,-130.04 280,-117 292.84,-111.02 307.51,-106.68 321.28,-103.55"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="322.05,-106.97 331.11,-101.49 320.61,-100.12 322.05,-106.97"/>
+</g>
+<!-- proc~evalf -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_node12" class="node">
+<title>proc~evalf</title>
+<g id="a_proc~~test_arithmetic_3d~~CallsGraph_node12"><a xlink:href="../proc/evalf.html" xlink:title="evalf">
+<polygon fill="#d9534f" stroke="#d9534f" points="399.5,-66 345.5,-66 345.5,-42 399.5,-42 399.5,-66"/>
+<text text-anchor="middle" x="372.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">evalf</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_stateeval&#45;&gt;proc~evalf -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_edge13" class="edge">
+<title>proc~mapl_stateeval&#45;&gt;proc~evalf</title>
+<path fill="none" stroke="#0066ff" d="M202.64,-167.72C214.41,-145.49 242.36,-98.72 280,-75 296.48,-64.61 317.52,-59.35 335.27,-56.69"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="335.81,-60.15 345.28,-55.4 334.92,-53.2 335.81,-60.15"/>
+</g>
+<!-- proc~parsef -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_node15" class="node">
+<title>proc~parsef</title>
+<g id="a_proc~~test_arithmetic_3d~~CallsGraph_node15"><a xlink:href="../proc/parsef.html" xlink:title="parsef">
+<polygon fill="#d9534f" stroke="#d9534f" points="399.5,-24 345.5,-24 345.5,0 399.5,0 399.5,-24"/>
+<text text-anchor="middle" x="372.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parsef</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_stateeval&#45;&gt;proc~parsef -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_edge15" class="edge">
+<title>proc~mapl_stateeval&#45;&gt;proc~parsef</title>
+<path fill="none" stroke="#0066ff" d="M199.73,-167.86C207.95,-139.46 232.44,-68.4 280,-33 295.74,-21.28 316.91,-15.94 334.92,-13.57"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="335.52,-17.03 345.09,-12.49 334.78,-10.07 335.52,-17.03"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~test_arithmetic_3d~~CallsGraph_edge16" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#cc00ff" d="M410.71,-309.86C433.44,-312.21 463.34,-315.31 490.86,-318.16"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="490.57,-321.65 500.87,-319.2 491.29,-314.69 490.57,-321.65"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproctest_arithmetic_3dCallsGraph = svgPanZoom('#proctest_arithmetic_3dCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">test_arithmetic_3d</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+<span class="w">      </span><span class="k">class</span><span class="p">(</span><span class="n">ESMF_TestMethod</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+
+<span class="w">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ptr3d</span><span class="p">(:,:,:),</span><span class="w"> </span><span class="n">extra_ptr</span><span class="p">(:,:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R4</span><span class="p">),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">expected_array</span><span class="p">(:,:,:)</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R4</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rval</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">expr</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">extra_3d</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">extra_ptr</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">field_3d</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">ptr3d</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="n">expr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;field_3d+2.0*sqrt(extra_3d)&quot;</span>
+<span class="w">      </span><span class="n">rval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="mf">7.0</span><span class="w"> </span>
+<span class="w">      </span><span class="n">ptr3d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rval</span>
+<span class="w">      </span><span class="n">rval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="mf">6.0</span>
+<span class="w">      </span><span class="n">extra_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rval</span>
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">expected_array</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">      </span><span class="n">expected_array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="mf">7.0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">2.0</span><span class="o">*</span><span class="nb">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="mf">6.0</span><span class="p">)</span><span class="w"> </span>
+<span class="w">      </span><span class="k">call  </span><span class="n">MAPL_StateEval</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">expr</span><span class="p">,</span><span class="w"> </span><span class="n">field_3d</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">      </span><span class="err">@</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">expected_array</span><span class="p">,</span><span class="w"> </span><span class="n">ptr3d</span><span class="p">)</span>
+<span class="w">      </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">test_arithmetic_3d</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-05-29T14:32:59.075060+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

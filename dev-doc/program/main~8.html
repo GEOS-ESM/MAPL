@@ -1,0 +1,1211 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>main &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>main      <small>Program</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 1.5% of total for programs.">93 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/demo.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/demo.f90.html'>demo.F90</a></li>
+            <li class="breadcrumb-item active" aria-current="page">main</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../program/main~8.html#variable-report_lines~5">report_lines</a>
+            <a class="list-group-item" href="../program/main~8.html#variable-i~489">i</a>
+            <a class="list-group-item" href="../program/main~8.html#variable-ierror~47">ierror</a>
+            <a class="list-group-item" href="../program/main~8.html#variable-rc~743">rc</a>
+            <a class="list-group-item" href="../program/main~8.html#variable-status~368">status</a>
+            <a class="list-group-item" href="../program/main~8.html#variable-reporter~5">reporter</a>
+            <a class="list-group-item" href="../program/main~8.html#variable-lap_prof~2">lap_prof</a>
+            <a class="list-group-item" href="../program/main~8.html#variable-main_prof~2">main_prof</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#subs-0"
+         aria-expanded="false" aria-controls="subs-0">
+         <h4 class="card-header bg-primary text-white">Subroutines</h4>
+      </a>
+      <div id="subs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../program/main~8.html#proc-do_lap~2">do_lap</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../program/main~8.html#src">main</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+        <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='../module/mapl_errorhandlingmod.html'>MAPL_ErrorHandlingMod</a></li>
+                  <li class="list-inline-item"><a href='../module/mapl_profiler.html'>mapl_Profiler</a></li>
+                  <li class="list-inline-item"><a href='http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm'>mpi</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: program~~main~8~~UsesGraph Pages: 1 -->
+<svg id="programmain8UsesGraph" width="241pt" height="116pt"
+ viewBox="0.00 0.00 241.00 116.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="program~~main~8~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 112)">
+<title>program~~main~8~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 237,-112 237,4 -4,4"/>
+<!-- program~main~8 -->
+<g id="program~~main~8~~UsesGraph_node1" class="node">
+<title>program~main~8</title>
+<polygon fill="none" stroke="black" points="233,-66 179,-66 179,-42 233,-42 233,-66"/>
+<text text-anchor="middle" x="206" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50">main</text>
+</g>
+<!-- module~mapl_errorhandlingmod -->
+<g id="program~~main~8~~UsesGraph_node2" class="node">
+<title>module~mapl_errorhandlingmod</title>
+<g id="a_program~~main~8~~UsesGraph_node2"><a xlink:href="../module/mapl_errorhandlingmod.html" xlink:title="MAPL_ErrorHandlingMod">
+<polygon fill="#337ab7" stroke="#337ab7" points="143,-108 0,-108 0,-84 143,-84 143,-108"/>
+<text text-anchor="middle" x="71.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_ErrorHandlingMod</text>
+</a>
+</g>
+</g>
+<!-- program~main~8&#45;&gt;module~mapl_errorhandlingmod -->
+<g id="program~~main~8~~UsesGraph_edge1" class="edge">
+<title>program~main~8&#45;&gt;module~mapl_errorhandlingmod</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M178.82,-63.11C167.8,-66.88 154.8,-71.24 143,-75 136.85,-76.96 130.38,-78.96 123.96,-80.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="122.52,-77.69 113.96,-83.93 124.54,-84.39 122.52,-77.69"/>
+</g>
+<!-- module~mapl_profiler -->
+<g id="program~~main~8~~UsesGraph_node3" class="node">
+<title>module~mapl_profiler</title>
+<g id="a_program~~main~8~~UsesGraph_node3"><a xlink:href="../module/mapl_profiler.html" xlink:title="mapl_Profiler">
+<polygon fill="#337ab7" stroke="#337ab7" points="112.5,-66 30.5,-66 30.5,-42 112.5,-42 112.5,-66"/>
+<text text-anchor="middle" x="71.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mapl_Profiler</text>
+</a>
+</g>
+</g>
+<!-- program~main~8&#45;&gt;module~mapl_profiler -->
+<g id="program~~main~8~~UsesGraph_edge2" class="edge">
+<title>program~main~8&#45;&gt;module~mapl_profiler</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M178.82,-54C162.84,-54 141.87,-54 122.79,-54"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="122.72,-50.5 112.72,-54 122.72,-57.5 122.72,-50.5"/>
+</g>
+<!-- mpi -->
+<g id="program~~main~8~~UsesGraph_node4" class="node">
+<title>mpi</title>
+<g id="a_program~~main~8~~UsesGraph_node4"><a xlink:href="http://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node410.htm" xlink:title="mpi">
+<polygon fill="#337ab7" stroke="#337ab7" points="98.5,-24 44.5,-24 44.5,0 98.5,0 98.5,-24"/>
+<text text-anchor="middle" x="71.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi</text>
+</a>
+</g>
+</g>
+<!-- program~main~8&#45;&gt;mpi -->
+<g id="program~~main~8~~UsesGraph_edge3" class="edge">
+<title>program~main~8&#45;&gt;mpi</title>
+<path fill="none" stroke="#ff0000" stroke-dasharray="5,2" d="M178.82,-44.89C167.8,-41.12 154.8,-36.76 143,-33 131.82,-29.44 119.58,-25.73 108.49,-22.44"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="109.27,-19.02 98.69,-19.55 107.29,-25.73 109.27,-19.02"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+    
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: program~~main~8~~CallsGraph Pages: 1 -->
+<svg id="programmain8CallsGraph" width="641pt" height="676pt"
+ viewBox="0.00 0.00 641.00 675.53" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="program~~main~8~~CallsGraph" class="graph" transform="scale(0.89 0.89) rotate(0) translate(4 759)">
+<title>program~~main~8~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-759 720,-759 720,4 -4,4"/>
+<!-- program~main~8 -->
+<g id="program~~main~8~~CallsGraph_node1" class="node">
+<title>program~main~8</title>
+<polygon fill="none" stroke="black" points="54,-570 0,-570 0,-546 54,-546 54,-570"/>
+<text text-anchor="middle" x="27" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50">main</text>
+</g>
+<!-- mpi_finalize -->
+<g id="program~~main~8~~CallsGraph_node2" class="node">
+<title>mpi_finalize</title>
+<polygon fill="#777777" stroke="#777777" points="222,-755 146,-755 146,-731 222,-731 222,-755"/>
+<text text-anchor="middle" x="184" y="-740.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_finalize</text>
+</g>
+<!-- program~main~8&#45;&gt;mpi_finalize -->
+<g id="program~~main~8~~CallsGraph_edge1" class="edge">
+<title>program~main~8&#45;&gt;mpi_finalize</title>
+<path fill="none" stroke="#ff0000" d="M28.8,-570.06C31.48,-600.52 42.91,-681.06 90,-722 102.5,-732.87 119.44,-738.45 135.44,-741.22"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="135.37,-744.74 145.76,-742.65 136.34,-737.81 135.37,-744.74"/>
+</g>
+<!-- mpi_init -->
+<g id="program~~main~8~~CallsGraph_node3" class="node">
+<title>mpi_init</title>
+<polygon fill="#777777" stroke="#777777" points="211.5,-713 156.5,-713 156.5,-689 211.5,-689 211.5,-713"/>
+<text text-anchor="middle" x="184" y="-698.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_init</text>
+</g>
+<!-- program~main~8&#45;&gt;mpi_init -->
+<g id="program~~main~8~~CallsGraph_edge2" class="edge">
+<title>program~main~8&#45;&gt;mpi_init</title>
+<path fill="none" stroke="#ff0000" d="M30.56,-570.25C36.43,-595.08 53.25,-651.4 90,-680 105.91,-692.38 127.72,-697.73 146.23,-699.94"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="146.11,-703.45 156.39,-700.89 146.76,-696.48 146.11,-703.45"/>
+</g>
+<!-- none~generate_report -->
+<g id="program~~main~8~~CallsGraph_node4" class="node">
+<title>none~generate_report</title>
+<g id="a_program~~main~8~~CallsGraph_node4"><a xlink:href="../type/profilereporter.html#boundprocedure-generate_report" xlink:title="ProfileReporter%generate_report">
+<polygon fill="#a7506f" stroke="#a7506f" points="278,-671 90,-671 90,-647 278,-647 278,-671"/>
+<text text-anchor="middle" x="184" y="-656.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ProfileReporter%generate_report</text>
+</a>
+</g>
+</g>
+<!-- program~main~8&#45;&gt;none~generate_report -->
+<g id="program~~main~8~~CallsGraph_edge3" class="edge">
+<title>program~main~8&#45;&gt;none~generate_report</title>
+<path fill="none" stroke="#ff0000" d="M34.74,-570.08C44.66,-586.75 64.79,-616.61 90,-633 96.19,-637.02 102.99,-640.43 110.02,-643.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="109.12,-646.71 119.71,-646.93 111.57,-640.15 109.12,-646.71"/>
+</g>
+<!-- none~start~84 -->
+<g id="program~~main~8~~CallsGraph_node5" class="node">
+<title>none~start~84</title>
+<g id="a_program~~main~8~~CallsGraph_node5"><a xlink:href="../type/timeprofiler.html#boundprocedure-start~84" xlink:title="TimeProfiler%start">
+<polygon fill="#a7506f" stroke="#a7506f" points="485,-654 375,-654 375,-630 485,-630 485,-654"/>
+<text text-anchor="middle" x="430" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">TimeProfiler%start</text>
+</a>
+</g>
+</g>
+<!-- program~main~8&#45;&gt;none~start~84 -->
+<g id="program~~main~8~~CallsGraph_edge4" class="edge">
+<title>program~main~8&#45;&gt;none~start~84</title>
+<path fill="none" stroke="#ff0000" d="M41.7,-570.11C53.6,-579.9 71.74,-593.14 90,-600 138.83,-618.34 280.62,-631.31 364.56,-637.63"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="364.52,-641.13 374.75,-638.38 365.04,-634.15 364.52,-641.13"/>
+</g>
+<!-- proc~accumulate -->
+<g id="program~~main~8~~CallsGraph_node6" class="node">
+<title>proc~accumulate</title>
+<g id="a_program~~main~8~~CallsGraph_node6"><a xlink:href="../proc/accumulate.html" xlink:title="BaseProfiler%accumulate">
+<polygon fill="#d9534f" stroke="#d9534f" points="258.5,-549 109.5,-549 109.5,-525 258.5,-525 258.5,-549"/>
+<text text-anchor="middle" x="184" y="-534.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseProfiler%accumulate</text>
+</a>
+</g>
+</g>
+<!-- program~main~8&#45;&gt;proc~accumulate -->
+<g id="program~~main~8~~CallsGraph_edge5" class="edge">
+<title>program~main~8&#45;&gt;proc~accumulate</title>
+<path fill="none" stroke="#ff0000" d="M54.29,-554.44C66.95,-552.72 82.91,-550.56 99.25,-548.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="100,-551.78 109.44,-546.97 99.06,-544.84 100,-551.78"/>
+</g>
+<!-- proc~add_column -->
+<g id="program~~main~8~~CallsGraph_node7" class="node">
+<title>proc~add_column</title>
+<g id="a_program~~main~8~~CallsGraph_node7"><a xlink:href="../proc/add_column.html" xlink:title="MultiColumn%add_column">
+<polygon fill="#d9534f" stroke="#d9534f" points="261,-218 107,-218 107,-194 261,-194 261,-218"/>
+<text text-anchor="middle" x="184" y="-203.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MultiColumn%add_column</text>
+</a>
+</g>
+</g>
+<!-- program~main~8&#45;&gt;proc~add_column -->
+<g id="program~~main~8~~CallsGraph_edge6" class="edge">
+<title>program~main~8&#45;&gt;proc~add_column</title>
+<path fill="none" stroke="#ff0000" d="M33.03,-545.76C43.45,-520.48 68.24,-460.73 90,-411 119.36,-343.91 155.57,-265.2 172.87,-227.83"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="176.19,-228.97 177.22,-218.43 169.84,-226.03 176.19,-228.97"/>
+</g>
+<!-- proc~do_lap~2 -->
+<g id="program~~main~8~~CallsGraph_node8" class="node">
+<title>proc~do_lap~2</title>
+<g id="a_program~~main~8~~CallsGraph_node8"><a xlink:href="../proc/do_lap~2.html" xlink:title="do_lap">
+<polygon fill="#d9534f" stroke="#d9534f" points="211,-591 157,-591 157,-567 211,-567 211,-591"/>
+<text text-anchor="middle" x="184" y="-576.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">do_lap</text>
+</a>
+</g>
+</g>
+<!-- program~main~8&#45;&gt;proc~do_lap~2 -->
+<g id="program~~main~8~~CallsGraph_edge7" class="edge">
+<title>program~main~8&#45;&gt;proc~do_lap~2</title>
+<path fill="none" stroke="#ff0000" d="M54.29,-561.56C79.76,-565.01 118.57,-570.27 146.91,-574.11"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="146.46,-577.58 156.84,-575.46 147.4,-570.64 146.46,-577.58"/>
+</g>
+<!-- proc~mapl_abort -->
+<g id="program~~main~8~~CallsGraph_node9" class="node">
+<title>proc~mapl_abort</title>
+<g id="a_program~~main~8~~CallsGraph_node9"><a xlink:href="../proc/mapl_abort.html" xlink:title="MAPL_abort">
+<polygon fill="#d9534f" stroke="#d9534f" points="221.5,-113 146.5,-113 146.5,-89 221.5,-89 221.5,-113"/>
+<text text-anchor="middle" x="184" y="-98.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_abort</text>
+</a>
+</g>
+</g>
+<!-- program~main~8&#45;&gt;proc~mapl_abort -->
+<g id="program~~main~8~~CallsGraph_edge8" class="edge">
+<title>program~main~8&#45;&gt;proc~mapl_abort</title>
+<path fill="none" stroke="#ff0000" d="M28.95,-545.77C33.52,-488.83 54.56,-249.79 90,-185 105.23,-157.15 133.31,-133.76 154.64,-118.79"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="156.72,-121.61 163.02,-113.1 152.79,-115.82 156.72,-121.61"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="program~~main~8~~CallsGraph_node10" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_program~~main~8~~CallsGraph_node10"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="222,-40 146,-40 146,-16 222,-16 222,-40"/>
+<text text-anchor="middle" x="184" y="-25.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- program~main~8&#45;&gt;proc~mapl_verify -->
+<g id="program~~main~8~~CallsGraph_edge9" class="edge">
+<title>program~main~8&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M28.13,-545.82C29.06,-479.23 36.3,-159.35 90,-80 101.11,-63.58 119.21,-51.8 136.51,-43.65"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="138.24,-46.71 145.99,-39.48 135.42,-40.3 138.24,-46.71"/>
+</g>
+<!-- proc~reset -->
+<g id="program~~main~8~~CallsGraph_node11" class="node">
+<title>proc~reset</title>
+<g id="a_program~~main~8~~CallsGraph_node11"><a xlink:href="../proc/reset.html" xlink:title="BaseProfiler%reset">
+<polygon fill="#d9534f" stroke="#d9534f" points="240,-444 128,-444 128,-420 240,-420 240,-444"/>
+<text text-anchor="middle" x="184" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseProfiler%reset</text>
+</a>
+</g>
+</g>
+<!-- program~main~8&#45;&gt;proc~reset -->
+<g id="program~~main~8~~CallsGraph_edge10" class="edge">
+<title>program~main~8&#45;&gt;proc~reset</title>
+<path fill="none" stroke="#ff0000" d="M42.86,-545.92C69.99,-523.87 127.7,-476.96 159.96,-450.73"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="162.4,-453.25 167.96,-444.23 157.99,-447.82 162.4,-453.25"/>
+</g>
+<!-- proc~generate_report_profiler -->
+<g id="program~~main~8~~CallsGraph_node19" class="node">
+<title>proc~generate_report_profiler</title>
+<g id="a_program~~main~8~~CallsGraph_node19"><a xlink:href="../proc/generate_report_profiler.html" xlink:title="ProfileReporter%generate_report_profiler">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="546,-696 314,-696 314,-672 546,-672 546,-696"/>
+<text text-anchor="middle" x="430" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ProfileReporter%generate_report_profiler</text>
+</a>
+</g>
+</g>
+<!-- none~generate_report&#45;&gt;proc~generate_report_profiler -->
+<g id="program~~main~8~~CallsGraph_edge11" class="edge">
+<title>none~generate_report&#45;&gt;proc~generate_report_profiler</title>
+<path fill="none" stroke="#cbff00" stroke-dasharray="5,2" d="M278.29,-668.56C286.61,-669.41 295.11,-670.28 303.64,-671.16"/>
+<polygon fill="#cbff00" stroke="#cbff00" points="303.34,-674.64 313.65,-672.18 304.06,-667.68 303.34,-674.64"/>
+</g>
+<!-- proc~start_self -->
+<g id="program~~main~8~~CallsGraph_node25" class="node">
+<title>proc~start_self</title>
+<g id="a_program~~main~8~~CallsGraph_node25"><a xlink:href="../proc/start_self.html" xlink:title="BaseProfiler%start_self">
+<polygon fill="#d9534f" stroke="#d9534f" points="716,-654 582,-654 582,-630 716,-630 716,-654"/>
+<text text-anchor="middle" x="649" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseProfiler%start_self</text>
+</a>
+</g>
+</g>
+<!-- none~start~84&#45;&gt;proc~start_self -->
+<g id="program~~main~8~~CallsGraph_edge12" class="edge">
+<title>none~start~84&#45;&gt;proc~start_self</title>
+<path fill="none" stroke="#33ff00" stroke-dasharray="5,2" d="M485.2,-642C511.25,-642 542.93,-642 571.39,-642"/>
+<polygon fill="#33ff00" stroke="#33ff00" points="571.71,-645.5 581.71,-642 571.71,-638.5 571.71,-645.5"/>
+</g>
+<!-- accumulate -->
+<g id="program~~main~8~~CallsGraph_node12" class="node">
+<title>accumulate</title>
+<polygon fill="#777777" stroke="#777777" points="468,-612 392,-612 392,-588 468,-588 468,-612"/>
+<text text-anchor="middle" x="430" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">accumulate</text>
+</g>
+<!-- proc~accumulate&#45;&gt;accumulate -->
+<g id="program~~main~8~~CallsGraph_edge13" class="edge">
+<title>proc~accumulate&#45;&gt;accumulate</title>
+<path fill="none" stroke="#00ff66" d="M250.31,-549.07C259.74,-551.59 269.22,-554.54 278,-558 295.24,-564.79 296.63,-572.57 314,-579 335.59,-586.99 360.63,-592.02 381.82,-595.15"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="381.49,-598.64 391.88,-596.53 382.45,-591.7 381.49,-598.64"/>
+</g>
+<!-- proc~get_root_node -->
+<g id="program~~main~8~~CallsGraph_node21" class="node">
+<title>proc~get_root_node</title>
+<g id="a_program~~main~8~~CallsGraph_node21"><a xlink:href="../proc/get_root_node.html" xlink:title="BaseProfiler%get_root_node">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="511,-528 349,-528 349,-504 511,-504 511,-528"/>
+<text text-anchor="middle" x="430" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseProfiler%get_root_node</text>
+</a>
+</g>
+</g>
+<!-- proc~accumulate&#45;&gt;proc~get_root_node -->
+<g id="program~~main~8~~CallsGraph_edge14" class="edge">
+<title>proc~accumulate&#45;&gt;proc~get_root_node</title>
+<path fill="none" stroke="#00ff66" d="M258.54,-530.67C283.8,-528.5 312.36,-526.04 338.79,-523.76"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="339.14,-527.25 348.8,-522.9 338.54,-520.27 339.14,-527.25"/>
+</g>
+<!-- proc~vector_back~2 -->
+<g id="program~~main~8~~CallsGraph_node27" class="node">
+<title>proc~vector_back~2</title>
+<g id="a_program~~main~8~~CallsGraph_node27"><a xlink:href="../proc/vector_back~2.html" xlink:title="MeterNodeStack%vector_back">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="517.5,-570 342.5,-570 342.5,-546 517.5,-546 517.5,-570"/>
+<text text-anchor="middle" x="430" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MeterNodeStack%vector_back</text>
+</a>
+</g>
+</g>
+<!-- proc~accumulate&#45;&gt;proc~vector_back~2 -->
+<g id="program~~main~8~~CallsGraph_edge15" class="edge">
+<title>proc~accumulate&#45;&gt;proc~vector_back~2</title>
+<path fill="none" stroke="#00ff66" d="M258.54,-543.33C281.72,-545.32 307.7,-547.56 332.25,-549.67"/>
+<polygon fill="#00ff66" stroke="#00ff66" points="332.04,-553.17 342.3,-550.54 332.64,-546.19 332.04,-553.17"/>
+</g>
+<!-- get_num_rows_header -->
+<g id="program~~main~8~~CallsGraph_node15" class="node">
+<title>get_num_rows_header</title>
+<polygon fill="#777777" stroke="#777777" points="496,-276 364,-276 364,-252 496,-252 496,-276"/>
+<text text-anchor="middle" x="430" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_num_rows_header</text>
+</g>
+<!-- proc~add_column&#45;&gt;get_num_rows_header -->
+<g id="program~~main~8~~CallsGraph_edge16" class="edge">
+<title>proc~add_column&#45;&gt;get_num_rows_header</title>
+<path fill="none" stroke="#00ffff" d="M223.12,-218.01C248.67,-225.79 283.15,-235.78 314,-243 326.83,-246 340.56,-248.84 353.89,-251.39"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="353.52,-254.88 363.99,-253.29 354.81,-248 353.52,-254.88"/>
+</g>
+<!-- proc~get_num_rows_separator -->
+<g id="program~~main~8~~CallsGraph_node20" class="node">
+<title>proc~get_num_rows_separator</title>
+<g id="a_program~~main~8~~CallsGraph_node20"><a xlink:href="../proc/get_num_rows_separator.html" xlink:title="TextColumn%get_num_rows_separator">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="538.5,-234 321.5,-234 321.5,-210 538.5,-210 538.5,-234"/>
+<text text-anchor="middle" x="430" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">TextColumn%get_num_rows_separator</text>
+</a>
+</g>
+</g>
+<!-- proc~add_column&#45;&gt;proc~get_num_rows_separator -->
+<g id="program~~main~8~~CallsGraph_edge17" class="edge">
+<title>proc~add_column&#45;&gt;proc~get_num_rows_separator</title>
+<path fill="none" stroke="#00ffff" d="M261.2,-211C277.1,-212.04 294.21,-213.16 311.21,-214.28"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="310.99,-217.77 321.2,-214.93 311.45,-210.78 310.99,-217.77"/>
+</g>
+<!-- proc~get_width -->
+<g id="program~~main~8~~CallsGraph_node22" class="node">
+<title>proc~get_width</title>
+<g id="a_program~~main~8~~CallsGraph_node22"><a xlink:href="../proc/get_width.html" xlink:title="TextColumn%get_width">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="497.5,-192 362.5,-192 362.5,-168 497.5,-168 497.5,-192"/>
+<text text-anchor="middle" x="430" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">TextColumn%get_width</text>
+</a>
+</g>
+</g>
+<!-- proc~add_column&#45;&gt;proc~get_width -->
+<g id="program~~main~8~~CallsGraph_edge18" class="edge">
+<title>proc~add_column&#45;&gt;proc~get_width</title>
+<path fill="none" stroke="#00ffff" d="M261.2,-197.88C290.22,-194.79 323.28,-191.27 352.34,-188.17"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="352.87,-191.63 362.44,-187.09 352.13,-184.67 352.87,-191.63"/>
+</g>
+<!-- proc~set_width -->
+<g id="program~~main~8~~CallsGraph_node24" class="node">
+<title>proc~set_width</title>
+<g id="a_program~~main~8~~CallsGraph_node24"><a xlink:href="../proc/set_width.html" xlink:title="TextColumn%set_width">
+<polygon fill="#d9534f" stroke="#d9534f" points="496.5,-150 363.5,-150 363.5,-126 496.5,-126 496.5,-150"/>
+<text text-anchor="middle" x="430" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">TextColumn%set_width</text>
+</a>
+</g>
+</g>
+<!-- proc~add_column&#45;&gt;proc~set_width -->
+<g id="program~~main~8~~CallsGraph_edge19" class="edge">
+<title>proc~add_column&#45;&gt;proc~set_width</title>
+<path fill="none" stroke="#00ffff" d="M213.75,-193.94C239.6,-183.47 278.8,-168.55 314,-159 326.64,-155.57 340.22,-152.53 353.46,-149.91"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="354.33,-153.31 363.5,-147.99 353.01,-146.43 354.33,-153.31"/>
+</g>
+<!-- proc~v_push_back~24 -->
+<g id="program~~main~8~~CallsGraph_node26" class="node">
+<title>proc~v_push_back~24</title>
+<g id="a_program~~main~8~~CallsGraph_node26"><a xlink:href="../proc/v_push_back~24.html" xlink:title="TextColumnVector%v_push_back">
+<polygon fill="#d9534f" stroke="#d9534f" points="522.5,-108 337.5,-108 337.5,-84 522.5,-84 522.5,-108"/>
+<text text-anchor="middle" x="430" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">TextColumnVector%v_push_back</text>
+</a>
+</g>
+</g>
+<!-- proc~add_column&#45;&gt;proc~v_push_back~24 -->
+<g id="program~~main~8~~CallsGraph_edge20" class="edge">
+<title>proc~add_column&#45;&gt;proc~v_push_back~24</title>
+<path fill="none" stroke="#00ffff" d="M198.53,-193.7C220.83,-174.15 267.49,-136.24 314,-117 319.53,-114.71 325.3,-112.68 331.2,-110.86"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="332.56,-114.11 341.22,-108 330.64,-107.38 332.56,-114.11"/>
+</g>
+<!-- proc~do_lap~2&#45;&gt;none~start~84 -->
+<g id="program~~main~8~~CallsGraph_edge21" class="edge">
+<title>proc~do_lap~2&#45;&gt;none~start~84</title>
+<path fill="none" stroke="#0066ff" d="M211.38,-585.28C230.17,-590.02 255.92,-597.05 278,-605 294.47,-610.93 297.27,-615.84 314,-621 330.14,-625.98 347.94,-629.94 364.61,-633.02"/>
+<polygon fill="#0066ff" stroke="#0066ff" points="364.37,-636.53 374.83,-634.83 365.59,-629.64 364.37,-636.53"/>
+</g>
+<!-- mpi_abort -->
+<g id="program~~main~8~~CallsGraph_node16" class="node">
+<title>mpi_abort</title>
+<polygon fill="#777777" stroke="#777777" points="463.5,-66 396.5,-66 396.5,-42 463.5,-42 463.5,-66"/>
+<text text-anchor="middle" x="430" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">mpi_abort</text>
+</g>
+<!-- proc~mapl_abort&#45;&gt;mpi_abort -->
+<g id="program~~main~8~~CallsGraph_edge22" class="edge">
+<title>proc~mapl_abort&#45;&gt;mpi_abort</title>
+<path fill="none" stroke="#3200ff" d="M221.66,-93.43C247.46,-88.14 282.81,-80.99 314,-75 337.92,-70.41 364.68,-65.51 386.36,-61.59"/>
+<polygon fill="#3200ff" stroke="#3200ff" points="387.03,-65.03 396.25,-59.82 385.79,-58.14 387.03,-65.03"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="program~~main~8~~CallsGraph_node23" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_program~~main~8~~CallsGraph_node23"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="496.5,-24 363.5,-24 363.5,0 496.5,0 496.5,-24"/>
+<text text-anchor="middle" x="430" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="program~~main~8~~CallsGraph_edge23" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#cc00ff" d="M222.06,-25.57C256.69,-23.3 309.45,-19.84 353.03,-16.98"/>
+<polygon fill="#cc00ff" stroke="#cc00ff" points="353.28,-20.47 363.03,-16.33 352.82,-13.49 353.28,-20.47"/>
+</g>
+<!-- begin -->
+<g id="program~~main~8~~CallsGraph_node13" class="node">
+<title>begin</title>
+<polygon fill="#777777" stroke="#777777" points="457,-486 403,-486 403,-462 457,-462 457,-486"/>
+<text text-anchor="middle" x="430" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">begin</text>
+</g>
+<!-- proc~reset&#45;&gt;begin -->
+<g id="program~~main~8~~CallsGraph_edge24" class="edge">
+<title>proc~reset&#45;&gt;begin</title>
+<path fill="none" stroke="#ff0098" d="M240.06,-441.48C286.87,-449.53 352.72,-460.87 393.03,-467.81"/>
+<polygon fill="#ff0098" stroke="#ff0098" points="392.5,-471.27 402.95,-469.52 393.69,-464.37 392.5,-471.27"/>
+</g>
+<!-- get_meter -->
+<g id="program~~main~8~~CallsGraph_node14" class="node">
+<title>get_meter</title>
+<polygon fill="#777777" stroke="#777777" points="463.5,-444 396.5,-444 396.5,-420 463.5,-420 463.5,-444"/>
+<text text-anchor="middle" x="430" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_meter</text>
+</g>
+<!-- proc~reset&#45;&gt;get_meter -->
+<g id="program~~main~8~~CallsGraph_edge25" class="edge">
+<title>proc~reset&#45;&gt;get_meter</title>
+<path fill="none" stroke="#ff0098" d="M240.06,-432C284.28,-432 345.5,-432 386.13,-432"/>
+<polygon fill="#ff0098" stroke="#ff0098" points="386.24,-435.5 396.24,-432 386.24,-428.5 386.24,-435.5"/>
+</g>
+<!-- next -->
+<g id="program~~main~8~~CallsGraph_node17" class="node">
+<title>next</title>
+<polygon fill="#777777" stroke="#777777" points="457,-402 403,-402 403,-378 457,-378 457,-402"/>
+<text text-anchor="middle" x="430" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">next</text>
+</g>
+<!-- proc~reset&#45;&gt;next -->
+<g id="program~~main~8~~CallsGraph_edge26" class="edge">
+<title>proc~reset&#45;&gt;next</title>
+<path fill="none" stroke="#ff0098" d="M240.06,-422.52C286.87,-414.47 352.72,-403.13 393.03,-396.19"/>
+<polygon fill="#ff0098" stroke="#ff0098" points="393.69,-399.63 402.95,-394.48 392.5,-392.73 393.69,-399.63"/>
+</g>
+<!-- none~start~16 -->
+<g id="program~~main~8~~CallsGraph_node18" class="node">
+<title>none~start~16</title>
+<g id="a_program~~main~8~~CallsGraph_node18"><a xlink:href="../type/baseprofiler.html#boundprocedure-start~16" xlink:title="BaseProfiler%start">
+<polygon fill="#a7506f" stroke="#a7506f" points="485,-360 375,-360 375,-336 485,-336 485,-360"/>
+<text text-anchor="middle" x="430" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">BaseProfiler%start</text>
+</a>
+</g>
+</g>
+<!-- proc~reset&#45;&gt;none~start~16 -->
+<g id="program~~main~8~~CallsGraph_edge27" class="edge">
+<title>proc~reset&#45;&gt;none~start~16</title>
+<path fill="none" stroke="#ff0098" d="M205.26,-419.93C230.07,-405.67 273.75,-382.23 314,-369 330.13,-363.7 347.99,-359.62 364.74,-356.53"/>
+<polygon fill="#ff0098" stroke="#ff0098" points="365.75,-359.91 374.99,-354.74 364.54,-353.02 365.75,-359.91"/>
+</g>
+<!-- proc~reset&#45;&gt;proc~get_root_node -->
+<g id="program~~main~8~~CallsGraph_edge28" class="edge">
+<title>proc~reset&#45;&gt;proc~get_root_node</title>
+<path fill="none" stroke="#ff0098" d="M205.26,-444.07C230.07,-458.33 273.75,-481.77 314,-495 321.97,-497.62 330.36,-499.94 338.83,-501.99"/>
+<polygon fill="#ff0098" stroke="#ff0098" points="338.27,-505.45 348.8,-504.27 339.83,-498.63 338.27,-505.45"/>
+</g>
+<!-- reset -->
+<g id="program~~main~8~~CallsGraph_node28" class="node">
+<title>reset</title>
+<polygon fill="#777777" stroke="#777777" points="457,-318 403,-318 403,-294 457,-294 457,-318"/>
+<text text-anchor="middle" x="430" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">reset</text>
+</g>
+<!-- proc~reset&#45;&gt;reset -->
+<g id="program~~main~8~~CallsGraph_edge29" class="edge">
+<title>proc~reset&#45;&gt;reset</title>
+<path fill="none" stroke="#ff0098" d="M195.72,-419.95C216.26,-397.67 263.65,-350.21 314,-327 338.77,-315.58 369.24,-310.36 392.58,-307.98"/>
+<polygon fill="#ff0098" stroke="#ff0098" points="393.11,-311.45 402.76,-307.08 392.49,-304.48 393.11,-311.45"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprogrammain8CallsGraph = svgPanZoom('#programmain8CallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+<br>
+
+    <section>
+    <h2>Variables</h2>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-report_lines~5"></span>
+              character(len=:),
+            </td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>report_lines</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i~489"></span>
+              integer
+            </td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>i</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ierror~47"></span>
+              integer
+            </td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ierror</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~743"></span>
+              integer
+            </td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-status~368"></span>
+              integer
+            </td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>status</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-reporter~5"></span>
+              type(<a href='../type/profilereporter.html'>ProfileReporter</a>)
+            </td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>reporter</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lap_prof~2"></span>
+              type(<a href='../type/timeprofiler.html'>TimeProfiler</a>),
+            </td>
+            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>lap_prof</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-main_prof~2"></span>
+              type(<a href='../type/timeprofiler.html'>TimeProfiler</a>),
+            </td>
+            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>main_prof</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </section>
+    <br>
+    
+    
+    
+
+    
+
+
+    <section>
+    <h2>Subroutines</h2>
+      <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-do_lap~2"></span> <h3> subroutine <a href='../proc/do_lap~2.html'>do_lap</a>(prof)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-prof~5"></span>
+              type(<a href='../type/timeprofiler.html'>TimeProfiler</a>),
+            </td>
+<td></td>
+              <td></td>            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>prof</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+    </section>    
+    
+
+    <section>
+    <h2 id="src">Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="k">program </span><span class="n">main</span>
+<span class="w">   </span><span class="k">use </span><span class="n">MPI</span>
+<span class="w">   </span><span class="k">use </span><span class="n">MAPL_Profiler</span>
+<span class="w">   </span><span class="k">use </span><span class="n">MAPL_ErrorHandlingMod</span>
+<span class="w">   </span><span class="k">implicit none</span>
+
+
+<span class="w">   </span><span class="c">!type (MemoryProfiler), target :: mem_prof</span>
+<span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">TimeProfiler</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">main_prof</span>
+<span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">TimeProfiler</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lap_prof</span>
+<span class="w">   </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ProfileReporter</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">reporter</span>
+<span class="w">   </span><span class="c">!type (ProfileReporter) :: mem_reporter</span>
+
+<span class="w">   </span><span class="kt">character</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">report_lines</span><span class="p">(:)</span>
+<span class="w">   </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<span class="w">   </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ierror</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">,</span><span class="w"> </span><span class="n">status</span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">MPI_Init</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">   </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+<span class="w">   </span><span class="n">main_prof</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TimeProfiler</span><span class="p">(</span><span class="s1">&#39;TOTAL&#39;</span><span class="p">)</span><span class="w">   </span><span class="c">! timer 1</span>
+<span class="w">   </span><span class="k">call </span><span class="n">main_prof</span><span class="p">%</span><span class="n">start</span><span class="p">()</span>
+<span class="w">   </span><span class="n">lap_prof</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TimeProfiler</span><span class="p">(</span><span class="s1">&#39;Lap&#39;</span><span class="p">)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">lap_prof</span><span class="p">%</span><span class="n">start</span><span class="p">()</span>
+<span class="w">   </span><span class="c">!mem_prof = MemoryProfiler(&#39;TOTAL&#39;)</span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">main_prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;init reporter&#39;</span><span class="p">)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">NameColumn</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
+<span class="w">   </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;#-cycles&#39;</span><span class="p">,</span><span class="s1">&#39;(i5.0)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="n">NumCyclesColumn</span><span class="p">()))</span>
+<span class="w">   </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39; T(inc)&#39;</span><span class="p">,</span><span class="s1">&#39;(f9.6)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">InclusiveColumn</span><span class="p">()))</span>
+<span class="w">   </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39; T(exc)&#39;</span><span class="p">,</span><span class="s1">&#39;(f9.6)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">ExclusiveColumn</span><span class="p">()))</span>
+<span class="w">   </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;%(inc)&#39;</span><span class="p">,</span><span class="s1">&#39;(f6.2)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">PercentageColumn</span><span class="p">(</span><span class="n">InclusiveColumn</span><span class="p">())))</span>
+<span class="w">   </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;%(exc)&#39;</span><span class="p">,</span><span class="s1">&#39;(f6.2)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">PercentageColumn</span><span class="p">(</span><span class="n">ExclusiveColumn</span><span class="p">())))</span>
+<span class="w">   </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;  std. dev &#39;</span><span class="p">,</span><span class="s1">&#39;(f12.4)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="n">StdDevColumn</span><span class="p">()))</span>
+<span class="w">   </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;  rel. dev &#39;</span><span class="p">,</span><span class="s1">&#39;(f12.4)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="n">StdDevColumn</span><span class="p">(</span><span class="n">relative</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.)))</span>
+<span class="w">   </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;  max cyc &#39;</span><span class="p">,</span><span class="s1">&#39;(f12.8)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="n">MaxCycleColumn</span><span class="p">()))</span>
+<span class="w">   </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39;  min cyc &#39;</span><span class="p">,</span><span class="s1">&#39;(f12.8)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="n">MinCycleColumn</span><span class="p">()))</span>
+<span class="w">   </span><span class="k">call </span><span class="n">reporter</span><span class="p">%</span><span class="n">add_column</span><span class="p">(</span><span class="n">FormattedTextColumn</span><span class="p">(</span><span class="s1">&#39; mean cyc&#39;</span><span class="p">,</span><span class="s1">&#39;(f12.8)&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="n">MeanCycleColumn</span><span class="p">()))</span>
+
+<span class="w">   </span><span class="c">!call mem_reporter%add_column(NameColumn(20))</span>
+<span class="w">   </span><span class="c">!call mem_reporter%add_column(FormattedTextColumn(&#39;#-cycles&#39;,&#39;(i5.0)&#39;, 5, NumCyclesColumn()))</span>
+<span class="w">   </span><span class="c">!call mem_reporter%add_column(MemoryTextColumn(&#39;  RSS  &#39;,&#39;(i4,1x,a2)&#39;, 7, InclusiveColumn()))</span>
+<span class="w">   </span><span class="c">!call mem_reporter%add_column(MemoryTextColumn(&#39;Cyc RSS&#39;,&#39;(i4,1x,a2)&#39;, 7, MeanCycleColumn()))</span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">main_prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;init reporter&#39;</span><span class="p">)</span>
+
+
+<span class="w">   </span><span class="c">!call mem_prof%start(&#39;lap&#39;)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">do_lap</span><span class="p">(</span><span class="n">lap_prof</span><span class="p">)</span><span class="w"> </span><span class="c">! lap 1</span>
+<span class="w">   </span><span class="k">call </span><span class="n">lap_prof</span><span class="p">%</span><span class="k">stop</span><span class="p">()</span>
+<span class="w">   </span><span class="k">call </span><span class="n">main_prof</span><span class="p">%</span><span class="n">accumulate</span><span class="p">(</span><span class="n">lap_prof</span><span class="p">)</span>
+<span class="w">   </span><span class="c">!call mem_prof%stop(&#39;lap&#39;)</span>
+
+
+<span class="w">   </span><span class="k">call </span><span class="n">main_prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;use reporter&#39;</span><span class="p">)</span>
+<span class="w">   </span><span class="n">report_lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reporter</span><span class="p">%</span><span class="n">generate_report</span><span class="p">(</span><span class="n">lap_prof</span><span class="p">)</span>
+<span class="w">   </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;Lap 1&#39;</span>
+<span class="w">   </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;=====&#39;</span>
+<span class="w">   </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">report_lines</span><span class="p">)</span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">report_lines</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end do</span>
+<span class="k">   write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;&#39;</span>
+<span class="w">   </span><span class="k">call </span><span class="n">main_prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;use reporter&#39;</span><span class="p">)</span>
+
+<span class="w">   </span><span class="c">!call mem_prof%start(&#39;lap&#39;)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">lap_prof</span><span class="p">%</span><span class="n">reset</span><span class="p">()</span>
+<span class="w">   </span><span class="k">call </span><span class="n">do_lap</span><span class="p">(</span><span class="n">lap_prof</span><span class="p">)</span><span class="w"> </span><span class="c">! lap 2</span>
+<span class="w">   </span><span class="k">call </span><span class="n">lap_prof</span><span class="p">%</span><span class="k">stop</span><span class="p">()</span>
+<span class="w">   </span><span class="k">call </span><span class="n">main_prof</span><span class="p">%</span><span class="n">accumulate</span><span class="p">(</span><span class="n">lap_prof</span><span class="p">)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">main_prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;use reporter&#39;</span><span class="p">)</span>
+<span class="w">   </span><span class="n">report_lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reporter</span><span class="p">%</span><span class="n">generate_report</span><span class="p">(</span><span class="n">lap_prof</span><span class="p">)</span>
+<span class="w">   </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;Lap 2&#39;</span>
+<span class="w">   </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;=====&#39;</span>
+<span class="w">   </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">report_lines</span><span class="p">)</span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">report_lines</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end do</span>
+<span class="k">   write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
+<span class="w">   </span><span class="k">call </span><span class="n">main_prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;use reporter&#39;</span><span class="p">)</span>
+<span class="w">   </span><span class="c">!call mem_prof%stop(&#39;lap&#39;)</span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">main_prof</span><span class="p">%</span><span class="k">stop</span><span class="p">()</span>
+<span class="w">   </span><span class="n">report_lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reporter</span><span class="p">%</span><span class="n">generate_report</span><span class="p">(</span><span class="n">main_prof</span><span class="p">)</span>
+<span class="w">   </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;Final profile&#39;</span>
+<span class="w">   </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;=============&#39;</span>
+<span class="w">   </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">report_lines</span><span class="p">)</span>
+<span class="w">      </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">report_lines</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end do</span>
+<span class="k">   write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
+
+
+<span class="w">   </span><span class="k">call </span><span class="n">MPI_Finalize</span><span class="p">(</span><span class="n">ierror</span><span class="p">)</span>
+
+<span class="w">   </span><span class="c">!call mem_prof%finalize()</span>
+<span class="w">   </span><span class="c">!report_lines = mem_reporter%generate_report(mem_prof)</span>
+<span class="w">   </span><span class="c">!write(*,&#39;(a)&#39;)&#39;Memory profile&#39;</span>
+<span class="w">   </span><span class="c">!write(*,&#39;(a)&#39;)&#39;==============&#39;</span>
+<span class="w">   </span><span class="c">!do i = 1, size(report_lines)</span>
+<span class="w">   </span><span class="c">!   write(*,&#39;(a)&#39;) report_lines(i)</span>
+<span class="w">   </span><span class="c">!end do</span>
+<span class="w">   </span><span class="c">!write(*,&#39;(a)&#39;) &#39;&#39;</span>
+
+<span class="k">contains</span>
+
+<span class="k">   subroutine </span><span class="n">do_lap</span><span class="p">(</span><span class="n">prof</span><span class="p">)</span>
+<span class="w">      </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">TimeProfiler</span><span class="p">),</span><span class="w"> </span><span class="k">target</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">prof</span>
+
+<span class="w">      </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x</span><span class="p">(:)</span>
+
+<span class="w">      </span><span class="k">allocate</span><span class="p">(</span><span class="n">x</span><span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="mi">7</span><span class="p">))</span>
+<span class="w">      </span><span class="k">call </span><span class="nb">random_number</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="w">      </span><span class="k">print</span><span class="o">*</span><span class="p">,</span><span class="nb">sum</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_1&#39;</span><span class="p">)</span><span class="w"> </span><span class="c">! 2</span>
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_1a&#39;</span><span class="p">)</span><span class="c">! 3</span>
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_1a&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_1b&#39;</span><span class="p">)</span><span class="w"> </span><span class="c">! 4</span>
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_1b1&#39;</span><span class="p">)</span><span class="w"> </span><span class="c">! 5</span>
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_1b1&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_1b&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_1&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_2&#39;</span><span class="p">)</span><span class="w"> </span><span class="c">! 6</span>
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_2b&#39;</span><span class="p">)</span><span class="c">! 7</span>
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_2b&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_2&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_1&#39;</span><span class="p">)</span><span class="w"> </span><span class="c">! 2</span>
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_1a&#39;</span><span class="p">)</span><span class="c">! 3</span>
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_1a&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_1&#39;</span><span class="p">)</span>
+
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_2&#39;</span><span class="p">)</span><span class="w"> </span><span class="c">! 6</span>
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_2&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="n">start</span><span class="p">(</span><span class="s1">&#39;timer_2&#39;</span><span class="p">)</span><span class="w"> </span><span class="c">! 6</span>
+<span class="w">      </span><span class="k">call </span><span class="n">prof</span><span class="p">%</span><span class="k">stop</span><span class="p">(</span><span class="s1">&#39;timer_2&#39;</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">do_lap</span>
+
+
+<span class="k">end program </span><span class="n">main</span>
+</pre></div>
+
+    </section>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-05-29T14:32:59.075060+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

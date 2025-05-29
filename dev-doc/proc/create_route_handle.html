@@ -1,0 +1,1351 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="MAPL is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF)">
+    <meta name="author" content="The MAPL Developers" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>create_route_handle &ndash; MAPL</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">MAPL </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>create_route_handle
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">147 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/MAPL_EsmfRegridder.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/mapl_esmfregridder.f90.html'>MAPL_EsmfRegridder.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/mapl_esmfregriddermod.html'>MAPL_EsmfRegridderMod</a></li>
+            <li class="breadcrumb-item active" aria-current="page">create_route_handle</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/create_route_handle.html#src">create_route_handle</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  subroutine create_route_handle(this, kind, rc)  
+</h2>
+    
+
+
+    <h3>Type Bound</h3>
+    <p><a href='../type/esmfregridder.html'>EsmfRegridder</a></p>
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-this~4205"></span>
+              class(<a href='../type/esmfregridder.html'>EsmfRegridder</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>this</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-kind~2"></span>
+              type(<a href='https://mathomp4.github.io/esmf/type/esmf_typekind_flag.html'>ESMF_TypeKind_Flag</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>kind</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rc~1574"></span>
+              integer,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>rc</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~create_route_handle~~CallsGraph Pages: 1 -->
+<svg id="proccreate_route_handleCallsGraph" width="641pt" height="504pt"
+ viewBox="0.00 0.00 641.00 504.27" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~create_route_handle~~CallsGraph" class="graph" transform="scale(0.68 0.68) rotate(0) translate(4 741)">
+<title>proc~~create_route_handle~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-741 943,-741 943,4 -4,4"/>
+<!-- proc~create_route_handle -->
+<g id="proc~~create_route_handle~~CallsGraph_node1" class="node">
+<title>proc~create_route_handle</title>
+<polygon fill="none" stroke="black" points="210,-380 0,-380 0,-356 210,-356 210,-380"/>
+<text text-anchor="middle" x="105" y="-365.6" font-family="Helvetica,sans-Serif" font-size="10.50">EsmfRegridder%create_route_handle</text>
+</g>
+<!-- ESMF_AttributeGet -->
+<g id="proc~~create_route_handle~~CallsGraph_node2" class="node">
+<title>ESMF_AttributeGet</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node2"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_attributeget.html" xlink:title="ESMF_AttributeGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="413,-737 302,-737 302,-713 413,-713 413,-737"/>
+<text text-anchor="middle" x="357.5" y="-722.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_AttributeGet</text>
+</a>
+</g>
+</g>
+<!-- proc~create_route_handle&#45;&gt;ESMF_AttributeGet -->
+<g id="proc~~create_route_handle~~CallsGraph_edge1" class="edge">
+<title>proc~create_route_handle&#45;&gt;ESMF_AttributeGet</title>
+<path fill="none" stroke="#ff0000" d="M107.05,-380.19C112.02,-429.53 137.57,-615.98 246,-704 258.87,-714.45 275.35,-720.27 291.64,-723.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="291.29,-726.89 301.72,-725.01 292.4,-719.98 291.29,-726.89"/>
+</g>
+<!-- ESMF_FieldRegridStore -->
+<g id="proc~~create_route_handle~~CallsGraph_node3" class="node">
+<title>ESMF_FieldRegridStore</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node3"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_fieldregridstore.html" xlink:title="ESMF_FieldRegridStore">
+<polygon fill="#a7506f" stroke="#a7506f" points="424,-695 291,-695 291,-671 424,-671 424,-695"/>
+<text text-anchor="middle" x="357.5" y="-680.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_FieldRegridStore</text>
+</a>
+</g>
+</g>
+<!-- proc~create_route_handle&#45;&gt;ESMF_FieldRegridStore -->
+<g id="proc~~create_route_handle~~CallsGraph_edge2" class="edge">
+<title>proc~create_route_handle&#45;&gt;ESMF_FieldRegridStore</title>
+<path fill="none" stroke="#ff0000" d="M107.84,-380.22C115.36,-425.72 148.2,-586.55 246,-662 256.13,-669.81 268.3,-675 280.82,-678.4"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="280.36,-681.89 290.9,-680.75 281.96,-675.07 280.36,-681.89"/>
+</g>
+<!-- ESMF_FieldSMMStore -->
+<g id="proc~~create_route_handle~~CallsGraph_node4" class="node">
+<title>ESMF_FieldSMMStore</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node4"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_fieldsmmstore.html" xlink:title="ESMF_FieldSMMStore">
+<polygon fill="#a7506f" stroke="#a7506f" points="419.5,-653 295.5,-653 295.5,-629 419.5,-629 419.5,-653"/>
+<text text-anchor="middle" x="357.5" y="-638.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_FieldSMMStore</text>
+</a>
+</g>
+</g>
+<!-- proc~create_route_handle&#45;&gt;ESMF_FieldSMMStore -->
+<g id="proc~~create_route_handle~~CallsGraph_edge3" class="edge">
+<title>proc~create_route_handle&#45;&gt;ESMF_FieldSMMStore</title>
+<path fill="none" stroke="#ff0000" d="M108.84,-380.18C119.13,-421.44 158.58,-556.83 246,-620 257.46,-628.28 271.28,-633.56 285.21,-636.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="284.84,-640.37 295.34,-638.95 286.24,-633.51 284.84,-640.37"/>
+</g>
+<!-- ESMF_GridGetItem -->
+<g id="proc~~create_route_handle~~CallsGraph_node5" class="node">
+<title>ESMF_GridGetItem</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node5"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridgetitem.html" xlink:title="ESMF_GridGetItem">
+<polygon fill="#a7506f" stroke="#a7506f" points="413.5,-611 301.5,-611 301.5,-587 413.5,-587 413.5,-611"/>
+<text text-anchor="middle" x="357.5" y="-596.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGetItem</text>
+</a>
+</g>
+</g>
+<!-- proc~create_route_handle&#45;&gt;ESMF_GridGetItem -->
+<g id="proc~~create_route_handle~~CallsGraph_edge4" class="edge">
+<title>proc~create_route_handle&#45;&gt;ESMF_GridGetItem</title>
+<path fill="none" stroke="#ff0000" d="M110.22,-380.19C123.59,-416.86 168.75,-526.8 246,-578 259.29,-586.81 275.33,-592.13 291.03,-595.3"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="290.81,-598.81 301.26,-597.09 292.01,-591.92 290.81,-598.81"/>
+</g>
+<!-- ESMF_RouteHandleCreate -->
+<g id="proc~~create_route_handle~~CallsGraph_node6" class="node">
+<title>ESMF_RouteHandleCreate</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node6"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_routehandlecreate.html" xlink:title="ESMF_RouteHandleCreate">
+<polygon fill="#a7506f" stroke="#a7506f" points="433,-569 282,-569 282,-545 433,-545 433,-569"/>
+<text text-anchor="middle" x="357.5" y="-554.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_RouteHandleCreate</text>
+</a>
+</g>
+</g>
+<!-- proc~create_route_handle&#45;&gt;ESMF_RouteHandleCreate -->
+<g id="proc~~create_route_handle~~CallsGraph_edge5" class="edge">
+<title>proc~create_route_handle&#45;&gt;ESMF_RouteHandleCreate</title>
+<path fill="none" stroke="#ff0000" d="M112.22,-380.18C129.02,-411.72 178.6,-496.33 246,-536 253.97,-540.69 262.78,-544.37 271.83,-547.24"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="271.16,-550.68 281.73,-550.05 273.07,-543.95 271.16,-550.68"/>
+</g>
+<!-- ESMF_RouteHandleWrite -->
+<g id="proc~~create_route_handle~~CallsGraph_node7" class="node">
+<title>ESMF_RouteHandleWrite</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node7"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_routehandlewrite.html" xlink:title="ESMF_RouteHandleWrite">
+<polygon fill="#d9534f" stroke="#d9534f" points="429,-527 286,-527 286,-503 429,-503 429,-527"/>
+<text text-anchor="middle" x="357.5" y="-512.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_RouteHandleWrite</text>
+</a>
+</g>
+</g>
+<!-- proc~create_route_handle&#45;&gt;ESMF_RouteHandleWrite -->
+<g id="proc~~create_route_handle~~CallsGraph_edge6" class="edge">
+<title>proc~create_route_handle&#45;&gt;ESMF_RouteHandleWrite</title>
+<path fill="none" stroke="#ff0000" d="M115.37,-380.04C135.97,-405.59 187.99,-465.24 246,-494 255.35,-498.63 265.6,-502.25 275.99,-505.07"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="275.41,-508.53 285.95,-507.53 277.09,-501.73 275.41,-508.53"/>
+</g>
+<!-- esmf_fieldcreate -->
+<g id="proc~~create_route_handle~~CallsGraph_node8" class="node">
+<title>esmf_fieldcreate</title>
+<polygon fill="#777777" stroke="#777777" points="408,-485 307,-485 307,-461 408,-461 408,-485"/>
+<text text-anchor="middle" x="357.5" y="-470.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldcreate</text>
+</g>
+<!-- proc~create_route_handle&#45;&gt;esmf_fieldcreate -->
+<g id="proc~~create_route_handle~~CallsGraph_edge7" class="edge">
+<title>proc~create_route_handle&#45;&gt;esmf_fieldcreate</title>
+<path fill="none" stroke="#ff0000" d="M121.84,-380.09C146.82,-398.54 197.53,-433.53 246,-452 261.94,-458.08 279.87,-462.45 296.58,-465.58"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="296.34,-469.09 306.79,-467.37 297.55,-462.19 296.34,-469.09"/>
+</g>
+<!-- esmf_fielddestroy -->
+<g id="proc~~create_route_handle~~CallsGraph_node9" class="node">
+<title>esmf_fielddestroy</title>
+<polygon fill="#777777" stroke="#777777" points="410.5,-443 304.5,-443 304.5,-419 410.5,-419 410.5,-443"/>
+<text text-anchor="middle" x="357.5" y="-428.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fielddestroy</text>
+</g>
+<!-- proc~create_route_handle&#45;&gt;esmf_fielddestroy -->
+<g id="proc~~create_route_handle~~CallsGraph_edge8" class="edge">
+<title>proc~create_route_handle&#45;&gt;esmf_fielddestroy</title>
+<path fill="none" stroke="#ff0000" d="M142.27,-380.01C170.37,-389.04 210.38,-401.3 246,-410 261.48,-413.78 278.33,-417.29 294.09,-420.31"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="293.79,-423.81 304.26,-422.22 295.08,-416.93 293.79,-423.81"/>
+</g>
+<!-- esmf_fieldget -->
+<g id="proc~~create_route_handle~~CallsGraph_node10" class="node">
+<title>esmf_fieldget</title>
+<polygon fill="#777777" stroke="#777777" points="400,-401 315,-401 315,-377 400,-377 400,-401"/>
+<text text-anchor="middle" x="357.5" y="-386.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">esmf_fieldget</text>
+</g>
+<!-- proc~create_route_handle&#45;&gt;esmf_fieldget -->
+<g id="proc~~create_route_handle~~CallsGraph_edge9" class="edge">
+<title>proc~create_route_handle&#45;&gt;esmf_fieldget</title>
+<path fill="none" stroke="#ff0000" d="M210.06,-376.72C242.72,-379.46 277.36,-382.37 304.74,-384.66"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="304.61,-388.16 314.86,-385.51 305.19,-381.19 304.61,-388.16"/>
+</g>
+<!-- interface~mapl_assert -->
+<g id="proc~~create_route_handle~~CallsGraph_node11" class="node">
+<title>interface~mapl_assert</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node11"><a xlink:href="../interface/mapl_assert.html" xlink:title="MAPL_Assert">
+<polygon fill="#a7506f" stroke="#a7506f" points="397,-359 318,-359 318,-335 397,-335 397,-359"/>
+<text text-anchor="middle" x="357.5" y="-344.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert</text>
+</a>
+</g>
+</g>
+<!-- proc~create_route_handle&#45;&gt;interface~mapl_assert -->
+<g id="proc~~create_route_handle~~CallsGraph_edge10" class="edge">
+<title>proc~create_route_handle&#45;&gt;interface~mapl_assert</title>
+<path fill="none" stroke="#ff0000" d="M210.06,-359.28C243.91,-356.44 279.89,-353.42 307.71,-351.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="308.28,-354.55 317.96,-350.23 307.7,-347.58 308.28,-354.55"/>
+</g>
+<!-- none~get_logger~3 -->
+<g id="proc~~create_route_handle~~CallsGraph_node12" class="node">
+<title>none~get_logger~3</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node12"><a xlink:href="../type/loggermanager.html#boundprocedure-get_logger~3" xlink:title="LoggerManager%get_logger">
+<polygon fill="#a7506f" stroke="#a7506f" points="439.5,-317 275.5,-317 275.5,-293 439.5,-293 439.5,-317"/>
+<text text-anchor="middle" x="357.5" y="-302.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LoggerManager%get_logger</text>
+</a>
+</g>
+</g>
+<!-- proc~create_route_handle&#45;&gt;none~get_logger~3 -->
+<g id="proc~~create_route_handle~~CallsGraph_edge11" class="edge">
+<title>proc~create_route_handle&#45;&gt;none~get_logger~3</title>
+<path fill="none" stroke="#ff0000" d="M142.27,-355.99C170.37,-346.96 210.38,-334.7 246,-326 256.06,-323.54 266.7,-321.2 277.24,-319.03"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="278.18,-322.41 287.3,-317.01 276.8,-315.55 278.18,-322.41"/>
+</g>
+<!-- none~insert~7 -->
+<g id="proc~~create_route_handle~~CallsGraph_node13" class="node">
+<title>none~insert~7</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node13"><a xlink:href="../type/regridderspecroutehandlemap.html#boundprocedure-insert~7" xlink:title="RegridderSpecRouteHandleMap%insert">
+<polygon fill="#a7506f" stroke="#a7506f" points="469,-275 246,-275 246,-251 469,-251 469,-275"/>
+<text text-anchor="middle" x="357.5" y="-260.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderSpecRouteHandleMap%insert</text>
+</a>
+</g>
+</g>
+<!-- proc~create_route_handle&#45;&gt;none~insert~7 -->
+<g id="proc~~create_route_handle~~CallsGraph_edge12" class="edge">
+<title>proc~create_route_handle&#45;&gt;none~insert~7</title>
+<path fill="none" stroke="#ff0000" d="M121.84,-355.91C146.82,-337.46 197.53,-302.47 246,-284 252.25,-281.62 258.81,-279.5 265.48,-277.61"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="266.54,-280.95 275.31,-275.01 264.75,-274.18 266.54,-280.95"/>
+</g>
+<!-- proc~generate_rh_name -->
+<g id="proc~~create_route_handle~~CallsGraph_node14" class="node">
+<title>proc~generate_rh_name</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node14"><a xlink:href="../proc/generate_rh_name.html" xlink:title="generate_rh_name">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="414.5,-195 300.5,-195 300.5,-171 414.5,-171 414.5,-195"/>
+<text text-anchor="middle" x="357.5" y="-180.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">generate_rh_name</text>
+</a>
+</g>
+</g>
+<!-- proc~create_route_handle&#45;&gt;proc~generate_rh_name -->
+<g id="proc~~create_route_handle~~CallsGraph_edge13" class="edge">
+<title>proc~create_route_handle&#45;&gt;proc~generate_rh_name</title>
+<path fill="none" stroke="#ff0000" d="M113.02,-355.76C130.95,-325.64 181.64,-247.57 246,-209 259.38,-200.98 275.05,-195.43 290.32,-191.6"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="291.3,-194.96 300.26,-189.32 289.73,-188.14 291.3,-194.96"/>
+</g>
+<!-- proc~get_spec -->
+<g id="proc~~create_route_handle~~CallsGraph_node15" class="node">
+<title>proc~get_spec</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node15"><a xlink:href="../proc/get_spec.html" xlink:title="AbstractRegridder%get_spec">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="440.5,-73 274.5,-73 274.5,-49 440.5,-49 440.5,-73"/>
+<text text-anchor="middle" x="357.5" y="-58.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">AbstractRegridder%get_spec</text>
+</a>
+</g>
+</g>
+<!-- proc~create_route_handle&#45;&gt;proc~get_spec -->
+<g id="proc~~create_route_handle~~CallsGraph_edge14" class="edge">
+<title>proc~create_route_handle&#45;&gt;proc~get_spec</title>
+<path fill="none" stroke="#ff0000" d="M108,-355.8C116.03,-311.1 150.18,-155.1 246,-82 251.76,-77.6 258.18,-74.04 264.94,-71.16"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="266.2,-74.43 274.34,-67.64 263.74,-67.87 266.2,-74.43"/>
+</g>
+<!-- proc~info -->
+<g id="proc~~create_route_handle~~CallsGraph_node16" class="node">
+<title>proc~info</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node16"><a xlink:href="../proc/info.html" xlink:title="Logger%info">
+<polygon fill="#d9534f" stroke="#d9534f" points="397.5,-31 317.5,-31 317.5,-7 397.5,-7 397.5,-31"/>
+<text text-anchor="middle" x="357.5" y="-16.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Logger%info</text>
+</a>
+</g>
+</g>
+<!-- proc~create_route_handle&#45;&gt;proc~info -->
+<g id="proc~~create_route_handle~~CallsGraph_edge15" class="edge">
+<title>proc~create_route_handle&#45;&gt;proc~info</title>
+<path fill="none" stroke="#ff0000" d="M107.19,-355.76C112.64,-307.08 139.64,-125.59 246,-40 263.13,-26.22 286.56,-20.5 307.44,-18.41"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="307.74,-21.9 317.45,-17.66 307.21,-14.92 307.74,-21.9"/>
+</g>
+<!-- proc~mapl_gridhasde -->
+<g id="proc~~create_route_handle~~CallsGraph_node17" class="node">
+<title>proc~mapl_gridhasde</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node17"><a xlink:href="../proc/mapl_gridhasde.html" xlink:title="MAPL_GridHasDE">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="409.5,-115 305.5,-115 305.5,-91 409.5,-91 409.5,-115"/>
+<text text-anchor="middle" x="357.5" y="-100.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridHasDE</text>
+</a>
+</g>
+</g>
+<!-- proc~create_route_handle&#45;&gt;proc~mapl_gridhasde -->
+<g id="proc~~create_route_handle~~CallsGraph_edge16" class="edge">
+<title>proc~create_route_handle&#45;&gt;proc~mapl_gridhasde</title>
+<path fill="none" stroke="#ff0000" d="M109.38,-355.75C121,-316.07 163.21,-190.13 246,-129 260.25,-118.48 278.11,-112.14 295.29,-108.35"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="296.15,-111.74 305.3,-106.39 294.81,-104.87 296.15,-111.74"/>
+</g>
+<!-- proc~mapl_return -->
+<g id="proc~~create_route_handle~~CallsGraph_node18" class="node">
+<title>proc~mapl_return</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node18"><a xlink:href="../proc/mapl_return.html" xlink:title="MAPL_Return">
+<polygon fill="#d9534f" stroke="#d9534f" points="678.5,-234 596.5,-234 596.5,-210 678.5,-210 678.5,-234"/>
+<text text-anchor="middle" x="637.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Return</text>
+</a>
+</g>
+</g>
+<!-- proc~create_route_handle&#45;&gt;proc~mapl_return -->
+<g id="proc~~create_route_handle~~CallsGraph_edge17" class="edge">
+<title>proc~create_route_handle&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff0000" d="M114.79,-355.74C134.62,-329.21 185.86,-266.86 246,-242 360.14,-194.82 509.29,-204.6 586.02,-214.21"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="585.99,-217.73 596.36,-215.56 586.9,-210.79 585.99,-217.73"/>
+</g>
+<!-- proc~mapl_verify -->
+<g id="proc~~create_route_handle~~CallsGraph_node19" class="node">
+<title>proc~mapl_verify</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node19"><a xlink:href="../proc/mapl_verify.html" xlink:title="MAPL_Verify">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="675.5,-150 599.5,-150 599.5,-126 675.5,-126 675.5,-150"/>
+<text text-anchor="middle" x="637.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Verify</text>
+</a>
+</g>
+</g>
+<!-- proc~create_route_handle&#45;&gt;proc~mapl_verify -->
+<g id="proc~~create_route_handle~~CallsGraph_edge18" class="edge">
+<title>proc~create_route_handle&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff0000" d="M109.93,-355.86C122.61,-318.87 166.34,-207.36 246,-162 303.33,-129.35 498.52,-132.43 589.32,-135.82"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="589.22,-139.32 599.34,-136.21 589.49,-132.32 589.22,-139.32"/>
+</g>
+<!-- proc~mapl_assert_condition -->
+<g id="proc~~create_route_handle~~CallsGraph_node26" class="node">
+<title>proc~mapl_assert_condition</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node26"><a xlink:href="../proc/mapl_assert_condition.html" xlink:title="MAPL_Assert_condition">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="704.5,-402 570.5,-402 570.5,-378 704.5,-378 704.5,-402"/>
+<text text-anchor="middle" x="637.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_condition</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_condition -->
+<g id="proc~~create_route_handle~~CallsGraph_edge19" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_condition</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M397.15,-352.98C439.2,-359.48 507.48,-370.04 560.37,-378.23"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="559.98,-381.71 570.4,-379.78 561.05,-374.79 559.98,-381.71"/>
+</g>
+<!-- proc~mapl_assert_return_code -->
+<g id="proc~~create_route_handle~~CallsGraph_node27" class="node">
+<title>proc~mapl_assert_return_code</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node27"><a xlink:href="../proc/mapl_assert_return_code.html" xlink:title="MAPL_Assert_return_code">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="711.5,-360 563.5,-360 563.5,-336 711.5,-336 711.5,-360"/>
+<text text-anchor="middle" x="637.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_Assert_return_code</text>
+</a>
+</g>
+</g>
+<!-- interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code -->
+<g id="proc~~create_route_handle~~CallsGraph_edge20" class="edge">
+<title>interface~mapl_assert&#45;&gt;proc~mapl_assert_return_code</title>
+<path fill="none" stroke="#00ffff" stroke-dasharray="5,2" d="M397.15,-347.14C437.3,-347.28 501.35,-347.51 553.09,-347.7"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="553.25,-351.2 563.27,-347.74 553.28,-344.2 553.25,-351.2"/>
+</g>
+<!-- proc~get_logger_root -->
+<g id="proc~~create_route_handle~~CallsGraph_node24" class="node">
+<title>proc~get_logger_root</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node24"><a xlink:href="../proc/get_logger_root.html" xlink:title="LoggerManager%get_logger_root">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="732.5,-318 542.5,-318 542.5,-294 732.5,-294 732.5,-318"/>
+<text text-anchor="middle" x="637.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">LoggerManager%get_logger_root</text>
+</a>
+</g>
+</g>
+<!-- none~get_logger~3&#45;&gt;proc~get_logger_root -->
+<g id="proc~~create_route_handle~~CallsGraph_edge21" class="edge">
+<title>none~get_logger~3&#45;&gt;proc~get_logger_root</title>
+<path fill="none" stroke="#00a9ff" stroke-dasharray="5,2" d="M439.66,-305.29C468.45,-305.4 501.28,-305.51 531.77,-305.62"/>
+<polygon fill="#00a9ff" stroke="#00a9ff" points="531.99,-309.12 542.01,-305.66 532.02,-302.12 531.99,-309.12"/>
+</g>
+<!-- proc~m_insert_pair -->
+<g id="proc~~create_route_handle~~CallsGraph_node25" class="node">
+<title>proc~m_insert_pair</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node25"><a xlink:href="../proc/m_insert_pair.html" xlink:title="RegridderSpecRouteHandleMap%m_insert_pair">
+<polygon fill="#d9534f" stroke="#d9534f" points="770,-276 505,-276 505,-252 770,-252 770,-276"/>
+<text text-anchor="middle" x="637.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">RegridderSpecRouteHandleMap%m_insert_pair</text>
+</a>
+</g>
+</g>
+<!-- none~insert~7&#45;&gt;proc~m_insert_pair -->
+<g id="proc~~create_route_handle~~CallsGraph_edge22" class="edge">
+<title>none~insert~7&#45;&gt;proc~m_insert_pair</title>
+<path fill="none" stroke="#0054ff" stroke-dasharray="5,2" d="M469.17,-263.4C477.55,-263.43 486.08,-263.46 494.61,-263.49"/>
+<polygon fill="#0054ff" stroke="#0054ff" points="494.62,-266.99 504.63,-263.53 494.65,-259.99 494.62,-266.99"/>
+</g>
+<!-- proc~generate_rh_name&#45;&gt;proc~mapl_return -->
+<g id="proc~~create_route_handle~~CallsGraph_edge24" class="edge">
+<title>proc~generate_rh_name&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#0000ff" d="M414.76,-190.89C464.97,-197.94 537.83,-208.16 586.16,-214.94"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="585.69,-218.41 596.08,-216.33 586.66,-211.47 585.69,-218.41"/>
+</g>
+<!-- proc~generate_rh_name&#45;&gt;proc~mapl_verify -->
+<g id="proc~~create_route_handle~~CallsGraph_edge25" class="edge">
+<title>proc~generate_rh_name&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#0000ff" d="M414.84,-173.72C442.07,-169.24 475.23,-163.82 505,-159 532.98,-154.47 564.32,-149.47 589.39,-145.48"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="590.04,-148.92 599.37,-143.89 588.94,-142 590.04,-148.92"/>
+</g>
+<!-- proc~mapl_gridget -->
+<g id="proc~~create_route_handle~~CallsGraph_node28" class="node">
+<title>proc~mapl_gridget</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node28"><a xlink:href="../proc/mapl_gridget.html" xlink:title="MAPL_GridGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="681.5,-192 593.5,-192 593.5,-168 681.5,-168 681.5,-192"/>
+<text text-anchor="middle" x="637.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~generate_rh_name&#45;&gt;proc~mapl_gridget -->
+<g id="proc~~create_route_handle~~CallsGraph_edge23" class="edge">
+<title>proc~generate_rh_name&#45;&gt;proc~mapl_gridget</title>
+<path fill="none" stroke="#0000ff" d="M414.76,-182.39C463.83,-181.86 534.54,-181.1 582.83,-180.58"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="583.12,-184.08 593.08,-180.47 583.04,-177.08 583.12,-184.08"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_return -->
+<g id="proc~~create_route_handle~~CallsGraph_edge29" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_return</title>
+<path fill="none" stroke="#ff00ff" d="M387.31,-115.13C410.58,-125.68 443.53,-142.32 469,-162 487.67,-176.42 484.21,-189.86 505,-201 529.72,-214.24 560.53,-219.65 586.12,-221.68"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="586.16,-225.19 596.36,-222.33 586.61,-218.2 586.16,-225.19"/>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;proc~mapl_verify -->
+<g id="proc~~create_route_handle~~CallsGraph_edge30" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;proc~mapl_verify</title>
+<path fill="none" stroke="#ff00ff" d="M409.81,-109.46C461.08,-115.91 539.24,-125.75 589.08,-132.03"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="588.91,-135.54 599.27,-133.31 589.79,-128.59 588.91,-135.54"/>
+</g>
+<!-- ESMF_DELayoutGet -->
+<g id="proc~~create_route_handle~~CallsGraph_node20" class="node">
+<title>ESMF_DELayoutGet</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node20"><a xlink:href="https://mathomp4.github.io/esmf/proc/esmf_delayoutget.html" xlink:title="ESMF_DELayoutGet">
+<polygon fill="#d9534f" stroke="#d9534f" points="695.5,-108 579.5,-108 579.5,-84 695.5,-84 695.5,-108"/>
+<text text-anchor="middle" x="637.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DELayoutGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet -->
+<g id="proc~~create_route_handle~~CallsGraph_edge26" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_DELayoutGet</title>
+<path fill="none" stroke="#ff00ff" d="M409.81,-101.71C454.63,-100.58 520.01,-98.93 569.05,-97.7"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="569.35,-101.19 579.26,-97.44 569.17,-94.19 569.35,-101.19"/>
+</g>
+<!-- ESMF_DistGridGet -->
+<g id="proc~~create_route_handle~~CallsGraph_node21" class="node">
+<title>ESMF_DistGridGet</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node21"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_distgridget.html" xlink:title="ESMF_DistGridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="691.5,-66 583.5,-66 583.5,-42 691.5,-42 691.5,-66"/>
+<text text-anchor="middle" x="637.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_DistGridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet -->
+<g id="proc~~create_route_handle~~CallsGraph_edge27" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_DistGridGet</title>
+<path fill="none" stroke="#ff00ff" d="M409.67,-93.32C428.35,-89.78 449.63,-85.72 469,-82 485.01,-78.92 488.95,-77.84 505,-75 527.21,-71.07 551.58,-67.08 573.25,-63.66"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="573.99,-67.09 583.33,-62.07 572.9,-60.17 573.99,-67.09"/>
+</g>
+<!-- ESMF_GridGet -->
+<g id="proc~~create_route_handle~~CallsGraph_node22" class="node">
+<title>ESMF_GridGet</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node22"><a xlink:href="https://mathomp4.github.io/esmf/interface/esmf_gridget.html" xlink:title="ESMF_GridGet">
+<polygon fill="#a7506f" stroke="#a7506f" points="681.5,-24 593.5,-24 593.5,0 681.5,0 681.5,-24"/>
+<text text-anchor="middle" x="637.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ESMF_GridGet</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_gridhasde&#45;&gt;ESMF_GridGet -->
+<g id="proc~~create_route_handle~~CallsGraph_edge28" class="edge">
+<title>proc~mapl_gridhasde&#45;&gt;ESMF_GridGet</title>
+<path fill="none" stroke="#ff00ff" d="M409.54,-101.23C429.33,-98.59 451.41,-93.09 469,-82 491.86,-67.59 481.93,-47.07 505,-33 528.24,-18.82 557.93,-13.24 583.22,-11.35"/>
+<polygon fill="#ff00ff" stroke="#ff00ff" points="583.61,-14.84 593.39,-10.77 583.2,-7.85 583.61,-14.84"/>
+</g>
+<!-- proc~get_error_message -->
+<g id="proc~~create_route_handle~~CallsGraph_node23" class="node">
+<title>proc~get_error_message</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node23"><a xlink:href="../proc/get_error_message.html" xlink:title="get_error_message">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="930,-234 815,-234 815,-210 930,-210 930,-234"/>
+<text text-anchor="middle" x="872.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_error_message</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~get_error_message -->
+<g id="proc~~create_route_handle~~CallsGraph_edge31" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~get_error_message</title>
+<path fill="none" stroke="#ff00aa" d="M678.55,-222C713.22,-222 764.05,-222 804.84,-222"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="804.98,-225.5 814.98,-222 804.98,-218.5 804.98,-225.5"/>
+</g>
+<!-- proc~mapl_throw_exception -->
+<g id="proc~~create_route_handle~~CallsGraph_node29" class="node">
+<title>proc~mapl_throw_exception</title>
+<g id="a_proc~~create_route_handle~~CallsGraph_node29"><a xlink:href="../proc/mapl_throw_exception.html" xlink:title="MAPL_throw_exception">
+<polygon fill="#d9534f" stroke="#d9534f" points="939,-171 806,-171 806,-147 939,-147 939,-171"/>
+<text text-anchor="middle" x="872.5" y="-156.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">MAPL_throw_exception</text>
+</a>
+</g>
+</g>
+<!-- proc~mapl_return&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~create_route_handle~~CallsGraph_edge32" class="edge">
+<title>proc~mapl_return&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff00aa" d="M678.73,-218.05C705.04,-214.86 739.96,-209.49 770,-201 793.24,-194.44 818.31,-184.09 837.73,-175.31"/>
+<polygon fill="#ff00aa" stroke="#ff00aa" points="839.43,-178.38 847.05,-171.02 836.5,-172.02 839.43,-178.38"/>
+</g>
+<!-- proc~mapl_verify&#45;&gt;proc~mapl_throw_exception -->
+<g id="proc~~create_route_handle~~CallsGraph_edge33" class="edge">
+<title>proc~mapl_verify&#45;&gt;proc~mapl_throw_exception</title>
+<path fill="none" stroke="#ff0055" d="M675.68,-141.35C707.89,-144.25 755.52,-148.55 795.74,-152.17"/>
+<polygon fill="#ff0055" stroke="#ff0055" points="795.52,-155.67 805.79,-153.08 796.15,-148.69 795.52,-155.67"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproccreate_route_handleCallsGraph = svgPanZoom('#proccreate_route_handleCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~create_route_handle~~CalledByGraph Pages: 1 -->
+<svg id="proccreate_route_handleCalledByGraph" width="641pt" height="326pt"
+ viewBox="0.00 0.00 641.00 325.78" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~create_route_handle~~CalledByGraph" class="graph" transform="scale(0.66 0.66) rotate(0) translate(4 490)">
+<title>proc~~create_route_handle~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-490 968,-490 968,4 -4,4"/>
+<!-- proc~create_route_handle -->
+<g id="proc~~create_route_handle~~CalledByGraph_node1" class="node">
+<title>proc~create_route_handle</title>
+<polygon fill="none" stroke="black" points="964,-276 754,-276 754,-252 964,-252 964,-276"/>
+<text text-anchor="middle" x="859" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50">EsmfRegridder%create_route_handle</text>
+</g>
+<!-- proc~initialize_subclass~5 -->
+<g id="proc~~create_route_handle~~CalledByGraph_node2" class="node">
+<title>proc~initialize_subclass~5</title>
+<g id="a_proc~~create_route_handle~~CalledByGraph_node2"><a xlink:href="../proc/initialize_subclass~5.html" xlink:title="EsmfRegridder%initialize_subclass">
+<polygon fill="#d9534f" stroke="#d9534f" points="712,-297 516,-297 516,-273 712,-273 712,-297"/>
+<text text-anchor="middle" x="614" y="-282.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">EsmfRegridder%initialize_subclass</text>
+</a>
+</g>
+</g>
+<!-- proc~initialize_subclass~5&#45;&gt;proc~create_route_handle -->
+<g id="proc~~create_route_handle~~CalledByGraph_edge1" class="edge">
+<title>proc~initialize_subclass~5&#45;&gt;proc~create_route_handle</title>
+<path fill="none" stroke="#ff0000" d="M712.09,-276.61C722.51,-275.71 733.18,-274.79 743.77,-273.87"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="744.23,-277.34 753.89,-273 743.63,-270.37 744.23,-277.34"/>
+</g>
+<!-- proc~select_route_handle -->
+<g id="proc~~create_route_handle~~CalledByGraph_node3" class="node">
+<title>proc~select_route_handle</title>
+<g id="a_proc~~create_route_handle~~CalledByGraph_node3"><a xlink:href="../proc/select_route_handle.html" xlink:title="EsmfRegridder%select_route_handle">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="718,-255 510,-255 510,-231 718,-231 718,-255"/>
+<text text-anchor="middle" x="614" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">EsmfRegridder%select_route_handle</text>
+</a>
+</g>
+</g>
+<!-- proc~select_route_handle&#45;&gt;proc~create_route_handle -->
+<g id="proc~~create_route_handle~~CalledByGraph_edge2" class="edge">
+<title>proc~select_route_handle&#45;&gt;proc~create_route_handle</title>
+<path fill="none" stroke="#ff0000" d="M718.05,-251.91C726.51,-252.64 735.1,-253.38 743.63,-254.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="743.36,-257.61 753.62,-254.98 743.96,-250.63 743.36,-257.61"/>
+</g>
+<!-- proc~do_regrid -->
+<g id="proc~~create_route_handle~~CalledByGraph_node4" class="node">
+<title>proc~do_regrid</title>
+<g id="a_proc~~create_route_handle~~CalledByGraph_node4"><a xlink:href="../proc/do_regrid.html" xlink:title="EsmfRegridder%do_regrid">
+<polygon fill="#d9534f" stroke="#d9534f" points="474,-255 323,-255 323,-231 474,-231 474,-255"/>
+<text text-anchor="middle" x="398.5" y="-240.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">EsmfRegridder%do_regrid</text>
+</a>
+</g>
+</g>
+<!-- proc~do_regrid&#45;&gt;proc~select_route_handle -->
+<g id="proc~~create_route_handle~~CalledByGraph_edge3" class="edge">
+<title>proc~do_regrid&#45;&gt;proc~select_route_handle</title>
+<path fill="none" stroke="#00ffff" d="M474.17,-243C482.47,-243 491.05,-243 499.69,-243"/>
+<polygon fill="#00ffff" stroke="#00ffff" points="499.85,-246.5 509.85,-243 499.85,-239.5 499.85,-246.5"/>
+</g>
+<!-- proc~regrid_scalar_2d_real32~4 -->
+<g id="proc~~create_route_handle~~CalledByGraph_node5" class="node">
+<title>proc~regrid_scalar_2d_real32~4</title>
+<g id="a_proc~~create_route_handle~~CalledByGraph_node5"><a xlink:href="../proc/regrid_scalar_2d_real32~4.html" xlink:title="EsmfRegridder%regrid_scalar_2d_real32">
+<polygon fill="#d9534f" stroke="#d9534f" points="257.5,-486 29.5,-486 29.5,-462 257.5,-462 257.5,-486"/>
+<text text-anchor="middle" x="143.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">EsmfRegridder%regrid_scalar_2d_real32</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_scalar_2d_real32~4&#45;&gt;proc~do_regrid -->
+<g id="proc~~create_route_handle~~CalledByGraph_edge4" class="edge">
+<title>proc~regrid_scalar_2d_real32~4&#45;&gt;proc~do_regrid</title>
+<path fill="none" stroke="#ff0000" d="M257.71,-467.61C268.15,-464.05 278.12,-459.29 287,-453 352.7,-406.46 382.49,-308.59 392.9,-264.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="396.35,-265.53 395.15,-255 389.52,-263.98 396.35,-265.53"/>
+</g>
+<!-- proc~regrid_scalar_2d_real64~2 -->
+<g id="proc~~create_route_handle~~CalledByGraph_node6" class="node">
+<title>proc~regrid_scalar_2d_real64~2</title>
+<g id="a_proc~~create_route_handle~~CalledByGraph_node6"><a xlink:href="../proc/regrid_scalar_2d_real64~2.html" xlink:title="EsmfRegridder%regrid_scalar_2d_real64">
+<polygon fill="#d9534f" stroke="#d9534f" points="257.5,-444 29.5,-444 29.5,-420 257.5,-420 257.5,-444"/>
+<text text-anchor="middle" x="143.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">EsmfRegridder%regrid_scalar_2d_real64</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_scalar_2d_real64~2&#45;&gt;proc~do_regrid -->
+<g id="proc~~create_route_handle~~CalledByGraph_edge5" class="edge">
+<title>proc~regrid_scalar_2d_real64~2&#45;&gt;proc~do_regrid</title>
+<path fill="none" stroke="#ff0000" d="M257.82,-424.47C268.13,-421.11 278.04,-416.71 287,-411 342.19,-375.81 375.81,-302.05 389.85,-265.09"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="393.29,-265.89 393.44,-255.3 386.71,-263.48 393.29,-265.89"/>
+</g>
+<!-- proc~regrid_scalar_3d_real32~4 -->
+<g id="proc~~create_route_handle~~CalledByGraph_node7" class="node">
+<title>proc~regrid_scalar_3d_real32~4</title>
+<g id="a_proc~~create_route_handle~~CalledByGraph_node7"><a xlink:href="../proc/regrid_scalar_3d_real32~4.html" xlink:title="EsmfRegridder%regrid_scalar_3d_real32">
+<polygon fill="#d9534f" stroke="#d9534f" points="257.5,-402 29.5,-402 29.5,-378 257.5,-378 257.5,-402"/>
+<text text-anchor="middle" x="143.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">EsmfRegridder%regrid_scalar_3d_real32</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_scalar_3d_real32~4&#45;&gt;proc~do_regrid -->
+<g id="proc~~create_route_handle~~CalledByGraph_edge6" class="edge">
+<title>proc~regrid_scalar_3d_real32~4&#45;&gt;proc~do_regrid</title>
+<path fill="none" stroke="#ff0000" d="M257.78,-380.93C267.98,-377.87 277.89,-373.96 287,-369 332.46,-344.25 368.1,-293.06 385.61,-264.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="388.79,-265.62 390.85,-255.23 382.76,-262.07 388.79,-265.62"/>
+</g>
+<!-- proc~regrid_scalar_3d_real64~2 -->
+<g id="proc~~create_route_handle~~CalledByGraph_node8" class="node">
+<title>proc~regrid_scalar_3d_real64~2</title>
+<g id="a_proc~~create_route_handle~~CalledByGraph_node8"><a xlink:href="../proc/regrid_scalar_3d_real64~2.html" xlink:title="EsmfRegridder%regrid_scalar_3d_real64">
+<polygon fill="#d9534f" stroke="#d9534f" points="257.5,-360 29.5,-360 29.5,-336 257.5,-336 257.5,-360"/>
+<text text-anchor="middle" x="143.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">EsmfRegridder%regrid_scalar_3d_real64</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_scalar_3d_real64~2&#45;&gt;proc~do_regrid -->
+<g id="proc~~create_route_handle~~CalledByGraph_edge7" class="edge">
+<title>proc~regrid_scalar_3d_real64~2&#45;&gt;proc~do_regrid</title>
+<path fill="none" stroke="#ff0000" d="M257.58,-336.76C267.72,-334.14 277.66,-330.93 287,-327 323.24,-311.76 358.17,-281.82 378.74,-262.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="381.19,-264.61 385.89,-255.12 376.3,-259.61 381.19,-264.61"/>
+</g>
+<!-- proc~regrid_vector_2d_real32~4 -->
+<g id="proc~~create_route_handle~~CalledByGraph_node9" class="node">
+<title>proc~regrid_vector_2d_real32~4</title>
+<g id="a_proc~~create_route_handle~~CalledByGraph_node9"><a xlink:href="../proc/regrid_vector_2d_real32~4.html" xlink:title="EsmfRegridder%regrid_vector_2d_real32">
+<polygon fill="#d9534f" stroke="#d9534f" points="258,-318 29,-318 29,-294 258,-294 258,-318"/>
+<text text-anchor="middle" x="143.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">EsmfRegridder%regrid_vector_2d_real32</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_vector_2d_real32~4&#45;&gt;proc~do_regrid -->
+<g id="proc~~create_route_handle~~CalledByGraph_edge8" class="edge">
+<title>proc~regrid_vector_2d_real32~4&#45;&gt;proc~do_regrid</title>
+<path fill="none" stroke="#ff0000" d="M245.1,-293.97C259.26,-291.47 273.57,-288.5 287,-285 312.49,-278.36 340.19,-267.82 361.49,-258.96"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="362.94,-262.15 370.79,-255.03 360.21,-255.7 362.94,-262.15"/>
+</g>
+<!-- proc~regrid_vector_2d_real64~3 -->
+<g id="proc~~create_route_handle~~CalledByGraph_node10" class="node">
+<title>proc~regrid_vector_2d_real64~3</title>
+<g id="a_proc~~create_route_handle~~CalledByGraph_node10"><a xlink:href="../proc/regrid_vector_2d_real64~3.html" xlink:title="EsmfRegridder%regrid_vector_2d_real64">
+<polygon fill="#d9534f" stroke="#d9534f" points="258,-276 29,-276 29,-252 258,-252 258,-276"/>
+<text text-anchor="middle" x="143.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">EsmfRegridder%regrid_vector_2d_real64</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_vector_2d_real64~3&#45;&gt;proc~do_regrid -->
+<g id="proc~~create_route_handle~~CalledByGraph_edge9" class="edge">
+<title>proc~regrid_vector_2d_real64~3&#45;&gt;proc~do_regrid</title>
+<path fill="none" stroke="#ff0000" d="M258.05,-254.57C276.39,-253.05 295.09,-251.5 312.6,-250.05"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="313.08,-253.52 322.76,-249.2 312.51,-246.54 313.08,-253.52"/>
+</g>
+<!-- proc~regrid_vector_3d_real32~4 -->
+<g id="proc~~create_route_handle~~CalledByGraph_node11" class="node">
+<title>proc~regrid_vector_3d_real32~4</title>
+<g id="a_proc~~create_route_handle~~CalledByGraph_node11"><a xlink:href="../proc/regrid_vector_3d_real32~4.html" xlink:title="EsmfRegridder%regrid_vector_3d_real32">
+<polygon fill="#d9534f" stroke="#d9534f" points="258,-234 29,-234 29,-210 258,-210 258,-234"/>
+<text text-anchor="middle" x="143.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">EsmfRegridder%regrid_vector_3d_real32</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_vector_3d_real32~4&#45;&gt;proc~do_regrid -->
+<g id="proc~~create_route_handle~~CalledByGraph_edge10" class="edge">
+<title>proc~regrid_vector_3d_real32~4&#45;&gt;proc~do_regrid</title>
+<path fill="none" stroke="#ff0000" d="M258.05,-231.43C276.39,-232.95 295.09,-234.5 312.6,-235.95"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="312.51,-239.46 322.76,-236.8 313.08,-232.48 312.51,-239.46"/>
+</g>
+<!-- proc~regrid_vector_3d_real64~3 -->
+<g id="proc~~create_route_handle~~CalledByGraph_node12" class="node">
+<title>proc~regrid_vector_3d_real64~3</title>
+<g id="a_proc~~create_route_handle~~CalledByGraph_node12"><a xlink:href="../proc/regrid_vector_3d_real64~3.html" xlink:title="EsmfRegridder%regrid_vector_3d_real64">
+<polygon fill="#d9534f" stroke="#d9534f" points="258,-192 29,-192 29,-168 258,-168 258,-192"/>
+<text text-anchor="middle" x="143.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">EsmfRegridder%regrid_vector_3d_real64</text>
+</a>
+</g>
+</g>
+<!-- proc~regrid_vector_3d_real64~3&#45;&gt;proc~do_regrid -->
+<g id="proc~~create_route_handle~~CalledByGraph_edge11" class="edge">
+<title>proc~regrid_vector_3d_real64~3&#45;&gt;proc~do_regrid</title>
+<path fill="none" stroke="#ff0000" d="M245.1,-192.03C259.26,-194.53 273.57,-197.5 287,-201 312.49,-207.64 340.19,-218.18 361.49,-227.04"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="360.21,-230.3 370.79,-230.97 362.94,-223.85 360.21,-230.3"/>
+</g>
+<!-- proc~transpose_regrid_scalar_2d_real32~2 -->
+<g id="proc~~create_route_handle~~CalledByGraph_node13" class="node">
+<title>proc~transpose_regrid_scalar_2d_real32~2</title>
+<g id="a_proc~~create_route_handle~~CalledByGraph_node13"><a xlink:href="../proc/transpose_regrid_scalar_2d_real32~2.html" xlink:title="EsmfRegridder%transpose_regrid_scalar_2d_real32">
+<polygon fill="#d9534f" stroke="#d9534f" points="286.5,-150 0.5,-150 0.5,-126 286.5,-126 286.5,-150"/>
+<text text-anchor="middle" x="143.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">EsmfRegridder%transpose_regrid_scalar_2d_real32</text>
+</a>
+</g>
+</g>
+<!-- proc~transpose_regrid_scalar_2d_real32~2&#45;&gt;proc~do_regrid -->
+<g id="proc~~create_route_handle~~CalledByGraph_edge12" class="edge">
+<title>proc~transpose_regrid_scalar_2d_real32~2&#45;&gt;proc~do_regrid</title>
+<path fill="none" stroke="#ff0000" d="M260.58,-150.04C269.68,-152.5 278.59,-155.46 287,-159 323.24,-174.24 358.17,-204.18 378.74,-223.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="376.3,-226.39 385.89,-230.88 381.19,-221.39 376.3,-226.39"/>
+</g>
+<!-- proc~transpose_regrid_scalar_3d_real32~2 -->
+<g id="proc~~create_route_handle~~CalledByGraph_node14" class="node">
+<title>proc~transpose_regrid_scalar_3d_real32~2</title>
+<g id="a_proc~~create_route_handle~~CalledByGraph_node14"><a xlink:href="../proc/transpose_regrid_scalar_3d_real32~2.html" xlink:title="EsmfRegridder%transpose_regrid_scalar_3d_real32">
+<polygon fill="#d9534f" stroke="#d9534f" points="286.5,-108 0.5,-108 0.5,-84 286.5,-84 286.5,-108"/>
+<text text-anchor="middle" x="143.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">EsmfRegridder%transpose_regrid_scalar_3d_real32</text>
+</a>
+</g>
+</g>
+<!-- proc~transpose_regrid_scalar_3d_real32~2&#45;&gt;proc~do_regrid -->
+<g id="proc~~create_route_handle~~CalledByGraph_edge13" class="edge">
+<title>proc~transpose_regrid_scalar_3d_real32~2&#45;&gt;proc~do_regrid</title>
+<path fill="none" stroke="#ff0000" d="M266.9,-108.07C273.88,-110.58 280.63,-113.53 287,-117 332.46,-141.75 368.1,-192.94 385.61,-221.88"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="382.76,-223.93 390.85,-230.77 388.79,-220.38 382.76,-223.93"/>
+</g>
+<!-- proc~transpose_regrid_vector_2d_real32~2 -->
+<g id="proc~~create_route_handle~~CalledByGraph_node15" class="node">
+<title>proc~transpose_regrid_vector_2d_real32~2</title>
+<g id="a_proc~~create_route_handle~~CalledByGraph_node15"><a xlink:href="../proc/transpose_regrid_vector_2d_real32~2.html" xlink:title="EsmfRegridder%transpose_regrid_vector_2d_real32">
+<polygon fill="#d9534f" stroke="#d9534f" points="287,-66 0,-66 0,-42 287,-42 287,-66"/>
+<text text-anchor="middle" x="143.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">EsmfRegridder%transpose_regrid_vector_2d_real32</text>
+</a>
+</g>
+</g>
+<!-- proc~transpose_regrid_vector_2d_real32~2&#45;&gt;proc~do_regrid -->
+<g id="proc~~create_route_handle~~CalledByGraph_edge14" class="edge">
+<title>proc~transpose_regrid_vector_2d_real32~2&#45;&gt;proc~do_regrid</title>
+<path fill="none" stroke="#ff0000" d="M269.96,-66.08C275.9,-68.62 281.62,-71.57 287,-75 342.19,-110.19 375.81,-183.95 389.85,-220.91"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="386.71,-222.52 393.44,-230.7 393.29,-220.11 386.71,-222.52"/>
+</g>
+<!-- proc~transpose_regrid_vector_3d_real32~2 -->
+<g id="proc~~create_route_handle~~CalledByGraph_node16" class="node">
+<title>proc~transpose_regrid_vector_3d_real32~2</title>
+<g id="a_proc~~create_route_handle~~CalledByGraph_node16"><a xlink:href="../proc/transpose_regrid_vector_3d_real32~2.html" xlink:title="EsmfRegridder%transpose_regrid_vector_3d_real32">
+<polygon fill="#d9534f" stroke="#d9534f" points="287,-24 0,-24 0,0 287,0 287,-24"/>
+<text text-anchor="middle" x="143.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">EsmfRegridder%transpose_regrid_vector_3d_real32</text>
+</a>
+</g>
+</g>
+<!-- proc~transpose_regrid_vector_3d_real32~2&#45;&gt;proc~do_regrid -->
+<g id="proc~~create_route_handle~~CalledByGraph_edge15" class="edge">
+<title>proc~transpose_regrid_vector_3d_real32~2&#45;&gt;proc~do_regrid</title>
+<path fill="none" stroke="#ff0000" d="M271.75,-24.1C277.09,-26.65 282.2,-29.6 287,-33 352.7,-79.54 382.49,-177.41 392.9,-221.12"/>
+<polygon fill="#ff0000" stroke="#ff0000" points="389.52,-222.02 395.15,-231 396.35,-220.47 389.52,-222.02"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproccreate_route_handleCalledByGraph = svgPanZoom('#proccreate_route_handleCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ Where possible, edges connecting nodes are
+given different colours to make them easier to distinguish in
+large graphs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="w">   </span><span class="k">subroutine </span><span class="n">create_route_handle</span><span class="p">(</span><span class="n">this</span><span class="p">,</span><span class="w"> </span><span class="nb">kind</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span>
+<span class="w">     </span><span class="k">class</span><span class="w"> </span><span class="p">(</span><span class="n">EsmfRegridder</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">this</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_TypeKind_Flag</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">kind</span>
+<span class="nb">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">optional</span><span class="p">,</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rc</span>
+
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span>
+<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">Iam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;create_route_handle&#39;</span>
+
+<span class="w">     </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">RegridderSpec</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">spec</span>
+<span class="w">     </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src_dummy_r4</span><span class="p">(:,:),</span><span class="w"> </span><span class="n">dst_dummy_r4</span><span class="p">(:,:)</span>
+<span class="w">     </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src_dummy_r8</span><span class="p">(:,:),</span><span class="w"> </span><span class="n">dst_dummy_r8</span><span class="p">(:,:)</span>
+<span class="w">     </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">ESMF_Field</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">src_field</span><span class="p">,</span><span class="w"> </span><span class="n">dst_field</span>
+
+<span class="w">     </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">srcTermProcessing</span><span class="p">,</span><span class="w"> </span><span class="n">num_mask_values</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">factorIndexList</span><span class="p">(:,:)</span>
+<span class="w">     </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dstMaskValues</span><span class="p">(:)</span>
+<span class="w">     </span><span class="kt">real</span><span class="p">(</span><span class="n">ESMF_KIND_R8</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">factorList</span><span class="p">(:)</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_RouteHandle</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dummy_rh</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_UnmappedAction_Flag</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">unmappedaction</span>
+<span class="w">     </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">global</span><span class="p">,</span><span class="w"> </span><span class="n">isPresent</span><span class="p">,</span><span class="w"> </span><span class="n">has_mask</span><span class="p">,</span><span class="w"> </span><span class="n">has_dstMaskValues</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">RegridderSpecRouteHandleMap</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">route_handles</span><span class="p">,</span><span class="w"> </span><span class="n">transpose_route_handles</span>
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">ESMF_RouteHandle</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">route_handle</span><span class="p">,</span><span class="w"> </span><span class="n">transpose_route_handle</span>
+<span class="w">     </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">ESMF_MAXPATHLEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rh_file</span><span class="p">,</span><span class="n">rh_trans_file</span>
+<span class="w">     </span><span class="kt">logical</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rh_file_exists</span><span class="p">,</span><span class="w"> </span><span class="n">file_weights</span><span class="p">,</span><span class="w"> </span><span class="n">compute_transpose</span>
+
+<span class="w">     </span><span class="k">type</span><span class="p">(</span><span class="n">Logger</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">lgr</span>
+<span class="w">     </span><span class="n">lgr</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">logging</span><span class="p">%</span><span class="n">get_logger</span><span class="p">(</span><span class="s1">&#39;MAPL&#39;</span><span class="p">)</span>
+
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">kind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        </span><span class="n">route_handles</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">route_handles_r4</span>
+<span class="w">        </span><span class="n">transpose_route_handles</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">transpose_route_handles_r4</span>
+<span class="w">     </span><span class="k">else if</span><span class="p">(</span><span class="nb">kind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R8</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        </span><span class="n">route_handles</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">route_handles_r8</span>
+<span class="w">        </span><span class="n">transpose_route_handles</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">transpose_route_handles_r8</span>
+<span class="w">     </span><span class="k">else</span>
+<span class="k">        </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;unsupported type kind (must be R4 or R8)&#39;</span><span class="p">)</span>
+<span class="w">     </span><span class="k">end if</span>
+
+<span class="k">     </span><span class="n">unmappedaction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_UNMAPPEDACTION_ERROR</span>
+
+<span class="w">     </span><span class="n">spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this</span><span class="p">%</span><span class="n">get_spec</span><span class="p">()</span>
+
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">route_handles</span><span class="p">%</span><span class="nb">count</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w">  </span><span class="c">! new route_handle</span>
+<span class="w">        </span><span class="n">file_weights</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">IAND</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">hints</span><span class="p">,</span><span class="n">REGRID_HINT_FILE_WEIGHTS</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">        </span><span class="n">compute_transpose</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">IAND</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">hints</span><span class="p">,</span><span class="n">REGRID_HINT_COMPUTE_TRANSPOSE</span><span class="p">)</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">0</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">file_weights</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           </span><span class="n">rh_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">generate_rh_name</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">grid_in</span><span class="p">,</span><span class="n">spec</span><span class="p">%</span><span class="n">grid_out</span><span class="p">,</span><span class="n">spec</span><span class="p">%</span><span class="n">regrid_method</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="n">rh_trans_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;transpose_&quot;</span><span class="o">//</span><span class="n">rh_file</span>
+<span class="w">           </span><span class="k">inquire</span><span class="p">(</span><span class="k">file</span><span class="o">=</span><span class="n">rh_file</span><span class="p">,</span><span class="n">exist</span><span class="o">=</span><span class="n">rh_file_exists</span><span class="p">)</span>
+<span class="w">        </span><span class="k">else</span>
+<span class="k">           </span><span class="n">rh_file_exists</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.</span>
+<span class="w">        </span><span class="k">end if</span>
+<span class="k">        if</span><span class="w"> </span><span class="p">(</span><span class="n">rh_file_exists</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">           call </span><span class="n">lgr</span><span class="p">%</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Reading weight file: %a&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">rh_file</span><span class="p">))</span>
+<span class="w">           </span><span class="n">route_handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_RouteHandleCreate</span><span class="p">(</span><span class="n">rh_file</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">route_handles</span><span class="p">%</span><span class="n">insert</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="n">route_handle</span><span class="p">)</span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">compute_transpose</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              </span><span class="n">transpose_route_handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_RouteHandleCreate</span><span class="p">(</span><span class="n">rh_trans_file</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">transpose_route_handles</span><span class="p">%</span><span class="n">insert</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="n">transpose_route_handle</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end if</span>
+<span class="k">        else</span>
+<span class="k">           </span><span class="n">src_field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">grid_in</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="o">=</span><span class="nb">kind</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="p">&amp;</span><span class="w"> </span><span class="n">indexflag</span><span class="o">=</span><span class="n">ESMF_INDEX_DELOCAL</span><span class="p">,</span><span class="w"> </span><span class="n">staggerloc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CENTER</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_GridHasDE</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">grid_in</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              if</span><span class="w"> </span><span class="p">(</span><span class="nb">kind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                 call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">src_field</span><span class="p">,</span><span class="w"> </span><span class="n">localDe</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">src_dummy_r4</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                 </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                 </span><span class="n">src_dummy_r4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">              </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="nb">kind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R8</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                 call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">src_field</span><span class="p">,</span><span class="w"> </span><span class="n">localDe</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">src_dummy_r8</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                 </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                 </span><span class="n">src_dummy_r8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">              </span><span class="k">end if</span>
+<span class="k">           end if</span>
+
+<span class="k">           </span><span class="n">dst_field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ESMF_FieldCreate</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">grid_out</span><span class="p">,</span><span class="w"> </span><span class="n">typekind</span><span class="o">=</span><span class="nb">kind</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                </span><span class="p">&amp;</span><span class="w"> </span><span class="n">indexflag</span><span class="o">=</span><span class="n">ESMF_INDEX_DELOCAL</span><span class="p">,</span><span class="w"> </span><span class="n">staggerloc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CENTER</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MAPL_GridHasDE</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">grid_out</span><span class="p">))</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              if</span><span class="w"> </span><span class="p">(</span><span class="nb">kind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R4</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                 call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">dst_field</span><span class="p">,</span><span class="w"> </span><span class="n">localDe</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">dst_dummy_r4</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                 </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                 </span><span class="n">dst_dummy_r4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">              </span><span class="k">else if</span><span class="w"> </span><span class="p">(</span><span class="nb">kind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ESMF_TYPEKIND_R8</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                 call </span><span class="n">ESMF_FieldGet</span><span class="p">(</span><span class="n">dst_field</span><span class="p">,</span><span class="w"> </span><span class="n">localDe</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">farrayPtr</span><span class="o">=</span><span class="n">dst_dummy_r8</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                 </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">                 </span><span class="n">dst_dummy_r8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">              </span><span class="k">end if</span>
+<span class="k">           end if</span>
+<span class="k">           call </span><span class="n">ESMF_GridGetItem</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">grid_out</span><span class="p">,</span><span class="n">itemflag</span><span class="o">=</span><span class="n">ESMF_GRIDITEM_MASK</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">           </span><span class="n">staggerloc</span><span class="o">=</span><span class="n">ESMF_STAGGERLOC_CENTER</span><span class="p">,</span><span class="w"> </span><span class="n">isPresent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">has_mask</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">grid_out</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">MAPL_DESTINATIONMASK</span><span class="p">,</span><span class="w"> </span><span class="n">isPresent</span><span class="o">=</span><span class="n">has_dstMaskValues</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">has_dstMaskValues</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              </span><span class="err">_</span><span class="n">ASSERT</span><span class="p">(</span><span class="n">has_mask</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;masking destination values when no masks is present&quot;</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">grid_out</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">MAPL_DESTINATIONMASK</span><span class="p">,</span><span class="w"> </span><span class="n">itemcount</span><span class="o">=</span><span class="n">num_mask_values</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">              </span><span class="k">allocate</span><span class="p">(</span><span class="n">dstMaskValues</span><span class="p">(</span><span class="n">num_mask_values</span><span class="p">),</span><span class="w"> </span><span class="err">_</span><span class="n">STAT</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">grid_out</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="n">MAPL_DESTINATIONMASK</span><span class="p">,</span><span class="w"> </span><span class="n">valuelist</span><span class="o">=</span><span class="n">dstMaskValues</span><span class="p">,</span><span class="w"> </span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end if</span>
+
+<span class="k">           </span><span class="n">counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">counter</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+
+<span class="w">           </span><span class="n">srcTermProcessing</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">           </span><span class="k">call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">grid_in</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Global&#39;</span><span class="p">,</span><span class="n">isPresent</span><span class="o">=</span><span class="n">isPresent</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isPresent</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              call </span><span class="n">ESMF_AttributeGet</span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">grid_in</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Global&#39;</span><span class="p">,</span><span class="k">value</span><span class="o">=</span><span class="n">global</span><span class="p">,</span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">              </span><span class="k">if</span><span class="w"> </span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">global</span><span class="p">)</span><span class="w"> </span><span class="n">unmappedaction</span><span class="o">=</span><span class="n">ESMF_UNMAPPEDACTION_IGNORE</span>
+<span class="w">           </span><span class="k">end if</span>
+<span class="k">           select case</span><span class="w"> </span><span class="p">(</span><span class="n">spec</span><span class="p">%</span><span class="n">regrid_method</span><span class="p">)</span>
+<span class="w">           </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">REGRID_METHOD_BILINEAR</span><span class="p">,</span><span class="w"> </span><span class="n">REGRID_METHOD_BILINEAR_MONOTONIC</span><span class="p">)</span>
+
+<span class="w">              </span><span class="k">call </span><span class="n">ESMF_FieldRegridStore</span><span class="p">(</span><span class="n">src_field</span><span class="p">,</span><span class="w"> </span><span class="n">dst_field</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">regridmethod</span><span class="o">=</span><span class="n">ESMF_REGRIDMETHOD_BILINEAR</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">dstMaskValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dstMaskValues</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">linetype</span><span class="o">=</span><span class="n">ESMF_LINETYPE_GREAT_CIRCLE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"> </span><span class="c">! closer to SJ Lin interpolation weights?</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">srcTermProcessing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">srcTermProcessing</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">factorList</span><span class="o">=</span><span class="n">factorList</span><span class="p">,</span><span class="w"> </span><span class="n">factorIndexList</span><span class="o">=</span><span class="n">factorIndexList</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">routehandle</span><span class="o">=</span><span class="n">route_handle</span><span class="p">,</span><span class="w"> </span><span class="n">unmappedaction</span><span class="o">=</span><span class="n">unmappedaction</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">              </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">REGRID_METHOD_PATCH</span><span class="p">)</span>
+
+<span class="w">              </span><span class="k">call </span><span class="n">ESMF_FieldRegridStore</span><span class="p">(</span><span class="n">src_field</span><span class="p">,</span><span class="w"> </span><span class="n">dst_field</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">regridmethod</span><span class="o">=</span><span class="n">ESMF_REGRIDMETHOD_PATCH</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">dstMaskValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dstMaskValues</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">linetype</span><span class="o">=</span><span class="n">ESMF_LINETYPE_GREAT_CIRCLE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"> </span><span class="c">! closer to SJ Lin interpolation weights?</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">srcTermProcessing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">srcTermProcessing</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">factorList</span><span class="o">=</span><span class="n">factorList</span><span class="p">,</span><span class="w"> </span><span class="n">factorIndexList</span><span class="o">=</span><span class="n">factorIndexList</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">routehandle</span><span class="o">=</span><span class="n">route_handle</span><span class="p">,</span><span class="w"> </span><span class="n">unmappedaction</span><span class="o">=</span><span class="n">unmappedaction</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">              </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">REGRID_METHOD_CONSERVE_2ND</span><span class="p">)</span>
+
+<span class="w">              </span><span class="k">call </span><span class="n">ESMF_FieldRegridStore</span><span class="p">(</span><span class="n">src_field</span><span class="p">,</span><span class="w"> </span><span class="n">dst_field</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">regridmethod</span><span class="o">=</span><span class="n">ESMF_REGRIDMETHOD_CONSERVE_2ND</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">dstMaskValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dstMaskValues</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">linetype</span><span class="o">=</span><span class="n">ESMF_LINETYPE_GREAT_CIRCLE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"> </span><span class="c">! closer to SJ Lin interpolation weights?</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">srcTermProcessing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">srcTermProcessing</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">factorList</span><span class="o">=</span><span class="n">factorList</span><span class="p">,</span><span class="w"> </span><span class="n">factorIndexList</span><span class="o">=</span><span class="n">factorIndexList</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">routehandle</span><span class="o">=</span><span class="n">route_handle</span><span class="p">,</span><span class="w"> </span><span class="n">unmappedaction</span><span class="o">=</span><span class="n">unmappedaction</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">              </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">REGRID_METHOD_CONSERVE</span><span class="p">,</span><span class="w"> </span><span class="n">REGRID_METHOD_CONSERVE_MONOTONIC</span><span class="p">,</span><span class="w"> </span><span class="n">REGRID_METHOD_VOTE</span><span class="p">,</span><span class="w"> </span><span class="n">REGRID_METHOD_FRACTION</span><span class="p">)</span>
+
+<span class="w">              </span><span class="k">call </span><span class="n">ESMF_FieldRegridStore</span><span class="p">(</span><span class="n">src_field</span><span class="p">,</span><span class="w"> </span><span class="n">dst_field</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">regridmethod</span><span class="o">=</span><span class="n">ESMF_REGRIDMETHOD_CONSERVE</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">dstMaskValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dstMaskValues</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">srcTermProcessing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">srcTermProcessing</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">factorList</span><span class="o">=</span><span class="n">factorList</span><span class="p">,</span><span class="w"> </span><span class="n">factorIndexList</span><span class="o">=</span><span class="n">factorIndexList</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">routehandle</span><span class="o">=</span><span class="n">route_handle</span><span class="p">,</span><span class="w"> </span><span class="n">unmappedaction</span><span class="o">=</span><span class="n">unmappedaction</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">              </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">REGRID_METHOD_NEAREST_STOD</span><span class="p">)</span>
+
+<span class="w">              </span><span class="k">call </span><span class="n">ESMF_FieldRegridStore</span><span class="p">(</span><span class="n">src_field</span><span class="p">,</span><span class="w"> </span><span class="n">dst_field</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">regridmethod</span><span class="o">=</span><span class="n">ESMF_REGRIDMETHOD_NEAREST_STOD</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">dstMaskValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dstMaskValues</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">factorList</span><span class="o">=</span><span class="n">factorList</span><span class="p">,</span><span class="w"> </span><span class="n">factorIndexList</span><span class="o">=</span><span class="n">factorIndexList</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                   </span><span class="p">&amp;</span><span class="w"> </span><span class="n">routehandle</span><span class="o">=</span><span class="n">route_handle</span><span class="p">,</span><span class="w"> </span><span class="n">unmappedaction</span><span class="o">=</span><span class="n">unmappedaction</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">              </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="k">case </span><span class="n">default</span>
+<span class="w">              </span><span class="err">_</span><span class="n">FAIL</span><span class="p">(</span><span class="s1">&#39;unknown regrid method&#39;</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end select</span>
+<span class="k">           call </span><span class="n">route_handles</span><span class="p">%</span><span class="n">insert</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="n">route_handle</span><span class="p">)</span>
+
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">compute_transpose</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              call </span><span class="n">ESMF_FieldSMMStore</span><span class="p">(</span><span class="n">src_field</span><span class="p">,</span><span class="n">dst_field</span><span class="p">,</span><span class="n">dummy_rh</span><span class="p">,</span><span class="n">transpose_route_handle</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                  </span><span class="p">&amp;</span><span class="w"> </span><span class="n">factorList</span><span class="p">,</span><span class="n">factorIndexList</span><span class="p">,</span><span class="n">srcTermProcessing</span><span class="o">=</span><span class="n">srcTermProcessing</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                  </span><span class="p">&amp;</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">              </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">              </span><span class="k">call </span><span class="n">transpose_route_handles</span><span class="p">%</span><span class="n">insert</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="n">transpose_route_handle</span><span class="p">)</span>
+<span class="w">           </span><span class="k">end if</span>
+
+<span class="w">           </span><span class="c">! Free resources</span>
+<span class="w">           </span><span class="k">deallocate</span><span class="p">(</span><span class="n">factorList</span><span class="p">,</span><span class="n">factorIndexList</span><span class="p">)</span>
+
+<span class="w">           </span><span class="k">call </span><span class="n">ESMF_FieldDestroy</span><span class="p">(</span><span class="n">src_field</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="k">call </span><span class="n">ESMF_FieldDestroy</span><span class="p">(</span><span class="n">dst_field</span><span class="p">,</span><span class="w"> </span><span class="n">rc</span><span class="o">=</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="err">_</span><span class="n">VERIFY</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">file_weights</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">              call </span><span class="n">lgr</span><span class="p">%</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Writing weight file: %a&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">rh_file</span><span class="p">))</span>
+<span class="w">              </span><span class="k">call </span><span class="n">ESMF_RouteHandleWrite</span><span class="p">(</span><span class="n">route_handle</span><span class="p">,</span><span class="n">rh_file</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">              </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">compute_transpose</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">                 call </span><span class="n">lgr</span><span class="p">%</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Writing transpose weight file: %a&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">trim</span><span class="p">(</span><span class="n">rh_trans_file</span><span class="p">))</span>
+<span class="w">                 </span><span class="k">call </span><span class="n">ESMF_RouteHandleWrite</span><span class="p">(</span><span class="n">transpose_route_handle</span><span class="p">,</span><span class="n">rh_trans_file</span><span class="p">,</span><span class="err">_</span><span class="n">RC</span><span class="p">)</span>
+<span class="w">              </span><span class="k">end if</span>
+<span class="k">           end if</span>
+<span class="k">        end if</span>
+<span class="k">     end if</span>
+
+<span class="k">     </span><span class="err">_</span><span class="n">RETURN</span><span class="p">(</span><span class="err">_</span><span class="n">SUCCESS</span><span class="p">)</span>
+<span class="w">   </span><span class="k">end subroutine </span><span class="n">create_route_handle</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              MAPL
+ was developed by The MAPL Developers<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-05-29T14:32:59.075060+0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>
